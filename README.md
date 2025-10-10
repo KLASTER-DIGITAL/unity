@@ -1,11 +1,32 @@
+# UNITY - Дневник
 
-  # Дневник
+React приложение с Supabase интеграцией для ведения дневника.
 
-  This is a code bundle for Дневник. The original project is available at https://www.figma.com/design/qfMsP3eVs18Hu7JawyFDkh/%D0%94%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA.
+## Запуск приложения
 
-  ## Running the code
+```bash
+npm install
+npm run dev
+```
 
-  Run `npm i` to install the dependencies.
+Приложение откроется на `http://localhost:3000`
 
-  Run `npm run dev` to start the development server.
-  
+## Сборка для продакшена
+
+```bash
+npm run build
+npm run preview
+```
+
+## Деплой
+
+Приложение настроено для деплоя на Netlify с автоматической сборкой из GitHub.
+
+## Технологии
+
+- React 18
+- Vite
+- Supabase
+- TypeScript
+- Tailwind CSS
+- Radix UI
