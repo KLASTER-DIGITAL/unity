@@ -54,3 +54,14 @@ temp/
 
 # Local Netlify folder
 .netlify
+
+# Test screenshots and results
+*_test_result.png
+*_onboarding.png
+*_cabinet_final.png
+*_interface.png
+
+# Temporary files
+temp_*.js
+temp_*.txt
+pass.md
