@@ -1,0 +1,58 @@
+{
+  "name": "Дневник Достижений",
+  "short_name": "Дневник",
+  "description": "Мобильное приложение для фиксации личных достижений и формирования позитивных привычек",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#007AFF",
+  "theme_color": "#007AFF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23007AFF;stop-opacity:1' /><stop offset='100%' style='stop-color:%230051D5;stop-opacity:1' /></linearGradient></defs><rect width='192' height='192' rx='38' fill='url(%23grad)'/><text x='96' y='130' font-size='100' text-anchor='middle'>🏆</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23007AFF;stop-opacity:1' /><stop offset='100%' style='stop-color:%230051D5;stop-opacity:1' /></linearGradient></defs><rect width='192' height='192' rx='38' fill='url(%23grad)'/><text x='96' y='130' font-size='100' text-anchor='middle'>🏆</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23007AFF;stop-opacity:1' /><stop offset='100%' style='stop-color:%230051D5;stop-opacity:1' /></linearGradient></defs><rect width='512' height='512' rx='102' fill='url(%23grad)'/><text x='256' y='350' font-size='280' text-anchor='middle'>🏆</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "health"],
+  "lang": "ru",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Новая запись",
+      "short_name": "Запись",
+      "description": "Создать новую запись достижения",
+      "url": "/?action=new"
+    },
+    {
+      "name": "История",
+      "short_name": "История",
+      "description": "Посмотреть историю записей",
+      "url": "/?view=history"
+    },
+    {
+      "name": "Статистика",
+      "short_name": "Статистика",
+      "description": "Посмотреть статистику достижений",
+      "url": "/?view=achievements"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "splash_pages": null
+}
