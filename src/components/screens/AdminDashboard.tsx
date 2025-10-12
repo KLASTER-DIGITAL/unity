@@ -20,10 +20,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
-import { getAdminStats } from "../../utils/adminApi";
 import { UsersManagementTab } from "./admin/UsersManagementTab";
 import { SubscriptionsTab } from "./admin/SubscriptionsTab";
 import { SettingsTab } from "./admin/SettingsTab";
+import { createClient } from "../../utils/supabase/client";
 
 interface AdminDashboardProps {
   userData?: any;
@@ -79,16 +79,38 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
     try {
       setIsLoadingStats(true);
       
-      // Загружаем реальные данные с сервера
-      const realStats = await getAdminStats();
-      setStats(realStats);
+      // Получаем токен авторизации
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      console.log('Admin stats loaded:', realStats);
+      if (!session?.access_token) {
+        throw new Error('No session');
+      }
+
+      // Загружаем реальные данные с сервера
+      const response = await fetch(
+        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/stats`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to load stats');
+      }
+
+      const data = await response.json();
+      setStats(data.stats);
+      
+      console.log('Admin stats loaded:', data.stats);
     } catch (error) {
       console.error('Error loading stats:', error);
       toast.error('Ошибка загрузки статистики');
       
-      // Fallback к моковым данным при ошибке
+      // Fallback к пустым данным при ошибке
       setStats({
         totalUsers: 0,
         activeUsers: 0,

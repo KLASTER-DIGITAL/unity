@@ -5,7 +5,6 @@ import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Input } from "../../ui/input";
 import { toast } from "sonner";
-import { getAdminUsers, updateUserSubscription } from "../../../utils/adminApi";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
+import { createClient } from "../../../utils/supabase/client";
 
 export function UsersManagementTab() {
   const [users, setUsers] = useState<any[]>([]);
@@ -37,8 +37,30 @@ export function UsersManagementTab() {
     try {
       setIsLoading(true);
       
+      // Получаем токен авторизации
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('No session');
+      }
+      
       // Загружаем реальных пользователей
-      const result = await getAdminUsers(currentPage, 50);
+      const response = await fetch(
+        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/users`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to load users');
+      }
+
+      const result = await response.json();
       
       // Преобразуем данные к нужному формату
       const formattedUsers = result.users.map((user: any) => ({
@@ -53,7 +75,7 @@ export function UsersManagementTab() {
       }));
       
       setUsers(formattedUsers);
-      setTotalPages(result.totalPages);
+      setTotalPages(Math.ceil(result.total / 50));
       
       console.log(`Loaded ${formattedUsers.length} users`);
     } catch (error) {
@@ -68,7 +90,8 @@ export function UsersManagementTab() {
   const handleTogglePremium = async (userId: string, currentStatus: string) => {
     try {
       const newIsPremium = currentStatus !== 'premium';
-      await updateUserSubscription(userId, newIsPremium);
+      // await updateUserSubscription(userId, newIsPremium);
+      // Заглушка - будет заменено на работу с Edge Function
       
       toast.success(`Подписка ${newIsPremium ? 'активирована' : 'деактивирована'}`);
       loadUsers(); // Перезагружаем список

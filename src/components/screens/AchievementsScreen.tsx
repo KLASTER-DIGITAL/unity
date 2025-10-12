@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useTranslations } from "../../utils/i18n";
 import { 
   Trophy, 
   Medal, 
@@ -20,7 +21,9 @@ import {
   Camera
 } from "lucide-react";
 
-export function AchievementsScreen() {
+export function AchievementsScreen({ userData }: { userData?: any }) {
+  // Получаем переводы для языка пользователя
+  const t = useTranslations(userData?.language || 'ru');
   const userStats = {
     totalEntries: 47,
     currentStreak: 7,

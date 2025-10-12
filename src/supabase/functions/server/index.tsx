@@ -826,7 +826,6 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
     const totalUsers = profiles.length;
 
     // Получаем все записи
-    const allEntriesData = await kv.getByPrefix('entries:');
     let totalEntries = 0;
     let activeUsersSet = new Set();
     let newUsersToday = 0;
@@ -847,25 +846,23 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
     }
 
     // Подсчет записей и активных пользователей
-    for (const entriesKey of allEntriesData) {
-      if (Array.isArray(entriesKey)) {
-        const entries = entriesKey;
-        totalEntries += entries.length;
+    for (const profile of profiles) {
+      const userEntriesKey = `user_entries:${profile.id}`;
+      const userEntryIds = await kv.get(userEntriesKey);
+      
+      if (Array.isArray(userEntryIds) && userEntryIds.length > 0) {
+        totalEntries += userEntryIds.length;
+        activeUsersSet.add(profile.id);
         
-        if (entries.length > 0) {
-          // Пользователь с записями = активный
-          const userId = entriesKey[0]?.userId;
-          if (userId) {
-            activeUsersSet.add(userId);
-          }
-
-          // Проверяем записи за сегодня
-          for (const entry of entries) {
+        // Проверяем записи за сегодня
+        for (const entryId of userEntryIds) {
+          const entry = await kv.get(`entry:${entryId}`);
+          if (entry && entry.createdAt) {
             const entryDate = new Date(entry.createdAt);
             entryDate.setHours(0, 0, 0, 0);
             
-            if (entryDate.getTime() === today.getTime() && entry.userId) {
-              activeTodaySet.add(entry.userId);
+            if (entryDate.getTime() === today.getTime()) {
+              activeTodaySet.add(profile.id);
             }
           }
         }
@@ -945,16 +942,19 @@ app.get('/make-server-9729c493/admin/users', async (c) => {
     // Получаем статистику записей для каждого пользователя
     const usersWithStats = await Promise.all(
       profiles.map(async (profile) => {
-        const entries = await kv.get(`entries:${profile.id}`) || [];
-        const entriesCount = Array.isArray(entries) ? entries.length : 0;
+        const userEntriesKey = `user_entries:${profile.id}`;
+        const entryIds = await kv.get(userEntriesKey) || [];
+        const entriesCount = Array.isArray(entryIds) ? entryIds.length : 0;
         
         // Последняя активность
         let lastActivity = null;
-        if (Array.isArray(entries) && entries.length > 0) {
-          const sortedEntries = entries.sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-          lastActivity = sortedEntries[0].createdAt;
+        if (Array.isArray(entryIds) && entryIds.length > 0) {
+          // Получаем последнюю запись по ID
+          const lastEntryId = entryIds[0]; // ID уже отсортированы по дате создания
+          const lastEntry = await kv.get(`entry:${lastEntryId}`);
+          if (lastEntry && lastEntry.createdAt) {
+            lastActivity = lastEntry.createdAt;
+          }
         }
 
         return {

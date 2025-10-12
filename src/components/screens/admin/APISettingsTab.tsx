@@ -27,7 +27,29 @@ export function APISettingsTab({ onSave }: APISettingsTabProps) {
   const loadApiKey = async () => {
     setIsLoading(true);
     try {
-      // Пытаемся загрузить из localStorage
+      // Загружаем из Supabase через make-server-9729c493
+      const response = await fetch(
+        'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings/openai_api_key',
+        {
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.setting?.value) {
+          setApiKey(data.setting.value);
+          setIsKeyValid(true);
+          setLastSaved(new Date(data.setting.updated_at || data.setting.created_at));
+          // Также сохраняем в localStorage для быстрого доступа
+          localStorage.setItem('admin_openai_api_key', data.setting.value);
+          return;
+        }
+      }
+
+      // Fallback: загружаем из localStorage
       const savedKey = localStorage.getItem('admin_openai_api_key');
       const savedTime = localStorage.getItem('admin_openai_api_key_saved_at');
       
@@ -35,15 +57,12 @@ export function APISettingsTab({ onSave }: APISettingsTabProps) {
         setApiKey(savedKey);
         setIsKeyValid(true);
         
-        // Восстанавливаем время сохранения
         if (savedTime) {
           setLastSaved(new Date(savedTime));
         } else {
-          // Если время не сохранено, устанавливаем текущее
           setLastSaved(new Date());
         }
       } else {
-        // Проверяем, есть ли ключ в переменных окружения (fallback)
         setApiKey('');
         setIsKeyValid(null);
         setLastSaved(null);
@@ -75,7 +94,29 @@ export function APISettingsTab({ onSave }: APISettingsTabProps) {
 
     setIsSaving(true);
     try {
-      // Сохраняем в localStorage
+      // Сохраняем в Supabase через make-server-9729c493
+      const response = await fetch(
+        'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
+          },
+          body: JSON.stringify({
+            key: 'openai_api_key',
+            value: apiKey
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to save API key to database');
+      }
+
+      const result = await response.json();
+      
+      // Также сохраняем в localStorage для быстрого доступа
       const now = new Date();
       localStorage.setItem('admin_openai_api_key', apiKey);
       localStorage.setItem('admin_openai_api_key_saved_at', now.toISOString());

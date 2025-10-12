@@ -15,23 +15,38 @@ export interface UserProfile {
   createdAt?: string;
 }
 
+export interface MediaFile {
+  id: string;
+  userId: string;
+  fileName: string;
+  filePath: string;
+  fileType: string;
+  fileSize: number;
+  createdAt: string;
+  url?: string;
+  path?: string;
+  type?: string;
+  mimeType?: string;
+}
+
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: any;
   headers?: Record<string, string>;
+  requireOpenAI?: boolean; // Флаг для указания необходимости OpenAI ключа
 }
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
-  const { method = 'GET', body, headers = {} } = options;
+  const { method = 'GET', body, headers = {}, requireOpenAI = false } = options;
   
-  // Получаем OpenAI API ключ из localStorage (если есть)
-  const openaiApiKey = localStorage.getItem('admin_openai_api_key');
+  // Получаем OpenAI API ключ из localStorage (только если требуется)
+  const openaiApiKey = requireOpenAI ? localStorage.getItem('admin_openai_api_key') : null;
   
   const requestHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${publicAnonKey}`,
-    ...(openaiApiKey && { 'X-OpenAI-Key': openaiApiKey }), // Добавляем OpenAI ключ если есть
+    ...(openaiApiKey && { 'X-OpenAI-Key': openaiApiKey }), // Добавляем OpenAI ключ только если требуется
     ...headers
   };
 
@@ -92,7 +107,8 @@ export async function analyzeTextWithAI(text: string, userName?: string, userId?
   try {
   const response = await apiRequest('/chat/analyze', {
     method: 'POST',
-    body: { text, userName, userId }
+    body: { text, userName, userId },
+    requireOpenAI: true
   });
 
     if (!response.success) {
@@ -263,7 +279,8 @@ export async function transcribeAudio(audioBlob: Blob): Promise<string> {
     body: {
       audio: base64Audio,
       mimeType: audioBlob.type
-    }
+    },
+    requireOpenAI: true
   });
 
   if (!response.success) {
@@ -306,6 +323,13 @@ export async function uploadMedia(
   console.log('Media uploaded successfully:', response.path);
   
   return {
+    id: response.id || '',
+    userId: userId,
+    fileName: file.name,
+    filePath: response.path,
+    fileType: mediaType,
+    fileSize: file.size,
+    createdAt: new Date().toISOString(),
     url: response.url,
     path: response.path,
     type: mediaType,

@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useTranslations } from "../../utils/i18n";
 import { 
   Download, 
   Sparkles, 
@@ -19,7 +20,9 @@ import {
   Target
 } from "lucide-react";
 
-export function ReportsScreen() {
+export function ReportsScreen({ userData }: { userData?: any }) {
+  // Получаем переводы для языка пользователя
+  const t = useTranslations(userData?.language || 'ru');
   const [selectedPeriod, setSelectedPeriod] = useState("month");
 
   const monthlyReport = {

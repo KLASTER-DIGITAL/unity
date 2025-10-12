@@ -6,6 +6,8 @@ import { Switch } from "../ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { toast } from "sonner";
 import { isPWAInstalled, isIOSSafari, getInstallInstructions } from "../../utils/pwaUtils";
+import { useTranslations } from "../../utils/i18n";
+import { updateUserProfile } from "../../utils/api";
 import { 
   Settings, 
   Bell, 
@@ -27,12 +29,35 @@ import {
   Info
 } from "lucide-react";
 
+interface Language {
+  id: string;
+  code: string;
+  name: string;
+  native_name: string;
+  flag: string;
+  is_active: boolean;
+}
+
+// Fallback языки на случай, если API недоступен
+const fallbackLanguages: Language[] = [
+  { id: '1', code: 'ru', name: 'Russian', native_name: 'Русский', flag: '🇷🇺', is_active: true },
+  { id: '2', code: 'en', name: 'English', native_name: 'English', flag: '🇬🇧', is_active: true },
+  { id: '3', code: 'es', name: 'Spanish', native_name: 'Español', flag: '🇪🇸', is_active: true },
+  { id: '4', code: 'de', name: 'German', native_name: 'Deutsch', flag: '🇩🇪', is_active: true },
+  { id: '5', code: 'fr', name: 'French', native_name: 'Français', flag: '🇫🇷', is_active: true },
+  { id: '6', code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
+  { id: '7', code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
+];
+
 interface SettingsScreenProps {
   userData?: any;
   onLogout?: () => void;
 }
 
 export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
+  // Получаем переводы для языка пользователя
+  const t = useTranslations(userData?.language || 'ru');
+  
   const [notifications, setNotifications] = useState({
     dailyReminder: true,
     weeklyReport: true,
@@ -48,10 +73,35 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
 
   const [showInstallButton, setShowInstallButton] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
+  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+
+  // Загрузка языков из API
+  useEffect(() => {
+    const loadLanguages = async () => {
+      try {
+        const response = await fetch('/functions/v1/translations-api/languages');
+        if (response.ok) {
+          const data = await response.json();
+          setLanguages(data);
+        } else {
+          console.error('Failed to load languages:', response.status);
+          setLanguages(fallbackLanguages);
+        }
+      } catch (error) {
+        console.error('Error loading languages:', error);
+        setLanguages(fallbackLanguages);
+      } finally {
+        setIsLoadingLanguages(false);
+      }
+    };
+
+    loadLanguages();
+  }, []);
 
   // Проверяем возможность установки PWA
   useEffect(() => {
-    // Показываем кнопку только если приложение не установлено
     const installed = isPWAInstalled();
     console.log('PWA installed:', installed);
     
@@ -62,7 +112,6 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
       console.log('ℹ️ PWA already installed - hiding install button');
     }
 
-    // Слушаем событие установки
     const handleBeforeInstallPrompt = (e: Event) => {
       console.log('📱 beforeinstallprompt caught in settings');
       e.preventDefault();
@@ -77,40 +126,31 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
     };
   }, []);
 
+  const handleLanguageChange = async (newLanguage: string) => {
+    if (!userData?.id) return;
+    
+    try {
+      await updateUserProfile(userData.id, { language: newLanguage });
+      toast.success("Язык изменён!");
+      setShowLanguageModal(false);
+      // Перезагружаем страницу для применения нового языка
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating language:', error);
+      toast.error("Ошибка при изменении языка");
+    }
+  };
+  
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
       console.log('No deferredPrompt available, showing instructions');
       
-      // Получаем инструкции для текущего браузера
       const instructions = getInstallInstructions();
       
-      // На iOS Safari показываем специальные инструкции
-      if (isIOSSafari()) {
-        toast.info(
-          <div className="space-y-2">
-            <p className="!text-[15px]">Для установки на iOS:</p>
-            <ol className="list-decimal pl-4 space-y-1">
-              {instructions.steps.map((step, i) => (
-                <li key={i} className="!text-[13px] !font-normal">{step}</li>
-              ))}
-            </ol>
-          </div>,
-          { duration: 10000 }
-        );
-      } else {
-        // Для других браузеров
-        toast.info(
-          <div className="space-y-2">
-            <p className="!text-[15px]">Инструкция по установке ({instructions.platform}):</p>
-            <ol className="list-decimal pl-4 space-y-1">
-              {instructions.steps.map((step, i) => (
-                <li key={i} className="!text-[13px] !font-normal">{step}</li>
-              ))}
-            </ol>
-          </div>,
-          { duration: 10000 }
-        );
-      }
+      toast.info('Инструкции по установке', {
+        description: instructions,
+        duration: 10000
+      });
       return;
     }
 
@@ -131,25 +171,22 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
       setDeferredPrompt(null);
     } catch (error) {
       console.error('Error during PWA install:', error);
-      toast.error('Ошибка при установке. Попробуйте еще раз.');
+      toast.error('Ошибка при установке приложения');
     }
   };
-
+  
+  // Данные пользователя для демонстрации
   const user = {
     name: userData?.name || "Пользователь",
-    email: userData?.email || "email@example.com",
-    avatar: "",
-    isPremium: false,
-    joinedDate: userData?.createdAt 
-      ? new Intl.DateTimeFormat('ru', { month: 'long', year: 'numeric' }).format(new Date(userData.createdAt))
-      : "Недавно"
+    email: userData?.email || "user@example.com",
+    avatar: userData?.avatar || null,
+    location: "Москва, Россия"
   };
 
   const themes = [
-    { id: "light", name: "Светлая", premium: false, color: "bg-white border-2 border-gray-200" },
-    { id: "dark", name: "Тёмная", premium: false, color: "bg-gray-900 border-2 border-gray-700" },
-    { id: "purple", name: "Фиолетовая", premium: true, color: "bg-gradient-to-br from-purple-400 to-purple-600" },
-    { id: "ocean", name: "Океан", premium: true, color: "bg-gradient-to-br from-blue-400 to-teal-500" },
+    { id: "default", name: "По умолчанию", premium: false, color: "bg-gradient-to-br from-blue-500 to-purple-600" },
+    { id: "dark", name: "Тёмная", premium: false, color: "bg-gradient-to-br from-gray-800 to-gray-900" },
+    { id: "light", name: "Светлая", premium: false, color: "bg-gradient-to-br from-white to-gray-100" },
     { id: "sunset", name: "Закат", premium: true, color: "bg-gradient-to-br from-orange-400 to-pink-500" }
   ];
 
@@ -167,7 +204,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
             </Avatar>
             <div>
               <h2 className="text-lg">{user.name}</h2>
-              <p className="text-gray-600 text-sm">Москва, Россия</p>
+              <p className="text-gray-600 text-sm">{user.location}</p>
             </div>
           </div>
           <ChevronRight className="h-5 w-5 text-gray-400" />
@@ -180,14 +217,14 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
-              Уведомления
+              {t.notifications}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4>Ежедневные напоминания</h4>
-                <p className="text-sm text-gray-600">Напоминание записать достижение</p>
+                <h4>{t.dailyReminders}</h4>
+                <p className="text-sm text-gray-600">{t.dailyReminders}</p>
               </div>
               <Switch 
                 checked={notifications.dailyReminder}
@@ -197,8 +234,8 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
             
             <div className="flex items-center justify-between">
               <div>
-                <h4>Еженедельные отчёты</h4>
-                <p className="text-sm text-gray-600">Сводка достижений за неделю</p>
+                <h4>{t.weeklyReports}</h4>
+                <p className="text-sm text-gray-600">{t.weeklyReports}</p>
               </div>
               <Switch 
                 checked={notifications.weeklyReport}
@@ -208,8 +245,8 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
             
             <div className="flex items-center justify-between">
               <div>
-                <h4>Новые достижения</h4>
-                <p className="text-sm text-gray-600">Уведомления о наградах</p>
+                <h4>{t.newAchievements}</h4>
+                <p className="text-sm text-gray-600">{t.newAchievements}</p>
               </div>
               <Switch 
                 checked={notifications.achievements}
@@ -219,8 +256,8 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
             
             <div className="flex items-center justify-between">
               <div>
-                <h4>Мотивационные сообщения</h4>
-                <p className="text-sm text-gray-600">Вдохновляющие цитаты</p>
+                <h4>{t.motivationalMessages}</h4>
+                <p className="text-sm text-gray-600">{t.motivationalMessages}</p>
               </div>
               <Switch 
                 checked={notifications.motivational}
@@ -237,7 +274,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="h-5 w-5" />
-              Темы оформления
+              {t.themes}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -268,7 +305,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Безопасность и приватность
+              {t.security}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -336,20 +373,23 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Upload className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Импорт данных</span>
+                <span className="text-gray-900">{t.importData}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </div>
             
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
+            <div 
+              className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg"
+              onClick={() => setShowLanguageModal(true)}
+            >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Globe className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Язык приложения</span>
+                <span className="text-gray-900">{t.appLanguage}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Русский</span>
+                <span className="text-sm text-gray-500">{t.currentLanguage}</span>
                 <ChevronRight className="h-4 w-4 text-gray-400" />
               </div>
             </div>
@@ -359,10 +399,10 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Calendar className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Первый день недели</span>
+                <span className="text-gray-900">{t.firstDayOfWeek}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Понедельник</span>
+                <span className="text-sm text-gray-500">{t.monday}</span>
                 <ChevronRight className="h-4 w-4 text-gray-400" />
               </div>
             </div>
@@ -401,7 +441,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
       <div className="p-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-gray-900">Поддержка</CardTitle>
+            <CardTitle className="text-gray-900">{t.support}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
@@ -409,7 +449,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Mail className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Связаться с поддержкой</span>
+                <span className="text-gray-900">{t.contactSupport}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </div>
@@ -419,7 +459,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Star className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Оценить приложение</span>
+                <span className="text-gray-900">{t.rateApp}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </div>
@@ -429,7 +469,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <HelpCircle className="h-4 w-4 text-gray-600" />
                 </div>
-                <span className="text-gray-900">Часто задаваемые вопросы</span>
+                <span className="text-gray-900">{t.faq}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400" />
             </div>
@@ -441,7 +481,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
       <div className="p-4">
         <Card className="border-red-200">
           <CardHeader>
-            <CardTitle className="text-red-600">Опасная зона</CardTitle>
+            <CardTitle className="text-red-600">{t.dangerousZone}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div 
@@ -452,7 +492,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-red-100 rounded-lg">
                   <LogOut className="h-4 w-4 text-red-600" />
                 </div>
-                <span className="text-red-600">Выйти</span>
+                <span className="text-red-600">{t.logout}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-red-400" />
             </div>
@@ -462,7 +502,7 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
                 <div className="p-2 bg-red-100 rounded-lg">
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </div>
-                <span className="text-red-600">Удалить все данные</span>
+                <span className="text-red-600">{t.deleteAllData}</span>
               </div>
             </div>
           </CardContent>
@@ -471,9 +511,49 @@ export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
 
       {/* Версия приложения */}
       <div className="p-4 text-center">
-        <p className="text-sm text-gray-500">Дневник Достижений v1.0.0</p>
-        <p className="text-xs text-gray-400">Твоя история успеха начинается здесь</p>
+        <p className="text-sm text-gray-500">{t.appVersion}</p>
+        <p className="text-xs text-gray-400">{t.appSubtitle}</p>
       </div>
+
+      {/* Модальное окно выбора языка */}
+      {showLanguageModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-4">{t.changeLanguage}</h3>
+              <div className="space-y-2">
+                {isLoadingLanguages ? (
+                  <div className="p-3 text-center text-gray-500">Загрузка языков...</div>
+                ) : (
+                  languages.map((lang) => (
+                    <button
+                      key={lang.id}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+                        userData?.language === lang.code ? 'bg-blue-50 border border-blue-200' : ''
+                      }`}
+                    >
+                      <span className="text-2xl">{lang.flag}</span>
+                      <span className="flex-1 text-left">{lang.native_name}</span>
+                      {userData?.language === lang.code && (
+                        <span className="text-blue-600 text-sm">✓</span>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setShowLanguageModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {t.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

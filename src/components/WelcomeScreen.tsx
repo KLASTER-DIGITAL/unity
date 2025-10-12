@@ -1,8 +1,8 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
-import imgGeneratedImageSeptember092025333Pm1 from "figma:asset/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
+import imgGeneratedImageSeptember092025333Pm1 from "../assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
 import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "../imports/svg-lqmvp";
 
 interface WelcomeScreenProps {
@@ -13,57 +13,99 @@ interface WelcomeScreenProps {
   onStepClick: (step: number) => void;
 }
 
-const languages = [
-  { code: "ru", name: "Русский", flag: "🇷🇺" },
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "zh", name: "中文", flag: "🇨🇳" },
-  { code: "ja", name: "日本語", flag: "🇯🇵" },
+interface Language {
+  id: string;
+  code: string;
+  name: string;
+  native_name: string;
+  flag: string;
+  is_active: boolean;
+}
+
+// Fallback языки на случай, если API недоступен
+const fallbackLanguages: Language[] = [
+  { id: '1', code: "ru", name: "Russian", native_name: "Русский", flag: "🇷🇺", is_active: true },
+  { id: '2', code: "en", name: "English", native_name: "English", flag: "🇬🇧", is_active: true },
+  { id: '3', code: "es", name: "Spanish", native_name: "Español", flag: "🇪🇸", is_active: true },
+  { id: '4', code: "de", name: "German", native_name: "Deutsch", flag: "🇩🇪", is_active: true },
+  { id: '5', code: "fr", name: "French", native_name: "Français", flag: "🇫🇷", is_active: true },
+  { id: '6', code: "zh", name: "Chinese", native_name: "中文", flag: "🇨🇳", is_active: true },
+  { id: '7', code: "ja", name: "Japanese", native_name: "日本語", flag: "🇯🇵", is_active: true },
 ];
 
 const translations = {
   ru: {
     title: "Создавай дневник побед",
     subtitle: "История ваших побед — день за днём",
-    startButton: "Начать"
+    startButton: "Начать",
+    alreadyHaveAccount: "У меня уже есть аккаунт"
   },
   en: {
     title: "Create a victory diary",
     subtitle: "The history of your victories — day by day",
-    startButton: "Get Started"
+    startButton: "Get Started",
+    alreadyHaveAccount: "I already have an account"
   },
   es: {
     title: "Crea un diario de victorias",
     subtitle: "La historia de tus victorias — día a día",
-    startButton: "Comenzar"
+    startButton: "Comenzar",
+    alreadyHaveAccount: "Ya tengo una cuenta"
   },
   de: {
     title: "Erstelle ein Siegestagebuch",
     subtitle: "Die Geschichte deiner Siege — Tag für Tag",
-    startButton: "Beginnen"
+    startButton: "Beginnen",
+    alreadyHaveAccount: "Ich habe bereits ein Konto"
   },
   fr: {
     title: "Créez un journal de victoires",
     subtitle: "L'histoire de vos victoires — jour après jour",
-    startButton: "Commencer"
+    startButton: "Commencer",
+    alreadyHaveAccount: "J'ai déjà un compte"
   },
   zh: {
     title: "创建胜利日记",
     subtitle: "您的胜利历史——日复一日",
-    startButton: "开始"
+    startButton: "开始",
+    alreadyHaveAccount: "我已经有账户了"
   },
   ja: {
     title: "勝利の日記を作成",
     subtitle: "あなたの勝利の歴史——日々の記録",
-    startButton: "始める"
+    startButton: "始める",
+    alreadyHaveAccount: "すでにアカウントを持っています"
   }
 };
 
 export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepClick }: WelcomeScreenProps) {
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
+  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+
+  // Загрузка языков из API
+  useEffect(() => {
+    const loadLanguages = async () => {
+      try {
+        const response = await fetch('/functions/v1/translations-api/languages');
+        if (response.ok) {
+          const data = await response.json();
+          setLanguages(data);
+        } else {
+          console.error('Failed to load languages:', response.status);
+          setLanguages(fallbackLanguages);
+        }
+      } catch (error) {
+        console.error('Error loading languages:', error);
+        setLanguages(fallbackLanguages);
+      } finally {
+        setIsLoadingLanguages(false);
+      }
+    };
+
+    loadLanguages();
+  }, []);
 
   const selectedLang = languages.find(lang => lang.code === selectedLanguage) || languages[0];
   const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
@@ -178,7 +220,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
             >
               <div className="flex items-center gap-2">
                 <span>{selectedLang.flag}</span>
-                <span>{selectedLang.name}</span>
+                <span>{selectedLang.native_name}</span>
               </div>
               <motion.div
                 animate={{ rotate: showDropdown ? 180 : 0 }}
@@ -351,7 +393,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                   fontSize: '15px'
                 }}
               >
-                У меня уже есть аккаунт
+                {currentTranslations.alreadyHaveAccount}
               </motion.button>
             )}
             
@@ -426,7 +468,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                 >
                   <div className="flex items-center gap-2">
                     <span>{language.flag}</span>
-                    <span className="text-[#6b6b6b]">{language.name}</span>
+                    <span className="text-[#6b6b6b]">{language.native_name}</span>
                   </div>
                   {selectedLanguage === language.code && (
                     <Check size={16} className="text-[#8B78FF]" strokeWidth={2} />

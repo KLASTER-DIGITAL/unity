@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getEntries, deleteEntry, type DiaryEntry } from "../../utils/api";
 import { toast } from "sonner";
+import { useTranslations } from "../../utils/i18n";
 import { 
   Search, 
   Filter, 
@@ -48,6 +49,9 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
   const [selectedSentiment, setSelectedSentiment] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
+  
+  // Получаем переводы для языка пользователя
+  const t = useTranslations(userData?.language || 'ru');
 
   useEffect(() => {
     loadEntries();
@@ -123,7 +127,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       {/* Header */}
       <div className="bg-white border-b border-border px-6 pt-16 pb-4">
         <h1 className="!text-[28px] !font-semibold text-foreground mb-4">
-          История записей
+          {t.historyTitle}
         </h1>
 
         {/* Search */}
@@ -144,7 +148,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
           className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-[10px] !text-[14px] !font-medium"
         >
           <Filter className="w-4 h-4" />
-          Фильтры
+          {t.filters}
           {(selectedCategory || selectedSentiment) && (
             <span className="bg-accent text-white px-2 py-0.5 rounded-full !text-[12px]">
               {(selectedCategory ? 1 : 0) + (selectedSentiment ? 1 : 0)}
@@ -241,7 +245,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       {/* Stats Bar */}
       <div className="bg-accent/5 px-6 py-3 flex items-center justify-between">
         <p className="!text-[13px] text-muted-foreground">
-          Найдено записей: <span className="!font-semibold text-foreground">{filteredEntries.length}</span>
+          {t.foundEntries}: <span className="!font-semibold text-foreground">{filteredEntries.length}</span>
         </p>
         {(selectedCategory || selectedSentiment || searchQuery) && (
           <button

@@ -83,6 +83,7 @@ export default function App() {
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
   const [showAuth, setShowAuth] = useState(false); // Для показа экрана входа/регистрации
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register'); // Режим авторизации
   const [diaryData, setDiaryData] = useState({ name: "", emoji: "🏆" });
   const [firstEntry, setFirstEntry] = useState("");
   const [userData, setUserData] = useState<any>(null);
@@ -353,6 +354,7 @@ export default function App() {
   // Функция для обработки Skip на шаге 1 (WelcomeScreen)
   const handleWelcomeSkip = () => {
     console.log('Skip clicked on WelcomeScreen - showing auth');
+    setAuthMode('login'); // Устанавливаем режим входа
     setShowAuth(true);
     setCurrentStep(1); // Остаемся на 1 шаге на случай возврата
   };
@@ -608,6 +610,7 @@ export default function App() {
   // Функция для возврата с экрана авторизации
   const handleAuthBack = () => {
     setShowAuth(false);
+    setAuthMode('register'); // Сбрасываем режим на регистрацию
     // Возвращаемся к онбордингу на шаг 1
     setCurrentStep(1);
   };
@@ -706,8 +709,8 @@ export default function App() {
     );
   }
 
-  // Показываем экран авторизации если нет сессии И не нужен онбординг
-  if (showAuth && !needsOnboarding) {
+  // Показываем экран авторизации если нет сессии ИЛИ пользователь нажал "У меня уже есть аккаунт"
+  if (showAuth) {
     return (
       <div className="max-w-md mx-auto overflow-hidden">
         <AuthScreen 
@@ -716,6 +719,7 @@ export default function App() {
           showTopBar={true}
           contextText="Добро пожаловать!"
           selectedLanguage={selectedLanguage}
+          initialMode={authMode}
         />
       </div>
     );

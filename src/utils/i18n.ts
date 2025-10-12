@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 // Словари переводов для приложения
 export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja';
 
@@ -23,6 +25,50 @@ export interface Translations {
   save: string;
   cancel: string;
   delete: string;
+  back: string;
+  next: string;
+  skip: string;
+  
+  // WelcomeScreen
+  alreadyHaveAccount: string;
+  
+  // AuthScreen
+  signIn: string;
+  signUp: string;
+  signInWith: string;
+  signUpWith: string;
+  yourEmail: string;
+  yourName: string;
+  password: string;
+  welcomeBack: string;
+  createAccount: string;
+  notRegisteredYet: string;
+  alreadyHaveAccountAuth: string;
+  
+  // SettingsScreen
+  notifications: string;
+  dailyReminders: string;
+  weeklyReports: string;
+  newAchievements: string;
+  motivationalMessages: string;
+  themes: string;
+  security: string;
+  language: string;
+  support: string;
+  appLanguage: string;
+  currentLanguage: string;
+  changeLanguage: string;
+  firstDayOfWeek: string;
+  monday: string;
+  importData: string;
+  contactSupport: string;
+  rateApp: string;
+  faq: string;
+  dangerousZone: string;
+  logout: string;
+  deleteAllData: string;
+  appVersion: string;
+  appSubtitle: string;
   
   // Категории
   family: string;
@@ -52,17 +98,6 @@ export interface Translations {
   foundEntries: string;
   filters: string;
   
-  // Настройки
-  notifications: string;
-  dailyReminders: string;
-  weeklyReports: string;
-  newAchievements: string;
-  motivationalMessages: string;
-  themes: string;
-  security: string;
-  language: string;
-  support: string;
-  
   // Онбординг
   welcomeTitle: string;
   selectLanguage: string;
@@ -71,26 +106,61 @@ export interface Translations {
   reminders: string;
 }
 
-const translations: Record<Language, Translations> = {
+// Fallback переводы на случай, если Supabase недоступен
+const fallbackTranslations: Record<Language, Translations> = {
   ru: {
-    greeting: 'Привет',
-    todayQuestion: 'Какие твои победы сегодня?',
-    
+    greeting: 'Привет!',
+    todayQuestion: 'Как прошёл день?',
     home: 'Главная',
     history: 'История',
     awards: 'Награды',
-    reviews: 'Обзоры',
+    reviews: 'Отчёты',
     settings: 'Настройки',
-    
-    inputPlaceholder: 'Опиши главную мысль, момент, благодарность',
-    searchPlaceholder: 'Поиск по записям...',
-    
+    inputPlaceholder: 'Расскажите о своём дне...',
+    searchPlaceholder: 'Поиск записей...',
     addPhoto: 'Добавить фото',
     send: 'Отправить',
     save: 'Сохранить',
     cancel: 'Отмена',
     delete: 'Удалить',
-    
+    back: 'Назад',
+    next: 'Далее',
+    skip: 'Пропустить',
+    alreadyHaveAccount: 'У меня уже есть аккаунт',
+    signIn: 'Войти',
+    signUp: 'Регистрация',
+    signInWith: 'Войти через',
+    signUpWith: 'Регистрация через',
+    yourEmail: 'Ваш email',
+    yourName: 'Ваше имя',
+    password: 'Пароль',
+    welcomeBack: 'Добро пожаловать!',
+    createAccount: 'Создать аккаунт',
+    notRegisteredYet: 'Еще не зарегистрированы?',
+    alreadyHaveAccountAuth: 'Уже есть аккаунт?',
+    notifications: 'Уведомления',
+    dailyReminders: 'Ежедневные напоминания',
+    weeklyReports: 'Еженедельные отчёты',
+    newAchievements: 'Новые достижения',
+    motivationalMessages: 'Мотивационные сообщения',
+    themes: 'Темы',
+    security: 'Безопасность',
+    language: 'Язык',
+    support: 'Поддержка',
+    appLanguage: 'Язык приложения',
+    currentLanguage: 'Текущий язык',
+    changeLanguage: 'Изменить язык',
+    firstDayOfWeek: 'Первый день недели',
+    monday: 'Понедельник',
+    importData: 'Импорт данных',
+    contactSupport: 'Связаться с поддержкой',
+    rateApp: 'Оценить приложение',
+    faq: 'Часто задаваемые вопросы',
+    dangerousZone: 'Опасная зона',
+    logout: 'Выйти',
+    deleteAllData: 'Удалить все данные',
+    appVersion: 'Версия приложения',
+    appSubtitle: 'Дневник Достижений',
     family: 'Семья',
     work: 'Работа',
     finance: 'Финансы',
@@ -99,58 +169,77 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: 'Личное развитие',
     creativity: 'Творчество',
     relationships: 'Отношения',
-    
-    defaultCard1Title: 'Сегодня отличное время',
-    defaultCard1Description: 'Запиши маленькую победу — это первый шаг к осознанию своих достижений.',
-    defaultCard2Title: 'Даже одна мысль делает день осмысленным',
-    defaultCard2Description: 'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
-    defaultCard3Title: 'Запиши момент благодарности',
-    defaultCard3Description: 'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
-    
-    connectedToAI: 'Подключено к AI',
-    aiHelp: 'AI подскажет',
-    aiHelpDescription: 'Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс',
-    
+    defaultCard1Title: 'Отличный день!',
+    defaultCard1Description: 'Вы сделали важный шаг к своим целям',
+    defaultCard2Title: 'Продолжайте!',
+    defaultCard2Description: 'Каждый день приближает вас к успеху',
+    defaultCard3Title: 'Вы молодец!',
+    defaultCard3Description: 'Ваши усилия не останутся незамеченными',
+    connectedToAI: 'Подключено к ИИ',
+    aiHelp: 'Помощь ИИ',
+    aiHelpDescription: 'ИИ поможет проанализировать ваши записи',
     historyTitle: 'История записей',
     foundEntries: 'Найдено записей',
     filters: 'Фильтры',
-    
-    notifications: 'Уведомления',
-    dailyReminders: 'Ежедневные напоминания',
-    weeklyReports: 'Еженедельные отчёты',
-    newAchievements: 'Новые достижения',
-    motivationalMessages: 'Мотивационные сообщения',
-    themes: 'Темы оформления',
-    security: 'Безопасность и приватность',
-    language: 'Язык приложения',
-    support: 'Поддержка',
-    
-    welcomeTitle: 'Добро пожаловать',
-    selectLanguage: 'Выбери язык',
+    welcomeTitle: 'Создавай дневник побед',
+    selectLanguage: 'Выберите язык',
     diaryName: 'Название дневника',
     firstEntry: 'Первая запись',
-    reminders: 'Напоминания',
+    reminders: 'Напоминания'
   },
-  
   en: {
-    greeting: 'Hello',
-    todayQuestion: 'What are your victories today?',
-    
+    greeting: 'Hello!',
+    todayQuestion: 'How was your day?',
     home: 'Home',
     history: 'History',
     awards: 'Awards',
-    reviews: 'Reviews',
+    reviews: 'Reports',
     settings: 'Settings',
-    
-    inputPlaceholder: 'Describe your main thought, moment, gratitude',
+    inputPlaceholder: 'Tell us about your day...',
     searchPlaceholder: 'Search entries...',
-    
-    addPhoto: 'Add photo',
+    addPhoto: 'Add Photo',
     send: 'Send',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
-    
+    back: 'Back',
+    next: 'Next',
+    skip: 'Skip',
+    alreadyHaveAccount: 'I already have an account',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signInWith: 'Sign in with',
+    signUpWith: 'Sign up with',
+    yourEmail: 'Your email',
+    yourName: 'Your name',
+    password: 'Password',
+    welcomeBack: 'Welcome back!',
+    createAccount: 'Create account',
+    notRegisteredYet: 'Not registered yet?',
+    alreadyHaveAccountAuth: 'Already have an account?',
+    notifications: 'Notifications',
+    dailyReminders: 'Daily reminders',
+    weeklyReports: 'Weekly reports',
+    newAchievements: 'New achievements',
+    motivationalMessages: 'Motivational messages',
+    themes: 'Themes',
+    security: 'Security',
+    language: 'Language',
+    support: 'Support',
+    appLanguage: 'App language',
+    currentLanguage: 'Current language',
+    changeLanguage: 'Change language',
+    firstDayOfWeek: 'First day of week',
+    monday: 'Monday',
+    importData: 'Import data',
+    contactSupport: 'Contact support',
+    rateApp: 'Rate app',
+    faq: 'FAQ',
+    dangerousZone: 'Dangerous zone',
+    logout: 'Logout',
+    deleteAllData: 'Delete all data',
+    appVersion: 'App version',
+    appSubtitle: 'Achievement Diary',
     family: 'Family',
     work: 'Work',
     finance: 'Finance',
@@ -159,58 +248,77 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: 'Personal Development',
     creativity: 'Creativity',
     relationships: 'Relationships',
-    
-    defaultCard1Title: 'Today is a great time',
-    defaultCard1Description: 'Write down a small victory — it\'s the first step to recognizing your achievements.',
-    defaultCard2Title: 'Even one thought makes the day meaningful',
-    defaultCard2Description: 'You don\'t have to write a lot — one phrase can change your view of the day.',
-    defaultCard3Title: 'Write down a moment of gratitude',
-    defaultCard3Description: 'Feel the lightness when you notice the good in your life. This is the path to happiness.',
-    
+    defaultCard1Title: 'Great day!',
+    defaultCard1Description: 'You made an important step towards your goals',
+    defaultCard2Title: 'Keep going!',
+    defaultCard2Description: 'Every day brings you closer to success',
+    defaultCard3Title: 'You are great!',
+    defaultCard3Description: 'Your efforts will not go unnoticed',
     connectedToAI: 'Connected to AI',
-    aiHelp: 'AI will help',
-    aiHelpDescription: 'Describe your achievement, and I will help structure the entry, choose a category and mark progress',
-    
+    aiHelp: 'AI Help',
+    aiHelpDescription: 'AI will help analyze your entries',
     historyTitle: 'Entry History',
-    foundEntries: 'Entries found',
+    foundEntries: 'Found entries',
     filters: 'Filters',
-    
-    notifications: 'Notifications',
-    dailyReminders: 'Daily reminders',
-    weeklyReports: 'Weekly reports',
-    newAchievements: 'New achievements',
-    motivationalMessages: 'Motivational messages',
-    themes: 'Themes',
-    security: 'Security and privacy',
-    language: 'App language',
-    support: 'Support',
-    
-    welcomeTitle: 'Welcome',
+    welcomeTitle: 'Create a victory diary',
     selectLanguage: 'Select language',
     diaryName: 'Diary name',
     firstEntry: 'First entry',
-    reminders: 'Reminders',
+    reminders: 'Reminders'
   },
-  
   es: {
-    greeting: 'Hola',
-    todayQuestion: '¿Cuáles son tus victorias hoy?',
-    
+    greeting: '¡Hola!',
+    todayQuestion: '¿Cómo fue tu día?',
     home: 'Inicio',
-    history: 'Historia',
+    history: 'Historial',
     awards: 'Premios',
-    reviews: 'Reseñas',
-    settings: 'Ajustes',
-    
-    inputPlaceholder: 'Describe tu pensamiento principal, momento, gratitud',
+    reviews: 'Informes',
+    settings: 'Configuración',
+    inputPlaceholder: 'Cuéntanos sobre tu día...',
     searchPlaceholder: 'Buscar entradas...',
-    
     addPhoto: 'Agregar foto',
     send: 'Enviar',
     save: 'Guardar',
     cancel: 'Cancelar',
     delete: 'Eliminar',
-    
+    back: 'Atrás',
+    next: 'Siguiente',
+    skip: 'Omitir',
+    alreadyHaveAccount: 'Ya tengo una cuenta',
+    signIn: 'Iniciar sesión',
+    signUp: 'Registrarse',
+    signInWith: 'Iniciar sesión con',
+    signUpWith: 'Registrarse con',
+    yourEmail: 'Tu email',
+    yourName: 'Tu nombre',
+    password: 'Contraseña',
+    welcomeBack: '¡Bienvenido!',
+    createAccount: 'Crear cuenta',
+    notRegisteredYet: '¿Aún no estás registrado?',
+    alreadyHaveAccountAuth: '¿Ya tienes una cuenta?',
+    notifications: 'Notificaciones',
+    dailyReminders: 'Recordatorios diarios',
+    weeklyReports: 'Informes semanales',
+    newAchievements: 'Nuevos logros',
+    motivationalMessages: 'Mensajes motivacionales',
+    themes: 'Temas',
+    security: 'Seguridad',
+    language: 'Idioma',
+    support: 'Soporte',
+    appLanguage: 'Idioma de la app',
+    currentLanguage: 'Idioma actual',
+    changeLanguage: 'Cambiar idioma',
+    firstDayOfWeek: 'Primer día de la semana',
+    monday: 'Lunes',
+    importData: 'Importar datos',
+    contactSupport: 'Contactar soporte',
+    rateApp: 'Calificar app',
+    faq: 'Preguntas frecuentes',
+    dangerousZone: 'Zona peligrosa',
+    logout: 'Cerrar sesión',
+    deleteAllData: 'Eliminar todos los datos',
+    appVersion: 'Versión de la app',
+    appSubtitle: 'Diario de Logros',
     family: 'Familia',
     work: 'Trabajo',
     finance: 'Finanzas',
@@ -219,58 +327,77 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: 'Desarrollo personal',
     creativity: 'Creatividad',
     relationships: 'Relaciones',
-    
-    defaultCard1Title: 'Hoy es un gran momento',
-    defaultCard1Description: 'Anota una pequeña victoria: es el primer paso para reconocer tus logros.',
-    defaultCard2Title: 'Incluso un pensamiento hace que el día sea significativo',
-    defaultCard2Description: 'No tienes que escribir mucho: una frase puede cambiar tu visión del día.',
-    defaultCard3Title: 'Anota un momento de gratitud',
-    defaultCard3Description: 'Siente la ligereza cuando notes lo bueno en tu vida. Este es el camino a la felicidad.',
-    
+    defaultCard1Title: '¡Excelente día!',
+    defaultCard1Description: 'Diste un paso importante hacia tus objetivos',
+    defaultCard2Title: '¡Continúa!',
+    defaultCard2Description: 'Cada día te acerca más al éxito',
+    defaultCard3Title: '¡Eres genial!',
+    defaultCard3Description: 'Tus esfuerzos no pasarán desapercibidos',
     connectedToAI: 'Conectado a IA',
-    aiHelp: 'IA te ayudará',
-    aiHelpDescription: 'Describe tu logro y te ayudaré a estructurar la entrada, elegir una categoría y marcar el progreso',
-    
+    aiHelp: 'Ayuda de IA',
+    aiHelpDescription: 'La IA te ayudará a analizar tus entradas',
     historyTitle: 'Historial de entradas',
     foundEntries: 'Entradas encontradas',
     filters: 'Filtros',
-    
-    notifications: 'Notificaciones',
-    dailyReminders: 'Recordatorios diarios',
-    weeklyReports: 'Informes semanales',
-    newAchievements: 'Nuevos logros',
-    motivationalMessages: 'Mensajes motivacionales',
-    themes: 'Temas',
-    security: 'Seguridad y privacidad',
-    language: 'Idioma de la aplicación',
-    support: 'Soporte',
-    
-    welcomeTitle: 'Bienvenido',
+    welcomeTitle: 'Crea un diario de victorias',
     selectLanguage: 'Seleccionar idioma',
     diaryName: 'Nombre del diario',
     firstEntry: 'Primera entrada',
-    reminders: 'Recordatorios',
+    reminders: 'Recordatorios'
   },
-  
   de: {
-    greeting: 'Hallo',
-    todayQuestion: 'Was sind deine Siege heute?',
-    
+    greeting: 'Hallo!',
+    todayQuestion: 'Wie war dein Tag?',
     home: 'Startseite',
-    history: 'Geschichte',
+    history: 'Verlauf',
     awards: 'Auszeichnungen',
-    reviews: 'Bewertungen',
+    reviews: 'Berichte',
     settings: 'Einstellungen',
-    
-    inputPlaceholder: 'Beschreibe deinen Hauptgedanken, Moment, Dankbarkeit',
+    inputPlaceholder: 'Erzähl uns von deinem Tag...',
     searchPlaceholder: 'Einträge suchen...',
-    
     addPhoto: 'Foto hinzufügen',
     send: 'Senden',
     save: 'Speichern',
     cancel: 'Abbrechen',
     delete: 'Löschen',
-    
+    back: 'Zurück',
+    next: 'Weiter',
+    skip: 'Überspringen',
+    alreadyHaveAccount: 'Ich habe bereits ein Konto',
+    signIn: 'Anmelden',
+    signUp: 'Registrieren',
+    signInWith: 'Anmelden mit',
+    signUpWith: 'Registrieren mit',
+    yourEmail: 'Deine E-Mail',
+    yourName: 'Dein Name',
+    password: 'Passwort',
+    welcomeBack: 'Willkommen zurück!',
+    createAccount: 'Konto erstellen',
+    notRegisteredYet: 'Noch nicht registriert?',
+    alreadyHaveAccountAuth: 'Hast du bereits ein Konto?',
+    notifications: 'Benachrichtigungen',
+    dailyReminders: 'Tägliche Erinnerungen',
+    weeklyReports: 'Wöchentliche Berichte',
+    newAchievements: 'Neue Erfolge',
+    motivationalMessages: 'Motivationsnachrichten',
+    themes: 'Themen',
+    security: 'Sicherheit',
+    language: 'Sprache',
+    support: 'Support',
+    appLanguage: 'App-Sprache',
+    currentLanguage: 'Aktuelle Sprache',
+    changeLanguage: 'Sprache ändern',
+    firstDayOfWeek: 'Erster Tag der Woche',
+    monday: 'Montag',
+    importData: 'Daten importieren',
+    contactSupport: 'Support kontaktieren',
+    rateApp: 'App bewerten',
+    faq: 'Häufige Fragen',
+    dangerousZone: 'Gefahrenzone',
+    logout: 'Abmelden',
+    deleteAllData: 'Alle Daten löschen',
+    appVersion: 'App-Version',
+    appSubtitle: 'Erfolgs-Tagebuch',
     family: 'Familie',
     work: 'Arbeit',
     finance: 'Finanzen',
@@ -279,58 +406,77 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: 'Persönliche Entwicklung',
     creativity: 'Kreativität',
     relationships: 'Beziehungen',
-    
-    defaultCard1Title: 'Heute ist ein großartiger Zeitpunkt',
-    defaultCard1Description: 'Schreibe einen kleinen Sieg auf – das ist der erste Schritt, um deine Erfolge zu erkennen.',
-    defaultCard2Title: 'Selbst ein Gedanke macht den Tag bedeutungsvoll',
-    defaultCard2Description: 'Du musst nicht viel schreiben – ein Satz kann deine Sicht auf den Tag verändern.',
-    defaultCard3Title: 'Schreibe einen Moment der Dankbarkeit auf',
-    defaultCard3Description: 'Fühle die Leichtigkeit, wenn du das Gute in deinem Leben bemerkst. Das ist der Weg zum Glück.',
-    
+    defaultCard1Title: 'Großartiger Tag!',
+    defaultCard1Description: 'Du hast einen wichtigen Schritt zu deinen Zielen gemacht',
+    defaultCard2Title: 'Weiter so!',
+    defaultCard2Description: 'Jeder Tag bringt dich dem Erfolg näher',
+    defaultCard3Title: 'Du bist großartig!',
+    defaultCard3Description: 'Deine Anstrengungen werden nicht unbemerkt bleiben',
     connectedToAI: 'Mit KI verbunden',
-    aiHelp: 'KI wird helfen',
-    aiHelpDescription: 'Beschreibe deine Leistung und ich helfe dir, den Eintrag zu strukturieren, eine Kategorie zu wählen und Fortschritte zu markieren',
-    
-    historyTitle: 'Eintragshistorie',
-    foundEntries: 'Einträge gefunden',
+    aiHelp: 'KI-Hilfe',
+    aiHelpDescription: 'KI hilft dir beim Analysieren deiner Einträge',
+    historyTitle: 'Einträge-Verlauf',
+    foundEntries: 'Gefundene Einträge',
     filters: 'Filter',
-    
-    notifications: 'Benachrichtigungen',
-    dailyReminders: 'Tägliche Erinnerungen',
-    weeklyReports: 'Wöchentliche Berichte',
-    newAchievements: 'Neue Erfolge',
-    motivationalMessages: 'Motivierende Nachrichten',
-    themes: 'Themen',
-    security: 'Sicherheit und Datenschutz',
-    language: 'App-Sprache',
-    support: 'Unterstützung',
-    
-    welcomeTitle: 'Willkommen',
+    welcomeTitle: 'Erstelle ein Sieges-Tagebuch',
     selectLanguage: 'Sprache auswählen',
-    diaryName: 'Tagebuchname',
+    diaryName: 'Tagebuch-Name',
     firstEntry: 'Erster Eintrag',
-    reminders: 'Erinnerungen',
+    reminders: 'Erinnerungen'
   },
-  
   fr: {
-    greeting: 'Bonjour',
-    todayQuestion: 'Quelles sont tes victoires aujourd\'hui?',
-    
+    greeting: 'Bonjour!',
+    todayQuestion: 'Comment s\'est passé votre journée?',
     home: 'Accueil',
     history: 'Historique',
     awards: 'Récompenses',
-    reviews: 'Avis',
+    reviews: 'Rapports',
     settings: 'Paramètres',
-    
-    inputPlaceholder: 'Décris ta pensée principale, moment, gratitude',
+    inputPlaceholder: 'Parlez-nous de votre journée...',
     searchPlaceholder: 'Rechercher des entrées...',
-    
     addPhoto: 'Ajouter une photo',
     send: 'Envoyer',
     save: 'Enregistrer',
     cancel: 'Annuler',
     delete: 'Supprimer',
-    
+    back: 'Retour',
+    next: 'Suivant',
+    skip: 'Ignorer',
+    alreadyHaveAccount: 'J\'ai déjà un compte',
+    signIn: 'Se connecter',
+    signUp: 'S\'inscrire',
+    signInWith: 'Se connecter avec',
+    signUpWith: 'S\'inscrire avec',
+    yourEmail: 'Votre email',
+    yourName: 'Votre nom',
+    password: 'Mot de passe',
+    welcomeBack: 'Bon retour!',
+    createAccount: 'Créer un compte',
+    notRegisteredYet: 'Pas encore inscrit?',
+    alreadyHaveAccountAuth: 'Vous avez déjà un compte?',
+    notifications: 'Notifications',
+    dailyReminders: 'Rappels quotidiens',
+    weeklyReports: 'Rapports hebdomadaires',
+    newAchievements: 'Nouveaux succès',
+    motivationalMessages: 'Messages motivationnels',
+    themes: 'Thèmes',
+    security: 'Sécurité',
+    language: 'Langue',
+    support: 'Support',
+    appLanguage: 'Langue de l\'app',
+    currentLanguage: 'Langue actuelle',
+    changeLanguage: 'Changer de langue',
+    firstDayOfWeek: 'Premier jour de la semaine',
+    monday: 'Lundi',
+    importData: 'Importer des données',
+    contactSupport: 'Contacter le support',
+    rateApp: 'Noter l\'app',
+    faq: 'FAQ',
+    dangerousZone: 'Zone dangereuse',
+    logout: 'Se déconnecter',
+    deleteAllData: 'Supprimer toutes les données',
+    appVersion: 'Version de l\'app',
+    appSubtitle: 'Journal des Succès',
     family: 'Famille',
     work: 'Travail',
     finance: 'Finances',
@@ -339,58 +485,77 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: 'Développement personnel',
     creativity: 'Créativité',
     relationships: 'Relations',
-    
-    defaultCard1Title: 'Aujourd\'hui est un excellent moment',
-    defaultCard1Description: 'Note une petite victoire — c\'est le premier pas pour reconnaître tes réalisations.',
-    defaultCard2Title: 'Même une pensée rend la journée significative',
-    defaultCard2Description: 'Tu n\'as pas besoin d\'écrire beaucoup — une phrase peut changer ta vision de la journée.',
-    defaultCard3Title: 'Note un moment de gratitude',
-    defaultCard3Description: 'Ressens la légèreté quand tu remarques le bien dans ta vie. C\'est le chemin vers le bonheur.',
-    
+    defaultCard1Title: 'Excellente journée!',
+    defaultCard1Description: 'Vous avez fait un pas important vers vos objectifs',
+    defaultCard2Title: 'Continuez!',
+    defaultCard2Description: 'Chaque jour vous rapproche du succès',
+    defaultCard3Title: 'Vous êtes formidable!',
+    defaultCard3Description: 'Vos efforts ne passeront pas inaperçus',
     connectedToAI: 'Connecté à l\'IA',
-    aiHelp: 'L\'IA aidera',
-    aiHelpDescription: 'Décris ta réalisation et je t\'aiderai à structurer l\'entrée, choisir une catégorie et marquer les progrès',
-    
+    aiHelp: 'Aide IA',
+    aiHelpDescription: 'L\'IA vous aidera à analyser vos entrées',
     historyTitle: 'Historique des entrées',
     foundEntries: 'Entrées trouvées',
     filters: 'Filtres',
-    
-    notifications: 'Notifications',
-    dailyReminders: 'Rappels quotidiens',
-    weeklyReports: 'Rapports hebdomadaires',
-    newAchievements: 'Nouvelles réalisations',
-    motivationalMessages: 'Messages motivants',
-    themes: 'Thèmes',
-    security: 'Sécurité et confidentialité',
-    language: 'Langue de l\'application',
-    support: 'Support',
-    
-    welcomeTitle: 'Bienvenue',
+    welcomeTitle: 'Créez un journal de victoires',
     selectLanguage: 'Sélectionner la langue',
     diaryName: 'Nom du journal',
     firstEntry: 'Première entrée',
-    reminders: 'Rappels',
+    reminders: 'Rappels'
   },
-  
   zh: {
-    greeting: '你好',
-    todayQuestion: '你今天的胜利是什么？',
-    
-    home: '主页',
+    greeting: '你好！',
+    todayQuestion: '今天过得怎么样？',
+    home: '首页',
     history: '历史',
-    awards: '奖励',
-    reviews: '评论',
+    awards: '奖项',
+    reviews: '报告',
     settings: '设置',
-    
-    inputPlaceholder: '描述你的主要想法、时刻、感激',
+    inputPlaceholder: '告诉我们你的一天...',
     searchPlaceholder: '搜索条目...',
-    
     addPhoto: '添加照片',
     send: '发送',
     save: '保存',
     cancel: '取消',
     delete: '删除',
-    
+    back: '返回',
+    next: '下一步',
+    skip: '跳过',
+    alreadyHaveAccount: '我已有账户',
+    signIn: '登录',
+    signUp: '注册',
+    signInWith: '使用以下方式登录',
+    signUpWith: '使用以下方式注册',
+    yourEmail: '您的邮箱',
+    yourName: '您的姓名',
+    password: '密码',
+    welcomeBack: '欢迎回来！',
+    createAccount: '创建账户',
+    notRegisteredYet: '还没有注册？',
+    alreadyHaveAccountAuth: '已有账户？',
+    notifications: '通知',
+    dailyReminders: '每日提醒',
+    weeklyReports: '周报',
+    newAchievements: '新成就',
+    motivationalMessages: '励志消息',
+    themes: '主题',
+    security: '安全',
+    language: '语言',
+    support: '支持',
+    appLanguage: '应用语言',
+    currentLanguage: '当前语言',
+    changeLanguage: '更改语言',
+    firstDayOfWeek: '一周的第一天',
+    monday: '星期一',
+    importData: '导入数据',
+    contactSupport: '联系支持',
+    rateApp: '评价应用',
+    faq: '常见问题',
+    dangerousZone: '危险区域',
+    logout: '退出登录',
+    deleteAllData: '删除所有数据',
+    appVersion: '应用版本',
+    appSubtitle: '成就日记',
     family: '家庭',
     work: '工作',
     finance: '财务',
@@ -399,172 +564,147 @@ const translations: Record<Language, Translations> = {
     personalDevelopment: '个人发展',
     creativity: '创造力',
     relationships: '关系',
-    
-    defaultCard1Title: '今天是个好时机',
-    defaultCard1Description: '记下一个小胜利——这是认识你成就的第一步。',
-    defaultCard2Title: '即使一个想法也能让这一天有意义',
-    defaultCard2Description: '你不必写很多——一句话就能改变你对这一天的看法。',
-    defaultCard3Title: '记下一个感恩的时刻',
-    defaultCard3Description: '当你注意到生活中的美好时，感受那份轻松。这是通往幸福的道路。',
-    
-    connectedToAI: '已连接到AI',
-    aiHelp: 'AI会帮助',
-    aiHelpDescription: '描述你的成就，我会帮助你组织条目、选择类别并标记进度',
-    
+    defaultCard1Title: '美好的一天！',
+    defaultCard1Description: '您朝着目标迈出了重要一步',
+    defaultCard2Title: '继续加油！',
+    defaultCard2Description: '每一天都让您更接近成功',
+    defaultCard3Title: '您很棒！',
+    defaultCard3Description: '您的努力不会被忽视',
+    connectedToAI: '已连接AI',
+    aiHelp: 'AI帮助',
+    aiHelpDescription: 'AI将帮助分析您的条目',
     historyTitle: '条目历史',
     foundEntries: '找到的条目',
     filters: '过滤器',
-    
-    notifications: '通知',
-    dailyReminders: '每日提醒',
-    weeklyReports: '每周报告',
-    newAchievements: '新成就',
-    motivationalMessages: '激励信息',
-    themes: '主题',
-    security: '安全与隐私',
-    language: '应用语言',
-    support: '支持',
-    
-    welcomeTitle: '欢迎',
+    welcomeTitle: '创建胜利日记',
     selectLanguage: '选择语言',
     diaryName: '日记名称',
-    firstEntry: '第一条',
-    reminders: '提醒',
+    firstEntry: '第一条记录',
+    reminders: '提醒'
   },
-  
   ja: {
-    greeting: 'こんにちは',
-    todayQuestion: '今日のあなたの勝利は何ですか？',
-    
+    greeting: 'こんにちは！',
+    todayQuestion: '今日はどうでしたか？',
     home: 'ホーム',
     history: '履歴',
-    awards: '賞',
-    reviews: 'レビュー',
+    awards: '受賞',
+    reviews: 'レポート',
     settings: '設定',
-    
-    inputPlaceholder: '主な考え、瞬間、感謝を説明してください',
+    inputPlaceholder: '今日のことを教えてください...',
     searchPlaceholder: 'エントリを検索...',
-    
     addPhoto: '写真を追加',
     send: '送信',
     save: '保存',
     cancel: 'キャンセル',
     delete: '削除',
-    
+    back: '戻る',
+    next: '次へ',
+    skip: 'スキップ',
+    alreadyHaveAccount: 'アカウントをお持ちです',
+    signIn: 'サインイン',
+    signUp: 'サインアップ',
+    signInWith: 'でサインイン',
+    signUpWith: 'でサインアップ',
+    yourEmail: 'あなたのメール',
+    yourName: 'あなたの名前',
+    password: 'パスワード',
+    welcomeBack: 'おかえりなさい！',
+    createAccount: 'アカウントを作成',
+    notRegisteredYet: 'まだ登録していませんか？',
+    alreadyHaveAccountAuth: 'すでにアカウントをお持ちですか？',
+    notifications: '通知',
+    dailyReminders: '日次リマインダー',
+    weeklyReports: '週次レポート',
+    newAchievements: '新しい成果',
+    motivationalMessages: 'モチベーションメッセージ',
+    themes: 'テーマ',
+    security: 'セキュリティ',
+    language: '言語',
+    support: 'サポート',
+    appLanguage: 'アプリ言語',
+    currentLanguage: '現在の言語',
+    changeLanguage: '言語を変更',
+    firstDayOfWeek: '週の最初の日',
+    monday: '月曜日',
+    importData: 'データをインポート',
+    contactSupport: 'サポートに連絡',
+    rateApp: 'アプリを評価',
+    faq: 'よくある質問',
+    dangerousZone: '危険ゾーン',
+    logout: 'ログアウト',
+    deleteAllData: 'すべてのデータを削除',
+    appVersion: 'アプリバージョン',
+    appSubtitle: '成果日記',
     family: '家族',
     work: '仕事',
     finance: '財務',
     gratitude: '感謝',
     health: '健康',
-    personalDevelopment: '個人的な成長',
+    personalDevelopment: '個人の成長',
     creativity: '創造性',
-    relationships: '関係',
-    
-    defaultCard1Title: '今日は素晴らしい時間です',
-    defaultCard1Description: '小さな勝利を書き留めてください—これはあなたの成果を認識する最初のステップです。',
-    defaultCard2Title: '一つの考えでさえ、その日を意味のあるものにします',
-    defaultCard2Description: 'たくさん書く必要はありません—一つのフレーズがその日の見方を変えることができます。',
-    defaultCard3Title: '感謝の瞬間を書き留めてください',
-    defaultCard3Description: 'あなたの人生の中で良いものに気づいたとき、軽さを感じてください。これが幸福への道です。',
-    
-    connectedToAI: 'AIに接続',
-    aiHelp: 'AIが手伝います',
-    aiHelpDescription: 'あなたの成果を説明してください。エントリを構造化し、カテゴリを選択し、進捗を示すのを手伝います',
-    
+    relationships: '人間関係',
+    defaultCard1Title: '素晴らしい日！',
+    defaultCard1Description: '目標に向けて重要な一歩を踏み出しました',
+    defaultCard2Title: '続けてください！',
+    defaultCard2Description: '毎日が成功に近づきます',
+    defaultCard3Title: 'あなたは素晴らしい！',
+    defaultCard3Description: 'あなたの努力は見過ごされません',
+    connectedToAI: 'AIに接続済み',
+    aiHelp: 'AIヘルプ',
+    aiHelpDescription: 'AIがエントリの分析をサポートします',
     historyTitle: 'エントリ履歴',
     foundEntries: '見つかったエントリ',
     filters: 'フィルター',
-    
-    notifications: '通知',
-    dailyReminders: '毎日のリマインダー',
-    weeklyReports: '週次レポート',
-    newAchievements: '新しい成果',
-    motivationalMessages: 'モチベーションメッセージ',
-    themes: 'テーマ',
-    security: 'セキュリティとプライバシー',
-    language: 'アプリの言語',
-    support: 'サポート',
-    
-    welcomeTitle: 'ようこそ',
+    welcomeTitle: '勝利の日記を作成',
     selectLanguage: '言語を選択',
-    diaryName: '日記名',
+    diaryName: '日記の名前',
     firstEntry: '最初のエントリ',
-    reminders: 'リマインダー',
-  },
+    reminders: 'リマインダー'
+  }
 };
 
 // Хук для получения переводов
 export function useTranslations(language: Language = 'ru'): Translations {
-  return translations[language] || translations.ru;
+  const [translations, setTranslations] = useState<Translations>(fallbackTranslations[language]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTranslations = async () => {
+      try {
+        setIsLoading(true);
+        // const dynamicTranslations = await translationsApi.getTranslations(language);
+        // Заглушка - будет заменено на работу с Edge Function
+        
+        // Используем fallback переводы пока не реализован Edge Function
+        setTranslations(fallbackTranslations[language]);
+      } catch (error) {
+        console.error('Error loading translations:', error);
+        // Используем fallback переводы в случае ошибки
+        setTranslations(fallbackTranslations[language]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTranslations();
+  }, [language]);
+
+  return translations;
 }
 
 // Функция для получения перевода категории
 export function getCategoryTranslation(category: string, language: Language = 'ru'): string {
-  const t = translations[language] || translations.ru;
-  const categoryMap: Record<string, string> = {
-    'Семья': t.family,
-    'Family': t.family,
-    'Familia': t.family,
-    'Familie': t.family,
-    'Famille': t.family,
-    '家庭': t.family,
-    '家族': t.family,
-    
-    'Работа': t.work,
-    'Work': t.work,
-    'Trabajo': t.work,
-    'Arbeit': t.work,
-    'Travail': t.work,
-    '工作': t.work,
-    '仕事': t.work,
-    
-    'Финансы': t.finance,
-    'Finance': t.finance,
-    'Finanzas': t.finance,
-    'Finanzen': t.finance,
-    'Finances': t.finance,
-    '财务': t.finance,
-    '財務': t.finance,
-    
-    'Благодарность': t.gratitude,
-    'Gratitude': t.gratitude,
-    'Gratitud': t.gratitude,
-    'Dankbarkeit': t.gratitude,
-    '感恩': t.gratitude,
-    '感謝': t.gratitude,
-    
-    'Здоровье': t.health,
-    'Health': t.health,
-    'Salud': t.health,
-    'Gesundheit': t.health,
-    'Santé': t.health,
-    '健康': t.health,
-    
-    'Личное развитие': t.personalDevelopment,
-    'Personal Development': t.personalDevelopment,
-    'Desarrollo personal': t.personalDevelopment,
-    'Persönliche Entwicklung': t.personalDevelopment,
-    'Développement personnel': t.personalDevelopment,
-    '个人发展': t.personalDevelopment,
-    '個人的な成長': t.personalDevelopment,
-    
-    'Творчество': t.creativity,
-    'Creativity': t.creativity,
-    'Creatividad': t.creativity,
-    'Kreativität': t.creativity,
-    'Créativité': t.creativity,
-    '创造力': t.creativity,
-    '創造性': t.creativity,
-    
-    'Отношения': t.relationships,
-    'Relationships': t.relationships,
-    'Relaciones': t.relationships,
-    'Beziehungen': t.relationships,
-    'Relations': t.relationships,
-    '关系': t.relationships,
-    '関係': t.relationships,
-  };
+  const translations = fallbackTranslations[language];
   
-  return categoryMap[category] || category;
+  switch (category) {
+    case 'family': return translations.family;
+    case 'work': return translations.work;
+    case 'finance': return translations.finance;
+    case 'gratitude': return translations.gratitude;
+    case 'health': return translations.health;
+    case 'personalDevelopment': return translations.personalDevelopment;
+    case 'creativity': return translations.creativity;
+    case 'relationships': return translations.relationships;
+    default: return category;
+  }
 }
-
