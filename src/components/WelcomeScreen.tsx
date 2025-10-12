@@ -188,40 +188,6 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
               </motion.div>
             </Button>
 
-            {/* Dropdown Menu */}
-            {showDropdown && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full mt-2 w-full bg-white rounded-[10px] shadow-xl border border-gray-100 z-30"
-              >
-                {languages.map((language) => (
-                  <button
-                    key={language.code}
-                    onClick={() => {
-                      setSelectedLanguage(language.code);
-                      setShowDropdown(false);
-                    }}
-                    className="w-full flex items-center justify-between px-6 py-3 text-left hover:bg-gray-50 transition-colors first:rounded-t-[10px] last:rounded-b-[10px]"
-                    style={{
-                      fontFamily: "'Inter', var(--font-family-primary)",
-                      fontSize: '12px',
-                      fontWeight: '400'
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span>{language.flag}</span>
-                      <span className="text-[#6b6b6b]">{language.name}</span>
-                    </div>
-                    {selectedLanguage === language.code && (
-                      <Check size={16} className="text-[#8B78FF]" />
-                    )}
-                  </button>
-                ))}
-              </motion.div>
-            )}
           </div>
         </motion.div>
       </div>
@@ -427,12 +393,49 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
         </motion.div>
       </div>
 
-      {/* Dropdown overlay */}
+      {/* Language Selection Popup - полноэкранный попап с размытым фоном */}
       {showDropdown && (
-        <div 
-          className="fixed inset-0 z-10" 
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center px-4"
+          style={{ zIndex: 999999 }}
           onClick={() => setShowDropdown(false)}
-        />
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.3, type: "spring", damping: 25 }}
+            className="bg-white rounded-[20px] w-[280px] max-h-[65vh] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Language List */}
+            <div className="overflow-y-auto max-h-[65vh]">
+              {languages.map((language) => (
+                <button
+                  key={language.code}
+                  onClick={() => {
+                    setSelectedLanguage(language.code);
+                    setShowDropdown(false);
+                  }}
+                  className="w-full flex items-center justify-between pl-[22px] pr-[13px] h-14 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                  style={{
+                    fontFamily: "'Inter', var(--font-family-primary)",
+                    fontSize: '12px',
+                    fontWeight: '400'
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>{language.flag}</span>
+                    <span className="text-[#6b6b6b]">{language.name}</span>
+                  </div>
+                  {selectedLanguage === language.code && (
+                    <Check size={16} className="text-[#8B78FF]" strokeWidth={2} />
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </div>
       )}
     </motion.div>
   );

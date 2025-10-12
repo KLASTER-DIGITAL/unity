@@ -52,8 +52,13 @@ const translations = {
 function Circle() {
   return (
     <motion.div 
-      className="h-[434px] relative shrink-0 w-[369px] pointer-events-none" 
+      className="relative shrink-0 pointer-events-none" 
       data-name="Circle"
+      style={{
+        height: 'clamp(300px, 48vh, 434px)',
+        width: 'min(369px, 90vw)',
+        marginTop: 'min(10px, 1vh)'
+      }}
       initial={{ opacity: 0, rotate: -10, scale: 0.9 }}
       animate={{ 
         opacity: 1, 
@@ -79,11 +84,13 @@ function Circle() {
 function Text({ currentTranslations }: { currentTranslations: any }) {
   return (
     <motion.div 
-      className="absolute gap-4 grid grid-cols-[repeat(1,_minmax(0px,_1fr))] grid-rows-[repeat(2,_minmax(0px,_1fr))] h-[133px] leading-[0] translate-x-[-50%] w-[335px] max-w-[calc(100%-32px)] px-4" 
+      className="absolute gap-3 grid grid-cols-[repeat(1,_minmax(0px,_1fr))] grid-rows-[repeat(2,_minmax(0px,_1fr))] leading-[0] translate-x-[-50%] px-4" 
       data-name="Text" 
       style={{ 
         left: "50%",
-        top: "min(453px, calc(100vh - 220px))"
+        top: "clamp(300px, calc(100vh - 270px), 453px)",
+        width: 'min(335px, calc(100vw - 32px))',
+        height: 'clamp(100px, 13vh, 133px)'
       }}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -119,7 +126,7 @@ function Sliedbar({ currentStep, totalSteps, onStepClick }: { currentStep: numbe
       className="absolute flex items-center gap-[8px]" 
       data-name="Sliedbar" 
       style={{ 
-        bottom: "min(40px, 8vh)",
+        bottom: "max(calc(env(safe-area-inset-bottom, 20px) + 85px), 85px)",
         left: "min(25px, 8vw)"
       }}
       initial={{ opacity: 0, y: 20 }}
@@ -165,7 +172,7 @@ function ArrowRight1({ onClick }: { onClick: () => void }) {
       className="absolute size-6 bg-transparent border-0 cursor-pointer z-10" 
       data-name="Arrow - Right"
       style={{
-        bottom: "min(69px, 15vh)",
+        bottom: "max(env(safe-area-inset-bottom, 20px), 20px)",
         right: "min(46px, 12vw)"
       }}
     >
@@ -183,7 +190,7 @@ function NextButton({ onNext }: { onNext: () => void }) {
     <motion.div 
       className="absolute contents" 
       style={{
-        bottom: "max(-2px, calc(0px - 2vh))",
+        bottom: "max(env(safe-area-inset-bottom, 0px), 0px)",
         right: "max(-1px, calc(0px - 1vw))"
       }}
       data-name="Next Button"
@@ -195,10 +202,12 @@ function NextButton({ onNext }: { onNext: () => void }) {
     >
       <button
         onClick={onNext}
-        className="absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent border-0 cursor-pointer"
+        className="absolute bg-transparent border-0 cursor-pointer"
         style={{
-          bottom: "max(-2px, calc(0px - 2vh))",
-          right: "max(-1px, calc(0px - 1vw))"
+          bottom: "max(env(safe-area-inset-bottom, 0px), 0px)",
+          right: "max(-1px, calc(0px - 1vw))",
+          height: 'min(191px, 25vh)',
+          width: 'min(129px, 30vw)'
         }}
       >
         <div className="absolute bottom-0 left-[7.57%] right-0 top-0 pointer-events-none">
@@ -213,10 +222,10 @@ function NextButton({ onNext }: { onNext: () => void }) {
 function SkipButton({ onSkip, currentTranslations }: { onSkip: () => void; currentTranslations: any }) {
   return (
     <motion.div 
-      className="absolute flex flex-col font-['Poppins:Regular',_sans-serif] justify-center leading-[0] not-italic text-[#002055] text-[14px] text-center translate-x-[-50%] translate-y-[-50%]" 
+      className="absolute flex flex-col font-['Poppins:Regular',_sans-serif] justify-center leading-[0] not-italic text-[#002055] text-[14px] text-center translate-x-[-50%]" 
       style={{ 
-        top: "min(calc(50% + 334.5px), calc(100vh - 40px))",
-        left: "min(58.01px, 15vw)"
+        bottom: "max(env(safe-area-inset-bottom, 20px), 20px)",
+        left: "min(58px, 15vw)"
       }}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -252,11 +261,13 @@ function Frame2087324618({ selectedLanguage, onNext, onSkip, currentStep, totalS
     >
       <Circle />
       <motion.div 
-        className="absolute bg-center bg-cover bg-no-repeat h-[379px] translate-x-[-50%] w-[314px] max-w-[calc(100%-60px)] rounded-lg" 
+        className="absolute bg-center bg-cover bg-no-repeat translate-x-[-50%] rounded-lg" 
         data-name="image 1569" 
         style={{ 
           left: "50%", 
-          top: "min(27px, 5vh)",
+          top: "clamp(0px, -5vh, 15px)",
+          height: 'min(379px, 50vh)',
+          width: 'min(314px, 85vw)',
           backgroundImage: `url('${imgImage1569}')` 
         }}
         initial={{ opacity: 0, scale: 0.9 }}

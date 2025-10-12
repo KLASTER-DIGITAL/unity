@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from "motion/re
 import { AchievementHeader } from "../AchievementHeader";
 import { ChatInputSection } from "../ChatInputSection";
 import { getEntries, getUserStats, type DiaryEntry } from "../../utils/api";
+import { useTranslations, getCategoryTranslation, type Language } from "../../utils/i18n";
 import { toast } from "sonner";
 import { 
   Undo2,
@@ -240,22 +241,37 @@ function getDefaultMotivations(language: string): AchievementCard[] {
 }
 
 // Функция для конвертации DiaryEntry в AchievementCard
-function entryToCard(entry: DiaryEntry, index: number): AchievementCard {
+function entryToCard(entry: DiaryEntry, index: number, userLanguage: Language = 'ru'): AchievementCard {
   const gradientList = GRADIENTS[entry.sentiment] || GRADIENTS.positive;
   const gradient = gradientList[index % gradientList.length];
   
   const entryDate = new Date(entry.createdAt);
-  const dateFormatter = new Intl.DateTimeFormat('ru', { 
+  const localeMap: Record<Language, string> = {
+    ru: 'ru-RU',
+    en: 'en-US',
+    es: 'es-ES',
+    de: 'de-DE',
+    fr: 'fr-FR',
+    zh: 'zh-CN',
+    ja: 'ja-JP'
+  };
+  const dateFormatter = new Intl.DateTimeFormat(localeMap[userLanguage] || 'ru-RU', { 
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
   
+  // Используем aiSummary как title, если доступно
+  const title = entry.aiSummary || getCategoryTranslation(entry.category || "Achievement", userLanguage);
+  
+  // Используем aiInsight как description, если доступно
+  const description = entry.aiInsight || entry.text;
+  
   return {
     id: entry.id,
     date: dateFormatter.format(entryDate),
-    title: entry.category || "Достижение",
-    description: entry.text,
+    title,
+    description,
     gradient,
     isMarked: false,
     category: entry.category,
@@ -466,6 +482,7 @@ export function AchievementHomeScreen({
     try {
       setIsLoading(true);
       const userId = userData?.id || "anonymous";
+      const userLanguage = (userData?.language || 'ru') as Language;
 
       // Загружаем записи и статистику параллельно
       const [entries, stats] = await Promise.all([
@@ -476,22 +493,37 @@ export function AchievementHomeScreen({
       console.log("Loaded entries:", entries);
       console.log("User stats:", stats);
 
+      // Фильтруем записи за вчера и сегодня для карточек мотивации
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const recentEntries = entries.filter(entry => {
+        const entryDate = new Date(entry.createdAt);
+        const entryDay = new Date(entryDate.getFullYear(), entryDate.getMonth(), entryDate.getDate());
+        return entryDay >= yesterday;
+      });
+
+      console.log(`Filtered ${recentEntries.length} entries from yesterday/today out of ${entries.length} total`);
+
       // Конвертируем записи в карточки
-      if (entries.length > 0) {
-        const loadedCards = entries.map((entry, index) => entryToCard(entry, index));
+      if (recentEntries.length > 0) {
+        // Показываем до 3 карточек из последних записей
+        const cardsToShow = recentEntries.slice(0, 3);
+        const loadedCards = cardsToShow.map((entry, index) => entryToCard(entry, index, userLanguage));
         setCards(loadedCards);
         setCurrentIndex(0); // Сброс индекса при загрузке новых карточек
       } else {
         // Показываем дефолтные мотивации с учетом языка пользователя
-        const userLanguage = userData?.language || 'ru';
         const defaultCards = getDefaultMotivations(userLanguage);
         
         if (isFirstLoad && !userData?.id) {
           setCards(defaultCards);
           setCurrentIndex(0);
         } else {
-          // Для авторизованных пользователей без записей показываем пустое состояние
-          setCards([]);
+          // Для авторизованных пользователей без записей за вчера/сегодня показываем дефолтные мотивации
+          setCards(defaultCards);
           setCurrentIndex(0);
         }
       }
@@ -504,12 +536,10 @@ export function AchievementHomeScreen({
       toast.error("Не удалось загрузить записи", {
         description: "Проверьте подключение к интернету"
       });
-      // В случае ошибки показываем дефолтные мотивации для новых пользователей
-      if (isFirstLoad && !userData?.id) {
-        const userLanguage = userData?.language || 'ru';
-        const defaultCards = getDefaultMotivations(userLanguage);
-        setCards(defaultCards);
-      }
+      // В случае ошибки показываем дефолтные мотивации
+      const userLanguage = (userData?.language || 'ru') as Language;
+      const defaultCards = getDefaultMotivations(userLanguage);
+      setCards(defaultCards);
     } finally {
       setIsLoading(false);
       setIsFirstLoad(false);
@@ -520,8 +550,10 @@ export function AchievementHomeScreen({
   const handleNewEntry = (entry: DiaryEntry) => {
     console.log("New entry created:", entry);
     
+    const userLanguage = (userData?.language || 'ru') as Language;
+    
     // Добавляем новую карточку в начало
-    const newCard = entryToCard(entry, 0);
+    const newCard = entryToCard(entry, 0, userLanguage);
     setCards(prev => [newCard, ...prev]);
     
     // Если это была первая запись (карточек не было), сбрасываем индекс
