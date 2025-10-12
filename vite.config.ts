@@ -74,6 +74,43 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // React и основные библиотеки
+            if (id.includes('node_modules/react') || 
+                id.includes('node_modules/react-dom') ||
+                id.includes('node_modules/scheduler')) {
+              return 'react-vendor';
+            }
+            
+            // UI библиотеки (Radix UI)
+            if (id.includes('node_modules/@radix-ui') ||
+                id.includes('node_modules/motion') ||
+                id.includes('node_modules/sonner')) {
+              return 'ui-vendor';
+            }
+            
+            // Графики и charts
+            if (id.includes('node_modules/recharts') ||
+                id.includes('node_modules/victory') ||
+                id.includes('node_modules/d3-')) {
+              return 'charts-vendor';
+            }
+            
+            // Админ-панель (загружается только для админов)
+            if (id.includes('/src/components/screens/admin/') ||
+                id.includes('/src/components/screens/AdminDashboard')) {
+              return 'admin';
+            }
+            
+            // Lucide icons
+            if (id.includes('node_modules/lucide-react')) {
+              return 'icons-vendor';
+            }
+          },
+        },
+      },
     },
     server: {
       port: 3000,

@@ -357,7 +357,7 @@ function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolea
       transition={{ delay: 0.6, duration: 0.6, type: "spring" }}
       whileHover={{ 
         scale: disabled ? 1 : 1.05,
-        rotate: disabled ? 0 : [0, -2, 2, 0]
+        rotate: disabled ? 0 : 0
       }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
     >

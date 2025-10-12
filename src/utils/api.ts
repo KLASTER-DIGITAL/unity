@@ -25,9 +25,13 @@ interface ApiOptions {
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
   const { method = 'GET', body, headers = {} } = options;
   
+  // Получаем OpenAI API ключ из localStorage (если есть)
+  const openaiApiKey = localStorage.getItem('admin_openai_api_key');
+  
   const requestHeaders = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${publicAnonKey}`,
+    ...(openaiApiKey && { 'X-OpenAI-Key': openaiApiKey }), // Добавляем OpenAI ключ если есть
     ...headers
   };
 

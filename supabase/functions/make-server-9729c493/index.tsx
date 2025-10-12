@@ -11,7 +11,7 @@ const app = new Hono();
 app.use('*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-OpenAI-Key'],
 }));
 app.use('*', logger(console.log));
 
@@ -19,6 +19,8 @@ app.use('*', logger(console.log));
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+const MEDIA_BUCKET_NAME = 'diary-media';
 
 // ======================
 // VOICE TRANSCRIPTION (Whisper API)

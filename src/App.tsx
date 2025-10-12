@@ -291,9 +291,11 @@ export default function App() {
           setCurrentStep(2); // Начинаем со 2 шага (пропускаем выбор языка)
         }
       } else {
-        console.log('No existing session - showing auth screen');
-        // Нет сессии - показываем экран входа/регистрации
-        setShowAuth(true);
+        console.log('No existing session - starting onboarding from step 1');
+        // Нет сессии - начинаем онбординг с выбора языка
+        setNeedsOnboarding(true);
+        setOnboardingComplete(false);
+        setCurrentStep(1); // Начинаем с выбора языка
       }
     } catch (error) {
       console.error('Session check error:', error);
@@ -744,241 +746,55 @@ export default function App() {
           {currentStep === 2 && (
             <motion.div
               key="step2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative overflow-hidden"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              {/* Верхняя часть - уходит вверх */}
-              <motion.div
-                initial={{ y: 0 }}
-                exit={{ y: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.1 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 60%)' }}
-              >
-                <OnboardingScreen2 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding2Next}
-                  onSkip={handleOnboarding2Skip}
-                  currentStep={2}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя левая часть - уходит влево */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 60%, 50% 60%, 50% 100%, 0 100%)' }}
-              >
-                <OnboardingScreen2 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding2Next}
-                  onSkip={handleOnboarding2Skip}
-                  currentStep={2}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя правая часть - уходит вправо */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: 400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(50% 60%, 100% 60%, 100% 100%, 50% 100%)' }}
-              >
-                <OnboardingScreen2 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding2Next}
-                  onSkip={handleOnboarding2Skip}
-                  currentStep={2}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Основной экран для входящей анимации */}
-              <motion.div
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-              >
-                <OnboardingScreen2 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding2Next}
-                  onSkip={handleOnboarding2Skip}
-                  currentStep={2}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
+              <OnboardingScreen2 
+                selectedLanguage={selectedLanguage}
+                onNext={handleOnboarding2Next}
+                onSkip={handleOnboarding2Skip}
+                currentStep={2}
+                totalSteps={4}
+                onStepClick={handleStepNavigation}
+              />
             </motion.div>
           )}
           {currentStep === 3 && (
             <motion.div
               key="step3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative overflow-hidden"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              {/* Верхняя часть - уходит вверх */}
-              <motion.div
-                initial={{ y: 0 }}
-                exit={{ y: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.1 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 60%)' }}
-              >
-                <OnboardingScreen3 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding3Next}
-                  onSkip={handleOnboarding3Skip}
-                  currentStep={3}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя левая часть - уходит влево */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 60%, 50% 60%, 50% 100%, 0 100%)' }}
-              >
-                <OnboardingScreen3 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding3Next}
-                  onSkip={handleOnboarding3Skip}
-                  currentStep={3}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя правая часть - уходит вправо */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: 400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(50% 60%, 100% 60%, 100% 100%, 50% 100%)' }}
-              >
-                <OnboardingScreen3 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding3Next}
-                  onSkip={handleOnboarding3Skip}
-                  currentStep={3}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Основной экран для входящей анимации */}
-              <motion.div
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-              >
-                <OnboardingScreen3 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding3Next}
-                  onSkip={handleOnboarding3Skip}
-                  currentStep={3}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
+              <OnboardingScreen3 
+                selectedLanguage={selectedLanguage}
+                onNext={handleOnboarding3Next}
+                onSkip={handleOnboarding3Skip}
+                currentStep={3}
+                totalSteps={4}
+                onStepClick={handleStepNavigation}
+              />
             </motion.div>
           )}
           {currentStep === 4 && (
             <motion.div
               key="step4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative overflow-hidden"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              {/* Верхняя часть - уходит вверх */}
-              <motion.div
-                initial={{ y: 0 }}
-                exit={{ y: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.1 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 60%)' }}
-              >
-                <OnboardingScreen4 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding4Next}
-                  onSkip={handleOnboarding4Skip}
-                  currentStep={4}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя левая часть - уходит влево */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: -400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(0 60%, 50% 60%, 50% 100%, 0 100%)' }}
-              >
-                <OnboardingScreen4 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding4Next}
-                  onSkip={handleOnboarding4Skip}
-                  currentStep={4}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Нижняя правая часть - уходит вправо */}
-              <motion.div
-                initial={{ x: 0 }}
-                exit={{ x: 400 }}
-                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
-                className="absolute inset-0"
-                style={{ clipPath: 'polygon(50% 60%, 100% 60%, 100% 100%, 50% 100%)' }}
-              >
-                <OnboardingScreen4 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding4Next}
-                  onSkip={handleOnboarding4Skip}
-                  currentStep={4}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
-              
-              {/* Основной экран для входящей анимации */}
-              <motion.div
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-              >
-                <OnboardingScreen4 
-                  selectedLanguage={selectedLanguage}
-                  onNext={handleOnboarding4Next}
-                  onSkip={handleOnboarding4Skip}
-                  currentStep={4}
-                  totalSteps={4}
-                  onStepClick={handleStepNavigation}
-                />
-              </motion.div>
+              <OnboardingScreen4 
+                selectedLanguage={selectedLanguage}
+                onNext={handleOnboarding4Next}
+                onSkip={handleOnboarding4Skip}
+                currentStep={4}
+                totalSteps={4}
+                onStepClick={handleStepNavigation}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1025,7 +841,8 @@ export default function App() {
       {!isAdminRoute && (
         <MobileBottomNav 
           activeTab={activeTab} 
-          onTabChange={setActiveTab} 
+          onTabChange={setActiveTab}
+          language={selectedLanguage as any}
         />
       )}
 

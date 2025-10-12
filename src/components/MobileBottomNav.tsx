@@ -1,18 +1,22 @@
 import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTranslations, Language } from "@/utils/i18n";
 
 interface MobileBottomNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  language?: Language;
 }
 
-export function MobileBottomNav({ activeTab, onTabChange }: MobileBottomNavProps) {
+export function MobileBottomNav({ activeTab, onTabChange, language = 'ru' }: MobileBottomNavProps) {
+  const t = useTranslations(language);
+  
   const tabs = [
-    { id: 'home', label: 'Главная', icon: Home },
-    { id: 'history', label: 'История', icon: History },
-    { id: 'achievements', label: 'Награды', icon: Trophy },
-    { id: 'reports', label: 'Обзоры', icon: BarChart3 },
-    { id: 'settings', label: 'Настройки', icon: Settings },
+    { id: 'home', label: t.home, icon: Home },
+    { id: 'history', label: t.history, icon: History },
+    { id: 'achievements', label: t.achievements, icon: Trophy },
+    { id: 'reports', label: t.reports, icon: BarChart3 },
+    { id: 'settings', label: t.settings, icon: Settings },
   ];
 
   return (
