@@ -112,7 +112,7 @@ export function ChatInputSection({
     try {
       // Запрос к AI для анализа текста
       console.log("Analyzing text with AI...");
-      const analysis = await analyzeTextWithAI(userText, userName);
+      const analysis = await analyzeTextWithAI(userText, userName, userId);
       
       console.log("AI Analysis result:", analysis);
 
@@ -137,6 +137,10 @@ export function ChatInputSection({
         tags: analysis.tags,
         aiReply: analysis.reply,
         aiResponse: analysis.reply,
+        aiSummary: analysis.summary,
+        aiInsight: analysis.insight,
+        isAchievement: analysis.isAchievement,
+        mood: analysis.mood,
         media: uploadedMedia.length > 0 ? uploadedMedia : undefined,
         streakDay: 1, // TODO: Calculate actual streak
         focusArea: analysis.category

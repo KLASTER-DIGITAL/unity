@@ -381,13 +381,24 @@ app.put('/make-server-9729c493/profiles/:userId', async (c) => {
 // ======================
 app.post('/make-server-9729c493/chat/analyze', async (c) => {
   try {
-    const { text, userName } = await c.req.json();
+    const { text, userName, userId } = await c.req.json();
     
     if (!text || typeof text !== 'string') {
       return c.json({ success: false, error: 'Text is required' }, 400);
     }
 
     console.log(`Analyzing text for user: ${userName || 'anonymous'}`);
+
+    // Получить язык пользователя из профиля
+    let userLanguage = 'ru';
+    if (userId) {
+      const profile = await kv.get(`profile:${userId}`);
+      if (profile?.language) {
+        userLanguage = profile.language;
+      }
+    }
+
+    console.log(`User language: ${userLanguage}`);
 
     // Проверяем наличие OpenAI API ключа
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -411,20 +422,30 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
         messages: [
           {
             role: 'system',
-            content: `Ты - мотивирующий AI-помощник в приложении "Дневник достижений". Твоя задача:
-1. Дать короткий, воодушевляющий ответ на достижение пользователя (1-2 предложения, эмоджи приветствуются)
-2. Определить sentiment: positive, neutral, negative
-3. Определить категорию из: Семья, Работа, Финансы, Благодарность, Здоровье, Личное развитие, Творчество, Отношения
-4. Выделить до 3 тегов (ключевых слов)
-5. Оценить confidence (0-1) насколько ты уверен в категории
+            content: `Ты - мотивирующий AI-помощник в приложении "Дневник достижений".
+ВАЖНО: Отвечай на языке пользователя (${userLanguage}).
+
+Твоя задача:
+1. Дать короткий воодушевляющий ответ (1-2 предложения, эмоджи приветствуются)
+2. Создать краткое резюме достижения (summary, до 200 символов) - это будет заголовок мотивационной карточки
+3. Сформировать позитивный вывод/инсайт (insight, до 200 символов) - что это значит для человека
+4. Определить sentiment: positive, neutral, negative
+5. Определить категорию из: Семья, Работа, Финансы, Благодарность, Здоровье, Личное развитие, Творчество, Отношения
+6. Выделить до 3 тегов (ключевых слов)
+7. Определить является ли это достижением (isAchievement: true/false)
+8. Определить настроение/эмоцию (mood: например "радость", "энергия", "удовлетворение")
 
 Отвечай ТОЛЬКО в формате JSON:
 {
-  "reply": "Твой мотивирующий ответ",
+  "reply": "Мотивирующий ответ на языке ${userLanguage}",
+  "summary": "Краткое резюме достижения на языке ${userLanguage}",
+  "insight": "Позитивный вывод о значении этого действия на языке ${userLanguage}",
   "sentiment": "positive|neutral|negative",
-  "category": "название категории",
+  "category": "название категории на языке ${userLanguage}",
   "tags": ["тег1", "тег2"],
-  "confidence": 0.95
+  "confidence": 0.95,
+  "isAchievement": true,
+  "mood": "эмоция на языке ${userLanguage}"
 }`
           },
           {
@@ -433,7 +454,7 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
           }
         ],
         temperature: 0.7,
-        max_tokens: 200
+        max_tokens: 400
       })
     });
 
@@ -463,10 +484,14 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
       // Fallback если AI вернул не JSON
       analysis = {
         reply: aiMessage,
+        summary: text.substring(0, 100),
+        insight: 'Каждое достижение приближает тебя к цели!',
         sentiment: 'positive',
         category: 'Личное развитие',
         tags: ['достижение'],
-        confidence: 0.5
+        confidence: 0.5,
+        isAchievement: true,
+        mood: 'вдохновение'
       };
     }
 
@@ -474,10 +499,14 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
       success: true,
       analysis: {
         reply: analysis.reply || 'Отлично! Продолжай в том же духе! 💪',
+        summary: analysis.summary || text.substring(0, 100),
+        insight: analysis.insight || 'Каждое достижение приближает тебя к цели!',
         sentiment: analysis.sentiment || 'positive',
         category: analysis.category || 'Личное развитие',
         tags: analysis.tags || [],
-        confidence: analysis.confidence || 0.5
+        confidence: analysis.confidence || 0.5,
+        isAchievement: analysis.isAchievement !== undefined ? analysis.isAchievement : true,
+        mood: analysis.mood || 'вдохновение'
       }
     });
 
@@ -518,6 +547,10 @@ app.post('/make-server-9729c493/entries/create', async (c) => {
       tags: entry.tags || [],
       aiReply: entry.aiReply || '',
       aiResponse: entry.aiResponse || entry.aiReply || '',
+      aiSummary: entry.aiSummary || null,
+      aiInsight: entry.aiInsight || null,
+      isAchievement: entry.isAchievement !== undefined ? entry.isAchievement : true,
+      mood: entry.mood || null,
       createdAt: now,
       streakDay: entry.streakDay || 1,
       focusArea: entry.focusArea || entry.category || 'Личное развитие'

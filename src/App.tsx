@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { checkSession, signOut } from "./utils/auth";
-import { updateUserProfile } from "./utils/api";
+import { updateUserProfile, analyzeTextWithAI, createEntry } from "./utils/api";
 import { isPWAEnabled, logPWADebugInfo } from "./utils/pwaUtils";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { WelcomeScreen } from "./components/WelcomeScreen";
@@ -332,8 +332,19 @@ export default function App() {
   };
 
   // Функция для обработки выбора языка (шаг 1 -> шаг 2)
-  const handleLanguageSelected = (language: string) => {
+  const handleLanguageSelected = async (language: string) => {
     setSelectedLanguage(language);
+    
+    // Если пользователь авторизован - сохраняем язык сразу
+    if (userData?.id) {
+      try {
+        await updateUserProfile(userData.id, { language });
+        console.log('Language saved:', language);
+      } catch (error) {
+        console.error('Error saving language:', error);
+      }
+    }
+    
     setCurrentStep(2);
   };
 
@@ -385,14 +396,46 @@ export default function App() {
     setFirstEntry(entry);
     setNotificationSettings(settings);
     
-    // Если пользователь уже авторизован, сохраняем настройки и завершаем онбординг
+    // Если пользователь уже авторизован, сохраняем настройки и запись
     if (userData?.id) {
       try {
+        // Сохраняем настройки профиля
         await updateUserProfile(userData.id, {
           notificationSettings: settings,
-          onboardingCompleted: true // Помечаем онбординг как завершенный
+          onboardingCompleted: true
         });
+        
         console.log('✅ Onboarding completed and saved');
+        
+        // Сохраняем первую запись, если она есть
+        if (entry && entry.trim()) {
+          console.log('Saving first entry from onboarding (authorized):', entry);
+          
+          const analysis = await analyzeTextWithAI(
+            entry, 
+            userData.name || 'Пользователь',
+            userData.id
+          );
+          
+          await createEntry({
+            userId: userData.id,
+            text: entry,
+            sentiment: analysis.sentiment,
+            category: analysis.category,
+            tags: analysis.tags,
+            aiReply: analysis.reply,
+            aiSummary: analysis.summary,
+            aiInsight: analysis.insight,
+            isAchievement: analysis.isAchievement,
+            mood: analysis.mood,
+            focusArea: analysis.category
+          });
+          
+          console.log('First entry saved successfully');
+          setFirstEntry(""); // Очищаем
+          
+          toast.success("Твоя первая запись сохранена! 🎉");
+        }
         
         // Обновляем userData
         setUserData({
@@ -405,17 +448,16 @@ export default function App() {
         setNeedsOnboarding(false);
       } catch (error) {
         console.error('Error saving onboarding data:', error);
-        // Даже если сохранение не удалось, завершаем онбординг локально
+        toast.error("Ошибка сохранения данных");
         setOnboardingComplete(true);
       }
     } else {
-      // Если есть запись и пользователь не авторизован, показываем экран авторизации
+      // Если не авторизован - показываем экран авторизации
       if (entry.trim()) {
         setTimeout(() => {
           setShowAuthAfterEntry(true);
         }, 1000);
       } else {
-        // Нет записи и нет пользователя - показываем обычную авторизацию
         setShowAuth(true);
       }
     }
@@ -446,7 +488,56 @@ export default function App() {
 
   // Функция для завершения авторизации после записи
   const handleAuthAfterEntryComplete = async (data: any) => {
+    console.log('Auth complete with data:', data);
     setUserData(data);
+    setShowAuthAfterEntry(false);
+    
+    // Сохраняем выбранный язык в профиль
+    if (selectedLanguage && selectedLanguage !== data.language) {
+      try {
+        await updateUserProfile(data.id, { language: selectedLanguage });
+        data.language = selectedLanguage;
+      } catch (error) {
+        console.error('Error updating language:', error);
+      }
+    }
+    
+    // Сохраняем первую запись, если она есть
+    if (firstEntry && firstEntry.trim()) {
+      try {
+        console.log('Saving first entry from onboarding:', firstEntry);
+        
+        // Анализируем текст с AI
+        const analysis = await analyzeTextWithAI(
+          firstEntry, 
+          data.name || 'Пользователь',
+          data.id
+        );
+        
+        // Создаем запись в базе
+        await createEntry({
+          userId: data.id,
+          text: firstEntry,
+          sentiment: analysis.sentiment,
+          category: analysis.category,
+          tags: analysis.tags,
+          aiReply: analysis.reply,
+          aiSummary: analysis.summary,
+          aiInsight: analysis.insight,
+          isAchievement: analysis.isAchievement,
+          mood: analysis.mood,
+          focusArea: analysis.category
+        });
+        
+        console.log('First entry saved successfully');
+        setFirstEntry(""); // Очищаем
+        
+        toast.success("Твоя первая запись сохранена! 🎉");
+      } catch (error) {
+        console.error('Error saving first entry:', error);
+        toast.error("Не удалось сохранить первую запись");
+      }
+    }
     
     // Если есть данные из онбординга, обновляем профиль и помечаем онбординг завершенным
     if (data.id && (diaryData.name || notificationSettings.selectedTime !== 'none')) {
@@ -456,7 +547,7 @@ export default function App() {
           diaryEmoji: diaryData.emoji || '🏆',
           notificationSettings: notificationSettings,
           language: selectedLanguage,
-          onboardingCompleted: true // Помечаем онбординг как завершенный
+          onboardingCompleted: true
         });
         console.log('✅ Onboarding data saved and marked as completed');
         
@@ -470,7 +561,6 @@ export default function App() {
       }
     }
     
-    setShowAuthAfterEntry(false);
     setOnboardingComplete(true);
     setNeedsOnboarding(false);
   };
@@ -556,12 +646,12 @@ export default function App() {
     // Админский роут обрабатывается выше, до онбординга
     // Здесь только обычные экраны приложения
     switch (activeTab) {
-      case "home": return <AchievementHomeScreen diaryData={diaryData} firstEntry={firstEntry} userData={userData} />;
+      case "home": return <AchievementHomeScreen diaryData={diaryData} userData={userData} />;
       case "history": return <HistoryScreen userData={userData} />;
       case "achievements": return <AchievementsScreen userData={userData} />;
       case "reports": return <ReportsScreen userData={userData} />;
       case "settings": return <SettingsScreen userData={userData} onLogout={handleLogout} />;
-      default: return <AchievementHomeScreen diaryData={diaryData} firstEntry={firstEntry} userData={userData} />;
+      default: return <AchievementHomeScreen diaryData={diaryData} userData={userData} />;
     }
   };
 
@@ -623,6 +713,7 @@ export default function App() {
           onBack={handleAuthBack}
           showTopBar={true}
           contextText="Добро пожаловать!"
+          selectedLanguage={selectedLanguage}
         />
       </div>
     );
@@ -908,6 +999,7 @@ export default function App() {
                 onBack={handleAuthAfterEntryBack}
                 showTopBar={false}
                 contextText="Сохраним твои успехи?"
+                selectedLanguage={selectedLanguage}
               />
             </motion.div>
           )}

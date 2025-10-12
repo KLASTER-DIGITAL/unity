@@ -74,18 +74,22 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 
 export interface AIAnalysisResult {
   reply: string;
+  summary: string;       // Краткое резюме (до 200 символов)
+  insight: string;       // Позитивный вывод (до 200 символов)
   sentiment: 'positive' | 'neutral' | 'negative';
   category: string;
   tags: string[];
   confidence: number;
+  isAchievement?: boolean;  // Флаг достижения
+  mood?: string;           // Эмоция/настроение
 }
 
-export async function analyzeTextWithAI(text: string, userName?: string): Promise<AIAnalysisResult> {
+export async function analyzeTextWithAI(text: string, userName?: string, userId?: string): Promise<AIAnalysisResult> {
   try {
-    const response = await apiRequest('/chat/analyze', {
-      method: 'POST',
-      body: { text, userName }
-    });
+  const response = await apiRequest('/chat/analyze', {
+    method: 'POST',
+    body: { text, userName, userId }
+  });
 
     if (!response.success) {
       console.error('AI analysis failed:', response);
@@ -113,6 +117,10 @@ export interface DiaryEntry {
   category: string;
   tags: string[];
   aiReply: string;
+  aiSummary?: string;        // Краткое резюме (до 200 символов)
+  aiInsight?: string;        // Позитивный вывод (до 200 символов)
+  isAchievement?: boolean;   // Флаг достижения
+  mood?: string;             // Эмоция/настроение
   createdAt: string;
   streakDay: number;
   focusArea: string;

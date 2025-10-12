@@ -20,13 +20,15 @@ interface AuthScreenProps {
   onBack?: () => void;
   showTopBar?: boolean;
   contextText?: string;
+  selectedLanguage?: string;
 }
 
 export function AuthScreen({ 
   onComplete, 
   onBack,
   showTopBar = true,
-  contextText = "Сохраним твои успехи?"
+  contextText = "Сохраним твои успехи?",
+  selectedLanguage = "ru"
 }: AuthScreenProps) {
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +72,8 @@ export function AuthScreen({
         const result = await signUpWithEmail(email, password, {
           name: name || 'Пользователь',
           diaryName: 'Мой дневник',
-          diaryEmoji: '🏆'
+          diaryEmoji: '🏆',
+          language: selectedLanguage
         });
         
         if (result.success && result.user && result.profile) {
