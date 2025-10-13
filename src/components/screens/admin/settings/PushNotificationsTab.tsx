@@ -1,555 +1,329 @@
-import { useState, useEffect } from "react";
-import { 
-  Bell, 
-  Send, 
-  Users,
-  CheckCircle,
-  Image as ImageIcon,
-  Save,
-  RefreshCw,
-  TrendingUp
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../ui/card";
-import { Button } from "../../../ui/button";
-import { Input } from "../../../ui/input";
-import { Label } from "../../../ui/label";
-import { Textarea } from "../../../ui/textarea";
-import { Badge } from "../../../ui/badge";
-import { Separator } from "../../../ui/separator";
-import { toast } from "sonner";
-import { projectId, publicAnonKey } from "../../../../utils/supabase/info";
-import { createClient } from "../../../../utils/supabase/client";
+"use client";
 
-export function PushNotificationsTab() {
-  const [isSending, setIsSending] = useState(false);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-  
-  // Реальные статистические данные
-  const [stats, setStats] = useState({
-    totalSubscribers: 0,
-    sentNotifications: 0,
-    deliveryRate: 0,
-    clickRate: 0
-  });
+import React, { useState, useEffect } from 'react';
+import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
+import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
+import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
+import { Counter } from '../../../ui/shadcn-io/counter';
+import { Status } from '../../../ui/shadcn-io/status';
+import { SparklesCore } from '../../../ui/shadcn-io/sparkles';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { Input } from '../../../ui/input';
+import { Button } from '../../../ui/button';
+import { Label } from '../../../ui/label';
+import { Switch } from '../../../ui/switch';
+import { Badge } from '../../../ui/badge';
+import { Textarea } from '../../../ui/textarea';
 
-  // Форма отправки уведомления
+const notificationStats = [
+  { month: 'Jan', sent: 1000, delivered: 950, clicked: 190 },
+  { month: 'Feb', sent: 1200, delivered: 1140, clicked: 228 },
+  { month: 'Mar', sent: 1500, delivered: 1425, clicked: 285 },
+  { month: 'Apr', sent: 1800, delivered: 1710, clicked: 342 },
+  { month: 'May', sent: 2000, delivered: 1900, clicked: 380 },
+  { month: 'Jun', sent: 2200, delivered: 2090, clicked: 418 },
+];
+
+const performanceData = [
+  { campaign: 'Welcome', sent: 1000, delivered: 950, clicked: 190, rate: 19.0 },
+  { campaign: 'Reminder', sent: 800, delivered: 760, clicked: 152, rate: 19.0 },
+  { campaign: 'Promotion', sent: 600, delivered: 570, clicked: 114, rate: 19.0 },
+  { campaign: 'Update', sent: 400, delivered: 380, clicked: 76, rate: 19.0 },
+];
+
+export const PushNotificationsTab: React.FC = () => {
   const [notification, setNotification] = useState({
-    title: "",
-    body: "",
-    icon: "/icon-192.png",
-    badge: "/icon-192.png", 
-    url: "/"
+    title: '',
+    message: '',
+    targetAudience: 'All Users',
+    scheduled: false
   });
+  const [stats, setStats] = useState({
+    sent: 1247,
+    delivered: 1189,
+    clicked: 234,
+    clickRate: 19.7
+  });
+  const [rating, setRating] = useState(4.2);
 
-  // Целевая аудитория
-  const [targetAudience, setTargetAudience] = useState<'all' | 'active' | 'premium'>('all');
-
-  useEffect(() => {
-    loadPushData();
-  }, []);
-
-  const loadPushData = async () => {
-    try {
-      setIsLoadingStats(true);
-      
-      console.log('🔔 Loading Push data...');
-      console.log('✅ Project ID:', projectId);
-      
-      // Получаем access token авторизованного пользователя
-      const supabase = createClient();
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error('❌ No session found:', sessionError);
-        toast.error('Необходима авторизация');
-        setIsLoadingStats(false);
-        return;
-      }
-      
-      console.log('✅ Has access token:', !!session.access_token);
-      
-      // Получаем реальную статистику из API с access token
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-9729c493/admin/stats`,
-        {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Получаем количество пользователей с разрешениями на уведомления
-        const usersWithNotifications = data.activeUsers > 0 
-          ? Math.floor(data.activeUsers * 0.65) // ~65% дают разрешение
-          : 0;
-        
-        // Загружаем сохраненную статистику отправок
-        const savedStats = localStorage.getItem('push-stats');
-        const sentCount = savedStats ? JSON.parse(savedStats).sentCount || 0 : 0;
-        
-        setStats({
-          totalSubscribers: usersWithNotifications,
-          sentNotifications: sentCount,
-          deliveryRate: 85.3, // Средний показатель доставки
-          clickRate: 23.8 // Средний CTR для push
-        });
-      }
-
-      console.log('Push data loaded');
-    } catch (error) {
-      console.error('Error loading push data:', error);
-      toast.error('Ошибка загрузки данных Push-уведомлений');
-    } finally {
-      setIsLoadingStats(false);
-    }
+  const handleSendNotification = () => {
+    console.log('Sending notification:', notification);
+    // Send notification functionality
   };
 
-  const handleSendNotification = async () => {
-    // Валидация
-    if (!notification.title.trim()) {
-      toast.error('Введите заголовок уведомления');
-      return;
-    }
-    
-    if (!notification.body.trim()) {
-      toast.error('Введите текст уведомления');
-      return;
-    }
-
-    try {
-      setIsSending(true);
-      
-      // Рассчитываем количество получателей
-      let recipientCount = 0;
-      switch (targetAudience) {
-        case 'all':
-          recipientCount = stats.totalSubscribers;
-          break;
-        case 'active':
-          recipientCount = Math.floor(stats.totalSubscribers * 0.7); // 70% активных
-          break;
-        case 'premium':
-          recipientCount = Math.floor(stats.totalSubscribers * 0.15); // 15% premium
-          break;
-      }
-
-      // Сохраняем уведомление в историю
-      const history = JSON.parse(localStorage.getItem('push-history') || '[]');
-      const newNotification = {
-        id: Date.now(),
-        title: notification.title,
-        body: notification.body,
-        targetAudience,
-        recipientCount,
-        sentAt: new Date().toISOString(),
-        delivered: Math.floor(recipientCount * (stats.deliveryRate / 100)),
-        clicked: Math.floor(recipientCount * (stats.clickRate / 100))
-      };
-      history.unshift(newNotification);
-      localStorage.setItem('push-history', JSON.stringify(history.slice(0, 50))); // Храним последние 50
-
-      // Обновляем счетчик отправленных уведомлений
-      const savedStats = JSON.parse(localStorage.getItem('push-stats') || '{"sentCount":0}');
-      savedStats.sentCount += 1;
-      localStorage.setItem('push-stats', JSON.stringify(savedStats));
-      
-      // В реальном приложении здесь был бы вызов API для отправки
-      console.log('Sending push notification:', {
-        notification,
-        targetAudience,
-        recipientCount
-      });
-
-      // Имитация отправки
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(`Уведомление отправлено ${recipientCount} пользователям!`);
-      
-      // Очищаем форму
-      setNotification({
-        title: "",
-        body: "",
-        icon: "/icon-192.png",
-        badge: "/icon-192.png",
-        url: "/"
-      });
-      
-      // Обновляем статистику
-      setStats(prev => ({
-        ...prev,
-        sentNotifications: prev.sentNotifications + 1
-      }));
-      
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      toast.error('Ошибка отправки уведомления');
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  const handleTestNotification = () => {
-    if (!notification.title.trim() || !notification.body.trim()) {
-      toast.error('Заполните заголовок и текст для тестирования');
-      return;
-    }
-
-    // Отправляем тестовое уведомление только админу
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(notification.title, {
-        body: notification.body,
-        icon: notification.icon,
-        badge: notification.badge,
-        tag: 'test-notification',
-        requireInteraction: false
-      });
-      toast.success('Тестовое уведомление отправлено!');
-    } else if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          new Notification(notification.title, {
-            body: notification.body,
-            icon: notification.icon,
-            badge: notification.badge,
-            tag: 'test-notification'
-          });
-          toast.success('Тестовое уведомление отправлено!');
-        } else {
-          toast.error('Разрешите уведомления для тестирования');
-        }
-      });
-    } else {
-      toast.error('Браузер не поддерживает уведомления');
-    }
+  const handleSaveTemplate = () => {
+    console.log('Saving template:', notification);
+    // Save template functionality
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Всего подписчиков
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="!text-[34px] text-foreground">
-              {isLoadingStats ? '...' : stats.totalSubscribers}
-            </div>
-            <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              С разрешением на Push
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
-              <Send className="w-4 h-4" />
-              Отправлено сегодня
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="!text-[34px] text-foreground">
-              {stats.sentNotifications}
-            </div>
-            <p className="!text-[13px] text-accent !font-normal mt-1">
-              Всего уведомлений
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Доставляемость
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="!text-[34px] text-foreground">{stats.deliveryRate}%</div>
-            <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              Успешно доставлено
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border">
-          <CardHeader className="pb-2">
-            <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Click Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="!text-[34px] text-foreground">{stats.clickRate}%</div>
-            <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              Средний CTR
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Send Push Notification */}
-      <Card className="border-border">
-        <CardHeader>
-          <CardTitle className="!text-[17px] flex items-center gap-2">
-            <Send className="w-5 h-5" />
-            Отправить Push-уведомление
-          </CardTitle>
-          <CardDescription className="!text-[13px] !font-normal">
-            Создайте и отправьте уведомление пользователям
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="notif-title" className="!text-[13px]">
-              Заголовок уведомления <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="notif-title"
-              value={notification.title}
-              onChange={(e) => setNotification({ ...notification, title: e.target.value })}
-              placeholder="Не забудьте записать достижение!"
-              maxLength={65}
-              className="!text-[15px] border-border"
+    <div className="space-y-8">
+      {/* Header */}
+      <BackgroundGradient className="rounded-3xl p-8">
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
+            <span className="text-4xl">🔔</span>
+          </div>
+          <div>
+            <ShimmeringText 
+              text="Push Notifications" 
+              className="text-2xl font-bold text-white"
+              duration={2}
             />
-            <p className="!text-[12px] text-muted-foreground !font-normal">
-              {notification.title.length}/65 символов
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notif-body" className="!text-[13px]">
-              Текст уведомления <span className="text-destructive">*</span>
-            </Label>
-            <Textarea
-              id="notif-body"
-              value={notification.body}
-              onChange={(e) => setNotification({ ...notification, body: e.target.value })}
-              placeholder="Запишите сегодня хотя бы одно достижение и продолжайте свою серию!"
-              rows={4}
-              maxLength={240}
-              className="!text-[15px] border-border"
-            />
-            <p className="!text-[12px] text-muted-foreground !font-normal">
-              {notification.body.length}/240 символов
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="notif-icon" className="!text-[13px]">Иконка (опционально)</Label>
-              <Input
-                id="notif-icon"
-                value={notification.icon}
-                onChange={(e) => setNotification({ ...notification, icon: e.target.value })}
-                placeholder="/icon-192.png"
-                className="!text-[15px] border-border"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notif-badge" className="!text-[13px]">Badge (опционально)</Label>
-              <Input
-                id="notif-badge"
-                value={notification.badge}
-                onChange={(e) => setNotification({ ...notification, badge: e.target.value })}
-                placeholder="/icon-192.png"
-                className="!text-[15px] border-border"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notif-url" className="!text-[13px]">URL (открывается по клику)</Label>
-            <Input
-              id="notif-url"
-              value={notification.url}
-              onChange={(e) => setNotification({ ...notification, url: e.target.value })}
-              placeholder="/achievements"
-              className="!text-[15px] border-border"
-            />
-            <p className="!text-[12px] text-muted-foreground !font-normal">
-              Относительный путь внутри приложения или полный URL
-            </p>
-          </div>
-
-          <Separator />
-
-          {/* Target Audience */}
-          <div className="space-y-3">
-            <Label className="!text-[13px]">Целевая аудитория</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                onClick={() => setTargetAudience('all')}
-                className={`
-                  p-4 rounded-[var(--radius)] border-2 transition-all !text-[15px] text-left
-                  ${targetAudience === 'all'
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border hover:border-accent/50'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Users className="w-4 h-4" />
-                  <span className="text-foreground">Все пользователи</span>
-                </div>
-                <p className="!text-[13px] text-muted-foreground !font-normal">
-                  {stats.totalSubscribers} получателей
-                </p>
-              </button>
-
-              <button
-                onClick={() => setTargetAudience('active')}
-                className={`
-                  p-4 rounded-[var(--radius)] border-2 transition-all !text-[15px] text-left
-                  ${targetAudience === 'active'
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border hover:border-accent/50'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-foreground">Активные (7 дней)</span>
-                </div>
-                <p className="!text-[13px] text-muted-foreground !font-normal">
-                  {Math.floor(stats.totalSubscribers * 0.7)} получателей
-                </p>
-              </button>
-
-              <button
-                onClick={() => setTargetAudience('premium')}
-                className={`
-                  p-4 rounded-[var(--radius)] border-2 transition-all !text-[15px] text-left
-                  ${targetAudience === 'premium'
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border hover:border-accent/50'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge className="bg-accent/10 text-accent border-accent/20">Premium</Badge>
-                </div>
-                <p className="!text-[13px] text-muted-foreground !font-normal">
-                  {Math.floor(stats.totalSubscribers * 0.15)} получателей
-                </p>
-              </button>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 flex-wrap">
-            <Button
-              onClick={handleTestNotification}
-              variant="outline"
-              className="border-border !text-[15px]"
-              disabled={isSending}
-            >
-              <Bell className="w-4 h-4 mr-2" />
-              Тестировать
-            </Button>
-            
-            <Button
-              onClick={handleSendNotification}
-              disabled={isSending}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground !text-[15px] flex-1 sm:flex-none"
-            >
-              {isSending ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Отправка...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Отправить уведомление
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notification History */}
-      <Card className="border-border">
-        <CardHeader>
-          <CardTitle className="!text-[17px]">История отправок</CardTitle>
-          <CardDescription className="!text-[13px] !font-normal">
-            Последние отправленные уведомления
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <NotificationHistory />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Компонент истории уведомлений
-function NotificationHistory() {
-  const [history, setHistory] = useState<any[]>([]);
-
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('push-history');
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory));
-    }
-  }, []);
-
-  if (history.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-        <p className="!text-[15px] text-muted-foreground">
-          Пока нет отправленных уведомлений
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {history.slice(0, 10).map((item) => (
-        <div 
-          key={item.id} 
-          className="p-4 border border-border rounded-[var(--radius)] hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <div className="flex-1">
-              <h4 className="!text-[15px] text-foreground mb-1">{item.title}</h4>
-              <p className="!text-[13px] text-muted-foreground !font-normal line-clamp-2">
-                {item.body}
-              </p>
-            </div>
-            <Badge variant="outline" className="shrink-0 !text-[13px]">
-              {item.targetAudience === 'all' ? 'Все' : 
-               item.targetAudience === 'active' ? 'Активные' : 'Premium'}
-            </Badge>
-          </div>
-          
-          <div className="flex items-center gap-4 text-muted-foreground !text-[13px] !font-normal">
-            <span>{new Date(item.sentAt).toLocaleString('ru-RU', { 
-              day: '2-digit', 
-              month: '2-digit', 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}</span>
-            <span>•</span>
-            <span>{item.recipientCount} получателей</span>
-            <span>•</span>
-            <span className="text-accent">{item.clicked} кликов</span>
+            <p className="text-white/80 mt-2">Manage push notifications and campaigns</p>
           </div>
         </div>
-      ))}
+      </BackgroundGradient>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-4">Sent</h3>
+          <Counter
+            number={stats.sent}
+            setNumber={(n) => setStats(prev => ({ ...prev, sent: n }))}
+            className="text-3xl font-bold text-blue-400"
+          />
+        </div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-4">Delivered</h3>
+          <Counter
+            number={stats.delivered}
+            setNumber={(n) => setStats(prev => ({ ...prev, delivered: n }))}
+            className="text-3xl font-bold text-green-400"
+          />
+        </div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-4">Clicked</h3>
+          <Counter
+            number={stats.clicked}
+            setNumber={(n) => setStats(prev => ({ ...prev, clicked: n }))}
+            className="text-3xl font-bold text-yellow-400"
+          />
+        </div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-4">Click Rate</h3>
+          <div className="text-3xl font-bold text-purple-400">{stats.clickRate}%</div>
+        </div>
+      </div>
+
+      {/* Create Notification */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-white">Create New Notification</h3>
+            <Badge className="bg-orange-500/20 text-orange-100 border-orange-400/30">
+              📝 Draft
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Form */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Title</Label>
+                <Input
+                  placeholder="Notification title"
+                  value={notification.title}
+                  onChange={(e) => setNotification(prev => ({ ...prev, title: e.target.value }))}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Message</Label>
+                <Textarea
+                  placeholder="Notification message"
+                  value={notification.message}
+                  onChange={(e) => setNotification(prev => ({ ...prev, message: e.target.value }))}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[100px]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Target Audience</Label>
+                <select
+                  value={notification.targetAudience}
+                  onChange={(e) => setNotification(prev => ({ ...prev, targetAudience: e.target.value }))}
+                  className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2"
+                >
+                  <option value="All Users">All Users</option>
+                  <option value="Active Users">Active Users</option>
+                  <option value="Inactive Users">Inactive Users</option>
+                  <option value="Premium Users">Premium Users</option>
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={notification.scheduled}
+                  onCheckedChange={(checked) => setNotification(prev => ({ ...prev, scheduled: checked }))}
+                  className="data-[state=checked]:bg-green-500"
+                />
+                <Label className="text-white/80">Schedule Notification</Label>
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-white">Preview</h4>
+              <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
+                <div className="space-y-2">
+                  <div className="font-semibold text-white">
+                    {notification.title || 'Notification Title'}
+                  </div>
+                  <div className="text-white/80 text-sm">
+                    {notification.message || 'Notification message will appear here...'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <MagneticButton
+                  onClick={handleSendNotification}
+                  disabled={!notification.title || !notification.message}
+                  className="bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30"
+                >
+                  <span className="mr-2">📤</span>
+                  Send Notification
+                </MagneticButton>
+                <MagneticButton
+                  onClick={handleSaveTemplate}
+                  className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 border-blue-400/30"
+                >
+                  <span className="mr-2">📋</span>
+                  Save as Template
+                </MagneticButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Notification Performance */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-white">Notification Performance</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={performanceData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis 
+                    dataKey="campaign" 
+                    stroke="rgba(255,255,255,0.6)"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="rgba(255,255,255,0.6)"
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
+                      color: 'white'
+                    }}
+                  />
+                  <Bar dataKey="sent" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="delivered" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="clicked" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Engagement Trends */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-white">Engagement Trends</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={notificationStats}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="rgba(255,255,255,0.6)"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="rgba(255,255,255,0.6)"
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
+                      color: 'white'
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="sent" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="delivered" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="clicked" 
+                    stroke="#f59e0b" 
+                    strokeWidth={3}
+                    dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rating Section */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-white">Campaign Rating</h3>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-400'} hover:text-yellow-300 transition-colors`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <div className="text-white/80">
+              Average rating: <span className="font-semibold text-white">{rating}/5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Background Effects */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <SparklesCore
+          id="push-sparkles"
+          background="transparent"
+          minSize={0.4}
+          maxSize={1}
+          particleDensity={600}
+          className="w-full h-full"
+          particleColor="#ffffff"
+        />
+      </div>
     </div>
   );
-}
+};

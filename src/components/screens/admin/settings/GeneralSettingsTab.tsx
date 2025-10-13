@@ -1,293 +1,272 @@
-import { useState } from "react";
-import { Globe, Mail, Shield, DollarSign, CheckCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../ui/card";
-import { Button } from "../../../ui/button";
-import { Input } from "../../../ui/input";
-import { Label } from "../../../ui/label";
-import { Switch } from "../../../ui/switch";
-import { Textarea } from "../../../ui/textarea";
-import { Separator } from "../../../ui/separator";
+"use client";
 
-export function GeneralSettingsTab() {
-  const [generalSettings, setGeneralSettings] = useState({
-    // Основные настройки
-    appUrl: "https://diary-app.leadshunter.biz",
-    supportEmail: "support@leadshunter.biz",
-    companyName: "LeadsHunter",
-    
-    // Языки
-    defaultLanguage: "ru",
-    enabledLanguages: ["ru", "en", "es", "de", "fr", "zh", "ja"],
-    
-    // Регистрация
+import React, { useState, useEffect } from 'react';
+import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
+import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
+import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
+import { Status } from '../../../ui/shadcn-io/status';
+import { AnimatedTooltip } from '../../../ui/shadcn-io/animated-tooltip';
+import { Input } from '../../../ui/input';
+import { Button } from '../../../ui/button';
+import { Label } from '../../../ui/label';
+import { Switch } from '../../../ui/switch';
+import { Badge } from '../../../ui/badge';
+import { Textarea } from '../../../ui/textarea';
+
+export const GeneralSettingsTab: React.FC = () => {
+  const [settings, setSettings] = useState({
+    appName: 'Unity Diary',
+    appUrl: 'https://unity-diary-app.netlify.app',
+    supportEmail: 'support@unity-diary.com',
+    defaultLanguage: 'English',
     allowRegistration: true,
-    requireEmailVerification: false,
-    allowSocialLogin: true,
-    
-    // Контент
-    maxEntriesPerDay: 50,
-    maxMediaSize: 10, // MB
-    allowVoiceRecording: true,
-    allowPhotoUpload: true,
-    
-    // Модерация
-    enableAutoModeration: false,
-    moderationKeywords: "",
-    
-    // Premium
-    premiumMonthlyPrice: 399,
-    premiumYearlyPrice: 3990,
-    trialDays: 7,
+    maintenanceMode: false,
+    maxEntriesPerDay: 10,
+    premiumPrice: 9.99
   });
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    // TODO: Сохранение на сервер
-    alert('Общие настройки сохранены!');
+  useEffect(() => {
+    // Load settings from API
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Set loaded settings
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
   };
 
-  const availableLanguages = [
-    { code: "ru", name: "Русский" },
-    { code: "en", name: "English" },
-    { code: "es", name: "Español" },
-    { code: "de", name: "Deutsch" },
-    { code: "fr", name: "Français" },
-    { code: "zh", name: "中文" },
-    { code: "ja", name: "日本語" },
-  ];
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setHasChanges(false);
+      // Show success message
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSettings({
+      appName: 'Unity Diary',
+      appUrl: 'https://unity-diary-app.netlify.app',
+      supportEmail: 'support@unity-diary.com',
+      defaultLanguage: 'English',
+      allowRegistration: true,
+      maintenanceMode: false,
+      maxEntriesPerDay: 10,
+      premiumPrice: 9.99
+    });
+    setHasChanges(true);
+  };
+
+  const handleSettingChange = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+    setHasChanges(true);
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Basic Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="!text-[18px] !font-semibold">Основные настройки</CardTitle>
-          <CardDescription>Базовая информация о приложении</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="appUrl">URL приложения</Label>
-            <Input
-              id="appUrl"
-              value={generalSettings.appUrl}
-              onChange={(e) => setGeneralSettings({...generalSettings, appUrl: e.target.value})}
+    <div className="space-y-8">
+      {/* Header */}
+      <BackgroundGradient className="rounded-3xl p-8">
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
+            <span className="text-4xl">⚙️</span>
+          </div>
+          <div>
+            <ShimmeringText 
+              text="General Settings" 
+              className="text-2xl font-bold text-white"
+              duration={2}
             />
+            <p className="text-white/80 mt-2">Configure application-wide settings</p>
+          </div>
+        </div>
+      </BackgroundGradient>
+
+      {/* Quick Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-2">App Name</h3>
+          <div className="text-2xl font-bold text-blue-400">{settings.appName}</div>
+        </div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-2">Default Language</h3>
+          <div className="text-2xl font-bold text-green-400">{settings.defaultLanguage}</div>
+        </div>
+        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
+          <h3 className="text-lg font-semibold text-white mb-2">Registration</h3>
+          <Status status={settings.allowRegistration ? 'online' : 'offline'} />
+        </div>
+      </div>
+
+      {/* Application Settings */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-white">Application Settings</h3>
+            <Badge className="bg-blue-500/20 text-blue-100 border-blue-400/30">
+              🔧 Core Settings
+            </Badge>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="supportEmail">Email поддержки</Label>
-            <Input
-              id="supportEmail"
-              type="email"
-              value={generalSettings.supportEmail}
-              onChange={(e) => setGeneralSettings({...generalSettings, supportEmail: e.target.value})}
-            />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Application Name</Label>
+                <Input
+                  value={settings.appName}
+                  onChange={(e) => handleSettingChange('appName', e.target.value)}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="companyName">Название компании</Label>
-            <Input
-              id="companyName"
-              value={generalSettings.companyName}
-              onChange={(e) => setGeneralSettings({...generalSettings, companyName: e.target.value})}
-            />
-          </div>
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Application URL</Label>
+                <Input
+                  value={settings.appUrl}
+                  onChange={(e) => handleSettingChange('appUrl', e.target.value)}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
 
-      {/* Language Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="!text-[18px] !font-semibold flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Настройки языков
-          </CardTitle>
-          <CardDescription>Управление доступными языками интерфейса</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="defaultLanguage">Язык по умолчанию</Label>
-            <select
-              id="defaultLanguage"
-              value={generalSettings.defaultLanguage}
-              onChange={(e) => setGeneralSettings({...generalSettings, defaultLanguage: e.target.value})}
-              className="w-full h-10 px-3 border border-border rounded-md bg-background text-foreground"
-            >
-              {availableLanguages.map(lang => (
-                <option key={lang.code} value={lang.code}>{lang.name}</option>
-              ))}
-            </select>
-          </div>
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Support Email</Label>
+                <Input
+                  type="email"
+                  value={settings.supportEmail}
+                  onChange={(e) => handleSettingChange('supportEmail', e.target.value)}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
 
-          <div className="space-y-3">
-            <Label>Доступные языки</Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {availableLanguages.map(lang => (
-                <div key={lang.code} className="flex items-center gap-2">
-                  <Switch
-                    checked={generalSettings.enabledLanguages.includes(lang.code)}
-                    onCheckedChange={(checked) => {
-                      const languages = checked
-                        ? [...generalSettings.enabledLanguages, lang.code]
-                        : generalSettings.enabledLanguages.filter(l => l !== lang.code);
-                      setGeneralSettings({...generalSettings, enabledLanguages: languages});
-                    }}
-                  />
-                  <span className="!text-[14px]">{lang.name}</span>
-                </div>
-              ))}
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Default Language</Label>
+                <select
+                  value={settings.defaultLanguage}
+                  onChange={(e) => handleSettingChange('defaultLanguage', e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2"
+                >
+                  <option value="English">English</option>
+                  <option value="Russian">Russian</option>
+                  <option value="Spanish">Spanish</option>
+                  <option value="German">German</option>
+                  <option value="French">French</option>
+                  <option value="Chinese">Chinese</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Georgian">Georgian</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={settings.allowRegistration}
+                  onCheckedChange={(checked) => handleSettingChange('allowRegistration', checked)}
+                  className="data-[state=checked]:bg-green-500"
+                />
+                <Label className="text-white/80">Allow User Registration</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={settings.maintenanceMode}
+                  onCheckedChange={(checked) => handleSettingChange('maintenanceMode', checked)}
+                  className="data-[state=checked]:bg-red-500"
+                />
+                <Label className="text-white/80">Maintenance Mode</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Max Entries Per Day</Label>
+                <Input
+                  type="number"
+                  value={settings.maxEntriesPerDay}
+                  onChange={(e) => handleSettingChange('maxEntriesPerDay', parseInt(e.target.value))}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Premium Price ($)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={settings.premiumPrice}
+                  onChange={(e) => handleSettingChange('premiumPrice', parseFloat(e.target.value))}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Registration Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="!text-[18px] !font-semibold flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            Настройки регистрации
-          </CardTitle>
-          <CardDescription>Управление доступом новых пользователей</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label className="!text-[14px] !font-semibold">Разрешить регистрацию</Label>
-              <p className="!text-[12px] text-muted-foreground !font-normal">
-                Пользователи могут создавать новые аккаунты
-              </p>
-            </div>
-            <Switch
-              checked={generalSettings.allowRegistration}
-              onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowRegistration: checked})}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label className="!text-[14px] !font-semibold">Требовать подтверждение email</Label>
-              <p className="!text-[12px] text-muted-foreground !font-normal">
-                Пользователи должны подтвердить email перед использованием
-              </p>
-            </div>
-            <Switch
-              checked={generalSettings.requireEmailVerification}
-              onCheckedChange={(checked) => setGeneralSettings({...generalSettings, requireEmailVerification: checked})}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label className="!text-[14px] !font-semibold">Вход через соцсети</Label>
-              <p className="!text-[12px] text-muted-foreground !font-normal">
-                Google, Facebook и другие провайдеры
-              </p>
-            </div>
-            <Switch
-              checked={generalSettings.allowSocialLogin}
-              onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowSocialLogin: checked})}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Content Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="!text-[18px] !font-semibold">Настройки контента</CardTitle>
-          <CardDescription>Ограничения на создание записей и медиа</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="maxEntriesPerDay">Макс. записей в день</Label>
-            <Input
-              id="maxEntriesPerDay"
-              type="number"
-              value={generalSettings.maxEntriesPerDay}
-              onChange={(e) => setGeneralSettings({...generalSettings, maxEntriesPerDay: parseInt(e.target.value)})}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="maxMediaSize">Макс. размер медиафайла (MB)</Label>
-            <Input
-              id="maxMediaSize"
-              type="number"
-              value={generalSettings.maxMediaSize}
-              onChange={(e) => setGeneralSettings({...generalSettings, maxMediaSize: parseInt(e.target.value)})}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label className="!text-[14px] !font-semibold">Голосовые записи</Label>
-            <Switch
-              checked={generalSettings.allowVoiceRecording}
-              onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowVoiceRecording: checked})}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label className="!text-[14px] !font-semibold">Загрузка фото/видео</Label>
-            <Switch
-              checked={generalSettings.allowPhotoUpload}
-              onCheckedChange={(checked) => setGeneralSettings({...generalSettings, allowPhotoUpload: checked})}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Premium Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="!text-[18px] !font-semibold flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
-            Настройки Premium подписки
-          </CardTitle>
-          <CardDescription>Ценообразование и пробный период</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Advanced Settings */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-white">Advanced Configuration</h3>
+          
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="premiumMonthly">Месячная подписка (₽)</Label>
-              <Input
-                id="premiumMonthly"
-                type="number"
-                value={generalSettings.premiumMonthlyPrice}
-                onChange={(e) => setGeneralSettings({...generalSettings, premiumMonthlyPrice: parseInt(e.target.value)})}
+              <Label className="text-white font-medium">Custom CSS</Label>
+              <Textarea
+                placeholder="Enter custom CSS rules..."
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[120px] font-mono text-sm"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="premiumYearly">Годовая подписка (₽)</Label>
-              <Input
-                id="premiumYearly"
-                type="number"
-                value={generalSettings.premiumYearlyPrice}
-                onChange={(e) => setGeneralSettings({...generalSettings, premiumYearlyPrice: parseInt(e.target.value)})}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="trialDays">Пробный период (дней)</Label>
-              <Input
-                id="trialDays"
-                type="number"
-                value={generalSettings.trialDays}
-                onChange={(e) => setGeneralSettings({...generalSettings, trialDays: parseInt(e.target.value)})}
+              <Label className="text-white font-medium">Environment Variables</Label>
+              <Textarea
+                placeholder="KEY=VALUE&#10;API_URL=https://api.example.com&#10;DEBUG=true"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[100px] font-mono text-sm"
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-3">
-        <Button variant="outline">Отменить</Button>
-        <Button onClick={handleSave} className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4" />
-          Сохранить настройки
-        </Button>
+      {/* Action Buttons */}
+      <div className="flex justify-center gap-4">
+        <MagneticButton
+          onClick={handleSave}
+          disabled={!hasChanges || isSaving}
+          className="bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30 disabled:opacity-50"
+        >
+          <span className="mr-2">💾</span>
+          {isSaving ? 'Saving...' : 'Save Settings'}
+        </MagneticButton>
+        
+        <MagneticButton
+          onClick={handleReset}
+          className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-100 border-orange-400/30"
+        >
+          <span className="mr-2">🔄</span>
+          Reset to Defaults
+        </MagneticButton>
+      </div>
+
+      {/* Advanced Actions */}
+      <div className="flex justify-center">
+        <AnimatedTooltip content="Access advanced configuration options">
+          <MagneticButton className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-100 border-purple-400/30">
+            <span className="mr-2">🔧</span>
+            Advanced Settings
+          </MagneticButton>
+        </AnimatedTooltip>
       </div>
     </div>
   );
-}
+};

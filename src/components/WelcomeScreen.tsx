@@ -88,10 +88,14 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   useEffect(() => {
     const loadLanguages = async () => {
       try {
-        const response = await fetch('/functions/v1/translations-api/languages');
+        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/languages', {
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
+          }
+        });
         if (response.ok) {
           const data = await response.json();
-          setLanguages(data);
+          setLanguages(data.languages || []);
         } else {
           console.error('Failed to load languages:', response.status);
           setLanguages(fallbackLanguages);

@@ -887,7 +887,7 @@ app.get('/make-server-9729c493/admin/languages', async (c) => {
     console.log('Fetching supported languages...');
 
     const { data, error } = await supabase
-      .from('supported_languages')
+      .from('languages')
       .select('*')
       .eq('is_active', true)
       .order('code');
@@ -935,15 +935,13 @@ app.post('/make-server-9729c493/admin/languages', async (c) => {
     console.log(`Adding new language: ${code}`);
 
     const { data, error } = await supabase
-      .from('supported_languages')
+      .from('languages')
       .insert({
         code: code.toLowerCase(),
         name,
         native_name,
         flag,
-        rtl,
-        is_active: true,
-        translation_progress: 0
+        is_active: true
       })
       .select()
       .single();
@@ -991,7 +989,7 @@ app.put('/make-server-9729c493/admin/languages/:code', async (c) => {
     console.log(`Updating language: ${code}`);
 
     const { data, error } = await supabase
-      .from('supported_languages')
+      .from('languages')
       .update({
         ...updates,
         updated_at: new Date().toISOString()
