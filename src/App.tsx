@@ -4,6 +4,11 @@ import { checkSession, signOut } from "./utils/auth";
 import { updateUserProfile } from "./utils/api";
 import { isPWAEnabled, logPWADebugInfo } from "./utils/pwaUtils";
 
+// App-level components - Feature flag for gradual migration
+const USE_NEW_APP_STRUCTURE = false;
+import { MobileApp } from "@/app/mobile";
+import { AdminApp } from "@/app/admin";
+
 // Layout components
 import { MobileBottomNav } from "./components/MobileBottomNav";
 
@@ -328,12 +333,28 @@ export default function App() {
       );
     }
 
+    // Use new AdminApp component if feature flag is enabled
+    if (USE_NEW_APP_STRUCTURE) {
+      return (
+        <AdminApp
+          userData={userData}
+          showAdminAuth={showAdminAuth}
+          onAuthComplete={handleAdminAuthComplete}
+          onLogout={handleLogout}
+          onBack={() => {
+            window.location.href = '/';
+          }}
+        />
+      );
+    }
+
+    // Old admin view (current)
     if (showAdminAuth) {
       return (
         <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
           <TranslationManager preloadLanguages={['en']}>
             <div className="min-h-screen bg-gray-50">
-              <AdminLoginScreen 
+              <AdminLoginScreen
                 onComplete={handleAdminAuthComplete}
                 onBack={() => {
                   window.location.href = '/';
@@ -350,8 +371,8 @@ export default function App() {
       <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']}>
           <div className="min-h-screen bg-gray-50">
-            <AdminDashboard 
-              userData={userData} 
+            <AdminDashboard
+              userData={userData}
               onLogout={handleLogout}
             />
             <Toaster position="top-center" />
@@ -373,6 +394,25 @@ export default function App() {
     );
   }
 
+  // Use new MobileApp component if feature flag is enabled
+  if (USE_NEW_APP_STRUCTURE) {
+    return (
+      <MobileApp
+        userData={userData}
+        onboardingComplete={onboardingComplete}
+        currentStep={currentStep}
+        selectedLanguage={selectedLanguage}
+        onWelcomeComplete={handleWelcomeComplete}
+        onOnboarding2Complete={handleOnboarding2Complete}
+        onOnboarding3Complete={handleOnboarding3Complete}
+        onOnboarding4Complete={handleOnboarding4Complete}
+        onAuthComplete={handleAuthComplete}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  // Old mobile view (current)
   const renderActiveScreen = () => {
     if (showAuth) {
       return (
