@@ -15,7 +15,7 @@ import { OnboardingScreen4 } from "./components/OnboardingScreen4";
 import { AuthScreen } from "./components/AuthScreen";
 
 // Main screens
-import { ReportsScreen } from "./components/screens/ReportsScreen";
+// (ReportsScreen moved to feature flag below)
 
 // Admin screens
 import { AdminLoginScreen } from "./components/AdminLoginScreen";
@@ -121,6 +121,19 @@ import { AchievementsScreen as NewAchievementsScreen } from "@/features/mobile/a
 
 // Select which version to use based on feature flag
 const AchievementsScreen = USE_NEW_ACHIEVEMENTS ? NewAchievementsScreen : OldAchievementsScreen;
+
+// Reports screen - Feature flag for gradual migration
+// Set USE_NEW_REPORTS=true to use new Reports from @/features/mobile/reports
+const USE_NEW_REPORTS = false; // Change to true to test new Reports screen
+
+// Old Reports screen (current)
+import { ReportsScreen as OldReportsScreen } from "./components/screens/ReportsScreen";
+
+// New Reports screen (migrated to features)
+import { ReportsScreen as NewReportsScreen } from "@/features/mobile/reports";
+
+// Select which version to use based on feature flag
+const ReportsScreen = USE_NEW_REPORTS ? NewReportsScreen : OldReportsScreen;
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
