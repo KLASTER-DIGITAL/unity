@@ -15,7 +15,6 @@ import { OnboardingScreen4 } from "./components/OnboardingScreen4";
 import { AuthScreen } from "./components/AuthScreen";
 
 // Main screens
-import { HistoryScreen } from "./components/screens/HistoryScreen";
 import { AchievementsScreen } from "./components/screens/AchievementsScreen";
 import { ReportsScreen } from "./components/screens/ReportsScreen";
 
@@ -97,6 +96,19 @@ import { AchievementHomeScreen as NewAchievementHomeScreen } from "@/features/mo
 
 // Select which version to use based on feature flag
 const AchievementHomeScreen = USE_NEW_HOME ? NewAchievementHomeScreen : OldAchievementHomeScreen;
+
+// History screen - Feature flag for gradual migration
+// Set USE_NEW_HISTORY=true to use new History from @/features/mobile/history
+const USE_NEW_HISTORY = false; // Change to true to test new History screen
+
+// Old History screen (current)
+import { HistoryScreen as OldHistoryScreen } from "./components/screens/HistoryScreen";
+
+// New History screen (migrated to features)
+import { HistoryScreen as NewHistoryScreen } from "@/features/mobile/history";
+
+// Select which version to use based on feature flag
+const HistoryScreen = USE_NEW_HISTORY ? NewHistoryScreen : OldHistoryScreen;
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
