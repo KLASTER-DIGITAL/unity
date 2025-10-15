@@ -1,328 +1,405 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
-import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
-import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
-import { Counter } from '../../../ui/shadcn-io/counter';
-import { Status } from '../../../ui/shadcn-io/status';
-import { SparklesCore } from '../../../ui/shadcn-io/sparkles';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Input } from '../../../ui/input';
-import { Button } from '../../../ui/button';
-import { Label } from '../../../ui/label';
-import { Switch } from '../../../ui/switch';
-import { Badge } from '../../../ui/badge';
-import { Textarea } from '../../../ui/textarea';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import '../../../../styles/admin-design-system.css';
 
 const notificationStats = [
-  { month: 'Jan', sent: 1000, delivered: 950, clicked: 190 },
-  { month: 'Feb', sent: 1200, delivered: 1140, clicked: 228 },
-  { month: 'Mar', sent: 1500, delivered: 1425, clicked: 285 },
-  { month: 'Apr', sent: 1800, delivered: 1710, clicked: 342 },
-  { month: 'May', sent: 2000, delivered: 1900, clicked: 380 },
-  { month: 'Jun', sent: 2200, delivered: 2090, clicked: 418 },
-];
-
-const performanceData = [
-  { campaign: 'Welcome', sent: 1000, delivered: 950, clicked: 190, rate: 19.0 },
-  { campaign: 'Reminder', sent: 800, delivered: 760, clicked: 152, rate: 19.0 },
-  { campaign: 'Promotion', sent: 600, delivered: 570, clicked: 114, rate: 19.0 },
-  { campaign: 'Update', sent: 400, delivered: 380, clicked: 76, rate: 19.0 },
+  { metric: 'Отправлено', value: 12345, color: '#3b82f6' },
+  { metric: 'Доставлено', value: 89, color: '#10b981', percentage: true },
+  { metric: 'Открыто', value: 23, color: '#8b5cf6', percentage: true },
+  { metric: 'CTR', value: 5.2, color: '#f59e0b', percentage: true },
 ];
 
 export const PushNotificationsTab: React.FC = () => {
   const [notification, setNotification] = useState({
-    title: '',
-    message: '',
-    targetAudience: 'All Users',
-    scheduled: false
+    title: '🎉 Новое достижение!',
+    body: 'Поздравляем! Вы достигли новой цели в вашем дневнике достижений.',
+    icon: '',
+    badge: ''
   });
-  const [stats, setStats] = useState({
-    sent: 1247,
-    delivered: 1189,
-    clicked: 234,
-    clickRate: 19.7
-  });
-  const [rating, setRating] = useState(4.2);
 
-  const handleSendNotification = () => {
-    console.log('Sending notification:', notification);
-    // Send notification functionality
+  const [settings, setSettings] = useState({
+    enablePush: true,
+    enableScheduled: false,
+    enableSegmentation: true
+  });
+
+  const [rating, setRating] = useState(4);
+  const [isSending, setIsSending] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  const handleSendNotification = async () => {
+    if (!notification.title || !notification.body) {
+      toast.error('Заполните заголовок и текст уведомления');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/send-notification', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: notification.title,
+          body: notification.body,
+          icon: notification.icon,
+          badge: notification.badge
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Уведомление успешно отправлено! 🚀');
+        // Очистка формы после успешной отправки
+        setNotification({
+          title: '🎉 Новое достижение!',
+          body: 'Поздравляем! Вы достигли новой цели в вашем дневнике достижений.',
+          icon: '',
+          badge: ''
+        });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка при отправке уведомления');
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      toast.error('Ошибка соединения с сервером');
+    } finally {
+      setIsSending(false);
+    }
   };
 
-  const handleSaveTemplate = () => {
-    console.log('Saving template:', notification);
-    // Save template functionality
+  const handleSaveSettings = async () => {
+    try {
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          key: 'push_notification_settings',
+          value: JSON.stringify(settings)
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Настройки push-уведомлений сохранены! 🔔');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка сохранения настроек');
+      }
+    } catch (error) {
+      console.error('Error saving push settings:', error);
+      toast.error('Ошибка соединения с сервером');
+    }
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <BackgroundGradient className="rounded-3xl p-8">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
-            <span className="text-4xl">🔔</span>
+    <div className="admin-space-y-8">
+      {/* Заголовок раздела */}
+      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
+        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
+          🔔
+        </div>
+        <div>
+          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
+            Push-уведомления
+          </h2>
+          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
+            Создание и управление push уведомлениями для пользователей
+          </p>
+        </div>
+        <div className="admin-ml-auto admin-flex admin-gap-2">
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
+            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+            Активен
           </div>
-          <div>
-            <ShimmeringText 
-              text="Push Notifications" 
-              className="text-2xl font-bold text-white"
-              duration={2}
-            />
-            <p className="text-white/80 mt-2">Manage push notifications and campaigns</p>
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
+            📨 12,345 отправлено
           </div>
         </div>
-      </BackgroundGradient>
+      </header>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Sent</h3>
-          <Counter
-            number={stats.sent}
-            setNumber={(n) => setStats(prev => ({ ...prev, sent: n }))}
-            className="text-3xl font-bold text-blue-400"
-          />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Delivered</h3>
-          <Counter
-            number={stats.delivered}
-            setNumber={(n) => setStats(prev => ({ ...prev, delivered: n }))}
-            className="text-3xl font-bold text-green-400"
-          />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Clicked</h3>
-          <Counter
-            number={stats.clicked}
-            setNumber={(n) => setStats(prev => ({ ...prev, clicked: n }))}
-            className="text-3xl font-bold text-yellow-400"
-          />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Click Rate</h3>
-          <div className="text-3xl font-bold text-purple-400">{stats.clickRate}%</div>
-        </div>
-      </div>
+      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+        {/* Основная форма создания уведомления */}
+        <div className="lg:admin-col-span-2 admin-space-y-6">
+          {/* Форма создания уведомления */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📝 Создание уведомления
+              </h3>
+              <p className="admin-card-description">
+                Отправка push уведомлений пользователям
+              </p>
+            </div>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-space-y-4">
+                <div className="admin-space-y-3">
+                  <label htmlFor="notification-title" className="admin-font-medium admin-text-gray-900">
+                    Заголовок уведомления
+                  </label>
+                  <input
+                    id="notification-title"
+                    type="text"
+                    value={notification.title}
+                    onChange={(e) => setNotification(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Введите заголовок уведомления"
+                    className="admin-input"
+                  />
+                </div>
 
-      {/* Create Notification */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-white">Create New Notification</h3>
-            <Badge className="bg-orange-500/20 text-orange-100 border-orange-400/30">
-              📝 Draft
-            </Badge>
-          </div>
+                <div className="admin-space-y-3">
+                  <label htmlFor="notification-body" className="admin-font-medium admin-text-gray-900">
+                    Текст уведомления
+                  </label>
+                  <textarea
+                    id="notification-body"
+                    value={notification.body}
+                    onChange={(e) => setNotification(prev => ({ ...prev, body: e.target.value }))}
+                    placeholder="Введите текст уведомления"
+                    rows={4}
+                    className="admin-input admin-textarea"
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Form */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Title</Label>
-                <Input
-                  placeholder="Notification title"
-                  value={notification.title}
-                  onChange={(e) => setNotification(prev => ({ ...prev, title: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
+                <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
+                  <div className="admin-space-y-3">
+                    <label htmlFor="notification-icon" className="admin-font-medium admin-text-gray-900">
+                      Иконка (URL)
+                    </label>
+                    <input
+                      id="notification-icon"
+                      type="text"
+                      value={notification.icon}
+                      onChange={(e) => setNotification(prev => ({ ...prev, icon: e.target.value }))}
+                      placeholder="https://example.com/icon.png"
+                      className="admin-input"
+                    />
+                  </div>
+                  <div className="admin-space-y-3">
+                    <label htmlFor="notification-badge" className="admin-font-medium admin-text-gray-900">
+                      Бейдж (URL)
+                    </label>
+                    <input
+                      id="notification-badge"
+                      type="text"
+                      value={notification.badge}
+                      onChange={(e) => setNotification(prev => ({ ...prev, badge: e.target.value }))}
+                      placeholder="https://example.com/badge.png"
+                      className="admin-input"
+                    />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Message</Label>
-                <Textarea
-                  placeholder="Notification message"
-                  value={notification.message}
-                  onChange={(e) => setNotification(prev => ({ ...prev, message: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Target Audience</Label>
-                <select
-                  value={notification.targetAudience}
-                  onChange={(e) => setNotification(prev => ({ ...prev, targetAudience: e.target.value }))}
-                  className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2"
-                >
-                  <option value="All Users">All Users</option>
-                  <option value="Active Users">Active Users</option>
-                  <option value="Inactive Users">Inactive Users</option>
-                  <option value="Premium Users">Premium Users</option>
-                </select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={notification.scheduled}
-                  onCheckedChange={(checked) => setNotification(prev => ({ ...prev, scheduled: checked }))}
-                  className="data-[state=checked]:bg-green-500"
-                />
-                <Label className="text-white/80">Schedule Notification</Label>
+                <div className="admin-flex admin-justify-center admin-pt-4">
+                  <button
+                    onClick={handleSendNotification}
+                    disabled={!notification.title || !notification.body || isSending}
+                    className="admin-btn admin-btn-primary admin-font-medium admin-text-lg"
+                  >
+                    {isSending ? (
+                      <div className="admin-flex admin-items-center admin-gap-2">
+                        <div className="admin-spinner" />
+                        Отправляю уведомление...
+                      </div>
+                    ) : (
+                      <>
+                        <span className="mr-2">🚀</span>
+                        Отправить уведомление
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Preview */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-white">Preview</h4>
-              <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
-                <div className="space-y-2">
-                  <div className="font-semibold text-white">
-                    {notification.title || 'Notification Title'}
+        {/* Статистика и настройки */}
+        <div className="admin-space-y-6">
+          {/* Статистика уведомлений */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📊 Статистика
+              </h3>
+              <p className="admin-card-description">
+                Эффективность уведомлений
+              </p>
+            </div>
+            <div className="admin-card-content admin-space-y-4">
+              <div className="admin-grid admin-grid-cols-1 admin-gap-4">
+                {notificationStats.map((stat, index) => (
+                  <div key={index} className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-text-center admin-border admin-border-gray-200">
+                    <div className={`admin-text-2xl admin-font-semibold admin-mb-2 ${stat.percentage ? 'admin-text-admin-success' : 'admin-text-admin-primary'}`}>
+                      {stat.percentage ? `${stat.value}%` : stat.value.toLocaleString()}
+                    </div>
+                    <div className="admin-text-gray-600 admin-text-sm">{stat.metric}</div>
                   </div>
-                  <div className="text-white/80 text-sm">
-                    {notification.message || 'Notification message will appear here...'}
+                ))}
+              </div>
+
+              {/* Рейтинговая система */}
+              <div className="admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light">
+                <div className="admin-text-center admin-mb-4">
+                  <div className="admin-font-medium admin-text-gray-900 admin-mb-2">Оценка качества уведомлений</div>
+                  <div className="admin-flex admin-justify-center admin-gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setRating(star)}
+                        className={`admin-text-3xl admin-transition-all admin-duration-200 admin-transform hover:admin-scale-110 ${
+                          star <= rating ? 'admin-text-admin-warning' : 'admin-text-gray-400'
+                        }`}
+                        aria-label={`Оценка ${star} из 5`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                  <div className="admin-text-gray-700 admin-text-sm admin-mt-2">
+                    Средняя оценка: <span className="admin-font-semibold admin-text-admin-warning">{rating}/5</span>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="flex gap-2">
-                <MagneticButton
-                  onClick={handleSendNotification}
-                  disabled={!notification.title || !notification.message}
-                  className="bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30"
-                >
-                  <span className="mr-2">📤</span>
-                  Send Notification
-                </MagneticButton>
-                <MagneticButton
-                  onClick={handleSaveTemplate}
-                  className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 border-blue-400/30"
-                >
-                  <span className="mr-2">📋</span>
-                  Save as Template
-                </MagneticButton>
+          {/* Настройки уведомлений */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                ⚙️ Настройки
+              </h3>
+              <p className="admin-card-description">
+                Управление параметрами уведомлений
+              </p>
+            </div>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-space-y-4">
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      🔔 Включить push уведомления
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Разрешить отправку уведомлений
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="enable-push"
+                      type="checkbox"
+                      checked={settings.enablePush}
+                      onChange={(e) => setSettings(prev => ({ ...prev, enablePush: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
+
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      ⏰ Отложенная отправка
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Планирование отправки
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="enable-scheduled"
+                      type="checkbox"
+                      checked={settings.enableScheduled}
+                      onChange={(e) => setSettings(prev => ({ ...prev, enableScheduled: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
+
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      🎯 Сегментация аудитории
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Отправка разным группам
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="enable-segmentation"
+                      type="checkbox"
+                      checked={settings.enableSegmentation}
+                      onChange={(e) => setSettings(prev => ({ ...prev, enableSegmentation: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Notification Performance */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Notification Performance</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="campaign" 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                  <Bar dataKey="sent" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="delivered" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="clicked" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+      {/* Действия и кнопки */}
+      <div className="admin-flex admin-justify-center admin-gap-4">
+        <button
+          onClick={handleSaveSettings}
+          disabled={isSavingSettings}
+          className="admin-btn admin-btn-success admin-font-medium"
+        >
+          {isSavingSettings ? (
+            <div className="admin-flex admin-items-center admin-gap-2">
+              <div className="admin-spinner" />
+              Сохраняю...
             </div>
-          </div>
-        </div>
-
-        {/* Engagement Trends */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Engagement Trends</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={notificationStats}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sent" 
-                    stroke="#3b82f6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="delivered" 
-                    stroke="#10b981" 
-                    strokeWidth={3}
-                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="clicked" 
-                    stroke="#f59e0b" 
-                    strokeWidth={3}
-                    dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Rating Section */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-white">Campaign Rating</h3>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-400'} hover:text-yellow-300 transition-colors`}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
-            <div className="text-white/80">
-              Average rating: <span className="font-semibold text-white">{rating}/5</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Background Effects */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <SparklesCore
-          id="push-sparkles"
-          background="transparent"
-          minSize={0.4}
-          maxSize={1}
-          particleDensity={600}
-          className="w-full h-full"
-          particleColor="#ffffff"
-        />
+          ) : (
+            <>
+              <span className="mr-2">💾</span>
+              Сохранить настройки
+            </>
+          )}
+        </button>
+        <button
+          onClick={() => {
+            toast.info('Анализ кампаний в разработке 📊');
+          }}
+          className="admin-btn admin-btn-outline admin-font-medium"
+        >
+          <span className="mr-2">📊</span>
+          Анализ кампаний
+        </button>
+        <button
+          onClick={() => {
+            toast.info('A/B тестирование в разработке 🎯');
+          }}
+          className="admin-btn admin-btn-outline admin-font-medium"
+        >
+          <span className="mr-2">🎯</span>
+          A/B тестирование
+        </button>
       </div>
     </div>
   );

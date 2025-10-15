@@ -1,12 +1,23 @@
 /**
- * Re-export i18n utilities from original location
- * This allows gradual migration without breaking existing imports
+ * i18n system - Internationalization utilities
+ *
+ * Components:
+ * - TranslationProvider: Context provider for translations
+ * - TranslationManager: Manager for loading and caching translations
+ * - useTranslation: Hook for accessing translations
+ * - LanguageSelector: Component for selecting language
+ * - I18nTestComponent: Test component for i18n
  */
 
-export * from '../../../components/i18n/TranslationProvider';
-export * from '../../../components/i18n/TranslationManager';
-export * from '../../../components/i18n/useTranslation';
-export * from '../../../components/i18n/LanguageSelector';
+export * from './TranslationProvider';
+export * from './TranslationManager';
+export * from './useTranslation';
+export * from './LanguageSelector';
+export * from './I18nTestComponent';
+export * from './TranslationLoader';
+
+// Re-export types
+export * from './types';
 
 // Re-export old i18n utilities (useTranslations function)
 export * from '../../../utils/i18n';

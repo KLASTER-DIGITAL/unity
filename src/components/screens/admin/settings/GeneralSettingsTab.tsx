@@ -1,271 +1,376 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
-import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
-import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
-import { Status } from '../../../ui/shadcn-io/status';
-import { AnimatedTooltip } from '../../../ui/shadcn-io/animated-tooltip';
-import { Input } from '../../../ui/input';
-import { Button } from '../../../ui/button';
-import { Label } from '../../../ui/label';
-import { Switch } from '../../../ui/switch';
-import { Badge } from '../../../ui/badge';
-import { Textarea } from '../../../ui/textarea';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import '../../../../styles/admin-design-system.css';
 
 export const GeneralSettingsTab: React.FC = () => {
   const [settings, setSettings] = useState({
-    appName: 'Unity Diary',
-    appUrl: 'https://unity-diary-app.netlify.app',
-    supportEmail: 'support@unity-diary.com',
-    defaultLanguage: 'English',
-    allowRegistration: true,
-    maintenanceMode: false,
+    appName: 'Дневник Достижений',
+    appDescription: 'Персональный дневник для отслеживания достижений и целей',
+    supportEmail: 'support@diary.com',
     maxEntriesPerDay: 10,
-    premiumPrice: 9.99
+    enableAnalytics: true,
+    enableErrorReporting: true,
+    maintenanceMode: false
   });
-  const [hasChanges, setHasChanges] = useState(false);
+
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    // Load settings from API
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Set loaded settings
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-  };
+  const [isResetting, setIsResetting] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setHasChanges(false);
-      // Show success message
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          key: 'general_settings',
+          value: JSON.stringify(settings)
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Настройки успешно сохранены! ✅');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка сохранения настроек');
+      }
     } catch (error) {
       console.error('Error saving settings:', error);
+      toast.error('Ошибка соединения с сервером');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleReset = () => {
-    setSettings({
-      appName: 'Unity Diary',
-      appUrl: 'https://unity-diary-app.netlify.app',
-      supportEmail: 'support@unity-diary.com',
-      defaultLanguage: 'English',
-      allowRegistration: true,
-      maintenanceMode: false,
-      maxEntriesPerDay: 10,
-      premiumPrice: 9.99
-    });
-    setHasChanges(true);
+  const handleReset = async () => {
+    setIsResetting(true);
+    try {
+      // Сброс к значениям по умолчанию
+      setSettings({
+        appName: 'Дневник Достижений',
+        appDescription: 'Персональный дневник для отслеживания достижений и целей',
+        supportEmail: 'support@diary.com',
+        maxEntriesPerDay: 10,
+        enableAnalytics: true,
+        enableErrorReporting: true,
+        maintenanceMode: false
+      });
+      
+      toast.success('Настройки сброшены к значениям по умолчанию! 🔄');
+    } catch (error) {
+      console.error('Error resetting settings:', error);
+      toast.error('Ошибка при сбросе настроек');
+    } finally {
+      setIsResetting(false);
+    }
   };
 
-  const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-    setHasChanges(true);
+  const handleExportSettings = () => {
+    try {
+      const dataStr = JSON.stringify(settings, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = 'unity-general-settings.json';
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      toast.success('Настройки экспортированы! 📤');
+    } catch (error) {
+      toast.error('Ошибка экспорта настроек');
+    }
+  };
+
+  const handleImportSettings = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importedSettings = JSON.parse(content);
+        setSettings(importedSettings);
+        toast.success('Настройки импортированы! 📥');
+      } catch (error) {
+        toast.error('Ошибка импорта файла настроек');
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <BackgroundGradient className="rounded-3xl p-8">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
-            <span className="text-4xl">⚙️</span>
+    <div className="admin-space-y-8">
+      {/* Заголовок раздела */}
+      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
+        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
+          ⚙️
+        </div>
+        <div>
+          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
+            Общие настройки
+          </h2>
+          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
+            Основные параметры и конфигурация приложения
+          </p>
+        </div>
+        <div className="admin-ml-auto admin-flex admin-gap-2">
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
+            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+            Активен
           </div>
-          <div>
-            <ShimmeringText 
-              text="General Settings" 
-              className="text-2xl font-bold text-white"
-              duration={2}
-            />
-            <p className="text-white/80 mt-2">Configure application-wide settings</p>
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
+            🔧 Готов к настройке
           </div>
         </div>
-      </BackgroundGradient>
+      </header>
 
-      {/* Quick Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-2">App Name</h3>
-          <div className="text-2xl font-bold text-blue-400">{settings.appName}</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-2">Default Language</h3>
-          <div className="text-2xl font-bold text-green-400">{settings.defaultLanguage}</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-2">Registration</h3>
-          <Status status={settings.allowRegistration ? 'online' : 'offline'} />
-        </div>
-      </div>
-
-      {/* Application Settings */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-white">Application Settings</h3>
-            <Badge className="bg-blue-500/20 text-blue-100 border-blue-400/30">
-              🔧 Core Settings
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Application Name</Label>
-                <Input
-                  value={settings.appName}
-                  onChange={(e) => handleSettingChange('appName', e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Application URL</Label>
-                <Input
-                  value={settings.appUrl}
-                  onChange={(e) => handleSettingChange('appUrl', e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Support Email</Label>
-                <Input
-                  type="email"
-                  value={settings.supportEmail}
-                  onChange={(e) => handleSettingChange('supportEmail', e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Default Language</Label>
-                <select
-                  value={settings.defaultLanguage}
-                  onChange={(e) => handleSettingChange('defaultLanguage', e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2"
-                >
-                  <option value="English">English</option>
-                  <option value="Russian">Russian</option>
-                  <option value="Spanish">Spanish</option>
-                  <option value="German">German</option>
-                  <option value="French">French</option>
-                  <option value="Chinese">Chinese</option>
-                  <option value="Japanese">Japanese</option>
-                  <option value="Georgian">Georgian</option>
-                </select>
-              </div>
+      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+        {/* Основные настройки приложения */}
+        <div className="lg:admin-col-span-2 admin-space-y-6">
+          {/* Основные параметры */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📋 Основные параметры
+              </h3>
+              <p className="admin-card-description">
+                Базовая конфигурация приложения
+              </p>
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={settings.allowRegistration}
-                  onCheckedChange={(checked) => handleSettingChange('allowRegistration', checked)}
-                  className="data-[state=checked]:bg-green-500"
-                />
-                <Label className="text-white/80">Allow User Registration</Label>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
+                <div className="admin-space-y-3">
+                  <label htmlFor="app-name" className="admin-font-medium admin-text-gray-900">
+                    Название приложения
+                  </label>
+                  <input
+                    id="app-name"
+                    type="text"
+                    value={settings.appName}
+                    onChange={(e) => setSettings(prev => ({ ...prev, appName: e.target.value }))}
+                    className="admin-input"
+                  />
+                </div>
+                <div className="admin-space-y-3">
+                  <label htmlFor="support-email" className="admin-font-medium admin-text-gray-900">
+                    Email поддержки
+                  </label>
+                  <input
+                    id="support-email"
+                    type="email"
+                    value={settings.supportEmail}
+                    onChange={(e) => setSettings(prev => ({ ...prev, supportEmail: e.target.value }))}
+                    className="admin-input"
+                  />
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={settings.maintenanceMode}
-                  onCheckedChange={(checked) => handleSettingChange('maintenanceMode', checked)}
-                  className="data-[state=checked]:bg-red-500"
+              <div className="admin-space-y-3">
+                <label htmlFor="app-description" className="admin-font-medium admin-text-gray-900">
+                  Описание приложения
+                </label>
+                <textarea
+                  id="app-description"
+                  value={settings.appDescription}
+                  onChange={(e) => setSettings(prev => ({ ...prev, appDescription: e.target.value }))}
+                  rows={3}
+                  className="admin-input admin-textarea"
                 />
-                <Label className="text-white/80">Maintenance Mode</Label>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Max Entries Per Day</Label>
-                <Input
+              <div className="admin-space-y-3">
+                <label htmlFor="max-entries" className="admin-font-medium admin-text-gray-900">
+                  Максимум записей в день
+                </label>
+                <input
+                  id="max-entries"
                   type="number"
                   value={settings.maxEntriesPerDay}
-                  onChange={(e) => handleSettingChange('maxEntriesPerDay', parseInt(e.target.value))}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Premium Price ($)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={settings.premiumPrice}
-                  onChange={(e) => handleSettingChange('premiumPrice', parseFloat(e.target.value))}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                  onChange={(e) => setSettings(prev => ({ ...prev, maxEntriesPerDay: parseInt(e.target.value) || 0 }))}
+                  className="admin-input"
                 />
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Advanced Settings */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-white">Advanced Configuration</h3>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-white font-medium">Custom CSS</Label>
-              <Textarea
-                placeholder="Enter custom CSS rules..."
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[120px] font-mono text-sm"
-              />
+          {/* Системные функции */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                🔧 Системные функции
+              </h3>
+              <p className="admin-card-description">
+                Конфигурация дополнительных возможностей
+              </p>
             </div>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      📊 Аналитика
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Сбор данных об использовании
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="enable-analytics"
+                      type="checkbox"
+                      checked={settings.enableAnalytics}
+                      onChange={(e) => setSettings(prev => ({ ...prev, enableAnalytics: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label className="text-white font-medium">Environment Variables</Label>
-              <Textarea
-                placeholder="KEY=VALUE&#10;API_URL=https://api.example.com&#10;DEBUG=true"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[100px] font-mono text-sm"
-              />
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      🐛 Отчеты об ошибках
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Автоматическая отправка отчетов
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="enable-error-reporting"
+                      type="checkbox"
+                      checked={settings.enableErrorReporting}
+                      onChange={(e) => setSettings(prev => ({ ...prev, enableErrorReporting: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
+
+                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light md:admin-col-span-2">
+                  <div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
+                      🔧 Режим обслуживания
+                    </div>
+                    <p className="admin-text-sm admin-text-gray-600">
+                      Временно отключить приложение
+                    </p>
+                  </div>
+                  <div className="admin-switch">
+                    <input
+                      id="maintenance-mode"
+                      type="checkbox"
+                      checked={settings.maintenanceMode}
+                      onChange={(e) => setSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
+                      className="admin-sr-only"
+                    />
+                    <div className="admin-switch-slider"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-4">
-        <MagneticButton
-          onClick={handleSave}
-          disabled={!hasChanges || isSaving}
-          className="bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30 disabled:opacity-50"
-        >
-          <span className="mr-2">💾</span>
-          {isSaving ? 'Saving...' : 'Save Settings'}
-        </MagneticButton>
-        
-        <MagneticButton
-          onClick={handleReset}
-          className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-100 border-orange-400/30"
-        >
-          <span className="mr-2">🔄</span>
-          Reset to Defaults
-        </MagneticButton>
-      </div>
+        {/* Управление данными */}
+        <div className="admin-space-y-6">
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                💾 Управление данными
+              </h3>
+              <p className="admin-card-description">
+                Экспорт и импорт настроек
+              </p>
+            </div>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-space-y-4">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="admin-btn admin-btn-success admin-w-full admin-font-medium"
+                >
+                  {isSaving ? (
+                    <div className="admin-flex admin-items-center admin-gap-2">
+                      <div className="admin-spinner" />
+                      Сохраняю настройки...
+                    </div>
+                  ) : (
+                    <>
+                      <span className="mr-2">💾</span>
+                      Сохранить настройки
+                    </>
+                  )}
+                </button>
 
-      {/* Advanced Actions */}
-      <div className="flex justify-center">
-        <AnimatedTooltip content="Access advanced configuration options">
-          <MagneticButton className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-100 border-purple-400/30">
-            <span className="mr-2">🔧</span>
-            Advanced Settings
-          </MagneticButton>
-        </AnimatedTooltip>
+                <button
+                  onClick={handleReset}
+                  disabled={isResetting}
+                  className="admin-btn admin-btn-outline admin-w-full admin-font-medium"
+                >
+                  {isResetting ? (
+                    <div className="admin-flex admin-items-center admin-gap-2">
+                      <div className="admin-spinner" />
+                      Сбрасываю...
+                    </div>
+                  ) : (
+                    <>
+                      <span className="mr-2">🔄</span>
+                      Сбросить настройки
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="admin-grid admin-grid-cols-1 admin-gap-4">
+                <div className="admin-p-4 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-primary-light">
+                  <div className="admin-text-xl admin-font-semibold admin-text-admin-primary admin-mb-2">
+                    📤 Экспорт
+                  </div>
+                  <button
+                    onClick={handleExportSettings}
+                    className="admin-btn admin-btn-outline admin-btn-sm"
+                  >
+                    Скачать JSON
+                  </button>
+                </div>
+                <div className="admin-p-4 admin-bg-admin-success-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-success-light">
+                  <div className="admin-text-xl admin-font-semibold admin-text-admin-success admin-mb-2">
+                    📥 Импорт
+                  </div>
+                  <button
+                    onClick={() => document.getElementById('import-settings-file')?.click()}
+                    className="admin-btn admin-btn-outline admin-btn-sm"
+                  >
+                    Загрузить файл
+                  </button>
+                  <input
+                    id="import-settings-file"
+                    type="file"
+                    accept=".json"
+                    className="admin-hidden"
+                    onChange={handleImportSettings}
+                    aria-label="Импорт настроек из файла"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

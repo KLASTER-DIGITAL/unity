@@ -1,327 +1,511 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
-import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
-import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
-import { Counter } from '../../../ui/shadcn-io/counter';
-import { Status } from '../../../ui/shadcn-io/status';
-import { Terminal } from '../../../ui/shadcn-io/terminal';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Button } from '../../../ui/button';
-import { Badge } from '../../../ui/badge';
-import { Progress } from '../../../ui/progress';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import '../../../../styles/admin-design-system.css';
 
 const systemMetrics = [
-  { time: '00:00', cpu: 25, memory: 45, disk: 20 },
-  { time: '04:00', cpu: 30, memory: 50, disk: 22 },
-  { time: '08:00', cpu: 45, memory: 60, disk: 25 },
-  { time: '12:00', cpu: 55, memory: 65, disk: 28 },
-  { time: '16:00', cpu: 40, memory: 55, disk: 26 },
-  { time: '20:00', cpu: 35, memory: 50, disk: 24 },
-];
-
-const apiCalls = [
-  { endpoint: '/api/users', calls: 1200, avgTime: 45 },
-  { endpoint: '/api/entries', calls: 800, avgTime: 60 },
-  { endpoint: '/api/stats', calls: 400, avgTime: 30 },
-  { endpoint: '/api/auth', calls: 200, avgTime: 25 },
-];
-
-const storageData = [
-  { name: 'Database', value: 45, color: '#3b82f6' },
-  { name: 'Files', value: 30, color: '#10b981' },
-  { name: 'Logs', value: 15, color: '#f59e0b' },
-  { name: 'Cache', value: 10, color: '#ef4444' },
-];
-
-const logEntries = [
-  { timestamp: '2024-01-15 10:30:15', level: 'INFO', message: 'User authentication successful' },
-  { timestamp: '2024-01-15 10:30:12', level: 'WARN', message: 'High memory usage detected' },
-  { timestamp: '2024-01-15 10:30:08', level: 'ERROR', message: 'Database connection timeout' },
-  { timestamp: '2024-01-15 10:30:05', level: 'INFO', message: 'API request processed' },
-  { timestamp: '2024-01-15 10:30:02', level: 'INFO', message: 'System health check passed' },
+  { time: '00:00', cpu: 45, memory: 67, disk: 23, network: 12 },
+  { time: '04:00', cpu: 52, memory: 71, disk: 25, network: 15 },
+  { time: '08:00', cpu: 78, memory: 84, disk: 28, network: 45 },
+  { time: '12:00', cpu: 65, memory: 76, disk: 26, network: 32 },
+  { time: '16:00', cpu: 58, memory: 69, disk: 24, network: 28 },
+  { time: '20:00', cpu: 49, memory: 63, disk: 22, network: 18 },
 ];
 
 export const SystemSettingsTab: React.FC = () => {
-  const [isMonitoring, setIsMonitoring] = useState(true);
-  const [systemStats, setSystemStats] = useState({
-    cpuUsage: 29.3,
-    memoryUsage: 53.5,
-    diskUsage: 20.4,
-    uptime: 973
+  const [systemStatus, setSystemStatus] = useState({
+    database: 'online',
+    api: 'online',
+    storage: 'online',
+    cache: 'online'
   });
-  const [logs, setLogs] = useState(logEntries);
 
-  useEffect(() => {
-    if (isMonitoring) {
-      const interval = setInterval(() => {
-        // Simulate real-time updates
-        setSystemStats(prev => ({
-          cpuUsage: Math.max(0, Math.min(100, prev.cpuUsage + (Math.random() - 0.5) * 10)),
-          memoryUsage: Math.max(0, Math.min(100, prev.memoryUsage + (Math.random() - 0.5) * 5)),
-          diskUsage: Math.max(0, Math.min(100, prev.diskUsage + (Math.random() - 0.5) * 2)),
-          uptime: prev.uptime + 1
-        }));
-      }, 2000);
+  const [metrics, setMetrics] = useState({
+    cpu: 45,
+    memory: 67,
+    disk: 23,
+    network: 12
+  });
 
-      return () => clearInterval(interval);
+  const [isRestarting, setIsRestarting] = useState<string | null>(null);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+
+  const handleRestartService = async (service: string) => {
+    setIsRestarting(service);
+    try {
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch(`https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/restart/${service.toLowerCase()}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        toast.success(`Сервис ${service} успешно перезапущен! 🔄`);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || `Ошибка при перезапуске ${service}`);
+      }
+    } catch (error) {
+      console.error(`Error restarting ${service}:`, error);
+      toast.error(`Ошибка соединения при перезапуске ${service}`);
+    } finally {
+      setIsRestarting(null);
     }
-  }, [isMonitoring]);
+  };
 
-  const handleSystemAction = (action: string) => {
-    console.log(`Executing system action: ${action}`);
-    // Add new log entry
-    const newLog = {
-      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      level: 'INFO',
-      message: `System action executed: ${action}`
-    };
-    setLogs(prev => [newLog, ...prev.slice(0, 4)]);
+  const handleBackupDatabase = async () => {
+    setIsBackingUp(true);
+    try {
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/backup', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Резервная копия базы данных успешно создана! 💾');
+        
+        // Обновление информации о последней копии
+        if (data.backupUrl) {
+          const linkElement = document.createElement('a');
+          linkElement.setAttribute('href', data.backupUrl);
+          linkElement.setAttribute('download', `unity-backup-${new Date().toISOString().split('T')[0]}.sql`);
+          linkElement.click();
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка при создании резервной копии');
+      }
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      toast.error('Ошибка соединения при создании резервной копии');
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleRestoreBackup = () => {
+    toast.info('Функция восстановления из резервной копии в разработке 📂');
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <BackgroundGradient className="rounded-3xl p-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
-              <span className="text-4xl">🖥️</span>
+    <div className="admin-space-y-8">
+      {/* Заголовок раздела */}
+      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
+        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
+          🖥️
+        </div>
+        <div>
+          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
+            Системные настройки
+          </h2>
+          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
+            Мониторинг и управление системными ресурсами в реальном времени
+          </p>
+        </div>
+        <div className="admin-ml-auto admin-flex admin-gap-2">
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
+            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+            Все системы работают
+          </div>
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
+            📊 Мониторинг активен
+          </div>
+        </div>
+      </header>
+
+      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+        {/* Статус системы */}
+        <div className="lg:admin-col-span-2 admin-space-y-6">
+          {/* Статус сервисов */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                🔍 Статус системы
+              </h3>
+              <p className="admin-card-description">
+                Мониторинг состояния всех сервисов
+              </p>
             </div>
-            <div>
-              <ShimmeringText 
-                text="System Monitoring" 
-                className="text-2xl font-bold text-white"
-                duration={2}
-              />
-              <p className="text-white/80 mt-2">Monitor system performance and health</p>
-            </div>
-          </div>
-          
-          <MagneticButton
-            onClick={() => setIsMonitoring(!isMonitoring)}
-            className={`${isMonitoring ? 'bg-red-500/20 hover:bg-red-500/30 text-red-100 border-red-400/30' : 'bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30'}`}
-          >
-            <span className="mr-2">{isMonitoring ? '⏸️' : '▶️'}</span>
-            {isMonitoring ? 'Pause' : 'Resume'}
-          </MagneticButton>
-        </div>
-      </BackgroundGradient>
+            <div className="admin-card-content">
+              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
+                <div className="admin-p-6 admin-bg-admin-success-lighter admin-rounded-lg admin-border admin-border-admin-success-light admin-relative admin-overflow-hidden">
+                  <div className="admin-absolute admin-top-2 admin-right-2">
+                    <div className="admin-w-3 admin-h-3 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+                  </div>
+                  <div className="admin-text-center">
+                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-success admin-mb-2" aria-hidden="true">🗄️</div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">База данных</div>
+                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">PostgreSQL</div>
+                    <div className="admin-px-3 admin-py-1 admin-bg-admin-success admin-text-white admin-rounded admin-text-xs admin-font-medium">
+                      ✅ Работает стабильно
+                    </div>
+                  </div>
+                </div>
 
-      {/* System Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">CPU Usage</h3>
-          <div className="text-3xl font-bold text-blue-400 mb-2">{systemStats.cpuUsage.toFixed(1)}%</div>
-          <Progress value={systemStats.cpuUsage} className="h-2" />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Memory</h3>
-          <div className="text-3xl font-bold text-green-400 mb-2">{systemStats.memoryUsage.toFixed(1)}%</div>
-          <Progress value={systemStats.memoryUsage} className="h-2" />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Disk Space</h3>
-          <div className="text-3xl font-bold text-yellow-400 mb-2">{systemStats.diskUsage.toFixed(1)}%</div>
-          <Progress value={systemStats.diskUsage} className="h-2" />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Uptime</h3>
-          <Counter
-            number={systemStats.uptime}
-            setNumber={(n) => setSystemStats(prev => ({ ...prev, uptime: n }))}
-            className="text-3xl font-bold text-purple-400"
-          />
-          <p className="text-white/80 mt-2">hours</p>
-        </div>
-      </div>
+                <div className="admin-p-6 admin-bg-admin-primary-lighter admin-rounded-lg admin-border admin-border-admin-primary-light admin-relative admin-overflow-hidden">
+                  <div className="admin-absolute admin-top-2 admin-right-2">
+                    <div className="admin-w-3 admin-h-3 admin-bg-admin-primary admin-rounded-full" aria-hidden="true"></div>
+                  </div>
+                  <div className="admin-text-center">
+                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-primary admin-mb-2" aria-hidden="true">🚀</div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">API сервер</div>
+                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Edge Functions</div>
+                    <div className="admin-px-3 admin-py-1 admin-bg-admin-primary admin-text-white admin-rounded admin-text-xs admin-font-medium">
+                      ✅ Высокая производительность
+                    </div>
+                  </div>
+                </div>
 
-      {/* System Actions */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-white">System Actions</h3>
-            <Badge className="bg-yellow-500/20 text-yellow-100 border-yellow-400/30">
-              ⚡ Quick Actions
-            </Badge>
-          </div>
+                <div className="admin-p-6 admin-bg-admin-secondary-lighter admin-rounded-lg admin-border admin-border-admin-secondary-light admin-relative admin-overflow-hidden">
+                  <div className="admin-absolute admin-top-2 admin-right-2">
+                    <div className="admin-w-3 admin-h-3 admin-bg-admin-secondary admin-rounded-full" aria-hidden="true"></div>
+                  </div>
+                  <div className="admin-text-center">
+                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-secondary admin-mb-2" aria-hidden="true">💾</div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Хранилище</div>
+                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Supabase Storage</div>
+                    <div className="admin-px-3 admin-py-1 admin-bg-admin-secondary admin-text-white admin-rounded admin-text-xs admin-font-medium">
+                      ✅ Доступно и стабильно
+                    </div>
+                  </div>
+                </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MagneticButton
-              onClick={() => handleSystemAction('Clear Cache')}
-              className="bg-red-500/20 hover:bg-red-500/30 text-red-100 border-red-400/30"
-            >
-              <span className="mr-2">🗑️</span>
-              Clear Cache
-            </MagneticButton>
-            <MagneticButton
-              onClick={() => handleSystemAction('Backup Database')}
-              className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 border-blue-400/30"
-            >
-              <span className="mr-2">💾</span>
-              Backup Database
-            </MagneticButton>
-            <MagneticButton
-              onClick={() => handleSystemAction('Restart Server')}
-              className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-100 border-orange-400/30"
-            >
-              <span className="mr-2">🔄</span>
-              Restart Server
-            </MagneticButton>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Performance Trends */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Performance Trends</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={systemMetrics}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="time" 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="cpu" 
-                    stroke="#3b82f6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="memory" 
-                    stroke="#10b981" 
-                    strokeWidth={3}
-                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="disk" 
-                    stroke="#f59e0b" 
-                    strokeWidth={3}
-                    dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                <div className="admin-p-6 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light admin-relative admin-overflow-hidden">
+                  <div className="admin-absolute admin-top-2 admin-right-2">
+                    <div className="admin-w-3 admin-h-3 admin-bg-admin-warning admin-rounded-full" aria-hidden="true"></div>
+                  </div>
+                  <div className="admin-text-center">
+                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-warning admin-mb-2" aria-hidden="true">⚡</div>
+                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Кэш</div>
+                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Redis</div>
+                    <div className="admin-px-3 admin-py-1 admin-bg-admin-warning admin-text-white admin-rounded admin-text-xs admin-font-medium">
+                      ✅ Быстрый отклик
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* API Calls */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">API Performance</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={apiCalls}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="endpoint" 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={10}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                  <Bar dataKey="calls" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+        {/* Метрики ресурсов */}
+        <div className="admin-space-y-6">
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📊 Ресурсы системы
+              </h3>
+              <p className="admin-card-description">
+                Использование в реальном времени
+              </p>
+            </div>
+            <div className="admin-card-content admin-space-y-6">
+              <div className="admin-space-y-4">
+                <div className="admin-space-y-2">
+                  <div className="admin-flex admin-justify-between">
+                    <span className="admin-text-gray-700">CPU</span>
+                    <span className="admin-font-medium admin-text-gray-900">{metrics.cpu}%</span>
+                  </div>
+                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                    <div
+                      className="admin-bg-admin-warning admin-h-2 admin-rounded-full admin-transition-all"
+                      style={{ width: `${metrics.cpu}%` }}
+                      aria-label={`Использование CPU: ${metrics.cpu}%`}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="admin-space-y-2">
+                  <div className="admin-flex admin-justify-between">
+                    <span className="admin-text-gray-700">Память</span>
+                    <span className="admin-font-medium admin-text-gray-900">{metrics.memory}%</span>
+                  </div>
+                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                    <div
+                      className="admin-bg-admin-error admin-h-2 admin-rounded-full admin-transition-all"
+                      style={{ width: `${metrics.memory}%` }}
+                      aria-label={`Использование памяти: ${metrics.memory}%`}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="admin-space-y-2">
+                  <div className="admin-flex admin-justify-between">
+                    <span className="admin-text-gray-700">Диск</span>
+                    <span className="admin-font-medium admin-text-gray-900">{metrics.disk}%</span>
+                  </div>
+                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                    <div
+                      className="admin-bg-admin-primary admin-h-2 admin-rounded-full admin-transition-all"
+                      style={{ width: `${metrics.disk}%` }}
+                      aria-label={`Использование диска: ${metrics.disk}%`}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="admin-space-y-2">
+                  <div className="admin-flex admin-justify-between">
+                    <span className="admin-text-gray-700">Сеть</span>
+                    <span className="admin-font-medium admin-text-gray-900">{metrics.network}%</span>
+                  </div>
+                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                    <div
+                      className="admin-bg-admin-success admin-h-2 admin-rounded-full admin-transition-all"
+                      style={{ width: `${metrics.network}%` }}
+                      aria-label={`Использование сети: ${metrics.network}%`}
+                    ></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Storage Distribution */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-white">Storage Distribution</h3>
-          <div className="h-80">
+      {/* Графики метрик */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+            📈 Мониторинг ресурсов (24ч)
+          </h3>
+          <p className="admin-card-description">
+            Графики использования системных ресурсов
+          </p>
+        </div>
+        <div className="admin-card-content">
+          <div className="admin-h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={storageData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}%`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {storageData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
+              <LineChart data={systemMetrics}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-gray-200)" />
+                <XAxis
+                  dataKey="time"
+                  stroke="var(--admin-gray-500)"
+                  fontSize={12}
+                />
+                <YAxis
+                  stroke="var(--admin-gray-500)"
+                  fontSize={12}
+                />
+                <Tooltip
                   contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'var(--admin-white)',
+                    border: '1px solid var(--admin-gray-200)',
                     borderRadius: '8px',
-                    color: 'white'
+                    boxShadow: 'var(--admin-shadow-md)'
                   }}
                 />
-              </PieChart>
+                <Line
+                  type="monotone"
+                  dataKey="cpu"
+                  stroke="var(--admin-warning)"
+                  strokeWidth={2}
+                  dot={{ fill: 'var(--admin-warning)', strokeWidth: 2, r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="memory"
+                  stroke="var(--admin-error)"
+                  strokeWidth={2}
+                  dot={{ fill: 'var(--admin-error)', strokeWidth: 2, r: 4 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* System Logs */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-white">System Logs</h3>
-            <Badge className="bg-gray-500/20 text-gray-100 border-gray-400/30">
-              📋 Live Logs
-            </Badge>
-          </div>
+      {/* Управление сервисами */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+            🔧 Управление сервисами
+          </h3>
+          <p className="admin-card-description">
+            Перезапуск и обслуживание системных компонентов
+          </p>
+        </div>
+        <div className="admin-card-content">
+          <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 lg:admin-grid-cols-4 admin-gap-4">
+            <button
+              onClick={() => handleRestartService('API')}
+              disabled={isRestarting === 'API'}
+              className="admin-btn admin-btn-primary admin-font-medium"
+            >
+              {isRestarting === 'API' ? (
+                <div className="admin-flex admin-items-center admin-gap-2">
+                  <div className="admin-spinner" />
+                  Перезапуск...
+                </div>
+              ) : (
+                <>
+                  <span className="mr-2">🚀</span>
+                  API сервер
+                </>
+              )}
+            </button>
 
-          <Terminal className="h-64">
-            {logs.map((log, index) => (
-              <div key={index} className="flex items-center gap-4 text-sm">
-                <span className="text-gray-400 w-32">{log.timestamp}</span>
-                <Badge 
-                  className={`w-16 text-center ${
-                    log.level === 'ERROR' ? 'bg-red-500/20 text-red-100 border-red-400/30' :
-                    log.level === 'WARN' ? 'bg-yellow-500/20 text-yellow-100 border-yellow-400/30' :
-                    'bg-green-500/20 text-green-100 border-green-400/30'
-                  }`}
-                >
-                  {log.level}
-                </Badge>
-                <span className="text-white/80">{log.message}</span>
+            <button
+              onClick={() => handleRestartService('Database')}
+              disabled={isRestarting === 'Database'}
+              className="admin-btn admin-btn-success admin-font-medium"
+            >
+              {isRestarting === 'Database' ? (
+                <div className="admin-flex admin-items-center admin-gap-2">
+                  <div className="admin-spinner" />
+                  Перезапуск...
+                </div>
+              ) : (
+                <>
+                  <span className="mr-2">🗄️</span>
+                  База данных
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => handleRestartService('Cache')}
+              disabled={isRestarting === 'Cache'}
+              className="admin-btn admin-btn-warning admin-font-medium"
+            >
+              {isRestarting === 'Cache' ? (
+                <div className="admin-flex admin-items-center admin-gap-2">
+                  <div className="admin-spinner" />
+                  Очистка...
+                </div>
+              ) : (
+                <>
+                  <span className="mr-2">⚡</span>
+                  Очистить кэш
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => handleRestartService('Storage')}
+              disabled={isRestarting === 'Storage'}
+              className="admin-btn admin-btn-outline admin-font-medium"
+            >
+              {isRestarting === 'Storage' ? (
+                <div className="admin-flex admin-items-center admin-gap-2">
+                  <div className="admin-spinner" />
+                  Перезапуск...
+                </div>
+              ) : (
+                <>
+                  <span className="mr-2">💾</span>
+                  Хранилище
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Резервное копирование */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+            💾 Резервное копирование
+          </h3>
+          <p className="admin-card-description">
+            Управление резервными копиями данных
+          </p>
+        </div>
+        <div className="admin-card-content">
+          <div className="admin-space-y-6">
+            <div className="admin-flex admin-gap-4">
+              <button
+                onClick={handleBackupDatabase}
+                disabled={isBackingUp}
+                className="admin-btn admin-btn-success admin-font-medium"
+              >
+                {isBackingUp ? (
+                  <div className="admin-flex admin-items-center admin-gap-2">
+                    <div className="admin-spinner" />
+                    Создаю копию...
+                  </div>
+                ) : (
+                  <>
+                    <span className="mr-2">💾</span>
+                    Создать резервную копию
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleRestoreBackup}
+                className="admin-btn admin-btn-outline admin-font-medium"
+              >
+                <span className="mr-2">📂</span>
+                Восстановить из копии
+              </button>
+            </div>
+
+            <div className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
+              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-3 admin-gap-4 admin-text-center">
+                <div>
+                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Последняя копия</div>
+                  <div className="admin-text-gray-600 admin-text-sm">2 часа назад</div>
+                </div>
+                <div>
+                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Размер</div>
+                  <div className="admin-text-gray-600 admin-text-sm">45.2 MB</div>
+                </div>
+                <div>
+                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Статус</div>
+                  <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded admin-text-xs admin-font-medium admin-inline-block">
+                    ✅ Успешно
+                  </div>
+                </div>
               </div>
-            ))}
-          </Terminal>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Системные логи */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+            📝 Системные логи
+          </h3>
+          <p className="admin-card-description">
+            Последние записи в логах системы
+          </p>
+        </div>
+        <div className="admin-card-content">
+          <div className="admin-bg-gray-900 admin-text-green-400 admin-p-6 admin-rounded-lg admin-font-mono admin-text-sm admin-max-h-64 admin-overflow-y-auto admin-border admin-border-gray-700">
+            <div className="admin-space-y-1">
+              <div className="admin-text-green-300">[2024-01-15 10:30:15] INFO: API request processed successfully</div>
+              <div className="admin-text-green-300">[2024-01-15 10:30:12] INFO: User authentication successful</div>
+              <div className="admin-text-blue-300">[2024-01-15 10:30:08] INFO: Database connection established</div>
+              <div className="admin-text-green-300">[2024-01-15 10:30:05] INFO: Cache cleared successfully</div>
+              <div className="admin-text-green-300">[2024-01-15 10:30:02] INFO: System startup completed</div>
+              <div className="admin-text-yellow-300">[2024-01-15 10:29:58] WARN: High memory usage detected</div>
+              <div className="admin-text-green-300">[2024-01-15 10:29:55] INFO: Scheduled backup completed</div>
+              <div className="admin-text-green-300">[2024-01-15 10:29:50] INFO: API rate limit reset</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

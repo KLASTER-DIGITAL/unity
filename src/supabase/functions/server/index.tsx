@@ -502,6 +502,45 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
       };
     }
 
+    // Сохраняем summary в entry_summaries для оптимизации токенов
+    let entrySummaryId = null;
+    if (userId) {
+      try {
+        const summaryJson = {
+          text: analysis.summary || text.substring(0, 100),
+          insight: analysis.insight || 'Каждое достижение приближает тебя к цели!',
+          mood: analysis.mood || 'вдохновение',
+          sentiment: analysis.sentiment || 'positive',
+          contexts: [], // Будет заполнено при создании записи
+          tags: analysis.tags || [],
+          achievements: analysis.isAchievement ? [analysis.summary] : [],
+          keywords: analysis.tags || [],
+          excerpt: text.substring(0, 200),
+          confidence: analysis.confidence || 0.5
+        };
+
+        const { data: summaryData, error: summaryError } = await supabase
+          .from('entry_summaries')
+          .insert({
+            entry_id: null, // Будет обновлено при создании записи
+            user_id: userId,
+            summary_json: summaryJson,
+            tokens_used: openaiData.usage?.total_tokens || 0
+          })
+          .select()
+          .single();
+
+        if (summaryError) {
+          console.error('Error saving entry summary:', summaryError);
+        } else {
+          entrySummaryId = summaryData.id;
+          console.log('Entry summary saved:', entrySummaryId);
+        }
+      } catch (summaryError) {
+        console.error('Error in summary saving:', summaryError);
+      }
+    }
+
     return c.json({
       success: true,
       analysis: {
@@ -513,7 +552,8 @@ app.post('/make-server-9729c493/chat/analyze', async (c) => {
         tags: analysis.tags || [],
         confidence: analysis.confidence || 0.5,
         isAchievement: analysis.isAchievement !== undefined ? analysis.isAchievement : true,
-        mood: analysis.mood || 'вдохновение'
+        mood: analysis.mood || 'вдохновение',
+        entrySummaryId: entrySummaryId // Добавляем ID summary для связи с записью
       }
     });
 
@@ -571,6 +611,24 @@ app.post('/make-server-9729c493/entries/create', async (c) => {
     const existingEntries = await kv.get(userEntriesKey) || [];
     const updatedEntries = [entryId, ...existingEntries];
     await kv.set(userEntriesKey, updatedEntries);
+
+    // Обновляем entry_summaries с entry_id если есть entrySummaryId
+    if (entry.entrySummaryId) {
+      try {
+        const { error: updateError } = await supabase
+          .from('entry_summaries')
+          .update({ entry_id: entryId })
+          .eq('id', entry.entrySummaryId);
+
+        if (updateError) {
+          console.error('Error updating entry summary with entry_id:', updateError);
+        } else {
+          console.log('Entry summary linked to entry:', entryId);
+        }
+      } catch (linkError) {
+        console.error('Error linking entry summary:', linkError);
+      }
+    }
 
     console.log(`Created entry ${entryId} for user ${entry.userId} with ${entry.media?.length || 0} media files`);
 

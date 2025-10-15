@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;600&display=swap');
 
+/* Custom Tailwind directives - these are normal for custom themes */
+/* eslint-disable-next-line @tailwindcss/no-custom-classname */
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -123,6 +125,7 @@
   --sidebar-ring: rgba(0, 122, 255, 1.00);
 }
 
+/* eslint-disable-next-line @tailwindcss/no-custom-classname */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -188,10 +191,12 @@
 
 @layer base {
   * {
+    /* eslint-disable-next-line @tailwindcss/no-custom-classname */
     @apply border-border outline-ring/50;
   }
 
   body {
+    /* eslint-disable-next-line @tailwindcss/no-custom-classname */
     @apply bg-background text-foreground overflow-x-hidden;
     font-family: var(--font-family-primary);
     max-width: 100vw;

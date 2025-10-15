@@ -1,79 +1,59 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { BackgroundGradient } from '../../../ui/shadcn-io/background-gradient';
-import { ShimmeringText } from '../../../ui/shadcn-io/shimmering-text';
-import { MagneticButton } from '../../../ui/shadcn-io/magnetic-button';
-import { Counter } from '../../../ui/shadcn-io/counter';
-import { Status } from '../../../ui/shadcn-io/status';
-import { SparklesCore } from '../../../ui/shadcn-io/sparkles';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { Input } from '../../../ui/input';
-import { Button } from '../../../ui/button';
-import { Label } from '../../../ui/label';
-import { Badge } from '../../../ui/badge';
-import { Progress } from '../../../ui/progress';
+import { toast } from 'sonner';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import '../../../../styles/admin-design-system.css';
 
-const languageData = [
-  { name: 'English', value: 100, color: '#3b82f6' },
-  { name: 'Russian', value: 85, color: '#10b981' },
-  { name: 'Spanish', value: 70, color: '#f59e0b' },
-  { name: 'French', value: 60, color: '#ef4444' },
-  { name: 'German', value: 45, color: '#8b5cf6' },
-  { name: 'Georgian', value: 20, color: '#06b6d4' },
-];
+interface Language {
+  code: string;
+  name: string;
+  native_name: string;
+  flag: string;
+  is_active: boolean;
+}
 
-const usageData = [
-  { language: 'English', users: 1200, percentage: 45 },
-  { language: 'Russian', users: 800, percentage: 30 },
-  { language: 'Spanish', users: 400, percentage: 15 },
-  { language: 'French', users: 200, percentage: 7 },
-  { language: 'German', users: 100, percentage: 3 },
-];
+interface Translation {
+  key: string;
+  language: string;
+  value: string;
+}
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export const LanguagesTab: React.FC = () => {
-  const [languages, setLanguages] = useState([]);
-  const [translations, setTranslations] = useState([]);
-  const [totalLanguages, setTotalLanguages] = useState(0);
-  const [totalKeys, setTotalKeys] = useState(0);
-  const [avgProgress, setAvgProgress] = useState(0);
+  const [languages, setLanguages] = useState<Language[]>([
+    { code: 'ru', name: 'Русский', native_name: 'Русский', flag: '🇷🇺', is_active: true },
+    { code: 'en', name: 'Английский', native_name: 'English', flag: '🇺🇸', is_active: true },
+    { code: 'es', name: 'Испанский', native_name: 'Español', flag: '🇪🇸', is_active: true },
+    { code: 'de', name: 'Немецкий', native_name: 'Deutsch', flag: '🇩🇪', is_active: false },
+    { code: 'fr', name: 'Французский', native_name: 'Français', flag: '🇫🇷', is_active: false },
+    { code: 'zh', name: 'Китайский', native_name: '中文', flag: '🇨🇳', is_active: false },
+    { code: 'ja', name: 'Японский', native_name: '日本語', flag: '🇯🇵', is_active: false },
+    { code: 'ka', name: 'Грузинский', native_name: 'ქართული', flag: '🇬🇪', is_active: true },
+  ]);
+  const [translations, setTranslations] = useState<Translation[]>([]);
+  const [editingTranslation, setEditingTranslation] = useState<Translation | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('ru');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    loadLanguages();
     loadTranslations();
   }, []);
 
-  const loadLanguages = async () => {
-    try {
-      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      if (!token) return;
-
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/languages', {
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(token).access_token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLanguages(data.languages || []);
-        setTotalLanguages(data.languages?.length || 0);
-      }
-    } catch (error) {
-      console.error('Error loading languages:', error);
-    }
-  };
-
   const loadTranslations = async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      if (!token) return;
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
 
       const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations', {
         headers: {
-          'Authorization': `Bearer ${JSON.parse(token).access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
@@ -81,189 +61,371 @@ export const LanguagesTab: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setTranslations(data.translations || []);
-        setTotalKeys(data.translations?.length || 0);
-        
-        // Calculate average progress
-        const totalProgress = languageData.reduce((sum, lang) => sum + lang.value, 0);
-        setAvgProgress(Math.round(totalProgress / languageData.length));
+        toast.success('Переводы успешно загружены! 📚');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка загрузки переводов');
       }
     } catch (error) {
       console.error('Error loading translations:', error);
+      toast.error('Ошибка соединения с сервером');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleAddLanguage = () => {
-    // Add language functionality
-    console.log('Adding new language...');
+  const handleEditTranslation = (translation: Translation) => {
+    setEditingTranslation(translation);
+    setEditValue(translation.value);
+  };
+
+  const handleSaveTranslation = async () => {
+    if (!editingTranslation) return;
+
+    if (!editValue.trim()) {
+      toast.error('Введите текст перевода');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+      if (!token) {
+        toast.error('Ошибка авторизации');
+        return;
+      }
+
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          key: editingTranslation.key,
+          language: editingTranslation.language,
+          value: editValue
+        })
+      });
+
+      if (response.ok) {
+        setTranslations(prev =>
+          prev.map(t =>
+            t.key === editingTranslation.key && t.language === editingTranslation.language
+              ? { ...t, value: editValue }
+              : t
+          )
+        );
+        setEditingTranslation(null);
+        setEditValue('');
+        toast.success('Перевод успешно сохранен! 🌍');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'Ошибка сохранения перевода');
+      }
+    } catch (error) {
+      console.error('Error saving translation:', error);
+      toast.error('Ошибка соединения с сервером');
+    }
+  };
+
+  const getTranslationProgress = (languageCode: string) => {
+    const totalKeys = 50;
+    const translatedKeys = translations.filter(t => t.language === languageCode).length;
+    return Math.round((translatedKeys / totalKeys) * 100);
+  };
+
+  const getLanguageData = () => {
+    return languages.map((lang, index) => ({
+      name: lang.name,
+      value: getTranslationProgress(lang.code),
+      color: COLORS[index % COLORS.length]
+    }));
+  };
+
+  const getBarChartData = () => {
+    return languages.map(lang => ({
+      language: lang.code.toUpperCase(),
+      progress: getTranslationProgress(lang.code),
+      name: lang.name
+    }));
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <BackgroundGradient className="rounded-3xl p-8">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
-            <span className="text-4xl">🌐</span>
+    <div className="admin-space-y-10">
+      {/* Заголовок раздела */}
+      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
+        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
+          🌍
+        </div>
+        <div>
+          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
+            Управление языками
+          </h2>
+          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
+            Управление переводами и локализацией приложения
+          </p>
+        </div>
+        <div className="admin-ml-auto admin-flex admin-gap-2">
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium">
+            🌐 Мультиязычность
           </div>
-          <div>
-            <ShimmeringText 
-              text="Language Management" 
-              className="text-2xl font-bold text-white"
-              duration={2}
-            />
-            <p className="text-white/80 mt-2">Manage translations and languages</p>
+          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
+            📊 Аналитика
           </div>
         </div>
-      </BackgroundGradient>
+      </header>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Total Languages</h3>
-          <Counter
-            number={totalLanguages}
-            setNumber={setTotalLanguages}
-            className="text-4xl font-bold text-blue-400"
-          />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Translation Keys</h3>
-          <Counter
-            number={totalKeys}
-            setNumber={setTotalKeys}
-            className="text-4xl font-bold text-green-400"
-          />
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 text-center shadow-2xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Avg. Progress</h3>
-          <div className="text-4xl font-bold text-yellow-400">{avgProgress}%</div>
-          <Progress value={avgProgress} className="mt-4" />
-        </div>
-      </div>
-
-      {/* Add Language Button */}
-      <div className="flex justify-center">
-        <MagneticButton
-          onClick={handleAddLanguage}
-          className="bg-green-500/20 hover:bg-green-500/30 text-green-100 border-green-400/30"
-        >
-          <span className="mr-2">➕</span>
-          Add Language
-        </MagneticButton>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Translation Progress Pie Chart */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Translation Progress</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={languageData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}%`}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {languageData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+        {/* Основная панель управления */}
+        <div className="lg:admin-col-span-2 admin-space-y-8">
+          {/* Карточки языков */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                🌍 Активные языки
+              </h3>
+              <p className="admin-card-description">
+                Управление поддерживаемыми языками приложения
+              </p>
             </div>
-          </div>
-        </div>
+            <div className="admin-card-content">
+              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-8">
+                {languages.map((language) => (
+                  <div key={language.code} className="admin-card admin-border admin-border-gray-200 admin-shadow-sm hover:admin-shadow-md admin-transition-shadow">
+                    <div className="admin-p-8">
+                      <div className="admin-flex admin-items-center admin-justify-between admin-mb-4">
+                        <div className="admin-flex admin-items-center admin-gap-4">
+                          <div className="admin-text-4xl" aria-hidden="true">{language.flag}</div>
+                          <div>
+                            <div className="admin-font-semibold admin-text-gray-900 admin-text-lg">{language.name}</div>
+                            <div className="admin-text-gray-600 admin-text-sm">{language.native_name}</div>
+                          </div>
+                        </div>
+                        <div className="admin-flex admin-flex-col admin-items-end admin-gap-2">
+                          <div className={`admin-w-3 admin-h-3 admin-rounded-full ${language.is_active ? 'admin-bg-admin-success' : 'admin-bg-admin-gray-400'}`} aria-hidden="true"></div>
+                          <div className={`admin-px-2 admin-py-1 admin-rounded admin-text-xs admin-font-medium ${language.is_active ? 'admin-bg-admin-success-lighter admin-text-admin-success' : 'admin-bg-admin-gray-100 admin-text-admin-gray-600'}`}>
+                            {language.is_active ? "Активен" : "Неактивен"}
+                          </div>
+                        </div>
+                      </div>
 
-        {/* Language Usage Bar Chart */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-8 shadow-2xl">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Language Usage</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={usageData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    dataKey="language" 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.6)"
-                    fontSize={12}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
-                  <Bar dataKey="users" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Language Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {languageData.map((lang, index) => (
-          <div key={index} className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 shadow-2xl hover:bg-white/10 transition-all duration-300">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-semibold text-white">{lang.name}</h4>
-                <Status status={lang.value > 80 ? 'online' : lang.value > 50 ? 'degraded' : 'offline'} />
+                      <div className="admin-space-y-3">
+                        <div className="admin-flex admin-justify-between admin-text-sm">
+                          <span className="admin-text-gray-600">Прогресс переводов</span>
+                          <span className="admin-font-medium admin-text-gray-900">{getTranslationProgress(language.code)}%</span>
+                        </div>
+                        <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                          <div
+                            className="admin-bg-admin-primary admin-h-2 admin-rounded-full admin-transition-all"
+                            style={{ width: `${getTranslationProgress(language.code)}%` }}
+                            aria-label={`Прогресс переводов: ${getTranslationProgress(language.code)}%`}
+                          ></div>
+                        </div>
+                        <div className="admin-flex admin-gap-2">
+                          <button
+                            onClick={() => setSelectedLanguage(language.code)}
+                            className="admin-btn admin-btn-outline admin-btn-sm"
+                          >
+                            Редактировать
+                          </button>
+                          <button
+                            className="admin-btn admin-btn-primary admin-btn-sm"
+                            title="Автоперевод"
+                            aria-label={`Запустить автоперевод для языка ${language.name}`}
+                          >
+                            Автоперевод
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/80">Progress</span>
-                  <span className="text-white">{lang.value}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Визуализация и статистика */}
+        <div className="admin-space-y-6">
+          {/* Круговая диаграмма прогресса */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📊 Прогресс переводов
+              </h3>
+            </div>
+            <div className="admin-card-content">
+              <div className="admin-h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={getLanguageData()}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}%`}
+                    >
+                      {getLanguageData().map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'var(--admin-white)',
+                        border: '1px solid var(--admin-gray-200)',
+                        borderRadius: '8px',
+                        boxShadow: 'var(--admin-shadow-md)'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Статистика переводов */}
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+                📈 Статистика
+              </h3>
+            </div>
+            <div className="admin-card-content admin-space-y-4">
+              <div className="admin-grid admin-grid-cols-2 admin-gap-4">
+                <div className="admin-p-4 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-primary-light">
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-primary admin-mb-1">{languages.length}</div>
+                  <div className="admin-text-gray-600 admin-text-sm">Всего языков</div>
                 </div>
-                <Progress value={lang.value} className="h-2" />
-              </div>
-
-              <div className="flex gap-2">
-                <MagneticButton className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 border-blue-400/30 text-sm">
-                  Edit
-                </MagneticButton>
-                <MagneticButton className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-100 border-purple-400/30 text-sm">
-                  Auto-translate
-                </MagneticButton>
+                <div className="admin-p-4 admin-bg-admin-success-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-success-light">
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-success admin-mb-1">
+                    {languages.filter(l => l.is_active).length}
+                  </div>
+                  <div className="admin-text-gray-600 admin-text-sm">Активных</div>
+                </div>
+                <div className="admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-warning-light">
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-warning admin-mb-1">{translations.length}</div>
+                  <div className="admin-text-gray-600 admin-text-sm">Переводов</div>
+                </div>
+                <div className="admin-p-4 admin-bg-admin-secondary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-secondary-light">
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-secondary admin-mb-1">
+                    {Math.round(translations.length / languages.length)}
+                  </div>
+                  <div className="admin-text-gray-600 admin-text-sm">На язык</div>
+                </div>
               </div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
 
-      {/* Background Effects */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <SparklesCore
-          id="languages-sparkles"
-          background="transparent"
-          minSize={0.4}
-          maxSize={1}
-          particleDensity={800}
-          className="w-full h-full"
-          particleColor="#ffffff"
-        />
+      {/* Редактор переводов */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
+            📝 Редактирование переводов
+          </h3>
+          <p className="admin-card-description">
+            Редактирование текстов для языка: {languages.find(l => l.code === selectedLanguage)?.name}
+          </p>
+        </div>
+        <div className="admin-card-content">
+          <div className="admin-space-y-4 admin-max-h-96 admin-overflow-y-auto">
+            {translations
+              .filter(t => t.language === selectedLanguage)
+              .slice(0, 15)
+              .map((translation, index) => (
+                <div key={index} className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200 hover:admin-bg-gray-100 admin-transition-colors">
+                  <div className="admin-flex admin-items-start admin-justify-between admin-mb-3">
+                    <div className="admin-flex-1">
+                      <div className="admin-font-medium admin-text-gray-900 admin-text-sm admin-mb-1">{translation.key}</div>
+                      <div className="admin-text-gray-600 admin-text-xs">Ключ перевода</div>
+                    </div>
+                    <div className="admin-px-2 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded admin-text-xs admin-font-medium">
+                      {translation.language.toUpperCase()}
+                    </div>
+                  </div>
+
+                  {editingTranslation?.key === translation.key && editingTranslation?.language === translation.language ? (
+                    <div className="admin-space-y-3">
+                      <input
+                        type="text"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="admin-input"
+                      />
+                      <div className="admin-flex admin-gap-2">
+                        <button onClick={handleSaveTranslation} className="admin-btn admin-btn-success admin-btn-sm">
+                          💾 Сохранить
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingTranslation(null);
+                            setEditValue('');
+                          }}
+                          className="admin-btn admin-btn-outline admin-btn-sm"
+                        >
+                          ❌ Отмена
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="admin-flex admin-items-center admin-justify-between">
+                      <span className="admin-text-gray-900 admin-flex-1 admin-mr-4">{translation.value}</span>
+                      <button
+                        onClick={() => handleEditTranslation(translation)}
+                        className="admin-btn admin-btn-outline admin-btn-sm"
+                        title="Редактировать перевод"
+                        aria-label={`Редактировать перевод для ключа ${translation.key}`}
+                      >
+                        ✏️ Редактировать
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Действия и кнопки */}
+      <div className="admin-flex admin-justify-center admin-gap-4">
+        <button
+          onClick={() => {
+            toast.info('Функция автоперевода в разработке 🤖');
+          }}
+          className="admin-btn admin-btn-success admin-font-medium"
+        >
+          <span className="mr-2">🤖</span>
+          Автоперевод AI
+        </button>
+        <button
+          onClick={() => {
+            toast.info('Функция экспорта отчетов в разработке 📊');
+          }}
+          className="admin-btn admin-btn-primary admin-font-medium"
+        >
+          <span className="mr-2">📊</span>
+          Экспорт отчетов
+        </button>
+        <button
+          onClick={loadTranslations}
+          disabled={isLoading}
+          className="admin-btn admin-btn-outline admin-font-medium"
+        >
+          {isLoading ? (
+            <div className="admin-flex admin-items-center admin-gap-2">
+              <div className="admin-spinner" />
+              Загружаю...
+            </div>
+          ) : (
+            <>
+              <span className="mr-2">🔄</span>
+              Обновить переводы
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

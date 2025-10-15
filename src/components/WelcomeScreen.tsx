@@ -5,6 +5,10 @@ import { ChevronDown, Check } from "lucide-react";
 import imgGeneratedImageSeptember092025333Pm1 from "../assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
 import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "../imports/svg-lqmvp";
 
+// Новая i18n система
+import { useTranslation } from "@/shared/lib/i18n";
+import { LanguageSelector } from "@/shared/lib/i18n";
+
 interface WelcomeScreenProps {
   onNext: (language: string) => void;
   onSkip?: () => void;
@@ -79,7 +83,8 @@ const translations = {
 };
 
 export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepClick }: WelcomeScreenProps) {
-  const [selectedLanguage, setSelectedLanguage] = useState("ru");
+  const { t, changeLanguage, currentLanguage: i18nLanguage } = useTranslation();
+  const [selectedLanguage, setSelectedLanguage] = useState(i18nLanguage || "ru");
   const [showDropdown, setShowDropdown] = useState(false);
   const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
@@ -112,7 +117,14 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   }, []);
 
   const selectedLang = languages.find(lang => lang.code === selectedLanguage) || languages[0];
-  const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
+const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
+
+// Синхронизируем выбранный язык с i18n системой
+useEffect(() => {
+  if (selectedLanguage !== i18nLanguage) {
+    changeLanguage(selectedLanguage);
+  }
+}, [selectedLanguage, i18nLanguage, changeLanguage]);
 
   return (
     <motion.div 
@@ -351,7 +363,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              {currentTranslations.title}
+              {t('welcomeTitle', currentTranslations.title)}
             </motion.h2>
             
             <motion.p 
@@ -367,7 +379,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              {currentTranslations.subtitle}
+              {t('appSubtitle', currentTranslations.subtitle)}
             </motion.p>
           </motion.div>
         </div>
@@ -397,7 +409,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                   fontSize: '15px'
                 }}
               >
-                {currentTranslations.alreadyHaveAccount}
+                {t('alreadyHaveAccount', currentTranslations.alreadyHaveAccount)}
               </motion.button>
             )}
             
@@ -431,7 +443,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {currentTranslations.startButton}
+                  {t('start_button', currentTranslations.startButton)}
                 </motion.span>
               </Button>
             </div>
