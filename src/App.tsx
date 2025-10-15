@@ -1,878 +1,387 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import { checkSession, signOut } from "./utils/auth";
-import { updateUserProfile, analyzeTextWithAI, createEntry } from "./utils/api";
+import { updateUserProfile } from "./utils/api";
 import { isPWAEnabled, logPWADebugInfo } from "./utils/pwaUtils";
+
+// Layout components
 import { MobileBottomNav } from "./components/MobileBottomNav";
+
+// Auth screens
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { OnboardingScreen2 } from "./components/OnboardingScreen2";
 import { OnboardingScreen3 } from "./components/OnboardingScreen3";
 import { OnboardingScreen4 } from "./components/OnboardingScreen4";
 import { AuthScreen } from "./components/AuthScreen";
-import { AdminLoginScreen } from "./components/AdminLoginScreen";
+
+// Main screens
 import { AchievementHomeScreen } from "./components/screens/AchievementHomeScreen";
 import { HistoryScreen } from "./components/screens/HistoryScreen";
 import { AchievementsScreen } from "./components/screens/AchievementsScreen";
 import { ReportsScreen } from "./components/screens/ReportsScreen";
 import { SettingsScreen } from "./components/screens/SettingsScreen";
-import { AdminDashboard } from "./components/screens/AdminDashboard";
-import { InstallPrompt } from "./components/InstallPrompt";
-import { PWAHead } from "./components/PWAHead";
-import { PWAStatus } from "./components/PWAStatus";
-import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
-import { PWASplash } from "./components/PWASplash";
 
-const appTranslations = {
-  ru: {
-    home: "Дневник Достижений",
-    history: "История", 
-    achievements: "Достижения",
-    reports: "AI Обзоры",
-    settings: "Настройки"
-  },
-  en: {
-    home: "Achievement Diary",
-    history: "History",
-    achievements: "Achievements", 
-    reports: "AI Reports",
-    settings: "Settings"
-  },
-  es: {
-    home: "Diario de Logros",
-    history: "Historia",
-    achievements: "Logros",
-    reports: "Informes AI", 
-    settings: "Configuración"
-  },
-  de: {
-    home: "Erfolgstagenbuch",
-    history: "Geschichte",
-    achievements: "Erfolge",
-    reports: "AI Berichte",
-    settings: "Einstellungen"
-  },
-  fr: {
-    home: "Journal des Réussites",
-    history: "Historique",
-    achievements: "Réalisations",
-    reports: "Rapports AI",
-    settings: "Paramètres"
-  },
-  zh: {
-    home: "成就日记",
-    history: "历史",
-    achievements: "成就",
-    reports: "AI 报告", 
-    settings: "设置"
-  },
-  ja: {
-    home: "成果日記",
-    history: "履歴",
-    achievements: "実績",
-    reports: "AI レポート",
-    settings: "設定"
-  }
-};
+// Admin screens
+import { AdminLoginScreen } from "./components/AdminLoginScreen";
+import { AdminDashboard } from "./components/screens/AdminDashboard";
+
+// PWA components - Feature flag for gradual migration
+// Set VITE_USE_NEW_PWA=true in .env to use new PWA components from @/shared
+const USE_NEW_PWA = false; // Change to true to test new PWA components
+
+// Old PWA components (current)
+import { InstallPrompt as OldInstallPrompt } from "./components/InstallPrompt";
+import { PWAHead as OldPWAHead } from "./components/PWAHead";
+import { PWAStatus as OldPWAStatus } from "./components/PWAStatus";
+import { PWAUpdatePrompt as OldPWAUpdatePrompt } from "./components/PWAUpdatePrompt";
+import { PWASplash as OldPWASplash } from "./components/PWASplash";
+
+// New PWA components (migrated to shared)
+import {
+  InstallPrompt as NewInstallPrompt,
+  PWAHead as NewPWAHead,
+  PWAStatus as NewPWAStatus,
+  PWAUpdatePrompt as NewPWAUpdatePrompt,
+  PWASplash as NewPWASplash
+} from "@/shared/components/pwa";
+
+// Select which version to use based on feature flag
+const InstallPrompt = USE_NEW_PWA ? NewInstallPrompt : OldInstallPrompt;
+const PWAHead = USE_NEW_PWA ? NewPWAHead : OldPWAHead;
+const PWAStatus = USE_NEW_PWA ? NewPWAStatus : OldPWAStatus;
+const PWAUpdatePrompt = USE_NEW_PWA ? NewPWAUpdatePrompt : OldPWAUpdatePrompt;
+const PWASplash = USE_NEW_PWA ? NewPWASplash : OldPWASplash;
+
+// i18n components - Feature flag for gradual migration
+// Set USE_NEW_I18N=true to use new i18n system from @/shared/lib/i18n
+const USE_NEW_I18N = false; // Change to true to test new i18n system
+
+// Old i18n components (current)
+import {
+  TranslationProvider as OldTranslationProvider,
+  TranslationManager as OldTranslationManager
+} from "./components/i18n";
+import { TranslationDebugInfo } from "./components/i18n/TranslationLoader";
+import { I18nTestComponent } from "./components/i18n/I18nTestComponent";
+
+// New i18n components (migrated to shared)
+import {
+  TranslationProvider as NewTranslationProvider,
+  TranslationManager as NewTranslationManager
+} from "@/shared/lib/i18n";
+
+// Select which version to use based on feature flag
+const TranslationProvider = USE_NEW_I18N ? NewTranslationProvider : OldTranslationProvider;
+const TranslationManager = USE_NEW_I18N ? NewTranslationManager : OldTranslationManager;
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("ru");
+  const [userData, setUserData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("home");
+  const [showAuth, setShowAuth] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
-  const [showAuth, setShowAuth] = useState(false); // Для показа экрана входа/регистрации
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('register'); // Режим авторизации
-  const [diaryData, setDiaryData] = useState({ name: "", emoji: "🏆" });
-  const [firstEntry, setFirstEntry] = useState("");
-  const [userData, setUserData] = useState<any>(null);
-  const [showAuthAfterEntry, setShowAuthAfterEntry] = useState(false);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false); // Нужен ли онбординг после регистрации
-  const [notificationSettings, setNotificationSettings] = useState({
-    selectedTime: 'none' as 'none' | 'morning' | 'evening' | 'both',
-    morningTime: '08:00',
-    eveningTime: '21:00',
-    permissionGranted: false
-  });
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  // Проверка сессии при загрузке
-  useEffect(() => {
-    checkExistingSession();
-  }, []);
-
-  // Проверка админского роута через query параметры
+  // Check admin route via query parameter
   useEffect(() => {
     const checkAdminRoute = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const isAdmin = urlParams.get('view') === 'admin';
       setIsAdminRoute(isAdmin);
       
-      // Если админский роут и нет пользователя, показываем авторизацию
-      if (isAdmin && !userData?.id && !isCheckingSession) {
+      if (isAdmin && !userData) {
         setShowAdminAuth(true);
-      } else if (isAdmin && userData?.id) {
-        setShowAdminAuth(false);
       }
     };
-    
+
     checkAdminRoute();
     window.addEventListener('popstate', checkAdminRoute);
-    
-    // Также слушаем изменения hash для поддержки навигации
     window.addEventListener('hashchange', checkAdminRoute);
-    
+
     return () => {
       window.removeEventListener('popstate', checkAdminRoute);
       window.removeEventListener('hashchange', checkAdminRoute);
     };
-  }, [userData, isCheckingSession]);
+  }, [userData]);
 
-  // PWA: Регистрация Service Worker
+  // Check session on mount
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then((registration) => {
-            console.log('Service Worker registered:', registration);
-          })
-          .catch((error) => {
-            console.error('Service Worker registration failed:', error);
-          });
-      });
-    }
-  }, []);
-
-  // PWA: Инициализация pwa-enabled при первой загрузке
-  useEffect(() => {
-    const pwaEnabled = localStorage.getItem('pwa-enabled');
-    if (pwaEnabled === null) {
-      // Первая загрузка - устанавливаем PWA как включенную по умолчанию
-      localStorage.setItem('pwa-enabled', 'true');
-      console.log('✅ PWA initialized as enabled (default)');
-    } else {
-      console.log('ℹ️ PWA status from localStorage:', pwaEnabled);
-    }
-    
-    // Логируем детальную информацию о PWA для отладки
-    logPWADebugInfo();
-  }, []);
-
-  // PWA: Обработка события beforeinstallprompt
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('beforeinstallprompt event fired!');
-      e.preventDefault();
-      setDeferredPrompt(e);
-      
-      // ВАЖНО: Проверяем включена ли PWA в админ-панели
-      if (!isPWAEnabled()) {
-        console.log('❌ PWA disabled by admin - not showing install prompt');
-        return;
-      }
-      
-      console.log('✅ PWA enabled - preparing to show install prompt');
-      
-      // Проверяем, показывали ли мы уже приглашение
-      const installPromptShown = localStorage.getItem('installPromptShown');
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      
-      console.log('Install prompt shown before:', installPromptShown);
-      console.log('Is app in standalone mode:', isStandalone);
-      
-      // Показываем только если еще не показывали и приложение не установлено
-      if (!installPromptShown && !isStandalone) {
-        console.log('🎉 Will show install prompt in 3 seconds...');
-        setTimeout(() => {
-          console.log('📱 Showing InstallPrompt now!');
-          setShowInstallPrompt(true);
-        }, 3000); // Задержка 3 секунды после загрузки
-      } else {
-        console.log('ℹ️ Not showing prompt:', {
-          alreadyShown: !!installPromptShown,
-          isStandalone: isStandalone
-        });
+    const initSession = async () => {
+      try {
+        const session = await checkSession();
+        if (session) {
+          setUserData(session);
+          
+          if (session.onboardingComplete) {
+            setOnboardingComplete(true);
+            setCurrentStep(5);
+          } else {
+            setCurrentStep(2);
+          }
+        } else {
+          setShowAuth(false);
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+      } finally {
+        setIsCheckingSession(false);
       }
     };
 
-    // Логируем что мы начинаем слушать событие
-    console.log('🎧 Starting to listen for beforeinstallprompt event...');
+    initSession();
+  }, []);
+
+  // PWA install prompt
+  useEffect(() => {
+    if (!isPWAEnabled()) return;
+
+    logPWADebugInfo();
+
+    let deferredPrompt: any;
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      const hasSeenPrompt = localStorage.getItem('pwa-install-prompt-seen');
+      if (!hasSeenPrompt && onboardingComplete) {
+        setTimeout(() => {
+          setShowInstallPrompt(true);
+        }, 3000);
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Проверяем поддержку PWA
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    
-    console.log('PWA Support Check:', {
-      isStandalone,
-      isIOSSafari,
-      hasServiceWorker: 'serviceWorker' in navigator,
-      hasBeforeInstallPrompt: 'onbeforeinstallprompt' in window
-    });
-
     return () => {
-      console.log('🔇 Stopped listening for beforeinstallprompt');
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [onboardingComplete]);
 
-  // Функция установки PWA
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      return;
-    }
+    const deferredPrompt = (window as any).deferredPrompt;
+    if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     
-    console.log(`User response to install prompt: ${outcome}`);
-    
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      console.log('PWA installed');
     }
     
-    setDeferredPrompt(null);
+    (window as any).deferredPrompt = null;
     setShowInstallPrompt(false);
-    localStorage.setItem('installPromptShown', 'true');
+    localStorage.setItem('pwa-install-prompt-seen', 'true');
   };
 
-  // Функция закрытия приглашения установки
   const handleInstallClose = () => {
     setShowInstallPrompt(false);
-    localStorage.setItem('installPromptShown', 'true');
+    localStorage.setItem('pwa-install-prompt-seen', 'true');
   };
 
-  const checkExistingSession = async () => {
-    try {
-      const result = await checkSession();
-      
-      if (result.success && result.user && result.profile) {
-        console.log('Existing session found:', result.user.id);
-        
-        // Загружаем данные пользователя
-        setUserData({
-          id: result.user.id,
-          email: result.user.email,
-          name: result.profile.name,
-          diaryData: {
-            name: result.profile.diaryName,
-            emoji: result.profile.diaryEmoji
-          },
-          language: result.profile.language,
-          notificationSettings: result.profile.notificationSettings,
-          onboardingCompleted: result.profile.onboardingCompleted,
-          createdAt: result.profile.createdAt
-        });
-        
-        setDiaryData({
-          name: result.profile.diaryName || 'Мой дневник',
-          emoji: result.profile.diaryEmoji || '🏆'
-        });
-        
-        setSelectedLanguage(result.profile.language || 'ru');
-        setNotificationSettings(result.profile.notificationSettings || {
-          selectedTime: 'none',
-          morningTime: '08:00',
-          eveningTime: '21:00',
-          permissionGranted: false
-        });
-        
-        // Проверяем завершен ли онбординг
-        if (result.profile.onboardingCompleted) {
-          console.log('✅ Onboarding already completed');
-          setOnboardingComplete(true);
-          setNeedsOnboarding(false);
-        } else {
-          console.log('⚠️ User needs to complete onboarding');
-          setOnboardingComplete(false);
-          setNeedsOnboarding(true);
-          setCurrentStep(2); // Начинаем со 2 шага (пропускаем выбор языка)
-        }
-      } else {
-        console.log('No existing session - starting onboarding from step 1');
-        // Нет сессии - начинаем онбординг с выбора языка
-        setNeedsOnboarding(true);
-        setOnboardingComplete(false);
-        setCurrentStep(1); // Начинаем с выбора языка
-      }
-    } catch (error) {
-      console.error('Session check error:', error);
-      setShowAuth(true);
-    } finally {
-      setIsCheckingSession(false);
-    }
-  };
-
-  // Функция выхода
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      
-      // Сброс состояния
-      setActiveTab("home");
-      setCurrentStep(1);
-      setOnboardingComplete(false);
-      setNeedsOnboarding(false);
-      setDiaryData({ name: "", emoji: "🏆" });
-      setFirstEntry("");
-      setUserData(null);
-      setShowAuthAfterEntry(false);
-      setShowAuth(true); // Показываем экран входа после выхода
-      setNotificationSettings({
-        selectedTime: 'none',
-        morningTime: '08:00',
-        eveningTime: '21:00',
-        permissionGranted: false
-      });
-      
-      console.log('User logged out - showing auth screen');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-  // Функция для обработки выбора языка (шаг 1 -> шаг 2)
-  const handleLanguageSelected = async (language: string) => {
+  const handleWelcomeComplete = (language: string) => {
     setSelectedLanguage(language);
-    
-    // Если пользователь авторизован - сохраняем язык сразу
-    if (userData?.id) {
-      try {
-        await updateUserProfile(userData.id, { language });
-        console.log('Language saved:', language);
-      } catch (error) {
-        console.error('Error saving language:', error);
-      }
-    }
-    
     setCurrentStep(2);
   };
 
-  // Функция для обработки Skip на шаге 1 (WelcomeScreen)
-  const handleWelcomeSkip = () => {
-    console.log('Skip clicked on WelcomeScreen - showing auth');
-    setAuthMode('login'); // Устанавливаем режим входа
+  const handleOnboarding2Complete = () => {
+    setCurrentStep(3);
+  };
+
+  const handleOnboarding3Complete = () => {
+    setCurrentStep(4);
+  };
+
+  const handleOnboarding4Complete = () => {
     setShowAuth(true);
-    setCurrentStep(1); // Остаемся на 1 шаге на случай возврата
   };
 
-  // Функция для перехода из второго онбординга к третьему (шаг 2 -> шаг 3)
-  const handleOnboarding2Next = () => {
-    setCurrentStep(3);
-  };
-
-  // Функция для пропуска второ��о онбординга - переход к третьему (шаг 2 -> шаг 3)
-  const handleOnboarding2Skip = () => {
-    setCurrentStep(3);
-  };
-
-  // Функция для завершения третьего онбординга и перехода к четвертому (шаг 3 -> шаг 4)
-  const handleOnboarding3Next = async (diaryName: string, emoji: string) => {
-    setDiaryData({ name: diaryName, emoji });
-    
-    // Если пользователь уже авторизован, сохраняем изменения
-    if (userData?.id) {
-      try {
-        await updateUserProfile(userData.id, {
-          diaryName,
-          diaryEmoji: emoji
-        });
-        console.log('Diary settings saved');
-      } catch (error) {
-        console.error('Error saving diary settings:', error);
-      }
-    }
-    
-    setCurrentStep(4);
-  };
-
-  // Функция для пропуска третьего онбординга - переход к четвертому (шаг 3 -> шаг 4)
-  const handleOnboarding3Skip = () => {
-    setDiaryData({ name: "Мой дневник", emoji: "🏆" });
-    setCurrentStep(4);
-  };
-
-  // Функция для завершения четвертого онбординга (шаг 4 -> проверка авторизации)
-  const handleOnboarding4Next = async (entry: string, settings: any) => {
-    setFirstEntry(entry);
-    setNotificationSettings(settings);
-    
-    // Если пользователь уже авторизован, сохраняем настройки и запись
-    if (userData?.id) {
-      try {
-        // Сохраняем настройки профиля
-        await updateUserProfile(userData.id, {
-          notificationSettings: settings,
-          onboardingCompleted: true
-        });
-        
-        console.log('✅ Onboarding completed and saved');
-        
-        // Сохраняем первую запись, если она есть
-        if (entry && entry.trim()) {
-          console.log('Saving first entry from onboarding (authorized):', entry);
-          
-          const analysis = await analyzeTextWithAI(
-            entry, 
-            userData.name || 'Пользователь',
-            userData.id
-          );
-          
-          await createEntry({
-            userId: userData.id,
-            text: entry,
-            sentiment: analysis.sentiment,
-            category: analysis.category,
-            tags: analysis.tags,
-            aiReply: analysis.reply,
-            aiSummary: analysis.summary,
-            aiInsight: analysis.insight,
-            isAchievement: analysis.isAchievement,
-            mood: analysis.mood,
-            focusArea: analysis.category
-          });
-          
-          console.log('First entry saved successfully');
-          setFirstEntry(""); // Очищаем
-          
-          toast.success("Твоя первая запись сохранена! 🎉");
-        }
-        
-        // Обновляем userData
-        setUserData({
-          ...userData,
-          onboardingCompleted: true,
-          notificationSettings: settings
-        });
-        
-        setOnboardingComplete(true);
-        setNeedsOnboarding(false);
-      } catch (error) {
-        console.error('Error saving onboarding data:', error);
-        toast.error("Ошибка сохранения данных");
-        setOnboardingComplete(true);
-      }
-    } else {
-      // Если не авторизован - показываем экран авторизации
-      if (entry.trim()) {
-        setTimeout(() => {
-          setShowAuthAfterEntry(true);
-        }, 1000);
-      } else {
-        setShowAuth(true);
-      }
-    }
-  };
-
-  // Функция для пропуска четвертого онбординга (шаг 4 -> завершено)
-  const handleOnboarding4Skip = async () => {
-    // Если пользователь авторизован, помечаем онбординг как завершенный
-    if (userData?.id) {
-      try {
-        await updateUserProfile(userData.id, {
-          onboardingCompleted: true
-        });
-        console.log('✅ Onboarding skipped and marked as completed');
-        
-        setUserData({
-          ...userData,
-          onboardingCompleted: true
-        });
-      } catch (error) {
-        console.error('Error marking onboarding as completed:', error);
-      }
-    }
-    
-    setOnboardingComplete(true);
-    setNeedsOnboarding(false);
-  };
-
-  // Функция для завершения авторизации после записи
-  const handleAuthAfterEntryComplete = async (data: any) => {
-    console.log('Auth complete with data:', data);
-    setUserData(data);
-    setShowAuthAfterEntry(false);
-    
-    // Сохраняем выбранный язык в профиль
-    if (selectedLanguage && selectedLanguage !== data.language) {
-      try {
-        await updateUserProfile(data.id, { language: selectedLanguage });
-        data.language = selectedLanguage;
-      } catch (error) {
-        console.error('Error updating language:', error);
-      }
-    }
-    
-    // Сохраняем первую запись, если она есть
-    if (firstEntry && firstEntry.trim()) {
-      try {
-        console.log('Saving first entry from onboarding:', firstEntry);
-        
-        // Анализируем текст с AI
-        const analysis = await analyzeTextWithAI(
-          firstEntry, 
-          data.name || 'Пользователь',
-          data.id
-        );
-        
-        // Создаем запись в базе
-        await createEntry({
-          userId: data.id,
-          text: firstEntry,
-          sentiment: analysis.sentiment,
-          category: analysis.category,
-          tags: analysis.tags,
-          aiReply: analysis.reply,
-          aiSummary: analysis.summary,
-          aiInsight: analysis.insight,
-          isAchievement: analysis.isAchievement,
-          mood: analysis.mood,
-          focusArea: analysis.category
-        });
-        
-        console.log('First entry saved successfully');
-        setFirstEntry(""); // Очищаем
-        
-        toast.success("Твоя первая запись сохранена! 🎉");
-      } catch (error) {
-        console.error('Error saving first entry:', error);
-        toast.error("Не удалось сохранить первую запись");
-      }
-    }
-    
-    // Если есть данные из онбординга, обновляем профиль и помечаем онбординг завершенным
-    if (data.id && (diaryData.name || notificationSettings.selectedTime !== 'none')) {
-      try {
-        await updateUserProfile(data.id, {
-          diaryName: diaryData.name || 'Мой дневник',
-          diaryEmoji: diaryData.emoji || '🏆',
-          notificationSettings: notificationSettings,
-          language: selectedLanguage,
-          onboardingCompleted: true
-        });
-        console.log('✅ Onboarding data saved and marked as completed');
-        
-        // Обновляем userData
-        setUserData({
-          ...data,
-          onboardingCompleted: true
-        });
-      } catch (error) {
-        console.error('Error saving onboarding data:', error);
-      }
-    }
-    
-    setOnboardingComplete(true);
-    setNeedsOnboarding(false);
-  };
-
-
-
-  // Функция для возврата с авторизации к записи
-  const handleAuthAfterEntryBack = () => {
-    setShowAuthAfterEntry(false);
-    // Остаемся на том же шаге 4, пользователь может изменить запись
-  };
-
-  // Функция для завершения обычной авторизации (Skip или Logout)
-  const handleAuthComplete = async (data: any) => {
-    console.log('Auth completed:', data);
-    setUserData(data);
+  const handleAuthComplete = async (user: any) => {
+    setUserData(user);
     setShowAuth(false);
     
-    // Проверяем нужен ли онбординг
-    if (data.onboardingCompleted === false || data.onboardingCompleted === undefined) {
-      console.log('⚠️ User needs onboarding - starting from step 2');
-      setNeedsOnboarding(true);
-      setOnboardingComplete(false);
-      setCurrentStep(2); // Начинаем со 2 шага
-      setSelectedLanguage(data.language || 'ru');
-    } else {
-      console.log('✅ User already completed onboarding');
+    if (user.onboardingComplete) {
       setOnboardingComplete(true);
-      setNeedsOnboarding(false);
-      
-      // Загружаем данные профиля
-      setDiaryData({
-        name: data.diaryData?.name || data.diaryName || 'Мой дневник',
-        emoji: data.diaryData?.emoji || data.diaryEmoji || '🏆'
+      setCurrentStep(5);
+    } else {
+      setCurrentStep(2);
+    }
+  };
+
+  const handleProfileComplete = async (profileData: any) => {
+    try {
+      await updateUserProfile(userData.id, {
+        ...profileData,
+        onboardingComplete: true
       });
-      setSelectedLanguage(data.language || 'ru');
-      if (data.notificationSettings) {
-        setNotificationSettings(data.notificationSettings);
-      }
+      
+      setUserData({
+        ...userData,
+        ...profileData,
+        onboardingComplete: true
+      });
+      
+      setOnboardingComplete(true);
+      setCurrentStep(5);
+    } catch (error) {
+      console.error("Profile update error:", error);
     }
   };
 
-  // Функция для возврата с экрана авторизации
-  const handleAuthBack = () => {
-    setShowAuth(false);
-    setAuthMode('register'); // Сбрасываем режим на регистрацию
-    // Возвращаемся к онбордингу на шаг 1
+  const handleLogout = async () => {
+    await signOut();
+    setUserData(null);
+    setOnboardingComplete(false);
     setCurrentStep(1);
-  };
-
-  // Функция для навигации по шагам через прогресс-бар
-  const handleStepNavigation = (step: number) => {
-    if (step <= currentStep || step === 1) {
-      setCurrentStep(step);
-    }
-  };
-
-  const getScreenTitle = () => {
-    const translations = appTranslations[selectedLanguage as keyof typeof appTranslations] || appTranslations.ru;
-    switch (activeTab) {
-      case "home": return translations.home;
-      case "history": return translations.history;
-      case "achievements": return translations.achievements;
-      case "reports": return translations.reports;
-      case "settings": return translations.settings;
-      default: return translations.home;
-    }
-  };
-
-  // Функция для завершения админской авторизации
-  const handleAdminAuthComplete = async (data: any) => {
-    setUserData(data);
+    setActiveTab("home");
     setShowAdminAuth(false);
-    
-    // Проверяем права супер-админа
-    if (data.email !== "diary@leadshunter.biz") {
-      alert('У вас нет прав доступа к панели администратора');
-      window.history.replaceState({}, '', window.location.pathname);
-      setIsAdminRoute(false);
-    }
   };
 
-  const renderActiveScreen = () => {
-    // Админский роут обрабатывается выше, до онбординга
-    // Здесь только обычные экраны приложения
-    switch (activeTab) {
-      case "home": return <AchievementHomeScreen diaryData={diaryData} userData={userData} />;
-      case "history": return <HistoryScreen userData={userData} />;
-      case "achievements": return <AchievementsScreen userData={userData} />;
-      case "reports": return <ReportsScreen userData={userData} />;
-      case "settings": return <SettingsScreen userData={userData} onLogout={handleLogout} />;
-      default: return <AchievementHomeScreen diaryData={diaryData} userData={userData} />;
-    }
+  const handleAdminAuthComplete = (adminUser: any) => {
+    setUserData(adminUser);
+    setShowAdminAuth(false);
   };
 
-  // Показываем загрузку во время проверки сессии
+  // Admin view
+  if (isAdminRoute) {
+    if (isCheckingSession) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Загрузка...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (showAdminAuth) {
+      return (
+        <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
+          <TranslationManager preloadLanguages={['en']}>
+            <div className="min-h-screen bg-gray-50">
+              <AdminLoginScreen 
+                onComplete={handleAdminAuthComplete}
+                onBack={() => {
+                  window.location.href = '/';
+                }}
+              />
+              <Toaster position="top-center" />
+            </div>
+          </TranslationManager>
+        </TranslationProvider>
+      );
+    }
+
+    return (
+      <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
+        <TranslationManager preloadLanguages={['en']}>
+          <div className="min-h-screen bg-gray-50">
+            <AdminDashboard 
+              userData={userData} 
+              onLogout={handleLogout}
+            />
+            <Toaster position="top-center" />
+          </div>
+        </TranslationManager>
+      </TranslationProvider>
+    );
+  }
+
+  // Mobile view - loading state
   if (isCheckingSession) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center max-w-md mx-auto">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-          <p className="!text-[15px] text-muted-foreground">Загрузка...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 max-w-md mx-auto">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
         </div>
       </div>
     );
   }
 
-  // ВАЖНО: Проверяем админский роут ДО проверки онбординга
-  if (isAdminRoute) {
-    // Если не авторизован, показываем защищенную страницу входа для админа
-    if (!userData?.id) {
+  const renderActiveScreen = () => {
+    if (showAuth) {
       return (
-        <AdminLoginScreen 
-          onComplete={handleAdminAuthComplete}
-          onBack={() => {
-            window.history.replaceState({}, '', window.location.pathname);
-            setIsAdminRoute(false);
-            setShowAdminAuth(false);
-          }}
+        <AuthScreen
+          onComplete={handleAuthComplete}
+          onBack={() => setShowAuth(false)}
+          showTopBar={true}
+          selectedLanguage={selectedLanguage}
         />
       );
     }
-    
-    // Если авторизован, показываем админ-пане��ь (БЕЗ max-w-md для десктопной версии)
-    return (
-      <div className="min-h-screen bg-background">
-        <AdminDashboard 
-          userData={userData} 
-          onLogout={async () => {
-            // Выход из системы
-            await signOut();
-            
-            // Очищаем userData но ОСТАЕМСЯ на админском роуте
-            setUserData(null);
-            setShowAdminAuth(true);
-            
-            // НЕ удаляем ?view=admin - остаемся на админской странице
-            console.log('Admin logged out, showing login screen');
-          }} 
-        />
-      </div>
-    );
-  }
 
-  // Показываем экран авторизации если нет сессии ИЛИ пользователь нажал "У меня уже есть аккаунт"
-  if (showAuth) {
-    return (
-      <div className="max-w-md mx-auto overflow-hidden">
-        <AuthScreen 
-          onComplete={handleAuthComplete}
-          onBack={handleAuthBack}
-          showTopBar={true}
-          contextText="Добро пожаловать!"
-          selectedLanguage={selectedLanguage}
-          initialMode={authMode}
-        />
-      </div>
-    );
-  }
+    if (!onboardingComplete) {
+      switch (currentStep) {
+        case 1:
+          return <WelcomeScreen onComplete={handleWelcomeComplete} />;
+        case 2:
+          return <OnboardingScreen2 onComplete={handleOnboarding2Complete} selectedLanguage={selectedLanguage} />;
+        case 3:
+          return <OnboardingScreen3 onComplete={handleOnboarding3Complete} selectedLanguage={selectedLanguage} />;
+        case 4:
+          return <OnboardingScreen4 onComplete={handleOnboarding4Complete} selectedLanguage={selectedLanguage} />;
+        default:
+          return <WelcomeScreen onComplete={handleWelcomeComplete} />;
+      }
+    }
 
-  // Показываем онбординг до завершения (только для обычных пользователей, не для админа)
-  if (!onboardingComplete) {
-    return (
-      <div className="max-w-md mx-auto overflow-hidden">
-        <AnimatePresence mode="wait">
-          {currentStep === 1 && !userData?.id && (
-            <motion.div
-              key="step1"
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <WelcomeScreen 
-                onNext={handleLanguageSelected}
-                onSkip={handleWelcomeSkip}
-                currentStep={1}
-                totalSteps={4}
-                onStepClick={handleStepNavigation}
-              />
-            </motion.div>
-          )}
-          {currentStep === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <OnboardingScreen2 
-                selectedLanguage={selectedLanguage}
-                onNext={handleOnboarding2Next}
-                onSkip={handleOnboarding2Skip}
-                currentStep={2}
-                totalSteps={4}
-                onStepClick={handleStepNavigation}
-              />
-            </motion.div>
-          )}
-          {currentStep === 3 && (
-            <motion.div
-              key="step3"
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <OnboardingScreen3 
-                selectedLanguage={selectedLanguage}
-                onNext={handleOnboarding3Next}
-                onSkip={handleOnboarding3Skip}
-                currentStep={3}
-                totalSteps={4}
-                onStepClick={handleStepNavigation}
-              />
-            </motion.div>
-          )}
-          {currentStep === 4 && (
-            <motion.div
-              key="step4"
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <OnboardingScreen4 
-                selectedLanguage={selectedLanguage}
-                onNext={handleOnboarding4Next}
-                onSkip={handleOnboarding4Skip}
-                currentStep={4}
-                totalSteps={4}
-                onStepClick={handleStepNavigation}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* Auth Screen after first entry */}
-        <AnimatePresence>
-          {showAuthAfterEntry && (
-            <motion.div
-              key="auth-after-entry"
-              className="absolute inset-0 z-50"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <AuthScreen 
-                onComplete={handleAuthAfterEntryComplete}
-                onBack={handleAuthAfterEntryBack}
-                showTopBar={false}
-                contextText="Сохраним твои успехи?"
-                selectedLanguage={selectedLanguage}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
+    switch (activeTab) {
+      case "home":
+        return <AchievementHomeScreen userData={userData} selectedLanguage={selectedLanguage} />;
+      case "history":
+        return <HistoryScreen userData={userData} selectedLanguage={selectedLanguage} />;
+      case "achievements":
+        return <AchievementsScreen userData={userData} selectedLanguage={selectedLanguage} />;
+      case "reports":
+        return <ReportsScreen userData={userData} selectedLanguage={selectedLanguage} />;
+      case "settings":
+        return <SettingsScreen userData={userData} onLogout={handleLogout} selectedLanguage={selectedLanguage} />;
+      default:
+        return <AchievementHomeScreen userData={userData} selectedLanguage={selectedLanguage} />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 max-w-md mx-auto relative overflow-x-hidden scrollbar-hide">
-      {/* PWA Head Meta Tags */}
-      <PWAHead />
+    <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
+      <TranslationManager preloadLanguages={['en']}>
+        <div className="min-h-screen bg-gray-50 max-w-md mx-auto relative overflow-x-hidden scrollbar-hide">
+          <PWAHead />
+          <PWASplash />
 
-      {/* PWA Splash Screen */}
-      <PWASplash />
+          <main className="min-h-screen overflow-x-hidden scrollbar-hide">
+            {renderActiveScreen()}
+          </main>
 
-      {/* Main Content */}
-      <main className="min-h-screen overflow-x-hidden scrollbar-hide">
-        {renderActiveScreen()}
-      </main>
+          {onboardingComplete && (
+            <MobileBottomNav
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              language={selectedLanguage as any}
+            />
+          )}
 
-      {/* Bottom Navigation - скрываем на админ панели */}
-      {!isAdminRoute && (
-        <MobileBottomNav 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab}
-          language={selectedLanguage as any}
-        />
-      )}
+          <Toaster position="top-center" toastOptions={{ style: { fontFamily: 'var(--font-family-primary)' } }} />
 
-      {/* Toast Notifications */}
-      <Toaster 
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontFamily: 'var(--font-family-primary)',
-          }
-        }}
-      />
+          {showInstallPrompt && <InstallPrompt onClose={handleInstallClose} onInstall={handleInstallClick} />}
 
-      {/* Install Prompt */}
-      {showInstallPrompt && (
-        <InstallPrompt 
-          onClose={handleInstallClose}
-          onInstall={handleInstallClick}
-        />
-      )}
+          <PWAStatus />
+          <PWAUpdatePrompt />
 
-      {/* PWA Status - показывает когда приложение установлено */}
-      <PWAStatus />
-
-      {/* PWA Update Prompt - показывает когда доступно обновление */}
-      <PWAUpdatePrompt />
-    </div>
+          {process.env.NODE_ENV === 'development' && <TranslationDebugInfo show={true} />}
+          {process.env.NODE_ENV === 'development' && window.location.search.includes('i18n-test') && (
+            <div className="absolute inset-0 bg-white z-50 overflow-auto">
+              <I18nTestComponent />
+            </div>
+          )}
+        </div>
+      </TranslationManager>
+    </TranslationProvider>
   );
 }
+
