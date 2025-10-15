@@ -21,8 +21,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { toast } from "sonner";
 import { UsersManagementTab } from "./UsersManagementTab";
-import { SubscriptionsTab } from "@/components/screens/admin/SubscriptionsTab";
-import { SettingsTab } from "@/components/screens/admin/SettingsTab";
+import { SubscriptionsTab } from "@/features/admin/settings";
+import { SettingsTab } from "@/features/admin/settings";
 import { createClient } from "@/utils/supabase/client";
 
 interface AdminDashboardProps {
