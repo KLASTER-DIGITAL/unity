@@ -17,8 +17,11 @@ import { AuthScreen } from "./components/AuthScreen";
 // Main screens
 // (ReportsScreen moved to feature flag below)
 
-// Admin screens
-import { AdminLoginScreen } from "./components/AdminLoginScreen";
+// Admin screens - Feature flags for gradual migration
+const USE_NEW_ADMIN_LOGIN = false;
+import { AdminLoginScreen as OldAdminLoginScreen } from "./components/AdminLoginScreen";
+import { AdminLoginScreen as NewAdminLoginScreen } from "@/features/admin/auth";
+const AdminLoginScreen = USE_NEW_ADMIN_LOGIN ? NewAdminLoginScreen : OldAdminLoginScreen;
 
 // Admin Dashboard - Feature flag for gradual migration
 const USE_NEW_ADMIN_DASHBOARD = false;
