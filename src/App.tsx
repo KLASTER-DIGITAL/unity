@@ -19,7 +19,12 @@ import { AuthScreen } from "./components/AuthScreen";
 
 // Admin screens
 import { AdminLoginScreen } from "./components/AdminLoginScreen";
-import { AdminDashboard } from "./components/screens/AdminDashboard";
+
+// Admin Dashboard - Feature flag for gradual migration
+const USE_NEW_ADMIN_DASHBOARD = false;
+import { AdminDashboard as OldAdminDashboard } from "./components/screens/AdminDashboard";
+import { AdminDashboard as NewAdminDashboard } from "@/features/admin/dashboard";
+const AdminDashboard = USE_NEW_ADMIN_DASHBOARD ? NewAdminDashboard : OldAdminDashboard;
 
 // PWA components - Feature flag for gradual migration
 // Set VITE_USE_NEW_PWA=true in .env to use new PWA components from @/shared
