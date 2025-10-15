@@ -19,7 +19,6 @@ import { AchievementHomeScreen } from "./components/screens/AchievementHomeScree
 import { HistoryScreen } from "./components/screens/HistoryScreen";
 import { AchievementsScreen } from "./components/screens/AchievementsScreen";
 import { ReportsScreen } from "./components/screens/ReportsScreen";
-import { SettingsScreen } from "./components/screens/SettingsScreen";
 
 // Admin screens
 import { AdminLoginScreen } from "./components/AdminLoginScreen";
@@ -73,6 +72,19 @@ import {
 // Select which version to use based on feature flag
 const TranslationProvider = USE_NEW_I18N ? NewTranslationProvider : OldTranslationProvider;
 const TranslationManager = USE_NEW_I18N ? NewTranslationManager : OldTranslationManager;
+
+// Settings screen - Feature flag for gradual migration
+// Set USE_NEW_SETTINGS=true to use new Settings from @/features/mobile/settings
+const USE_NEW_SETTINGS = false; // Change to true to test new Settings screen
+
+// Old Settings screen (current)
+import { SettingsScreen as OldSettingsScreen } from "./components/screens/SettingsScreen";
+
+// New Settings screen (migrated to features)
+import { SettingsScreen as NewSettingsScreen } from "@/features/mobile/settings";
+
+// Select which version to use based on feature flag
+const SettingsScreen = USE_NEW_SETTINGS ? NewSettingsScreen : OldSettingsScreen;
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
