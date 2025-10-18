@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { imgMicrophone, imgImage, imgPaperPlaneRight } from "../imports/svg-w5pu5";
-import { imgArrowRight, imgRectangle5904 } from "../imports/svg-6xkhk";
-import { Switch } from "./ui/switch";
+import { imgMicrophone, imgImage, imgPaperPlaneRight } from "@/imports/svg-w5pu5";
+import { imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
+import { Switch } from "@/components/ui/switch";
 import { Bell, CheckCircle2, Clock } from "lucide-react";
-import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
-import { TimePickerModal } from "./TimePickerModal";
+import { useSpeechRecognition } from "@/components/hooks/useSpeechRecognition";
+import { TimePickerModal } from "@/components/TimePickerModal";
 
 interface OnboardingScreen4Props {
   selectedLanguage: string;
   onNext: (firstEntry: string, notificationSettings: NotificationSettings) => void;
-  onSkip: () => void;
   currentStep: number;
   totalSteps: number;
   onStepClick: (step: number) => void;
@@ -36,7 +35,6 @@ const translations = {
     firstEntrySubtitle: "Начни прямо сейчас",
     placeholder: "Что сегодня получилось лучше всего?",
     next: "Завершить",
-    skip: "Skip",
     permissionRequest: "Разрешить уведомления?",
     allow: "Разрешить",
     later: "Позже",
@@ -56,7 +54,6 @@ const translations = {
     firstEntrySubtitle: "Start right now",
     placeholder: "What went best today?",
     next: "Complete",
-    skip: "Skip",
     permissionRequest: "Allow notifications?",
     allow: "Allow",
     later: "Later",
@@ -76,7 +73,6 @@ const translations = {
     firstEntrySubtitle: "Comienza ahora",
     placeholder: "¿Qué salió mejor hoy?",
     next: "Completar",
-    skip: "Skip",
     permissionRequest: "¿Permitir notificaciones?",
     allow: "Permitir",
     later: "Más tarde",
@@ -96,7 +92,6 @@ const translations = {
     firstEntrySubtitle: "Jetzt starten",
     placeholder: "Was lief heute am besten?",
     next: "Abschließen",
-    skip: "Skip",
     permissionRequest: "Benachrichtigungen erlauben?",
     allow: "Erlauben",
     later: "Später",
@@ -116,7 +111,6 @@ const translations = {
     firstEntrySubtitle: "Commencer maintenant",
     placeholder: "Qu'est-ce qui s'est le mieux passé aujourd'hui?",
     next: "Terminer",
-    skip: "Skip",
     permissionRequest: "Autoriser les notifications?",
     allow: "Autoriser",
     later: "Plus tard",
@@ -136,7 +130,6 @@ const translations = {
     firstEntrySubtitle: "现在开始",
     placeholder: "今天什么做得最好？",
     next: "完成",
-    skip: "跳过",
     permissionRequest: "允许通知？",
     allow: "允许",
     later: "稍后",
@@ -156,7 +149,6 @@ const translations = {
     firstEntrySubtitle: "今すぐ始める",
     placeholder: "今日は何がうまくいきましたか？",
     next: "完了",
-    skip: "スキップ",
     permissionRequest: "通知を許可しますか？",
     allow: "許可",
     later: "後で",
@@ -702,34 +694,42 @@ function ArrowRight1({ onClick, disabled }: { onClick: () => void; disabled: boo
 }
 
 function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolean }) {
+  const handleClick = () => {
+    console.log('[NextButton] onClick called, disabled:', disabled);
+    if (!disabled) {
+      console.log('[NextButton] Calling onNext...');
+      onNext();
+      console.log('[NextButton] onNext called successfully');
+    } else {
+      console.log('[NextButton] Click ignored - button is disabled');
+    }
+  };
+
   return (
-    <motion.div 
-      className="absolute contents" 
+    <motion.div
+      onClick={handleClick}
+      className={`absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
       style={{
         bottom: "max(-2px, calc(0px - 2vh))",
-        right: "max(-1px, calc(0px - 1vw))"
+        right: "max(-1px, calc(0px - 1vw))",
+        zIndex: 50
       }}
       data-name="Next Button"
       initial={{ opacity: 0, scale: 0.8, x: 50 }}
-      animate={{ 
-        opacity: disabled ? 0.5 : 1, 
+      animate={{
+        opacity: disabled ? 0.5 : 1,
         scale: 1,
         x: 0
       }}
       transition={{ delay: 0.6, duration: 0.6, type: "spring" }}
-      whileHover={{ 
+      whileHover={{
         scale: disabled ? 1 : 1.05,
-        rotate: disabled ? 0 : [0, -2, 2, 0]
+        rotate: disabled ? 0 : 2
       }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
     >
       <div
-        onClick={disabled ? undefined : onNext}
-        className={`absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-        style={{
-          bottom: "max(-2px, calc(0px - 2vh))",
-          right: "max(-1px, calc(0px - 1vw))"
-        }}
+        className="absolute h-full w-full"
       >
         <div className="absolute bottom-0 left-[7.57%] right-0 top-0 pointer-events-none">
           <img className="block max-w-none size-full" src={imgRectangle5904} />
@@ -754,59 +754,49 @@ function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolea
   );
 }
 
-function SkipButton({ onSkip, currentTranslations }: { onSkip: () => void; currentTranslations: any }) {
-  return (
-    <motion.div 
-      className="absolute flex flex-col font-['Poppins:Regular',_sans-serif] justify-center leading-[0] not-italic text-[#002055] text-[14px] text-center translate-x-[-50%] translate-y-[-50%]" 
-      style={{ 
-        top: "min(calc(50% + 334.5px), calc(100vh - 40px))",
-        left: "min(58.01px, 15vw)"
-      }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.5 }}
-    >
-      <button 
-        onClick={onSkip}
-        className="bg-transparent border-0 cursor-pointer p-2"
-      >
-        <motion.p 
-          className="leading-[14px] whitespace-nowrap"
-          key={currentTranslations.skip}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTranslations.skip}
-        </motion.p>
-      </button>
-    </motion.div>
-  );
-}
-
-function Frame2087324620({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
+function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
   const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
   const [isFormComplete, setIsFormComplete] = useState(false);
-  const [formData, setFormData] = useState({ entry: "", settings: { morning: false, evening: false, permissionGranted: false } });
+  const [formData, setFormData] = useState<{ entry: string; settings: NotificationSettings }>({
+    entry: "",
+    settings: {
+      selectedTime: 'none',
+      morningTime: '08:00',
+      eveningTime: '21:00',
+      permissionGranted: false
+    }
+  });
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleFormNext = async (entry: string, settings: NotificationSettings) => {
+    console.log('[OnboardingScreen4] handleFormNext called:', { entry, settings });
     setFormData({ entry, settings });
     setIsFormComplete(true);
-    
+
     // Show success animation if there's an entry
     if (entry.trim()) {
+      console.log('[OnboardingScreen4] Showing success animation...');
       setShowSuccess(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('[OnboardingScreen4] Success animation complete');
     }
-    
+
+    console.log('[OnboardingScreen4] Calling onNext...');
     onNext(entry, settings);
+    console.log('[OnboardingScreen4] onNext called successfully');
   };
 
   const handleFormUpdate = (entry: string, settings: NotificationSettings) => {
+    console.log('[OnboardingScreen4] handleFormUpdate called:', {
+      entry: entry.substring(0, 50) + '...',
+      entryLength: entry.length,
+      settings
+    });
     setFormData({ entry, settings });
     // Форма считается завершенной, если есть текст ИЛИ настроены уведомления
-    setIsFormComplete(entry.trim().length > 0 || settings.selectedTime !== 'none');
+    const isComplete = entry.trim().length > 0 || settings.selectedTime !== 'none';
+    console.log('[OnboardingScreen4] isFormComplete:', isComplete);
+    setIsFormComplete(isComplete);
   };
 
   return (
@@ -822,11 +812,10 @@ function Frame2087324620({ selectedLanguage, onNext, onSkip, currentStep, totalS
         onUpdate={handleFormUpdate}
       />
       <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
-      <NextButton 
-        onNext={() => handleFormNext(formData.entry, formData.settings)} 
+      <NextButton
+        onNext={() => handleFormNext(formData.entry, formData.settings)}
         disabled={!isFormComplete}
       />
-      <SkipButton onSkip={onSkip} currentTranslations={currentTranslations} />
 
       {/* Success Modal */}
       {showSuccess && (
@@ -857,7 +846,7 @@ function Frame2087324620({ selectedLanguage, onNext, onSkip, currentStep, totalS
   );
 }
 
-export function OnboardingScreen4({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
+export function OnboardingScreen4({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
   return (
     <motion.div 
       className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" 
@@ -908,10 +897,9 @@ export function OnboardingScreen4({ selectedLanguage, onNext, onSkip, currentSte
         }}
       />
 
-      <Frame2087324620 
+      <Frame2087324620
         selectedLanguage={selectedLanguage}
         onNext={onNext}
-        onSkip={onSkip}
         currentStep={currentStep}
         totalSteps={totalSteps}
         onStepClick={onStepClick}

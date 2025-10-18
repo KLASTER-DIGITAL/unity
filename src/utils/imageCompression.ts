@@ -1,99 +1,98 @@
+import imageCompression from 'browser-image-compression';
+
 /**
- * Сжатие изображения с сохранением качества
+ * 📸 PROFESSIONAL IMAGE COMPRESSION
+ * Uses browser-image-compression library for optimal results
+ * 10MB → ~500KB (95% reduction)
  */
 export async function compressImage(
   file: File,
   maxWidth: number = 1920,
   maxHeight: number = 1920,
-  quality: number = 0.85
+  quality: number = 0.8
 ): Promise<File> {
   // Проверка типа файла
   if (!file.type.startsWith('image/')) {
     throw new Error('Файл не является изображением');
   }
 
+  console.log(`📸 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+  try {
+    const options = {
+      maxSizeMB: 0.5,              // Max 500KB
+      maxWidthOrHeight: maxWidth,  // Max 1920x1080
+      useWebWorker: true,          // Parallel processing
+      quality: quality,            // 80% quality
+      fileType: 'image/jpeg',      // Always JPEG (smaller)
+      initialQuality: quality,     // Initial quality
+      alwaysKeepResolution: false  // Allow resize
+    };
+
+    const compressedFile = await imageCompression(file, options);
+
+    console.log(
+      `📸 [COMPRESS] ✅ Success: ${(file.size / 1024).toFixed(2)}KB → ${(compressedFile.size / 1024).toFixed(2)}KB (${((1 - compressedFile.size / file.size) * 100).toFixed(1)}% reduction)`
+    );
+
+    return compressedFile;
+  } catch (error) {
+    console.error('📸 [COMPRESS] ❌ Error:', error);
+    throw new Error('Ошибка при сжатии изображения: ' + (error as Error).message);
+  }
+}
+
+/**
+ * 🖼️ GENERATE THUMBNAIL
+ * Creates 200x200 thumbnail for instant preview
+ */
+export async function generateThumbnail(file: File): Promise<File> {
+  console.log(`🖼️ [THUMBNAIL] Generating thumbnail for: ${file.name}`);
+
+  try {
+    const options = {
+      maxSizeMB: 0.05,             // 50KB max
+      maxWidthOrHeight: 200,       // 200x200
+      useWebWorker: true,
+      quality: 0.7,
+      fileType: 'image/jpeg'
+    };
+
+    const thumbnail = await imageCompression(file, options);
+
+    console.log(`🖼️ [THUMBNAIL] ✅ Generated: ${(thumbnail.size / 1024).toFixed(2)}KB`);
+
+    return thumbnail;
+  } catch (error) {
+    console.error('🖼️ [THUMBNAIL] ❌ Error:', error);
+    throw new Error('Ошибка при создании thumbnail: ' + (error as Error).message);
+  }
+}
+
+/**
+ * 📐 EXTRACT IMAGE DIMENSIONS
+ * Returns width and height of the image
+ */
+export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      if (!e.target?.result) {
-        reject(new Error('Не удалось прочитать файл'));
-        return;
-      }
-
       const img = new Image();
 
       img.onload = () => {
-        try {
-          // Вычисляем новые размеры с сохранением пропорций
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
-
-          // Создаем canvas
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Не удалось создать контекст canvas'));
-            return;
-          }
-
-          // Рисуем изображение на canvas с сглаживанием
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Конвертируем в Blob
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error('Не удалось сжать изображение'));
-                return;
-              }
-
-              // Создаем новый File из Blob
-              const compressedFile = new File([blob], file.name, {
-                type: 'image/jpeg',
-                lastModified: Date.now()
-              });
-
-              console.log(
-                `Image compressed: ${(file.size / 1024).toFixed(2)}KB -> ${(compressedFile.size / 1024).toFixed(2)}KB`
-              );
-
-              resolve(compressedFile);
-            },
-            'image/jpeg',
-            quality
-          );
-        } catch (error) {
-          reject(new Error('Ошибка при обработке изображения: ' + (error as Error).message));
-        }
+        resolve({ width: img.width, height: img.height });
       };
 
       img.onerror = () => {
-        reject(new Error('Не удалось загрузить изображение. Файл может быть поврежден.'));
+        reject(new Error('Failed to load image'));
       };
 
-      // Устанавливаем crossOrigin для избежания проблем с CORS
-      img.crossOrigin = 'anonymous';
-      img.src = e.target.result as string;
+      img.src = e.target?.result as string;
     };
 
     reader.onerror = () => {
-      reject(new Error('Не удалось прочитать файл'));
+      reject(new Error('Failed to read file'));
     };
 
     reader.readAsDataURL(file);
@@ -101,7 +100,8 @@ export async function compressImage(
 }
 
 /**
- * Создание thumbnail для изображения
+ * 🎨 CREATE THUMBNAIL DATA URL (for instant preview)
+ * Returns base64 data URL for immediate display
  */
 export async function createThumbnail(
   file: File,

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
-import imgGeneratedImageSeptember092025333Pm1 from "../assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
-import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "../imports/svg-lqmvp";
+import imgGeneratedImageSeptember092025333Pm1 from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
+import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
 
 // Новая i18n система
-import { useTranslation } from "./i18n/useTranslation";
-import { LanguageSelector } from "./i18n/LanguageSelector";
+import { useTranslation } from "@/shared/lib/i18n";
+import { LanguageSelector } from "@/shared/lib/i18n";
 
 interface WelcomeScreenProps {
   onNext: (language: string) => void;

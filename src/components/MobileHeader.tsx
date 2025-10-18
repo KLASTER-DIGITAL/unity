@@ -7,6 +7,7 @@ interface MobileHeaderProps {
   showMenu?: boolean;
   showNotifications?: boolean;
   showSearch?: boolean;
+  userName?: string;
   onMenuClick?: () => void;
   onNotificationClick?: () => void;
   onSearchClick?: () => void;
@@ -17,6 +18,7 @@ export function MobileHeader({
   showMenu = true,
   showNotifications = true,
   showSearch = true,
+  userName = "Пользователь",
   onMenuClick,
   onNotificationClick,
   onSearchClick
@@ -82,8 +84,8 @@ export function MobileHeader({
           {/* User Profile */}
           <div className="flex items-center gap-2 ml-2">
             <div className="text-right text-sm">
-              <div className="text-[#0d062d]">Анна Петрова</div>
-              <div className="text-[#787486] text-xs">Москва, Россия</div>
+              <div className="text-[#0d062d]">{userName}</div>
+              <div className="text-[#787486] text-xs">Пользователь</div>
             </div>
             <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200">
               <ImageWithFallback

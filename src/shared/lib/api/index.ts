@@ -1,7 +1,7 @@
 /**
- * Re-export API utilities from original location
- * This allows gradual migration without breaking existing imports
+ * Re-export API utilities from new microservices architecture
+ * ✅ FIXED: Use new api.ts with microservices instead of legacy utils/api.ts
  */
 
-export * from '../../../utils/api';
+export * from './api';
 

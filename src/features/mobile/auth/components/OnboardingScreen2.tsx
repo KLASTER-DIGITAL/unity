@@ -1,11 +1,10 @@
 import { motion } from "motion/react";
 import imgImage1569 from "figma:asset/5f4bd000111b1df6537a53aaf570a9424e39fbcf.png";
-import { imgCircle, imgSliedbar, imgArrowRight, imgRectangle5904 } from "../imports/svg-6xkhk";
+import { imgCircle, imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
 
 interface OnboardingScreen2Props {
   selectedLanguage: string;
   onNext: () => void;
-  onSkip: () => void;
   currentStep: number;
   totalSteps: number;
   onStepClick: (step: number) => void;
@@ -14,38 +13,31 @@ interface OnboardingScreen2Props {
 const translations = {
   ru: {
     subtitle: "Твои маленькие шаги — большие победы",
-    title: "Фиксируй достижения и смотри, как растёт твой прогресс",
-    skip: "Skip"
+    title: "Фиксируй достижения и смотри, как растёт твой прогресс"
   },
   en: {
-    subtitle: "Your small steps — big victories", 
-    title: "Track achievements and watch your progress grow",
-    skip: "Skip"
+    subtitle: "Your small steps — big victories",
+    title: "Track achievements and watch your progress grow"
   },
   es: {
     subtitle: "Tus pequeños pasos — grandes victorias",
-    title: "Rastrea logros y observa cómo crece tu progreso", 
-    skip: "Skip"
+    title: "Rastrea logros y observa cómo crece tu progreso"
   },
   de: {
     subtitle: "Deine kleinen Schritte — große Siege",
-    title: "Verfolge Erfolge und sieh, wie dein Fortschritt wächst",
-    skip: "Skip"
+    title: "Verfolge Erfolge und sieh, wie dein Fortschritt wächst"
   },
   fr: {
     subtitle: "Tes petits pas — de grandes victoires",
-    title: "Suivez les réalisations et regardez votre progrès grandir",
-    skip: "Skip"
+    title: "Suivez les réalisations et regardez votre progrès grandir"
   },
   zh: {
     subtitle: "你的小步骤——大胜利",
-    title: "跟踪成就，观看你的进步增长",
-    skip: "跳过"
+    title: "跟踪成就，观看你的进步增长"
   },
   ja: {
     subtitle: "あなたの小さな一歩—大きな勝利",
-    title: "成果を追跡し、進歩の成長を見る",
-    skip: "スキップ"
+    title: "成果を追跡し、進歩の成長を見る"
   }
 };
 
@@ -219,37 +211,9 @@ function NextButton({ onNext }: { onNext: () => void }) {
   );
 }
 
-function SkipButton({ onSkip, currentTranslations }: { onSkip: () => void; currentTranslations: any }) {
-  return (
-    <motion.div 
-      className="absolute flex flex-col font-['Poppins:Regular',_sans-serif] justify-center leading-[0] not-italic text-[#002055] text-[14px] text-center translate-x-[-50%]" 
-      style={{ 
-        bottom: "max(env(safe-area-inset-bottom, 20px), 20px)",
-        left: "min(58px, 15vw)"
-      }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.5 }}
-    >
-      <button 
-        onClick={onSkip}
-        className="bg-transparent border-0 cursor-pointer p-2"
-      >
-        <motion.p 
-          className="leading-[14px] whitespace-nowrap"
-          key={currentTranslations.skip}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTranslations.skip}
-        </motion.p>
-      </button>
-    </motion.div>
-  );
-}
 
-function Frame2087324618({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
+
+function Frame2087324618({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
   const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
 
   return (
@@ -277,18 +241,16 @@ function Frame2087324618({ selectedLanguage, onNext, onSkip, currentStep, totalS
       <Text currentTranslations={currentTranslations} />
       <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
       <NextButton onNext={onNext} />
-      <SkipButton onSkip={onSkip} currentTranslations={currentTranslations} />
     </motion.div>
   );
 }
 
-export function OnboardingScreen2({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
+export function OnboardingScreen2({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
   return (
     <div className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
-      <Frame2087324618 
+      <Frame2087324618
         selectedLanguage={selectedLanguage}
         onNext={onNext}
-        onSkip={onSkip}
         currentStep={currentStep}
         totalSteps={totalSteps}
         onStepClick={onStepClick}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { signUpWithEmail, signInWithEmail, signInWithGoogle, signInWithFacebook, signInWithApple, signInWithTelegram } from "../utils/auth";
-import { createClient } from "../utils/supabase/client";
-import { getUserProfile } from "../utils/api";
+import { signUpWithEmail, signInWithEmail, signInWithGoogle, signInWithFacebook, signInWithApple, signInWithTelegram } from "@/utils/auth";
+import { createClient } from "@/utils/supabase/client";
+import { getUserProfile } from "@/utils/api";
 import { toast } from "sonner";
-import { imgEllipse, imgApple, imgGroup659 } from "../imports/svg-ok0q3";
-import { facebookIconSvg } from "../imports/social-icons";
-import { imgTelegramSvgrepoCom1 } from "../imports/svg-jjwu7";
+import { imgEllipse, imgApple, imgGroup659 } from "@/imports/svg-ok0q3";
+import { facebookIconSvg } from "@/imports/social-icons";
+import { imgTelegramSvgrepoCom1 } from "@/imports/svg-jjwu7";
 import TelegramLoginButton from 'react-telegram-login';
 
 // Переводы для AuthScreen
@@ -120,23 +120,42 @@ function Ellipse() {
   );
 }
 
+interface OnboardingData {
+  language: string;
+  diaryName: string;
+  diaryEmoji: string;
+  notificationSettings: {
+    selectedTime: 'none' | 'morning' | 'evening' | 'both';
+    morningTime: string;
+    eveningTime: string;
+    permissionGranted: boolean;
+  };
+  firstEntry: string;
+}
+
 interface AuthScreenProps {
-  onComplete: (userData: any) => void;
+  onComplete?: (userData: any) => void;
+  onAuthComplete?: (userData: any) => void;
   onBack?: () => void;
   showTopBar?: boolean;
   contextText?: string;
   selectedLanguage?: string;
   initialMode?: 'login' | 'register';
+  onboardingData?: OnboardingData;
 }
 
-export function AuthScreen({ 
-  onComplete, 
+export function AuthScreen({
+  onComplete,
+  onAuthComplete,
   onBack,
   showTopBar = true,
   contextText = "Сохраним твои успехи?",
   selectedLanguage = "ru",
-  initialMode = 'register'
+  initialMode = 'register',
+  onboardingData
 }: AuthScreenProps) {
+  // Используем onAuthComplete если передан, иначе onComplete
+  const handleComplete = onAuthComplete || onComplete;
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isLoading, setIsLoading] = useState(false);
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
@@ -217,8 +236,8 @@ export function AuthScreen({
               }
             };
 
-            // Вызываем onComplete с данными пользователя
-            onComplete(userData);
+            // Вызываем handleComplete с данными пользователя
+            handleComplete?.(userData);
           } catch (profileError) {
             console.error('Error loading profile:', profileError);
             // Создаем базовые данные пользователя даже если не удалось загрузить профиль
@@ -248,7 +267,7 @@ export function AuthScreen({
               }
             };
 
-            onComplete(userData);
+            handleComplete?.(userData);
           }
           return;
         }
@@ -279,7 +298,7 @@ export function AuthScreen({
           }
         };
 
-        onComplete(userData);
+        handleComplete?.(userData);
       } else {
         const errorData = await response_data.json();
         throw new Error(errorData.error || 'Failed to process Telegram authentication');
@@ -305,7 +324,7 @@ export function AuthScreen({
         
         if (result.success && result.user && result.profile) {
           toast.success("Добро пожаловать! 👋");
-          onComplete({
+          handleComplete?.({
             id: result.user.id,
             email: result.user.email,
             name: result.profile.name,
@@ -329,14 +348,15 @@ export function AuthScreen({
         // Регистрация
         const result = await signUpWithEmail(email, password, {
           name: name || 'Пользователь',
-          diaryName: 'Мой дневник',
-          diaryEmoji: '🏆',
-          language: selectedLanguage
+          diaryName: onboardingData?.diaryName || 'Мой дневник',
+          diaryEmoji: onboardingData?.diaryEmoji || '🏆',
+          language: onboardingData?.language || selectedLanguage,
+          notificationSettings: onboardingData?.notificationSettings,
+          firstEntry: onboardingData?.firstEntry
         });
         
         if (result.success && result.user && result.profile) {
-          toast.success("Аккаунт создан! 🎉");
-          onComplete({
+          const userData = {
             id: result.user.id,
             email: result.user.email,
             name: result.profile.name,
@@ -348,9 +368,12 @@ export function AuthScreen({
             diaryEmoji: result.profile.diaryEmoji,
             language: result.profile.language,
             notificationSettings: result.profile.notificationSettings,
-            onboardingCompleted: result.profile.onboardingCompleted, // ✅ Передаем статус онбординга
+            onboardingCompleted: result.profile.onboardingCompleted,
             createdAt: result.profile.createdAt
-          });
+          };
+
+          toast.success("Аккаунт создан! 🎉");
+          handleComplete?.(userData);
         } else {
           toast.error("Ошибка регистрации", {
             description: result.error || "Попробуйте другой email"

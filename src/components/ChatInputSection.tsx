@@ -35,10 +35,10 @@ const CATEGORIES = [
   { id: 'Благодарность', label: 'Благодарность', icon: '🙏', color: '#92BFFF' }
 ];
 
-export function ChatInputSection({ 
-  onMessageSent, 
+export function ChatInputSection({
+  onMessageSent,
   onEntrySaved,
-  userName = "Анна",
+  userName = "Пользователь",
   userId = "anonymous"
 }: ChatInputSectionProps) {
   const [inputText, setInputText] = useState("");

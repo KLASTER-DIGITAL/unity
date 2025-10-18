@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { imgSliedbar, imgArrowRight, imgRectangle5904 } from "../imports/svg-6xkhk";
+import { imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
 
 interface OnboardingScreen3Props {
   selectedLanguage: string;
   onNext: (diaryName: string, emoji: string) => void;
-  onSkip: () => void;
   currentStep: number;
   totalSteps: number;
   onStepClick: (step: number) => void;
@@ -16,50 +15,43 @@ const translations = {
     title: "Дай имя своему дневнику",
     subtitle: "Персонализируй свой путь к успеху",
     placeholder: "Название дневника",
-    presets: ["Мой путь", "Достижения", "Я — молодец!"],
-    skip: "Skip"
+    presets: ["Мой путь", "Достижения", "Я — молодец!"]
   },
   en: {
     title: "Name your diary",
     subtitle: "Personalize your path to success",
     placeholder: "Diary name",
-    presets: ["My Path", "Achievements", "I'm Awesome!"],
-    skip: "Skip"
+    presets: ["My Path", "Achievements", "I'm Awesome!"]
   },
   es: {
     title: "Dale nombre a tu diario",
     subtitle: "Personaliza tu camino al éxito",
     placeholder: "Nombre del diario",
-    presets: ["Mi Camino", "Logros", "¡Soy Genial!"],
-    skip: "Skip"
+    presets: ["Mi Camino", "Logros", "¡Soy Genial!"]
   },
   de: {
     title: "Benenne dein Tagebuch",
     subtitle: "Personalisiere deinen Weg zum Erfolg",
     placeholder: "Tagebuch Name",
-    presets: ["Mein Weg", "Erfolge", "Ich bin toll!"],
-    skip: "Skip"
+    presets: ["Mein Weg", "Erfolge", "Ich bin toll!"]
   },
   fr: {
     title: "Nomme ton journal",
     subtitle: "Personnalise ton chemin vers le succès",
     placeholder: "Nom du journal",
-    presets: ["Mon Chemin", "Réussites", "Je suis génial!"],
-    skip: "Skip"
+    presets: ["Mon Chemin", "Réussites", "Je suis génial!"]
   },
   zh: {
     title: "为你的日记命名",
     subtitle: "个性化你的成功之路",
     placeholder: "日记名称",
-    presets: ["我的道路", "成就", "我很棒!"],
-    skip: "跳过"
+    presets: ["我的道路", "成就", "我很棒!"]
   },
   ja: {
     title: "日記に名前をつけよう",
     subtitle: "成功への道のりをパーソナライズ",
     placeholder: "日記の名前",
-    presets: ["私の道", "成果", "私は素晴らしい!"],
-    skip: "スキップ"
+    presets: ["私の道", "成果", "私は素晴らしい!"]
   }
 };
 
@@ -379,37 +371,7 @@ function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolea
   );
 }
 
-function SkipButton({ onSkip, currentTranslations }: { onSkip: () => void; currentTranslations: any }) {
-  return (
-    <motion.div 
-      className="absolute flex flex-col font-['Poppins:Regular',_sans-serif] justify-center leading-[0] not-italic text-[#002055] text-[14px] text-center translate-x-[-50%] translate-y-[-50%]" 
-      style={{ 
-        top: "min(calc(50% + 334.5px), calc(100vh - 40px))",
-        left: "min(58.01px, 15vw)"
-      }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.5 }}
-    >
-      <button 
-        onClick={onSkip}
-        className="bg-transparent border-0 cursor-pointer p-2"
-      >
-        <motion.p 
-          className="leading-[14px] whitespace-nowrap"
-          key={currentTranslations.skip}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {currentTranslations.skip}
-        </motion.p>
-      </button>
-    </motion.div>
-  );
-}
-
-function Frame2087324619({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
+function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
   const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [formData, setFormData] = useState({ name: "", emoji: "🏆" });
@@ -438,16 +400,15 @@ function Frame2087324619({ selectedLanguage, onNext, onSkip, currentStep, totalS
         onUpdate={handleFormUpdate}
       />
       <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
-      <NextButton 
-        onNext={() => handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)} 
+      <NextButton
+        onNext={() => handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)}
         disabled={!isFormComplete}
       />
-      <SkipButton onSkip={onSkip} currentTranslations={currentTranslations} />
     </motion.div>
   );
 }
 
-export function OnboardingScreen3({ selectedLanguage, onNext, onSkip, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
+export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
   return (
     <motion.div 
       className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" 
@@ -498,10 +459,9 @@ export function OnboardingScreen3({ selectedLanguage, onNext, onSkip, currentSte
         }}
       />
 
-      <Frame2087324619 
+      <Frame2087324619
         selectedLanguage={selectedLanguage}
         onNext={onNext}
-        onSkip={onSkip}
         currentStep={currentStep}
         totalSteps={totalSteps}
         onStepClick={onStepClick}

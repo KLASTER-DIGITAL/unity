@@ -39,7 +39,9 @@ export function ReportsScreen({ userData }: { userData?: any }) {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const userId = userData?.id || "anonymous";
+      // ✅ FIXED: userData has structure {user: {...}, profile: {...}}
+      const userId = userData?.user?.id || userData?.id || "anonymous";
+      console.log("[REPORTS] Loading data for user:", userId);
       const entriesData = await getEntries(userId, 100);
 
       console.log("Loaded entries for reports:", entriesData);

@@ -115,20 +115,45 @@ export interface AIAnalysisResult {
 
 export async function analyzeTextWithAI(text: string, userName?: string, userId?: string): Promise<AIAnalysisResult> {
   try {
-  const response = await apiRequest('/analyze', {
-    method: 'POST',
-    body: { text, userName, userId },
-    requireOpenAI: true
-  });
+    console.log('[API] Analyzing text with AI (new microservice)...');
 
-    if (!response.success) {
-      console.error('AI analysis failed:', response);
-      throw new Error(response.error || 'AI analysis failed');
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error('No active session');
     }
 
-    return response.analysis;
+    // ✅ FIXED: Call new ai-analysis microservice
+    const response = await fetch(
+      `https://${projectId}.supabase.co/functions/v1/ai-analysis/analyze`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ text, userName, userId })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[API] AI analysis failed:', response.status, errorText);
+      throw new Error(`AI analysis failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error('[API] AI analysis failed:', data);
+      throw new Error(data.error || 'AI analysis failed');
+    }
+
+    console.log('[API] ✅ AI analysis successful:', data.analysis);
+    return data.analysis;
   } catch (error) {
-    console.error('Error in analyzeTextWithAI:', error);
+    console.error('[API] Error in analyzeTextWithAI:', error);
     throw error;
   }
 }
@@ -157,26 +182,93 @@ export interface DiaryEntry {
 }
 
 export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntry> {
-  const response = await apiRequest('/entries/create', {
-    method: 'POST',
-    body: entry
-  });
+  console.log('Creating entry:', entry);
 
-  if (!response.success) {
-    throw new Error('Failed to create entry');
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('entries')
+    .insert({
+      user_id: entry.userId,
+      text: entry.text,
+      sentiment: entry.sentiment || 'neutral',
+      category: entry.category || 'Другое',
+      tags: entry.tags || [],
+      ai_reply: entry.aiReply || '',
+      ai_summary: entry.aiSummary || null,
+      ai_insight: entry.aiInsight || null,
+      is_achievement: entry.isAchievement || false,
+      mood: entry.mood || null,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Entry creation failed:', error);
+    throw new Error(error.message || 'Failed to create entry');
   }
 
-  return response.entry;
+  // Преобразуем snake_case в camelCase
+  const diaryEntry: DiaryEntry = {
+    id: data.id,
+    userId: data.user_id,
+    text: data.text,
+    voiceUrl: null, // Не используется в текущей схеме
+    mediaUrl: null, // Не используется в текущей схеме
+    sentiment: data.sentiment,
+    category: data.category,
+    tags: data.tags || [],
+    aiReply: data.ai_reply || '',
+    aiSummary: data.ai_summary,
+    aiInsight: data.ai_insight,
+    isAchievement: data.is_achievement,
+    mood: data.mood,
+    createdAt: data.created_at,
+    streakDay: 1, // Не используется в текущей схеме
+    focusArea: '' // Не используется в текущей схеме
+  };
+
+  console.log('Entry created successfully:', diaryEntry);
+  return diaryEntry;
 }
 
 export async function getEntries(userId: string, limit: number = 50): Promise<DiaryEntry[]> {
-  const response = await apiRequest(`/entries/${userId}?limit=${limit}`);
+  console.log('Fetching entries for user:', userId, 'limit:', limit);
 
-  if (!response.success) {
-    throw new Error('Failed to fetch entries');
+  const supabase = createClient();
+
+  // Get session token
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('No active session');
   }
 
-  return response.entries;
+  // Call entries Edge Function directly
+  const response = await fetch(
+    `https://${projectId}.supabase.co/functions/v1/entries/${userId}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    console.error('Failed to fetch entries:', response.status, response.statusText);
+    throw new Error(`Failed to fetch entries: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'Failed to fetch entries');
+  }
+
+  console.log('Entries fetched successfully:', data.entries?.length || 0);
+  return data.entries || [];
 }
 
 export async function getEntry(entryId: string): Promise<DiaryEntry> {
@@ -212,13 +304,86 @@ export interface UserStats {
 }
 
 export async function getUserStats(userId: string): Promise<UserStats> {
-  const response = await apiRequest(`/stats/${userId}`);
+  console.log('Fetching stats for user:', userId);
 
-  if (!response.success) {
-    throw new Error('Failed to fetch stats');
+  const supabase = createClient();
+
+  // Get all entries for the user
+  const { data: entries, error } = await supabase
+    .from('entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Failed to fetch entries for stats:', error);
+    throw new Error(error.message || 'Failed to fetch stats');
   }
 
-  return response.stats;
+  // Calculate statistics
+  const totalEntries = entries?.length || 0;
+
+  // Calculate category counts
+  const categoryCounts: Record<string, number> = {};
+  entries?.forEach(entry => {
+    const category = entry.category || 'Другое';
+    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+  });
+
+  // Calculate sentiment counts
+  const sentimentCounts: Record<string, number> = {};
+  entries?.forEach(entry => {
+    const sentiment = entry.sentiment || 'neutral';
+    sentimentCounts[sentiment] = (sentimentCounts[sentiment] || 0) + 1;
+  });
+
+  // Calculate streak (consecutive days with entries)
+  let currentStreak = 0;
+  if (entries && entries.length > 0) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sortedDates = entries
+      .map(e => {
+        const date = new Date(e.created_at);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime();
+      })
+      .filter((value, index, self) => self.indexOf(value) === index) // unique dates
+      .sort((a, b) => b - a); // descending
+
+    if (sortedDates.length > 0) {
+      const lastEntryDate = sortedDates[0];
+      const daysDiff = Math.floor((today.getTime() - lastEntryDate) / (1000 * 60 * 60 * 24));
+
+      if (daysDiff <= 1) { // Today or yesterday
+        currentStreak = 1;
+        let expectedDate = lastEntryDate - (1000 * 60 * 60 * 24);
+
+        for (let i = 1; i < sortedDates.length; i++) {
+          if (sortedDates[i] === expectedDate) {
+            currentStreak++;
+            expectedDate -= (1000 * 60 * 60 * 24);
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  const lastEntryDate = entries && entries.length > 0 ? entries[0].created_at : null;
+
+  const stats: UserStats = {
+    totalEntries,
+    currentStreak,
+    categoryCounts,
+    sentimentCounts,
+    lastEntryDate
+  };
+
+  console.log('Stats calculated successfully:', stats);
+  return stats;
 }
 
 // ==========================================
@@ -227,34 +392,91 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
 export async function createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
   console.log('Creating user profile:', profile);
-  
-  const response = await apiRequest('/profiles/create', {
-    method: 'POST',
-    body: profile
-  });
 
-  if (!response.success) {
-    console.error('Profile creation failed:', response);
-    throw new Error(response.error || 'Failed to create profile');
+  // Используем прямой запрос к Supabase вместо Edge Function
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert({
+      id: profile.id,
+      name: profile.name || 'Пользователь',
+      email: profile.email,
+      language: profile.language || 'ru',
+      diary_name: profile.diaryName || 'Мой дневник',
+      diary_emoji: profile.diaryEmoji || '📝',
+      notification_settings: profile.notificationSettings || {
+        selectedTime: 'none',
+        morningTime: '08:00',
+        eveningTime: '21:00',
+        permissionGranted: false
+      },
+      onboarding_completed: profile.onboardingCompleted || false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Profile creation failed:', error);
+    throw new Error(error.message || 'Failed to create profile');
   }
 
-  console.log('Profile created successfully:', response.profile);
-  return response.profile;
+  // Преобразуем snake_case в camelCase
+  const userProfile: UserProfile = {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    language: data.language,
+    diaryName: data.diary_name,
+    diaryEmoji: data.diary_emoji,
+    notificationSettings: data.notification_settings,
+    onboardingCompleted: data.onboarding_completed,
+    createdAt: data.created_at
+  };
+
+  console.log('Profile created successfully:', userProfile);
+  return userProfile;
 }
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   try {
     console.log('Fetching profile for user:', userId);
-    
-    const response = await apiRequest(`/profiles/${userId}`);
 
-    if (!response.success) {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.log('Profile not found for user:', userId, error);
+      return null;
+    }
+
+    if (!data) {
       console.log('Profile not found for user:', userId);
       return null;
     }
 
-    console.log('Profile found:', response.profile);
-    return response.profile;
+    // Преобразуем snake_case в camelCase
+    const userProfile: UserProfile = {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      language: data.language,
+      diaryName: data.diary_name,
+      diaryEmoji: data.diary_emoji,
+      notificationSettings: data.notification_settings,
+      onboardingCompleted: data.onboarding_completed,
+      createdAt: data.created_at
+    };
+
+    console.log('Profile found:', userProfile);
+    return userProfile;
   } catch (error) {
     console.error('Error fetching profile:', error);
     return null;
@@ -262,16 +484,47 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 }
 
 export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
-  const response = await apiRequest(`/profiles/${userId}`, {
-    method: 'PUT',
-    body: updates
-  });
+  const supabase = createClient();
 
-  if (!response.success) {
-    throw new Error('Failed to update profile');
+  // Преобразуем camelCase в snake_case для базы данных
+  const dbUpdates: any = {
+    updated_at: new Date().toISOString()
+  };
+
+  if (updates.name !== undefined) dbUpdates.name = updates.name;
+  if (updates.language !== undefined) dbUpdates.language = updates.language;
+  if (updates.diaryName !== undefined) dbUpdates.diary_name = updates.diaryName;
+  if (updates.diaryEmoji !== undefined) dbUpdates.diary_emoji = updates.diaryEmoji;
+  if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
+  if (updates.onboardingCompleted !== undefined) dbUpdates.onboarding_completed = updates.onboardingCompleted;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(dbUpdates)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Profile update failed:', error);
+    throw new Error(error.message || 'Failed to update profile');
   }
 
-  return response.profile;
+  // Преобразуем snake_case в camelCase
+  const userProfile: UserProfile = {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    language: data.language,
+    diaryName: data.diary_name,
+    diaryEmoji: data.diary_emoji,
+    notificationSettings: data.notification_settings,
+    onboardingCompleted: data.onboarding_completed,
+    createdAt: data.created_at
+  };
+
+  console.log('Profile updated successfully:', userProfile);
+  return userProfile;
 }
 
 // ==========================================
@@ -406,17 +659,109 @@ export interface MotivationCard {
 
 export async function getMotivationCards(userId: string): Promise<MotivationCard[]> {
   try {
-    const response = await apiRequest(`/motivations/cards/${userId}`);
-    
-    if (!response.success) {
-      throw new Error(response.error || 'Failed to get motivation cards');
+    console.log('Generating motivation cards for user:', userId);
+
+    const supabase = createClient();
+    const cards: MotivationCard[] = [];
+
+    // 1. Get recent entries with AI analysis
+    const { data: entries, error } = await supabase
+      .from('entries')
+      .select('*')
+      .eq('user_id', userId)
+      .not('ai_summary', 'is', null) // Only entries with AI analysis
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error('Error fetching entries for cards:', error);
     }
 
-    return response.cards || [];
+    // 2. Convert entries to motivation cards
+    if (entries && entries.length > 0) {
+      entries.forEach((entry, index) => {
+        const gradient = getGradientForSentiment(entry.sentiment || 'neutral');
+
+        cards.push({
+          id: `entry-${entry.id}`,
+          entryId: entry.id,
+          date: entry.created_at,
+          title: entry.ai_summary || entry.text.substring(0, 50) + '...',
+          description: entry.ai_insight || entry.ai_reply || 'Продолжай в том же духе!',
+          gradient,
+          isMarked: false,
+          isDefault: false,
+          sentiment: entry.sentiment,
+          mood: entry.mood
+        });
+      });
+    }
+
+    // 3. Add default motivation cards if needed (always show 3 cards minimum)
+    const defaultCards = getDefaultMotivationCards();
+    const cardsNeeded = 3 - cards.length;
+
+    if (cardsNeeded > 0) {
+      cards.push(...defaultCards.slice(0, cardsNeeded));
+    }
+
+    console.log(`Generated ${cards.length} motivation cards (${entries?.length || 0} from entries, ${cardsNeeded > 0 ? cardsNeeded : 0} default)`);
+    return cards;
   } catch (error) {
     console.error('Error in getMotivationCards:', error);
-    throw error;
+
+    // Fallback: return default cards
+    console.log('Returning default motivation cards as fallback');
+    return getDefaultMotivationCards();
   }
+}
+
+// Helper: Get gradient based on sentiment
+function getGradientForSentiment(sentiment: string): string {
+  const gradients: Record<string, string> = {
+    'positive': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'neutral': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'negative': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'mixed': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+  };
+
+  return gradients[sentiment] || gradients['neutral'];
+}
+
+// Helper: Get default motivation cards
+function getDefaultMotivationCards(): MotivationCard[] {
+  return [
+    {
+      id: 'default-1',
+      date: new Date().toISOString(),
+      title: 'Сегодня отличное время',
+      description: 'Запиши маленькую победу — это первый шаг к осознанию своих достижений.',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      isMarked: false,
+      isDefault: true,
+      sentiment: 'positive'
+    },
+    {
+      id: 'default-2',
+      date: new Date().toISOString(),
+      title: 'Даже одна мысль делает день осмысленным',
+      description: 'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
+      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      isMarked: false,
+      isDefault: true,
+      sentiment: 'neutral'
+    },
+    {
+      id: 'default-3',
+      date: new Date().toISOString(),
+      title: 'Запиши момент благодарности',
+      description: 'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      isMarked: false,
+      isDefault: true,
+      sentiment: 'positive'
+    }
+  ];
 }
 
 export async function markCardAsRead(userId: string, cardId: string): Promise<void> {

@@ -3,6 +3,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { getCategoryTranslation, type Language } from "@/shared/lib/i18n";
+import { MediaPreview } from "@/features/mobile/media";
 import {
   ChevronRight,
   ThumbsUp,
@@ -27,7 +28,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: R
   const loadRecentEntries = async () => {
     try {
       setIsLoading(true);
-      const userId = userData?.id || "anonymous";
+      const userId = userData?.user?.id || userData?.id || "anonymous";  // ✅ FIXED: Try user.id first
       const allEntries = await getEntries(userId, 3); // Загружаем только последние 3
       setEntries(allEntries);
     } catch (error) {
@@ -138,6 +139,20 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: R
                 {getCategoryEmoji(entry.category)} {getCategoryTranslation(entry.category, language)}
               </Badge>
             </div>
+
+            {/* ✅ FIX: Медиа над текстом в 1 ряд (как в ClickUp) */}
+            {entry.media && entry.media.length > 0 && (
+              <div className="mb-3">
+                <MediaPreview
+                  media={entry.media}
+                  editable={false}
+                  layout={entry.media.length > 1 ? 'row' : 'grid'}
+                  onImageClick={(index) => {
+                    // TODO: Открыть lightbox
+                  }}
+                />
+              </div>
+            )}
 
             {/* Заголовок - БЕЗ AI описания, только первая строка текста */}
             <h3 className="font-semibold text-gray-900 mb-1.5 text-base line-clamp-1">

@@ -1,14 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import svgPaths from "@/imports/svg-7dtbhv9t1o";
-import { Mic, Send, Camera, Sparkles, AlertCircle, X, Image as ImageIcon, Info } from "lucide-react";
+import { Mic, Send, Camera, Sparkles, X, Image as ImageIcon } from "lucide-react";
 import { analyzeTextWithAI, createEntry, transcribeAudio, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
-import { useVoiceRecorder } from "@/components/hooks/useVoiceRecorder";
-import { useMediaUploader } from "@/components/hooks/useMediaUploader";
-import { MediaPreview } from "@/components/MediaPreview";
-import { MediaLightbox } from "@/components/MediaLightbox";
-import { PermissionGuide } from "@/components/PermissionGuide";
+import { useVoiceRecorder, useMediaUploader, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
+import { DragDropZone } from "@/shared/components/DragDropZone";
 
 interface ChatMessage {
   id: string;
@@ -35,8 +31,8 @@ const CATEGORIES = [
   { id: 'Благодарность', label: 'Благодарность', icon: '🙏', color: '#92BFFF' }
 ];
 
-export function ChatInputSection({ 
-  onMessageSent, 
+export function ChatInputSection({
+  onMessageSent,
   onEntrySaved,
   userName = "Анна",
   userId = "anonymous"
@@ -49,6 +45,8 @@ export function ChatInputSection({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showPermissionGuide, setShowPermissionGuide] = useState<'microphone' | 'camera' | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAiHint, setShowAiHint] = useState(true); // ✅ NEW: AI hint visibility
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -99,8 +97,8 @@ export function ChatInputSection({
       category: selectedCategory || undefined
     };
 
-    // Добавляем сообщение пользователя
-    setMessages(prev => [...prev, userMessage]);
+    // ✅ FIX: Показываем success modal СРАЗУ (до отправки на сервер)
+    setShowSuccessModal(true);
     setInputText("");
     setIsProcessing(true);
 
@@ -113,20 +111,8 @@ export function ChatInputSection({
       // Запрос к AI для анализа текста
       console.log("Analyzing text with AI...");
       const analysis = await analyzeTextWithAI(userText, userName, userId);
-      
+
       console.log("AI Analysis result:", analysis);
-
-      // Создаем AI ответ
-      const aiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        text: analysis.reply,
-        timestamp: new Date(),
-        sentiment: analysis.sentiment,
-        category: analysis.category
-      };
-
-      setMessages(prev => [...prev, aiResponse]);
 
       // Сохраняем запись в БД
       const entryData = {
@@ -148,21 +134,20 @@ export function ChatInputSection({
 
       console.log("Creating entry in database with", uploadedMedia.length, "media files...");
       const savedEntry = await createEntry(entryData);
-      
+
       console.log("Entry saved successfully:", savedEntry);
 
       // Обновляем сообщение пользователя с ID записи
       userMessage.entryId = savedEntry.id;
-      
+
       // Callbacks
       onMessageSent?.(userMessage);
       onEntrySaved?.(savedEntry);
 
-      // Success toast
-      toast.success("Достижение сохранено! 🎉", {
-        description: `Категория: ${savedEntry.category}`,
-        duration: 3000
-      });
+      // Автоматически скрываем modal через 2 секунды после успешного сохранения
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 2000);
 
     } catch (error) {
       console.error("Error processing message:", error);
@@ -173,16 +158,16 @@ export function ChatInputSection({
         duration: 4000
       });
 
-      // Fallback AI response
-      const fallbackAiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        text: "Записано! 💪 Продолжай отмечать свои достижения!",
-        timestamp: new Date(),
-        sentiment: 'positive'
-      };
+      // ✅ FIX #4: НЕ добавляем fallback ответ в чат
+      // const fallbackAiResponse: ChatMessage = {
+      //   id: (Date.now() + 1).toString(),
+      //   type: 'ai',
+      //   text: "Записано! 💪 Продолжай отмечать свои достижения!",
+      //   timestamp: new Date(),
+      //   sentiment: 'positive'
+      // };
 
-      setMessages(prev => [...prev, fallbackAiResponse]);
+      // setMessages(prev => [...prev, fallbackAiResponse]);
     } finally {
       setIsProcessing(false);
       clearMedia(); // Очищаем загруженные медиа после отправки
@@ -376,6 +361,31 @@ export function ChatInputSection({
     }
   };
 
+  // Обработка drag & drop
+  const handleFilesDropped = async (files: File[]) => {
+    if (!userId || userId === 'anonymous') {
+      toast.error("Необходимо авторизоваться", {
+        description: "Войдите в аккаунт для загрузки медиа"
+      });
+      return;
+    }
+
+    try {
+      // TODO: Implement batch upload for drag & drop
+      toast.info("Drag & drop загрузка в разработке");
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    } catch (error: any) {
+      console.error('Drag & drop upload error:', error);
+      toast.error("Ошибка загрузки", {
+        description: error.message || 'Попробуйте еще раз'
+      });
+    }
+  };
+
   // Открыть лайтбокс
   const handleMediaClick = (index: number) => {
     setLightboxIndex(index);
@@ -403,8 +413,9 @@ export function ChatInputSection({
         </h2>
       </div>
 
+      {/* ✅ FIX #4: Скрыли Messages Area - больше не нужна история чата */}
       {/* Messages Area */}
-      {messages.length > 0 && (
+      {false && messages.length > 0 && (
         <div className="mb-6 space-y-3 max-h-[300px] overflow-y-auto scrollbar-hide">
           <AnimatePresence>
             {messages.map((message) => (
@@ -434,7 +445,7 @@ export function ChatInputSection({
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {/* AI Processing Indicator */}
           {isProcessing && (
             <motion.div
@@ -463,7 +474,7 @@ export function ChatInputSection({
               </div>
             </motion.div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       )}
@@ -522,9 +533,13 @@ export function ChatInputSection({
           )}
         </AnimatePresence>
 
-        {/* Main Input Container */}
-        <div className="relative bg-white/80 rounded-[16px] border border-[rgba(0,0,0,0.2)] backdrop-blur-sm">
-          <div className="flex items-end gap-2 p-2">
+        {/* Main Input Container with Drag & Drop */}
+        <DragDropZone
+          onFilesSelected={handleFilesDropped}
+          disabled={isUploading || !userId || userId === 'anonymous'}
+        >
+          <div className="relative bg-white/80 rounded-[16px] border border-[rgba(0,0,0,0.2)] backdrop-blur-sm">
+            <div className="flex items-end gap-2 p-2">
             {/* Voice Button */}
             <button
               onClick={handleVoiceInput}
@@ -600,33 +615,19 @@ export function ChatInputSection({
           </div>
 
           {/* Media Preview */}
-          {uploadedMedia.length > 0 && (
+          {(uploadedMedia.length > 0 || isUploading) && (
             <div className="mt-2 px-2">
               <MediaPreview
                 media={uploadedMedia}
                 onRemove={removeMedia}
                 onImageClick={handleMediaClick}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
               />
             </div>
           )}
-
-          {/* Upload Progress */}
-          {isUploading && uploadProgress > 0 && (
-            <div className="mt-2 px-2">
-              <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-accent"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${uploadProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <p className="!text-[11px] text-gray-500 mt-1 text-center">
-                Загрузка... {Math.round(uploadProgress)}%
-              </p>
-            </div>
-          )}
-        </div>
+          </div>
+        </DragDropZone>
 
         {/* Categories */}
         <div className="flex gap-2 mt-3 flex-wrap">
@@ -649,58 +650,41 @@ export function ChatInputSection({
         </div>
       </div>
 
-      {/* AI Suggestions */}
-      {messages.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6"
-        >
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-[16px] p-4 border border-blue-100">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="!text-[14px] !font-semibold text-black mb-1">
-                  AI подскажет
-                </h4>
-                <p className="!text-[13px] !font-normal text-gray-600 leading-[18px]">
-                  Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
-                </p>
+      {/* ✅ FIX: AI Suggestions с крестиком для закрытия */}
+      <AnimatePresence>
+        {messages.length === 0 && showAiHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ delay: 0.5 }}
+            className="mt-6"
+          >
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-[16px] p-4 border border-blue-100 relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setShowAiHint(false)}
+                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/50 hover:bg-white transition-colors"
+                aria-label="Закрыть"
+              >
+                <X className="w-3.5 h-3.5 text-gray-600" />
+              </button>
+
+              <div className="flex items-start gap-3 pr-8">
+                <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="!text-[14px] !font-semibold text-black mb-1">
+                    AI подскажет
+                  </h4>
+                  <p className="!text-[13px] !font-normal text-gray-600 leading-[18px]">
+                    Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Connection Info */}
-      {messages.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="mt-3 flex items-center justify-center gap-2"
-        >
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <p className="!text-[11px] !font-normal text-gray-400">
-            Подключено к AI
-          </p>
-        </motion.div>
-      )}
-
-      {/* Quick Actions (опционально) */}
-      {messages.length === 0 && (
-        <div className="mt-4 flex gap-2">
-          <button 
-            onClick={handleMediaUpload}
-            disabled={isUploading}
-            className="flex-1 bg-white border border-border rounded-[12px] p-3 flex items-center justify-center gap-2 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-50"
-          >
-            <Camera className="w-4 h-4 text-accent" />
-            <span className="!text-[13px] !font-normal text-black">Добавить фото</span>
-          </button>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Media Lightbox */}
       <MediaLightbox
@@ -718,6 +702,51 @@ export function ChatInputSection({
             isOpen={!!showPermissionGuide}
             onClose={() => setShowPermissionGuide(null)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ✅ FIX #4: Success Modal (как на onboarding) */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+            />
+
+            {/* ✅ FIX: Modal 300px ширина */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-[24px] p-6 shadow-2xl"
+              style={{ width: '300px', minHeight: '230px' }}
+            >
+              {/* Success Icon */}
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                >
+                  <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </motion.div>
+              </div>
+
+              {/* Text */}
+              <h3 className="text-center !text-[18px] !font-semibold text-foreground mb-2">
+                Отлично {userName}!<br />Ваша запись сохранена! 🎉
+              </h3>
+              <p className="text-center !text-[14px] text-muted-foreground">
+                AI обрабатывает запись и создает мотивационную карточку...
+              </p>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

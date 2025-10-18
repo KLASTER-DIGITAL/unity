@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { uploadMedia, type MediaFile } from '@/shared/lib/api';
-import { compressImage, isImageFile, isVideoFile } from '@/utils/imageCompression';
+import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVideoFile } from '@/utils/imageCompression';
+import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '@/utils/videoCompression';
 
 interface UseMediaUploaderResult {
   uploadedMedia: MediaFile[];
@@ -38,12 +39,13 @@ export function useMediaUploader(): UseMediaUploaderResult {
         
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          
+
           try {
-            // Проверяем размер файла (макс 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-              errors.push(`${file.name}: Файл слишком большой (макс 10MB)`);
-              console.error(`File ${file.name} is too large (max 10MB)`);
+            // ✅ FIX: Валидация размера файла (макс 50MB)
+            const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+            if (file.size > MAX_FILE_SIZE) {
+              errors.push(`${file.name}: Файл слишком большой (макс 50MB)`);
+              console.error(`File ${file.name} is too large: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
               continue;
             }
 
@@ -54,22 +56,90 @@ export function useMediaUploader(): UseMediaUploaderResult {
               continue;
             }
 
-            // Сжимаем изображения
+            // 📸 PHOTO PROCESSING
             let fileToUpload = file;
+            let thumbnailFile: File | undefined;
+            let dimensions: { width: number; height: number } | undefined;
+
             if (isImageFile(file)) {
-              console.log('Compressing image:', file.name);
+              console.log('📸 Processing image:', file.name);
               try {
+                // Step 1: Compress main image (10MB → ~500KB)
                 fileToUpload = await compressImage(file);
+
+                // Step 2: Generate thumbnail (200x200, ~50KB)
+                thumbnailFile = await generateThumbnail(file);
+
+                // Step 3: Extract dimensions
+                dimensions = await getImageDimensions(file);
+
+                console.log(`📸 ✅ Image processed: ${file.name}`, {
+                  original: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+                  compressed: `${(fileToUpload.size / 1024).toFixed(2)}KB`,
+                  thumbnail: `${(thumbnailFile.size / 1024).toFixed(2)}KB`,
+                  dimensions: `${dimensions.width}x${dimensions.height}`
+                });
               } catch (compressionError) {
-                console.error('Compression error:', compressionError);
-                errors.push(`${file.name}: Ошибка сжатия изображения`);
+                console.error('📸 ❌ Processing error:', compressionError);
+                errors.push(`${file.name}: Ошибка обработки изображения`);
                 continue;
               }
             }
 
-            // Загружаем файл
-            console.log('Uploading:', fileToUpload.name);
-            const mediaFile = await uploadMedia(fileToUpload, userId);
+            // 🎥 VIDEO PROCESSING
+            if (isVideoFile(file)) {
+              console.log('🎥 Processing video:', file.name);
+              try {
+                // Step 1: Validate video
+                const validation = await validateVideo(file);
+                if (!validation.valid) {
+                  errors.push(`${file.name}: ${validation.error}`);
+                  continue;
+                }
+
+                console.log(`🎥 Video metadata:`, validation.metadata);
+
+                // Step 2: Compress video (max 30s, 720p, ~5MB)
+                fileToUpload = await compressVideo(file, 30, 1280, 720);
+
+                // Step 3: Generate thumbnail (first frame)
+                thumbnailFile = await generateVideoThumbnail(file);
+
+                // Step 4: Get metadata
+                const metadata = await getVideoMetadata(fileToUpload);
+                dimensions = { width: metadata.width, height: metadata.height };
+
+                console.log(`🎥 ✅ Video processed: ${file.name}`, {
+                  original: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+                  compressed: `${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB`,
+                  thumbnail: `${(thumbnailFile.size / 1024).toFixed(2)}KB`,
+                  duration: `${metadata.duration}s`,
+                  dimensions: `${metadata.width}x${metadata.height}`
+                });
+
+              } catch (videoError) {
+                console.error('🎥 ❌ Processing error:', videoError);
+                errors.push(`${file.name}: Ошибка обработки видео`);
+                continue;
+              }
+            }
+
+            // 📤 UPLOAD TO SUPABASE
+            console.log('📤 Uploading:', fileToUpload.name);
+
+            // Get duration for video
+            let duration: number | undefined;
+            if (isVideoFile(fileToUpload)) {
+              const metadata = await getVideoMetadata(fileToUpload);
+              duration = metadata.duration;
+            }
+
+            const mediaFile = await uploadMedia(fileToUpload, userId, {
+              thumbnail: thumbnailFile,
+              width: dimensions?.width,
+              height: dimensions?.height,
+              duration: duration
+            });
             newMedia.push(mediaFile);
 
           } catch (fileError) {

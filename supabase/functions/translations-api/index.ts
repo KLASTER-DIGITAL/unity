@@ -1,0 +1,224 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-openai-key'
+};
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! }
+        }
+      }
+    );
+
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split('/').filter(p => p);
+    const path = pathParts[pathParts.length - 1] || 'languages';
+    
+    console.log('Request path:', path);
+    console.log('Request method:', req.method);
+
+    // ✅ NEW: Get translations by language code (e.g., /ru, /en)
+    // Check if path is a 2-letter language code
+    if (path.length === 2 && /^[a-z]{2}$/.test(path)) {
+      if (req.method === 'GET') {
+        const langCode = path;
+        console.log('Fetching translations for language:', langCode);
+        
+        const { data: translations, error } = await supabaseClient
+          .from('translations')
+          .select('translation_key, translation_value')
+          .eq('lang_code', langCode);
+
+        if (error) {
+          console.error('Error fetching translations:', error);
+          throw error;
+        }
+
+        // Convert to key-value object
+        const translationsObj = (translations || []).reduce((acc: any, t: any) => {
+          acc[t.translation_key] = t.translation_value;
+          return acc;
+        }, {});
+
+        console.log(`Translations found for ${langCode}:`, Object.keys(translationsObj).length);
+
+        return new Response(JSON.stringify(translationsObj), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    switch (path) {
+      case 'languages': {
+        if (req.method === 'GET') {
+          const { data: languages, error } = await supabaseClient
+            .from('languages')
+            .select('*')
+            .eq('is_active', true)
+            .order('name');
+
+          if (error) {
+            console.error('Error fetching languages:', error);
+            throw error;
+          }
+
+          console.log('Languages found:', languages?.length || 0);
+
+          return new Response(JSON.stringify(languages || []), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        if (req.method === 'POST') {
+          const { code, name, native_name, flag, is_active = true } = await req.json();
+
+          const { data: language, error } = await supabaseClient
+            .from('languages')
+            .insert({ code, name, native_name, flag, is_active })
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          return new Response(JSON.stringify(language), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+
+      case 'translations': {
+        if (req.method === 'GET') {
+          const { data: translations, error } = await supabaseClient
+            .from('translations')
+            .select('*')
+            .order('lang_code');
+
+          if (error) throw error;
+
+          return new Response(JSON.stringify(translations), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+
+      case 'stats': {
+        if (req.method === 'GET') {
+          const { data: languages } = await supabaseClient
+            .from('languages')
+            .select('code')
+            .eq('is_active', true);
+
+          const { data: translations } = await supabaseClient
+            .from('translations')
+            .select('lang_code, translation_key');
+
+          const { data: baseTranslations } = await supabaseClient
+            .from('translations')
+            .select('translation_key')
+            .eq('lang_code', 'ru');
+
+          const totalKeys = baseTranslations?.length || 0;
+          const translatedKeys: any = {};
+          const missingTranslations: any = {};
+
+          languages?.forEach((lang) => {
+            const langTranslations = translations?.filter(t => t.lang_code === lang.code) || [];
+            translatedKeys[lang.code] = langTranslations.length;
+
+            const translatedKeysForLang = langTranslations.map(t => t.translation_key);
+            const missingKeys = baseTranslations
+              ?.filter(bt => !translatedKeysForLang.includes(bt.translation_key))
+              .map(bt => bt.translation_key) || [];
+
+            missingTranslations[lang.code] = missingKeys;
+          });
+
+          const stats = {
+            totalLanguages: languages?.length || 0,
+            totalKeys,
+            translatedKeys,
+            missingTranslations
+          };
+
+          return new Response(JSON.stringify(stats), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+
+      case 'export': {
+        if (req.method === 'GET') {
+          const { data: languages } = await supabaseClient
+            .from('languages')
+            .select('*')
+            .eq('is_active', true);
+
+          const { data: translations } = await supabaseClient
+            .from('translations')
+            .select('*');
+
+          const exportData = {
+            version: '1.0.0',
+            languages: languages?.map(lang => ({
+              code: lang.code,
+              name: lang.name,
+              nativeName: lang.native_name,
+              flag: lang.flag
+            })) || [],
+            translations: translations?.reduce((acc: any, t: any) => {
+              if (!acc[t.lang_code]) acc[t.lang_code] = {};
+              acc[t.lang_code][t.translation_key] = t.translation_value;
+              return acc;
+            }, {}) || {},
+            exportDate: new Date().toISOString()
+          };
+
+          return new Response(JSON.stringify(exportData, null, 2), {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              'Content-Disposition': `attachment; filename="translations-${new Date().toISOString().split('T')[0]}.json"`
+            }
+          });
+        }
+        break;
+      }
+
+      default:
+        console.log('Unknown path:', path);
+        return new Response(JSON.stringify({ error: `Not found: ${path}` }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+    }
+
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error: any) {
+    console.error('Edge Function error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+});
+

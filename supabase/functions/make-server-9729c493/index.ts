@@ -96,8 +96,31 @@ app.post('/make-server-9729c493/transcribe', async (c) => {
     const audioFile = new File([audioBuffer], filename, { type: mimeType || 'audio/webm' });
 
     // Вызываем Whisper API
-    // Приоритет: 1) Ключ из заголовка (админ-панель), 2) Env переменная
-    const openaiApiKey = c.req.header('X-OpenAI-Key') || Deno.env.get('OPENAI_API_KEY');
+    // Приоритет: 1) Ключ из заголовка (админ-панель), 2) Из БД (admin_settings), 3) Env переменная
+    let openaiApiKey = c.req.header('X-OpenAI-Key');
+
+    if (!openaiApiKey) {
+      // Пытаемся получить из БД
+      const { data: setting } = await supabase
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'openai_api_key')
+        .single();
+
+      if (setting?.value) {
+        openaiApiKey = setting.value;
+        console.log('Using OpenAI key from admin_settings');
+      } else {
+        // Fallback на env переменную
+        openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+        if (openaiApiKey) {
+          console.log('Using OpenAI key from env');
+        }
+      }
+    } else {
+      console.log('Using OpenAI key from header');
+    }
+
     if (!openaiApiKey) {
       return c.json({ success: false, error: 'OpenAI API key not configured. Please set it in admin panel.' }, 500);
     }
@@ -223,8 +246,31 @@ app.post('/make-server-9729c493/analyze', async (c) => {
 
     console.log('Analyzing text with AI...');
 
-    // Приоритет: 1) Ключ из заголовка (админ-панель), 2) Env переменная
-    const openaiApiKey = c.req.header('X-OpenAI-Key') || Deno.env.get('OPENAI_API_KEY');
+    // Приоритет: 1) Ключ из заголовка (админ-панель), 2) Из БД (admin_settings), 3) Env переменная
+    let openaiApiKey = c.req.header('X-OpenAI-Key');
+
+    if (!openaiApiKey) {
+      // Пытаемся получить из БД
+      const { data: setting } = await supabase
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'openai_api_key')
+        .single();
+
+      if (setting?.value) {
+        openaiApiKey = setting.value;
+        console.log('Using OpenAI key from admin_settings');
+      } else {
+        // Fallback на env переменную
+        openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+        if (openaiApiKey) {
+          console.log('Using OpenAI key from env');
+        }
+      }
+    } else {
+      console.log('Using OpenAI key from header');
+    }
+
     if (!openaiApiKey) {
       return c.json({ success: false, error: 'OpenAI API key not configured. Please set it in admin panel.' }, 500);
     }
@@ -344,19 +390,61 @@ app.post('/make-server-9729c493/analyze', async (c) => {
 app.post('/make-server-9729c493/profiles/create', async (c) => {
   try {
     const profileData = await c.req.json();
-    
+
     console.log('Creating profile:', profileData);
-    
+
+    if (!profileData.id || !profileData.email) {
+      return c.json({ success: false, error: 'id and email are required' }, 400);
+    }
+
+    // ✅ FIXED: Save to Supabase database instead of KV store
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: profileData.id,
+        name: profileData.name || 'Пользователь',
+        email: profileData.email,
+        language: profileData.language || 'ru',
+        diary_name: profileData.diaryName || 'Мой дневник',
+        diary_emoji: profileData.diaryEmoji || '📝',
+        notification_settings: profileData.notificationSettings || {
+          selectedTime: 'none',
+          morningTime: '08:00',
+          eveningTime: '21:00',
+          permissionGranted: false
+        },
+        onboarding_completed: profileData.onboardingCompleted || false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating profile in Supabase:', error);
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    // Also save to KV for caching
     const profile = {
-      ...profileData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      language: data.language,
+      diaryName: data.diary_name,
+      diaryEmoji: data.diary_emoji,
+      notificationSettings: data.notification_settings,
+      onboardingCompleted: data.onboarding_completed,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
     };
-    
+
     await kv.set(`profile:${profile.id}`, profile);
-    
+
+    console.log('Profile created successfully:', profile);
+
     return c.json({ success: true, profile });
-    
+
   } catch (error) {
     console.error('Error creating profile:', error);
     return c.json({ success: false, error: error.message }, 500);
@@ -805,18 +893,24 @@ app.get('/make-server-9729c493/motivations/cards/:userId', async (c) => {
     const profile = await kv.get(`profile:${userId}`);
     const userLanguage = profile?.language || 'ru';
 
-    // Получаем записи пользователя за последние 48 часов
-    const userEntries = await kv.get(`user_entries:${userId}`) || [];
+    // ✅ FIXED: Получаем записи прямо из Supabase database вместо KV store
     const yesterday = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    const entries = await Promise.all(
-      userEntries.map(id => kv.get(`entry:${id}`))
-    );
+    const { data: entries, error: entriesError } = await supabase
+      .from('entries')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('created_at', yesterday.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(10);
 
-    // Фильтруем записи за последние 48 часов
-    const recentEntries = entries
-      .filter(entry => entry !== null && new Date(entry.createdAt) >= yesterday)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (entriesError) {
+      console.error('Error fetching entries from database:', entriesError);
+      // Не выбрасываем ошибку, просто используем пустой массив
+    }
+
+    const recentEntries = entries || [];
+    console.log(`Found ${recentEntries.length} recent entries for user ${userId}`);
 
     // Получаем просмотренные карточки из KV (TTL 24h)
     const viewedKey = `card_views:${userId}`;
@@ -830,9 +924,9 @@ app.get('/make-server-9729c493/motivations/cards/:userId', async (c) => {
     const cards = unviewedEntries.slice(0, 3).map(entry => ({
       id: entry.id,
       entryId: entry.id,
-      date: new Date(entry.createdAt).toLocaleDateString(userLanguage === 'ru' ? 'ru-RU' : 'en-US'),
-      title: entry.aiSummary ? entry.aiSummary.split(' ').slice(0, 3).join(' ') : entry.text.split(' ').slice(0, 3).join(' '),
-      description: entry.aiInsight || entry.aiSummary || entry.text,
+      date: new Date(entry.created_at).toLocaleDateString(userLanguage === 'ru' ? 'ru-RU' : 'en-US'),
+      title: entry.ai_summary ? entry.ai_summary.split(' ').slice(0, 3).join(' ') : entry.text.split(' ').slice(0, 3).join(' '),
+      description: entry.ai_insight || entry.ai_summary || entry.text,
       gradient: getGradientBySentiment(entry.sentiment || 'positive'),
       isMarked: false,
       isDefault: false,

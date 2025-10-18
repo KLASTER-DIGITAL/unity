@@ -1,23 +1,25 @@
 import { createClient } from './supabase/client';
-import { createUserProfile, getUserProfile, type UserProfile } from './api';
+import { createUserProfile, getUserProfile, createEntry, analyzeTextWithAI, type UserProfile } from './api';
 
 export interface AuthResult {
   success: boolean;
   user?: any;
   profile?: UserProfile;
   error?: string;
+  needsOnboarding?: boolean;
 }
 
 // Регистрация с email/password
 export async function signUpWithEmail(
-  email: string, 
-  password: string, 
+  email: string,
+  password: string,
   userData: {
     name: string;
     diaryName?: string;
     diaryEmoji?: string;
     language?: string;
     notificationSettings?: any;
+    firstEntry?: string;
   }
 ): Promise<AuthResult> {
   try {
@@ -59,10 +61,62 @@ export async function signUpWithEmail(
         eveningTime: '21:00',
         permissionGranted: false
       },
-      onboardingCompleted: false // Новый пользователь должен пройти онбординг
+      onboardingCompleted: true // ✅ Пользователь прошел онбординг
     });
 
     console.log('Profile created:', profile);
+
+    // ✅ Создаем первую запись с AI-анализом, если она была введена
+    if (userData.firstEntry && userData.firstEntry.trim()) {
+      try {
+        console.log('[AUTH] Creating first entry with AI analysis');
+
+        // 1. Анализируем текст с помощью AI
+        let analysis;
+        try {
+          console.log('[AUTH] Analyzing first entry with AI...');
+          analysis = await analyzeTextWithAI(
+            userData.firstEntry.trim(),
+            userData.name || 'Пользователь',
+            data.user.id
+          );
+          console.log('[AUTH] AI analysis completed:', analysis);
+        } catch (aiError) {
+          console.error('[AUTH] AI analysis failed, using fallback:', aiError);
+          // Fallback если AI не работает
+          analysis = {
+            sentiment: 'positive',
+            category: 'Другое',
+            tags: [],
+            reply: 'Отличное начало! Продолжай вести дневник! 🎉',
+            summary: 'Первая запись в дневнике',
+            insight: 'Ведение дневника помогает лучше понимать себя и свои достижения.',
+            isAchievement: true,
+            mood: 'хорошее',
+            confidence: 0.8
+          };
+        }
+
+        // 2. Создаем запись с результатами AI-анализа
+        await createEntry({
+          userId: data.user.id,
+          text: userData.firstEntry.trim(),
+          sentiment: analysis.sentiment || 'positive',
+          category: analysis.category || 'Другое',
+          tags: analysis.tags || [],
+          aiReply: analysis.reply || '',
+          aiSummary: analysis.summary || null,
+          aiInsight: analysis.insight || null,
+          isAchievement: analysis.isAchievement || true,
+          mood: analysis.mood || 'хорошее'
+        });
+
+        console.log('✅ First entry created successfully with AI analysis');
+      } catch (error) {
+        console.error('Error creating first entry:', error);
+        // Не прерываем регистрацию, если не удалось создать запись
+      }
+    }
 
     return {
       success: true,
@@ -100,10 +154,18 @@ export async function signInWithEmail(email: string, password: string): Promise<
     // Загружаем профиль
     const profile = await getUserProfile(data.user.id);
 
+    // Проверяем, завершен ли онбординг
+    const needsOnboarding = profile ? !profile.onboardingCompleted : true;
+
+    if (needsOnboarding) {
+      console.log('[AUTH] User needs to complete onboarding');
+    }
+
     return {
       success: true,
       user: data.user,
-      profile: profile || undefined
+      profile: profile || undefined,
+      needsOnboarding
     };
 
   } catch (error: any) {

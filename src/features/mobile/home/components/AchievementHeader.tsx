@@ -159,7 +159,7 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 }
 
-export function AchievementHeader({ userName = "Анна", daysInApp = 1 }: AchievementHeaderProps) {
+export function AchievementHeader({ userName = "Пользователь", daysInApp = 1 }: AchievementHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
 
   // Получаем текущую дату

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { getEntries, deleteEntry, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
 import { useTranslations } from "@/shared/lib/i18n";
+import { MediaPreview } from "@/features/mobile/media"; // ✅ NEW: Import MediaPreview
 import {
   Search,
   Filter,
@@ -64,9 +65,11 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
   const loadEntries = async () => {
     try {
       setIsLoading(true);
-      const userId = userData?.id || "anonymous";
+      // ✅ FIXED: userData has structure {user: {...}, profile: {...}}
+      const userId = userData?.user?.id || userData?.id || "anonymous";
+      console.log("[HISTORY] Loading entries for user:", userId);
       const data = await getEntries(userId, 100);
-      
+
       console.log("Loaded entries for history:", data);
       setEntries(data);
       setFilteredEntries(data);
@@ -328,6 +331,17 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                         <MoreVertical className="w-5 h-5 text-muted-foreground" />
                       </button>
                     </div>
+
+                    {/* ✅ FIX: Media Preview в 1 ряд (above text, like ClickUp) */}
+                    {entry.media && entry.media.length > 0 && (
+                      <div className="mb-3">
+                        <MediaPreview
+                          media={entry.media}
+                          editable={false}
+                          layout={entry.media.length > 1 ? 'row' : 'grid'}
+                        />
+                      </div>
+                    )}
 
                     <p className="!text-[15px] text-foreground leading-[22px] mb-3">
                       {entry.text}

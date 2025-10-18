@@ -1,12 +1,22 @@
 import { useState, useCallback } from 'react';
-import { uploadMedia, type MediaFile } from '../../utils/api';
-import { compressImage, isImageFile, isVideoFile } from '../../utils/imageCompression';
+import { uploadMedia, type MediaFile } from '@/shared/lib/api';
+import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVideoFile } from '../../utils/imageCompression';
+import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '../../utils/videoCompression';
+
+export interface UploadStatus {
+  fileName: string;
+  progress: number;
+  status: 'processing' | 'uploading' | 'success' | 'error';
+  error?: string;
+}
 
 interface UseMediaUploaderResult {
   uploadedMedia: MediaFile[];
   isUploading: boolean;
   uploadProgress: number;
+  currentUpload: UploadStatus | null;
   selectAndUploadMedia: (userId: string) => Promise<void>;
+  uploadFiles: (files: File[], userId: string) => Promise<void>;
   removeMedia: (index: number) => void;
   clearMedia: () => void;
 }
@@ -15,37 +25,28 @@ export function useMediaUploader(): UseMediaUploaderResult {
   const [uploadedMedia, setUploadedMedia] = useState<MediaFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUpload, setCurrentUpload] = useState<UploadStatus | null>(null);
 
-  const selectAndUploadMedia = useCallback(async (userId: string) => {
-    // Создаем input для выбора файлов
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,video/*';
-    input.multiple = true;
+  // Core upload function (used by both selectAndUploadMedia and uploadFiles)
+  const processAndUploadFiles = useCallback(async (files: File[], userId: string) => {
+    setIsUploading(true);
+    setUploadProgress(0);
 
-    input.onchange = async (e) => {
-      const files = Array.from((e.target as HTMLInputElement).files || []);
-      
-      if (files.length === 0) return;
+    const errors: string[] = [];
 
-      setIsUploading(true);
-      setUploadProgress(0);
+    try {
+      const newMedia: MediaFile[] = [];
 
-      const errors: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
-      try {
-        const newMedia: MediaFile[] = [];
-        
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          
-          try {
-            // Проверяем размер файла (макс 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-              errors.push(`${file.name}: Файл слишком большой (макс 10MB)`);
-              console.error(`File ${file.name} is too large (max 10MB)`);
-              continue;
-            }
+        try {
+          // Проверяем размер файла (макс 10MB)
+          if (file.size > 10 * 1024 * 1024) {
+            errors.push(`${file.name}: Файл слишком большой (макс 10MB)`);
+            console.error(`File ${file.name} is too large (max 10MB)`);
+            continue;
+          }
 
             // Проверяем тип файла
             if (!isImageFile(file) && !isVideoFile(file)) {
@@ -54,23 +55,142 @@ export function useMediaUploader(): UseMediaUploaderResult {
               continue;
             }
 
-            // Сжимаем изображения
+            // 📸 PHOTO PROCESSING
             let fileToUpload = file;
+            let thumbnailFile: File | undefined;
+            let dimensions: { width: number; height: number } | undefined;
+
             if (isImageFile(file)) {
-              console.log('Compressing image:', file.name);
+              console.log('📸 Processing image:', file.name);
+
+              // Update status: Processing
+              setCurrentUpload({
+                fileName: file.name,
+                progress: 0,
+                status: 'processing'
+              });
+
               try {
+                // Step 1: Compress main image (10MB → ~500KB)
+                setCurrentUpload(prev => prev ? { ...prev, progress: 20 } : null);
                 fileToUpload = await compressImage(file);
+
+                // Step 2: Generate thumbnail (200x200, ~50KB)
+                setCurrentUpload(prev => prev ? { ...prev, progress: 50 } : null);
+                thumbnailFile = await generateThumbnail(file);
+
+                // Step 3: Extract dimensions
+                setCurrentUpload(prev => prev ? { ...prev, progress: 70 } : null);
+                dimensions = await getImageDimensions(file);
+
+                console.log(`📸 ✅ Image processed: ${file.name}`, {
+                  original: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+                  compressed: `${(fileToUpload.size / 1024).toFixed(2)}KB`,
+                  thumbnail: `${(thumbnailFile.size / 1024).toFixed(2)}KB`,
+                  dimensions: `${dimensions.width}x${dimensions.height}`
+                });
               } catch (compressionError) {
-                console.error('Compression error:', compressionError);
-                errors.push(`${file.name}: Ошибка сжатия изображения`);
+                console.error('📸 ❌ Processing error:', compressionError);
+                setCurrentUpload({
+                  fileName: file.name,
+                  progress: 0,
+                  status: 'error',
+                  error: 'Ошибка обработки изображения'
+                });
+                errors.push(`${file.name}: Ошибка обработки изображения`);
                 continue;
               }
             }
 
-            // Загружаем файл
-            console.log('Uploading:', fileToUpload.name);
-            const mediaFile = await uploadMedia(fileToUpload, userId);
+            // 🎥 VIDEO PROCESSING
+            if (isVideoFile(file)) {
+              console.log('🎥 Processing video:', file.name);
+
+              // Update status: Processing
+              setCurrentUpload({
+                fileName: file.name,
+                progress: 0,
+                status: 'processing'
+              });
+
+              try {
+                // Step 1: Validate video
+                setCurrentUpload(prev => prev ? { ...prev, progress: 10 } : null);
+                const validation = await validateVideo(file);
+                if (!validation.valid) {
+                  setCurrentUpload({
+                    fileName: file.name,
+                    progress: 0,
+                    status: 'error',
+                    error: validation.error
+                  });
+                  errors.push(`${file.name}: ${validation.error}`);
+                  continue;
+                }
+
+                console.log(`🎥 Video metadata:`, validation.metadata);
+
+                // Step 2: Compress video (max 30s, 720p, ~5MB)
+                setCurrentUpload(prev => prev ? { ...prev, progress: 30 } : null);
+                fileToUpload = await compressVideo(file, 30, 1280, 720);
+
+                // Step 3: Generate thumbnail (first frame)
+                setCurrentUpload(prev => prev ? { ...prev, progress: 60 } : null);
+                thumbnailFile = await generateVideoThumbnail(file);
+
+                // Step 4: Get metadata
+                setCurrentUpload(prev => prev ? { ...prev, progress: 70 } : null);
+                const metadata = await getVideoMetadata(fileToUpload);
+                dimensions = { width: metadata.width, height: metadata.height };
+
+                console.log(`🎥 ✅ Video processed: ${file.name}`, {
+                  original: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+                  compressed: `${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB`,
+                  thumbnail: `${(thumbnailFile.size / 1024).toFixed(2)}KB`,
+                  duration: `${metadata.duration}s`,
+                  dimensions: `${metadata.width}x${metadata.height}`
+                });
+
+              } catch (videoError) {
+                console.error('🎥 ❌ Processing error:', videoError);
+                setCurrentUpload({
+                  fileName: file.name,
+                  progress: 0,
+                  status: 'error',
+                  error: 'Ошибка обработки видео'
+                });
+                errors.push(`${file.name}: Ошибка обработки видео`);
+                continue;
+              }
+            }
+
+            // 📤 UPLOAD TO SUPABASE
+            console.log('📤 Uploading:', fileToUpload.name);
+
+            // Update status: Uploading
+            setCurrentUpload(prev => prev ? { ...prev, progress: 80, status: 'uploading' } : null);
+
+            // Get duration for video
+            let duration: number | undefined;
+            if (isVideoFile(fileToUpload)) {
+              const metadata = await getVideoMetadata(fileToUpload);
+              duration = metadata.duration;
+            }
+
+            const mediaFile = await uploadMedia(fileToUpload, userId, {
+              thumbnail: thumbnailFile,
+              width: dimensions?.width,
+              height: dimensions?.height,
+              duration: duration
+            });
             newMedia.push(mediaFile);
+
+            // Update status: Success
+            setCurrentUpload({
+              fileName: file.name,
+              progress: 100,
+              status: 'success'
+            });
 
           } catch (fileError) {
             console.error(`Error processing file ${file.name}:`, fileError);
@@ -93,17 +213,39 @@ export function useMediaUploader(): UseMediaUploaderResult {
           console.warn('Some files failed to upload:', errors);
         }
 
-      } catch (error) {
-        console.error('Error uploading media:', error);
-        throw error;
-      } finally {
-        setIsUploading(false);
-        setUploadProgress(0);
-      }
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw error;
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      // Clear upload status after 2 seconds
+      setTimeout(() => {
+        setCurrentUpload(null);
+      }, 2000);
+    }
+  }, []);
+
+  // File picker method
+  const selectAndUploadMedia = useCallback(async (userId: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.multiple = true;
+
+    input.onchange = async (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || []);
+      if (files.length === 0) return;
+      await processAndUploadFiles(files, userId);
     };
 
     input.click();
-  }, []);
+  }, [processAndUploadFiles]);
+
+  // Direct upload method (for drag & drop)
+  const uploadFiles = useCallback(async (files: File[], userId: string) => {
+    await processAndUploadFiles(files, userId);
+  }, [processAndUploadFiles]);
 
   const removeMedia = useCallback((index: number) => {
     setUploadedMedia(prev => prev.filter((_, i) => i !== index));
@@ -117,7 +259,9 @@ export function useMediaUploader(): UseMediaUploaderResult {
     uploadedMedia,
     isUploading,
     uploadProgress,
+    currentUpload,
     selectAndUploadMedia,
+    uploadFiles,
     removeMedia,
     clearMedia
   };

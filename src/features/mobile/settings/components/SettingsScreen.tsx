@@ -57,12 +57,13 @@ interface SettingsScreenProps {
 export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
   // Получаем переводы для языка пользователя
   const t = useTranslations(userData?.language || 'ru');
-  
+
+  // ✅ FIXED: Инициализируем notification settings из userData
   const [notifications, setNotifications] = useState({
-    dailyReminder: true,
+    dailyReminder: userData?.notificationSettings?.selectedTime !== 'none',
     weeklyReport: true,
     achievements: true,
-    motivational: false
+    motivational: userData?.notificationSettings?.selectedTime === 'both'
   });
 
   const [privacy, setPrivacy] = useState({

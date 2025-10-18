@@ -5,6 +5,20 @@ import { checkSession, signOut } from "./utils/auth";
 import { MobileApp } from "@/app/mobile";
 import { AdminApp } from "@/app/admin";
 
+// Onboarding data interface
+interface OnboardingData {
+  language: string;
+  diaryName: string;
+  diaryEmoji: string;
+  notificationSettings: {
+    selectedTime: 'none' | 'morning' | 'evening' | 'both';
+    morningTime: string;
+    eveningTime: string;
+    permissionGranted: boolean;
+  };
+  firstEntry: string;
+}
+
 export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
@@ -13,6 +27,22 @@ export default function App() {
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
+
+  // Onboarding data state
+  const [onboardingData, setOnboardingData] = useState<OnboardingData>({
+    language: 'ru',
+    diaryName: 'Мой дневник',
+    diaryEmoji: '🏆',
+    notificationSettings: {
+      selectedTime: 'none',
+      morningTime: '08:00',
+      eveningTime: '21:00',
+      permissionGranted: false
+    },
+    firstEntry: ''
+  });
 
   // Check admin route via query parameter
   useEffect(() => {
@@ -41,18 +71,30 @@ export default function App() {
     const initSession = async () => {
       try {
         const session = await checkSession();
-        if (session) {
+        console.log("🔍 Session check result:", session);
+
+        // Check if session is successful (has user data)
+        if (session && session.success !== false && session.user) {
           setUserData(session);
 
-          if (session.onboardingComplete) {
+          // ✅ Проверяем onboardingCompleted из профиля
+          if (session.profile?.onboardingCompleted) {
+            console.log("✅ Onboarding complete, going to step 5");
             setOnboardingComplete(true);
             setCurrentStep(5);
           } else {
+            console.log("⚠️ Session exists but onboarding not complete, going to step 2");
             setCurrentStep(2);
           }
+        } else {
+          console.log("ℹ️ No session found, staying at step 1 (WelcomeScreen)");
+          // Explicitly stay at step 1 for WelcomeScreen
+          setCurrentStep(1);
         }
       } catch (error) {
         console.error("Session check error:", error);
+        // On error, also stay at step 1
+        setCurrentStep(1);
       } finally {
         setIsCheckingSession(false);
       }
@@ -63,25 +105,44 @@ export default function App() {
 
   const handleWelcomeComplete = (language: string) => {
     setSelectedLanguage(language);
+    setOnboardingData(prev => ({ ...prev, language }));
     setCurrentStep(2);
+  };
+
+  const handleWelcomeSkip = () => {
+    setAuthMode('login'); // Пользователь хочет войти
+    setShowAuth(true);
   };
 
   const handleOnboarding2Complete = () => {
     setCurrentStep(3);
   };
 
-  const handleOnboarding3Complete = () => {
+  const handleOnboarding3Complete = (diaryName: string, emoji: string) => {
+    setOnboardingData(prev => ({
+      ...prev,
+      diaryName,
+      diaryEmoji: emoji
+    }));
     setCurrentStep(4);
   };
 
-  const handleOnboarding4Complete = () => {
-    setCurrentStep(5);
+  const handleOnboarding4Complete = (firstEntry: string, settings: any) => {
+    setOnboardingData(prev => ({
+      ...prev,
+      firstEntry,
+      notificationSettings: settings
+    }));
+    // Показываем AuthScreen с сохраненными данными
+    setAuthMode('register'); // Пользователь прошел онбординг, нужна регистрация
+    setShowAuth(true);
   };
 
   const handleAuthComplete = async (user: any) => {
     setUserData(user);
+    setShowAuth(false);
 
-    if (user.onboardingComplete) {
+    if (user.onboardingCompleted) {
       setOnboardingComplete(true);
       setCurrentStep(5);
     } else {
@@ -146,7 +207,11 @@ export default function App() {
       onboardingComplete={onboardingComplete}
       currentStep={currentStep}
       selectedLanguage={selectedLanguage}
+      showAuth={showAuth}
+      authMode={authMode}
+      onboardingData={onboardingData}
       onWelcomeComplete={handleWelcomeComplete}
+      onWelcomeSkip={handleWelcomeSkip}
       onOnboarding2Complete={handleOnboarding2Complete}
       onOnboarding3Complete={handleOnboarding3Complete}
       onOnboarding4Complete={handleOnboarding4Complete}

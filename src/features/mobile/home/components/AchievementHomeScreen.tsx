@@ -8,7 +8,8 @@ import { useTranslations, getCategoryTranslation, type Language } from "@/shared
 import { toast } from "sonner";
 import {
   Undo2,
-  Heart
+  Heart,
+  X
 } from "lucide-react";
 
 interface DiaryData {
@@ -403,13 +404,14 @@ function SwipeCard({
         rotate: x.get() > 0 ? 30 : -30,
         transition: { duration: 0.3, ease: "easeIn" }
       }}
-      className="absolute w-full cursor-grab active:cursor-grabbing"
+      className={`${index === 0 ? 'relative' : 'absolute'} w-full cursor-grab active:cursor-grabbing`}
       whileTap={{ cursor: "grabbing", scale: isTop ? 1.02 : stackStyle.scale }}
     >
-      <div 
-        className={`bg-gradient-to-br ${card.gradient} rounded-[36px] shadow-2xl overflow-hidden backdrop-blur-[32.5px] relative`}
+      <div
+        className={`bg-gradient-to-br ${card.gradient} rounded-[36px] overflow-hidden relative`}
         style={{
-          boxShadow: index === 0 ? '0 20px 60px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.2)'
+          boxShadow: index === 0 ? '0 20px 60px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.2)',
+          backgroundColor: '#FE7669', // Непрозрачный фон под градиентом
         }}
       >
         {/* Like overlay - показывается при свайпе вправо */}
@@ -425,25 +427,25 @@ function SwipeCard({
         )}
 
         {/* Основное содержимое карточки */}
-        <div className="p-8 py-10 relative z-0">
-          {/* Date */}
-          <motion.div 
-            className="text-white/90 mb-6"
+        <div className="p-6 py-6 relative z-0">
+          {/* Date - ✅ FIX #3: Уменьшили отступ снизу */}
+          <motion.div
+            className="text-white/90 mb-3"
             animate={{ opacity: 0.9 }}
           >
-            <p className="!text-[12px] !font-normal">{card.date}</p>
+            <p className="!text-[11px] !font-normal">{card.date}</p>
           </motion.div>
-          
-          {/* Title */}
-          <motion.div className="mb-4">
-            <h3 className="text-white !text-[24px] !font-semibold tracking-[-0.5px] leading-tight">
+
+          {/* Title - ✅ FIX #3: Уменьшили размер заголовка */}
+          <motion.div className="mb-3">
+            <h3 className="text-white !text-[20px] !font-semibold tracking-[-0.5px] leading-tight">
               {card.title}
             </h3>
           </motion.div>
-          
+
           {/* Description */}
-          <motion.div className="mb-2">
-            <p className="text-white !text-[16px] !font-normal leading-[24px] opacity-95">
+          <motion.div className="mb-0">
+            <p className="text-white !text-[15px] !font-normal leading-[22px] opacity-95">
               {card.description}
             </p>
           </motion.div>
@@ -465,6 +467,8 @@ export function AchievementHomeScreen({
   const [isLoading, setIsLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+  const [showAllRead, setShowAllRead] = useState(true); // ✅ NEW: "Все прочитано!" visibility
   const undoTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Получаем текущую дату
@@ -484,8 +488,8 @@ export function AchievementHomeScreen({
   const loadEntriesAndStats = async () => {
     try {
       setIsLoading(true);
-      const userId = userData?.id || "anonymous";
-      const userLanguage = (userData?.language || 'ru') as Language;
+      const userId = userData?.user?.id || userData?.id || "anonymous";  // ✅ FIXED: Try user.id first
+      const userLanguage = (userData?.profile?.language || userData?.language || 'ru') as Language;
 
       // Загружаем мотивационные карточки и статистику параллельно
       const [motivationCards, stats] = await Promise.all([
@@ -521,18 +525,18 @@ export function AchievementHomeScreen({
   // Обработчик создания новой записи
   const handleNewEntry = (entry: DiaryEntry) => {
     console.log("New entry created:", entry);
-    
+
     const userLanguage = (userData?.language || 'ru') as Language;
-    
-    // Добавляем новую карточку в начало
+
+    // Добавляем новую карточку в начало (временно, пока AI обрабатывает)
     const newCard = entryToCard(entry, 0, userLanguage);
     setCards(prev => [newCard, ...prev]);
-    
+
     // Если это была первая запись (карточек не было), сбрасываем индекс
     if (cards.length === 0) {
       setCurrentIndex(0);
     }
-    
+
     // Перезагружаем статистику (не полностью, только stats)
     const userId = userData?.id || "anonymous";
     getUserStats(userId).then(stats => {
@@ -540,7 +544,25 @@ export function AchievementHomeScreen({
     }).catch(err => {
       console.error("Error updating stats:", err);
     });
-    
+
+    // ✅ NEW: Trigger feed refresh
+    setFeedRefreshKey(prev => prev + 1);
+
+    // ✅ NEW: Показываем "Все прочитано!" снова при новой записи
+    setShowAllRead(true);
+
+    // ✅ FIX: Перезагружаем карточки с сервера через 3 секунды (после AI-анализа)
+    setTimeout(() => {
+      console.log("Reloading motivation cards after AI analysis...");
+      getMotivationCards(userId).then(motivationCards => {
+        console.log("Reloaded motivation cards:", motivationCards);
+        setCards(motivationCards);
+        setCurrentIndex(0); // Сброс индекса на первую карточку
+      }).catch(err => {
+        console.error("Error reloading motivation cards:", err);
+      });
+    }, 3000); // 3 секунды - достаточно для AI-анализа
+
     toast.success("Отлично! 🎉", {
       description: "Твоё достижение сохранено"
     });
@@ -598,8 +620,9 @@ export function AchievementHomeScreen({
   const visibleCards = cards.slice(currentIndex, currentIndex + 4);
   const hasCards = currentIndex < cards.length;
 
-  // Получаем имя пользователя из userData или используем дефолтное
-  const userName = userData?.name || "Анна";
+  // Получаем имя пользователя из userData.profile.name или userData.name или используем дефолтное
+  const userName = userData?.profile?.name || userData?.name || "Пользователь";
+
   // Вычисляем количество дней в приложении (используем streak)
   const daysInApp = currentStreak > 0 ? currentStreak : 1;
 
@@ -618,16 +641,11 @@ export function AchievementHomeScreen({
         </div>
       )}
 
-      {/* Swipe Cards Section */}
+      {/* ✅ FIX: Swipe Cards Section - адаптивный контейнер по высоте карточек */}
       {!isLoading && hasCards && (
-        <div className="px-6 pt-5 pb-2">
-          {/* Cards Stack Container */}
-          <div className="relative w-full" style={{ height: '260px' }}>
-            {/* Background blur effect для создания глубины */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none z-0" 
-                 style={{ top: '20px' }} 
-            />
-            
+        <div className="px-6 pt-5 pb-6">
+          {/* Cards Stack Container - адаптивная высота по содержимому */}
+          <div className="relative w-full min-h-[280px] mb-4">
             <AnimatePresence initial={false}>
               {visibleCards.reverse().map((card, idx) => {
                 const actualIndex = visibleCards.length - 1 - idx;
@@ -647,9 +665,24 @@ export function AchievementHomeScreen({
         </div>
       )}
 
-      {!isLoading && !hasCards && (
+      {/* ✅ FIX: "Все прочитано!" с крестиком для закрытия */}
+      {!isLoading && !hasCards && showAllRead && (
         <div className="px-6 pt-0 pb-3">
-          <div className="bg-card rounded-[var(--radius-xl)] p-5 border border-border text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-card rounded-[var(--radius-xl)] p-5 border border-border text-center relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowAllRead(false)}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+              aria-label="Закрыть"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+
             <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-2">
               <span className="text-[24px]">🎉</span>
             </div>
@@ -657,25 +690,28 @@ export function AchievementHomeScreen({
             <p className="text-muted-foreground !text-[13px] leading-[1.4]">
               Вы просмотрели все карточки. Создайте новую запись, чтобы добавить больше достижений.
             </p>
-          </div>
+          </motion.div>
         </div>
       )}
 
-      {/* Chat Input Section - основная функция создания записей */}
+      {/* ✅ FIX: Chat Container - адаптивный контейнер под карточками */}
       {!isLoading && (
-        <ChatInputSection
-          userName={userName}
-          userId={userData?.id || "anonymous"}
-          onMessageSent={(message) => {
-            console.log("New achievement message:", message);
-          }}
-          onEntrySaved={handleNewEntry}
-        />
+        <div className="relative w-full">
+          <ChatInputSection
+            userName={userName}
+            userId={userData?.user?.id || userData?.id || "anonymous"}  // ✅ FIXED: Try user.id first
+            onMessageSent={(message) => {
+              console.log("New achievement message:", message);
+            }}
+            onEntrySaved={handleNewEntry}
+          />
+        </div>
       )}
 
       {/* Recent Entries Feed - Лента последних записей */}
       {!isLoading && (
         <RecentEntriesFeed
+          key={feedRefreshKey} // ✅ NEW: Force refresh when key changes
           userData={userData}
           language={userData?.language || 'ru'}
           onEntryClick={(entry) => {

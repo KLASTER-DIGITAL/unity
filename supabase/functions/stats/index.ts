@@ -1,39 +1,32 @@
-import { Hono } from 'npm:hono';
-import { cors } from 'npm:hono/cors';
+// 📊 STATS MICROSERVICE v2 - Pure Deno
+// Purpose: Get user statistics (entries count, achievements, streak, etc.)
+// Architecture: Pure Deno.serve() (no Hono framework)
+// Status: v2 - Production ready
+
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const app = new Hono();
+console.log('[STATS v2] 🚀 Starting stats microservice...');
 
-app.use('*', cors({
-  origin: '*',
-  allowMethods: ['GET', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-}));
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+};
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-// ======================
-// UTILITY FUNCTIONS
-// ======================
-
+// Calculate streak from entries
 function calculateStreak(entries: any[]) {
   if (!entries || entries.length === 0) {
     return { current: 0, longest: 0 };
   }
 
-  // Сортировать по дате (новые первые)
   const sorted = [...entries].sort((a, b) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
   let currentStreak = 0;
   let longestStreak = 0;
-  let tempStreak = 1;
-  let lastDate = new Date(sorted[0].created_at);
-
-  // Проверить текущую серию
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const lastEntryDate = new Date(sorted[0].created_at);
@@ -43,6 +36,7 @@ function calculateStreak(entries: any[]) {
   
   if (daysDiff <= 1) {
     currentStreak = 1;
+    let lastDate = lastEntryDate;
     
     for (let i = 1; i < sorted.length; i++) {
       const currentDate = new Date(sorted[i].created_at);
@@ -52,7 +46,6 @@ function calculateStreak(entries: any[]) {
       
       if (diff === 1) {
         currentStreak++;
-        tempStreak++;
       } else if (diff > 1) {
         break;
       }
@@ -61,14 +54,14 @@ function calculateStreak(entries: any[]) {
     }
   }
 
-  // Вычислить самую длинную серию
-  tempStreak = 1;
-  lastDate = new Date(sorted[0].created_at);
+  // Calculate longest streak
+  let tempStreak = 1;
+  let lastDate = new Date(sorted[0].created_at);
+  lastDate.setHours(0, 0, 0, 0);
   
   for (let i = 1; i < sorted.length; i++) {
     const currentDate = new Date(sorted[i].created_at);
     currentDate.setHours(0, 0, 0, 0);
-    lastDate.setHours(0, 0, 0, 0);
     
     const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -87,6 +80,7 @@ function calculateStreak(entries: any[]) {
   return { current: currentStreak, longest: longestStreak };
 }
 
+// Calculate mood distribution
 function calculateMoodDistribution(entries: any[]) {
   const moodCounts: Record<string, number> = {};
   
@@ -99,14 +93,14 @@ function calculateMoodDistribution(entries: any[]) {
   
   return Object.entries(moodCounts)
     .map(([mood, count]) => ({
-      mood: getMoodEmoji(mood),
-      label: mood,
+      mood,
       count,
       percentage: Math.round((count / total) * 100)
     }))
     .sort((a, b) => b.count - a.count);
 }
 
+// Calculate top categories
 function calculateTopCategories(entries: any[]) {
   const categoryCounts: Record<string, number> = {};
   
@@ -119,194 +113,140 @@ function calculateTopCategories(entries: any[]) {
     .map(([name, count]) => ({
       name,
       count,
-      trend: '+0' // TODO: вычислить тренд
+      trend: '+0'
     }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 }
 
-function getMoodEmoji(mood: string): string {
-  const emojiMap: Record<string, string> = {
-    'радость': '😊',
-    'восторг': '😍',
-    'уверенность': '💪',
-    'благодарность': '🙏',
-    'энтузиазм': '🤓',
-    'удовлетворение': '😌',
-    'хорошее': '😊',
-    'спокойствие': '😌',
-    'мотивация': '🔥',
-    'гордость': '🏆',
-    'вдохновение': '✨',
-    'энергия': '⚡'
-  };
-  return emojiMap[mood.toLowerCase()] || '😊';
-}
-
-function calculateAchievements(entries: any[]) {
-  const streak = calculateStreak(entries);
+Deno.serve(async (req) => {
+  const url = new URL(req.url);
+  const path = url.pathname;
   
-  const achievements = [
-    {
-      id: 1,
-      name: "Первые шаги",
-      description: "Создать первую запись",
-      icon: "Star",
-      earned: entries.length >= 1,
-      rarity: "common",
-      earnedDate: entries.length >= 1 ? "Получено" : null,
-      progress: entries.length >= 1 ? 100 : 0
-    },
-    {
-      id: 2,
-      name: "Неделя силы",
-      description: "7 дней записей подряд",
-      icon: "Flame",
-      earned: streak.current >= 7,
-      rarity: "rare",
-      earnedDate: streak.current >= 7 ? "Получено" : null,
-      progress: Math.min(100, (streak.current / 7) * 100)
-    },
-    {
-      id: 3,
-      name: "Спортивный дух",
-      description: "10 записей о спорте",
-      icon: "Dumbbell",
-      earned: entries.filter(e => 
-        e.category === 'Спорт' || e.category === 'Здоровье'
-      ).length >= 10,
-      rarity: "common",
-      earnedDate: null,
-      progress: Math.min(100, (entries.filter(e => 
-        e.category === 'Спорт' || e.category === 'Здоровье'
-      ).length / 10) * 100)
-    },
-    {
-      id: 4,
-      name: "Книжный червь",
-      description: "Прочитать 5 книг",
-      icon: "BookOpen",
-      earned: entries.filter(e => 
-        e.category === 'Чтение' || e.category === 'Обучение'
-      ).length >= 5,
-      rarity: "uncommon",
-      earnedDate: entries.filter(e => 
-        e.category === 'Чтение' || e.category === 'Обучение'
-      ).length >= 5 ? "Получено" : null,
-      progress: Math.min(100, (entries.filter(e => 
-        e.category === 'Чтение' || e.category === 'Обучение'
-      ).length / 5) * 100)
-    },
-    {
-      id: 5,
-      name: "Месяц достижений",
-      description: "30 дней записей подряд",
-      icon: "Trophy",
-      earned: streak.longest >= 30,
-      rarity: "legendary",
-      earnedDate: null,
-      progress: Math.min(100, (streak.longest / 30) * 100)
-    },
-    {
-      id: 6,
-      name: "Продуктивный",
-      description: "50 записей всего",
-      icon: "Target",
-      earned: entries.length >= 50,
-      rarity: "uncommon",
-      earnedDate: entries.length >= 50 ? "Получено" : null,
-      progress: Math.min(100, (entries.length / 50) * 100)
-    }
-  ];
+  console.log(`[STATS v2] ${req.method} ${path}`);
 
-  return achievements;
-}
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    console.log('[STATS v2] ✅ OPTIONS handled');
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
 
-// ======================
-// API ENDPOINTS
-// ======================
-
-// GET /stats/user/:userId
-app.get('/stats/user/:userId', async (c) => {
   try {
-    const userId = c.req.param('userId');
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`[STATS] Fetching stats for user: ${userId}`);
+    // Parse path: /stats/user/{userId} or /{userId}
+    const pathParts = path.split('/').filter(p => p);
+    let userId: string | null = null;
+    
+    // Support both /stats/user/{userId} and /{userId}
+    if (pathParts.length >= 2 && pathParts[0] === 'stats' && pathParts[1] === 'user') {
+      userId = pathParts[2];
+    } else if (pathParts.length === 1) {
+      userId = pathParts[0];
+    }
+    
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'User ID is required. Use /stats/user/{userId}' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
-    // Получить все записи пользователя
-    const { data: entries, error } = await supabase
+    console.log(`[STATS v2] Getting stats for user: ${userId}`);
+
+    // Get all entries for the user
+    const { data: entries, error: entriesError } = await supabase
       .from('entries')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (entriesError) {
+      console.error('[STATS v2] Error getting entries:', entriesError);
+      return new Response(
+        JSON.stringify({ success: false, error: entriesError.message }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
-    console.log(`[STATS] Found ${entries.length} entries`);
+    console.log(`[STATS v2] Found ${entries?.length || 0} entries`);
 
-    // Вычислить статистику
-    const streak = calculateStreak(entries);
-    const moodDistribution = calculateMoodDistribution(entries);
-    const topCategories = calculateTopCategories(entries);
+    // Calculate statistics
+    const streak = calculateStreak(entries || []);
+    const moodDistribution = calculateMoodDistribution(entries || []);
+    const topCategories = calculateTopCategories(entries || []);
 
-    // Вычислить уровень (1 запись = 10 XP, уровень каждые 100 XP)
-    const totalXP = entries.length * 10;
+    // Calculate level (1 entry = 10 XP, level every 100 XP)
+    const totalXP = (entries?.length || 0) * 10;
     const level = Math.floor(totalXP / 100) + 1;
     const nextLevelProgress = (totalXP % 100);
 
-    // Записи за эту неделю
-    const thisWeekEntries = entries.filter(e => 
-      new Date(e.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length;
+    // Entries this week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const thisWeekEntries = entries?.filter(e => 
+      new Date(e.created_at) > oneWeekAgo
+    ).length || 0;
 
-    return c.json({
-      success: true,
-      stats: {
-        totalEntries: entries.length,
-        currentStreak: streak.current,
-        longestStreak: streak.longest,
-        level,
-        nextLevelProgress,
-        moodDistribution,
-        topCategories,
-        lastEntryDate: entries[0]?.created_at,
-        thisWeekEntries
+    const stats = {
+      totalEntries: entries?.length || 0,
+      currentStreak: streak.current,
+      longestStreak: streak.longest,
+      level,
+      nextLevelProgress,
+      moodDistribution,
+      topCategories,
+      lastEntryDate: entries && entries.length > 0 ? entries[0].created_at : null,
+      thisWeekEntries,
+      categoryCounts: {},
+      sentimentCounts: {}
+    };
+
+    console.log(`[STATS v2] ✅ Stats calculated:`, {
+      totalEntries: stats.totalEntries,
+      currentStreak: stats.currentStreak,
+      level: stats.level
+    });
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        stats,
+        version: 'v2'
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    });
+    );
+
   } catch (error) {
-    console.error('[STATS] Error in /stats/user:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    console.error('[STATS v2] ❌ Error:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message || 'Internal server error',
+        version: 'v2'
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
 
-// GET /stats/achievements/:userId
-app.get('/stats/achievements/:userId', async (c) => {
-  try {
-    const userId = c.req.param('userId');
-
-    console.log(`[STATS] Fetching achievements for user: ${userId}`);
-
-    const { data: entries, error } = await supabase
-      .from('entries')
-      .select('*')
-      .eq('user_id', userId);
-
-    if (error) throw error;
-
-    console.log(`[STATS] Found ${entries.length} entries for achievements`);
-
-    const achievements = calculateAchievements(entries);
-
-    return c.json({
-      success: true,
-      achievements,
-      totalBadges: achievements.filter(a => a.earned).length
-    });
-  } catch (error) {
-    console.error('[STATS] Error in /stats/achievements:', error);
-    return c.json({ success: false, error: error.message }, 500);
-  }
-});
-
-Deno.serve(app.fetch);
+console.log('[STATS v2] ✅ Microservice started');
 

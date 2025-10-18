@@ -241,29 +241,54 @@ app.get('/make-server-9729c493/health', (c) => {
 app.post('/make-server-9729c493/profiles/create', async (c) => {
   try {
     const profileData = await c.req.json();
-    
+
     if (!profileData.id || !profileData.email) {
       return c.json({ success: false, error: 'id and email are required' }, 400);
     }
 
+    // ✅ FIXED: Save to Supabase database instead of KV store
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: profileData.id,
+        name: profileData.name || 'Пользователь',
+        email: profileData.email,
+        language: profileData.language || 'ru',
+        diary_name: profileData.diaryName || 'Мой дневник',
+        diary_emoji: profileData.diaryEmoji || '📝',
+        notification_settings: profileData.notificationSettings || {
+          selectedTime: 'none',
+          morningTime: '08:00',
+          eveningTime: '21:00',
+          permissionGranted: false
+        },
+        onboarding_completed: profileData.onboardingCompleted || false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating profile in Supabase:', error);
+      return c.json({ success: false, error: error.message }, 500);
+    }
+
+    // Also save to KV for caching
     const profile = {
-      id: profileData.id,
-      email: profileData.email,
-      name: profileData.name || 'Пользователь',
-      diaryName: profileData.diaryName || 'Мой дневник',
-      diaryEmoji: profileData.diaryEmoji || '🏆',
-      language: profileData.language || 'ru',
-      notificationSettings: profileData.notificationSettings || {
-        selectedTime: 'none',
-        morningTime: '08:00',
-        eveningTime: '21:00',
-        permissionGranted: false
-      },
-      createdAt: new Date().toISOString()
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      language: data.language,
+      diaryName: data.diary_name,
+      diaryEmoji: data.diary_emoji,
+      notificationSettings: data.notification_settings,
+      onboardingCompleted: data.onboarding_completed,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
     };
 
-    // Сохраняем профиль
-    await kv.set(`profile:${profileData.id}`, profile);
+    await kv.set(`profile:${profile.id}`, profile);
 
     console.log(`Created profile for user ${profileData.id}`);
 
@@ -274,9 +299,9 @@ app.post('/make-server-9729c493/profiles/create', async (c) => {
 
   } catch (error) {
     console.error('Error creating profile:', error);
-    return c.json({ 
-      success: false, 
-      error: `Failed to create profile: ${error.message}` 
+    return c.json({
+      success: false,
+      error: `Failed to create profile: ${error.message}`
     }, 500);
   }
 });
