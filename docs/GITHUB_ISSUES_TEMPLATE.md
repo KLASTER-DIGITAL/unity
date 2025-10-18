@@ -7,41 +7,40 @@
 
 ## 🔥 Критический приоритет
 
-### Issue #1: Telegram Mini App интеграция
+### Issue #1: Мобильная оптимизация PWA
 
-**Title**: 🤖 Implement Telegram Mini App integration  
-**Labels**: `enhancement`, `telegram`, `critical`, `mobile`  
-**Assignee**: Development Team  
-**Milestone**: Q4 2024  
+**Title**: 📱 Optimize mobile UX/UI for native app experience
+**Labels**: `enhancement`, `mobile`, `critical`, `ux`
+**Assignee**: Development Team
+**Milestone**: Q4 2025
 
 **Description**:
-Превратить текущее PWA в полноценное Telegram Mini App с использованием Telegram WebApp SDK.
+Улучшить мобильный пользовательский опыт PWA для работы как нативное мобильное приложение.
 
 **Acceptance Criteria**:
-- [ ] Установлен и настроен `@twa-dev/sdk`
-- [ ] Инициализирован `window.Telegram.WebApp`
-- [ ] Добавлены Telegram UI компоненты (MainButton, BackButton)
-- [ ] Интегрированы Telegram темы (light/dark)
-- [ ] Настроен HapticFeedback для тактильных ощущений
-- [ ] Реализован CloudStorage для хранения данных
-- [ ] Приложение корректно работает в Telegram
-- [ ] Добавлены fallback для веб-версии
+- [ ] Оптимизированы touch interactions и жесты
+- [ ] Улучшена мобильная навигация (свайпы, анимации)
+- [ ] Добавлен haptic feedback через Web Vibration API
+- [ ] Оптимизированы размеры кнопок для пальцев (минимум 44px)
+- [ ] Улучшены loading states и skeleton screens
+- [ ] Добавлена pull-to-refresh функциональность
+- [ ] Протестировано на реальных мобильных устройствах
 
 **Technical Tasks**:
-1. `npm install @twa-dev/sdk`
-2. Создать `src/shared/lib/telegram/` с утилитами
+1. Создать `src/shared/lib/mobile/haptics.ts`
+2. Создать `src/shared/lib/mobile/gestures.ts`
 3. Обновить `src/app/mobile/MobileApp.tsx`
-4. Добавить Telegram-специфичные компоненты
-5. Настроить условную загрузку (Telegram vs Web)
-6. Тестирование в Telegram Bot
+4. Добавить мобильные компоненты в `src/shared/components/mobile/`
+5. Оптимизировать touch targets во всех экранах
+6. Добавить swipe navigation между экранами
 
 **Files to modify**:
-- `package.json`
 - `src/app/mobile/MobileApp.tsx`
-- `src/shared/lib/telegram/` (new)
-- `src/shared/components/telegram/` (new)
+- `src/shared/lib/mobile/` (new)
+- `src/shared/components/mobile/` (new)
+- Все мобильные экраны
 
-**Estimated time**: 5-7 дней
+**Estimated time**: 3-4 дня
 
 ---
 
@@ -86,39 +85,39 @@
 
 ---
 
-### Issue #3: Offline-first архитектура
+### Issue #3: Supabase Push уведомления
 
-**Title**: 📱 Implement offline-first architecture with IndexedDB  
-**Labels**: `pwa`, `offline`, `critical`, `mobile`  
-**Assignee**: Development Team  
-**Milestone**: Q1 2025  
+**Title**: 🔔 Implement push notifications with Supabase
+**Labels**: `notifications`, `supabase`, `critical`, `mobile`
+**Assignee**: Development Team
+**Milestone**: Q4 2025
 
 **Description**:
-Реализовать полноценную работу приложения без интернета с синхронизацией данных.
+Реализовать систему push уведомлений через Supabase Realtime и Web Push API.
 
 **Acceptance Criteria**:
-- [ ] Настроен IndexedDB для локального хранения
-- [ ] Реализован Background Sync API
-- [ ] Добавлен conflict resolution для данных
-- [ ] Создан offline индикатор в UI
-- [ ] Все критические функции работают offline
-- [ ] Данные синхронизируются при восстановлении сети
-- [ ] Тестирование offline сценариев пройдено
+- [ ] Настроен Supabase Realtime для уведомлений
+- [ ] Реализован Web Push API для PWA
+- [ ] Создан Edge Function для отправки уведомлений
+- [ ] Добавлены настройки уведомлений в профиль пользователя
+- [ ] Реализованы локальные напоминания через Notification API
+- [ ] Интегрировано с Service Worker для background уведомлений
+- [ ] Протестировано на мобильных устройствах
 
 **Technical Tasks**:
-1. Настроить Dexie.js для IndexedDB
-2. Создать offline storage layer
-3. Реализовать Background Sync
-4. Добавить conflict resolution logic
-5. Создать offline UI компоненты
-6. Обновить Service Worker
-7. Добавить offline тесты
+1. Создать Edge Function `send-notification`
+2. Настроить Web Push API в PWA
+3. Добавить push subscription в регистрацию
+4. Создать настройки уведомлений в UI
+5. Реализовать локальные напоминания
+6. Обновить Service Worker для background notifications
+7. Добавить таблицу `push_subscriptions` в Supabase
 
 **Files to modify**:
-- `src/shared/lib/storage/` (new)
-- `src/shared/lib/sync/` (new)
+- `supabase/functions/send-notification/` (new)
+- `src/shared/lib/notifications/` (new)
 - `public/sw.js`
-- `src/shared/components/offline/` (new)
+- `src/features/mobile/settings/`
 
 **Estimated time**: 4-5 дней
 
@@ -262,22 +261,30 @@
 
 ---
 
-### Issue #9: Внешние интеграции
+### Issue #9: PDF книги и контент
 
-**Title**: 🔗 Implement external service integrations  
-**Labels**: `integrations`, `api`, `medium-priority`  
-**Assignee**: Development Team  
-**Milestone**: Q2 2025  
+**Title**: 📚 Implement PDF books and motivational content system
+**Labels**: `content`, `pdf`, `medium-priority`, `motivation`
+**Assignee**: Development Team
+**Milestone**: Q1 2026
 
 **Description**:
-Подключить популярные внешние сервисы для автоматического трекинга.
+Создать систему мотивационных PDF книг и контента для поддержки личностного роста.
 
 **Acceptance Criteria**:
-- [ ] Google Fit / Apple Health интеграция
-- [ ] Spotify для музыкальных достижений
-- [ ] GitHub для разработчиков
-- [ ] Strava для спортивных целей
-- [ ] Todoist/Notion синхронизация
+- [ ] Библиотека PDF книг по личностному росту
+- [ ] Система рекомендаций книг на основе записей пользователя
+- [ ] Интеграция с записями - связь книг с достижениями
+- [ ] Прогресс чтения и заметки к книгам
+- [ ] AI-генерация персональных мини-книг на основе записей
+- [ ] Офлайн доступ к скачанным книгам
+
+**Technical Tasks**:
+1. Создать таблицы `books`, `user_books`, `reading_progress`
+2. Добавить PDF viewer компонент
+3. Реализовать систему рекомендаций
+4. Создать AI Edge Function для генерации контента
+5. Добавить offline storage для PDF файлов
 
 **Estimated time**: 7-10 дней
 
