@@ -26,7 +26,12 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-    dedupe: ['react', 'react-dom'], // Дедупликация React для предотвращения ошибок
+    dedupe: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+    ], // Дедупликация React для предотвращения ошибок
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@/app': path.resolve(__dirname, './src/app'),
@@ -69,8 +74,14 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor chunks - внешние библиотеки
           if (id.includes('node_modules')) {
-            // React ecosystem
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React ecosystem - КРИТИЧЕСКИ ВАЖНО: все React модули в одном чанке
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react/jsx-runtime') ||
+              id.includes('react/jsx-dev-runtime') ||
+              id.includes('scheduler')
+            ) {
               return 'vendor-react';
             }
             // UI libraries
@@ -124,6 +135,8 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
       '@supabase/supabase-js',
       'motion',
       'lucide-react',
@@ -133,6 +146,13 @@ export default defineConfig(({ mode }) => ({
       // Исключаем большие библиотеки из pre-bundling
       'recharts',
     ],
+    esbuildOptions: {
+      // Принудительная дедупликация React
+      alias: {
+        'react': 'react',
+        'react-dom': 'react-dom',
+      },
+    },
   },
   server: {
     port: 3000,
