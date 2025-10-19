@@ -26,6 +26,7 @@ export default defineConfig({
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    dedupe: ['react', 'react-dom'], // Дедупликация React для предотвращения ошибок
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@/app': path.resolve(__dirname, './src/app'),
