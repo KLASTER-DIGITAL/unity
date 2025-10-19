@@ -177,7 +177,7 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
         
         {/* Character count indicator */}
         <motion.div
-          className="absolute -bottom-6 right-2 text-xs text-muted-foreground"
+          className="absolute -bottom-6 right-2 text-xs text-[#8d8d8d]"
           initial={{ opacity: 0 }}
           animate={{ opacity: diaryName.length > 20 ? 1 : 0 }}
           transition={{ duration: 0.2 }}
@@ -194,7 +194,7 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
         transition={{ delay: 0.9, duration: 0.5 }}
       >
         <motion.p
-          className="text-center text-muted-foreground !text-[12px] mb-1"
+          className="text-center text-[#8d8d8d] !text-[12px] mb-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.3 }}

@@ -284,7 +284,7 @@ function ChatGPTInput({
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-muted-foreground placeholder:text-[11px] placeholder:font-normal text-foreground"
+          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-[#8d8d8d] placeholder:text-[11px] placeholder:font-normal text-[#002055]"
           style={{
             height: `${textareaHeight}px`,
             fontSize: '13px',
@@ -305,7 +305,7 @@ function ChatGPTInput({
           className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 flex-shrink-0 mt-0 ${
             value.trim() && !disabled
               ? 'bg-primary text-white hover:bg-primary/90'
-              : 'bg-muted text-muted-foreground cursor-not-allowed'
+              : 'bg-[#e5e5e5] text-[#8d8d8d] cursor-not-allowed'
           }`}
           whileTap={value.trim() && !disabled ? { scale: 0.95 } : {}}
         >
