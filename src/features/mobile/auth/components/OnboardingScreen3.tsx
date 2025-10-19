@@ -164,7 +164,7 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           placeholder={currentTranslations.placeholder}
-          className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center !text-[16px] !font-semibold bg-background text-foreground"
+          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center !text-[16px] !font-semibold bg-white text-gray-900"
           maxLength={30}
           animate={{
             scale: isInputFocused ? 1.02 : 1,
@@ -411,7 +411,7 @@ function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, on
 export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
   return (
     <motion.div
-      className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
+      className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
       data-name="Onboard 3"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

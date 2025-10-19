@@ -1,9 +1,8 @@
 import { motion } from "motion/react";
 import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
 import { imgCircle, imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
-
-// Путь к оптимизированному изображению (WebP с PNG fallback)
-const heroImageSrc = "/src/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp";
+// Import hero image directly for Vite to process
+import heroImageSrc from "@/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp";
 
 interface OnboardingScreen2Props {
   selectedLanguage: string;
@@ -256,7 +255,7 @@ function Frame2087324618({ selectedLanguage, onNext, currentStep, totalSteps, on
 
 export function OnboardingScreen2({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
   return (
-    <div className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
+    <div className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
       <Frame2087324618
         selectedLanguage={selectedLanguage}
         onNext={onNext}

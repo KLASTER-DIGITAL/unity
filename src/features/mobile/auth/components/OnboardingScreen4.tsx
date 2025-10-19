@@ -849,7 +849,7 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
 export function OnboardingScreen4({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
   return (
     <motion.div
-      className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide transition-colors duration-300"
+      className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide transition-colors duration-300"
       data-name="Onboard 4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
