@@ -1,6 +1,7 @@
 "use client"
 
-import * as React from "react"
+import React, { forwardRef } from "react";
+import type { ReactNode, HTMLAttributes, CSSProperties } from "react";
 import { cn } from "./utils"
 
 export type ChartConfig = {

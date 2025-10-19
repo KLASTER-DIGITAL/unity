@@ -1,0 +1,76 @@
+/**
+ * Theme-Aware Gradient System
+ * AI-Friendly: Градиенты адаптируются к light/dark режиму
+ * 
+ * Использование в компонентах:
+ * - from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]
+ * - from-[var(--gradient-neutral-1-start)] to-[var(--gradient-neutral-1-end)]
+ * - from-[var(--gradient-negative-1-start)] to-[var(--gradient-negative-1-end)]
+ * 
+ * Файл: 78 строк
+ */
+
+:root {
+  /* ===== Positive Gradients - Light Mode ===== */
+  /* Используются для позитивных достижений, успехов */
+  --gradient-positive-1-start: #FE7669;
+  --gradient-positive-1-end: #ff8969;
+  
+  --gradient-positive-2-start: #ff7769;
+  --gradient-positive-2-end: #ff6b9d;
+  
+  --gradient-positive-3-start: #ff6b9d;
+  --gradient-positive-3-end: #c471ed;
+  
+  --gradient-positive-4-start: #c471ed;
+  --gradient-positive-4-end: #8B78FF;
+  
+  /* ===== Neutral Gradients - Light Mode ===== */
+  /* Используются для нейтральных записей, информации */
+  --gradient-neutral-1-start: #92BFFF;
+  --gradient-neutral-1-end: #6BA3FF;
+  
+  --gradient-neutral-2-start: #6BA3FF;
+  --gradient-neutral-2-end: #5B93EF;
+  
+  /* ===== Negative Gradients - Light Mode ===== */
+  /* Используются для неудач, проблем (для анализа и роста) */
+  --gradient-negative-1-start: #FFB74D;
+  --gradient-negative-1-end: #FFA726;
+  
+  --gradient-negative-2-start: #FFA726;
+  --gradient-negative-2-end: #FF9800;
+}
+
+.dark {
+  /* ===== Positive Gradients - Dark Mode ===== */
+  /* Более яркие для контраста на темном фоне */
+  --gradient-positive-1-start: #FF8A7A;
+  --gradient-positive-1-end: #FFA080;
+  
+  --gradient-positive-2-start: #FF8A7A;
+  --gradient-positive-2-end: #FF7BAD;
+  
+  --gradient-positive-3-start: #FF7BAD;
+  --gradient-positive-3-end: #D481FD;
+  
+  --gradient-positive-4-start: #D481FD;
+  --gradient-positive-4-end: #9B88FF;
+  
+  /* ===== Neutral Gradients - Dark Mode ===== */
+  /* Более яркие для видимости */
+  --gradient-neutral-1-start: #A0CFFF;
+  --gradient-neutral-1-end: #7AB3FF;
+  
+  --gradient-neutral-2-start: #7AB3FF;
+  --gradient-neutral-2-end: #6BA3FF;
+  
+  /* ===== Negative Gradients - Dark Mode ===== */
+  /* Более яркие для контраста */
+  --gradient-negative-1-start: #FFC870;
+  --gradient-negative-1-end: #FFB84D;
+  
+  --gradient-negative-2-start: #FFB84D;
+  --gradient-negative-2-end: #FFA826;
+}
+

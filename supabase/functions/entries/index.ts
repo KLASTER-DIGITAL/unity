@@ -18,7 +18,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // ============================================
 // CREATE ENTRY
 // ============================================
-app.post('/entries', async (c) => {
+app.post('/', async (c) => {
   try {
     const entryData = await c.req.json();
     console.log('[ENTRIES] Creating entry:', entryData);
@@ -76,7 +76,9 @@ app.post('/entries', async (c) => {
       tags: data.tags,
       streakDay: data.streak_day,
       focusArea: data.focus_area,
-      createdAt: data.created_at
+      createdAt: data.created_at,
+      voiceUrl: data.voice_url,
+      mediaUrl: data.media_url
     };
 
     console.log('[ENTRIES] Entry created successfully:', entry.id);
@@ -88,9 +90,16 @@ app.post('/entries', async (c) => {
 });
 
 // ============================================
+// HEALTH CHECK
+// ============================================
+app.get('/health', (c) => {
+  return c.json({ status: 'ok', service: 'entries' });
+});
+
+// ============================================
 // GET USER ENTRIES
 // ============================================
-app.get('/entries/:userId', async (c) => {
+app.get('/:userId', async (c) => {
   try {
     const userId = c.req.param('userId');
     console.log('[ENTRIES] Fetching entries for user:', userId);
@@ -123,7 +132,9 @@ app.get('/entries/:userId', async (c) => {
       tags: entry.tags,
       streakDay: entry.streak_day,
       focusArea: entry.focus_area,
-      createdAt: entry.created_at
+      createdAt: entry.created_at,
+      voiceUrl: entry.voice_url,
+      mediaUrl: entry.media_url
     }));
 
     console.log(`[ENTRIES] Found ${entries.length} entries for user ${userId}`);
@@ -137,7 +148,7 @@ app.get('/entries/:userId', async (c) => {
 // ============================================
 // UPDATE ENTRY
 // ============================================
-app.put('/entries/:entryId', async (c) => {
+app.put('/:entryId', async (c) => {
   try {
     const entryId = c.req.param('entryId');
     const updates = await c.req.json();
@@ -171,7 +182,17 @@ app.put('/entries/:entryId', async (c) => {
       category: data.category,
       mood: data.mood,
       isFirstEntry: data.is_first_entry,
-      createdAt: data.created_at
+      media: data.media,
+      aiReply: data.ai_reply,
+      aiSummary: data.ai_summary,
+      aiInsight: data.ai_insight,
+      isAchievement: data.is_achievement,
+      tags: data.tags,
+      streakDay: data.streak_day,
+      focusArea: data.focus_area,
+      createdAt: data.created_at,
+      voiceUrl: data.voice_url,
+      mediaUrl: data.media_url
     };
 
     console.log('[ENTRIES] Entry updated successfully:', entry.id);
@@ -185,7 +206,7 @@ app.put('/entries/:entryId', async (c) => {
 // ============================================
 // DELETE ENTRY
 // ============================================
-app.delete('/entries/:entryId', async (c) => {
+app.delete('/:entryId', async (c) => {
   try {
     const entryId = c.req.param('entryId');
     console.log('[ENTRIES] Deleting entry:', entryId);
@@ -206,13 +227,6 @@ app.delete('/entries/:entryId', async (c) => {
     console.error('[ENTRIES] Error deleting entry:', error);
     return c.json({ success: false, error: error.message }, 500);
   }
-});
-
-// ============================================
-// HEALTH CHECK
-// ============================================
-app.get('/entries/health', (c) => {
-  return c.json({ status: 'ok', service: 'entries' });
 });
 
 Deno.serve(app.fetch);

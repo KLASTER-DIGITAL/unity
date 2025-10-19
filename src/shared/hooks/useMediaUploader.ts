@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { uploadMedia, type MediaFile } from '@/shared/lib/api';
 import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVideoFile } from '../../utils/imageCompression';
 import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '../../utils/videoCompression';
+import { media, MediaUtils, Platform } from '../lib/platform';
 
 export interface UploadStatus {
   fileName: string;
@@ -228,18 +229,27 @@ export function useMediaUploader(): UseMediaUploaderResult {
 
   // File picker method
   const selectAndUploadMedia = useCallback(async (userId: string) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,video/*';
-    input.multiple = true;
+    // Platform-specific file selection
+    if (Platform.isWeb) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*,video/*';
+      input.multiple = true;
 
-    input.onchange = async (e) => {
-      const files = Array.from((e.target as HTMLInputElement).files || []);
-      if (files.length === 0) return;
-      await processAndUploadFiles(files, userId);
-    };
+      input.onchange = async (e) => {
+        const files = Array.from((e.target as HTMLInputElement).files || []);
+        if (files.length === 0) return;
+        await processAndUploadFiles(files, userId);
+      };
 
-    input.click();
+      input.click();
+    } else if (Platform.isNative) {
+      // TODO: Implement React Native file picker
+      console.warn('File picker not implemented for React Native yet');
+      // This will be implemented with react-native-image-picker or expo-image-picker
+    } else {
+      console.warn('File picker not available on this platform');
+    }
   }, [processAndUploadFiles]);
 
   // Direct upload method (for drag & drop)

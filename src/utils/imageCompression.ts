@@ -1,4 +1,5 @@
 import imageCompression from 'browser-image-compression';
+import { media } from '../shared/lib/platform';
 
 /**
  * 📸 PROFESSIONAL IMAGE COMPRESSION
@@ -74,29 +75,7 @@ export async function generateThumbnail(file: File): Promise<File> {
  * Returns width and height of the image
  */
 export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const img = new Image();
-
-      img.onload = () => {
-        resolve({ width: img.width, height: img.height });
-      };
-
-      img.onerror = () => {
-        reject(new Error('Failed to load image'));
-      };
-
-      img.src = e.target?.result as string;
-    };
-
-    reader.onerror = () => {
-      reject(new Error('Failed to read file'));
-    };
-
-    reader.readAsDataURL(file);
-  });
+  return media.getImageDimensions(file);
 }
 
 /**
@@ -107,11 +86,10 @@ export async function createThumbnail(
   file: File,
   maxSize: number = 200
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const img = new Image();
+  return new Promise(async (resolve, reject) => {
+    try {
+      const dataUrl = await media.readAsDataURL(file);
+      const img = media.createImage();
 
       img.onload = () => {
         // Вычисляем размеры thumbnail (квадрат)
@@ -120,10 +98,7 @@ export async function createThumbnail(
         const y = (img.height - size) / 2;
 
         // Создаем canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = maxSize;
-        canvas.height = maxSize;
-
+        const canvas = media.createCanvas(maxSize, maxSize);
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('Failed to get canvas context'));
@@ -145,14 +120,10 @@ export async function createThumbnail(
         reject(new Error('Failed to load image'));
       };
 
-      img.src = e.target?.result as string;
-    };
-
-    reader.onerror = () => {
-      reject(new Error('Failed to read file'));
-    };
-
-    reader.readAsDataURL(file);
+      img.src = dataUrl;
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -174,17 +145,5 @@ export function isVideoFile(file: File): boolean {
  * Получение preview URL для файла
  */
 export function getFilePreviewUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      resolve(e.target?.result as string);
-    };
-
-    reader.onerror = () => {
-      reject(new Error('Failed to read file'));
-    };
-
-    reader.readAsDataURL(file);
-  });
+  return media.readAsDataURL(file);
 }

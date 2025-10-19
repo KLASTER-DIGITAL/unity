@@ -101,26 +101,26 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="pb-20 min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="pb-20 min-h-screen bg-background flex items-center justify-center transition-colors duration-300">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка статистики...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--ios-purple)] mx-auto mb-4" />
+          <p className="text-muted-foreground">Загрузка статистики...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50 overflow-x-hidden scrollbar-hide">
+    <div className="pb-20 min-h-screen bg-background overflow-x-hidden scrollbar-hide">
       {/* Заголовок */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <Brain className="h-6 w-6" />
+          <div className="w-12 h-12 bg-card/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <Brain className="h-6 w-6" strokeWidth={2} />
           </div>
           <div>
             <h2 className="text-xl">AI Обзоры</h2>
-            <p className="text-purple-100">Анализ твоих достижений</p>
+            <p className="text-muted-foreground opacity-90">Анализ твоих достижений</p>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
               variant={selectedPeriod === period ? "secondary" : "outline"}
               size="sm"
               onClick={() => setSelectedPeriod(period)}
-              className={selectedPeriod === period ? "" : "border-white/30 text-white hover:bg-white/10"}
+              className={selectedPeriod === period ? "" : "border-card/30 text-white hover:bg-card/10"}
             >
               {period === "week" ? "Неделя" : period === "month" ? "Месяц" : "Квартал"}
             </Button>
@@ -146,13 +146,13 @@ export function ReportsScreen({ userData }: { userData?: any }) {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  <Sparkles className="h-5 w-5 text-[var(--action-ai)]" strokeWidth={2} />
                   Отчет за {monthlyReport.period}
                 </CardTitle>
-                <p className="text-sm text-gray-600">Персональный анализ от AI</p>
+                <p className="text-sm text-muted-foreground">Персональный анализ от AI</p>
               </div>
-              <Badge className="bg-purple-100 text-purple-800">
-                <Crown className="h-3 w-3 mr-1" />
+              <Badge className="bg-[var(--ios-bg-secondary)] text-[var(--ios-purple)]">
+                <Crown className="h-3 w-3 mr-1" strokeWidth={2} />
                 Премиум
               </Badge>
             </div>
@@ -160,22 +160,29 @@ export function ReportsScreen({ userData }: { userData?: any }) {
           <CardContent>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="text-center">
-                <div className="text-2xl text-purple-600 mb-1">{monthlyReport.totalEntries}</div>
-                <div className="text-sm text-gray-600">Записей</div>
+                <div className="text-2xl text-[var(--ios-purple)] mb-1">{monthlyReport.totalEntries}</div>
+                <div className="text-sm text-muted-foreground">Записей</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl text-green-600 mb-1">{monthlyReport.streakDays}</div>
-                <div className="text-sm text-gray-600">Активных дней</div>
+                <div className="text-2xl text-[var(--ios-green)] mb-1">{monthlyReport.streakDays}</div>
+                <div className="text-sm text-muted-foreground">Активных дней</div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <Download className="h-4 w-4 mr-2" />
+              <Button
+                className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
+                onClick={() => toast.info("Эта функция доступна в премиум версии")}
+              >
+                <Download className="h-5 w-5 mr-2" strokeWidth={2} />
                 Скачать PDF отчет
               </Button>
-              <Button variant="outline" className="w-full">
-                <Share2 className="h-4 w-4 mr-2" />
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => toast.info("Эта функция доступна в премиум версии")}
+              >
+                <Share2 className="h-5 w-5 mr-2" strokeWidth={2} />
                 Поделиться достижениями
               </Button>
             </div>
@@ -196,23 +203,23 @@ export function ReportsScreen({ userData }: { userData?: any }) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-pink-500" />
+                  <Heart className="h-5 w-5 text-pink-500" strokeWidth={2} />
                   Анализ настроения
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {monthlyReport.moodDistribution.map(item => (
-                    <div key={item.mood} className="flex items-center gap-3">
+                  {monthlyReport.moodDistribution.map((item, index) => (
+                    <div key={`${item.label}-${index}`} className="flex items-center gap-3">
                       <div className="text-2xl">{item.mood}</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
                           <span>{item.label}</span>
-                          <span className="text-sm text-gray-500">{item.count} записей</span>
+                          <span className="text-sm text-muted-foreground">{item.count} записей</span>
                         </div>
                         <Progress value={item.percentage} className="h-2" />
                       </div>
-                      <div className="text-sm text-gray-600">{item.percentage}%</div>
+                      <div className="text-sm text-muted-foreground">{item.percentage}%</div>
                     </div>
                   ))}
                 </div>
@@ -232,7 +239,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-blue-500" />
+                  <BarChart3 className="h-5 w-5 text-blue-500" strokeWidth={2} />
                   Категории активности
                 </CardTitle>
               </CardHeader>
@@ -246,14 +253,14 @@ export function ReportsScreen({ userData }: { userData?: any }) {
                         </div>
                         <div>
                           <h4>{category.name}</h4>
-                          <p className="text-sm text-gray-600">{category.count} записей</p>
+                          <p className="text-sm text-muted-foreground">{category.count} записей</p>
                         </div>
                       </div>
                       <Badge 
                         variant={category.trend.startsWith('+') ? 'default' : 
                                 category.trend.startsWith('-') ? 'destructive' : 'secondary'}
                       >
-                        {category.trend.startsWith('+') && <TrendingUp className="h-3 w-3 mr-1" />}
+                        {category.trend.startsWith('+') && <TrendingUp className="h-3 w-3 mr-1" strokeWidth={2} />}
                         {category.trend}
                       </Badge>
                     </div>
@@ -275,16 +282,16 @@ export function ReportsScreen({ userData }: { userData?: any }) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-purple-500" />
+                    <Brain className="h-5 w-5 text-[var(--ios-purple)]" strokeWidth={2} />
                     Персональные инсайты
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {monthlyReport.personalInsights.map((insight, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                        <Star className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-purple-800">{insight}</p>
+                      <div key={index} className="flex items-start gap-3 p-3 bg-[var(--ios-bg-secondary)] rounded-lg">
+                        <Star className="h-5 w-5 text-[var(--ios-purple)] flex-shrink-0 mt-0.5" strokeWidth={2} />
+                        <p className="text-sm text-foreground">{insight}</p>
                       </div>
                     ))}
                   </div>
@@ -294,7 +301,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-yellow-500" />
+                    <Sparkles className="h-5 w-5 text-yellow-500" strokeWidth={2} />
                     AI цитаты месяца
                   </CardTitle>
                 </CardHeader>
@@ -302,7 +309,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
                   <div className="space-y-3">
                     {aiQuotes.map((quote, index) => (
                       <div key={index} className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-l-4 border-yellow-400">
-                        <p className="text-sm text-gray-800 italic">"{quote}"</p>
+                        <p className="text-sm text-foreground italic">"{quote}"</p>
                       </div>
                     ))}
                   </div>
@@ -312,23 +319,23 @@ export function ReportsScreen({ userData }: { userData?: any }) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-green-500" />
+                    <Target className="h-5 w-5 text-[var(--ios-green)]" strokeWidth={2} />
                     Рекомендации на следующий месяц
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <h4 className="text-green-800 mb-1">Продолжай бегать</h4>
-                      <p className="text-sm text-green-700">Ты на правильном пути к цели в 10км!</p>
+                    <div className="p-3 bg-[var(--ios-bg-secondary)] rounded-lg">
+                      <h4 className="text-[var(--ios-green)] mb-1">Продолжай бегать</h4>
+                      <p className="text-sm text-muted-foreground">Ты на правильном пути к цели в 10км!</p>
                     </div>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <h4 className="text-blue-800 mb-1">Больше записей о работе</h4>
-                      <p className="text-sm text-blue-700">Попробуй фиксировать небольшие рабочие победы</p>
+                    <div className="p-3 bg-[var(--ios-bg-secondary)] rounded-lg">
+                      <h4 className="text-[var(--ios-blue)] mb-1">Больше записей о работе</h4>
+                      <p className="text-sm text-muted-foreground">Попробуй фиксировать небольшие рабочие победы</p>
                     </div>
-                    <div className="p-3 bg-purple-50 rounded-lg">
-                      <h4 className="text-purple-800 mb-1">Новая категория</h4>
-                      <p className="text-sm text-purple-700">Как насчет добавить записи о творчестве?</p>
+                    <div className="p-3 bg-[var(--ios-bg-secondary)] rounded-lg">
+                      <h4 className="text-[var(--ios-purple)] mb-1">Новая категория</h4>
+                      <p className="text-sm text-muted-foreground">Как насчет добавить записи о творчестве?</p>
                     </div>
                   </div>
                 </CardContent>

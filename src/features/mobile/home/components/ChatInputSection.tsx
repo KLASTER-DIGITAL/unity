@@ -25,10 +25,10 @@ interface ChatInputSectionProps {
 
 // Категории для быстрого выбора
 const CATEGORIES = [
-  { id: 'Семья', label: 'Семья', icon: '👨‍👩‍👧', color: '#92BFFF' },
-  { id: 'Работа', label: 'Работа', icon: '💼', color: '#92BFFF' },
-  { id: 'Финансы', label: 'финансы', icon: '💰', color: '#92BFFF' },
-  { id: 'Благодарность', label: 'Благодарность', icon: '🙏', color: '#92BFFF' }
+  { id: 'Семья', label: 'Семья', icon: '👨‍👩‍👧', color: 'var(--gradient-neutral-1-start)' },
+  { id: 'Работа', label: 'Работа', icon: '💼', color: 'var(--gradient-neutral-1-start)' },
+  { id: 'Финансы', label: 'финансы', icon: '💰', color: 'var(--gradient-neutral-1-start)' },
+  { id: 'Благодарность', label: 'Благодарность', icon: '🙏', color: 'var(--gradient-neutral-1-start)' }
 ];
 
 export function ChatInputSection({
@@ -405,9 +405,9 @@ export function ChatInputSection({
   };
 
   return (
-    <div className="px-6 pb-24 pt-2">
+    <div className="p-section pb-24">
       {/* Question Header */}
-      <div className="mb-5">
+      <div className="mb-responsive-md">
         <h2 className="text-center !text-[20px] !font-semibold text-black leading-[26px]">
           Что сегодня получилось<br />лучше всего?
         </h2>
@@ -430,7 +430,7 @@ export function ChatInputSection({
                   className={`max-w-[80%] rounded-[16px] px-4 py-3 ${
                     message.type === 'user'
                       ? 'bg-accent text-white'
-                      : 'bg-gray-100 text-black'
+                      : 'bg-card text-card-foreground'
                   }`}
                 >
                   <p className="!text-[15px] !font-normal leading-[20px]">
@@ -453,22 +453,22 @@ export function ChatInputSection({
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-start"
             >
-              <div className="bg-gray-100 rounded-[16px] px-4 py-3 flex items-center gap-2">
+              <div className="bg-muted rounded-[16px] px-4 py-3 flex items-center gap-2 transition-colors duration-300">
                 <div className="flex gap-1">
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 0.6, delay: 0 }}
-                    className="w-2 h-2 bg-gray-400 rounded-full"
+                    className="w-2 h-2 bg-muted-foreground rounded-full"
                   />
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
-                    className="w-2 h-2 bg-gray-400 rounded-full"
+                    className="w-2 h-2 bg-muted-foreground rounded-full"
                   />
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
-                    className="w-2 h-2 bg-gray-400 rounded-full"
+                    className="w-2 h-2 bg-muted-foreground rounded-full"
                   />
                 </div>
               </div>
@@ -495,7 +495,7 @@ export function ChatInputSection({
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 1 }}
-                    className="w-3 h-3 bg-white rounded-full"
+                    className="w-3 h-3 bg-card rounded-full"
                   />
                   <div>
                     <p className="!text-[13px] text-white !font-semibold">
@@ -512,7 +512,7 @@ export function ChatInputSection({
                   {[...Array(5)].map((_, i) => (
                     <motion.div
                       key={i}
-                      className="w-1 bg-white rounded-full"
+                      className="w-1 bg-card rounded-full"
                       animate={{
                         height: audioLevel * 20 * (1 + i * 0.2)
                       }}
@@ -524,7 +524,7 @@ export function ChatInputSection({
 
                 <button
                   onClick={handleCancelRecording}
-                  className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                  className="p-1 hover:bg-card/20 rounded-full transition-colors"
                 >
                   <X className="w-4 h-4 text-white" />
                 </button>
@@ -538,8 +538,8 @@ export function ChatInputSection({
           onFilesSelected={handleFilesDropped}
           disabled={isUploading || !userId || userId === 'anonymous'}
         >
-          <div className="relative bg-white/80 rounded-[16px] border border-[rgba(0,0,0,0.2)] backdrop-blur-sm">
-            <div className="flex items-end gap-2 p-2">
+          <div className="relative bg-card/80 rounded-[16px] border border-border backdrop-blur-sm transition-colors duration-300">
+            <div className="flex items-end gap-responsive-xs p-2">
             {/* Voice Button */}
             <button
               onClick={handleVoiceInput}
@@ -549,7 +549,7 @@ export function ChatInputSection({
                   ? 'bg-red-500'
                   : isTranscribing
                   ? 'bg-blue-500'
-                  : 'hover:bg-gray-100 active:scale-95'
+                  : 'hover:bg-muted active:scale-95'
               } ${isTranscribing ? 'opacity-50' : ''}`}
             >
               {isTranscribing ? (
@@ -559,7 +559,7 @@ export function ChatInputSection({
                   className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                 />
               ) : (
-                <Mic className="w-4 h-4" color={isRecording ? "white" : "black"} />
+                <Mic className="w-4 h-4" style={{ color: isRecording ? "white" : "var(--icon-primary)" }} />
               )}
             </button>
 
@@ -572,8 +572,8 @@ export function ChatInputSection({
                 onKeyPress={handleKeyPress}
                 placeholder="Опиши главную мысль, момент, благодарность"
                 rows={1}
-                className="w-full resize-none border-none outline-none bg-transparent !text-[14px] !font-normal leading-[20px] text-black placeholder:text-[rgba(0,0,0,0.2)] max-h-[100px]"
-                style={{ 
+                className="w-full resize-none border-none outline-none bg-transparent !text-[14px] !font-normal leading-[20px] text-foreground placeholder:text-muted-foreground/40 max-h-[100px]"
+                style={{
                   fontFamily: 'Inter, sans-serif'
                 }}
               />
@@ -586,14 +586,14 @@ export function ChatInputSection({
               className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
                 isUploading
                   ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-gray-100 active:scale-95'
+                  : 'hover:bg-muted active:scale-95'
               }`}
             >
               {isUploading ? (
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"
+                  className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full"
                 />
               ) : (
                 <ImageIcon className="w-4 h-4" color="rgba(0,0,0,0.4)" />
@@ -606,7 +606,7 @@ export function ChatInputSection({
               disabled={!inputText.trim() && uploadedMedia.length === 0}
               className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
                 inputText.trim() || uploadedMedia.length > 0
-                  ? 'hover:bg-gray-100 active:scale-95'
+                  ? 'hover:bg-muted active:scale-95'
                   : 'opacity-40 cursor-not-allowed'
               }`}
             >
@@ -630,19 +630,19 @@ export function ChatInputSection({
         </DragDropZone>
 
         {/* Categories */}
-        <div className="flex gap-2 mt-3 flex-wrap">
+        <div className="flex gap-responsive-xs mt-3 flex-wrap">
           {CATEGORIES.map((category) => (
             <button
               key={category.id}
               onClick={() => toggleCategory(category.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-[#9d9d9d] transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all ${
                 selectedCategory === category.id
                   ? 'bg-accent/10 border-accent'
-                  : 'bg-transparent hover:bg-gray-50 active:scale-95'
+                  : 'bg-transparent border-border hover:bg-accent/5 active:scale-95'
               }`}
             >
               <span className="text-[10px]">{category.icon}</span>
-              <span className="!text-[12px] !font-light text-black" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <span className="!text-[12px] !font-light text-foreground" style={{ fontVariationSettings: "'wdth' 100" }}>
                 {category.label}
               </span>
             </button>
@@ -660,23 +660,23 @@ export function ChatInputSection({
             transition={{ delay: 0.5 }}
             className="mt-6"
           >
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-[16px] p-4 border border-blue-100 relative">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-[16px] p-card border border-blue-100 relative">
               {/* Close Button */}
               <button
                 onClick={() => setShowAiHint(false)}
-                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/50 hover:bg-white transition-colors"
+                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-card/50 hover:bg-card transition-colors"
                 aria-label="Закрыть"
               >
-                <X className="w-3.5 h-3.5 text-gray-600" />
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
 
-              <div className="flex items-start gap-3 pr-8">
+              <div className="flex items-start gap-responsive-sm pr-8">
                 <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="!text-[14px] !font-semibold text-black mb-1">
                     AI подскажет
                   </h4>
-                  <p className="!text-[13px] !font-normal text-gray-600 leading-[18px]">
+                  <p className="!text-[13px] !font-normal text-muted-foreground leading-[18px]">
                     Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
                   </p>
                 </div>
@@ -714,7 +714,7 @@ export function ChatInputSection({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
             />
 
             {/* ✅ FIX: Modal 300px ширина */}
@@ -722,17 +722,17 @@ export function ChatInputSection({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-[24px] p-6 shadow-2xl"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-modal bg-card rounded-[24px] p-modal shadow-2xl border border-border transition-colors duration-300"
               style={{ width: '300px', minHeight: '230px' }}
             >
               {/* Success Icon */}
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-responsive-md">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 >
-                  <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-8 h-8 text-[var(--ios-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </motion.div>

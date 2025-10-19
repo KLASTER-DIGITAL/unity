@@ -30,15 +30,15 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-[20px] p-6 max-w-md w-full relative"
+          className="bg-card rounded-[20px] p-6 max-w-md w-full relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-accent/10 transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
 
           {/* Icon */}
@@ -93,18 +93,18 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
           </div>
 
           {/* Browser-specific hints */}
-          <div className="bg-gray-50 rounded-[12px] p-4 mb-4">
-            <p className="!text-[12px] !font-semibold text-gray-700 mb-2">
+          <div className="bg-muted rounded-[12px] p-4 mb-4">
+            <p className="!text-[12px] !font-semibold text-foreground mb-2">
               💡 Подсказка:
             </p>
-            <p className="!text-[12px] !font-normal text-gray-600">
-              В Chrome и Safari иконка разрешений находится слева от адреса сайта. 
+            <p className="!text-[12px] !font-normal text-muted-foreground">
+              В Chrome и Safari иконка разрешений находится слева от адреса сайта.
               В Firefox - справа от адресной строки.
             </p>
           </div>
 
           {/* Note */}
-          <div className="bg-blue-50 border border-blue-100 rounded-[12px] p-3 mb-4">
+          <div className="bg-primary/10 border border-primary/20 rounded-[12px] p-3 mb-4">
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
               <p className="!text-[13px] !font-normal text-accent">

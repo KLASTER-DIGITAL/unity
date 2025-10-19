@@ -1,0 +1,36 @@
+/**
+ * Icon Colors - Theme-Aware
+ * AI-Friendly: Цвета для SVG иконок (stroke, fill)
+ * 
+ * Использование в компонентах:
+ * - stroke="var(--icon-primary)"    - Основные иконки
+ * - stroke="var(--icon-secondary)"  - Второстепенные иконки
+ * - stroke="var(--icon-tertiary)"   - Неактивные иконки
+ * - stroke="var(--icon-accent)"     - Акцентные иконки
+ * 
+ * Также можно использовать с fill:
+ * - fill="var(--icon-primary)"
+ * 
+ * Файл: 58 строк
+ */
+
+:root {
+  /* ===== Icon Colors - Light Mode ===== */
+  /* iOS UIKit Dynamic Colors для иконок */
+  
+  --icon-primary: #000000;                /* Основные иконки - черный */
+  --icon-secondary: rgba(60,60,67,0.6);   /* Второстепенные - серый 60% */
+  --icon-tertiary: rgba(60,60,67,0.3);    /* Неактивные - серый 30% */
+  --icon-accent: #007aff;                 /* Акцентные - iOS blue */
+}
+
+.dark {
+  /* ===== Icon Colors - Dark Mode ===== */
+  /* iOS UIKit Dynamic Colors для темного режима */
+  
+  --icon-primary: #ffffff;                /* Основные иконки - белый */
+  --icon-secondary: rgba(235,235,245,0.6); /* Второстепенные - светло-серый 60% */
+  --icon-tertiary: rgba(235,235,245,0.3);  /* Неактивные - светло-серый 30% */
+  --icon-accent: #0a84ff;                 /* Акцентные - bright iOS blue */
+}
+

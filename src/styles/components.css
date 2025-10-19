@@ -1,0 +1,121 @@
+/**
+ * Custom Components - Base styles for HTML elements
+ * Typography, scrollbar hiding, and global element styles
+ * 
+ * AI-Friendly: Only component-level styles (~80 lines)
+ */
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Typography - iOS style */
+html {
+  font-size: var(--font-size);
+  font-family: var(--font-family-primary);
+}
+
+h1 {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+}
+
+h2 {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+}
+
+h3 {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-h3);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+}
+
+h4 {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-h4);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+}
+
+p, span {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+label {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+button {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+}
+
+input {
+  font-family: var(--font-family-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}
+
+/* ===== iOS-style Scrollbar Hiding ===== */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* ===== Z-Index Utility Classes ===== */
+/* Direct z-index values for consistent layering */
+.z-navigation {
+  z-index: 50 !important; /* Mobile bottom navigation */
+}
+
+.z-modal-backdrop {
+  z-index: 60 !important; /* Modal backdrop (above navigation) */
+}
+
+.z-modal {
+  z-index: 70 !important; /* Modal content (above backdrop) */
+}
+
+.z-popover {
+  z-index: 80 !important; /* Popovers and tooltips */
+}
+
+.z-tooltip {
+  z-index: 90 !important; /* Tooltips (highest) */
+}
+
+/* ===== Modal Bottom Sheet ===== */
+/* Used for custom modal implementations in SettingsScreen */
+.modal-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 28rem; /* max-w-md */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem; /* p-6 */
+  border-top-left-radius: 1.5rem; /* rounded-t-3xl */
+  border-top-right-radius: 1.5rem;
+  box-shadow: 0 -10px 25px -5px rgb(0 0 0 / 0.1), 0 -8px 10px -6px rgb(0 0 0 / 0.1);
+}

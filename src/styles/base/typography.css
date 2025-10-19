@@ -1,0 +1,190 @@
+/**
+ * Typography System - iOS Human Interface Guidelines
+ * AI-Friendly: Типографика следует iOS Text Styles
+ *
+ * Использование:
+ * - Автоматически применяется к h1-h4, p, span, label, button, input
+ * - Использует iOS типографическую шкалу (Large Title → Caption 2)
+ * - Поддерживает light/dark режимы
+ *
+ * iOS Text Styles:
+ * - Large Title: 34px/700 (h1)
+ * - Title 1: 28px/600 (h2)
+ * - Title 2: 22px/600 (h3)
+ * - Title 3: 20px/600 (h4)
+ * - Headline: 17px/600
+ * - Body: 17px/400 (p)
+ * - Callout: 16px/400
+ * - Subhead: 15px/400
+ * - Footnote: 13px/400
+ * - Caption 1: 12px/400
+ * - Caption 2: 11px/400
+ *
+ * Файл: 198 строк
+ */
+
+/* ===== Base Typography ===== */
+h1, h2, h3, h4, h5, h6, p, span, label, button, input, textarea {
+  font-family: var(--font-family-ios);
+  transition: color 0.3s ease;
+}
+
+/* ===== iOS Text Styles - Headings ===== */
+
+/* Large Title (iOS largeTitle) */
+h1 {
+  font-size: var(--text-large-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--foreground);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+/* Title 1 (iOS title1) */
+h2 {
+  font-size: var(--text-title-1);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+}
+
+/* Title 2 (iOS title2) */
+h3 {
+  font-size: var(--text-title-2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  line-height: 1.3;
+}
+
+/* Title 3 (iOS title3) */
+h4 {
+  font-size: var(--text-title-3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  line-height: 1.35;
+}
+
+/* ===== iOS Text Styles - Body Text ===== */
+
+/* Headline (iOS headline) */
+.text-headline {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  line-height: 1.4;
+}
+
+/* Body (iOS body) - Default paragraph */
+p {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-normal);
+  color: var(--foreground);
+  line-height: 1.47;
+}
+
+/* Callout (iOS callout) */
+.text-callout {
+  font-size: var(--text-callout);
+  font-weight: var(--font-weight-normal);
+  color: var(--foreground);
+  line-height: 1.45;
+}
+
+/* Subhead (iOS subheadline) */
+.text-subhead {
+  font-size: var(--text-subhead);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted-foreground);
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* Footnote (iOS footnote) */
+.text-footnote {
+  font-size: var(--text-footnote);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted-foreground);
+  line-height: 1.38;
+  opacity: 0.7;
+}
+
+/* Caption 1 (iOS caption1) */
+.text-caption-1 {
+  font-size: var(--text-caption-1);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted-foreground);
+  line-height: 1.33;
+  opacity: 0.6;
+}
+
+/* Caption 2 (iOS caption2) */
+.text-caption-2 {
+  font-size: var(--text-caption-2);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted-foreground);
+  line-height: 1.27;
+  opacity: 0.6;
+}
+
+/* ===== Labels ===== */
+label {
+  font-size: var(--text-subhead);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+/* ===== Buttons ===== */
+button {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  transition: all 0.3s ease;
+}
+
+/* ===== Inputs ===== */
+input, textarea {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-normal);
+  color: var(--foreground);
+  line-height: 1.47;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+
+/* ===== Utility Classes ===== */
+.text-primary {
+  color: var(--primary);
+}
+
+.text-secondary {
+  color: var(--muted-foreground);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+  opacity: 0.8;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-destructive {
+  color: var(--destructive);
+}
+
+/* ===== Font Weights ===== */
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+

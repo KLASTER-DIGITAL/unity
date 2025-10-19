@@ -1,0 +1,43 @@
+/**
+ * Admin Tables - Table Components
+ * AI-Friendly: 40 lines, < 200 lines target
+ * 
+ * Purpose: Table styles for admin panel
+ * Includes: .admin-table, .admin-table-row, .admin-table-cell
+ * 
+ * Why needed: Consistent table styling for data display
+ */
+
+/* ===== Tables ===== */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--admin-text-sm);
+}
+
+.admin-table thead {
+  background-color: var(--admin-bg-secondary);
+  border-bottom: 2px solid var(--admin-gray-200);
+}
+
+.admin-table th {
+  padding: var(--admin-space-3) var(--admin-space-4);
+  text-align: left;
+  font-weight: var(--admin-font-semibold);
+  color: var(--admin-gray-700);
+}
+
+.admin-table td {
+  padding: var(--admin-space-3) var(--admin-space-4);
+  border-bottom: 1px solid var(--admin-gray-200);
+}
+
+.admin-table tbody tr:hover {
+  background-color: var(--admin-bg-secondary);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+

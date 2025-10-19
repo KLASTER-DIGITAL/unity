@@ -136,8 +136,8 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
             onClick={() => handleEmojiChange(emoji)}
             className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl border-2 transition-all duration-300 ${
               selectedEmoji === emoji 
-                ? 'border-[#756ef3] bg-[#756ef3]/10 scale-110' 
-                : 'border-gray-200 hover:border-[#756ef3]/50'
+                ? 'border-[#756ef3] bg-[#756ef3]/10 scale-110'
+                : 'border-border hover:border-[#756ef3]/50'
             }`}
             whileHover={{ scale: selectedEmoji === emoji ? 1.1 : 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -164,7 +164,7 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           placeholder={currentTranslations.placeholder}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center !text-[16px] !font-semibold"
+          className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center !text-[16px] !font-semibold bg-background text-foreground"
           maxLength={30}
           animate={{
             scale: isInputFocused ? 1.02 : 1,
@@ -177,7 +177,7 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
         
         {/* Character count indicator */}
         <motion.div
-          className="absolute -bottom-6 right-2 text-xs text-gray-400"
+          className="absolute -bottom-6 right-2 text-xs text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: diaryName.length > 20 ? 1 : 0 }}
           transition={{ duration: 0.2 }}
@@ -193,8 +193,8 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.5 }}
       >
-        <motion.p 
-          className="text-center text-gray-500 !text-[12px] mb-1"
+        <motion.p
+          className="text-center text-muted-foreground !text-[12px] mb-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.3 }}
@@ -207,11 +207,11 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
             key={preset}
             onClick={() => handlePresetClick(preset)}
             className={`px-4 py-3 rounded-lg border-2 transition-all duration-300 text-center !text-[14px] !font-semibold ${
-              diaryName === preset 
-                ? 'border-[#756ef3] bg-[#756ef3]/10 text-[#756ef3]' 
-                : 'border-gray-200 hover:border-[#756ef3] hover:bg-[#756ef3]/5'
+              diaryName === preset
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border hover:border-primary hover:bg-primary/5'
             }`}
-            whileHover={{ 
+            whileHover={{
               scale: 1.02,
               boxShadow: "0 4px 12px rgba(117, 110, 243, 0.15)"
             }}
@@ -410,8 +410,8 @@ function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, on
 
 export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
   return (
-    <motion.div 
-      className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" 
+    <motion.div
+      className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
       data-name="Onboard 3"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

@@ -1,6 +1,9 @@
 import { motion } from "motion/react";
-import imgImage1569 from "figma:asset/5f4bd000111b1df6537a53aaf570a9424e39fbcf.png";
+import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
 import { imgCircle, imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
+
+// Путь к оптимизированному изображению (WebP с PNG fallback)
+const heroImageSrc = "/src/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp";
 
 interface OnboardingScreen2Props {
   selectedLanguage: string;
@@ -224,20 +227,26 @@ function Frame2087324618({ selectedLanguage, onNext, currentStep, totalSteps, on
       transition={{ duration: 0.5 }}
     >
       <Circle />
-      <motion.div 
-        className="absolute bg-center bg-cover bg-no-repeat translate-x-[-50%] rounded-lg" 
-        data-name="image 1569" 
-        style={{ 
-          left: "50%", 
+      <motion.div
+        className="absolute translate-x-[-50%] rounded-lg overflow-hidden"
+        data-name="image 1569"
+        style={{
+          left: "50%",
           top: "clamp(0px, -5vh, 15px)",
           height: 'min(379px, 50vh)',
           width: 'min(314px, 85vw)',
-          backgroundImage: `url('${imgImage1569}')` 
         }}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3, duration: 0.8 }}
-      />
+      >
+        <PriorityOptimizedImage
+          src={heroImageSrc}
+          alt="Onboarding illustration"
+          className="w-full h-full object-cover"
+          priority={true}
+        />
+      </motion.div>
       <Text currentTranslations={currentTranslations} />
       <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
       <NextButton onNext={onNext} />
@@ -247,7 +256,7 @@ function Frame2087324618({ selectedLanguage, onNext, currentStep, totalSteps, on
 
 export function OnboardingScreen2({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
   return (
-    <div className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
+    <div className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
       <Frame2087324618
         selectedLanguage={selectedLanguage}
         onNext={onNext}

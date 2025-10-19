@@ -1,6 +1,7 @@
 "use client";
 
-import * as React from "react";
+import React, { useState, useEffect, useCallback, useContext, Component } from "react";
+import type { ComponentProps } from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react@8.6.0";

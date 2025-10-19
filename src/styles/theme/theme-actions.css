@@ -1,0 +1,39 @@
+/**
+ * Action Colors - Theme-Aware
+ * AI-Friendly: Цвета для кнопок быстрых действий
+ * 
+ * Использование в компонентах:
+ * - bg-[var(--action-primary)]   - Новая запись (синий)
+ * - bg-[var(--action-voice)]     - Голосовая запись (фиолетовый)
+ * - bg-[var(--action-photo)]     - Фото достижение (зеленый)
+ * - bg-[var(--action-ai)]        - AI подсказка (оранжевый)
+ * - bg-[var(--action-history)]   - История записей (розовый)
+ * - bg-[var(--action-settings)]  - Настройки (серый)
+ * 
+ * Файл: 58 строк
+ */
+
+:root {
+  /* ===== Action Colors - Light Mode ===== */
+  /* iOS-inspired цвета для кнопок действий */
+  
+  --action-primary: #007aff;      /* Новая запись - iOS blue */
+  --action-voice: #8B78FF;        /* Голосовая запись - фиолетовый */
+  --action-photo: #34c759;        /* Фото достижение - iOS green */
+  --action-ai: #ff9500;           /* AI подсказка - iOS orange */
+  --action-history: #ff2d55;      /* История записей - iOS pink */
+  --action-settings: #8e8e93;     /* Настройки - iOS gray */
+}
+
+.dark {
+  /* ===== Action Colors - Dark Mode ===== */
+  /* Более яркие версии для темного фона */
+  
+  --action-primary: #0a84ff;      /* Новая запись - bright iOS blue */
+  --action-voice: #9B88FF;        /* Голосовая запись - bright purple */
+  --action-photo: #30d158;        /* Фото достижение - bright iOS green */
+  --action-ai: #ffa500;           /* AI подсказка - bright orange */
+  --action-history: #ff375f;      /* История записей - bright pink */
+  --action-settings: #98989d;     /* Настройки - light gray */
+}
+

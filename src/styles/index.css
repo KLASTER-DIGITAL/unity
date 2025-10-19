@@ -1,0 +1,28 @@
+/**
+ * UNITY-v2 Main CSS Entry Point
+ * AI-Friendly modular structure for easy maintenance and debugging
+ * 
+ * Structure:
+ * - Tailwind CSS base (auto-generated)
+ * - Theme tokens (@theme directive)
+ * - Light theme (:root variables)
+ * - Dark theme (.dark variables)
+ * - Custom components
+ * - Custom utilities
+ */
+
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;600&display=swap");
+
+/* Tailwind CSS v4 base - auto-generated layers */
+@import "tailwindcss";
+
+/* Theme system - modular and AI-friendly */
+@import "./theme-tokens.css";
+@import "./theme-light.css";
+@import "./theme-dark.css";
+
+/* Custom styles */
+@import "./components.css";
+@import "./utilities.css";
+

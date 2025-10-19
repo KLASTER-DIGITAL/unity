@@ -3,7 +3,14 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import '../../../../styles/admin-design-system.css';
+import '../../../../styles/admin/admin-theme.css';
+import '../../../../styles/admin/admin-typography.css';
+import '../../../../styles/admin/admin-cards.css';
+import '../../../../styles/admin/admin-buttons.css';
+import '../../../../styles/admin/admin-forms.css';
+import '../../../../styles/admin/admin-tables.css';
+import '../../../../styles/admin/admin-utilities.css';
+import '../../../../styles/admin/admin-responsive.css';
 
 const systemMetrics = [
   { time: '00:00', cpu: 45, memory: 67, disk: 23, network: 12 },

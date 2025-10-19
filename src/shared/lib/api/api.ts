@@ -17,12 +17,20 @@ export interface UserProfile {
   id: string;
   email: string;
   name: string;
+  avatar?: string; // Profile photo URL
   diaryName?: string;
   diaryEmoji?: string;
   language?: string;
   notificationSettings?: any;
   onboardingCompleted?: boolean;
   createdAt?: string;
+  // New fields from migration 20251018
+  theme?: string;
+  isPremium?: boolean;
+  biometricEnabled?: boolean;
+  backupEnabled?: boolean;
+  firstDayOfWeek?: string;
+  privacySettings?: any;
 }
 
 export interface MediaFile {
@@ -249,7 +257,20 @@ export async function analyzeTextWithAI(text: string, userName?: string, userId?
     return response.analysis;
   } catch (error) {
     console.error('Error in analyzeTextWithAI:', error);
-    throw error;
+
+    // ✅ FALLBACK: Return default analysis if AI fails
+    console.warn('[API] Using fallback AI analysis');
+    return {
+      sentiment: 'positive',
+      category: 'Другое',
+      tags: [],
+      reply: 'Записано! 💪 Продолжай отмечать свои достижения!',
+      summary: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+      insight: 'Каждая запись приближает тебя к цели!',
+      isAchievement: true,
+      mood: 'хорошее',
+      confidence: 0.5
+    };
   }
 }
 
@@ -297,22 +318,52 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
 export async function getEntries(userId: string, limit: number = 50): Promise<DiaryEntry[]> {
   console.log('[ENTRIES] Fetching entries for user:', userId);
 
-  // ✅ FIXED: Don't add /entries prefix - it's already in ENTRIES_API_URL
-  const response = await entriesApiRequest(`/${userId}`);
+  // TEMPORARY WORKAROUND: Use direct Supabase client until Edge Function routing is fixed
+  const supabase = createClient();
 
-  if (!response.success) {
-    console.error('[ENTRIES] Failed to fetch entries:', response);
-    throw new Error(response.error || 'Failed to fetch entries');
+  const { data, error } = await supabase
+    .from('entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[ENTRIES] Failed to fetch entries:', error);
+    throw new Error(error.message || 'Failed to fetch entries');
   }
 
-  console.log(`[ENTRIES] Found ${response.entries.length} entries`);
-  return response.entries;
+  // Convert to camelCase
+  const entries: DiaryEntry[] = data.map(entry => ({
+    id: entry.id,
+    userId: entry.user_id,
+    text: entry.text,
+    sentiment: entry.sentiment,
+    category: entry.category,
+    mood: entry.mood,
+    isFirstEntry: entry.is_first_entry,
+    media: entry.media,
+    aiReply: entry.ai_reply,
+    aiSummary: entry.ai_summary,
+    aiInsight: entry.ai_insight,
+    isAchievement: entry.is_achievement,
+    tags: entry.tags,
+    streakDay: entry.streak_day,
+    focusArea: entry.focus_area,
+    createdAt: entry.created_at,
+    voiceUrl: entry.voice_url,
+    mediaUrl: entry.media_url
+  }));
+
+  console.log(`[ENTRIES] Found ${entries.length} entries`);
+  return entries;
 }
 
 export async function getEntry(entryId: string): Promise<DiaryEntry> {
   console.log('[ENTRIES] Fetching entry:', entryId);
 
-  const response = await entriesApiRequest(`/entries/${entryId}`);
+  // ✅ FIXED: Don't add /entries prefix - it's already in ENTRIES_API_URL
+  const response = await entriesApiRequest(`/${entryId}`);
 
   if (!response.success) {
     console.error('[ENTRIES] Failed to fetch entry:', response);
@@ -323,16 +374,71 @@ export async function getEntry(entryId: string): Promise<DiaryEntry> {
   return response.entry;
 }
 
+export async function updateEntry(entryId: string, updates: Partial<DiaryEntry>): Promise<DiaryEntry> {
+  console.log('[ENTRIES] Updating entry:', entryId, updates);
+
+  // TEMPORARY WORKAROUND: Use direct Supabase client until Edge Function routing is fixed
+  const supabase = createClient();
+
+  // Convert camelCase to snake_case for database
+  const updateData: any = {};
+  if (updates.text !== undefined) updateData.text = updates.text;
+  if (updates.sentiment !== undefined) updateData.sentiment = updates.sentiment;
+  if (updates.category !== undefined) updateData.category = updates.category;
+  if (updates.mood !== undefined) updateData.mood = updates.mood;
+
+  const { data, error } = await supabase
+    .from('entries')
+    .update(updateData)
+    .eq('id', entryId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[ENTRIES] Failed to update entry:', error);
+    throw new Error(error.message || 'Failed to update entry');
+  }
+
+  // Convert to camelCase
+  const entry: DiaryEntry = {
+    id: data.id,
+    userId: data.user_id,
+    text: data.text,
+    sentiment: data.sentiment,
+    category: data.category,
+    mood: data.mood,
+    isFirstEntry: data.is_first_entry,
+    media: data.media,
+    aiReply: data.ai_reply,
+    aiSummary: data.ai_summary,
+    aiInsight: data.ai_insight,
+    isAchievement: data.is_achievement,
+    tags: data.tags,
+    streakDay: data.streak_day,
+    focusArea: data.focus_area,
+    createdAt: data.created_at,
+    voiceUrl: data.voice_url,
+    mediaUrl: data.media_url
+  };
+
+  console.log('[ENTRIES] Entry updated successfully:', entry);
+  return entry;
+}
+
 export async function deleteEntry(entryId: string, userId: string): Promise<void> {
   console.log('[ENTRIES] Deleting entry:', entryId);
 
-  const response = await entriesApiRequest(`/entries/${entryId}`, {
-    method: 'DELETE'
-  });
+  // TEMPORARY WORKAROUND: Use direct Supabase client until Edge Function routing is fixed
+  const supabase = createClient();
 
-  if (!response.success) {
-    console.error('[ENTRIES] Failed to delete entry:', response);
-    throw new Error(response.error || 'Failed to delete entry');
+  const { error } = await supabase
+    .from('entries')
+    .delete()
+    .eq('id', entryId);
+
+  if (error) {
+    console.error('[ENTRIES] Failed to delete entry:', error);
+    throw new Error(error.message || 'Failed to delete entry');
   }
 
   console.log('[ENTRIES] Entry deleted successfully');
@@ -435,7 +541,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 export async function createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
   console.log('[PROFILES] Creating user profile:', profile);
 
-  const response = await profilesApiRequest('/profiles/create', {
+  const response = await profilesApiRequest('/create', {
     method: 'POST',
     body: profile
   });
@@ -453,7 +559,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   try {
     console.log('[PROFILES] Fetching profile for user:', userId);
 
-    const response = await profilesApiRequest(`/profiles/${userId}`);
+    const response = await profilesApiRequest(`/${userId}`);
 
     if (!response.success) {
       console.log('[PROFILES] Profile not found for user:', userId);
@@ -471,7 +577,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
   console.log('[PROFILES] Updating user profile:', userId, updates);
 
-  const response = await profilesApiRequest(`/profiles/${userId}`, {
+  const response = await profilesApiRequest(`/${userId}`, {
     method: 'PUT',
     body: updates
   });

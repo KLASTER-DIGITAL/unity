@@ -1,5 +1,6 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { media } from '../shared/lib/platform';
 
 let ffmpegInstance: FFmpeg | null = null;
 let isFFmpegLoaded = false;
@@ -159,25 +160,7 @@ export async function getVideoMetadata(file: File): Promise<{
   width: number;
   height: number;
 }> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-
-    video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src);
-      resolve({
-        duration: Math.round(video.duration),
-        width: video.videoWidth,
-        height: video.videoHeight
-      });
-    };
-
-    video.onerror = () => {
-      reject(new Error('Failed to load video metadata'));
-    };
-
-    video.src = URL.createObjectURL(file);
-  });
+  return media.getVideoMetadata(file);
 }
 
 /**

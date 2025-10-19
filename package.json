@@ -66,12 +66,14 @@
             "@vitejs/plugin-react-swc": "^3.10.2",
             "@vitest/ui": "^3.2.4",
             "playwright": "^1.56.0",
+            "rollup-plugin-visualizer": "^6.0.5",
             "vite": "6.3.5",
             "vitest": "^3.2.4"
       },
       "scripts": {
             "dev": "vite",
             "build": "vite build",
+            "build:analyze": "ANALYZE=true vite build",
             "preview": "vite preview",
             "lint": "echo 'Linting not configured yet'",
             "test": "vitest",
@@ -79,6 +81,14 @@
             "test:e2e": "playwright test",
             "test:e2e:ui": "playwright test --ui",
             "clean": "rm -rf build dist",
-            "deploy": "npm run build && netlify deploy --prod --dir=build"
+            "deploy": "npm run build && netlify deploy --prod --dir=build",
+            "analyze": "node scripts/analyze-bundle.js",
+            "optimize:images": "node scripts/optimize-images.js",
+            "optimize:images:convert": "node scripts/optimize-images.js convert",
+            "update:image-imports": "node scripts/update-image-imports.js",
+            "lighthouse": "node scripts/lighthouse-audit.js",
+            "lighthouse:url": "node scripts/lighthouse-audit.js url",
+            "perf": "npm run build && npm run analyze",
+            "perf:full": "npm run build && npm run analyze && npm run lighthouse"
       }
 }

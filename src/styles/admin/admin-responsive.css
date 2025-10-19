@@ -1,0 +1,106 @@
+/**
+ * Admin Responsive - Media Queries
+ * AI-Friendly: 95 lines, < 200 lines target
+ * 
+ * Purpose: Responsive styles and accessibility for admin panel
+ * Includes: Mobile breakpoints, reduced motion, high contrast
+ * 
+ * Why needed: Ensure admin panel works on all devices and accessibility needs
+ */
+
+/* ===== Mobile Breakpoint (max-width: 768px) ===== */
+
+@media (max-width: 768px) {
+  .admin-card {
+    border-radius: var(--admin-radius);
+    margin: 0 var(--admin-space-2);
+  }
+  
+  .admin-card-header,
+  .admin-card-content,
+  .admin-card-footer {
+    padding: var(--admin-space-4);
+  }
+  
+  .admin-btn {
+    padding: var(--admin-space-2) var(--admin-space-3);
+    font-size: var(--admin-text-xs);
+  }
+  
+  .admin-input {
+    padding: var(--admin-space-2);
+    font-size: var(--admin-text-sm);
+  }
+  
+  .admin-table {
+    font-size: var(--admin-text-sm);
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: var(--admin-space-2) var(--admin-space-3);
+  }
+  
+  .admin-nav {
+    border-radius: var(--admin-radius);
+  }
+  
+  .admin-nav-item {
+    padding: var(--admin-space-2) var(--admin-space-3);
+    font-size: var(--admin-text-sm);
+  }
+}
+
+/* ===== Small Mobile Breakpoint (max-width: 480px) ===== */
+
+@media (max-width: 480px) {
+  .admin-card {
+    margin: 0 var(--admin-space-1);
+  }
+  
+  .admin-card-header,
+  .admin-card-content,
+  .admin-card-footer {
+    padding: var(--admin-space-3);
+  }
+  
+  .admin-flex-col-mobile {
+    flex-direction: column;
+  }
+  
+  .admin-w-full-mobile {
+    width: 100%;
+  }
+}
+
+/* ===== Reduced Motion (Accessibility) ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.admin-focus-visible:focus {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+/* ===== High Contrast (Accessibility) ===== */
+
+@media (prefers-contrast: high) {
+  .admin-btn {
+    border-width: 2px;
+  }
+  
+  .admin-input {
+    border-width: 2px;
+  }
+  
+  .admin-card {
+    border-width: 2px;
+  }
+}
+

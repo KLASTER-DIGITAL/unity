@@ -67,16 +67,16 @@ export function MediaPreview({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
-              className={`relative ${itemClass} rounded-[12px] overflow-hidden bg-gray-100`}
+              className={`relative ${itemClass} rounded-[12px] overflow-hidden bg-muted`}
             >
               {/* Progress overlay */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted">
                 <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-2" />
-                <span className="text-xs text-gray-600 font-medium">{Math.round(uploadProgress)}%</span>
+                <span className="text-xs text-muted-foreground font-medium">{Math.round(uploadProgress)}%</span>
               </div>
 
               {/* Progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-border">
                 <div
                   className="h-full bg-accent transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
@@ -94,7 +94,7 @@ export function MediaPreview({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
-              className={`relative ${itemClass} rounded-[12px] overflow-hidden bg-gray-100 group`}
+              className={`relative ${itemClass} rounded-[12px] overflow-hidden bg-muted group`}
               onClick={() => handleMediaClick(item, index)}
             >
               {item.type === 'image' ? (
@@ -112,8 +112,8 @@ export function MediaPreview({
                     preload="metadata"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                      <Play className="w-6 h-6 text-gray-900 ml-1" />
+                    <div className="w-12 h-12 bg-card/90 rounded-full flex items-center justify-center">
+                      <Play className="w-6 h-6 text-foreground ml-1" />
                     </div>
                   </div>
                 </div>

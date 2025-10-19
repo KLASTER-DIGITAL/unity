@@ -1,0 +1,69 @@
+/**
+ * Admin Typography - Text Styles
+ * AI-Friendly: 60 lines, < 200 lines target
+ * 
+ * Purpose: Typography utility classes for admin panel
+ * Includes: Font sizes (.admin-text-*), Font weights (.admin-font-*)
+ * 
+ * Why needed: Consistent text styling across admin interface
+ */
+
+/* ===== Font Sizes ===== */
+
+.admin-text-xs {
+  font-size: var(--admin-text-xs);
+  line-height: var(--admin-leading-4);
+}
+
+.admin-text-sm {
+  font-size: var(--admin-text-sm);
+  line-height: var(--admin-leading-5);
+}
+
+.admin-text-base {
+  font-size: var(--admin-text-base);
+  line-height: var(--admin-leading-6);
+}
+
+.admin-text-lg {
+  font-size: var(--admin-text-lg);
+  line-height: var(--admin-leading-7);
+}
+
+.admin-text-xl {
+  font-size: var(--admin-text-xl);
+  line-height: var(--admin-leading-7);
+}
+
+.admin-text-2xl {
+  font-size: var(--admin-text-2xl);
+  line-height: var(--admin-leading-8);
+}
+
+.admin-text-3xl {
+  font-size: var(--admin-text-3xl);
+  line-height: var(--admin-leading-10);
+}
+
+/* ===== Font Weights ===== */
+
+.admin-font-light {
+  font-weight: var(--admin-font-light);
+}
+
+.admin-font-normal {
+  font-weight: var(--admin-font-normal);
+}
+
+.admin-font-medium {
+  font-weight: var(--admin-font-medium);
+}
+
+.admin-font-semibold {
+  font-weight: var(--admin-font-semibold);
+}
+
+.admin-font-bold {
+  font-weight: var(--admin-font-bold);
+}
+

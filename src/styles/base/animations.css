@@ -1,0 +1,106 @@
+/**
+ * Animation System
+ * AI-Friendly: Анимации для модальных окон, карточек, transitions
+ * 
+ * Использование:
+ * - Автоматически применяется к элементам с transition классами
+ * - Используется motion/react для сложных анимаций
+ * 
+ * Файл: 98 строк
+ */
+
+/* ===== Global Transitions ===== */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* ===== Modal Animations ===== */
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modal-slide-down {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+.modal-enter {
+  animation: modal-slide-up 0.3s ease-out;
+}
+
+.modal-exit {
+  animation: modal-slide-down 0.2s ease-in;
+}
+
+/* ===== Card Animations ===== */
+@keyframes card-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter {
+  animation: card-fade-in 0.4s ease-out;
+}
+
+/* ===== Backdrop Animations ===== */
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.backdrop-enter {
+  animation: backdrop-fade-in 0.2s ease-out;
+}
+
+.backdrop-exit {
+  animation: backdrop-fade-out 0.2s ease-in;
+}
+
+/* ===== Hover Effects ===== */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .hover-lift:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+

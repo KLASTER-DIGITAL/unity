@@ -154,7 +154,20 @@ export async function analyzeTextWithAI(text: string, userName?: string, userId?
     return data.analysis;
   } catch (error) {
     console.error('[API] Error in analyzeTextWithAI:', error);
-    throw error;
+
+    // ✅ FALLBACK: Return default analysis if AI fails
+    console.warn('[API] Using fallback AI analysis');
+    return {
+      sentiment: 'positive',
+      category: 'Другое',
+      tags: [],
+      reply: 'Записано! 💪 Продолжай отмечать свои достижения!',
+      summary: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+      insight: 'Каждая запись приближает тебя к цели!',
+      isAchievement: true,
+      mood: 'хорошее',
+      confidence: 0.5
+    };
   }
 }
 
@@ -186,7 +199,7 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
 
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('entries')
     .insert({
       user_id: entry.userId,

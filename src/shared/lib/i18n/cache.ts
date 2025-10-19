@@ -1,4 +1,5 @@
 import { TranslationCache, CacheConfig } from './types';
+import { storage, StorageUtils } from '../platform/storage';
 
 export class TranslationCacheManager {
   private static readonly CACHE_PREFIX = 'i18n_cache_';
@@ -10,38 +11,38 @@ export class TranslationCacheManager {
   };
 
   // Получение кэша для языка
-  static getCache(language: string): TranslationCache | null {
+  static async getCache(language: string): Promise<TranslationCache | null> {
     const cacheKey = this.CACHE_PREFIX + language;
-    const cached = localStorage.getItem(cacheKey);
-    
+    const cached = await storage.getItem(cacheKey);
+
     if (!cached) return null;
-    
+
     try {
       const cache: TranslationCache = JSON.parse(cached);
-      
+
       // Проверка актуальности
       if (this.isCacheExpired(cache)) {
-        this.removeCache(language);
+        await this.removeCache(language);
         return null;
       }
-      
+
       // Проверка целостности
       if (!this.validateCacheIntegrity(cache)) {
         console.warn(`Cache integrity check failed for ${language}, removing...`);
-        this.removeCache(language);
+        await this.removeCache(language);
         return null;
       }
-      
+
       return cache;
     } catch (error) {
       console.error('Error parsing cache:', error);
-      this.removeCache(language);
+      await this.removeCache(language);
       return null;
     }
   }
 
   // Сохранение кэша
-  static setCache(language: string, translations: Record<string, string>, etag?: string): void {
+  static async setCache(language: string, translations: Record<string, string>, etag?: string): Promise<void> {
     const cache: TranslationCache = {
       language,
       translations,
@@ -52,23 +53,23 @@ export class TranslationCacheManager {
     };
 
     const cacheKey = this.CACHE_PREFIX + language;
-    
+
     try {
       const serialized = JSON.stringify(cache);
-      
+
       // Проверка размера
       if (this.DEFAULT_CONFIG.compressionEnabled && this.getSizeInBytes(serialized) > this.DEFAULT_CONFIG.maxSize) {
         console.warn(`Cache size exceeds limit for ${language}, cleaning up...`);
-        this.cleanupOldCache();
+        await this.cleanupOldCache();
       }
-      
-      localStorage.setItem(cacheKey, serialized);
-      localStorage.setItem(this.LAST_SYNC_KEY, new Date().toISOString());
-      
+
+      await storage.setItem(cacheKey, serialized);
+      await storage.setItem(this.LAST_SYNC_KEY, new Date().toISOString());
+
       console.log(`Cache saved for language: ${language}, keys: ${Object.keys(translations).length}`);
     } catch (error) {
       console.error('Error saving cache:', error);
-      this.handleStorageError(error);
+      await this.handleStorageError(error);
     }
   }
 
@@ -79,85 +80,85 @@ export class TranslationCacheManager {
   }
 
   // Очистка кэша для конкретного языка
-  static removeCache(language: string): void {
+  static async removeCache(language: string): Promise<void> {
     const cacheKey = this.CACHE_PREFIX + language;
-    localStorage.removeItem(cacheKey);
+    await storage.removeItem(cacheKey);
     console.log(`Cache removed for language: ${language}`);
   }
 
   // Полная очистка кэша
-  static clearCache(): void {
-    Object.keys(localStorage)
-      .filter(key => key.startsWith(this.CACHE_PREFIX))
-      .forEach(key => localStorage.removeItem(key));
-    
-    localStorage.removeItem(this.LAST_SYNC_KEY);
+  static async clearCache(): Promise<void> {
+    const keys = await storage.getAllKeys();
+    const cacheKeys = keys.filter(key => key.startsWith(this.CACHE_PREFIX));
+
+    await storage.multiRemove([...cacheKeys, this.LAST_SYNC_KEY]);
     console.log('All translation cache cleared');
   }
 
   // Получение последнего времени синхронизации
-  static getLastSync(): Date | null {
-    const lastSync = localStorage.getItem(this.LAST_SYNC_KEY);
+  static async getLastSync(): Promise<Date | null> {
+    const lastSync = await storage.getItem(this.LAST_SYNC_KEY);
     return lastSync ? new Date(lastSync) : null;
   }
 
   // Получение ETag для кэша
-  static getCacheETag(language: string): string | undefined {
-    const cache = this.getCache(language);
+  static async getCacheETag(language: string): Promise<string | undefined> {
+    const cache = await this.getCache(language);
     return cache?.etag;
   }
 
   // Получение списка закэшированных языков
-  static getCachedLanguages(): string[] {
-    return Object.keys(localStorage)
+  static async getCachedLanguages(): Promise<string[]> {
+    const keys = await storage.getAllKeys();
+    return keys
       .filter(key => key.startsWith(this.CACHE_PREFIX))
       .map(key => key.replace(this.CACHE_PREFIX, ''));
   }
 
   // Валидация кэша для всех языков
-  static validateAllCaches(): { valid: string[]; invalid: string[] } {
-    const languages = this.getCachedLanguages();
+  static async validateAllCaches(): Promise<{ valid: string[]; invalid: string[] }> {
+    const languages = await this.getCachedLanguages();
     const valid: string[] = [];
     const invalid: string[] = [];
-    
-    languages.forEach(language => {
-      const cache = this.getCache(language);
+
+    for (const language of languages) {
+      const cache = await this.getCache(language);
       if (cache && this.validateCacheIntegrity(cache)) {
         valid.push(language);
       } else {
         invalid.push(language);
-        this.removeCache(language);
+        await this.removeCache(language);
       }
-    });
-    
+    }
+
     return { valid, invalid };
   }
 
   // Получение статистики кэша
-  static getCacheStats(): {
+  static async getCacheStats(): Promise<{
     totalSize: number;
     languagesCount: number;
     totalKeys: number;
     oldestCache: Date | null;
     newestCache: Date | null;
-  } {
-    const languages = this.getCachedLanguages();
+  }> {
+    const languages = await this.getCachedLanguages();
     let totalSize = 0;
     let totalKeys = 0;
     let oldestDate: Date | null = null;
     let newestDate: Date | null = null;
-    
-    languages.forEach(language => {
+
+    for (const language of languages) {
       const cacheKey = this.CACHE_PREFIX + language;
-      const cached = localStorage.getItem(cacheKey);
-      
+      const cached = await storage.getItem(cacheKey);
+
       if (cached) {
         totalSize += this.getSizeInBytes(cached);
-        
+
         try {
           const cache: TranslationCache = JSON.parse(cached);
           totalKeys += Object.keys(cache.translations).length;
-          
+
           const cacheDate = new Date(cache.lastUpdated);
           if (!oldestDate || cacheDate < oldestDate) oldestDate = cacheDate;
           if (!newestDate || cacheDate > newestDate) newestDate = cacheDate;
@@ -165,8 +166,8 @@ export class TranslationCacheManager {
           console.error(`Error parsing cache for ${language}:`, error);
         }
       }
-    });
-    
+    }
+
     return {
       totalSize,
       languagesCount: languages.length,
@@ -202,10 +203,10 @@ export class TranslationCacheManager {
     return new Blob([str]).size;
   }
 
-  private static handleStorageError(error: any): void {
+  private static async handleStorageError(error: any): Promise<void> {
     if (error.name === 'QuotaExceededError') {
       console.warn('Storage quota exceeded, cleaning up old cache...');
-      this.cleanupOldCache();
+      await this.cleanupOldCache();
     } else if (error.name === 'SecurityError') {
       console.warn('Storage access denied, possibly in private mode');
     } else {
@@ -213,65 +214,73 @@ export class TranslationCacheManager {
     }
   }
 
-  private static cleanupOldCache(): void {
-    const caches = Object.keys(localStorage)
-      .filter(key => key.startsWith(this.CACHE_PREFIX))
-      .map(key => {
+  private static async cleanupOldCache(): Promise<void> {
+    const allKeys = await storage.getAllKeys();
+    const cacheKeys = allKeys.filter(key => key.startsWith(this.CACHE_PREFIX));
+
+    const caches = await Promise.all(
+      cacheKeys.map(async (key) => {
         try {
-          const cache = JSON.parse(localStorage.getItem(key) || '{}');
-          return { 
-            key, 
+          const cached = await storage.getItem(key);
+          const cache = JSON.parse(cached || '{}');
+          return {
+            key,
             lastUpdated: new Date(cache.lastUpdated || 0),
-            size: this.getSizeInBytes(localStorage.getItem(key) || '')
+            size: this.getSizeInBytes(cached || '')
           };
         } catch {
-          return { 
-            key, 
-            lastUpdated: new Date(0), 
-            size: 0 
+          return {
+            key,
+            lastUpdated: new Date(0),
+            size: 0
           };
         }
       })
-      .sort((a, b) => a.lastUpdated.getTime() - b.lastUpdated.getTime());
+    );
+
+    caches.sort((a, b) => a.lastUpdated.getTime() - b.lastUpdated.getTime());
 
     // Удаляем самые старые кэши до освобождения 50% места
     const totalSize = caches.reduce((sum, cache) => sum + cache.size, 0);
     const targetSize = this.DEFAULT_CONFIG.maxSize * 0.5;
-    
+
     let currentSize = 0;
+    const keysToRemove: string[] = [];
+
     caches.forEach(({ key, size }) => {
       if (currentSize < targetSize) {
-        localStorage.removeItem(key);
+        keysToRemove.push(key);
         currentSize += size;
       }
     });
-    
+
+    await storage.multiRemove(keysToRemove);
     console.log(`Cleaned up ${Math.floor(currentSize / 1024)}KB of old cache`);
   }
 
   // Экспорт/импорт кэша для миграции
-  static exportCache(): Record<string, TranslationCache> {
+  static async exportCache(): Promise<Record<string, TranslationCache>> {
     const exported: Record<string, TranslationCache> = {};
-    const languages = this.getCachedLanguages();
-    
-    languages.forEach(language => {
-      const cache = this.getCache(language);
+    const languages = await this.getCachedLanguages();
+
+    for (const language of languages) {
+      const cache = await this.getCache(language);
       if (cache) {
         exported[language] = cache;
       }
-    });
-    
+    }
+
     return exported;
   }
 
-  static importCache(caches: Record<string, TranslationCache>): void {
-    Object.entries(caches).forEach(([language, cache]) => {
+  static async importCache(caches: Record<string, TranslationCache>): Promise<void> {
+    for (const [language, cache] of Object.entries(caches)) {
       if (this.validateCacheIntegrity(cache)) {
-        this.setCache(language, cache.translations, cache.etag);
+        await this.setCache(language, cache.translations, cache.etag);
       } else {
         console.warn(`Skipping invalid cache import for ${language}`);
       }
-    });
+    }
   }
 }
 

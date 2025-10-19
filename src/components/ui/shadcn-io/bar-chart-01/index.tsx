@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import React, { useState, useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {

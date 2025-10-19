@@ -1,0 +1,108 @@
+/**
+ * Admin Utilities - Utility Classes
+ * AI-Friendly: 95 lines, < 200 lines target
+ * 
+ * Purpose: Utility classes for admin panel
+ * Includes: flex, spacing, sizing, text alignment, visibility
+ * 
+ * Why needed: Quick styling utilities for common patterns
+ */
+
+/* ===== Flexbox Utilities ===== */
+
+.admin-flex {
+  display: flex;
+}
+
+.admin-flex-col {
+  flex-direction: column;
+}
+
+.admin-items-center {
+  align-items: center;
+}
+
+.admin-justify-between {
+  justify-content: space-between;
+}
+
+.admin-gap-2 {
+  gap: var(--admin-space-2);
+}
+
+.admin-gap-4 {
+  gap: var(--admin-space-4);
+}
+
+.admin-gap-6 {
+  gap: var(--admin-space-6);
+}
+
+/* ===== Spacing Utilities ===== */
+
+.admin-mb-4 {
+  margin-bottom: var(--admin-space-4);
+}
+
+.admin-mb-6 {
+  margin-bottom: var(--admin-space-6);
+}
+
+.admin-mt-4 {
+  margin-top: var(--admin-space-4);
+}
+
+.admin-mt-6 {
+  margin-top: var(--admin-space-6);
+}
+
+.admin-p-4 {
+  padding: var(--admin-space-4);
+}
+
+.admin-p-6 {
+  padding: var(--admin-space-6);
+}
+
+/* ===== Sizing Utilities ===== */
+
+.admin-w-full {
+  width: 100%;
+}
+
+.admin-h-full {
+  height: 100%;
+}
+
+/* ===== Text Alignment ===== */
+
+.admin-text-center {
+  text-align: center;
+}
+
+.admin-text-left {
+  text-align: left;
+}
+
+.admin-text-right {
+  text-align: right;
+}
+
+/* ===== Visibility Utilities ===== */
+
+.admin-hidden {
+  display: none;
+}
+
+.admin-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+

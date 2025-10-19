@@ -1,0 +1,141 @@
+/**
+ * Light Theme - shadcn/ui iOS Style
+ * OKLCH color space for better perceptual uniformity
+ * 
+ * Color Philosophy:
+ * - background: Pure white (#ffffff)
+ * - foreground: Dark gray text (#6b6b6b)
+ * - card: White cards on white background
+ * - primary: iOS blue (#007aff)
+ * - muted: Light gray for secondary elements (#f8f8f8)
+ * 
+ * AI-Friendly: Only light theme variables (~50 lines)
+ */
+
+:root {
+  /* ===== iOS Typography System ===== */
+  /* Font Family - San Francisco (SF Pro) */
+  --font-family-ios: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-primary: var(--font-family-ios); /* Backward compatibility */
+
+  /* Font Weights */
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-normal: 400;
+
+  /* iOS Text Styles - Sizes */
+  --text-large-title: 34px;  /* iOS largeTitle */
+  --text-title-1: 28px;      /* iOS title1 */
+  --text-title-2: 22px;      /* iOS title2 */
+  --text-title-3: 20px;      /* iOS title3 */
+  --text-headline: 17px;     /* iOS headline */
+  --text-body: 17px;         /* iOS body */
+  --text-callout: 16px;      /* iOS callout */
+  --text-subhead: 15px;      /* iOS subheadline */
+  --text-footnote: 13px;     /* iOS footnote */
+  --text-caption-1: 12px;    /* iOS caption1 */
+  --text-caption-2: 11px;    /* iOS caption2 */
+
+  /* Backward compatibility */
+  --font-size: 16px;
+  --text-h1: var(--text-large-title);
+  --text-h2: var(--text-title-1);
+  --text-h3: var(--text-title-2);
+  --text-h4: var(--text-title-3);
+  --text-base: var(--text-body);
+  --text-label: var(--text-footnote);
+
+  /* Border radius */
+  --radius: 10px;
+
+  /* ===== iOS UIKit Dynamic Colors - Light Mode ===== */
+
+  /* Backgrounds (iOS systemBackground hierarchy) */
+  --ios-bg-primary: #FFFFFF;           /* systemBackground */
+  --ios-bg-secondary: #F2F2F7;         /* secondarySystemBackground */
+  --ios-bg-tertiary: #FFFFFF;          /* tertiarySystemBackground */
+  --ios-bg-grouped: #F2F2F7;           /* systemGroupedBackground */
+  --ios-bg-grouped-secondary: #FFFFFF; /* secondarySystemGroupedBackground */
+
+  /* Text Colors (iOS label hierarchy) */
+  --ios-text-primary: #000000;              /* label */
+  --ios-text-secondary: rgba(60,60,67,0.6); /* secondaryLabel */
+  --ios-text-tertiary: rgba(60,60,67,0.3);  /* tertiaryLabel */
+
+  /* Borders & Separators */
+  --ios-separator: #C6C6C8;            /* separator */
+
+  /* System Colors */
+  --ios-blue: #007AFF;                 /* systemBlue */
+  --ios-green: #34C759;                /* systemGreen */
+  --ios-red: #FF3B30;                  /* systemRed */
+  --ios-orange: #FF9500;               /* systemOrange */
+  --ios-yellow: #FFCC00;               /* systemYellow */
+  --ios-pink: #FF2D55;                 /* systemPink */
+  --ios-purple: #AF52DE;               /* systemPurple */
+  --ios-gray: #8E8E93;                 /* systemGray */
+
+  /* ===== shadcn/ui Colors (mapped to iOS) ===== */
+
+  /* Backgrounds */
+  --background: oklch(1 0 0); /* #ffffff - iOS systemBackground */
+  --foreground: oklch(0 0 0); /* #000000 - iOS label */
+
+  /* Cards */
+  --card: oklch(0.975 0 0); /* #f2f2f7 - iOS secondarySystemBackground */
+  --card-foreground: oklch(0 0 0); /* #000000 - iOS label */
+
+  /* Popovers */
+  --popover: oklch(1 0 0); /* #ffffff */
+  --popover-foreground: oklch(0 0 0); /* #000000 */
+
+  /* Primary - iOS blue */
+  --primary: oklch(0.568 0.207 254.604); /* #007aff - iOS systemBlue */
+  --primary-foreground: oklch(1 0 0); /* #ffffff */
+
+  /* Switch */
+  --switch-background: oklch(0.918 0 0); /* #e5e5ea */
+
+  /* Secondary */
+  --secondary: oklch(0.975 0 0); /* #f2f2f7 - iOS secondarySystemBackground */
+  --secondary-foreground: oklch(0 0 0); /* #000000 - iOS label */
+
+  /* Muted - для неактивных элементов */
+  --muted: oklch(0.975 0 0); /* #f2f2f7 */
+  --muted-foreground: oklch(0.45 0.015 286.75); /* rgba(60,60,67,0.6) - iOS secondaryLabel */
+
+  /* Accent */
+  --accent: oklch(0.568 0.207 254.604); /* #007aff - iOS systemBlue */
+  --accent-foreground: oklch(1 0 0); /* #ffffff */
+
+  /* Destructive - iOS red */
+  --destructive: oklch(0.637 0.237 25.331); /* #ff3b30 - iOS systemRed */
+  --destructive-foreground: oklch(1 0 0); /* #ffffff */
+
+  /* Borders */
+  --border: oklch(0.85 0.005 286.75); /* #c6c6c8 - iOS separator */
+  --input: oklch(1 0 0); /* #ffffff */
+  --input-background: oklch(1 0 0); /* #ffffff */
+  --ring: oklch(0.568 0.207 254.604); /* #007aff - iOS systemBlue */
+
+  /* Elevation */
+  --elevation-sm: 0px 1px 3px rgba(0, 0, 0, 0.1);
+
+  /* Charts */
+  --chart-1: oklch(0.568 0.207 254.604); /* #007aff */
+  --chart-2: oklch(0.723 0.219 149.579); /* #34c759 */
+  --chart-3: oklch(0.705 0.213 47.604); /* #ff9500 */
+  --chart-4: oklch(0.45 0 0); /* #6b6b6b */
+  --chart-5: oklch(0.645 0.246 16.439); /* #3da29a */
+
+  /* Sidebar */
+  --sidebar: oklch(1 0 0); /* #ffffff */
+  --sidebar-foreground: oklch(0.45 0 0); /* #6b6b6b */
+  --sidebar-primary: oklch(0.568 0.207 254.604); /* #007aff */
+  --sidebar-primary-foreground: oklch(1 0 0); /* #ffffff */
+  --sidebar-accent: oklch(0.975 0 0); /* #f8f8f8 */
+  --sidebar-accent-foreground: oklch(0.45 0 0); /* #6b6b6b */
+  --sidebar-border: oklch(0.918 0 0); /* #e5e5e5 */
+  --sidebar-ring: oklch(0.568 0.207 254.604); /* #007aff */
+}
+

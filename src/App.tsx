@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { checkSession, signOut } from "./utils/auth";
+import { ThemeProvider } from "@/shared/components/theme-provider";
 
-// App-level components
-import { MobileApp } from "@/app/mobile";
-import { AdminApp } from "@/app/admin";
+// Lazy load app-level components for code splitting
+const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
+const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
 
 // Onboarding data interface
 interface OnboardingData {
@@ -44,14 +45,26 @@ export default function App() {
     firstEntry: ''
   });
 
-  // Check admin route via query parameter
+  // Check admin route via query parameter OR user role
   useEffect(() => {
     const checkAdminRoute = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const isAdmin = urlParams.get('view') === 'admin';
-      setIsAdminRoute(isAdmin);
-      
-      if (isAdmin && !userData) {
+      const isAdminParam = urlParams.get('view') === 'admin';
+
+      // Check if user has super_admin role
+      const isSuperAdmin = userData?.profile?.role === 'super_admin' || userData?.role === 'super_admin';
+
+      // Set admin route if query param OR user is super_admin
+      const shouldShowAdmin = isAdminParam || isSuperAdmin;
+      setIsAdminRoute(shouldShowAdmin);
+
+      // Auto-redirect super_admin to admin panel
+      if (isSuperAdmin && !isAdminParam) {
+        console.log('🔐 Super admin detected, redirecting to admin panel');
+        window.history.pushState({}, '', '?view=admin');
+      }
+
+      if (shouldShowAdmin && !userData) {
         setShowAdminAuth(true);
       }
     };
@@ -163,61 +176,78 @@ export default function App() {
     setShowAdminAuth(false);
   };
 
+  const handleProfileUpdate = (updatedProfile: any) => {
+    console.log('🔄 [App.tsx] Updating userData with new profile:', updatedProfile);
+    setUserData((prev: any) => ({
+      ...prev,
+      profile: updatedProfile
+    }));
+  };
+
   // Admin view
   if (isAdminRoute) {
     if (isCheckingSession) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Загрузка...</p>
+        <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+          <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Загрузка...</p>
+            </div>
           </div>
-        </div>
+        </ThemeProvider>
       );
     }
 
     return (
-      <AdminApp
-        userData={userData}
-        showAdminAuth={showAdminAuth}
-        onAuthComplete={handleAdminAuthComplete}
-        onLogout={handleLogout}
-        onBack={() => {
-          window.location.href = '/';
-        }}
-      />
+      <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+        <AdminApp
+          userData={userData}
+          showAdminAuth={showAdminAuth}
+          onAuthComplete={handleAdminAuthComplete}
+          onLogout={handleLogout}
+          onBack={() => {
+            window.location.href = '/';
+          }}
+        />
+      </ThemeProvider>
     );
   }
 
   // Mobile view - loading state
   if (isCheckingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 max-w-md mx-auto">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
+      <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+        <div className="min-h-screen flex items-center justify-center bg-background max-w-md mx-auto">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Загрузка...</p>
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <MobileApp
-      userData={userData}
-      onboardingComplete={onboardingComplete}
-      currentStep={currentStep}
-      selectedLanguage={selectedLanguage}
-      showAuth={showAuth}
-      authMode={authMode}
-      onboardingData={onboardingData}
-      onWelcomeComplete={handleWelcomeComplete}
-      onWelcomeSkip={handleWelcomeSkip}
-      onOnboarding2Complete={handleOnboarding2Complete}
-      onOnboarding3Complete={handleOnboarding3Complete}
-      onOnboarding4Complete={handleOnboarding4Complete}
-      onAuthComplete={handleAuthComplete}
-      onLogout={handleLogout}
-    />
+    <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+      <MobileApp
+        userData={userData}
+        onboardingComplete={onboardingComplete}
+        currentStep={currentStep}
+        selectedLanguage={selectedLanguage}
+        showAuth={showAuth}
+        authMode={authMode}
+        onboardingData={onboardingData}
+        onWelcomeComplete={handleWelcomeComplete}
+        onWelcomeSkip={handleWelcomeSkip}
+        onOnboarding2Complete={handleOnboarding2Complete}
+        onOnboarding3Complete={handleOnboarding3Complete}
+        onOnboarding4Complete={handleOnboarding4Complete}
+        onAuthComplete={handleAuthComplete}
+        onLogout={handleLogout}
+        onProfileUpdate={handleProfileUpdate}
+      />
+    </ThemeProvider>
   );
 }
 

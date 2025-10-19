@@ -1,0 +1,133 @@
+/**
+ * Admin Buttons - Button Components
+ * AI-Friendly: 120 lines, < 200 lines target
+ * 
+ * Purpose: Button component styles for admin panel
+ * Includes: .admin-btn variants (primary, secondary, outline, ghost, success, warning, error)
+ * 
+ * Why needed: Consistent button styling across admin interface
+ */
+
+/* ===== Button Base ===== */
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-2);
+  padding: var(--admin-space-2) var(--admin-space-4);
+  font-size: var(--admin-text-sm);
+  font-weight: var(--admin-font-medium);
+  line-height: var(--admin-leading-5);
+  border-radius: var(--admin-radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--admin-transition);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Button Variants ===== */
+
+.admin-btn-primary {
+  background-color: var(--admin-primary);
+  color: var(--admin-white);
+  border-color: var(--admin-primary);
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+  background-color: var(--admin-primary-hover);
+  border-color: var(--admin-primary-hover);
+}
+
+.admin-btn-secondary {
+  background-color: var(--admin-white);
+  color: var(--admin-gray-700);
+  border-color: var(--admin-gray-300);
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+  background-color: var(--admin-gray-50);
+  border-color: var(--admin-gray-400);
+}
+
+.admin-btn-outline {
+  background-color: transparent;
+  color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+.admin-btn-outline:hover:not(:disabled) {
+  background-color: var(--admin-primary-lighter);
+}
+
+.admin-btn-ghost {
+  background-color: transparent;
+  color: var(--admin-gray-700);
+  border-color: transparent;
+}
+
+.admin-btn-ghost:hover:not(:disabled) {
+  background-color: var(--admin-gray-100);
+}
+
+/* ===== Button Sizes ===== */
+
+.admin-btn-sm {
+  padding: var(--admin-space-1) var(--admin-space-3);
+  font-size: var(--admin-text-xs);
+}
+
+.admin-btn-lg {
+  padding: var(--admin-space-3) var(--admin-space-6);
+  font-size: var(--admin-text-base);
+}
+
+.admin-btn-icon {
+  padding: var(--admin-space-2);
+  aspect-ratio: 1;
+}
+
+/* ===== Button States (Success, Warning, Error) ===== */
+
+.admin-btn-success {
+  background-color: var(--admin-success);
+  color: var(--admin-white);
+  border-color: var(--admin-success);
+}
+
+.admin-btn-success:hover:not(:disabled) {
+  background-color: var(--admin-success-hover);
+  border-color: var(--admin-success-hover);
+}
+
+.admin-btn-warning {
+  background-color: var(--admin-warning);
+  color: var(--admin-white);
+  border-color: var(--admin-warning);
+}
+
+.admin-btn-warning:hover:not(:disabled) {
+  background-color: var(--admin-warning-hover);
+  border-color: var(--admin-warning-hover);
+}
+
+.admin-btn-error {
+  background-color: var(--admin-error);
+  color: var(--admin-white);
+  border-color: var(--admin-error);
+}
+
+.admin-btn-error:hover:not(:disabled) {
+  background-color: var(--admin-error-hover);
+  border-color: var(--admin-error-hover);
+}
+

@@ -20,6 +20,7 @@ interface DiaryData {
 interface AchievementHomeScreenProps {
   diaryData?: DiaryData;
   userData?: any;
+  onNavigateToHistory?: () => void;
 }
 
 interface AchievementCard {
@@ -38,18 +39,18 @@ interface AchievementCard {
 // Градиенты для карточек в зависимости от sentiment
 const GRADIENTS = {
   positive: [
-    "from-[#FE7669] to-[#ff8969]",
-    "from-[#ff7769] to-[#ff6b9d]",
-    "from-[#ff6b9d] to-[#c471ed]",
-    "from-[#c471ed] to-[#8B78FF]"
+    "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
+    "from-[var(--gradient-positive-2-start)] to-[var(--gradient-positive-2-end)]",
+    "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
+    "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]"
   ],
   neutral: [
-    "from-[#92BFFF] to-[#6BA3FF]",
-    "from-[#6BA3FF] to-[#5B93EF]"
+    "from-[var(--gradient-neutral-1-start)] to-[var(--gradient-neutral-1-end)]",
+    "from-[var(--gradient-neutral-2-start)] to-[var(--gradient-neutral-2-end)]"
   ],
   negative: [
-    "from-[#FFB74D] to-[#FFA726]",
-    "from-[#FFA726] to-[#FF9800]"
+    "from-[var(--gradient-negative-1-start)] to-[var(--gradient-negative-1-end)]",
+    "from-[var(--gradient-negative-2-start)] to-[var(--gradient-negative-2-end)]"
   ]
 };
 
@@ -61,7 +62,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Начни сегодня",
       title: "Сегодня отличное время",
       description: "Запиши маленькую победу — это первый шаг к осознанию своих достижений.",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -69,7 +70,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Совет дня",
       title: "Даже одна мысль делает день осмысленным",
       description: "Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -77,7 +78,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Мотивация",
       title: "Запиши момент благодарности",
       description: "Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -87,7 +88,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Start today",
       title: "Today is a great time",
       description: "Write down a small victory — it's the first step to recognizing your achievements.",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -95,7 +96,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Daily tip",
       title: "Even one thought makes the day meaningful",
       description: "You don't have to write a lot — one phrase can change your perspective on the day.",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -103,7 +104,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Motivation",
       title: "Write down a moment of gratitude",
       description: "Feel the lightness when you notice the good in your life. This is the path to happiness.",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -113,7 +114,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Empieza hoy",
       title: "Hoy es un gran momento",
       description: "Escribe una pequeña victoria — es el primer paso para reconocer tus logros.",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -121,7 +122,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Consejo del día",
       title: "Incluso un pensamiento hace el día significativo",
       description: "No tienes que escribir mucho — una frase puede cambiar tu perspectiva del día.",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -129,7 +130,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Motivación",
       title: "Escribe un momento de gratitud",
       description: "Siente la ligereza cuando notas lo bueno en tu vida. Este es el camino a la felicidad.",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -139,7 +140,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Fang heute an",
       title: "Heute ist eine gute Zeit",
       description: "Schreibe einen kleinen Sieg auf — es ist der erste Schritt, um deine Erfolge zu erkennen.",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -147,7 +148,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Tipp des Tages",
       title: "Selbst ein Gedanke macht den Tag bedeutsam",
       description: "Du musst nicht viel schreiben — ein Satz kann deine Perspektive auf den Tag ändern.",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -155,7 +156,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Motivation",
       title: "Schreibe einen Moment der Dankbarkeit auf",
       description: "Fühl die Leichtigkeit, wenn du das Gute in deinem Leben bemerkst. Das ist der Weg zum Glück.",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -165,7 +166,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Commencez aujourd'hui",
       title: "Aujourd'hui est un bon moment",
       description: "Écrivez une petite victoire — c'est le premier pas pour reconnaître vos réalisations.",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -173,7 +174,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Conseil du jour",
       title: "Même une pensée rend la journée significative",
       description: "Vous n'avez pas besoin d'écrire beaucoup — une phrase peut changer votre regard sur la journée.",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -181,7 +182,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "Motivation",
       title: "Écrivez un moment de gratitude",
       description: "Ressentez la légèreté lorsque vous remarquez le bien dans votre vie. C'est le chemin vers le bonheur.",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -191,7 +192,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "今天开始",
       title: "今天是个好时机",
       description: "写下一个小胜利——这是认识自己成就的第一步。",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -199,7 +200,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "每日提示",
       title: "即使一个想法也能让这一天有意义",
       description: "不需要写很多——一句话就能改变你对这一天的看法。",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -207,7 +208,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "动力",
       title: "写下感恩的时刻",
       description: "当你注意到生活中的美好时，感受那份轻松。这是通往幸福的道路。",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ],
@@ -217,7 +218,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "今日から始めよう",
       title: "今日は良い時です",
       description: "小さな勝利を書き留めましょう——それはあなたの成果を認識する第一歩です。",
-      gradient: "from-[#FE7669] to-[#ff8969]",
+      gradient: "from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]",
       isMarked: false
     },
     {
@@ -225,7 +226,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "今日のヒント",
       title: "一つの考えでも一日を意味のあるものにします",
       description: "たくさん書く必要はありません——一つのフレーズがあなたの一日への見方を変えることができます。",
-      gradient: "from-[#ff6b9d] to-[#c471ed]",
+      gradient: "from-[var(--gradient-positive-3-start)] to-[var(--gradient-positive-3-end)]",
       isMarked: false
     },
     {
@@ -233,7 +234,7 @@ const DEFAULT_MOTIVATIONS: { [key: string]: AchievementCard[] } = {
       date: "モチベーション",
       title: "感謝の瞬間を書き留めましょう",
       description: "人生の良いことに気づいたとき、その軽さを感じましょう。それが幸せへの道です。",
-      gradient: "from-[#c471ed] to-[#8B78FF]",
+      gradient: "from-[var(--gradient-positive-4-start)] to-[var(--gradient-positive-4-end)]",
       isMarked: false
     }
   ]
@@ -427,25 +428,25 @@ function SwipeCard({
         )}
 
         {/* Основное содержимое карточки */}
-        <div className="p-6 py-6 relative z-0">
+        <div className="p-card relative z-0">
           {/* Date - ✅ FIX #3: Уменьшили отступ снизу */}
           <motion.div
             className="text-white/90 mb-3"
             animate={{ opacity: 0.9 }}
           >
-            <p className="!text-[11px] !font-normal">{card.date}</p>
+            <p className="text-caption-1 text-white/90">{card.date}</p>
           </motion.div>
 
           {/* Title - ✅ FIX #3: Уменьшили размер заголовка */}
           <motion.div className="mb-3">
-            <h3 className="text-white !text-[20px] !font-semibold tracking-[-0.5px] leading-tight">
+            <h3 className="text-title-2 text-white tracking-[-0.5px] leading-tight">
               {card.title}
             </h3>
           </motion.div>
 
           {/* Description */}
           <motion.div className="mb-0">
-            <p className="text-white !text-[15px] !font-normal leading-[22px] opacity-95">
+            <p className="text-callout text-white leading-[22px] opacity-95">
               {card.description}
             </p>
           </motion.div>
@@ -456,9 +457,10 @@ function SwipeCard({
 }
 
 // Основной компонент
-export function AchievementHomeScreen({ 
-  diaryData = { name: "Мой дневник", emoji: "🏆" }, 
-  userData 
+export function AchievementHomeScreen({
+  diaryData = { name: "Мой дневник", emoji: "🏆" },
+  userData,
+  onNavigateToHistory
 }: AchievementHomeScreenProps) {
   const [cards, setCards] = useState<AchievementCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -622,6 +624,8 @@ export function AchievementHomeScreen({
 
   // Получаем имя пользователя из userData.profile.name или userData.name или используем дефолтное
   const userName = userData?.profile?.name || userData?.name || "Пользователь";
+  const userEmail = userData?.profile?.email || userData?.email;
+  const avatarUrl = userData?.profile?.avatar || userData?.avatar;
 
   // Вычисляем количество дней в приложении (используем streak)
   const daysInApp = currentStreak > 0 ? currentStreak : 1;
@@ -629,23 +633,28 @@ export function AchievementHomeScreen({
   return (
     <div className="min-h-screen bg-background pb-20 overflow-x-hidden scrollbar-hide">
       {/* Achievement Header */}
-      <AchievementHeader userName={userName} daysInApp={daysInApp} />
+      <AchievementHeader
+        userName={userName}
+        daysInApp={daysInApp}
+        userEmail={userEmail}
+        avatarUrl={avatarUrl}
+      />
 
       {/* Loading State */}
       {isLoading && (
-        <div className="px-6 pt-8 pb-6 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
+        <div className="p-section flex items-center justify-center">
+          <div className="flex flex-col items-center gap-responsive-sm">
             <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-            <p className="!text-[14px] text-muted-foreground">Загрузка записей...</p>
+            <p className="text-footnote text-muted-foreground">Загрузка записей...</p>
           </div>
         </div>
       )}
 
       {/* ✅ FIX: Swipe Cards Section - адаптивный контейнер по высоте карточек */}
       {!isLoading && hasCards && (
-        <div className="px-6 pt-5 pb-6">
+        <div className="p-section">
           {/* Cards Stack Container - адаптивная высота по содержимому */}
-          <div className="relative w-full min-h-[280px] mb-4">
+          <div className="relative w-full min-h-[280px] mb-responsive-md">
             <AnimatePresence initial={false}>
               {visibleCards.reverse().map((card, idx) => {
                 const actualIndex = visibleCards.length - 1 - idx;
@@ -717,6 +726,10 @@ export function AchievementHomeScreen({
           onEntryClick={(entry) => {
             console.log("Entry clicked:", entry);
             // TODO: Открыть детальный просмотр записи
+          }}
+          onViewAllClick={() => {
+            console.log("Navigate to History");
+            onNavigateToHistory?.();
           }}
         />
       )}

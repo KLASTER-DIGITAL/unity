@@ -1,0 +1,56 @@
+/**
+ * Admin Cards - Card Components
+ * AI-Friendly: 47 lines, < 200 lines target
+ * 
+ * Purpose: Card component styles for admin panel
+ * Includes: .admin-card, .admin-card-header, .admin-card-content, .admin-card-footer
+ * 
+ * Why needed: Consistent card styling for content containers
+ */
+
+/* ===== Card Base ===== */
+
+.admin-card {
+  background-color: var(--admin-bg-primary);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-gray-200);
+  overflow: hidden;
+  transition: box-shadow var(--admin-transition);
+}
+
+.admin-card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* ===== Card Sections ===== */
+
+.admin-card-header {
+  padding: var(--admin-space-6);
+  border-bottom: 1px solid var(--admin-gray-200);
+  background-color: var(--admin-bg-secondary);
+}
+
+.admin-card-title {
+  font-size: var(--admin-text-lg);
+  font-weight: var(--admin-font-semibold);
+  color: var(--admin-gray-900);
+  margin: 0;
+}
+
+.admin-card-description {
+  font-size: var(--admin-text-sm);
+  color: var(--admin-gray-600);
+  margin: var(--admin-space-2) 0 0 0;
+}
+
+.admin-card-content {
+  padding: var(--admin-space-6);
+}
+
+.admin-card-footer {
+  padding: var(--admin-space-6);
+  border-top: 1px solid var(--admin-gray-200);
+  background-color: var(--admin-bg-secondary);
+}
+

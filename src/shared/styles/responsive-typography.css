@@ -1,0 +1,332 @@
+/**
+ * Responsive Typography System for UNITY-v2
+ * Based on iOS Human Interface Guidelines
+ * Mobile-first approach with breakpoints for different devices
+ * 
+ * Breakpoints:
+ * - Base: 320px-374px (iPhone SE 1st gen, small devices)
+ * - sm: 375px+ (iPhone SE 2020, iPhone 12 Mini)
+ * - md: 390px+ (iPhone 12/13/14)
+ * - lg: 430px+ (iPhone 14 Pro Max)
+ */
+
+/* ============================================
+   BASE STYLES (320px-374px)
+   iPhone SE 1st gen, small devices
+   ============================================ */
+:root {
+  /* Typography Scale - Reduced for small screens */
+  --text-large-title-size: 28px;
+  --text-large-title-weight: 700;
+  --text-large-title-line-height: 1.2;
+  
+  --text-title-1-size: 24px;
+  --text-title-1-weight: 600;
+  --text-title-1-line-height: 1.25;
+  
+  --text-title-2-size: 20px;
+  --text-title-2-weight: 600;
+  --text-title-2-line-height: 1.3;
+  
+  --text-title-3-size: 18px;
+  --text-title-3-weight: 600;
+  --text-title-3-line-height: 1.35;
+  
+  --text-headline-size: 16px;
+  --text-headline-weight: 600;
+  --text-headline-line-height: 1.4;
+  
+  --text-body-size: 16px;
+  --text-body-weight: 400;
+  --text-body-line-height: 1.5;
+  
+  --text-callout-size: 15px;
+  --text-callout-weight: 400;
+  --text-callout-line-height: 1.45;
+  
+  --text-subhead-size: 14px;
+  --text-subhead-weight: 400;
+  --text-subhead-line-height: 1.4;
+  
+  --text-footnote-size: 12px;
+  --text-footnote-weight: 400;
+  --text-footnote-line-height: 1.35;
+  
+  --text-caption-1-size: 11px;
+  --text-caption-1-weight: 400;
+  --text-caption-1-line-height: 1.3;
+  
+  --text-caption-2-size: 10px;
+  --text-caption-2-weight: 400;
+  --text-caption-2-line-height: 1.25;
+  
+  /* Spacing System - Compact for small screens */
+  --spacing-modal-padding: 16px;
+  --spacing-modal-bottom: 64px; /* Bottom navigation height */
+  --spacing-modal-max-height: 75vh; /* Reduced for small screens */
+  
+  --spacing-section-padding-x: 12px;
+  --spacing-section-padding-y: 16px;
+  
+  --spacing-row-padding: 12px;
+  --spacing-row-gap: 12px;
+  
+  --spacing-card-padding: 16px;
+  --spacing-card-gap: 12px;
+  
+  --spacing-gap-xs: 4px;
+  --spacing-gap-sm: 8px;
+  --spacing-gap-md: 12px;
+  --spacing-gap-lg: 16px;
+  --spacing-gap-xl: 20px;
+  
+  /* Border Radius */
+  --border-radius-modal: 20px;
+  --border-radius-card: 16px;
+  --border-radius-button: 12px;
+  
+  /* Icon Sizes */
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 32px;
+}
+
+/* ============================================
+   SMALL DEVICES (375px+)
+   iPhone SE 2020, iPhone 12 Mini
+   ============================================ */
+@media (min-width: 375px) {
+  :root {
+    /* Typography Scale - Slightly larger */
+    --text-large-title-size: 30px;
+    --text-title-1-size: 26px;
+    --text-title-2-size: 21px;
+    --text-title-3-size: 19px;
+    --text-headline-size: 17px;
+    --text-body-size: 17px;
+    --text-callout-size: 16px;
+    --text-subhead-size: 15px;
+    --text-footnote-size: 13px;
+    --text-caption-1-size: 12px;
+    --text-caption-2-size: 11px;
+    
+    /* Spacing System - More comfortable */
+    --spacing-modal-padding: 20px;
+    --spacing-modal-bottom: 80px;
+    --spacing-modal-max-height: 80vh;
+    
+    --spacing-section-padding-x: 16px;
+    --spacing-section-padding-y: 20px;
+    
+    --spacing-row-padding: 14px;
+    --spacing-row-gap: 14px;
+    
+    --spacing-card-padding: 18px;
+    --spacing-card-gap: 14px;
+    
+    --spacing-gap-xs: 4px;
+    --spacing-gap-sm: 8px;
+    --spacing-gap-md: 14px;
+    --spacing-gap-lg: 18px;
+    --spacing-gap-xl: 22px;
+    
+    /* Border Radius */
+    --border-radius-modal: 22px;
+    --border-radius-card: 18px;
+    --border-radius-button: 14px;
+  }
+}
+
+/* ============================================
+   MEDIUM DEVICES (390px+)
+   iPhone 12/13/14, Samsung Galaxy S21
+   ============================================ */
+@media (min-width: 390px) {
+  :root {
+    /* Typography Scale - iOS standard sizes */
+    --text-large-title-size: 34px;
+    --text-title-1-size: 28px;
+    --text-title-2-size: 22px;
+    --text-title-3-size: 20px;
+    --text-headline-size: 17px;
+    --text-body-size: 17px;
+    --text-callout-size: 16px;
+    --text-subhead-size: 15px;
+    --text-footnote-size: 13px;
+    --text-caption-1-size: 12px;
+    --text-caption-2-size: 11px;
+    
+    /* Spacing System - Standard */
+    --spacing-modal-padding: 24px;
+    --spacing-modal-bottom: 80px;
+    --spacing-modal-max-height: 85vh;
+    
+    --spacing-section-padding-x: 16px;
+    --spacing-section-padding-y: 24px;
+    
+    --spacing-row-padding: 16px;
+    --spacing-row-gap: 16px;
+    
+    --spacing-card-padding: 20px;
+    --spacing-card-gap: 16px;
+    
+    --spacing-gap-xs: 4px;
+    --spacing-gap-sm: 8px;
+    --spacing-gap-md: 16px;
+    --spacing-gap-lg: 20px;
+    --spacing-gap-xl: 24px;
+    
+    /* Border Radius */
+    --border-radius-modal: 24px;
+    --border-radius-card: 20px;
+    --border-radius-button: 16px;
+  }
+}
+
+/* ============================================
+   LARGE DEVICES (430px+)
+   iPhone 14 Pro Max, large phones
+   ============================================ */
+@media (min-width: 430px) {
+  :root {
+    /* Typography Scale - Slightly larger for big screens */
+    --text-large-title-size: 36px;
+    --text-title-1-size: 30px;
+    --text-title-2-size: 24px;
+    --text-title-3-size: 22px;
+    
+    /* Spacing System - More spacious */
+    --spacing-modal-padding: 28px;
+    --spacing-section-padding-y: 28px;
+    --spacing-card-padding: 24px;
+    --spacing-gap-xl: 28px;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Responsive padding utilities */
+.p-modal {
+  padding: var(--spacing-modal-padding);
+}
+
+.p-section {
+  padding-left: var(--spacing-section-padding-x);
+  padding-right: var(--spacing-section-padding-x);
+  padding-top: var(--spacing-section-padding-y);
+  padding-bottom: var(--spacing-section-padding-y);
+}
+
+.p-row {
+  padding: var(--spacing-row-padding);
+}
+
+.p-card {
+  padding: var(--spacing-card-padding);
+}
+
+/* Responsive gap utilities */
+.gap-responsive-xs {
+  gap: var(--spacing-gap-xs);
+}
+
+.gap-responsive-sm {
+  gap: var(--spacing-gap-sm);
+}
+
+.gap-responsive-md {
+  gap: var(--spacing-gap-md);
+}
+
+.gap-responsive-lg {
+  gap: var(--spacing-gap-lg);
+}
+
+.gap-responsive-xl {
+  gap: var(--spacing-gap-xl);
+}
+
+/* Modal positioning */
+.modal-bottom-sheet {
+  position: fixed;
+  bottom: var(--spacing-modal-bottom);
+  left: 0;
+  right: 0;
+  max-height: var(--spacing-modal-max-height);
+  border-top-left-radius: var(--border-radius-modal);
+  border-top-right-radius: var(--border-radius-modal);
+}
+
+/* ============================================
+   TYPOGRAPHY CLASSES
+   ============================================ */
+
+.text-large-title {
+  font-size: var(--text-large-title-size);
+  font-weight: var(--text-large-title-weight);
+  line-height: var(--text-large-title-line-height);
+}
+
+.text-title-1 {
+  font-size: var(--text-title-1-size);
+  font-weight: var(--text-title-1-weight);
+  line-height: var(--text-title-1-line-height);
+}
+
+.text-title-2 {
+  font-size: var(--text-title-2-size);
+  font-weight: var(--text-title-2-weight);
+  line-height: var(--text-title-2-line-height);
+}
+
+.text-title-3 {
+  font-size: var(--text-title-3-size);
+  font-weight: var(--text-title-3-weight);
+  line-height: var(--text-title-3-line-height);
+}
+
+.text-headline {
+  font-size: var(--text-headline-size);
+  font-weight: var(--text-headline-weight);
+  line-height: var(--text-headline-line-height);
+}
+
+.text-body {
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+}
+
+.text-callout {
+  font-size: var(--text-callout-size);
+  font-weight: var(--text-callout-weight);
+  line-height: var(--text-callout-line-height);
+}
+
+.text-subhead {
+  font-size: var(--text-subhead-size);
+  font-weight: var(--text-subhead-weight);
+  line-height: var(--text-subhead-line-height);
+}
+
+.text-footnote {
+  font-size: var(--text-footnote-size);
+  font-weight: var(--text-footnote-weight);
+  line-height: var(--text-footnote-line-height);
+}
+
+.text-caption-1 {
+  font-size: var(--text-caption-1-size);
+  font-weight: var(--text-caption-1-weight);
+  line-height: var(--text-caption-1-line-height);
+}
+
+.text-caption-2 {
+  font-size: var(--text-caption-2-size);
+  font-weight: var(--text-caption-2-weight);
+  line-height: var(--text-caption-2-line-height);
+}
+

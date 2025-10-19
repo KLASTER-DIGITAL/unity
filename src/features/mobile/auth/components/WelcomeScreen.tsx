@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
-import imgGeneratedImageSeptember092025333Pm1 from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.png";
+import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
 import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
+
+// Путь к оптимизированному изображению
+const heroImageSrc = "/src/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp";
 
 // Новая i18n система
 import { useTranslation } from "@/shared/lib/i18n";
@@ -127,19 +130,23 @@ useEffect(() => {
 }, [selectedLanguage, i18nLanguage, changeLanguage]);
 
   return (
-    <motion.div 
-      className="bg-white relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
+    <motion.div
+      className="bg-background relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {/* Top Section - Purple Background with Image + Language Selector */}
       <div className="relative flex-shrink-0 overflow-hidden" style={{ height: 'min(50vh, 400px)' }}>
-        {/* Generated Image Background - адаптивная */}
-        <div 
-          className="absolute inset-0 bg-center bg-cover bg-no-repeat"
-          style={{ backgroundImage: `url('${imgGeneratedImageSeptember092025333Pm1}')` }}
-        />
+        {/* Generated Image Background - адаптивная с WebP оптимизацией */}
+        <div className="absolute inset-0">
+          <PriorityOptimizedImage
+            src={heroImageSrc}
+            alt="Welcome background"
+            className="w-full h-full object-cover"
+            priority={true}
+          />
+        </div>
 
         {/* Decorative ellipses - только для больших экранов */}
         <div className="absolute inset-0 hidden sm:block pointer-events-none">
@@ -227,7 +234,7 @@ useEffect(() => {
           <div className="relative mt-4">
             <Button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="bg-white box-border flex h-14 items-center justify-between min-w-[230px] pl-[22px] pr-[13px] py-0 rounded-[10px] text-[#6b6b6b] border-0 shadow-lg hover:bg-gray-50"
+              className="bg-card box-border flex h-14 items-center justify-between min-w-[230px] pl-[22px] pr-[13px] py-0 rounded-[10px] text-muted-foreground border-0 shadow-lg hover:bg-accent/5"
               style={{
                 fontFamily: "'Inter', var(--font-family-primary)",
                 fontSize: '12px',
@@ -363,10 +370,10 @@ useEffect(() => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              {t('welcomeTitle', currentTranslations.title)}
+              {currentTranslations.title}
             </motion.h2>
-            
-            <motion.p 
+
+            <motion.p
               className="text-[#8d8d8d]"
               style={{
                 fontFamily: "'Open Sans', var(--font-family-primary)",
@@ -379,7 +386,7 @@ useEffect(() => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              {t('appSubtitle', currentTranslations.subtitle)}
+              {currentTranslations.subtitle}
             </motion.p>
           </motion.div>
         </div>
@@ -409,7 +416,7 @@ useEffect(() => {
                   fontSize: '15px'
                 }}
               >
-                {t('alreadyHaveAccount', currentTranslations.alreadyHaveAccount)}
+                {currentTranslations.alreadyHaveAccount}
               </motion.button>
             )}
             
@@ -443,7 +450,7 @@ useEffect(() => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {t('start_button', currentTranslations.startButton)}
+                  {currentTranslations.startButton}
                 </motion.span>
               </Button>
             </div>
@@ -463,7 +470,7 @@ useEffect(() => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, type: "spring", damping: 25 }}
-            className="bg-white rounded-[20px] w-[280px] max-h-[65vh] overflow-hidden shadow-2xl"
+            className="bg-card rounded-[20px] w-[280px] max-h-[65vh] overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Language List */}
@@ -475,7 +482,7 @@ useEffect(() => {
                     setSelectedLanguage(language.code);
                     setShowDropdown(false);
                   }}
-                  className="w-full flex items-center justify-between pl-[22px] pr-[13px] h-14 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-between pl-[22px] pr-[13px] h-14 text-left hover:bg-accent/5 active:bg-accent/10 transition-colors"
                   style={{
                     fontFamily: "'Inter', var(--font-family-primary)",
                     fontSize: '12px',

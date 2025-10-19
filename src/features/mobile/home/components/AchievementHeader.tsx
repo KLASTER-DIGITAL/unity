@@ -9,10 +9,39 @@ import {
   BookOpen,
   Settings
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 
 interface AchievementHeaderProps {
   userName?: string;
   daysInApp?: number;
+  userEmail?: string;
+  avatarUrl?: string;
+}
+
+// Дефолтное фото для аватара
+const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
+
+// Компонент аватарки с пульсацией онлайн-статуса
+function UserAvatar({ userName, userEmail, avatarUrl }: { userName?: string; userEmail?: string; avatarUrl?: string }) {
+  // Используем дефолтное фото если нет аватара
+  const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
+
+  return (
+    <div className="relative flex-shrink-0">
+      <Avatar className="h-[70px] w-[70px] ring-1 ring-border">
+        <AvatarImage src={displayAvatarUrl} alt={userName} className="object-cover" />
+        <AvatarFallback className="bg-muted">
+          <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
+        </AvatarFallback>
+      </Avatar>
+
+      {/* Пульсирующий зеленый индикатор онлайн-статуса - пульсация от края */}
+      <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 z-10">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
+      </span>
+    </div>
+  );
 }
 
 // Компонент иконки категории (4 квадратика)
@@ -22,41 +51,41 @@ function CategoryIcon() {
       <div className="absolute inset-[-5%]">
         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 17 17">
           <g>
-            <path 
-              clipRule="evenodd" 
-              d={svgPaths.p30955100} 
-              fillRule="evenodd" 
-              stroke="#002055" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="1.5" 
+            <path
+              clipRule="evenodd"
+              d={svgPaths.p30955100}
+              fillRule="evenodd"
+              stroke="var(--icon-primary)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
             />
-            <path 
-              clipRule="evenodd" 
-              d={svgPaths.p2ab2d180} 
-              fillRule="evenodd" 
-              stroke="#002055" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="1.5" 
+            <path
+              clipRule="evenodd"
+              d={svgPaths.p2ab2d180}
+              fillRule="evenodd"
+              stroke="var(--icon-primary)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
             />
-            <path 
-              clipRule="evenodd" 
-              d={svgPaths.p2d147e00} 
-              fillRule="evenodd" 
-              stroke="#002055" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="1.5" 
+            <path
+              clipRule="evenodd"
+              d={svgPaths.p2d147e00}
+              fillRule="evenodd"
+              stroke="var(--icon-primary)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
             />
-            <path 
-              clipRule="evenodd" 
-              d={svgPaths.p3a3f5900} 
-              fillRule="evenodd" 
-              stroke="#002055" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="1.5" 
+            <path
+              clipRule="evenodd"
+              d={svgPaths.p3a3f5900}
+              fillRule="evenodd"
+              stroke="var(--icon-primary)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
             />
           </g>
         </svg>
@@ -71,37 +100,37 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     {
       icon: Plus,
       label: "Новая запись",
-      color: "bg-blue-500",
+      color: "bg-[var(--action-primary)]",
       action: () => console.log("Новая запись")
     },
     {
       icon: Mic,
       label: "Голосовая запись",
-      color: "bg-purple-500",
+      color: "bg-[var(--action-voice)]",
       action: () => console.log("Голосовая запись")
     },
     {
       icon: Camera,
       label: "Фото достижение",
-      color: "bg-green-500",
+      color: "bg-[var(--action-photo)]",
       action: () => console.log("Фото")
     },
     {
       icon: Sparkles,
       label: "AI подсказка",
-      color: "bg-orange-500",
+      color: "bg-[var(--action-ai)]",
       action: () => console.log("AI подсказка")
     },
     {
       icon: BookOpen,
       label: "История записей",
-      color: "bg-pink-500",
+      color: "bg-[var(--action-history)]",
       action: () => console.log("История")
     },
     {
       icon: Settings,
       label: "Настройки",
-      color: "bg-gray-500",
+      color: "bg-[var(--action-settings)]",
       action: () => console.log("Настройки")
     }
   ];
@@ -116,7 +145,7 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
           />
           
           {/* Menu */}
@@ -125,13 +154,13 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-[24px] shadow-2xl p-4 w-[280px]"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-modal bg-card rounded-[24px] shadow-2xl p-modal w-[280px] border border-border transition-colors duration-300"
             style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
           >
-            <div className="mb-3">
-              <h3 className="!text-[17px] !font-semibold text-[#202224]">Быстрые действия</h3>
+            <div className="mb-responsive-sm">
+              <h3 className="text-headline text-foreground">Быстрые действия</h3>
             </div>
-            
+
             <div className="space-y-2">
               {quickActions.map((action, index) => (
                 <motion.button
@@ -143,12 +172,12 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     action.action();
                     onClose();
                   }}
-                  className="w-full flex items-center gap-3 p-3 rounded-[12px] hover:bg-gray-50 transition-colors active:scale-95"
+                  className="w-full flex items-center gap-responsive-sm p-row rounded-[12px] hover:bg-muted transition-colors active:scale-95"
                 >
                   <div className={`${action.color} w-10 h-10 rounded-[10px] flex items-center justify-center`}>
-                    <action.icon className="w-5 h-5 text-white" />
+                    <action.icon className="h-5 w-5 text-white" strokeWidth={2} />
                   </div>
-                  <span className="!text-[15px] !font-normal text-[#202224]">{action.label}</span>
+                  <span className="text-subhead text-foreground">{action.label}</span>
                 </motion.button>
               ))}
             </div>
@@ -159,66 +188,62 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 }
 
-export function AchievementHeader({ userName = "Пользователь", daysInApp = 1 }: AchievementHeaderProps) {
+export function AchievementHeader({
+  userName = "Пользователь",
+  daysInApp = 1,
+  userEmail,
+  avatarUrl
+}: AchievementHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
-
-  // Получаем текущую дату
-  const currentDate = new Date();
-  const dayOfWeek = new Intl.DateTimeFormat('ru', { weekday: 'long' }).format(currentDate);
-  const dayOfMonth = currentDate.getDate();
-  const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
 
   return (
     <>
-      <div className="relative pt-6 pb-5 px-6 bg-white">
-        {/* Top Bar - день недели и кнопка меню */}
-        <div className="flex items-center justify-between mb-5">
-          {/* Menu Button */}
-          <button 
-            onClick={() => setShowMenu(true)}
-            className="relative w-[42px] h-[42px] active:scale-95 transition-transform"
-          >
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 42 42">
-              <circle cx="21" cy="21" fill="white" r="20.5" stroke="#E9F1FF" />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[17px] h-[17px] relative">
-                <CategoryIcon />
-              </div>
+      <div className="relative p-section bg-card transition-colors duration-300">
+        {/* Top Bar - аватарка, приветствие и счетчик дней */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Avatar + Greeting */}
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {/* Avatar with online pulse */}
+            <UserAvatar userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
+
+            {/* Greeting */}
+            <div className="flex-1 min-w-0">
+              <h1 className="!text-[24px] !font-semibold text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
+                <span className="text-[24px]">🙌</span>
+                <span className="!text-[24px]">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
+              </h1>
+              <p className="text-muted-foreground !text-[15px] !leading-[1.3] mt-0.5">
+                Какие твои победы сегодня?
+              </p>
             </div>
-          </button>
+          </div>
 
-          {/* Day of week */}
-          <p className="!text-[18px] !font-medium text-[#002055]">
-            {capitalizedDay}, {dayOfMonth}
-          </p>
-
-          {/* Days Counter - уменьшенный */}
-          <div className="relative w-[72px] h-[72px]">
+          {/* Right: Days Counter */}
+          <div className="relative w-[72px] h-[72px] flex-shrink-0">
             <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 72 72">
-              <circle cx="36" cy="36" r="35.5" stroke="#AFAFAF" />
+              <circle cx="36" cy="36" r="35.5" stroke="var(--border)" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="!text-[24px] !font-semibold text-[#b1d199] leading-[1]">
+              <p className="!text-[24px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="!text-[9px] !font-medium text-black mt-0.5">
+              <p className="text-caption-2 text-foreground mt-0.5">
                 День
               </p>
             </div>
           </div>
         </div>
-
-        {/* Greeting - компактное */}
-        <div>
-          <h1 className="!text-[24px] !font-semibold text-[#202224] tracking-[-0.5px] leading-[1.15]">
-            🙌 <span className="!text-[24px]">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>{" "}
-            <span className="text-[#797981] !text-[24px] block !leading-[1.3] mt-0.5">
-              Какие твои победы сегодня?
-            </span>
-          </h1>
-        </div>
       </div>
+
+      {/* Floating Quick Actions Button - справа внизу */}
+      <motion.button
+        onClick={() => setShowMenu(true)}
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-accent rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Plus className="h-6 w-6 text-white" strokeWidth={2.5} />
+      </motion.button>
 
       {/* Quick Actions Menu */}
       <QuickActionsMenu isOpen={showMenu} onClose={() => setShowMenu(false)} />

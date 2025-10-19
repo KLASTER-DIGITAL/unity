@@ -1,564 +1,798 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { motion, AnimatePresence } from "motion/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Switch } from "@/shared/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
+import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { toast } from "sonner";
-import { isPWAInstalled, isIOSSafari, getInstallInstructions } from "@/shared/lib/pwa";
 import { useTranslations } from "@/shared/lib/i18n";
 import { updateUserProfile } from "@/shared/lib/api";
-import { 
-  Settings, 
-  Bell, 
-  Palette, 
-  Shield, 
-  Crown, 
+import { SettingsRow, SettingsSection } from "./SettingsRow";
+import { Switch } from "@/shared/components/ui/switch";
+import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
+import { PremiumModal } from "./PremiumModal";
+import { ProfileEditModal } from "./ProfileEditModal";
+
+// Дефолтное фото для аватара
+const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
+import {
+  Bell,
+  Star,
+  Lock,
+  Shield,
+  Globe,
+  HelpCircle,
+  MessageCircle,
+  LogOut,
+  Edit2,
+  User,
+  Phone,
+  Mail,
+  Palette,
+  Calendar,
   Download,
   Upload,
   Trash2,
-  HelpCircle,
-  Mail,
-  Star,
-  ChevronRight,
-  Moon,
   Smartphone,
-  Globe,
-  Calendar,
-  LogOut,
-  Info
+  Crown,
+  X
 } from "lucide-react";
-
-interface Language {
-  id: string;
-  code: string;
-  name: string;
-  native_name: string;
-  flag: string;
-  is_active: boolean;
-}
-
-// Fallback языки на случай, если API недоступен
-const fallbackLanguages: Language[] = [
-  { id: '1', code: 'ru', name: 'Russian', native_name: 'Русский', flag: '🇷🇺', is_active: true },
-  { id: '2', code: 'en', name: 'English', native_name: 'English', flag: '🇬🇧', is_active: true },
-  { id: '3', code: 'es', name: 'Spanish', native_name: 'Español', flag: '🇪🇸', is_active: true },
-  { id: '4', code: 'de', name: 'German', native_name: 'Deutsch', flag: '🇩🇪', is_active: true },
-  { id: '5', code: 'fr', name: 'French', native_name: 'Français', flag: '🇫🇷', is_active: true },
-  { id: '6', code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
-  { id: '7', code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
-];
 
 interface SettingsScreenProps {
   userData?: any;
   onLogout?: () => void;
+  onProfileUpdate?: (updatedProfile: any) => void;
 }
 
-export function SettingsScreen({ userData, onLogout }: SettingsScreenProps) {
-  // Получаем переводы для языка пользователя
-  const t = useTranslations(userData?.language || 'ru');
+export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
+  // Extract profile from userData (userData = { success, user, profile })
+  const initialProfile = userData?.profile || userData;
 
-  // ✅ FIXED: Инициализируем notification settings из userData
+  // Local state for profile (to update in real-time)
+  const [profile, setProfile] = useState(initialProfile);
+
+  const t = useTranslations(profile?.language || 'ru');
+
+  // State для уведомлений
   const [notifications, setNotifications] = useState({
-    dailyReminder: userData?.notificationSettings?.selectedTime !== 'none',
-    weeklyReport: true,
-    achievements: true,
-    motivational: userData?.notificationSettings?.selectedTime === 'both'
+    dailyReminder: profile?.notificationSettings?.dailyReminder || false,
+    weeklyReport: profile?.notificationSettings?.weeklyReport || false,
+    achievements: profile?.notificationSettings?.achievements || false,
+    motivational: profile?.notificationSettings?.motivational || false,
   });
 
-  const [privacy, setPrivacy] = useState({
-    biometric: true,
-    autoBackup: true,
-    analytics: false
-  });
+  // State для настроек безопасности
+  const [biometricEnabled, setBiometricEnabled] = useState(profile?.biometricEnabled || false);
+  const [autoBackupEnabled, setAutoBackupEnabled] = useState(profile?.backupEnabled || false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
-  const [showInstallButton, setShowInstallButton] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
-  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+  // State для модальных окон (Drawer - Bottom Sheets)
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showRateApp, setShowRateApp] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false);
+  const [showPremium, setShowPremium] = useState(false);
+  const [showPWAInstall, setShowPWAInstall] = useState(false);
 
-  // Загрузка языков из API
+  // Список языков
+  const languages = [
+    { code: 'ru', name: 'Russian', native_name: 'Русский', flag: '🇷🇺', is_active: true },
+    { code: 'en', name: 'English', native_name: 'English', flag: '🇺🇸', is_active: true },
+    { code: 'es', name: 'Spanish', native_name: 'Español', flag: '🇪🇸', is_active: true },
+    { code: 'de', name: 'German', native_name: 'Deutsch', flag: '🇩🇪', is_active: true },
+    { code: 'fr', name: 'French', native_name: 'Français', flag: '🇫🇷', is_active: true },
+    { code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
+    { code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
+  ];
+
+  // Проверка поддержки WebAuthn для биометрии
   useEffect(() => {
-    const loadLanguages = async () => {
+    const checkBiometric = async () => {
+      if (window.PublicKeyCredential) {
+        try {
+          const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+          setBiometricAvailable(available);
+        } catch (error) {
+          setBiometricAvailable(false);
+        }
+      }
+    };
+    checkBiometric();
+  }, []);
+
+  // Синхронизация локального профиля с userData
+  useEffect(() => {
+    const newProfile = userData?.profile || userData;
+    if (newProfile && newProfile.id !== profile?.id) {
+      console.log('🔄 [SettingsScreen] Syncing profile from userData:', newProfile);
+      setProfile(newProfile);
+    }
+  }, [userData]);
+
+  // Синхронизация state с userData при изменении профиля
+  useEffect(() => {
+    if (profile?.notificationSettings) {
+      setNotifications({
+        dailyReminder: profile.notificationSettings.dailyReminder || false,
+        weeklyReport: profile.notificationSettings.weeklyReport || false,
+        achievements: profile.notificationSettings.achievements || false,
+        motivational: profile.notificationSettings.motivational || false,
+      });
+    }
+    if (profile?.biometricEnabled !== undefined) {
+      setBiometricEnabled(profile.biometricEnabled);
+    }
+    if (profile?.backupEnabled !== undefined) {
+      setAutoBackupEnabled(profile.backupEnabled);
+    }
+  }, [profile?.id]); // Обновляем только при смене пользователя
+
+  // Автосохранение уведомлений
+  useEffect(() => {
+    const saveNotifications = async () => {
+      const userId = profile?.id;
+      if (!userId) return;
+
       try {
-        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/languages', {
-          headers: {
-            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
+        await updateUserProfile(userId, {
+          notificationSettings: {
+            ...profile.notificationSettings,
+            ...notifications
           }
         });
-        if (response.ok) {
-          const data = await response.json();
-          setLanguages(data.languages || []);
-        } else {
-          console.error('Failed to load languages:', response.status);
-          setLanguages(fallbackLanguages);
-        }
+        console.log('✅ Notifications saved:', notifications);
       } catch (error) {
-        console.error('Error loading languages:', error);
-        setLanguages(fallbackLanguages);
-      } finally {
-        setIsLoadingLanguages(false);
+        console.error('❌ Error saving notifications:', error);
       }
     };
 
-    loadLanguages();
-  }, []);
+    const timeoutId = setTimeout(saveNotifications, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [notifications, profile?.id]);
 
-  // Проверяем возможность установки PWA
+  // Автосохранение настроек безопасности
   useEffect(() => {
-    const installed = isPWAInstalled();
-    console.log('PWA installed:', installed);
-    
-    if (!installed) {
-      setShowInstallButton(true);
-      console.log('✅ Showing install button in settings');
-    } else {
-      console.log('ℹ️ PWA already installed - hiding install button');
+    const saveSecurity = async () => {
+      const userId = profile?.id;
+      if (!userId) return;
+
+      try {
+        await updateUserProfile(userId, {
+          biometricEnabled: biometricEnabled,
+          backupEnabled: autoBackupEnabled
+        });
+        console.log('✅ Security settings saved');
+      } catch (error) {
+        console.error('❌ Error saving security settings:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(saveSecurity, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [biometricEnabled, autoBackupEnabled, profile?.id]);
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
     }
+  };
 
-    const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('📱 beforeinstallprompt caught in settings');
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallButton(true);
-    };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  const handleLanguageChange = async (newLanguage: string) => {
-    if (!userData?.id) return;
-    
+  // Обработчик смены языка
+  const handleLanguageChange = async (languageCode: string) => {
     try {
-      await updateUserProfile(userData.id, { language: newLanguage });
-      toast.success("Язык изменён!");
-      setShowLanguageModal(false);
-      // Перезагружаем страницу для применения нового языка
-      window.location.reload();
+      const userId = profile?.id;
+      if (userId) {
+        await updateUserProfile(userId, { language: languageCode });
+        console.log(`✅ Language "${languageCode}" saved to DB`);
+      }
+
+      toast.success("Язык изменен! Перезагрузите страницу.");
+      setShowLanguage(false);
+
+      // Перезагрузка страницы для применения нового языка
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
-      console.error('Error updating language:', error);
+      console.error('Error changing language:', error);
       toast.error("Ошибка при изменении языка");
     }
   };
-  
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      console.log('No deferredPrompt available, showing instructions');
-      
-      const instructions = getInstallInstructions();
-      
-      toast.info('Инструкции по установке', {
-        description: instructions,
-        duration: 10000
-      });
-      return;
-    }
-
-    try {
-      console.log('Prompting user to install PWA...');
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        console.log('✅ User accepted the install prompt');
-        toast.success('Приложение устанавливается...');
-        setShowInstallButton(false);
-      } else {
-        console.log('❌ User dismissed the install prompt');
-        toast.info('Вы можете установить приложение позже');
-      }
-      
-      setDeferredPrompt(null);
-    } catch (error) {
-      console.error('Error during PWA install:', error);
-      toast.error('Ошибка при установке приложения');
-    }
-  };
-  
-  // Данные пользователя для демонстрации
-  const user = {
-    name: userData?.name || "Пользователь",
-    email: userData?.email || "user@example.com",
-    avatar: userData?.avatar || null,
-    location: "Москва, Россия"
-  };
-
-  const themes = [
-    { id: "default", name: "По умолчанию", premium: false, color: "bg-gradient-to-br from-blue-500 to-purple-600" },
-    { id: "dark", name: "Тёмная", premium: false, color: "bg-gradient-to-br from-gray-800 to-gray-900" },
-    { id: "light", name: "Светлая", premium: false, color: "bg-gradient-to-br from-white to-gray-100" },
-    { id: "sunset", name: "Закат", premium: true, color: "bg-gradient-to-br from-orange-400 to-pink-500" }
-  ];
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50 overflow-x-hidden scrollbar-hide">
-      {/* Профиль пользователя */}
-      <div className="bg-white p-6 border-b">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="bg-gray-800 text-white">
-                {user.name.split(' ').map(n => n[0]).join('')}
+    <div className="pb-20 min-h-screen bg-background">
+      {/* Header - User Name */}
+      <div className="bg-card border-b border-border pt-12 pb-6 transition-colors duration-300">
+        <h1 className="text-center text-lg font-semibold text-foreground">
+          {profile?.name || 'Мой аккаунт'}
+        </h1>
+      </div>
+
+      {/* Profile Section */}
+      <div className="bg-card px-6 py-8 border-b border-border transition-colors duration-300">
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <Avatar className="h-24 w-24 ring-4 ring-primary/10">
+              <AvatarImage src={profile?.avatar || DEFAULT_AVATAR_URL} alt={profile?.name} />
+              <AvatarFallback className="bg-muted">
+                <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="text-lg">{user.name}</h2>
-              <p className="text-gray-600 text-sm">{user.location}</p>
-            </div>
+            <button
+              onClick={() => setShowEditProfile(true)}
+              className="absolute bottom-0 right-0 p-2 bg-card rounded-full shadow-lg border border-border hover:bg-muted transition-colors"
+              aria-label="Edit profile"
+            >
+              <Edit2 className="h-5 w-5 text-foreground" strokeWidth={2} />
+            </button>
           </div>
-          <ChevronRight className="h-5 w-5 text-gray-400" />
+
+          {/* User Info */}
+          <div className="mt-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              {profile?.email}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Уведомления */}
-      <div className="p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              {t.notifications}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>{t.dailyReminders}</h4>
-                <p className="text-sm text-gray-600">{t.dailyReminders}</p>
-              </div>
-              <Switch 
-                checked={notifications.dailyReminder}
-                onCheckedChange={(checked) => setNotifications(prev => ({...prev, dailyReminder: checked}))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>{t.weeklyReports}</h4>
-                <p className="text-sm text-gray-600">{t.weeklyReports}</p>
-              </div>
-              <Switch 
-                checked={notifications.weeklyReport}
-                onCheckedChange={(checked) => setNotifications(prev => ({...prev, weeklyReport: checked}))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>{t.newAchievements}</h4>
-                <p className="text-sm text-gray-600">{t.newAchievements}</p>
-              </div>
-              <Switch 
-                checked={notifications.achievements}
-                onCheckedChange={(checked) => setNotifications(prev => ({...prev, achievements: checked}))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>{t.motivationalMessages}</h4>
-                <p className="text-sm text-gray-600">{t.motivationalMessages}</p>
-              </div>
-              <Switch 
-                checked={notifications.motivational}
-                onCheckedChange={(checked) => setNotifications(prev => ({...prev, motivational: checked}))}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SettingsSection title={t.notifications || "Уведомления"}>
+        <SettingsRow
+          icon={Bell}
+          iconColor="text-[var(--ios-blue)]"
+          iconBgColor="bg-[var(--ios-blue)]/10"
+          title={t.dailyReminders || "Ежедневные напоминания"}
+          description="Напоминания о записях"
+          rightElement="switch"
+          switchChecked={notifications.dailyReminder}
+          onSwitchChange={(checked) => setNotifications(prev => ({...prev, dailyReminder: checked}))}
+        />
+        <SettingsRow
+          icon={Calendar}
+          iconColor="text-[var(--ios-purple)]"
+          iconBgColor="bg-[var(--ios-purple)]/10"
+          title={t.weeklyReports || "Еженедельные отчеты"}
+          description="Статистика за неделю"
+          rightElement="switch"
+          switchChecked={notifications.weeklyReport}
+          onSwitchChange={(checked) => setNotifications(prev => ({...prev, weeklyReport: checked}))}
+        />
+        <SettingsRow
+          icon={Star}
+          iconColor="text-[var(--ios-green)]"
+          iconBgColor="bg-[var(--ios-green)]/10"
+          title={t.newAchievements || "Новые достижения"}
+          description="Уведомления о наградах"
+          rightElement="switch"
+          switchChecked={notifications.achievements}
+          onSwitchChange={(checked) => setNotifications(prev => ({...prev, achievements: checked}))}
+        />
+        <SettingsRow
+          icon={Crown}
+          iconColor="text-[var(--ios-orange)]"
+          iconBgColor="bg-[var(--ios-orange)]/10"
+          title={t.motivationalMessages || "Мотивационные сообщения"}
+          description="Мотивационные карточки"
+          rightElement="switch"
+          switchChecked={notifications.motivational}
+          onSwitchChange={(checked) => setNotifications(prev => ({...prev, motivational: checked}))}
+        />
+      </SettingsSection>
 
-      {/* Темы оформления */}
-      <div className="p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              {t.themes}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              {themes.map(theme => (
-                <div key={theme.id} className="text-center">
-                  <div 
-                    className={`w-16 h-16 rounded-lg mx-auto mb-2 cursor-pointer hover:scale-105 transition-transform ${theme.color}`}
-                  >
-                    {theme.premium && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Crown className="h-4 w-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs">{theme.name}</p>
-                  {theme.premium && <Badge variant="outline" className="text-xs mt-1">Премиум</Badge>}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Темы оформления - shadcn/ui стандарт */}
+      <SettingsSection title={t.themes || "Темы оформления"}>
+        <SettingsRow
+          icon={Palette}
+          iconColor="text-[var(--ios-purple)]"
+          iconBgColor="bg-[var(--ios-purple)]/10"
+          title={t.appearance || "Внешний вид"}
+          description={t.appearanceDescription || "Переключение темы"}
+          rightElement="custom"
+          customRightElement={<ThemeToggle />}
+        />
+      </SettingsSection>
 
       {/* Безопасность и приватность */}
-      <div className="p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              {t.security}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>Биометрическая защита</h4>
-                <p className="text-sm text-gray-600">Face ID / Touch ID</p>
-              </div>
-              <Switch 
-                checked={privacy.biometric}
-                onCheckedChange={(checked) => setPrivacy(prev => ({...prev, biometric: checked}))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>Автоматическое резервирование</h4>
-                <p className="text-sm text-gray-600">Облачное сохранение данных</p>
-              </div>
-              <Switch 
-                checked={privacy.autoBackup}
-                onCheckedChange={(checked) => setPrivacy(prev => ({...prev, autoBackup: checked}))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>Аналитика использования</h4>
-                <p className="text-sm text-gray-600">Помогает улучшить приложение</p>
-              </div>
-              <Switch 
-                checked={privacy.analytics}
-                onCheckedChange={(checked) => setPrivacy(prev => ({...prev, analytics: checked}))}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SettingsSection title={t.security || "Безопасность"}>
+        <SettingsRow
+          icon={Lock}
+          iconColor="text-[var(--ios-blue)]"
+          iconBgColor="bg-[var(--ios-blue)]/10"
+          title={t.biometricProtection || "Биометрическая защита"}
+          description={biometricAvailable ? "Доступно" : "Недоступно в браузере"}
+          rightElement="switch"
+          switchChecked={biometricEnabled}
+          onSwitchChange={setBiometricEnabled}
+          disabled={!biometricAvailable}
+        />
+        <SettingsRow
+          icon={Shield}
+          iconColor="text-[var(--ios-green)]"
+          iconBgColor="bg-[var(--ios-green)]/10"
+          title={t.autoBackup || "Автоматическое резервирование"}
+          description={userData?.isPremium ? "Премиум функция" : "Требуется премиум"}
+          rightElement="switch"
+          switchChecked={autoBackupEnabled}
+          onSwitchChange={(checked) => {
+            if (!userData?.isPremium && checked) {
+              setShowPremium(true);
+            } else {
+              setAutoBackupEnabled(checked);
+            }
+          }}
+          onClick={() => {
+            if (!userData?.isPremium) {
+              setShowPremium(true);
+            }
+          }}
+          disabled={!userData?.isPremium}
+        />
+      </SettingsSection>
 
-      {/* Дополнительные настройки */}
-      <div className="p-4">
-        <Card>
-          <CardContent className="pt-6 space-y-3">
-            {/* Установка PWA */}
-            {showInstallButton && (
-              <div 
-                onClick={handleInstallClick}
-                className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-accent/5 hover:to-accent/10 p-3 rounded-lg border-2 border-accent/20 bg-accent/5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-accent/20 rounded-lg">
-                    <Smartphone className="h-4 w-4 text-accent" />
-                  </div>
-                  <div>
-                    <span className="text-gray-900 block !font-semibold">Установить приложение</span>
-                    <span className="text-xs text-gray-600">Добавить на главный экран</span>
-                  </div>
-                </div>
-                <Download className="h-4 w-4 text-accent" />
-              </div>
-            )}
-            
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Upload className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.importData}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </div>
-            
-            <div 
-              className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg"
-              onClick={() => setShowLanguageModal(true)}
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Globe className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.appLanguage}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">{t.currentLanguage}</span>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Calendar className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.firstDayOfWeek}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">{t.monday}</span>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Admin Panel Link - только для супер-админа */}
-      {userData?.email === "diary@leadshunter.biz" && (
-        <div className="p-4">
-          <Card className="border-2 border-accent bg-accent/5">
-            <CardContent className="pt-6">
-              <div 
-                onClick={() => {
-                  window.location.href = '?view=admin';
-                }}
-                className="flex items-center justify-between cursor-pointer hover:bg-accent/10 p-3 rounded-lg transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-accent rounded-lg">
-                    <Shield className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-gray-900 block !font-semibold">Панель администратора</span>
-                    <span className="text-xs text-gray-600">Управление приложением</span>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      {/* Дополнительно */}
+      <SettingsSection title={t.additional || "Дополнительно"}>
+        <SettingsRow
+          icon={Globe}
+          iconColor="text-[var(--ios-indigo)]"
+          iconBgColor="bg-[var(--ios-indigo)]/10"
+          title={t.language || "Язык"}
+          description={profile?.language === 'ru' ? 'Русский' : 'English'}
+          onClick={() => setShowLanguage(true)}
+        />
+        <SettingsRow
+          icon={Calendar}
+          iconColor="text-[var(--ios-blue)]"
+          iconBgColor="bg-[var(--ios-blue)]/10"
+          title={t.firstDayOfWeek || "Первый день недели"}
+          description={userData?.firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
+          onClick={() => toast.info('Feature coming soon')}
+        />
+        <SettingsRow
+          icon={Download}
+          iconColor="text-[var(--ios-green)]"
+          iconBgColor="bg-[var(--ios-green)]/10"
+          title={t.exportData || "Экспортировать данные"}
+          description="JSON, CSV, ZIP"
+          onClick={() => toast.info('Feature coming soon')}
+        />
+        <SettingsRow
+          icon={Upload}
+          iconColor="text-[var(--ios-purple)]"
+          iconBgColor="bg-[var(--ios-purple)]/10"
+          title={t.importData || "Импортировать данные"}
+          description="Восстановить из файла"
+          onClick={() => toast.info('Feature coming soon')}
+        />
+        <SettingsRow
+          icon={Trash2}
+          iconColor="text-[var(--ios-red)]"
+          iconBgColor="bg-[var(--ios-red)]/10"
+          title={t.deleteAllData || "Удалить все данные"}
+          description="Необратимое действие"
+          onClick={() => toast.error('Требуется подтверждение')}
+        />
+      </SettingsSection>
 
       {/* Поддержка */}
-      <div className="p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-gray-900">{t.support}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Mail className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.contactSupport}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </div>
-            
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Star className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.rateApp}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </div>
-            
-            <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <HelpCircle className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-900">{t.faq}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </div>
-          </CardContent>
-        </Card>
+      <SettingsSection title={t.support || "Поддержка"}>
+        <SettingsRow
+          icon={MessageCircle}
+          iconColor="text-[var(--ios-blue)]"
+          iconBgColor="bg-[var(--ios-blue)]/10"
+          title={t.contactSupport || "Связаться с поддержкой"}
+          description="Напишите нам"
+          onClick={() => setShowSupport(true)}
+        />
+        <SettingsRow
+          icon={Star}
+          iconColor="text-[var(--ios-yellow)]"
+          iconBgColor="bg-[var(--ios-yellow)]/10"
+          title={t.rateApp || "Оценить приложение"}
+          description="Поделитесь отзывом"
+          onClick={() => setShowRateApp(true)}
+        />
+        <SettingsRow
+          icon={HelpCircle}
+          iconColor="text-[var(--ios-green)]"
+          iconBgColor="bg-[var(--ios-green)]/10"
+          title={t.faq || "FAQ"}
+          description="Часто задаваемые вопросы"
+          onClick={() => setShowFAQ(true)}
+        />
+        <SettingsRow
+          icon={Smartphone}
+          iconColor="text-[var(--ios-purple)]"
+          iconBgColor="bg-[var(--ios-purple)]/10"
+          title={t.installPWA || "Установить приложение"}
+          description="PWA на главный экран"
+          onClick={() => setShowPWAInstall(true)}
+        />
+      </SettingsSection>
+
+      {/* Logout Button */}
+      <div className="px-4 pt-6 pb-8">
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="w-full h-14 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 font-medium"
+        >
+          <LogOut className="h-5 w-5 mr-2" strokeWidth={2} />
+          {t.logout || "Выйти"}
+        </Button>
       </div>
 
-      {/* Опасная зона */}
-      <div className="p-4">
-        <Card className="border-red-200">
-          <CardHeader>
-            <CardTitle className="text-red-600">{t.dangerousZone}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div 
-              className="flex items-center justify-between cursor-pointer hover:bg-red-50 p-3 rounded-lg transition-colors"
-              onClick={onLogout}
+
+
+      {/* FAQ Modal */}
+      <AnimatePresence>
+        {showFAQ && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFAQ(false)}
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <LogOut className="h-4 w-4 text-red-600" />
-                </div>
-                <span className="text-red-600">{t.logout}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-red-400" />
-            </div>
-            
-            <div className="cursor-pointer hover:bg-red-50 p-3 rounded-lg transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                </div>
-                <span className="text-red-600">{t.deleteAllData}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Версия приложения */}
-      <div className="p-4 text-center">
-        <p className="text-sm text-gray-500">{t.appVersion}</p>
-        <p className="text-xs text-gray-400">{t.appSubtitle}</p>
-      </div>
-
-      {/* Модальное окно выбора языка */}
-      {showLanguageModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4">{t.changeLanguage}</h3>
-              <div className="space-y-2">
-                {isLoadingLanguages ? (
-                  <div className="p-3 text-center text-gray-500">Загрузка языков...</div>
-                ) : (
-                  languages.map((lang) => (
-                    <button
-                      key={lang.id}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                        userData?.language === lang.code ? 'bg-blue-50 border border-blue-200' : ''
-                      }`}
-                    >
-                      <span className="text-2xl">{lang.flag}</span>
-                      <span className="flex-1 text-left">{lang.native_name}</span>
-                      {userData?.language === lang.code && (
-                        <span className="text-blue-600 text-sm">✓</span>
-                      )}
-                    </button>
-                  ))
-                )}
-              </div>
-              <div className="mt-6 flex gap-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-title-3 text-foreground">{t.faq || "FAQ"}</h3>
                 <button
-                  onClick={() => setShowLanguageModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setShowFAQ(false)}
+                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
                 >
-                  {t.cancel}
+                  <X className="w-5 h-5 text-foreground" />
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+
+              <p className="text-footnote text-muted-foreground mb-4">Часто задаваемые вопросы</p>
+
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Как создать запись в дневнике?</AccordionTrigger>
+                  <AccordionContent>
+                    Нажмите кнопку "+" на главном экране, опишите ваше достижение или неудачу, и AI автоматически проанализирует запись.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Как работает AI-анализ?</AccordionTrigger>
+                  <AccordionContent>
+                    AI анализирует вашу запись, определяет тип события (достижение/неудача), эмоциональный тон и создает мотивационную карточку с советами.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>Что такое мотивационные карточки?</AccordionTrigger>
+                  <AccordionContent>
+                    Это персонализированные сообщения от AI, которые помогают вам развивать полезные привычки на основе ваших записей.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>Как получить премиум-доступ?</AccordionTrigger>
+                  <AccordionContent>
+                    Премиум-функции включают дополнительные темы, автоматическое резервирование и расширенную аналитику. Свяжитесь с поддержкой для подключения.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>Как экспортировать данные?</AccordionTrigger>
+                  <AccordionContent>
+                    Перейдите в Настройки → Дополнительно → Экспортировать данные. Доступны форматы JSON, CSV и ZIP.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Contact Support Modal */}
+      <AnimatePresence>
+        {showSupport && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSupport(false)}
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-title-3 text-foreground">{t.contactSupport || "Связаться с поддержкой"}</h3>
+                <button
+                  onClick={() => setShowSupport(false)}
+                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+
+              <p className="text-footnote text-muted-foreground mb-4">Напишите нам, и мы ответим в течение 24 часов</p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-footnote font-medium text-foreground mb-1 block">
+                    Email
+                  </label>
+                  <Input
+                    type="email"
+                    value={profile?.email || ''}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
+                <div>
+                  <label className="text-footnote font-medium text-foreground mb-1 block">
+                    Тема обращения
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Например: Проблема с AI-анализом"
+                  />
+                </div>
+                <div>
+                  <label className="text-footnote font-medium text-foreground mb-1 block">
+                    Сообщение
+                  </label>
+                  <Textarea
+                    placeholder="Опишите вашу проблему или вопрос..."
+                    rows={6}
+                  />
+                </div>
+                <Button
+                  onClick={() => {
+                    toast.success("Сообщение отправлено! Мы ответим в течение 24 часов.");
+                    setShowSupport(false);
+                  }}
+                  className="w-full"
+                >
+                  Отправить
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Rate App Modal */}
+      <AnimatePresence>
+        {showRateApp && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowRateApp(false)}
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-title-3 text-foreground">Оценить приложение</h3>
+                <button
+                  onClick={() => setShowRateApp(false)}
+                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+
+              <p className="text-footnote text-muted-foreground mb-6">Ваше мнение помогает нам стать лучше</p>
+
+              <div className="space-y-6">
+                {/* Star Rating */}
+                <div className="space-y-3">
+                  <label className="text-footnote font-medium text-foreground">Ваша оценка</label>
+                  <div className="flex gap-responsive-sm justify-center py-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className="transition-transform hover:scale-110"
+                      >
+                        <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-center text-footnote text-muted-foreground">Отлично! 🎉</p>
+                </div>
+
+                {/* Comment */}
+                <div className="space-y-2">
+                  <label className="text-footnote font-medium text-foreground">Комментарий (необязательно)</label>
+                  <Textarea
+                    placeholder="Расскажите, что вам понравилось или что можно улучшить..."
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
+
+                <Button
+                  onClick={() => {
+                    toast.success("Спасибо за вашу оценку! ⭐");
+                    setShowRateApp(false);
+                  }}
+                  className="w-full"
+                >
+                  Отправить отзыв
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Language Selection Modal */}
+      <AnimatePresence>
+        {showLanguage && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLanguage(false)}
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-title-3 text-foreground">{t.language || "Выбрать язык"}</h3>
+                <button
+                  onClick={() => setShowLanguage(false)}
+                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+
+              <p className="text-footnote text-muted-foreground mb-4">Выберите язык интерфейса приложения</p>
+
+              <div className="space-y-2">
+                {languages.map(language => (
+                  <button
+                    key={language.code}
+                    onClick={() => handleLanguageChange(language.code)}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
+                      profile?.language === language.code
+                        ? 'bg-primary/10 border-2 border-primary'
+                        : 'bg-card border border-border hover:bg-accent/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{language.flag}</span>
+                      <div className="text-left">
+                        <p className="font-medium text-foreground">{language.native_name}</p>
+                        <p className="text-sm text-muted-foreground">{language.name}</p>
+                      </div>
+                    </div>
+                    {profile?.language === language.code && (
+                      <div className="p-1.5 bg-primary rounded-full">
+                        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* PWA Install Modal */}
+      <AnimatePresence>
+        {showPWAInstall && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPWAInstall(false)}
+              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-title-3 text-foreground">{t.installPWA || "Установить приложение"}</h3>
+                <button
+                  onClick={() => setShowPWAInstall(false)}
+                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+
+              <p className="text-footnote text-muted-foreground mb-4">Добавьте UNITY на главный экран</p>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-headline text-blue-900 mb-2">iOS (Safari)</h4>
+                  <ol className="list-decimal list-inside space-y-1 text-footnote text-blue-800">
+                    <li>Нажмите кнопку "Поделиться" внизу экрана</li>
+                    <li>Выберите "На экран Домой"</li>
+                    <li>Нажмите "Добавить"</li>
+                  </ol>
+                </div>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="text-headline text-green-900 mb-2">Android (Chrome)</h4>
+                  <ol className="list-decimal list-inside space-y-1 text-footnote text-green-800">
+                    <li>Нажмите меню (три точки) в правом верхнем углу</li>
+                    <li>Выберите "Установить приложение"</li>
+                    <li>Нажмите "Установить"</li>
+                  </ol>
+                </div>
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-purple-900 mb-2">Преимущества PWA</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-purple-800">
+                    <li>Работает офлайн</li>
+                    <li>Быстрая загрузка</li>
+                    <li>Иконка на главном экране</li>
+                    <li>Полноэкранный режим</li>
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Modal */}
+      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
+
+      {/* Profile Edit Modal */}
+      <ProfileEditModal
+        isOpen={showEditProfile}
+        onClose={() => setShowEditProfile(false)}
+        profile={{
+          id: profile?.id || '',
+          name: profile?.name || '',
+          email: profile?.email || '',
+          avatar: profile?.avatar || '',
+        }}
+        onProfileUpdated={(updatedProfile) => {
+          console.log('✅ Profile updated in SettingsScreen:', updatedProfile);
+          // Update local state immediately for real-time display
+          setProfile(updatedProfile);
+          // Update global state in App.tsx
+          if (onProfileUpdate) {
+            onProfileUpdate(updatedProfile);
+          }
+        }}
+      />
     </div>
   );
 }
+

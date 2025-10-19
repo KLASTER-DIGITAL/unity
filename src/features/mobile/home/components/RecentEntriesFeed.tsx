@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { getCategoryTranslation, type Language } from "@/shared/lib/i18n";
 import { MediaPreview } from "@/features/mobile/media";
+import useEmblaCarousel from 'embla-carousel-react';
 import {
   ChevronRight,
-  ThumbsUp,
-  ThumbsDown,
-  MoreHorizontal
+  ArrowRight
 } from "lucide-react";
 
 interface RecentEntriesFeedProps {
   userData?: any;
   language?: Language;
   onEntryClick?: (entry: DiaryEntry) => void;
+  onViewAllClick?: () => void;
 }
 
-export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: RecentEntriesFeedProps) {
+export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onViewAllClick }: RecentEntriesFeedProps) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [emblaRef] = useEmblaCarousel({
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: true
+  });
 
   useEffect(() => {
     loadRecentEntries();
@@ -77,10 +81,10 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: R
 
   const getSentimentColor = (sentiment: string): string => {
     switch (sentiment) {
-      case 'positive': return 'bg-green-100 text-green-800 border-green-200';
-      case 'neutral': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'negative': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'positive': return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20';
+      case 'neutral': return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20';
+      case 'negative': return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)] border-[var(--ios-red)]/20';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
@@ -88,15 +92,15 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: R
     return (
       <div className="px-4 mb-6 mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Лента последних записей</h2>
+          <h2 className="text-xl font-bold text-foreground">Лента последних записей</h2>
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-2xl p-4 animate-pulse">
-              <div className="h-3 bg-gray-200 rounded w-20 mb-3"></div>
-              <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div key={i} className="bg-card rounded-2xl p-4 animate-pulse transition-colors duration-300">
+              <div className="h-3 bg-muted rounded w-20 mb-3"></div>
+              <div className="h-5 bg-muted rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-muted rounded w-full mb-1"></div>
+              <div className="h-4 bg-muted rounded w-2/3"></div>
             </div>
           ))}
         </div>
@@ -109,99 +113,78 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick }: R
   }
 
   return (
-    <div className="px-4 mb-6 mt-6">
+    <div className="mb-6 mt-6">
       {/* Заголовок */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Лента последних записей</h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-purple-600 hover:text-purple-700 p-0 h-auto"
+      <div className="flex items-center justify-between mb-4 px-4">
+        <h2 className="!text-[20px] !font-semibold text-foreground">Лента последних записей</h2>
+        <button
+          onClick={onViewAllClick}
+          className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors !text-[15px] !font-medium"
         >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
+          Смотреть все
+          <ArrowRight className="h-4 w-4" strokeWidth={2} />
+        </button>
       </div>
 
-      {/* Список записей */}
-      <div className="space-y-3">
-        {entries.map((entry) => (
-          <div
-            key={entry.id}
-            className="bg-white rounded-2xl p-4 cursor-pointer hover:shadow-sm transition-shadow"
-            onClick={() => onEntryClick?.(entry)}
-          >
-            {/* Время */}
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-500">{formatTimeAgo(entry.createdAt)}</span>
-              <Badge
-                className={`text-xs px-2.5 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
-              >
-                {getCategoryEmoji(entry.category)} {getCategoryTranslation(entry.category, language)}
-              </Badge>
-            </div>
-
-            {/* ✅ FIX: Медиа над текстом в 1 ряд (как в ClickUp) */}
-            {entry.media && entry.media.length > 0 && (
-              <div className="mb-3">
-                <MediaPreview
-                  media={entry.media}
-                  editable={false}
-                  layout={entry.media.length > 1 ? 'row' : 'grid'}
-                  onImageClick={(index) => {
-                    // TODO: Открыть lightbox
-                  }}
-                />
+      {/* Горизонтальный скролл */}
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-3 px-4">
+          {/* Последние 3 записи */}
+          {entries.map((entry) => (
+            <div
+              key={entry.id}
+              className="flex-[0_0_85%] min-w-0 bg-card rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-shadow border border-border"
+              onClick={() => onEntryClick?.(entry)}
+            >
+              {/* Время и категория */}
+              <div className="flex items-center justify-between mb-2">
+                <span className="!text-[13px] text-muted-foreground">{formatTimeAgo(entry.createdAt)}</span>
+                <Badge
+                  className={`!text-[13px] px-2.5 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
+                >
+                  {getCategoryEmoji(entry.category)} {getCategoryTranslation(entry.category, language)}
+                </Badge>
               </div>
-            )}
 
-            {/* Заголовок - БЕЗ AI описания, только первая строка текста */}
-            <h3 className="font-semibold text-gray-900 mb-1.5 text-base line-clamp-1">
-              {entry.text.split('\n')[0].substring(0, 60)}
-            </h3>
+              {/* Медиа над текстом */}
+              {entry.media && entry.media.length > 0 && (
+                <div className="mb-3">
+                  <MediaPreview
+                    media={entry.media}
+                    editable={false}
+                    layout={entry.media.length > 1 ? 'row' : 'grid'}
+                    onImageClick={(index) => {
+                      // TODO: Открыть lightbox
+                    }}
+                  />
+                </div>
+              )}
 
-            {/* Превью текста - 2 строки */}
-            <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
-              {entry.text}
-            </p>
+              {/* Заголовок */}
+              <h3 className="!font-semibold text-foreground mb-1.5 !text-[15px] line-clamp-1">
+                {entry.text.split('\n')[0].substring(0, 50)}
+              </h3>
 
-            {/* Действия */}
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Добавить функционал лайка
-                }}
-              >
-                <ThumbsUp className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Добавить функционал дизлайка
-                }}
-              >
-                <ThumbsDown className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 ml-auto text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Добавить меню действий
-                }}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+              {/* Превью текста */}
+              <p className="!text-[13px] text-muted-foreground line-clamp-2 leading-relaxed">
+                {entry.text}
+              </p>
             </div>
+          ))}
+
+          {/* Карточка "Смотреть все" */}
+          <div
+            onClick={onViewAllClick}
+            className="flex-[0_0_40%] min-w-0 bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
+          >
+            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+              <ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
+            </div>
+            <p className="!text-[15px] !font-medium text-accent text-center">
+              Смотреть все
+            </p>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

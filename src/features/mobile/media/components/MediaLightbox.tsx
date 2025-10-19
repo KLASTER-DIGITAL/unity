@@ -41,14 +41,14 @@ export function MediaLightbox({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+            className="absolute top-4 right-4 z-10 w-10 h-10 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
           >
             <X className="w-6 h-6 text-white" />
           </button>
 
           {/* Counter */}
           {media.length > 1 && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 bg-white/10 rounded-full">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 bg-card/10 rounded-full">
               <span className="!text-[14px] text-white !font-semibold">
                 {currentIndex + 1} / {media.length}
               </span>
@@ -95,7 +95,7 @@ export function MediaLightbox({
                   e.stopPropagation();
                   goToPrevious();
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
               >
                 <ChevronLeft className="w-8 h-8 text-white" />
               </button>
@@ -105,7 +105,7 @@ export function MediaLightbox({
                   e.stopPropagation();
                   goToNext();
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
               >
                 <ChevronRight className="w-8 h-8 text-white" />
               </button>

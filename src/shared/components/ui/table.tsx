@@ -1,6 +1,7 @@
 "use client";
 
-import * as React from "react";
+import React, { Component } from "react";
+import type { ComponentProps } from "react";
 
 import { cn } from "./utils";
 

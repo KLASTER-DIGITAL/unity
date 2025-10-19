@@ -1,0 +1,174 @@
+/**
+ * Theme Tokens - Tailwind CSS v4 @theme directive
+ * Registers CSS variables as Tailwind utility classes
+ * 
+ * This file tells Tailwind to generate utility classes like:
+ * - bg-background, bg-card, bg-muted
+ * - text-foreground, text-muted-foreground
+ * - border-border
+ * 
+ * AI-Friendly: Small file (~60 lines) for quick analysis
+ */
+
+@theme {
+  /* Backgrounds */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Cards */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* Popovers */
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Secondary */
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Muted */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Destructive */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Borders */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 4px);
+  --radius-3xl: calc(var(--radius) + 8px);
+
+  /* ===== NEW: Gradient Colors ===== */
+  /* Positive Gradients */
+  --color-gradient-positive-1-start: var(--gradient-positive-1-start);
+  --color-gradient-positive-1-end: var(--gradient-positive-1-end);
+  --color-gradient-positive-2-start: var(--gradient-positive-2-start);
+  --color-gradient-positive-2-end: var(--gradient-positive-2-end);
+  --color-gradient-positive-3-start: var(--gradient-positive-3-start);
+  --color-gradient-positive-3-end: var(--gradient-positive-3-end);
+  --color-gradient-positive-4-start: var(--gradient-positive-4-start);
+  --color-gradient-positive-4-end: var(--gradient-positive-4-end);
+
+  /* Neutral Gradients */
+  --color-gradient-neutral-1-start: var(--gradient-neutral-1-start);
+  --color-gradient-neutral-1-end: var(--gradient-neutral-1-end);
+  --color-gradient-neutral-2-start: var(--gradient-neutral-2-start);
+  --color-gradient-neutral-2-end: var(--gradient-neutral-2-end);
+
+  /* Negative Gradients */
+  --color-gradient-negative-1-start: var(--gradient-negative-1-start);
+  --color-gradient-negative-1-end: var(--gradient-negative-1-end);
+  --color-gradient-negative-2-start: var(--gradient-negative-2-start);
+  --color-gradient-negative-2-end: var(--gradient-negative-2-end);
+
+  /* ===== NEW: Action Colors ===== */
+  --color-action-primary: var(--action-primary);
+  --color-action-voice: var(--action-voice);
+  --color-action-photo: var(--action-photo);
+  --color-action-ai: var(--action-ai);
+  --color-action-history: var(--action-history);
+  --color-action-settings: var(--action-settings);
+
+  /* ===== NEW: Icon Colors ===== */
+  --color-icon-primary: var(--icon-primary);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-icon-tertiary: var(--icon-tertiary);
+  --color-icon-accent: var(--icon-accent);
+
+  /* ===== NEW: iOS Typography - Font Sizes ===== */
+  --font-size-large-title: var(--text-large-title);
+  --font-size-title-1: var(--text-title-1);
+  --font-size-title-2: var(--text-title-2);
+  --font-size-title-3: var(--text-title-3);
+  --font-size-headline: var(--text-headline);
+  --font-size-body: var(--text-body);
+  --font-size-callout: var(--text-callout);
+  --font-size-subhead: var(--text-subhead);
+  --font-size-footnote: var(--text-footnote);
+  --font-size-caption-1: var(--text-caption-1);
+  --font-size-caption-2: var(--text-caption-2);
+
+  /* ===== NEW: iOS Typography - Font Weights ===== */
+  /* According to iOS HIG (docs/ios_font_guidelines.md) */
+  --font-weight-bold: 700;        /* Large Title */
+  --font-weight-semibold: 600;    /* Titles, Headlines */
+  --font-weight-regular: 400;     /* Body, Callout, Subhead, Footnote, Captions */
+  --font-weight-light: 300;       /* Optional for very light text */
+
+  /* ===== NEW: iOS UIKit Semantic Colors ===== */
+  /* Backgrounds */
+  --color-ios-bg-primary: var(--ios-bg-primary);
+  --color-ios-bg-secondary: var(--ios-bg-secondary);
+  --color-ios-bg-tertiary: var(--ios-bg-tertiary);
+  --color-ios-bg-grouped: var(--ios-bg-grouped);
+  --color-ios-bg-grouped-secondary: var(--ios-bg-grouped-secondary);
+
+  /* Text Colors */
+  --color-ios-text-primary: var(--ios-text-primary);
+  --color-ios-text-secondary: var(--ios-text-secondary);
+  --color-ios-text-tertiary: var(--ios-text-tertiary);
+
+  /* Borders & Separators */
+  --color-ios-separator: var(--ios-separator);
+
+  /* System Colors */
+  --color-ios-blue: var(--ios-blue);
+  --color-ios-green: var(--ios-green);
+  --color-ios-red: var(--ios-red);
+  --color-ios-orange: var(--ios-orange);
+  --color-ios-yellow: var(--ios-yellow);
+  --color-ios-pink: var(--ios-pink);
+  --color-ios-purple: var(--ios-purple);
+  --color-ios-gray: var(--ios-gray);
+
+  /* ===== NEW: Z-Index Hierarchy ===== */
+  /*
+   * Consistent z-index values for layering
+   * Usage: className="z-[var(--z-navigation)]"
+   */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-navigation: 50;        /* Mobile bottom navigation */
+  --z-modal-backdrop: 60;    /* Modal backdrop (above navigation) */
+  --z-modal: 70;             /* Modal content (above backdrop) */
+  --z-popover: 80;           /* Popovers and tooltips */
+  --z-tooltip: 90;           /* Tooltips (highest) */
+}
+

@@ -1,0 +1,30 @@
+/**
+ * Custom Utilities - Helper classes
+ * Scrollbar hiding and other utility classes
+ * 
+ * AI-Friendly: Only utility classes (~20 lines)
+ */
+
+/* Scrollbar hiding utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Global scrollbar hiding */
+::-webkit-scrollbar {
+  background: none;
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: none;
+}
+

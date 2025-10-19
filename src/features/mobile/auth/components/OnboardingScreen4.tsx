@@ -246,8 +246,8 @@ function ChatGPTInput({
   }, [transcript, lastTranscript, value, onChange]);
 
   return (
-    <motion.div 
-      className="bg-white relative rounded-xl w-full border-2 border-gray-200 focus-within:border-[#756ef3] transition-all duration-300" 
+    <motion.div
+      className="bg-card relative rounded-xl w-full border-2 border-border focus-within:border-[#756ef3] transition-all duration-300"
       data-name="Input"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -284,7 +284,7 @@ function ChatGPTInput({
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-gray-400 placeholder:text-[11px] placeholder:font-normal"
+          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-muted-foreground placeholder:text-[11px] placeholder:font-normal text-foreground"
           style={{
             height: `${textareaHeight}px`,
             fontSize: '13px',
@@ -303,15 +303,15 @@ function ChatGPTInput({
           onClick={onSubmit}
           disabled={!value.trim() || disabled}
           className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 flex-shrink-0 mt-0 ${
-            value.trim() && !disabled 
-              ? 'bg-[#756ef3] text-white hover:bg-[#6b62e8]' 
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            value.trim() && !disabled
+              ? 'bg-primary text-white hover:bg-primary/90'
+              : 'bg-muted text-muted-foreground cursor-not-allowed'
           }`}
           whileTap={value.trim() && !disabled ? { scale: 0.95 } : {}}
         >
           <div className="w-4 h-4">
-            <img 
-              className="w-full h-full" 
+            <img
+              className="w-full h-full"
               src={imgPaperPlaneRight}
               style={{ filter: value.trim() && !disabled ? 'brightness(0) invert(1)' : undefined }}
             />
@@ -469,17 +469,17 @@ function HabitsAndEntryForm({
           {/* Morning Option */}
           <motion.button
             onClick={() => handleNotificationSelect('morning')}
-            className={`flex items-center justify-between bg-white rounded-lg p-3 w-full transition-all duration-200 ${
-              notificationSettings.selectedTime === 'morning' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-gray-50'
+            className={`flex items-center justify-between bg-card rounded-lg p-3 w-full transition-all duration-200 ${
+              notificationSettings.selectedTime === 'morning' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-muted'
             }`}
             whileTap={{ scale: 0.98 }}
           >
             <div className="flex items-center space-x-3">
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                notificationSettings.selectedTime === 'morning' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-gray-300'
+                notificationSettings.selectedTime === 'morning' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-border'
               }`}>
                 {notificationSettings.selectedTime === 'morning' && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
               <span className="!text-[#002055] !text-[13px] !font-medium">Утром</span>
@@ -489,7 +489,7 @@ function HabitsAndEntryForm({
                 e.stopPropagation();
                 handleTimeClick('morning');
               }}
-              className="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-muted transition-colors cursor-pointer"
             >
               <Clock className="w-3 h-3 text-[#756ef3]" />
               <span className="!text-[#756ef3] !text-[13px] !font-medium">({notificationSettings.morningTime})</span>
@@ -499,17 +499,17 @@ function HabitsAndEntryForm({
           {/* Evening Option */}
           <motion.button
             onClick={() => handleNotificationSelect('evening')}
-            className={`flex items-center justify-between bg-white rounded-lg p-3 w-full transition-all duration-200 ${
-              notificationSettings.selectedTime === 'evening' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-gray-50'
+            className={`flex items-center justify-between bg-card rounded-lg p-3 w-full transition-all duration-200 ${
+              notificationSettings.selectedTime === 'evening' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-muted'
             }`}
             whileTap={{ scale: 0.98 }}
           >
             <div className="flex items-center space-x-3">
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                notificationSettings.selectedTime === 'evening' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-gray-300'
+                notificationSettings.selectedTime === 'evening' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-border'
               }`}>
                 {notificationSettings.selectedTime === 'evening' && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
               <span className="!text-[#002055] !text-[13px] !font-medium">Вечером</span>
@@ -519,7 +519,7 @@ function HabitsAndEntryForm({
                 e.stopPropagation();
                 handleTimeClick('evening');
               }}
-              className="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-muted transition-colors cursor-pointer"
             >
               <Clock className="w-3 h-3 text-[#756ef3]" />
               <span className="!text-[#756ef3] !text-[13px] !font-medium">({notificationSettings.eveningTime})</span>
@@ -529,17 +529,17 @@ function HabitsAndEntryForm({
           {/* Both Times Option */}
           <motion.button
             onClick={() => handleNotificationSelect('both')}
-            className={`flex items-center justify-between bg-white rounded-lg p-3 w-full transition-all duration-200 ${
-              notificationSettings.selectedTime === 'both' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-gray-50'
+            className={`flex items-center justify-between bg-card rounded-lg p-3 w-full transition-all duration-200 ${
+              notificationSettings.selectedTime === 'both' ? 'ring-2 ring-[#756ef3] bg-[#756ef3]/5' : 'hover:bg-muted'
             }`}
             whileTap={{ scale: 0.98 }}
           >
             <div className="flex items-center space-x-3">
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                notificationSettings.selectedTime === 'both' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-gray-300'
+                notificationSettings.selectedTime === 'both' ? 'border-[#756ef3] bg-[#756ef3]' : 'border-border'
               }`}>
                 {notificationSettings.selectedTime === 'both' && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
               <span className="!text-[#002055] !text-[13px] !font-medium">Утро + вечер</span>
@@ -586,7 +586,7 @@ function HabitsAndEntryForm({
           onClick={() => handlePermissionRequest(false)}
         >
           <motion.div
-            className="bg-white rounded-[var(--radius)] p-6 w-full max-w-[300px] shadow-lg"
+            className="bg-card rounded-[var(--radius)] p-6 w-full max-w-[300px] shadow-lg border border-border transition-colors duration-300"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -826,7 +826,7 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="bg-white rounded-xl p-6 space-y-4 w-[300px] mx-4 text-center"
+            className="bg-card rounded-xl p-6 space-y-4 w-[300px] mx-4 text-center border border-border transition-colors duration-300"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -848,8 +848,8 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
 
 export function OnboardingScreen4({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
   return (
-    <motion.div 
-      className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" 
+    <motion.div
+      className="bg-background content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide transition-colors duration-300"
       data-name="Onboard 4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

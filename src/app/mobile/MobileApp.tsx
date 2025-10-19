@@ -1,23 +1,24 @@
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { Toaster } from "sonner";
 import { TranslationProvider } from "@/shared/lib/i18n";
 import { TranslationManager } from "@/shared/lib/i18n";
+import { LoadingScreen } from "@/shared/components/LoadingScreen";
 
-// Onboarding screens
+// Onboarding screens - критичные для первого запуска, загружаем сразу
 import { WelcomeScreen } from "@/features/mobile/auth/components/WelcomeScreen";
 import { OnboardingScreen2 } from "@/features/mobile/auth/components/OnboardingScreen2";
 import { OnboardingScreen3 } from "@/features/mobile/auth/components/OnboardingScreen3";
 import { OnboardingScreen4 } from "@/features/mobile/auth/components/OnboardingScreen4";
 
-// Auth screen
+// Auth screen - критичный для авторизации, загружаем сразу
 import { AuthScreen } from "@/features/mobile/auth/components/AuthScreenNew";
 
-// Main screens - using feature flags
-import { SettingsScreen } from "@/features/mobile/settings";
-import { AchievementHomeScreen } from "@/features/mobile/home";
-import { HistoryScreen } from "@/features/mobile/history";
-import { AchievementsScreen } from "@/features/mobile/achievements";
-import { ReportsScreen } from "@/features/mobile/reports";
+// Main screens - lazy loading для оптимизации производительности
+const AchievementHomeScreen = lazy(() => import("@/features/mobile/home").then(module => ({ default: module.AchievementHomeScreen })));
+const HistoryScreen = lazy(() => import("@/features/mobile/history").then(module => ({ default: module.HistoryScreen })));
+const AchievementsScreen = lazy(() => import("@/features/mobile/achievements").then(module => ({ default: module.AchievementsScreen })));
+const ReportsScreen = lazy(() => import("@/features/mobile/reports").then(module => ({ default: module.ReportsScreen })));
+const SettingsScreen = lazy(() => import("@/features/mobile/settings").then(module => ({ default: module.SettingsScreen })));
 
 // Layout components
 import { MobileBottomNav } from "@/shared/components/layout";
@@ -50,6 +51,7 @@ interface MobileAppProps {
   onOnboarding4Complete: (firstEntry: string, settings: any) => void;
   onAuthComplete: (userData: any) => void;
   onLogout: () => void;
+  onProfileUpdate?: (updatedProfile: any) => void;
 }
 
 export function MobileApp({
@@ -67,6 +69,7 @@ export function MobileApp({
   onOnboarding4Complete,
   onAuthComplete,
   onLogout,
+  onProfileUpdate,
 }: MobileAppProps) {
   const [activeScreen, setActiveScreen] = useState<
     "home" | "history" | "achievements" | "reports" | "settings"
@@ -155,42 +158,48 @@ export function MobileApp({
       <TranslationManager preloadLanguages={['en']}>
         <div className="min-h-screen bg-gray-50">
           {activeScreen === "home" && (
-            <AchievementHomeScreen
-              userData={userData}
-              onNavigate={setActiveScreen}
-              onLogout={onLogout}
-            />
+            <Suspense fallback={<LoadingScreen />}>
+              <AchievementHomeScreen
+                userData={userData}
+                onNavigateToHistory={() => setActiveScreen("history")}
+              />
+            </Suspense>
           )}
           {activeScreen === "history" && (
-            <HistoryScreen
-              userData={userData}
-              onNavigate={setActiveScreen}
-            />
+            <Suspense fallback={<LoadingScreen />}>
+              <HistoryScreen
+                userData={userData}
+              />
+            </Suspense>
           )}
           {activeScreen === "achievements" && (
-            <AchievementsScreen
-              userData={userData}
-              onNavigate={setActiveScreen}
-            />
+            <Suspense fallback={<LoadingScreen />}>
+              <AchievementsScreen
+                userData={userData}
+              />
+            </Suspense>
           )}
           {activeScreen === "reports" && (
-            <ReportsScreen
-              userData={userData}
-              onNavigate={setActiveScreen}
-            />
+            <Suspense fallback={<LoadingScreen />}>
+              <ReportsScreen
+                userData={userData}
+              />
+            </Suspense>
           )}
           {activeScreen === "settings" && (
-            <SettingsScreen
-              userData={userData}
-              onNavigate={setActiveScreen}
-              onLogout={onLogout}
-            />
+            <Suspense fallback={<LoadingScreen />}>
+              <SettingsScreen
+                userData={userData}
+                onLogout={onLogout}
+                onProfileUpdate={onProfileUpdate}
+              />
+            </Suspense>
           )}
 
           {/* Mobile Bottom Navigation */}
           <MobileBottomNav
             activeTab={activeScreen}
-            onTabChange={setActiveScreen}
+            onTabChange={(tab: string) => setActiveScreen(tab as "home" | "history" | "achievements" | "reports" | "settings")}
             language={userData?.language || 'ru'}
           />
 
