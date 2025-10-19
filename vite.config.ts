@@ -74,31 +74,30 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor chunks - внешние библиотеки
           if (id.includes('node_modules')) {
-            // React ecosystem - КРИТИЧЕСКИ ВАЖНО: все React модули в одном чанке
+            // Charts - отдельный чанк (большой размер)
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'vendor-charts';
+            }
+            // Supabase - отдельный чанк
+            if (id.includes('@supabase') || id.includes('postgrest')) {
+              return 'vendor-supabase';
+            }
+            // React ecosystem + UI libraries - ВСЕ В ОДНОМ ЧАНКЕ!
+            // Это критически важно для предотвращения дублирования React
             if (
               id.includes('react') ||
               id.includes('react-dom') ||
               id.includes('react/jsx-runtime') ||
               id.includes('react/jsx-dev-runtime') ||
-              id.includes('scheduler')
+              id.includes('scheduler') ||
+              id.includes('@radix-ui') ||
+              id.includes('cmdk') ||
+              id.includes('vaul') ||
+              id.includes('motion') ||
+              id.includes('sonner') ||
+              id.includes('lucide-react')
             ) {
               return 'vendor-react';
-            }
-            // UI libraries
-            if (id.includes('@radix-ui') || id.includes('cmdk') || id.includes('vaul')) {
-              return 'vendor-ui';
-            }
-            // Animation and icons
-            if (id.includes('motion') || id.includes('sonner') || id.includes('lucide-react')) {
-              return 'vendor-utils';
-            }
-            // Charts
-            if (id.includes('recharts') || id.includes('d3-')) {
-              return 'vendor-charts';
-            }
-            // Supabase
-            if (id.includes('@supabase') || id.includes('postgrest')) {
-              return 'vendor-supabase';
             }
             // Other vendor libraries
             return 'vendor-misc';
