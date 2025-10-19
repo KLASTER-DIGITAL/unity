@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import '../../../../styles/admin-design-system.css';
 
 const notificationStats = [
   { metric: 'Отправлено', value: 12345, color: '#3b82f6' },

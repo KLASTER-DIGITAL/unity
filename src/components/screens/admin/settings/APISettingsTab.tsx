@@ -6,7 +6,6 @@ import { QuickStats } from './api/QuickStats';
 import { UsageBreakdown } from './api/UsageBreakdown';
 import { UsageChart } from './api/UsageChart';
 import { UserUsageTable } from './api/UserUsageTable';
-import '../../../../styles/admin-design-system.css';
 
 const apiUsageData = [
   { month: 'Jan', requests: 4000, tokens: 120000, cost: 12.50 },

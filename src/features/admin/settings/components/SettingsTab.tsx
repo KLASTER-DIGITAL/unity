@@ -9,7 +9,6 @@ import { PushNotificationsTab } from '@/components/screens/admin/settings/PushNo
 import { GeneralSettingsTab } from '@/components/screens/admin/settings/GeneralSettingsTab';
 import { SystemSettingsTab } from '@/components/screens/admin/settings/SystemSettingsTab';
 import { TelegramSettingsTab } from '@/components/screens/admin/settings/TelegramSettingsTab';
-import '@/styles/admin-design-system.css';
 
 interface SettingsTabProps {
   className?: string;

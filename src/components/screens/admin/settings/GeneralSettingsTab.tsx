@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import '../../../../styles/admin-design-system.css';
 
 export const GeneralSettingsTab: React.FC = () => {
   const [settings, setSettings] = useState({
