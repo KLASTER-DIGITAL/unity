@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/unity/' : '/',
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/unity/' : '/',
   plugins: [
     react(),
     // Bundle analyzer для анализа размера (только при ANALYZE=true)
@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   // Оптимизация esbuild для production
   esbuild: {
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
     legalComments: 'none',
   },
   resolve: {
@@ -152,4 +152,4 @@ export default defineConfig({
     port: 4173,
     host: '0.0.0.0',
   },
-});
+}));
