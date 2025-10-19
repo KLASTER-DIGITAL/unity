@@ -188,7 +188,7 @@ export default function App() {
   if (isAdminRoute) {
     if (isCheckingSession) {
       return (
-        <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+        <ThemeProvider defaultTheme="light" storageKey="unity-theme">
           <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -200,7 +200,7 @@ export default function App() {
     }
 
     return (
-      <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <AdminApp
           userData={userData}
           showAdminAuth={showAdminAuth}
@@ -217,7 +217,7 @@ export default function App() {
   // Mobile view - loading state
   if (isCheckingSession) {
     return (
-      <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <div className="min-h-screen flex items-center justify-center bg-background max-w-md mx-auto">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -229,7 +229,7 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="unity-theme">
+    <ThemeProvider defaultTheme="light" storageKey="unity-theme">
       <MobileApp
         userData={userData}
         onboardingComplete={onboardingComplete}

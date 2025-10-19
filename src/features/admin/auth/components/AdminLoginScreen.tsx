@@ -85,6 +85,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
           success: true,
           profile: {
             name: "Admin",
+            role: "super_admin", // ✅ FIX: Add role
             diaryName: "Admin Diary",
             diaryEmoji: "🏆",
             language: "ru",
@@ -103,16 +104,21 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
         id: data.user.id,
         email: data.user.email,
         name: profileData.profile.name,
+        role: profileData.profile.role || 'super_admin', // ✅ FIX: Add role
         diaryData: {
           name: profileData.profile.diaryName,
           emoji: profileData.profile.diaryEmoji
         },
         language: profileData.profile.language,
         notificationSettings: profileData.profile.notificationSettings,
-        createdAt: profileData.profile.createdAt
+        createdAt: profileData.profile.createdAt,
+        profile: {
+          ...profileData.profile,
+          role: profileData.profile.role || 'super_admin' // ✅ FIX: Add role to profile
+        }
       };
 
-      console.log("Admin login successful:", userData.email);
+      console.log("Admin login successful:", userData.email, "role:", userData.role);
       toast.success("Вход выполнен успешно");
 
       onComplete(userData);
