@@ -82,25 +82,9 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('@supabase') || id.includes('postgrest')) {
               return 'vendor-supabase';
             }
-            // React ecosystem + UI libraries - ВСЕ В ОДНОМ ЧАНКЕ!
-            // Это критически важно для предотвращения дублирования React
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react/jsx-runtime') ||
-              id.includes('react/jsx-dev-runtime') ||
-              id.includes('scheduler') ||
-              id.includes('@radix-ui') ||
-              id.includes('cmdk') ||
-              id.includes('vaul') ||
-              id.includes('motion') ||
-              id.includes('sonner') ||
-              id.includes('lucide-react')
-            ) {
-              return 'vendor-react';
-            }
-            // Other vendor libraries
-            return 'vendor-misc';
+            // ВСЕ ОСТАЛЬНЫЕ БИБЛИОТЕКИ В ОДИН ЧАНК vendor-libs
+            // Это гарантирует правильный порядок загрузки
+            return 'vendor-libs';
           }
 
           // App chunks - разделение по функциональности
