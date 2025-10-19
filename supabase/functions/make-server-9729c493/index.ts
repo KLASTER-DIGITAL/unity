@@ -1125,26 +1125,44 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
   try {
     // Проверка авторизации супер-админа
     const accessToken = c.req.header('Authorization')?.split(' ')[1];
-    
+
     if (!accessToken) {
       return c.json({ success: false, error: 'Unauthorized' }, 401);
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
-    
+
     if (authError || !user || user.email !== 'diary@leadshunter.biz') {
       return c.json({ success: false, error: 'Access denied. Super admin only.' }, 403);
     }
 
-    console.log('Fetching admin stats...');
+    console.log('Fetching admin stats from Supabase tables...');
+
+    // ✅ FIX: Read from Supabase tables instead of KV store
 
     // Получаем все профили пользователей
-    const profiles = await kv.getByPrefix('profile:');
-    const totalUsers = profiles.length;
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, created_at, is_premium');
+
+    if (profilesError) {
+      throw profilesError;
+    }
+
+    const totalUsers = profiles?.length || 0;
 
     // Получаем все записи
-    const allEntriesData = await kv.getByPrefix('user_entries:');
-    let totalEntries = 0;
+    const { data: entries, error: entriesError } = await supabase
+      .from('entries')
+      .select('id, user_id, created_at');
+
+    if (entriesError) {
+      throw entriesError;
+    }
+
+    const totalEntries = entries?.length || 0;
+
+    // Подсчет активных пользователей и новых пользователей сегодня
     let activeUsersSet = new Set();
     let newUsersToday = 0;
     let activeTodaySet = new Set();
@@ -1152,10 +1170,10 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    for (const profile of profiles) {
-      // Подсчет новых пользователей сегодня
-      if (profile.createdAt) {
-        const createdDate = new Date(profile.createdAt);
+    // Подсчет новых пользователей сегодня
+    for (const profile of profiles || []) {
+      if (profile.created_at) {
+        const createdDate = new Date(profile.created_at);
         createdDate.setHours(0, 0, 0, 0);
         if (createdDate.getTime() === today.getTime()) {
           newUsersToday++;
@@ -1163,29 +1181,26 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
       }
     }
 
-    // Подсчет записей и активных пользователей
-    for (const entryIds of allEntriesData) {
-      if (Array.isArray(entryIds)) {
-        totalEntries += entryIds.length;
-        
-        // Загружаем записи для подсчета активности
-        const entries = await Promise.all(
-          entryIds.map(id => kv.get(`entry:${id}`))
-        );
-        
-        // Активные пользователи (с записями)
-        entries.filter(e => e).forEach(entry => {
-          activeUsersSet.add(entry.userId);
-          
-          // Активные сегодня
-          const entryDate = new Date(entry.createdAt);
-          entryDate.setHours(0, 0, 0, 0);
-          if (entryDate.getTime() === today.getTime()) {
-            activeTodaySet.add(entry.userId);
-          }
-        });
+    // Подсчет активных пользователей
+    for (const entry of entries || []) {
+      activeUsersSet.add(entry.user_id);
+
+      // Активные сегодня
+      const entryDate = new Date(entry.created_at);
+      entryDate.setHours(0, 0, 0, 0);
+      if (entryDate.getTime() === today.getTime()) {
+        activeTodaySet.add(entry.user_id);
       }
     }
+
+    // Подсчет премиум пользователей
+    const premiumUsers = profiles?.filter(p => p.is_premium).length || 0;
+
+    // Подсчет дохода (примерная оценка: 499 руб/месяц за премиум)
+    const totalRevenue = premiumUsers * 499;
+
+    // Подсчет PWA установок (пока 0, так как нет поля в БД)
+    const pwaInstalls = 0;
 
     const stats = {
       totalUsers,
@@ -1193,9 +1208,12 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
       activeUsers: activeUsersSet.size,
       newUsersToday,
       activeToday: activeTodaySet.size,
-      averageEntriesPerUser: totalUsers > 0 ? Math.round(totalEntries / totalUsers) : 0,
-      premiumUsers: profiles.filter(p => p.subscriptionStatus === 'active' || p.isPremium).length
+      premiumUsers,
+      totalRevenue,
+      pwaInstalls
     };
+
+    console.log('Admin stats calculated:', stats);
 
     return c.json({
       success: true,
@@ -1204,9 +1222,9 @@ app.get('/make-server-9729c493/admin/stats', async (c) => {
 
   } catch (error) {
     console.error('Error fetching admin stats:', error);
-    return c.json({ 
-      success: false, 
-      error: `Failed to fetch admin stats: ${error.message}` 
+    return c.json({
+      success: false,
+      error: `Failed to fetch admin stats: ${error.message}`
     }, 500);
   }
 });
@@ -1216,60 +1234,63 @@ app.get('/make-server-9729c493/admin/users', async (c) => {
   try {
     // Проверка авторизации супер-админа
     const accessToken = c.req.header('Authorization')?.split(' ')[1];
-    
+
     if (!accessToken) {
       return c.json({ success: false, error: 'Unauthorized' }, 401);
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
-    
+
     if (authError || !user || user.email !== 'diary@leadshunter.biz') {
       return c.json({ success: false, error: 'Access denied. Super admin only.' }, 403);
     }
 
-    console.log('Fetching all users for admin...');
+    console.log('Fetching all users from Supabase tables...');
+
+    // ✅ FIX: Read from Supabase tables instead of KV store
 
     // Получаем все профили
-    const profiles = await kv.getByPrefix('profile:');
-    
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, email, name, created_at, is_premium, language')
+      .order('created_at', { ascending: false });
+
+    if (profilesError) {
+      throw profilesError;
+    }
+
     // Получаем статистику записей для каждого пользователя
     const usersWithStats = await Promise.all(
-      profiles.map(async (profile) => {
-        const entryIds = await kv.get(`user_entries:${profile.id}`) || [];
-        const entriesCount = Array.isArray(entryIds) ? entryIds.length : 0;
-        
-        // Последняя активность
-        let lastActivity = null;
-        if (Array.isArray(entryIds) && entryIds.length > 0) {
-          // Получаем все записи пользователя
-          const entries = await Promise.all(
-            entryIds.map(id => kv.get(`entry:${id}`))
-          );
-          const sortedEntries = entries.filter(e => e).sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-          if (sortedEntries.length > 0) {
-            lastActivity = sortedEntries[0].createdAt;
-          }
-        }
+      (profiles || []).map(async (profile) => {
+        // Получаем количество записей пользователя
+        const { count: entriesCount, error: countError } = await supabase
+          .from('entries')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', profile.id);
+
+        // Получаем последнюю запись для определения последней активности
+        const { data: lastEntry, error: lastEntryError } = await supabase
+          .from('entries')
+          .select('created_at')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
         return {
           id: profile.id,
           email: profile.email,
           name: profile.name,
-          createdAt: profile.createdAt,
-          isPremium: profile.subscriptionStatus === 'active' || profile.isPremium || false,
-          entriesCount,
-          lastActivity,
+          createdAt: profile.created_at,
+          isPremium: profile.is_premium || false,
+          entriesCount: entriesCount || 0,
+          lastActivity: lastEntry?.created_at || null,
           language: profile.language || 'ru'
         };
       })
     );
 
-    // Сортируем по дате создания (новые первыми)
-    usersWithStats.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    console.log(`Loaded ${usersWithStats.length} users from Supabase`);
 
     return c.json({
       success: true,
@@ -1279,9 +1300,9 @@ app.get('/make-server-9729c493/admin/users', async (c) => {
 
   } catch (error) {
     console.error('Error fetching users:', error);
-    return c.json({ 
-      success: false, 
-      error: `Failed to fetch users: ${error.message}` 
+    return c.json({
+      success: false,
+      error: `Failed to fetch users: ${error.message}`
     }, 500);
   }
 });

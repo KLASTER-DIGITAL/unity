@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { createClient } from '@/utils/supabase/client';
 import { QuickStats } from './api/QuickStats';
 import { UsageBreakdown } from './api/UsageBreakdown';
 import { UsageChart } from './api/UsageChart';
@@ -65,8 +66,11 @@ export const APISettingsTab: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      if (!token) {
+      // ✅ FIX: Use supabase.auth.getSession() instead of localStorage
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
         toast.error('Ошибка авторизации');
         return;
       }
@@ -74,7 +78,7 @@ export const APISettingsTab: React.FC = () => {
       const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
