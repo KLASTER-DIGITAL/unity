@@ -33,12 +33,14 @@ export const APISettingsTab: React.FC = () => {
     // Load saved API key
     const loadApiKey = async () => {
       try {
-        const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-        if (!token) return;
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
 
-        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings/openai_api_key', {
+        if (!session?.access_token) return;
+
+        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/settings/openai_api_key', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${session.access_token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -75,7 +77,7 @@ export const APISettingsTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/settings', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,

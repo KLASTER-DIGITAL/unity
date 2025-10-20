@@ -5,13 +5,14 @@ import { TranslationCacheManager } from './cache';
 const publicAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export class I18nAPI {
-  // ✅ ИСПРАВЛЕНО: Используем Edge Function вместо /api/i18n
-  private static readonly BASE_URL = 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493';
+  // ✅ FIXED: Use translations-api microservice (2025-10-20)
+  private static readonly BASE_URL = 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/translations-api';
+  private static readonly ADMIN_API_URL = 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api';
 
   // Получение всех поддерживаемых языков
   static async getSupportedLanguages(): Promise<LanguageConfig[]> {
     try {
-      const response = await fetch(`${this.BASE_URL}/i18n/languages`, {
+      const response = await fetch(`${this.BASE_URL}/languages`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${publicAnonKey}`,
@@ -52,7 +53,7 @@ export class I18nAPI {
         headers['If-None-Match'] = options.etag;
       }
 
-      const response = await fetch(`${this.BASE_URL}/i18n/translations/${language}`, {
+      const response = await fetch(`${this.BASE_URL}/${language}`, {
         headers,
       });
       
@@ -103,7 +104,7 @@ export class I18nAPI {
   // Получение списка всех ключей переводов
   static async getTranslationKeys(): Promise<string[]> {
     try {
-      const response = await fetch(`${this.BASE_URL}/i18n/keys`, {
+      const response = await fetch(`${this.BASE_URL}/keys`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${publicAnonKey}`,
@@ -142,7 +143,7 @@ export class I18nAPI {
         timestamp: new Date().toISOString()
       };
       
-      const response = await fetch(`${this.BASE_URL}/i18n/missing`, {
+      const response = await fetch(`${this.BASE_URL}/missing`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +169,7 @@ export class I18nAPI {
   }> {
     try {
       const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      const response = await fetch(`${this.BASE_URL}/i18n/admin/stats`, {
+      const response = await fetch(`${this.ADMIN_API_URL}/admin/translation-stats`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -204,7 +205,7 @@ export class I18nAPI {
   ): Promise<boolean> {
     try {
       const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      const response = await fetch(`${this.BASE_URL}/i18n/admin/translations`, {
+      const response = await fetch(`${this.ADMIN_API_URL}/admin/translations`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -259,7 +260,7 @@ export class I18nAPI {
         throw new Error('OpenAI API key not configured');
       }
       
-      const response = await fetch(`${this.BASE_URL}/i18n/admin/translate`, {
+      const response = await fetch(`${this.ADMIN_API_URL}/admin/translate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +312,7 @@ export class I18nAPI {
   // Проверка здоровья API
   static async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.BASE_URL}/i18n/health`, {
+      const response = await fetch(`${this.BASE_URL}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

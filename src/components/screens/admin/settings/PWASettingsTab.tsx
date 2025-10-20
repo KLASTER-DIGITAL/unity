@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { SimpleChart } from '../../../../shared/components/SimpleChart';
 import '../../../../styles/admin/admin-theme.css';
 import '../../../../styles/admin/admin-typography.css';
 import '../../../../styles/admin/admin-cards.css';
@@ -329,30 +329,13 @@ export const PWASettingsTab: React.FC = () => {
               </h3>
             </div>
             <div className="admin-card-content">
-              <div className="admin-h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={installationData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-gray-200)" />
-                    <XAxis dataKey="month" stroke="var(--admin-gray-500)" fontSize={10} />
-                    <YAxis stroke="var(--admin-gray-500)" fontSize={10} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--admin-white)',
-                        border: '1px solid var(--admin-gray-200)',
-                        borderRadius: '8px',
-                        boxShadow: 'var(--admin-shadow-md)'
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="installs"
-                      stroke="var(--admin-success)"
-                      strokeWidth={2}
-                      dot={{ fill: 'var(--admin-success)', strokeWidth: 2, r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <SimpleChart
+                data={installationData}
+                dataKey="installs"
+                xAxisKey="month"
+                title="Установки PWA по месяцам"
+                type="line"
+              />
             </div>
           </div>
 
@@ -364,33 +347,13 @@ export const PWASettingsTab: React.FC = () => {
               </h3>
             </div>
             <div className="admin-card-content">
-              <div className="admin-h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={platformData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={60}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
-                      {platformData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--admin-white)',
-                        border: '1px solid var(--admin-gray-200)',
-                        borderRadius: '8px',
-                        boxShadow: 'var(--admin-shadow-md)'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <SimpleChart
+                data={platformData}
+                dataKey="value"
+                xAxisKey="name"
+                title="Распределение по платформам"
+                type="pie"
+              />
             </div>
           </div>
 

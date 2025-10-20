@@ -45,27 +45,21 @@ export default function App() {
     firstEntry: ''
   });
 
-  // Check admin route via query parameter OR user role
+  // Check admin route ONLY via query parameter (NO auto-redirect based on role)
   useEffect(() => {
     const checkAdminRoute = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const isAdminParam = urlParams.get('view') === 'admin';
 
-      // Check if user has super_admin role
-      const isSuperAdmin = userData?.profile?.role === 'super_admin' || userData?.role === 'super_admin';
+      // Set admin route ONLY if query param is present
+      setIsAdminRoute(isAdminParam);
 
-      // Set admin route if query param OR user is super_admin
-      const shouldShowAdmin = isAdminParam || isSuperAdmin;
-      setIsAdminRoute(shouldShowAdmin);
-
-      // Auto-redirect super_admin to admin panel
-      if (isSuperAdmin && !isAdminParam) {
-        console.log('🔐 Super admin detected, redirecting to admin panel');
-        window.history.pushState({}, '', '?view=admin');
-      }
-
-      if (shouldShowAdmin && !userData) {
+      // Show/hide admin auth screen based on session
+      if (isAdminParam && !userData) {
         setShowAdminAuth(true);
+      } else if (isAdminParam && userData) {
+        // User is authenticated, hide auth screen
+        setShowAdminAuth(false);
       }
     };
 

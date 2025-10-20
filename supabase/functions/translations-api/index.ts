@@ -200,6 +200,114 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'keys': {
+        if (req.method === 'GET') {
+          // Get all unique translation keys (using Russian as base)
+          const { data, error } = await supabaseClient
+            .from('translations')
+            .select('translation_key')
+            .eq('lang_code', 'ru');
+
+          if (error) throw error;
+
+          const keys = data ? [...new Set(data.map(t => t.translation_key))] : [];
+
+          console.log('Translation keys found:', keys.length);
+
+          return new Response(JSON.stringify({ success: true, keys }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+
+      case 'missing': {
+        if (req.method === 'POST') {
+          const { key, language, context, userAgent, timestamp } = await req.json();
+
+          if (!key || !language) {
+            return new Response(
+              JSON.stringify({ success: false, error: 'Key and language are required' }),
+              {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              }
+            );
+          }
+
+          // Check if this report already exists
+          const { data: existing } = await supabaseClient
+            .from('missing_translations')
+            .select('*')
+            .eq('translation_key', key)
+            .eq('lang_code', language)
+            .eq('context', context || '')
+            .single();
+
+          if (existing) {
+            // Update counter
+            const { error: updateError } = await supabaseClient
+              .from('missing_translations')
+              .update({
+                report_count: existing.report_count + 1,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existing.id);
+
+            if (updateError) throw updateError;
+          } else {
+            // Create new report
+            const { error: insertError } = await supabaseClient
+              .from('missing_translations')
+              .insert({
+                translation_key: key,
+                lang_code: language,
+                context: context || null,
+                user_agent: userAgent || null,
+                report_count: 1,
+                created_at: timestamp || new Date().toISOString()
+              });
+
+            if (insertError) throw insertError;
+          }
+
+          console.log('Missing translation reported:', key, language);
+
+          return new Response(
+            JSON.stringify({ success: true, message: 'Missing translation reported' }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
+        }
+        break;
+      }
+
+      case 'health': {
+        if (req.method === 'GET') {
+          // Simple health check
+          const { data, error } = await supabaseClient
+            .from('languages')
+            .select('count')
+            .limit(1);
+
+          if (error) throw error;
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              status: 'ok',
+              service: 'translations-api',
+              timestamp: new Date().toISOString()
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
+        }
+        break;
+      }
+
       default:
         console.log('Unknown path:', path);
         return new Response(JSON.stringify({ error: `Not found: ${path}` }), {

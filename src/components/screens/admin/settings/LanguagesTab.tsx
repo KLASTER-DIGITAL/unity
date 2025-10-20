@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { SimpleChart } from '../../../../shared/components/SimpleChart';
 
 interface Language {
   code: string;
@@ -254,33 +254,13 @@ export const LanguagesTab: React.FC = () => {
               </h3>
             </div>
             <div className="admin-card-content">
-              <div className="admin-h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={getLanguageData()}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
-                      {getLanguageData().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--admin-white)',
-                        border: '1px solid var(--admin-gray-200)',
-                        borderRadius: '8px',
-                        boxShadow: 'var(--admin-shadow-md)'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <SimpleChart
+                data={getLanguageData()}
+                dataKey="value"
+                xAxisKey="name"
+                title="Прогресс переводов по языкам"
+                type="pie"
+              />
             </div>
           </div>
 

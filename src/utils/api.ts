@@ -1,7 +1,11 @@
 import { projectId, publicAnonKey } from './supabase/info';
 import { createClient } from './supabase/client';
 
-const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-9729c493`;
+// ✅ REMOVED: Monolithic API_BASE_URL - now using microservices
+// const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-9729c493`;
+
+// Microservices base URLs
+const TRANSCRIPTION_API_URL = `https://${projectId}.supabase.co/functions/v1/transcription-api`;
 
 // Export UserProfile type for use in other modules
 export interface UserProfile {
@@ -11,6 +15,7 @@ export interface UserProfile {
   diaryName?: string;
   diaryEmoji?: string;
   language?: string;
+  role?: string; // 'user' | 'super_admin'
   notificationSettings?: any;
   onboardingCompleted?: boolean;
   createdAt?: string;
@@ -481,6 +486,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       name: data.name,
       email: data.email,
       language: data.language,
+      role: data.role, // Добавляем role для проверки super_admin
       diaryName: data.diary_name,
       diaryEmoji: data.diary_emoji,
       notificationSettings: data.notification_settings,
@@ -544,27 +550,49 @@ export async function updateUserProfile(userId: string, updates: Partial<UserPro
 // VOICE TRANSCRIPTION (Whisper API)
 // ==========================================
 
-export async function transcribeAudio(audioBlob: Blob): Promise<string> {
-  console.log('Transcribing audio with Whisper API...');
-  
+export async function transcribeAudio(audioBlob: Blob, userId?: string, language?: string): Promise<string> {
+  console.log('[TRANSCRIPTION] Transcribing audio with Whisper API...');
+
   // Конвертируем Blob в base64
   const base64Audio = await blobToBase64(audioBlob);
-  
-  const response = await apiRequest('/transcribe', {
-    method: 'POST',
-    body: {
-      audio: base64Audio,
-      mimeType: audioBlob.type
-    },
-    requireOpenAI: true
-  });
 
-  if (!response.success) {
-    throw new Error(response.error || 'Failed to transcribe audio');
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error('No active session');
   }
 
-  console.log('Transcription successful:', response.text);
-  return response.text;
+  // ✅ FIXED: Use new transcription-api microservice
+  const response = await fetch(`${TRANSCRIPTION_API_URL}/transcribe`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`
+    },
+    body: JSON.stringify({
+      audio: base64Audio,
+      mimeType: audioBlob.type,
+      userId,
+      language: language || 'ru'
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[TRANSCRIPTION] Failed:', response.status, errorText);
+    throw new Error(`Transcription failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error('[TRANSCRIPTION] Failed:', data);
+    throw new Error(data.error || 'Transcription failed');
+  }
+
+  console.log('[TRANSCRIPTION] ✅ Successful:', data.text);
+  return data.text;
 }
 
 // ==========================================

@@ -59,7 +59,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
       let profileData;
       try {
         const profileResponse = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/make-server-9729c493/profiles/${data.user.id}`,
+          `https://${projectId}.supabase.co/functions/v1/profiles/${data.user.id}`,
           {
             headers: {
               'Authorization': `Bearer ${data.session.access_token}`,

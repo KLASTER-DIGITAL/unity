@@ -49,7 +49,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   });
 
   // Проверка прав супер-админа
-  const isSuperAdmin = userData?.email === SUPER_ADMIN_EMAIL;
+  const isSuperAdmin = userData?.profile?.role === 'super_admin' || userData?.role === 'super_admin';
 
   useEffect(() => {
     if (isSuperAdmin) {
@@ -89,7 +89,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 
       // Загружаем реальные данные с сервера
       const response = await fetch(
-        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/stats`,
+        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/stats`,
         {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -103,9 +103,11 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
       }
 
       const data = await response.json();
-      setStats(data.stats);
-      
-      console.log('Admin stats loaded:', data.stats);
+      // Микросервис возвращает данные напрямую в корне объекта
+      const { success, ...statsData } = data;
+      setStats(statsData);
+
+      console.log('Admin stats loaded:', statsData);
     } catch (error) {
       console.error('Error loading stats:', error);
       toast.error('Ошибка загрузки статистики');

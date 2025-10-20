@@ -1,0 +1,706 @@
+/**
+ * 🔐 ADMIN API MICROSERVICE (STANDALONE)
+ * Purpose: Admin panel endpoints (stats, users, settings, languages, translations)
+ * Architecture: Hono framework + Supabase + Embedded utilities
+ * Status: Production ready
+ * Date: 2025-10-20
+ * Note: Standalone version with embedded _shared utilities for Supabase MCP deployment
+ */
+
+import { Hono } from 'npm:hono';
+import { cors } from 'npm:hono/cors';
+import { logger } from 'npm:hono/logger';
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+
+console.log('[ADMIN-API] 🚀 Starting standalone microservice...');
+
+// ======================
+// EMBEDDED UTILITIES (from _shared)
+// ======================
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-OpenAI-Key, apikey, x-client-info',
+};
+
+// CORS middleware
+const corsMiddleware = cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-OpenAI-Key', 'apikey', 'x-client-info'],
+});
+
+// Supabase client
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Extract access token from Authorization header
+function extractAccessToken(authHeader: string | null): string | null {
+  if (!authHeader) return null;
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') return null;
+  return parts[1];
+}
+
+// Verify user authentication
+async function verifyUser(accessToken: string) {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+    if (error || !user) {
+      console.error('[AUTH] User verification failed:', error);
+      return null;
+    }
+    return user;
+  } catch (error) {
+    console.error('[AUTH] Error verifying user:', error);
+    return null;
+  }
+}
+
+// Check if user is super admin
+async function isSuperAdmin(userId: string, accessToken: string): Promise<boolean> {
+  try {
+    // Create client with user JWT to respect RLS policies
+    const userSupabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    });
+
+    const { data, error } = await userSupabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      console.error('[AUTH] Error checking super admin:', error);
+      return false;
+    }
+
+    console.log('[AUTH] User role:', data.role);
+    return data.role === 'super_admin';
+  } catch (error) {
+    console.error('[AUTH] Error checking super admin:', error);
+    return false;
+  }
+}
+
+// Middleware: Check super admin authorization
+async function checkSuperAdmin(c: any, next: any) {
+  const authHeader = c.req.header('Authorization');
+  const accessToken = extractAccessToken(authHeader);
+
+  if (!accessToken) {
+    return c.json({ success: false, error: 'Unauthorized: Missing access token' }, 401);
+  }
+
+  const user = await verifyUser(accessToken);
+  if (!user) {
+    return c.json({ success: false, error: 'Unauthorized: Invalid access token' }, 401);
+  }
+
+  const isAdmin = await isSuperAdmin(user.id, accessToken);
+  if (!isAdmin) {
+    return c.json({ success: false, error: 'Forbidden: Super admin access required' }, 403);
+  }
+
+  // Store user in context for later use
+  c.set('user', user);
+  c.set('userId', user.id);
+
+  await next();
+}
+
+// Get OpenAI API key
+async function getOpenAIKey(headerKey?: string | null): Promise<string | null> {
+  // Priority 1: Header key (admin panel)
+  if (headerKey) {
+    console.log('[AUTH] Using OpenAI key from header');
+    return headerKey;
+  }
+
+  // Priority 2: Database (admin_settings)
+  try {
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .select('value')
+      .eq('key', 'openai_api_key')
+      .single();
+
+    if (!error && data?.value) {
+      console.log('[AUTH] Using OpenAI key from database');
+      return data.value;
+    }
+  } catch (error) {
+    console.error('[AUTH] Error fetching OpenAI key from database:', error);
+  }
+
+  // Priority 3: Environment variable
+  const envKey = Deno.env.get('OPENAI_API_KEY');
+  if (envKey) {
+    console.log('[AUTH] Using OpenAI key from environment');
+    return envKey;
+  }
+
+  console.error('[AUTH] No OpenAI API key found');
+  return null;
+}
+
+// OpenAI pricing per model (USD per 1000 tokens)
+const OPENAI_PRICING: Record<string, { prompt: number; completion: number }> = {
+  'gpt-4': { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
+  'gpt-4-turbo-preview': { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
+  'gpt-4-turbo': { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
+  'gpt-3.5-turbo': { prompt: 0.0005 / 1000, completion: 0.0015 / 1000 },
+  'whisper-1': { prompt: 0.006 / 60, completion: 0 }
+};
+
+// Calculate cost based on model and usage
+function calculateCost(model: string, usage: any): number {
+  const modelPricing = OPENAI_PRICING[model] || OPENAI_PRICING['gpt-3.5-turbo'];
+  const promptTokens = usage.prompt_tokens || 0;
+  const completionTokens = usage.completion_tokens || 0;
+  
+  return (promptTokens * modelPricing.prompt) + (completionTokens * modelPricing.completion);
+}
+
+// Log OpenAI API usage to database
+async function logOpenAIUsage(
+  userId: string,
+  operationType: string,
+  model: string,
+  usage: any
+): Promise<boolean> {
+  try {
+    const promptTokens = usage.prompt_tokens || 0;
+    const completionTokens = usage.completion_tokens || 0;
+    const totalTokens = usage.total_tokens || (promptTokens + completionTokens);
+    
+    const estimatedCost = calculateCost(model, usage);
+
+    const { error } = await supabase.from('openai_usage').insert({
+      user_id: userId,
+      operation_type: operationType,
+      model,
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: totalTokens,
+      estimated_cost: estimatedCost
+    });
+
+    if (error) {
+      console.error('[OPENAI-LOGGER] Failed to log usage:', error);
+      return false;
+    }
+
+    console.log(
+      `[OPENAI-LOGGER] ✅ Logged: ${operationType}, ${totalTokens} tokens, $${estimatedCost.toFixed(6)}`
+    );
+    return true;
+
+  } catch (error) {
+    console.error('[OPENAI-LOGGER] Error logging usage:', error);
+    return false;
+  }
+}
+
+// ======================
+// HONO APP
+// ======================
+
+const app = new Hono({ strict: false });
+
+// Middleware
+app.use('*', corsMiddleware);
+app.use('*', logger(console.log));
+
+// Health check endpoint (public)
+app.get('/health', (c) => {
+  return c.json({
+    success: true,
+    status: 'ok',
+    service: 'admin-api',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// All admin endpoints require super_admin role
+app.use('/admin/*', checkSuperAdmin);
+
+// ======================
+// ADMIN ENDPOINTS
+// ======================
+
+// 1. GET /admin/stats - Dashboard statistics
+app.get('/admin/stats', async (c) => {
+  try {
+    console.log('[ADMIN-API] Fetching admin stats...');
+
+    // Get all profiles
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, created_at, is_premium');
+
+    if (profilesError) throw profilesError;
+
+    const totalUsers = profiles?.length || 0;
+
+    // Get all entries
+    const { data: entries, error: entriesError } = await supabase
+      .from('entries')
+      .select('id, user_id, created_at');
+
+    if (entriesError) throw entriesError;
+
+    const totalEntries = entries?.length || 0;
+
+    // Calculate active users and new users today
+    const activeUsersSet = new Set();
+    let newUsersToday = 0;
+    const activeTodaySet = new Set();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Count new users today
+    for (const profile of profiles || []) {
+      if (profile.created_at) {
+        const createdDate = new Date(profile.created_at);
+        createdDate.setHours(0, 0, 0, 0);
+        if (createdDate.getTime() === today.getTime()) {
+          newUsersToday++;
+        }
+      }
+    }
+
+    // Count active users
+    for (const entry of entries || []) {
+      activeUsersSet.add(entry.user_id);
+
+      // Active today
+      const entryDate = new Date(entry.created_at);
+      entryDate.setHours(0, 0, 0, 0);
+      if (entryDate.getTime() === today.getTime()) {
+        activeTodaySet.add(entry.user_id);
+      }
+    }
+
+    // Count premium users
+    const premiumUsers = profiles?.filter(p => p.is_premium).length || 0;
+
+    // Calculate revenue (estimate: 499 RUB/month per premium user)
+    const totalRevenue = premiumUsers * 499;
+
+    const stats = {
+      totalUsers,
+      totalEntries,
+      activeUsers: activeUsersSet.size,
+      newUsersToday,
+      activeToday: activeTodaySet.size,
+      premiumUsers,
+      totalRevenue,
+      pwaInstalls: 0
+    };
+
+    console.log('[ADMIN-API] ✅ Stats:', stats);
+    return c.json({ success: true, ...stats });
+
+  } catch (error: any) {
+    console.error('[ADMIN-API] Stats error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 2. GET /admin/users - List all users
+app.get('/admin/users', async (c) => {
+  try {
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Get entries count for each user
+    const usersWithStats = await Promise.all(
+      (users || []).map(async (user) => {
+        const { count } = await supabase
+          .from('entries')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        return {
+          ...user,
+          entriesCount: count || 0
+        };
+      })
+    );
+
+    return c.json({ success: true, users: usersWithStats });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Users list error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 3. GET /admin/settings/:key - Get setting by key
+app.get('/admin/settings/:key', async (c) => {
+  try {
+    const key = c.req.param('key');
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .select('*')
+      .eq('key', key)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+
+    return c.json({ success: true, setting: data || null });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Get setting error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 4. POST /admin/settings - Save setting
+app.post('/admin/settings', async (c) => {
+  try {
+    const { key, value, description } = await c.req.json();
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .upsert({
+        key,
+        value,
+        description,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'key'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return c.json({ success: true, setting: data });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Save setting error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 5. GET /admin/languages - List languages
+app.get('/admin/languages', async (c) => {
+  try {
+    const { data, error } = await supabase
+      .from('languages')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+
+    return c.json({ success: true, languages: data || [] });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Languages list error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 6. POST /admin/languages - Add language
+app.post('/admin/languages', async (c) => {
+  try {
+    const { code, name, nativeName, flag } = await c.req.json();
+    const { data, error } = await supabase
+      .from('languages')
+      .insert({
+        code,
+        name,
+        native_name: nativeName,
+        flag,
+        is_active: true
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return c.json({ success: true, language: data });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Add language error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 7. PUT /admin/languages/:code - Update language
+app.put('/admin/languages/:code', async (c) => {
+  try {
+    const code = c.req.param('code');
+    const { name, nativeName, flag, isActive } = await c.req.json();
+    const { data, error } = await supabase
+      .from('languages')
+      .update({
+        name,
+        native_name: nativeName,
+        flag,
+        is_active: isActive
+      })
+      .eq('code', code)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return c.json({ success: true, language: data });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Update language error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 8. GET /admin/translations - Get all translations
+app.get('/admin/translations', async (c) => {
+  try {
+    const { data, error } = await supabase
+      .from('translations')
+      .select('*')
+      .order('translation_key');
+
+    if (error) throw error;
+
+    return c.json({ success: true, translations: data || [] });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Translations list error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 9. POST /admin/translations - Save translation
+app.post('/admin/translations', async (c) => {
+  try {
+    const { key, langCode, value } = await c.req.json();
+    const { data, error } = await supabase
+      .from('translations')
+      .upsert({
+        translation_key: key,
+        lang_code: langCode,
+        translation_value: value,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'translation_key,lang_code'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return c.json({ success: true, translation: data });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Save translation error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 10. PUT /admin/translations - Batch update translations
+app.put('/admin/translations', async (c) => {
+  try {
+    const { language, translations } = await c.req.json();
+
+    const updates = Object.entries(translations).map(([key, value]) => ({
+      translation_key: key,
+      lang_code: language,
+      translation_value: value as string,
+      updated_at: new Date().toISOString()
+    }));
+
+    const { data, error } = await supabase
+      .from('translations')
+      .upsert(updates, {
+        onConflict: 'translation_key,lang_code'
+      })
+      .select();
+
+    if (error) throw error;
+
+    return c.json({ success: true, updated: data?.length || 0, translations: data });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Batch update translations error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 11. POST /admin/translate - Auto-translate via OpenAI
+app.post('/admin/translate', async (c) => {
+  try {
+    const { sourceLanguage, targetLanguages } = await c.req.json();
+    const userId = c.get('userId');
+
+    // Get OpenAI key
+    const openaiKey = await getOpenAIKey(c.req.header('X-OpenAI-Key'));
+    if (!openaiKey) {
+      return c.json({ success: false, error: 'OpenAI API key not configured' }, 400);
+    }
+
+    // Get source translations
+    const { data: sourceTranslations, error: sourceError } = await supabase
+      .from('translations')
+      .select('translation_key, translation_value')
+      .eq('lang_code', sourceLanguage);
+
+    if (sourceError) throw sourceError;
+    if (!sourceTranslations || sourceTranslations.length === 0) {
+      return c.json({ success: false, error: 'No source translations found' }, 404);
+    }
+
+    const results: any = {};
+    const batchSize = 20; // Process 20 keys at a time
+
+    for (const targetLang of targetLanguages) {
+      results[targetLang] = {
+        total: sourceTranslations.length,
+        translated: 0,
+        failed: 0,
+        errors: []
+      };
+
+      // Process in batches
+      for (let i = 0; i < sourceTranslations.length; i += batchSize) {
+        const batch = sourceTranslations.slice(i, i + batchSize);
+        const keysToTranslate = batch.map(t => ({
+          key: t.translation_key,
+          value: t.translation_value
+        }));
+
+        try {
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${openaiKey}`
+            },
+            body: JSON.stringify({
+              model: 'gpt-3.5-turbo',
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are a professional translator. Translate the following UI strings from ${sourceLanguage} to ${targetLang}. Return ONLY a JSON object with keys as translation keys and values as translated strings. Preserve formatting, placeholders like {name}, and special characters.`
+                },
+                {
+                  role: 'user',
+                  content: JSON.stringify(keysToTranslate)
+                }
+              ],
+              temperature: 0.3
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          const translatedText = data.choices[0].message.content;
+          const translations = JSON.parse(translatedText);
+
+          // Log OpenAI usage
+          await logOpenAIUsage(userId, 'translation', 'gpt-3.5-turbo', data.usage);
+
+          // Save translations to database
+          const updates = Object.entries(translations).map(([key, value]) => ({
+            translation_key: key,
+            lang_code: targetLang,
+            translation_value: value as string,
+            updated_at: new Date().toISOString()
+          }));
+
+          const { error: updateError } = await supabase
+            .from('translations')
+            .upsert(updates, {
+              onConflict: 'translation_key,lang_code'
+            });
+
+          if (updateError) throw updateError;
+
+          results[targetLang].translated += Object.keys(translations).length;
+        } catch (error: any) {
+          console.error(`[ADMIN-API] Translation batch error (${targetLang}):`, error);
+          results[targetLang].failed += batch.length;
+          results[targetLang].errors.push(error.message);
+        }
+      }
+    }
+
+    return c.json({ success: true, results });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Auto-translate error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// 12. GET /admin/translation-stats - Translation progress per language
+app.get('/admin/translation-stats', async (c) => {
+  try {
+    // Get all languages
+    const { data: languages, error: langError } = await supabase
+      .from('languages')
+      .select('code, name')
+      .eq('is_active', true);
+
+    if (langError) throw langError;
+
+    // Get total keys from base language (ru)
+    const { data: baseKeys, error: baseError } = await supabase
+      .from('translations')
+      .select('translation_key')
+      .eq('lang_code', 'ru');
+
+    if (baseError) throw baseError;
+
+    const totalKeys = baseKeys?.length || 0;
+    const stats: any = {
+      totalKeys,
+      translatedKeys: {},
+      progress: {},
+      lastUpdated: {}
+    };
+
+    // Get stats for each language
+    for (const lang of languages || []) {
+      const { data: translations, error } = await supabase
+        .from('translations')
+        .select('translation_key, updated_at')
+        .eq('lang_code', lang.code);
+
+      if (error) throw error;
+
+      const translatedCount = translations?.length || 0;
+      stats.translatedKeys[lang.code] = translatedCount;
+      stats.progress[lang.code] = totalKeys > 0 ? Math.round((translatedCount / totalKeys) * 100) : 0;
+
+      // Get last updated timestamp
+      if (translations && translations.length > 0) {
+        const lastUpdated = translations.reduce((latest, t) => {
+          return new Date(t.updated_at) > new Date(latest) ? t.updated_at : latest;
+        }, translations[0].updated_at);
+        stats.lastUpdated[lang.code] = lastUpdated;
+      }
+    }
+
+    return c.json({ success: true, ...stats });
+  } catch (error: any) {
+    console.error('[ADMIN-API] Translation stats error:', error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ======================
+// START SERVER
+// ======================
+
+Deno.serve(app.fetch);
+
+

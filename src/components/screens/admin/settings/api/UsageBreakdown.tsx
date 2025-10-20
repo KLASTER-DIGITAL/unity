@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../../utils/supabase/client';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { SimpleChart } from '../../../../../shared/components/SimpleChart';
 
 interface OperationStats {
   operation_type: string;
@@ -160,27 +160,15 @@ export const UsageBreakdown = () => {
           </div>
         ) : (
           <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-2 admin-gap-8">
-            {/* Pie Chart */}
+            {/* Chart */}
             <div>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={getChartData()}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {getChartData().map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => formatValue(value)} />
-                </PieChart>
-              </ResponsiveContainer>
+              <SimpleChart
+                data={getChartData()}
+                dataKey="value"
+                xAxisKey="name"
+                title={`Распределение по типам операций (${metric === 'requests' ? 'запросы' : metric === 'tokens' ? 'токены' : 'стоимость'})`}
+                type="pie"
+              />
             </div>
 
             {/* Детальная таблица */}

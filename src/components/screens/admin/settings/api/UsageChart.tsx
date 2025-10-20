@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../../utils/supabase/client';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { SimpleChart } from '../../../../../shared/components/SimpleChart';
 
 interface DailyStats {
   date: string;
@@ -229,89 +229,14 @@ export const UsageChart = () => {
           <div className="admin-flex admin-justify-center admin-items-center admin-h-80">
             <div className="admin-spinner admin-w-8 admin-h-8" />
           </div>
-        ) : data.length === 0 ? (
-          <div className="admin-text-center admin-py-12 admin-text-gray-500">
-            <div className="admin-text-4xl admin-mb-4">📈</div>
-            <p>Нет данных за выбранный период</p>
-          </div>
         ) : (
-          <ResponsiveContainer width="100%" height={400}>
-            {chartType === 'line' ? (
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis 
-                  tickFormatter={formatYAxis}
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
-                />
-                <Tooltip 
-                  formatter={formatTooltip}
-                  labelStyle={{ color: '#111827' }}
-                  contentStyle={{ 
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '12px'
-                  }}
-                />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey={metric} 
-                  name={getMetricLabel()}
-                  stroke={getMetricColor()} 
-                  strokeWidth={2}
-                  dot={{ fill: getMetricColor(), r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            ) : (
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id="colorMetric" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={getMetricColor()} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={getMetricColor()} stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis 
-                  tickFormatter={formatYAxis}
-                  stroke="#6b7280"
-                  style={{ fontSize: '12px' }}
-                />
-                <Tooltip 
-                  formatter={formatTooltip}
-                  labelStyle={{ color: '#111827' }}
-                  contentStyle={{ 
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '12px'
-                  }}
-                />
-                <Legend />
-                <Area 
-                  type="monotone" 
-                  dataKey={metric} 
-                  name={getMetricLabel()}
-                  stroke={getMetricColor()} 
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorMetric)"
-                />
-              </AreaChart>
-            )}
-          </ResponsiveContainer>
+          <SimpleChart
+            data={data}
+            dataKey={metric}
+            xAxisKey="date"
+            title={`${getMetricLabel()} за ${period === '7d' ? '7 дней' : period === '30d' ? '30 дней' : '90 дней'}`}
+            type={chartType}
+          />
         )}
       </div>
     </div>

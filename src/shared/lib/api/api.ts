@@ -1,16 +1,22 @@
 import { projectId, publicAnonKey } from './supabase/info';
 import { createClient } from '@/utils/supabase/client';
 
-// Microservices base URLs
+// ✅ Microservices base URLs (2025-10-20)
 const PROFILES_API_URL = `https://${projectId}.supabase.co/functions/v1/profiles`;
 const ENTRIES_API_URL = `https://${projectId}.supabase.co/functions/v1/entries`;
 const AI_ANALYSIS_API_URL = `https://${projectId}.supabase.co/functions/v1/ai-analysis`;
 const MOTIVATIONS_API_URL = `https://${projectId}.supabase.co/functions/v1/motivations`;
 const MEDIA_API_URL = `https://${projectId}.supabase.co/functions/v1/media`;
-const LEGACY_API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-9729c493`;
+const TRANSCRIPTION_API_URL = `https://${projectId}.supabase.co/functions/v1/transcription-api`;
+const ADMIN_API_URL = `https://${projectId}.supabase.co/functions/v1/admin-api`;
+const TRANSLATIONS_API_URL = `https://${projectId}.supabase.co/functions/v1/translations-api`;
 
-// Default to legacy API for backward compatibility
-const API_BASE_URL = LEGACY_API_URL;
+// ❌ REMOVED: Monolithic API (2025-10-20)
+// const LEGACY_API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-9729c493`;
+// const API_BASE_URL = LEGACY_API_URL;
+
+// TODO: Books API microservice not yet created - using direct Supabase client for now
+const API_BASE_URL = ''; // Placeholder - will be removed when Books API is migrated
 
 // Export UserProfile type for use in other modules
 export interface UserProfile {
@@ -243,18 +249,37 @@ export interface AIAnalysisResult {
 
 export async function analyzeTextWithAI(text: string, userName?: string, userId?: string): Promise<AIAnalysisResult> {
   try {
-  const response = await apiRequest('/analyze', {
-    method: 'POST',
-    body: { text, userName, userId },
-    requireOpenAI: true
-  });
+    // ✅ Use AI_ANALYSIS_API_URL directly instead of apiRequest
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (!response.success) {
-      console.error('AI analysis failed:', response);
-      throw new Error(response.error || 'AI analysis failed');
+    if (!session?.access_token) {
+      throw new Error('No active session. Please log in.');
     }
 
-    return response.analysis;
+    const response = await fetch(AI_ANALYSIS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ text, userName, userId })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('AI analysis failed:', errorText);
+      throw new Error(`AI analysis failed: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+      console.error('AI analysis failed:', result);
+      throw new Error(result.error || 'AI analysis failed');
+    }
+
+    return result.analysis;
   } catch (error) {
     console.error('Error in analyzeTextWithAI:', error);
 
@@ -299,20 +324,62 @@ export interface DiaryEntry {
 }
 
 export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntry> {
-  console.log('[ENTRIES] Creating entry:', entry);
+  console.log('[ENTRIES] Creating entry via direct Supabase client:', entry);
 
-  const response = await entriesApiRequest('', {
-    method: 'POST',
-    body: entry
-  });
+  // ✅ TEMPORARY FIX: Use direct Supabase client instead of microservice
+  // TODO: Fix entries microservice 404 issue
+  const supabase = createClient();
 
-  if (!response.success) {
-    console.error('[ENTRIES] Entry creation failed:', response);
-    throw new Error(response.error || 'Failed to create entry');
+  const { data, error } = await supabase
+    .from('entries')
+    .insert({
+      user_id: entry.userId,
+      text: entry.text,
+      sentiment: entry.sentiment || 'neutral',
+      category: entry.category || 'Другое',
+      mood: entry.mood || 'нормальное',
+      is_first_entry: entry.isFirstEntry || false,
+      media: entry.media || null,
+      ai_reply: entry.aiReply || '',
+      ai_summary: entry.aiSummary || null,
+      ai_insight: entry.aiInsight || null,
+      is_achievement: entry.isAchievement || false,
+      tags: entry.tags || [],
+      streak_day: entry.streakDay || 1,
+      focus_area: entry.focusArea || entry.category || 'Другое',
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[ENTRIES] Error creating entry in Supabase:', error);
+    throw new Error(error.message);
   }
 
-  console.log('[ENTRIES] Entry created successfully:', response.entry);
-  return response.entry;
+  // Convert to camelCase for frontend
+  const createdEntry: DiaryEntry = {
+    id: data.id,
+    userId: data.user_id,
+    text: data.text,
+    sentiment: data.sentiment,
+    category: data.category,
+    mood: data.mood,
+    isFirstEntry: data.is_first_entry,
+    media: data.media,
+    aiReply: data.ai_reply,
+    aiSummary: data.ai_summary,
+    aiInsight: data.ai_insight,
+    isAchievement: data.is_achievement,
+    tags: data.tags,
+    streakDay: data.streak_day,
+    focusArea: data.focus_area,
+    createdAt: data.created_at,
+    aiResponse: data.ai_reply
+  };
+
+  console.log('[ENTRIES] Entry created successfully:', createdEntry.id);
+  return createdEntry;
 }
 
 export async function getEntries(userId: string, limit: number = 50): Promise<DiaryEntry[]> {
@@ -595,27 +662,49 @@ export async function updateUserProfile(userId: string, updates: Partial<UserPro
 // VOICE TRANSCRIPTION (Whisper API)
 // ==========================================
 
-export async function transcribeAudio(audioBlob: Blob): Promise<string> {
-  console.log('Transcribing audio with Whisper API...');
+export async function transcribeAudio(audioBlob: Blob, userId?: string, language?: string): Promise<string> {
+  console.log('[TRANSCRIPTION] Transcribing audio with Whisper API...');
 
   // Конвертируем Blob в base64
   const base64Audio = await blobToBase64(audioBlob);
 
-  const response = await apiRequest('/transcribe', {
-    method: 'POST',
-    body: {
-      audio: base64Audio,
-      mimeType: audioBlob.type
-    },
-    requireOpenAI: true
-  });
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!response.success) {
-    throw new Error(response.error || 'Failed to transcribe audio');
+  if (!session?.access_token) {
+    throw new Error('No active session');
   }
 
-  console.log('Transcription successful:', response.text);
-  return response.text;
+  // ✅ FIXED: Use new transcription-api microservice
+  const response = await fetch(`${TRANSCRIPTION_API_URL}/transcribe`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`
+    },
+    body: JSON.stringify({
+      audio: base64Audio,
+      mimeType: audioBlob.type,
+      userId,
+      language: language || 'ru'
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[TRANSCRIPTION] Failed:', response.status, errorText);
+    throw new Error(`Transcription failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error('[TRANSCRIPTION] Failed:', data);
+    throw new Error(data.error || 'Transcription failed');
+  }
+
+  console.log('[TRANSCRIPTION] ✅ Successful:', data.text);
+  return data.text;
 }
 
 // ==========================================
@@ -715,54 +804,9 @@ export async function uploadMedia(
     };
 
   } catch (microserviceError: any) {
-    console.warn('[API] ⚠️ Microservice failed:', microserviceError.message);
-    console.log('[API] 🔄 Falling back to legacy monolithic API...');
-
-    // FALLBACK: Use legacy monolithic function
-    try {
-      const response = await fetch(`${LEGACY_API_URL}/media/upload`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Legacy API returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Legacy API returned error');
-      }
-
-      console.log('[API] ✅ Legacy API success:', data.path);
-
-      const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
-
-      return {
-        id: data.id || '',
-        userId: userId,
-        fileName: file.name,
-        filePath: data.path,
-        fileType: mediaType,
-        fileSize: file.size,
-        createdAt: new Date().toISOString(),
-        url: data.url,
-        path: data.path,
-        type: mediaType,
-        mimeType: data.mimeType
-      };
-
-    } catch (legacyError) {
-      console.error('[API] ❌ Both microservice and legacy API failed!');
-      console.error('[API] Microservice error:', microserviceError);
-      console.error('[API] Legacy error:', legacyError);
-      throw new Error('Failed to upload media from all sources');
-    }
+    console.error('[API] ❌ Media microservice failed!');
+    console.error('[API] Error:', microserviceError);
+    throw new Error('Failed to upload media: ' + microserviceError.message);
   }
 }
 
@@ -810,39 +854,9 @@ export async function getSignedUrl(path: string): Promise<string> {
     return data.url;
 
   } catch (microserviceError: any) {
-    console.warn('[API] ⚠️ Microservice failed:', microserviceError.message);
-    console.log('[API] 🔄 Falling back to legacy monolithic API...');
-
-    // FALLBACK: Use legacy monolithic function
-    try {
-      const response = await fetch(`${LEGACY_API_URL}/media/signed-url`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Legacy API returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Legacy API returned error');
-      }
-
-      console.log('[API] ✅ Legacy API success: signed URL created');
-      return data.url;
-
-    } catch (legacyError) {
-      console.error('[API] ❌ Both microservice and legacy API failed!');
-      console.error('[API] Microservice error:', microserviceError);
-      console.error('[API] Legacy error:', legacyError);
-      throw new Error('Failed to get signed URL from all sources');
-    }
+    console.error('[API] ❌ Media microservice failed!');
+    console.error('[API] Error:', microserviceError);
+    throw new Error('Failed to get signed URL: ' + microserviceError.message);
   }
 }
 
@@ -886,37 +900,9 @@ export async function deleteMedia(path: string): Promise<void> {
     console.log('[API] ✅ Microservice success: media deleted');
 
   } catch (microserviceError: any) {
-    console.warn('[API] ⚠️ Microservice failed:', microserviceError.message);
-    console.log('[API] 🔄 Falling back to legacy monolithic API...');
-
-    // FALLBACK: Use legacy monolithic function
-    try {
-      const response = await fetch(`${LEGACY_API_URL}/media/${encodeURIComponent(path)}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Legacy API returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Legacy API returned error');
-      }
-
-      console.log('[API] ✅ Legacy API success: media deleted');
-
-    } catch (legacyError) {
-      console.error('[API] ❌ Both microservice and legacy API failed!');
-      console.error('[API] Microservice error:', microserviceError);
-      console.error('[API] Legacy error:', legacyError);
-      throw new Error('Failed to delete media from all sources');
-    }
+    console.error('[API] ❌ Media microservice failed!');
+    console.error('[API] Error:', microserviceError);
+    throw new Error('Failed to delete media: ' + microserviceError.message);
   }
 }
 
@@ -995,38 +981,9 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
     return data.cards || [];
 
   } catch (microserviceError: any) {
-    console.warn('[API] ⚠️ Microservice failed:', microserviceError.message);
-    console.log('[API] 🔄 Falling back to legacy monolithic API...');
-
-    // FALLBACK: Use legacy monolithic function
-    try {
-      const response = await fetch(`${LEGACY_API_URL}/motivations/cards/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Legacy API returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Legacy API returned error');
-      }
-
-      console.log('[API] ✅ Legacy API success:', data.cards.length, 'cards');
-      return data.cards || [];
-
-    } catch (legacyError) {
-      console.error('[API] ❌ Both microservice and legacy API failed!');
-      console.error('[API] Microservice error:', microserviceError);
-      console.error('[API] Legacy error:', legacyError);
-      throw new Error('Failed to fetch motivation cards from all sources');
-    }
+    console.error('[API] ❌ Motivations microservice failed!');
+    console.error('[API] Error:', microserviceError);
+    throw new Error('Failed to fetch motivation cards: ' + microserviceError.message);
   }
 }
 
@@ -1070,38 +1027,9 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
     console.log('[API] ✅ Microservice marked card as read');
 
   } catch (microserviceError: any) {
-    console.warn('[API] ⚠️ Microservice failed:', microserviceError.message);
-    console.log('[API] 🔄 Falling back to legacy API...');
-
-    // FALLBACK: Use legacy monolithic function
-    try {
-      const response = await fetch(`${LEGACY_API_URL}/motivations/mark-read`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ userId, cardId })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Legacy API returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Legacy API returned error');
-      }
-
-      console.log('[API] ✅ Legacy API marked card as read');
-
-    } catch (legacyError) {
-      console.error('[API] ❌ Both microservice and legacy API failed!');
-      console.error('[API] Microservice error:', microserviceError);
-      console.error('[API] Legacy error:', legacyError);
-      throw new Error('Failed to mark card as read from all sources');
-    }
+    console.error('[API] ❌ Motivations microservice failed!');
+    console.error('[API] Error:', microserviceError);
+    throw new Error('Failed to mark card as read: ' + microserviceError.message);
   }
 }
 

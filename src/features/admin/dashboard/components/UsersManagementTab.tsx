@@ -47,7 +47,7 @@ export function UsersManagementTab() {
       
       // Загружаем реальных пользователей
       const response = await fetch(
-        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/users`,
+        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/users`,
         {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,

@@ -95,7 +95,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   useEffect(() => {
     const loadLanguages = async () => {
       try {
-        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/languages', {
+        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/translations-api/languages', {
           headers: {
             'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
           }

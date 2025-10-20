@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { SimpleChart } from '../../../../shared/components/SimpleChart';
 
 const notificationStats = [
   { metric: 'Отправлено', value: 12345, color: '#3b82f6' },

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { SimpleChart } from '../../../../shared/components/SimpleChart';
 import '../../../../styles/admin/admin-theme.css';
 import '../../../../styles/admin/admin-typography.css';
 import '../../../../styles/admin/admin-cards.css';
@@ -300,44 +300,12 @@ export const SystemSettingsTab: React.FC = () => {
           </p>
         </div>
         <div className="admin-card-content">
-          <div className="admin-h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={systemMetrics}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-gray-200)" />
-                <XAxis
-                  dataKey="time"
-                  stroke="var(--admin-gray-500)"
-                  fontSize={12}
-                />
-                <YAxis
-                  stroke="var(--admin-gray-500)"
-                  fontSize={12}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--admin-white)',
-                    border: '1px solid var(--admin-gray-200)',
-                    borderRadius: '8px',
-                    boxShadow: 'var(--admin-shadow-md)'
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cpu"
-                  stroke="var(--admin-warning)"
-                  strokeWidth={2}
-                  dot={{ fill: 'var(--admin-warning)', strokeWidth: 2, r: 4 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="memory"
-                  stroke="var(--admin-error)"
-                  strokeWidth={2}
-                  dot={{ fill: 'var(--admin-error)', strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <SimpleChart
+            data={systemMetrics}
+            xAxisKey="time"
+            title="Использование системных ресурсов"
+            type="line"
+          />
         </div>
       </div>
 

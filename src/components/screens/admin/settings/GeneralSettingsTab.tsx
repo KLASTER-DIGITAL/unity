@@ -26,7 +26,7 @@ export const GeneralSettingsTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/settings', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
