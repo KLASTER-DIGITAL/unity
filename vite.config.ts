@@ -5,7 +5,7 @@ import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/unity/' : '/',
+  base: '/',
   plugins: [
     react(),
     // Bundle analyzer для анализа размера (только при ANALYZE=true)
