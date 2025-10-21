@@ -14,6 +14,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
+import { showFeedbackWidget, hideFeedbackWidget } from "@/shared/lib/monitoring/sentry";
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
@@ -130,6 +131,16 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       }
     };
     checkBiometric();
+  }, []);
+
+  // Показать Sentry Feedback виджет только на странице настроек
+  useEffect(() => {
+    showFeedbackWidget();
+
+    // Скрыть виджет при размонтировании компонента
+    return () => {
+      hideFeedbackWidget();
+    };
   }, []);
 
   // Синхронизация локального профиля с userData

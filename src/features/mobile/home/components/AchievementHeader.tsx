@@ -7,7 +7,8 @@ import {
   Camera,
   Sparkles,
   BookOpen,
-  Settings
+  Settings,
+  Menu
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 
@@ -16,18 +17,25 @@ interface AchievementHeaderProps {
   daysInApp?: number;
   userEmail?: string;
   avatarUrl?: string;
+  onNavigateToSettings?: () => void;
 }
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 // Компонент аватарки с пульсацией онлайн-статуса
-function UserAvatar({ userName, userEmail, avatarUrl }: { userName?: string; userEmail?: string; avatarUrl?: string }) {
+function UserAvatar({ userName, userEmail, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
   // Используем дефолтное фото если нет аватара
   const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
 
   return (
-    <div className="relative flex-shrink-0">
+    <div
+      className="relative flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label="Перейти в настройки профиля"
+    >
       <Avatar className="h-[70px] w-[70px] ring-1 ring-border">
         <AvatarImage src={displayAvatarUrl} alt={userName} className="object-cover" />
         <AvatarFallback className="bg-muted">
@@ -192,7 +200,8 @@ export function AchievementHeader({
   userName = "Пользователь",
   daysInApp = 1,
   userEmail,
-  avatarUrl
+  avatarUrl,
+  onNavigateToSettings
 }: AchievementHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -203,16 +212,23 @@ export function AchievementHeader({
         <div className="flex items-center justify-between gap-4">
           {/* Left: Avatar + Greeting */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            {/* Avatar with online pulse */}
-            <UserAvatar userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
+            {/* Avatar with online pulse - клик переходит в настройки */}
+            <UserAvatar
+              userName={userName}
+              userEmail={userEmail}
+              avatarUrl={avatarUrl}
+              onClick={onNavigateToSettings}
+            />
 
-            {/* Greeting */}
+            {/* Greeting - адаптивный размер шрифта для узких экранов (340px Telegram) */}
             <div className="flex-1 min-w-0">
-              <h1 className="!text-[24px] !font-semibold text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
-                <span className="text-[24px]">🙌</span>
-                <span className="!text-[24px]">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
+              {/* Приветствие - уменьшается на узких экранах, не переносится */}
+              <h1 className="!font-semibold text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
+                <span className="text-[clamp(18px,5.5vw,24px)] flex-shrink-0">🙌</span>
+                <span className="!text-[clamp(18px,5.5vw,24px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
-              <p className="text-muted-foreground !text-[15px] !leading-[1.3] mt-0.5">
+              {/* Вопрос - уменьшается на узких экранах, не переносится */}
+              <p className="text-muted-foreground !text-[clamp(12px,3.8vw,15px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
@@ -235,14 +251,14 @@ export function AchievementHeader({
         </div>
       </div>
 
-      {/* Floating Quick Actions Button - справа внизу */}
+      {/* Floating Quick Actions Button - справа внизу, черная с белой иконкой меню */}
       <motion.button
         onClick={() => setShowMenu(true)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-accent rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-[#1C1C1E] rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Plus className="h-6 w-6 text-white" strokeWidth={2.5} />
+        <Menu className="h-6 w-6 text-white" strokeWidth={2.5} />
       </motion.button>
 
       {/* Quick Actions Menu */}

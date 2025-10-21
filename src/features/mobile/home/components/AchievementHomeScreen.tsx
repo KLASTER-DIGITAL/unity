@@ -21,6 +21,7 @@ interface AchievementHomeScreenProps {
   diaryData?: DiaryData;
   userData?: any;
   onNavigateToHistory?: () => void;
+  onNavigateToSettings?: () => void;
 }
 
 interface AchievementCard {
@@ -460,7 +461,8 @@ function SwipeCard({
 export function AchievementHomeScreen({
   diaryData = { name: "Мой дневник", emoji: "🏆" },
   userData,
-  onNavigateToHistory
+  onNavigateToHistory,
+  onNavigateToSettings
 }: AchievementHomeScreenProps) {
   const { t } = useTranslation();
   const [cards, setCards] = useState<AchievementCard[]>([]);
@@ -639,6 +641,7 @@ export function AchievementHomeScreen({
         daysInApp={daysInApp}
         userEmail={userEmail}
         avatarUrl={avatarUrl}
+        onNavigateToSettings={onNavigateToSettings}
       />
 
       {/* Loading State */}

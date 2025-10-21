@@ -162,6 +162,7 @@ export function MobileApp({
               <AchievementHomeScreen
                 userData={userData}
                 onNavigateToHistory={() => setActiveScreen("history")}
+                onNavigateToSettings={() => setActiveScreen("settings")}
               />
             </Suspense>
           )}

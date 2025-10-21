@@ -58,9 +58,11 @@ export function initSentry() {
         }),
         
         // Feedback для сбора отзывов пользователей
+        // autoInject: false - не показывать автоматически, только вручную
         Sentry.feedbackIntegration({
           colorScheme: 'system',
           showBranding: false,
+          autoInject: false, // Отключаем автоматический показ
         }),
       ],
 
@@ -304,6 +306,42 @@ export const SentryErrorBoundary = Sentry.ErrorBoundary;
  * export default withProfiler(MyComponent);
  */
 export const withProfiler = Sentry.withProfiler;
+
+/**
+ * Показать Sentry Feedback виджет вручную
+ *
+ * Используется только на странице настроек/профиля
+ *
+ * @example
+ * import { showFeedbackWidget } from '@/shared/lib/monitoring/sentry';
+ * showFeedbackWidget();
+ */
+export function showFeedbackWidget() {
+  if (import.meta.env.PROD) {
+    const feedback = Sentry.getFeedback();
+    if (feedback) {
+      feedback.createWidget();
+    }
+  } else {
+    console.log('ℹ️ [Sentry Feedback] Доступен только в production');
+  }
+}
+
+/**
+ * Скрыть Sentry Feedback виджет
+ *
+ * @example
+ * import { hideFeedbackWidget } from '@/shared/lib/monitoring/sentry';
+ * hideFeedbackWidget();
+ */
+export function hideFeedbackWidget() {
+  if (import.meta.env.PROD) {
+    const feedback = Sentry.getFeedback();
+    if (feedback) {
+      feedback.removeWidget();
+    }
+  }
+}
 
 // Re-export Sentry для прямого использования если нужно
 export { Sentry };
