@@ -90,7 +90,7 @@
             "test:e2e": "playwright test",
             "test:e2e:ui": "playwright test --ui",
             "clean": "rm -rf build dist",
-            "deploy": "npm run build && netlify deploy --prod --dir=build",
+            "deploy": "vercel --prod",
             "deploy:gh": "npm run build && gh-pages -d build",
             "analyze": "node scripts/analyze-bundle.js",
             "optimize:images": "node scripts/optimize-images.js",

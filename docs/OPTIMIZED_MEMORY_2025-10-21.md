@@ -29,7 +29,7 @@ UNITY-v2 - PWA дневник достижений (НЕ Telegram Mini App), ф�
 
 ### 1.2 Технологический стек (ключевые решения)
 ```
-React 18.3.1 + TypeScript + Vite 6.3.5 + Supabase + Tailwind CSS, деплой на Netlify (https://unity-diary-app.netlify.app), shadcn/ui компоненты (@radix-ui), Universal Components готовы к React Native
+React 18.3.1 + TypeScript + Vite 6.3.5 + Supabase + Tailwind CSS, деплой на Vercel (https://unity-wine.vercel.app), shadcn/ui компоненты (@radix-ui), Universal Components готовы к React Native
 ```
 
 **Критичность**: Определяет выбор библиотек и подходов к разработке
@@ -211,7 +211,7 @@ Role: super_admin (в profiles таблице)
 
 ### 5.3 Деплой
 ```
-URL: https://unity-diary-app.netlify.app
+URL: https://unity-wine.vercel.app
 Деплой: Netlify через GitHub Actions (автоматический при push в main)
 ```
 

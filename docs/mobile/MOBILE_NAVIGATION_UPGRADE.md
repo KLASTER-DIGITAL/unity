@@ -181,14 +181,14 @@ className="z-[var(--z-modal)]"
 
 ### 📱 Mobile Testing (PWA)
 - [ ] iOS Safari:
-  - [ ] Open https://unity-diary-app.netlify.app
+  - [ ] Open https://unity-wine.vercel.app
   - [ ] Add to Home Screen
   - [ ] Test navigation gestures
   - [ ] Test swipe-down on modals
   - [ ] Verify 44x44px touch targets
   - [ ] Test in landscape mode
 - [ ] Android Chrome:
-  - [ ] Open https://unity-diary-app.netlify.app
+  - [ ] Open https://unity-wine.vercel.app
   - [ ] Install PWA
   - [ ] Test navigation gestures
   - [ ] Test swipe-down on modals

@@ -318,7 +318,7 @@ serve(async (req) => {
           connected: true,
           message: 'Telegram integration is active',
           botUsername: '@diary_bookai_bot',
-          domain: 'unity-diary-app.netlify.app'
+          domain: 'unity-wine.vercel.app'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -13,7 +13,7 @@ export function TelegramSettingsTab() {
   });
   const [botInfo, setBotInfo] = useState({
     username: '@diary_bookai_bot',
-    domain: 'unity-diary-app.netlify.app',
+    domain: 'unity-wine.vercel.app',
     tokenMasked: '8297834785:******AQbo'
   });
 

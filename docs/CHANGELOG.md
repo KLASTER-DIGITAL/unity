@@ -247,7 +247,7 @@
 ### 📱 Платформы
 
 - Web (PWA)
-- Деплой на Netlify: https://unity-diary-app.netlify.app
+- Деплой на Vercel: https://unity-wine.vercel.app
 
 ---
 
