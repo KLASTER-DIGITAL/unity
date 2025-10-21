@@ -28,6 +28,7 @@ import { SettingsTab } from "@/features/admin/settings";
 import { AIAnalyticsTab } from "@/features/admin/analytics";
 import { createClient } from "@/utils/supabase/client";
 import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
+import { TestErrorComponent } from "./TestErrorComponent";
 
 interface AdminDashboardProps {
   userData?: any;
@@ -509,6 +510,9 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           </CardContent>
         </Card>
       </div>
+
+      {/* Test Error Component - TEMPORARY */}
+      <TestErrorComponent />
 
       {/* Quick Actions */}
       <Card className="border-border">
