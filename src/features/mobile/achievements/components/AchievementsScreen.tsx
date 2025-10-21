@@ -8,6 +8,7 @@ import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
+import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Trophy,
   Medal,
@@ -22,8 +23,7 @@ import {
   Heart,
   BookOpen,
   Dumbbell,
-  Camera,
-  Loader2
+  Camera
 } from "lucide-react";
 
 // Маппинг иконок для достижений
@@ -157,11 +157,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="pb-20 min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f8f7ff' }}>
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-muted-foreground">Загрузка достижений...</p>
-        </div>
+      <div className="pb-20 min-h-screen flex items-center justify-center bg-background">
+        <LottiePreloaderCompact showMessage={false} size="md" />
       </div>
     );
   }

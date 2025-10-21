@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { LoadingScreen } from "@/shared/components/LoadingScreen";
+import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 
 // Lazy load тяжелых UI компонентов для оптимизации производительности
 
@@ -25,13 +25,10 @@ import { Pill } from "../shadcn-io/pill";
 import { Status } from "../shadcn-io/status";
 import { Tabs } from "../shadcn-io/tabs";
 
-// Loading компонент для UI элементов
+// Loading компонент для UI элементов с Lottie анимацией
 const UILoadingFallback = ({ className = "" }: { className?: string }) => (
-  <div className={`flex items-center justify-center p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 ${className}`}>
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-      <p className="text-xs text-gray-500">Загрузка...</p>
-    </div>
+  <div className={`flex items-center justify-center p-4 rounded-lg ${className}`}>
+    <LottiePreloaderCompact message="Загрузка..." size="sm" />
   </div>
 );
 

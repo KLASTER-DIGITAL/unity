@@ -6,6 +6,7 @@ import { RecentEntriesFeed } from "./RecentEntriesFeed";
 import { getEntries, getUserStats, getMotivationCards, markCardAsRead, type DiaryEntry, type MotivationCard } from "@/shared/lib/api";
 import { useTranslation, getCategoryTranslation, type Language } from "@/shared/lib/i18n";
 import { toast } from "sonner";
+import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Undo2,
   Heart,
@@ -648,10 +649,7 @@ export function AchievementHomeScreen({
       {/* Loading State */}
       {isLoading && (
         <div className="p-section flex items-center justify-center">
-          <div className="flex flex-col items-center gap-responsive-sm">
-            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-            <p className="text-footnote text-muted-foreground">Загрузка записей...</p>
-          </div>
+          <LottiePreloaderCompact showMessage={false} size="md" />
         </div>
       )}
 

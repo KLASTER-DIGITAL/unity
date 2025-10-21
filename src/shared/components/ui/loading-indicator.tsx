@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { LottiePreloaderInline, LottiePreloaderCompact } from '@/shared/components/LottiePreloader';
 
 interface LoadingIndicatorProps {
   size?: 'sm' | 'md' | 'lg';
@@ -7,21 +7,24 @@ interface LoadingIndicatorProps {
   className?: string;
 }
 
-export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ 
-  size = 'md', 
+export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
+  size = 'md',
   text,
-  className = '' 
+  className = ''
 }) => {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8'
-  };
+  // Если есть текст, используем компактный вариант
+  if (text) {
+    return (
+      <div className={className}>
+        <LottiePreloaderCompact message={text} size={size} />
+      </div>
+    );
+  }
 
+  // Если нет текста, используем inline вариант
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Loader2 className={`animate-spin ${sizeClasses[size]}`} />
-      {text && <span className="text-sm">{text}</span>}
+    <div className={className}>
+      <LottiePreloaderInline size={size} />
     </div>
   );
 };

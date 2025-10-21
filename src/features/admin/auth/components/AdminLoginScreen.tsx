@@ -6,6 +6,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
+import { LottiePreloaderInline } from "@/shared/components/LottiePreloader";
 
 interface AdminLoginScreenProps {
   onComplete: (userData: any) => void;
@@ -225,7 +226,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <LottiePreloaderInline size="sm" className="brightness-0 invert" />
                     Вход...
                   </div>
                 ) : (

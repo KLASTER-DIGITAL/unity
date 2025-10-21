@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense, lazy } from "react";
 import { checkSession, signOut } from "./utils/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { setUser, addBreadcrumb } from "@/shared/lib/monitoring";
+import { LottiePreloader } from "@/shared/components/LottiePreloader";
 
 // Lazy load app-level components for code splitting
 const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
@@ -30,6 +31,7 @@ export default function App() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [minLoadingTimeElapsed, setMinLoadingTimeElapsed] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
@@ -320,15 +322,16 @@ export default function App() {
 
   // Admin view
   if (isAdminRoute) {
-    if (isCheckingSession) {
+    // Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
+    if (isCheckingSession || !minLoadingTimeElapsed) {
       return (
         <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-          <div className="min-h-screen flex items-center justify-center bg-background">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Загрузка...</p>
-            </div>
-          </div>
+          <LottiePreloader
+            showMessage={false}
+            minDuration={5000}
+            onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
+            size="lg"
+          />
         </ThemeProvider>
       );
     }
@@ -349,14 +352,17 @@ export default function App() {
   }
 
   // Mobile view - loading state
-  if (isCheckingSession) {
+  // Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
+  if (isCheckingSession || !minLoadingTimeElapsed) {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-        <div className="min-h-screen flex items-center justify-center bg-background max-w-md mx-auto">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Загрузка...</p>
-          </div>
+        <div className="max-w-md mx-auto">
+          <LottiePreloader
+            showMessage={false}
+            minDuration={5000}
+            onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
+            size="lg"
+          />
         </div>
       </ThemeProvider>
     );

@@ -10,6 +10,7 @@ import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp
 // Новая i18n система
 import { useTranslation } from "@/shared/lib/i18n";
 import { LanguageSelector } from "@/shared/lib/i18n";
+import { LottiePreloader } from "@/shared/components/LottiePreloader";
 
 interface WelcomeScreenProps {
   onNext: (language: string) => void;
@@ -92,11 +93,12 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   // ✅ FIX: Показываем загрузку, пока переводы не загрузились
   if (!isLoaded) {
     return (
-      <div className="bg-white w-full h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#756ef3] mx-auto mb-4"></div>
-          <p className="text-[#8d8d8d]">Загрузка...</p>
-        </div>
+      <div className="bg-white w-full h-screen max-w-md mx-auto">
+        <LottiePreloader
+          showMessage={false}
+          minDuration={5000}
+          size="lg"
+        />
       </div>
     );
   }
