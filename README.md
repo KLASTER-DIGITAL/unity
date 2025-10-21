@@ -4,8 +4,8 @@
 
 ## 🚀 Демо
 
-**Production URL**: https://unity-diary-app.netlify.app
-**GitHub Pages**: https://klaster-digital.github.io/unity/
+**Production URL**: https://unity-wine.vercel.app
+**Admin Panel**: https://unity-wine.vercel.app/?view=admin
 
 ## 📋 Описание
 
@@ -37,7 +37,8 @@ UNITY-v2 - это инновационное PWA приложение с дво�
 ### Backend & Infrastructure
 - **Supabase** (Auth, Database, Edge Functions)
 - **OpenAI GPT-4** (AI-анализ)
-- **Netlify** + **GitHub Pages** (деплой)
+- **Vercel** (hosting & deployment)
+- **Sentry** (error monitoring & performance)
 - **PWA** (Service Workers, Manifest)
 
 ## 🚀 Быстрый старт
@@ -204,28 +205,26 @@ VITE_ENABLE_ANALYTICS=false
 ### Автоматический деплой
 
 Приложение автоматически деплоится при push в `main` ветку:
-- **Netlify**: https://unity-diary-app.netlify.app
-- **GitHub Pages**: https://klaster-digital.github.io/unity/
-
-### Ручной деплой
-
-```bash
-# Netlify
-npm run deploy
-
-# GitHub Pages (через Actions)
-# Перейдите в Actions → Deploy to GitHub Pages → Run workflow
-```
+- **Vercel Production**: https://unity-wine.vercel.app
+- **Vercel Admin Panel**: https://unity-wine.vercel.app/?view=admin
 
 ### CI/CD Pipeline
 
 ```yaml
-# .github/workflows/deploy.yml
+# Vercel автоматически деплоит при push в main
 - Build с Vite
 - Тестирование
-- Деплой на GitHub Pages
-- Уведомления в Slack (опционально)
+- Деплой на Vercel Production
+- Sentry error tracking
 ```
+
+### Мониторинг
+
+- **Vercel Dashboard**: https://vercel.com/get-leadshunters-projects/unity
+- **Sentry Dashboard**: https://klaster-js.sentry.io/projects/unity-v2/
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc
+
+Подробнее см. [DEPLOYMENT.md](./docs/guides/DEPLOYMENT.md)
 
 ## 📊 Метрики производительности
 
@@ -244,14 +243,15 @@ npm run deploy
 ## 🔗 Полезные ссылки
 
 ### 🌐 Приложение
-- **Production (Netlify)**: https://unity-diary-app.netlify.app
-- **GitHub Pages**: https://klaster-digital.github.io/unity/
+- **Production (Vercel)**: https://unity-wine.vercel.app
+- **Admin Panel**: https://unity-wine.vercel.app/?view=admin
 - **Telegram Bot**: @unity_diary_bot (в разработке)
 
 ### 🛠️ Разработка
 - **GitHub Repository**: https://github.com/KLASTER-DIGITAL/unity
-- **Supabase Dashboard**: https://supabase.com/dashboard
-- **Netlify Dashboard**: https://app.netlify.com/projects/unity-diary-app
+- **Vercel Dashboard**: https://vercel.com/get-leadshunters-projects/unity
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc
+- **Sentry Dashboard**: https://klaster-js.sentry.io/projects/unity-v2/
 
 ### 📖 Ресурсы
 - **Supabase Docs**: https://supabase.com/docs

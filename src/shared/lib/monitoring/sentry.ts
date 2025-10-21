@@ -38,7 +38,14 @@ export function initSentry() {
           // Отслеживание навигации
           tracePropagationTargets: [
             'localhost',
-            /^https:\/\/unity-diary-app\.netlify\.app/,
+            /^https:\/\/unity-wine\.vercel\.app/,
+            /^https:\/\/.*\.vercel\.app/,
+            /^https:\/\/.*\.supabase\.co/,
+          ],
+          // Настройки для медленных запросов
+          tracingOrigins: [
+            'localhost',
+            /^https:\/\/unity-wine\.vercel\.app/,
             /^https:\/\/.*\.supabase\.co/,
           ],
         }),
@@ -58,11 +65,14 @@ export function initSentry() {
       ],
 
       // Performance Monitoring
-      tracesSampleRate: 0.1, // 10% транзакций для production
-      
+      tracesSampleRate: 0.3, // 30% транзакций для production (увеличено с 0.1)
+
       // Session Replay
       replaysSessionSampleRate: 0.1, // 10% обычных сессий
       replaysOnErrorSampleRate: 1.0, // 100% сессий с ошибками
+
+      // Profiling для медленных запросов
+      profilesSampleRate: 0.3, // 30% профилирования (синхронизировано с traces)
 
       // Environment
       environment: import.meta.env.MODE,
@@ -226,6 +236,55 @@ export function setContext(name: string, context: Record<string, any>) {
   if (import.meta.env.PROD) {
     Sentry.setContext(name, context);
   }
+}
+
+/**
+ * Создание custom span для мониторинга производительности
+ *
+ * @example
+ * const span = startSpan('fetch-users', 'http.client');
+ * try {
+ *   const users = await fetchUsers();
+ *   span.setStatus('ok');
+ *   return users;
+ * } catch (error) {
+ *   span.setStatus('error');
+ *   throw error;
+ * } finally {
+ *   span.finish();
+ * }
+ */
+export function startSpan(name: string, op: string) {
+  if (import.meta.env.PROD) {
+    return Sentry.startSpan({ name, op }, (span) => span);
+  }
+  // Mock span для development
+  return {
+    setStatus: () => {},
+    finish: () => {},
+    setData: () => {},
+  };
+}
+
+/**
+ * Wrapper для async операций с автоматическим span
+ *
+ * @example
+ * const users = await withSpan('fetch-users', 'http.client', async () => {
+ *   return await fetchUsers();
+ * });
+ */
+export async function withSpan<T>(
+  name: string,
+  op: string,
+  callback: () => Promise<T>
+): Promise<T> {
+  if (import.meta.env.PROD) {
+    return Sentry.startSpan({ name, op }, async () => {
+      return await callback();
+    });
+  }
+  return callback();
 }
 
 /**
