@@ -207,7 +207,7 @@ export function AchievementHeader({
 
   return (
     <>
-      <div className="relative p-section bg-card transition-colors duration-300">
+      <div className="relative p-section bg-background transition-colors duration-300">
         {/* Top Bar - аватарка, приветствие и счетчик дней */}
         <div className="flex items-center justify-between gap-4">
           {/* Left: Avatar + Greeting */}
@@ -227,8 +227,8 @@ export function AchievementHeader({
                 <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
                 <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
-              {/* Вопрос - уменьшен (11-13px вместо 12-15px) */}
-              <p className="text-muted-foreground !text-[clamp(11px,3.5vw,13px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
+              {/* Вопрос - уменьшен еще на 2px (9-11px вместо 11-13px) */}
+              <p className="text-muted-foreground !text-[clamp(9px,3vw,11px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>

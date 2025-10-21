@@ -51,10 +51,12 @@ export function MobileBottomNav({
         "fixed left-0 right-0 z-50 max-w-md mx-auto",
         // Floating effect (unless sticky)
         stickyBottom ? "bottom-0" : "bottom-4",
+        // Horizontal margins for floating effect
+        stickyBottom ? "" : "mx-4",
         // Background & Border
         "bg-card/95 backdrop-blur-lg border border-border",
-        // Rounded corners (top only for floating, all for sticky)
-        stickyBottom ? "rounded-none border-t" : "rounded-t-3xl shadow-xl",
+        // Rounded corners - 10px for floating, none for sticky
+        stickyBottom ? "rounded-none border-t" : "rounded-[10px] shadow-xl",
         // Padding
         "px-2 py-3",
         // Transitions

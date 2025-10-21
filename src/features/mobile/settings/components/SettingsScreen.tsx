@@ -445,7 +445,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
           description="Помогите улучшить приложение"
           onClick={() => {
             try {
-              showFeedbackWidget();
+              // Открываем форму сразу в раскрытом состоянии
+              showFeedbackWidget(true);
             } catch (error) {
               console.error('Failed to show feedback widget:', error);
               toast.error('Не удалось открыть форму обратной связи');

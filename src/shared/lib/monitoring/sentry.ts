@@ -312,18 +312,29 @@ export const withProfiler = Sentry.withProfiler;
  *
  * Используется только на странице настроек/профиля
  *
+ * @param openForm - Если true, открывает форму сразу в раскрытом состоянии
+ *
  * @example
  * import { showFeedbackWidget } from '@/shared/lib/monitoring/sentry';
- * showFeedbackWidget();
+ * // Открыть форму сразу
+ * showFeedbackWidget(true);
+ * // Показать только иконку виджета
+ * showFeedbackWidget(false);
  */
-export function showFeedbackWidget() {
+export function showFeedbackWidget(openForm: boolean = false) {
   if (import.meta.env.PROD) {
     const feedback = Sentry.getFeedback();
     if (feedback) {
-      feedback.createWidget();
+      if (openForm) {
+        // Открываем форму сразу в раскрытом состоянии
+        feedback.openDialog();
+      } else {
+        // Показываем только иконку виджета
+        feedback.createWidget();
+      }
     }
   } else {
-    console.log('ℹ️ [Sentry Feedback] Доступен только в production');
+    console.log('ℹ️ [Sentry Feedback] Доступен только в production', { openForm });
   }
 }
 
