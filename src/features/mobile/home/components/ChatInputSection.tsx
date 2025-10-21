@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Mic, Send, Camera, Sparkles, X, Image as ImageIcon } from "lucide-react";
+import { Mic, Send, Camera, Sparkles, X, Image as ImageIcon, Square } from "lucide-react";
 import { analyzeTextWithAI, createEntry, transcribeAudio, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
 import { useVoiceRecorder, useMediaUploader, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
@@ -522,12 +522,24 @@ export function ChatInputSection({
                   ))}
                 </div>
 
-                <button
-                  onClick={handleCancelRecording}
-                  className="p-1 hover:bg-card/20 rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
+                {/* Stop and Cancel buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleVoiceInput}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                    aria-label="Остановить запись"
+                  >
+                    <Square className="w-3.5 h-3.5 text-white" fill="currentColor" />
+                    <span className="!text-[11px] text-white !font-medium">Stop</span>
+                  </button>
+                  <button
+                    onClick={handleCancelRecording}
+                    className="p-1 hover:bg-card/20 rounded-full transition-colors"
+                    aria-label="Отменить запись"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -538,7 +550,7 @@ export function ChatInputSection({
           onFilesSelected={handleFilesDropped}
           disabled={isUploading || !userId || userId === 'anonymous'}
         >
-          <div className="relative bg-card/80 rounded-[16px] border border-border backdrop-blur-sm transition-colors duration-300">
+          <div className="relative backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] border border-white/20 transition-colors duration-300">
             <div className="flex items-end gap-responsive-xs p-2">
             {/* Voice Button */}
             <button
@@ -673,10 +685,10 @@ export function ChatInputSection({
               <div className="flex items-start gap-responsive-sm pr-8">
                 <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="!text-[14px] !font-semibold text-foreground mb-1">
+                  <h4 className="!text-[13px] !font-semibold text-foreground mb-1">
                     AI подскажет
                   </h4>
-                  <p className="!text-[13px] !font-normal text-muted-foreground leading-[18px]">
+                  <p className="!text-[11px] !font-normal text-muted-foreground leading-[16px]">
                     Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
                   </p>
                 </div>

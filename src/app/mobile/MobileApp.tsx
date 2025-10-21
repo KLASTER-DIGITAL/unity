@@ -1,5 +1,6 @@
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy, useRef } from "react";
 import { Toaster } from "sonner";
+import { motion, AnimatePresence } from "motion/react";
 import { TranslationProvider } from "@/shared/lib/i18n";
 import { TranslationManager } from "@/shared/lib/i18n";
 import { LoadingScreen } from "@/shared/components/LoadingScreen";
@@ -74,6 +75,21 @@ export function MobileApp({
   const [activeScreen, setActiveScreen] = useState<
     "home" | "history" | "achievements" | "reports" | "settings"
   >("home");
+  const [direction, setDirection] = useState(0);
+  const prevScreenRef = useRef<string>("home");
+
+  // Tab order for directional animations
+  const tabOrder = ["home", "history", "achievements", "reports", "settings"];
+
+  // Handle tab change with direction
+  const handleTabChange = (newTab: string) => {
+    const prevIndex = tabOrder.indexOf(prevScreenRef.current);
+    const newIndex = tabOrder.indexOf(newTab);
+
+    setDirection(newIndex > prevIndex ? 1 : -1);
+    prevScreenRef.current = newTab;
+    setActiveScreen(newTab as "home" | "history" | "achievements" | "reports" | "settings");
+  };
 
   // Show auth screen if user clicked "У меня уже есть аккаунт" or completed onboarding
   if (showAuth && !userData) {
@@ -156,51 +172,103 @@ export function MobileApp({
   return (
     <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
       <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-        <div className="min-h-screen bg-gray-50">
-          {activeScreen === "home" && (
-            <Suspense fallback={<LoadingScreen />}>
-              <AchievementHomeScreen
-                userData={userData}
-                onNavigateToHistory={() => setActiveScreen("history")}
-                onNavigateToSettings={() => setActiveScreen("settings")}
-              />
-            </Suspense>
-          )}
-          {activeScreen === "history" && (
-            <Suspense fallback={<LoadingScreen />}>
-              <HistoryScreen
-                userData={userData}
-              />
-            </Suspense>
-          )}
-          {activeScreen === "achievements" && (
-            <Suspense fallback={<LoadingScreen />}>
-              <AchievementsScreen
-                userData={userData}
-              />
-            </Suspense>
-          )}
-          {activeScreen === "reports" && (
-            <Suspense fallback={<LoadingScreen />}>
-              <ReportsScreen
-                userData={userData}
-              />
-            </Suspense>
-          )}
-          {activeScreen === "settings" && (
-            <Suspense fallback={<LoadingScreen />}>
-              <SettingsScreen
-                userData={userData}
-                onLogout={onLogout}
-                onProfileUpdate={onProfileUpdate}
-              />
-            </Suspense>
-          )}
+        <div className="min-h-screen bg-gray-50 overflow-hidden">
+          <AnimatePresence mode="wait" custom={direction}>
+            {activeScreen === "home" && (
+              <motion.div
+                key="home"
+                custom={direction}
+                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                animate={{ x: 0, opacity: 1 }}
+                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <Suspense fallback={<LoadingScreen />}>
+                  <AchievementHomeScreen
+                    userData={userData}
+                    onNavigateToHistory={() => handleTabChange("history")}
+                    onNavigateToSettings={() => handleTabChange("settings")}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+            {activeScreen === "history" && (
+              <motion.div
+                key="history"
+                custom={direction}
+                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                animate={{ x: 0, opacity: 1 }}
+                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <Suspense fallback={<LoadingScreen />}>
+                  <HistoryScreen
+                    userData={userData}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+            {activeScreen === "achievements" && (
+              <motion.div
+                key="achievements"
+                custom={direction}
+                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                animate={{ x: 0, opacity: 1 }}
+                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <Suspense fallback={<LoadingScreen />}>
+                  <AchievementsScreen
+                    userData={userData}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+            {activeScreen === "reports" && (
+              <motion.div
+                key="reports"
+                custom={direction}
+                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                animate={{ x: 0, opacity: 1 }}
+                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <Suspense fallback={<LoadingScreen />}>
+                  <ReportsScreen
+                    userData={userData}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+            {activeScreen === "settings" && (
+              <motion.div
+                key="settings"
+                custom={direction}
+                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                animate={{ x: 0, opacity: 1 }}
+                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <Suspense fallback={<LoadingScreen />}>
+                  <SettingsScreen
+                    userData={userData}
+                    onLogout={onLogout}
+                    onProfileUpdate={onProfileUpdate}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Mobile Bottom Navigation */}
           <MobileBottomNav
             activeTab={activeScreen}
-            onTabChange={(tab: string) => setActiveScreen(tab as "home" | "history" | "achievements" | "reports" | "settings")}
+            onTabChange={handleTabChange}
             language={userData?.language || 'ru'}
           />
 

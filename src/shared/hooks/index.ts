@@ -1,3 +1,7 @@
-// Hooks will be exported here after migration
-export {};
+// Hooks exports
+export { useKeyboardVisible } from './useKeyboardVisible';
+export { useVoiceRecorder } from './useVoiceRecorder';
+export { useMediaUploader } from './useMediaUploader';
+export { useSpeechRecognition } from './useSpeechRecognition';
+export { useImageCompressionWorker } from './useImageCompressionWorker';
 

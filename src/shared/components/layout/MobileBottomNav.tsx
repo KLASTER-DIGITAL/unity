@@ -19,6 +19,7 @@ import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "@/shared/lib/i18n";
 import { cn } from "@/shared/components/ui/utils";
+import { useKeyboardVisible } from "@/shared/hooks/useKeyboardVisible";
 
 interface MobileBottomNavProps {
   activeTab: string;
@@ -32,6 +33,7 @@ export function MobileBottomNav({
   stickyBottom = false
 }: MobileBottomNavProps) {
   const { t } = useTranslation();
+  const isKeyboardVisible = useKeyboardVisible();
 
   const tabs = [
     { id: 'home', label: t('home', 'Главная'), icon: Home },
@@ -44,7 +46,10 @@ export function MobileBottomNav({
   return (
     <motion.nav
       initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={{
+        y: isKeyboardVisible ? 100 : 0,
+        opacity: isKeyboardVisible ? 0 : 1
+      }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
         // Position & Layout
@@ -55,8 +60,8 @@ export function MobileBottomNav({
         stickyBottom ? "" : "mx-4",
         // Background & Border
         "bg-card/95 backdrop-blur-lg border border-border",
-        // Rounded corners - 10px for floating, none for sticky
-        stickyBottom ? "rounded-none border-t" : "rounded-[10px] shadow-xl",
+        // Rounded corners - 16px for floating, none for sticky
+        stickyBottom ? "rounded-none border-t" : "rounded-[16px] shadow-xl",
         // Padding
         "px-2 py-3",
         // Transitions

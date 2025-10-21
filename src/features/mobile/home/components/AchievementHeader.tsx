@@ -214,23 +214,23 @@ export function AchievementHeader({
                 <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
                 <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
-              {/* Вопрос - уменьшен еще на 2px (9-11px вместо 11-13px) */}
-              <p className="text-muted-foreground !text-[clamp(9px,3vw,11px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
+              {/* Вопрос - уменьшен до 8-10px для компактности */}
+              <p className="text-muted-foreground !text-[clamp(8px,2.8vw,10px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
           </div>
 
-          {/* Right: Days Counter */}
-          <div className="relative w-[72px] h-[72px] flex-shrink-0">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 72 72">
-              <circle cx="36" cy="36" r="35.5" stroke="var(--border)" />
+          {/* Right: Days Counter - уменьшен до 64x64px */}
+          <div className="relative w-[64px] h-[64px] flex-shrink-0">
+            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="31.5" stroke="var(--border)" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="!text-[24px] !font-semibold text-[var(--ios-green)] leading-[1]">
+              <p className="!text-[22px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="text-caption-2 text-foreground mt-0.5">
+              <p className="text-caption-2 text-foreground mt-0">
                 День
               </p>
             </div>
