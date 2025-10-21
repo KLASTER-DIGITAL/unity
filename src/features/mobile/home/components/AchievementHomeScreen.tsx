@@ -642,6 +642,7 @@ export function AchievementHomeScreen({
         userEmail={userEmail}
         avatarUrl={avatarUrl}
         onNavigateToSettings={onNavigateToSettings}
+        onNavigateToHistory={onNavigateToHistory}
       />
 
       {/* Loading State */}

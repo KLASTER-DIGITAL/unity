@@ -407,7 +407,7 @@ export function ChatInputSection({
   return (
     <div className="p-section pb-24">
       {/* Question Header */}
-      <div className="mb-responsive-md">
+      <div className="mb-6">
         <h2 className="text-center !text-[20px] !font-semibold text-black leading-[26px]">
           Что сегодня получилось<br />лучше всего?
         </h2>
@@ -596,7 +596,7 @@ export function ChatInputSection({
                   className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full"
                 />
               ) : (
-                <ImageIcon className="w-4 h-4" color="rgba(0,0,0,0.4)" />
+                <ImageIcon className="w-4 h-4 text-foreground" />
               )}
             </button>
 
@@ -610,7 +610,7 @@ export function ChatInputSection({
                   : 'opacity-40 cursor-not-allowed'
               }`}
             >
-              <Send className="w-4 h-4" color="rgba(0,0,0,0.4)" />
+              <Send className="w-4 h-4 text-foreground" />
             </button>
           </div>
 
@@ -629,20 +629,20 @@ export function ChatInputSection({
           </div>
         </DragDropZone>
 
-        {/* Categories */}
-        <div className="flex gap-responsive-xs mt-3 flex-wrap">
+        {/* Categories - горизонтальный скролл */}
+        <div className="flex gap-responsive-xs mt-3 flex-nowrap overflow-x-auto scrollbar-hide">
           {CATEGORIES.map((category) => (
             <button
               key={category.id}
               onClick={() => toggleCategory(category.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all flex-shrink-0 ${
                 selectedCategory === category.id
                   ? 'bg-accent/10 border-accent'
                   : 'bg-transparent border-border hover:bg-accent/5 active:scale-95'
               }`}
             >
               <span className="text-[10px]">{category.icon}</span>
-              <span className="!text-[12px] !font-light text-foreground" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <span className="!text-[12px] !font-light text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 {category.label}
               </span>
             </button>
@@ -650,7 +650,7 @@ export function ChatInputSection({
         </div>
       </div>
 
-      {/* ✅ FIX: AI Suggestions с крестиком для закрытия */}
+      {/* ✅ FIX: AI Suggestions с крестиком для закрытия + glassmorphism */}
       <AnimatePresence>
         {messages.length === 0 && showAiHint && (
           <motion.div
@@ -660,7 +660,7 @@ export function ChatInputSection({
             transition={{ delay: 0.5 }}
             className="mt-6"
           >
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-[16px] p-card border border-blue-100 relative">
+            <div className="backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] p-card border border-white/20 relative">
               {/* Close Button */}
               <button
                 onClick={() => setShowAiHint(false)}
@@ -673,7 +673,7 @@ export function ChatInputSection({
               <div className="flex items-start gap-responsive-sm pr-8">
                 <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="!text-[14px] !font-semibold text-black mb-1">
+                  <h4 className="!text-[14px] !font-semibold text-foreground mb-1">
                     AI подскажет
                   </h4>
                   <p className="!text-[13px] !font-normal text-muted-foreground leading-[18px]">

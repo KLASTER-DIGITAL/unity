@@ -119,7 +119,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
         <h2 className="!text-[20px] !font-semibold text-foreground">Лента последних записей</h2>
         <button
           onClick={onViewAllClick}
-          className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors !text-[15px] !font-medium"
+          className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors !text-[13px] !font-normal"
         >
           Смотреть все
           <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -129,58 +129,48 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
       {/* Горизонтальный скролл */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-3 px-4">
-          {/* Последние 3 записи */}
+          {/* Последние 3 записи - 240x140px */}
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex-[0_0_85%] min-w-0 bg-card rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-shadow border border-border"
+              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
               onClick={() => onEntryClick?.(entry)}
             >
               {/* Время и категория */}
               <div className="flex items-center justify-between mb-2">
-                <span className="!text-[13px] text-muted-foreground">{formatTimeAgo(entry.createdAt)}</span>
+                <span className="!text-[11px] text-muted-foreground">{formatTimeAgo(entry.createdAt)}</span>
                 <Badge
-                  className={`!text-[13px] px-2.5 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
+                  className={`!text-[11px] px-2 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
                 >
-                  {getCategoryEmoji(entry.category)} {getCategoryTranslation(entry.category, language)}
+                  {getCategoryEmoji(entry.category)}
                 </Badge>
               </div>
 
-              {/* Медиа над текстом */}
-              {entry.media && entry.media.length > 0 && (
-                <div className="mb-3">
-                  <MediaPreview
-                    media={entry.media}
-                    editable={false}
-                    layout={entry.media.length > 1 ? 'row' : 'grid'}
-                    onImageClick={(index) => {
-                      // TODO: Открыть lightbox
-                    }}
-                  />
-                </div>
-              )}
-
               {/* Заголовок */}
-              <h3 className="!font-semibold text-foreground mb-1.5 !text-[15px] line-clamp-1">
-                {entry.text.split('\n')[0].substring(0, 50)}
+              <h3 className="!font-semibold text-foreground mb-1 !text-[13px] line-clamp-1">
+                {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
-              {/* Превью текста */}
-              <p className="!text-[13px] text-muted-foreground line-clamp-2 leading-relaxed">
-                {entry.text}
-              </p>
+              {/* Превью текста с градиентом */}
+              <div className="relative">
+                <p className="!text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
+                  {entry.text}
+                </p>
+                {/* Градиент для длинного текста */}
+                <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+              </div>
             </div>
           ))}
 
-          {/* Карточка "Смотреть все" */}
+          {/* Карточка "Смотреть все" - 240x140px */}
           <div
             onClick={onViewAllClick}
-            className="flex-[0_0_40%] min-w-0 bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
+            className="flex-shrink-0 w-[240px] h-[140px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
           >
             <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
             </div>
-            <p className="!text-[15px] !font-medium text-accent text-center">
+            <p className="!text-[13px] !font-medium text-accent text-center">
               Смотреть все
             </p>
           </div>

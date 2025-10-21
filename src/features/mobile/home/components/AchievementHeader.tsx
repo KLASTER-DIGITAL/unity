@@ -18,6 +18,7 @@ interface AchievementHeaderProps {
   userEmail?: string;
   avatarUrl?: string;
   onNavigateToSettings?: () => void;
+  onNavigateToHistory?: () => void;
 }
 
 // Дефолтное фото для аватара
@@ -103,43 +104,35 @@ function CategoryIcon() {
 }
 
 // Модальное окно быстрых действий
-function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function QuickActionsMenu({
+  isOpen,
+  onClose,
+  onNavigateToHistory,
+  onNavigateToSettings
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onNavigateToHistory?: () => void;
+  onNavigateToSettings?: () => void;
+}) {
   const quickActions = [
-    {
-      icon: Plus,
-      label: "Новая запись",
-      color: "bg-[var(--action-primary)]",
-      action: () => console.log("Новая запись")
-    },
-    {
-      icon: Mic,
-      label: "Голосовая запись",
-      color: "bg-[var(--action-voice)]",
-      action: () => console.log("Голосовая запись")
-    },
-    {
-      icon: Camera,
-      label: "Фото достижение",
-      color: "bg-[var(--action-photo)]",
-      action: () => console.log("Фото")
-    },
-    {
-      icon: Sparkles,
-      label: "AI подсказка",
-      color: "bg-[var(--action-ai)]",
-      action: () => console.log("AI подсказка")
-    },
     {
       icon: BookOpen,
       label: "История записей",
       color: "bg-[var(--action-history)]",
-      action: () => console.log("История")
+      action: () => {
+        onNavigateToHistory?.();
+        onClose();
+      }
     },
     {
       icon: Settings,
       label: "Настройки",
       color: "bg-[var(--action-settings)]",
-      action: () => console.log("Настройки")
+      action: () => {
+        onNavigateToSettings?.();
+        onClose();
+      }
     }
   ];
 
@@ -156,7 +149,7 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
           />
           
-          {/* Menu */}
+          {/* Menu - без заголовка "Быстрые действия" */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -165,10 +158,6 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-modal bg-card rounded-[24px] shadow-2xl p-modal w-[280px] border border-border transition-colors duration-300"
             style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
           >
-            <div className="mb-responsive-sm">
-              <h3 className="text-headline text-foreground">Быстрые действия</h3>
-            </div>
-
             <div className="space-y-2">
               {quickActions.map((action, index) => (
                 <motion.button
@@ -176,10 +165,7 @@ function QuickActionsMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => {
-                    action.action();
-                    onClose();
-                  }}
+                  onClick={action.action}
                   className="w-full flex items-center gap-responsive-sm p-row rounded-[12px] hover:bg-muted transition-colors active:scale-95"
                 >
                   <div className={`${action.color} w-10 h-10 rounded-[10px] flex items-center justify-center`}>
@@ -201,7 +187,8 @@ export function AchievementHeader({
   daysInApp = 1,
   userEmail,
   avatarUrl,
-  onNavigateToSettings
+  onNavigateToSettings,
+  onNavigateToHistory
 }: AchievementHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -251,10 +238,10 @@ export function AchievementHeader({
         </div>
       </div>
 
-      {/* Floating Quick Actions Button - справа внизу, черная с белой иконкой меню */}
+      {/* Floating Quick Actions Button - glassmorphism, отступ от мобильного меню */}
       <motion.button
         onClick={() => setShowMenu(true)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-[#1C1C1E] rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-28 right-6 z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -262,7 +249,12 @@ export function AchievementHeader({
       </motion.button>
 
       {/* Quick Actions Menu */}
-      <QuickActionsMenu isOpen={showMenu} onClose={() => setShowMenu(false)} />
+      <QuickActionsMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        onNavigateToHistory={onNavigateToHistory}
+        onNavigateToSettings={onNavigateToSettings}
+      />
     </>
   );
 }
