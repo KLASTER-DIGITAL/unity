@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
 import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
-import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
+import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp.tsx";
 // Import hero image directly for Vite to process
 import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp";
 
@@ -55,7 +55,8 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
           headers: {
             'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
           }
         });
         if (response.ok) {
