@@ -129,11 +129,11 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
       {/* Горизонтальный скролл */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-3 px-4">
-          {/* Последние 3 записи - 240x140px */}
+          {/* Последние 3 записи - 240x160px */}
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
+              className="flex-shrink-0 w-[240px] h-[160px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
               onClick={() => onEntryClick?.(entry)}
             >
               {/* Время и категория */}
@@ -151,21 +151,20 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
                 {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
-              {/* Превью текста с градиентом */}
-              <div className="relative">
-                <p className="!text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
-                  {entry.text}
-                </p>
-                {/* Градиент для длинного текста */}
-                <div className="absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-              </div>
+              {/* Превью текста */}
+              <p className="!text-[11px] text-muted-foreground line-clamp-4 leading-relaxed">
+                {entry.text}
+              </p>
+
+              {/* Эффект блюра снизу карточки */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card via-card/80 to-transparent backdrop-blur-sm pointer-events-none" />
             </div>
           ))}
 
-          {/* Карточка "Смотреть все" - 240x140px */}
+          {/* Карточка "Смотреть все" - 240x160px */}
           <div
             onClick={onViewAllClick}
-            className="flex-shrink-0 w-[240px] h-[140px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
+            className="flex-shrink-0 w-[240px] h-[160px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
           >
             <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />

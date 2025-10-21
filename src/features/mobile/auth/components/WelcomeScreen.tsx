@@ -105,7 +105,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
 
   return (
     <motion.div
-      className="bg-white relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
+      className="bg-white relative w-full h-[100dvh] flex flex-col overflow-hidden scrollbar-hide"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

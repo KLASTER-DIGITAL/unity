@@ -113,7 +113,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
   }
 
   return (
-    <div className="pb-20 min-h-screen bg-background overflow-x-hidden scrollbar-hide">
+    <div className="pb-20 min-h-[100dvh] bg-background overflow-x-hidden scrollbar-hide">
       {/* Заголовок */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex items-center gap-3 mb-4">

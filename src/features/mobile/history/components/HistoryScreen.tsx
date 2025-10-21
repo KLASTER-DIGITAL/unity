@@ -189,7 +189,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
   const categories = Array.from(new Set((entries || []).map(e => e.category)));
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden scrollbar-hide">
+    <div className="min-h-[100dvh] bg-background pb-24 overflow-x-hidden scrollbar-hide">
       {/* Header */}
       <div className="bg-card border-b border-border px-6 pt-16 pb-4 transition-colors duration-300">
         <h1 className="!text-[28px] !font-semibold text-foreground mb-4">

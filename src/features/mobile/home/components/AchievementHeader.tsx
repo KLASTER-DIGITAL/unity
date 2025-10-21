@@ -214,8 +214,8 @@ export function AchievementHeader({
                 <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
                 <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
-              {/* Вопрос - уменьшен до 8-10px для компактности */}
-              <p className="text-muted-foreground !text-[clamp(8px,2.8vw,10px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
+              {/* Вопрос - увеличен до 15px для читаемости */}
+              <p className="text-muted-foreground !text-[15px] !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
@@ -223,7 +223,7 @@ export function AchievementHeader({
 
           {/* Right: Days Counter - уменьшен до 64x64px */}
           <div className="relative w-[64px] h-[64px] flex-shrink-0">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 64 64">
+            <svg className="block w-[64px] h-[64px]" fill="none" preserveAspectRatio="none" viewBox="0 0 64 64">
               <circle cx="32" cy="32" r="31.5" stroke="var(--border)" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -241,7 +241,11 @@ export function AchievementHeader({
       {/* Floating Quick Actions Button - glassmorphism, отступ от мобильного меню */}
       <motion.button
         onClick={() => setShowMenu(true)}
-        className="fixed bottom-28 right-6 z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+        className="fixed z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+        style={{
+          bottom: 'calc(7rem + var(--safe-area-bottom))', // 7rem = bottom-28
+          right: 'calc(1.5rem + var(--safe-area-right))' // 1.5rem = right-6
+        }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
