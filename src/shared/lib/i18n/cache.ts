@@ -12,9 +12,11 @@ export class TranslationCacheManager {
 
   // Получение кэша для языка
   static async getCache(language: string): Promise<TranslationCache | null> {
+    console.log(`🔍 TranslationCacheManager.getCache called for ${language}`);
     const cacheKey = this.CACHE_PREFIX + language;
     const cached = await storage.getItem(cacheKey);
 
+    console.log(`📦 Cache for ${language}:`, cached ? 'FOUND' : 'NOT FOUND');
     if (!cached) return null;
 
     try {
@@ -185,7 +187,16 @@ export class TranslationCacheManager {
 
   private static calculateChecksum(translations: Record<string, string>): string {
     const content = JSON.stringify(translations);
-    return btoa(content).slice(0, 16);
+
+    // ✅ FIX: Используем простой хеш вместо btoa для поддержки Unicode
+    let hash = 0;
+    for (let i = 0; i < content.length; i++) {
+      const char = content.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    return Math.abs(hash).toString(36).slice(0, 16);
   }
 
   private static validateCacheIntegrity(cache: TranslationCache): boolean {

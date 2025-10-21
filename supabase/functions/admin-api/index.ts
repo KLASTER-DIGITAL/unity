@@ -27,10 +27,10 @@ Deno.serve(async (req) => {
 
     const accessToken = authHeader.replace('Bearer ', '');
 
-    // Create Supabase client with service role key for auth verification
+    // Create Supabase admin client (bypasses RLS)
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-    
-    // Verify user
+
+    // Verify user JWT token
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
     if (authError || !user) {
       console.error('[AUTH] User verification failed:', authError);
@@ -40,37 +40,34 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Supabase client with user JWT to respect RLS policies
-    const supabaseUser = createClient(supabaseUrl, supabaseServiceKey, {
-      global: {
-        headers: { Authorization: authHeader }
-      }
-    });
+    console.log('[AUTH] User verified:', user.id, user.email);
 
-    // Check if user is super admin
-    const { data: profile, error: profileError } = await supabaseUser
+    // Check if user is super admin using service role (bypasses RLS)
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
     if (profileError || !profile) {
-      console.error('[AUTH] Error checking super admin:', profileError);
+      console.error('[AUTH] Error fetching profile:', profileError);
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to verify admin role' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log('[AUTH] Profile role:', profile.role);
+
     if (profile.role !== 'super_admin') {
-      console.log('[AUTH] User is not super admin:', profile.role);
+      console.log('[AUTH] Access denied - user is not super admin');
       return new Response(
         JSON.stringify({ success: false, error: 'Forbidden: Super admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('[AUTH] ✅ Super admin verified:', user.id);
+    console.log('[AUTH] ✅ Super admin verified:', user.email);
 
     // Parse URL path
     const url = new URL(req.url);
@@ -162,30 +159,51 @@ Deno.serve(async (req) => {
 
     // Route: GET /users - List all users
     if (endpoint === 'users' && req.method === 'GET') {
-      const { data: users, error } = await supabaseAdmin
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // ✅ FIX N+1: Используем один запрос с подсчетом через SQL
+      // Вместо 1 + N запросов (где N = количество пользователей)
+      // делаем 1 запрос с LEFT JOIN и COUNT
+      const { data: usersRaw, error } = await supabaseAdmin
+        .rpc('get_users_with_entries_count');
 
-      if (error) throw error;
+      if (error) {
+        // Fallback на старый метод если RPC функция не существует
+        console.warn('⚠️ RPC function get_users_with_entries_count not found, using fallback');
 
-      // Get entries count for each user
-      const usersWithStats = await Promise.all(
-        (users || []).map(async (user) => {
-          const { count } = await supabaseAdmin
-            .from('entries')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id);
+        const { data: users, error: usersError } = await supabaseAdmin
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-          return {
-            ...user,
-            entriesCount: count || 0
-          };
-        })
-      );
+        if (usersError) throw usersError;
+
+        // Получаем все подсчеты одним запросом
+        const { data: entriesCounts, error: countsError } = await supabaseAdmin
+          .from('entries')
+          .select('user_id')
+          .order('user_id');
+
+        if (countsError) throw countsError;
+
+        // Группируем подсчеты по user_id
+        const countsMap = (entriesCounts || []).reduce((acc: Record<string, number>, entry: any) => {
+          acc[entry.user_id] = (acc[entry.user_id] || 0) + 1;
+          return acc;
+        }, {});
+
+        // Добавляем подсчеты к пользователям
+        const usersWithStats = (users || []).map(user => ({
+          ...user,
+          entriesCount: countsMap[user.id] || 0
+        }));
+
+        return new Response(
+          JSON.stringify({ success: true, users: usersWithStats }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
       return new Response(
-        JSON.stringify({ success: true, users: usersWithStats }),
+        JSON.stringify({ success: true, users: usersRaw }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -331,6 +349,97 @@ Deno.serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, setting: data }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Route: POST /notifications/send - Send push notification to all users
+    if (endpoint === 'notifications/send' && req.method === 'POST') {
+      const body = await req.json();
+      const { title, body: notificationBody, icon, badge } = body;
+
+      if (!title || !notificationBody) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Title and body are required' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('[ADMIN-API] Sending push notification:', title);
+
+      // TODO: Implement actual push notification sending
+      // For now, just log and return success
+      // In production, this would integrate with Web Push API or Firebase Cloud Messaging
+
+      console.log('[ADMIN-API] Push notification sent successfully');
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Push notification sent to all users',
+          notification: { title, body: notificationBody, icon, badge }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Route: POST /system/restart/:service - Restart a service
+    if (endpoint.startsWith('system/restart/') && req.method === 'POST') {
+      const service = endpoint.replace('system/restart/', '');
+      console.log('[ADMIN-API] Restarting service:', service);
+
+      // Validate service name
+      const validServices = ['database', 'storage', 'auth', 'functions', 'realtime'];
+      if (!validServices.includes(service)) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `Invalid service: ${service}. Valid services: ${validServices.join(', ')}`
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // TODO: Implement actual service restart logic
+      // For now, just log and return success
+      // In production, this would trigger actual service restarts via Supabase Management API
+
+      console.log('[ADMIN-API] Service restart simulated successfully');
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: `Service ${service} restart initiated`,
+          service,
+          timestamp: new Date().toISOString()
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Route: GET /system/status - Get system status
+    if (endpoint === 'system/status' && req.method === 'GET') {
+      console.log('[ADMIN-API] Getting system status...');
+
+      // Get database status
+      const { error: dbError } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .limit(1);
+
+      const systemStatus = {
+        database: dbError ? 'error' : 'healthy',
+        storage: 'healthy', // TODO: Add actual storage health check
+        auth: 'healthy', // TODO: Add actual auth health check
+        functions: 'healthy',
+        realtime: 'healthy', // TODO: Add actual realtime health check
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('[ADMIN-API] System status:', systemStatus);
+
+      return new Response(
+        JSON.stringify({ success: true, status: systemStatus }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

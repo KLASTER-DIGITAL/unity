@@ -6,7 +6,6 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
-import { projectId, publicAnonKey } from "@/utils/supabase/info";
 
 interface AdminLoginScreenProps {
   onComplete: (userData: any) => void;
@@ -21,22 +20,19 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("🔐 [AdminLoginScreen] handleLogin called");
 
     if (!email || !password) {
       toast.error("Заполните все поля");
       return;
     }
 
-    // Проверка что email супер-админа
-    if (email !== "diary@leadshunter.biz") {
-      toast.error("У вас нет прав доступа к панели администратора");
-      return;
-    }
-
     setIsLoading(true);
+    console.log("🔐 [AdminLoginScreen] Starting login process...");
 
     try {
       const supabase = createClient();
+      console.log("🔐 [AdminLoginScreen] Supabase client created");
 
       // Вход через Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -47,86 +43,91 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
       if (error) {
         console.error("Sign in error:", error);
         toast.error("Неверный email или пароль");
+        setIsLoading(false);
         return;
       }
 
       if (!data.session) {
         toast.error("Не удалось войти в систему");
+        setIsLoading(false);
         return;
       }
 
-      // Получаем профиль пользователя
-      let profileData;
-      try {
-        const profileResponse = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/profiles/${data.user.id}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${data.session.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+      console.log("🔐 [AdminLoginScreen] Session created, fetching profile from DB...");
 
-        if (profileResponse.ok) {
-          const response = await profileResponse.json();
-          if (response.success) {
-            profileData = response;
-          }
-        }
-      } catch (profileError) {
+      // Получаем профиль пользователя напрямую из БД (как PWA пользователи)
+      // Это быстрее и надежнее чем через Edge Function
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError) {
         console.error("Profile fetch error:", profileError);
+        toast.error("Ошибка загрузки профиля");
+        setIsLoading(false);
+        return;
       }
 
-      // Если профиль не найден, создаем профиль по умолчанию для супер-админа
       if (!profileData) {
-        console.log("Creating default admin profile");
-        profileData = {
-          success: true,
-          profile: {
-            name: "Admin",
-            role: "super_admin", // ✅ FIX: Add role
-            diaryName: "Admin Diary",
-            diaryEmoji: "🏆",
-            language: "ru",
-            notificationSettings: {
-              selectedTime: "none",
-              morningTime: "08:00",
-              eveningTime: "21:00",
-              permissionGranted: false
-            },
-            createdAt: new Date().toISOString()
-          }
-        };
+        console.error("Profile not found for user:", data.user.id);
+        toast.error("Профиль не найден");
+        setIsLoading(false);
+        return;
       }
 
+      console.log("🔐 [AdminLoginScreen] Profile loaded:", profileData.email, "role:", profileData.role);
+
+      // 🔒 SECURITY: Проверка роли - только super_admin может войти в админ-панель
+      if (profileData.role !== 'super_admin') {
+        toast.error("Доступ запрещен", {
+          description: "У вас нет прав доступа к панели администратора"
+        });
+        // Выходим из системы
+        await supabase.auth.signOut();
+        setIsLoading(false);
+        return;
+      }
+
+      // Формируем userData в том же формате что и раньше
       const userData = {
         id: data.user.id,
         email: data.user.email,
-        name: profileData.profile.name,
-        role: profileData.profile.role || 'super_admin', // ✅ FIX: Add role
+        name: profileData.name,
+        role: profileData.role,
         diaryData: {
-          name: profileData.profile.diaryName,
-          emoji: profileData.profile.diaryEmoji
+          name: profileData.diary_name,
+          emoji: profileData.diary_emoji
         },
-        language: profileData.profile.language,
-        notificationSettings: profileData.profile.notificationSettings,
-        createdAt: profileData.profile.createdAt,
+        language: profileData.language,
+        notificationSettings: profileData.notification_settings,
+        createdAt: profileData.created_at,
         profile: {
-          ...profileData.profile,
-          role: profileData.profile.role || 'super_admin' // ✅ FIX: Add role to profile
+          id: profileData.id,
+          name: profileData.name,
+          email: profileData.email,
+          role: profileData.role,
+          diaryName: profileData.diary_name,
+          diaryEmoji: profileData.diary_emoji,
+          language: profileData.language,
+          notificationSettings: profileData.notification_settings,
+          onboardingCompleted: profileData.onboarding_completed,
+          createdAt: profileData.created_at
         }
       };
 
-      console.log("Admin login successful:", userData.email, "role:", userData.role);
+      console.log("🔐 [AdminLoginScreen] Admin login successful:", userData.email, "role:", userData.role);
       toast.success("Вход выполнен успешно");
 
+      // Вызываем onComplete для перехода к админ-панели
+      console.log("🔐 [AdminLoginScreen] Calling onComplete...");
       onComplete(userData);
+      console.log("🔐 [AdminLoginScreen] onComplete called");
 
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Ошибка входа. Попробуйте снова.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -174,7 +175,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
                 <Input
                   id="admin-email"
                   type="email"
-                  placeholder="diary@leadshunter.biz"
+                  placeholder="admin@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -239,9 +240,9 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
                   <div className="text-muted-foreground">
                     <p className="mb-1">Защищенный доступ</p>
                     <p>
-                      Только для пользователя с email{" "}
+                      Только для пользователей с ролью{" "}
                       <span className="text-foreground font-semibold">
-                        diary@leadshunter.biz
+                        super_admin
                       </span>
                     </p>
                   </div>

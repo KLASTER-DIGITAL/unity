@@ -321,13 +321,26 @@ export function AuthScreen({
       if (isLogin) {
         // Вход
         const result = await signInWithEmail(email, password);
-        
+
         if (result.success && result.user && result.profile) {
+          // 🔒 SECURITY: Проверка роли - супер-админ не может войти через PWA
+          if (result.profile.role === 'super_admin') {
+            toast.error("Доступ запрещен", {
+              description: "Используйте /?view=admin для входа в админ-панель"
+            });
+            // Выходим из системы
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            setIsLoading(false);
+            return;
+          }
+
           toast.success("Добро пожаловать! 👋");
           handleComplete?.({
             id: result.user.id,
             email: result.user.email,
             name: result.profile.name,
+            role: result.profile.role, // Добавляем role
             diaryData: {
               name: result.profile.diaryName,
               emoji: result.profile.diaryEmoji

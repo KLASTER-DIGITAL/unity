@@ -17,30 +17,28 @@
 
 import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTranslations, Language } from "@/utils/i18n";
+import { useTranslation } from "@/shared/lib/i18n";
 import { cn } from "@/shared/components/ui/utils";
 
 interface MobileBottomNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  language?: Language;
   stickyBottom?: boolean; // Enable sticky bottom mode (no margin)
 }
 
 export function MobileBottomNav({
   activeTab,
   onTabChange,
-  language = 'ru',
   stickyBottom = false
 }: MobileBottomNavProps) {
-  const t = useTranslations(language);
+  const { t } = useTranslation();
 
   const tabs = [
-    { id: 'home', label: t.home, icon: Home },
-    { id: 'history', label: t.history, icon: History },
-    { id: 'achievements', label: t.achievements, icon: Trophy },
-    { id: 'reports', label: t.reports, icon: BarChart3 },
-    { id: 'settings', label: t.settings, icon: Settings },
+    { id: 'home', label: t('home', 'Главная'), icon: Home },
+    { id: 'history', label: t('history', 'История'), icon: History },
+    { id: 'achievements', label: t('achievements', 'Достижения'), icon: Trophy },
+    { id: 'reports', label: t('reports', 'Отчеты'), icon: BarChart3 },
+    { id: 'settings', label: t('settings', 'Настройки'), icon: Settings },
   ];
 
   return (

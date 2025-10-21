@@ -60,8 +60,9 @@ export const PWASettingsTab: React.FC = () => {
         return;
       }
 
+      // ✅ Используем admin-api вместо make-server
       // Save manifest settings
-      const manifestResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+      const manifestResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/settings', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -74,7 +75,7 @@ export const PWASettingsTab: React.FC = () => {
       });
 
       // Save PWA settings
-      const settingsResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+      const settingsResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/settings', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

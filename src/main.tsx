@@ -2,6 +2,10 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { initSentry } from "@/shared/lib/monitoring";
+
+// Инициализируем Sentry перед всем остальным
+initSentry();
 
 // Обработка ошибок preload для предотвращения белого экрана
 window.addEventListener('vite:preloadError', (event) => {

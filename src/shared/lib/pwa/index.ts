@@ -1,8 +1,8 @@
 /**
- * Re-export PWA utilities from original location
- * This allows gradual migration without breaking existing imports
+ * Re-export PWA utilities from canonical location
+ * Migrated from utils/ to shared/lib/api/ for better organization
  */
 
-export * from '../../../utils/pwaUtils';
-export * from '../../../utils/generatePWAIcons';
+export * from '../api/pwaUtils';
+export * from '../api/generatePWAIcons';
 

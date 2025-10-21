@@ -7,7 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { toast } from "sonner";
-import { useTranslations } from "@/shared/lib/i18n";
+import { useTranslation } from "@/shared/lib/i18n";
 import { updateUserProfile } from "@/shared/lib/api";
 import { SettingsRow, SettingsSection } from "./SettingsRow";
 import { Switch } from "@/shared/components/ui/switch";
@@ -53,7 +53,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   // Local state for profile (to update in real-time)
   const [profile, setProfile] = useState(initialProfile);
 
-  const t = useTranslations(profile?.language || 'ru');
+  const { t, changeLanguage } = useTranslation();
 
   // State для уведомлений
   const [notifications, setNotifications] = useState({
@@ -77,8 +77,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const [showPremium, setShowPremium] = useState(false);
   const [showPWAInstall, setShowPWAInstall] = useState(false);
 
-  // Список языков
-  const languages = [
+  // Динамическая загрузка языков из API
+  const [languages, setLanguages] = useState([
     { code: 'ru', name: 'Russian', native_name: 'Русский', flag: '🇷🇺', is_active: true },
     { code: 'en', name: 'English', native_name: 'English', flag: '🇺🇸', is_active: true },
     { code: 'es', name: 'Spanish', native_name: 'Español', flag: '🇪🇸', is_active: true },
@@ -86,7 +86,36 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     { code: 'fr', name: 'French', native_name: 'Français', flag: '🇫🇷', is_active: true },
     { code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
     { code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
-  ];
+  ]);
+
+  // Загрузка языков из API при монтировании
+  useEffect(() => {
+    const loadLanguages = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const loadedLanguages = Array.isArray(data) ? data : (data.languages || []);
+          // Фильтруем только активные языки
+          const activeLanguages = loadedLanguages.filter((lang: any) => lang.is_active || lang.enabled);
+          if (activeLanguages.length > 0) {
+            setLanguages(activeLanguages);
+            console.log('✅ Loaded languages from API:', activeLanguages.length);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading languages:', error);
+        // Используем fallback языки при ошибке
+      }
+    };
+
+    loadLanguages();
+  }, []);
 
   // Проверка поддержки WebAuthn для биометрии
   useEffect(() => {
@@ -187,20 +216,27 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     try {
       const userId = profile?.id;
       if (userId) {
+        // Сохраняем язык в базу данных
         await updateUserProfile(userId, { language: languageCode });
         console.log(`✅ Language "${languageCode}" saved to DB`);
+
+        // Обновляем локальный профиль
+        setProfile((prev: any) => ({ ...prev, language: languageCode }));
+
+        // Вызываем onProfileUpdate если передан
+        if (onProfileUpdate) {
+          onProfileUpdate({ ...profile, language: languageCode });
+        }
       }
 
-      toast.success("Язык изменен! Перезагрузите страницу.");
-      setShowLanguage(false);
+      // Переключаем язык в i18n системе
+      await changeLanguage(languageCode);
 
-      // Перезагрузка страницы для применения нового языка
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      toast.success(t('languageChanged', 'Язык изменен!'));
+      setShowLanguage(false);
     } catch (error) {
       console.error('Error changing language:', error);
-      toast.error("Ошибка при изменении языка");
+      toast.error(t('languageChangeError', 'Ошибка при изменении языка'));
     }
   };
 
@@ -342,7 +378,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
           iconColor="text-[var(--ios-indigo)]"
           iconBgColor="bg-[var(--ios-indigo)]/10"
           title={t.language || "Язык"}
-          description={profile?.language === 'ru' ? 'Русский' : 'English'}
+          description={languages.find(l => l.code === profile?.language)?.native_name || 'Русский'}
           onClick={() => setShowLanguage(true)}
         />
         <SettingsRow

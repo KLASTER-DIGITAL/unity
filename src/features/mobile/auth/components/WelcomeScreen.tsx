@@ -20,12 +20,13 @@ interface WelcomeScreenProps {
 }
 
 interface Language {
-  id: string;
+  id?: string;
   code: string;
   name: string;
   native_name: string;
   flag: string;
-  is_active: boolean;
+  is_active?: boolean;
+  enabled?: boolean; // Поддержка обоих полей (is_active и enabled)
 }
 
 // Fallback языки на случай, если API недоступен
@@ -39,70 +40,31 @@ const fallbackLanguages: Language[] = [
   { id: '7', code: "ja", name: "Japanese", native_name: "日本語", flag: "🇯🇵", is_active: true },
 ];
 
-const translations = {
-  ru: {
-    title: "Создавай дневник побед",
-    subtitle: "История ваших побед — день за днём",
-    startButton: "Начать",
-    alreadyHaveAccount: "У меня уже есть аккаунт"
-  },
-  en: {
-    title: "Create a victory diary",
-    subtitle: "The history of your victories — day by day",
-    startButton: "Get Started",
-    alreadyHaveAccount: "I already have an account"
-  },
-  es: {
-    title: "Crea un diario de victorias",
-    subtitle: "La historia de tus victorias — día a día",
-    startButton: "Comenzar",
-    alreadyHaveAccount: "Ya tengo una cuenta"
-  },
-  de: {
-    title: "Erstelle ein Siegestagebuch",
-    subtitle: "Die Geschichte deiner Siege — Tag für Tag",
-    startButton: "Beginnen",
-    alreadyHaveAccount: "Ich habe bereits ein Konto"
-  },
-  fr: {
-    title: "Créez un journal de victoires",
-    subtitle: "L'histoire de vos victoires — jour après jour",
-    startButton: "Commencer",
-    alreadyHaveAccount: "J'ai déjà un compte"
-  },
-  zh: {
-    title: "创建胜利日记",
-    subtitle: "您的胜利历史——日复一日",
-    startButton: "开始",
-    alreadyHaveAccount: "我已经有账户了"
-  },
-  ja: {
-    title: "勝利の日記を作成",
-    subtitle: "あなたの勝利の歴史——日々の記録",
-    startButton: "始める",
-    alreadyHaveAccount: "すでにアカウントを持っています"
-  }
-};
-
 export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepClick }: WelcomeScreenProps) {
-  const { t, changeLanguage, currentLanguage: i18nLanguage } = useTranslation();
+  const { t, changeLanguage, currentLanguage: i18nLanguage, isLoaded } = useTranslation();
   const [selectedLanguage, setSelectedLanguage] = useState(i18nLanguage || "ru");
   const [showDropdown, setShowDropdown] = useState(false);
   const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
 
-  // Загрузка языков из API
+  // Загрузка языков из API (публичный endpoint, не требует авторизации)
   useEffect(() => {
     const loadLanguages = async () => {
       try {
-        const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/translations-api/languages', {
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
           headers: {
-            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token') || '{}').access_token || ''}`
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
           }
         });
         if (response.ok) {
           const data = await response.json();
-          setLanguages(data.languages || []);
+          // translations-api возвращает массив напрямую
+          const loadedLanguages = Array.isArray(data) ? data : (data.languages || fallbackLanguages);
+          // Фильтруем только активные языки
+          const activeLanguages = loadedLanguages.filter((lang: Language) => lang.is_active || lang.enabled);
+          setLanguages(activeLanguages.length > 0 ? activeLanguages : fallbackLanguages);
+          console.log('✅ Loaded languages from API:', activeLanguages.length);
         } else {
           console.error('Failed to load languages:', response.status);
           setLanguages(fallbackLanguages);
@@ -119,14 +81,25 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   }, []);
 
   const selectedLang = languages.find(lang => lang.code === selectedLanguage) || languages[0];
-const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
 
-// Синхронизируем выбранный язык с i18n системой
-useEffect(() => {
-  if (selectedLanguage !== i18nLanguage) {
-    changeLanguage(selectedLanguage);
+  // Синхронизируем выбранный язык с i18n системой
+  useEffect(() => {
+    if (selectedLanguage !== i18nLanguage) {
+      changeLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage, i18nLanguage, changeLanguage]);
+
+  // ✅ FIX: Показываем загрузку, пока переводы не загрузились
+  if (!isLoaded) {
+    return (
+      <div className="bg-white w-full h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#756ef3] mx-auto mb-4"></div>
+          <p className="text-[#8d8d8d]">Загрузка...</p>
+        </div>
+      </div>
+    );
   }
-}, [selectedLanguage, i18nLanguage, changeLanguage]);
 
   return (
     <motion.div
@@ -356,7 +329,7 @@ useEffect(() => {
             transition={{ delay: 0.7, duration: 0.7 }}
             key={selectedLanguage}
           >
-            <motion.h2 
+            <motion.h2
               className="text-[#2f394b] mb-2"
               style={{
                 fontFamily: "'Open Sans', var(--font-family-primary)",
@@ -369,7 +342,7 @@ useEffect(() => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              {currentTranslations.title}
+              {t('welcomeTitle', 'Создавай дневник побед')}
             </motion.h2>
 
             <motion.p
@@ -385,7 +358,7 @@ useEffect(() => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              {currentTranslations.subtitle}
+              {t('subtitle', 'История ваших побед — день за днём')}
             </motion.p>
           </motion.div>
         </div>
@@ -415,7 +388,7 @@ useEffect(() => {
                   fontSize: '15px'
                 }}
               >
-                {currentTranslations.alreadyHaveAccount}
+                {t('alreadyHaveAccount', 'У меня уже есть аккаунт')}
               </motion.button>
             )}
             
@@ -435,7 +408,7 @@ useEffect(() => {
               <Button
                 onClick={() => onNext(selectedLanguage)}
                 className="relative w-full h-[60px] rounded-[15px] text-white border-0 shadow-none hover:scale-[1.02] transition-transform duration-200"
-                style={{ 
+                style={{
                   background: 'linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)',
                   fontFamily: "'Inter', var(--font-family-primary)",
                   fontWeight: '600',
@@ -449,7 +422,7 @@ useEffect(() => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {currentTranslations.startButton}
+                  {t('startButton', 'Начать')}
                 </motion.span>
               </Button>
             </div>
@@ -477,9 +450,11 @@ useEffect(() => {
               {languages.map((language) => (
                 <button
                   key={language.code}
-                  onClick={() => {
+                  onClick={async () => {
                     setSelectedLanguage(language.code);
                     setShowDropdown(false);
+                    // ✅ FIX: Вызываем changeLanguage для переключения языка в i18n системе
+                    await changeLanguage(language.code);
                   }}
                   className="w-full flex items-center justify-between pl-[22px] pr-[13px] h-14 text-left hover:bg-accent/5 active:bg-accent/10 transition-colors"
                   style={{

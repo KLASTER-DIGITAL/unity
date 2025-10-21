@@ -31,6 +31,9 @@ const translations = {
     morningTime: "Утром (08:00)",
     eveningTime: "Вечером (21:00)",
     bothTimes: "Утро + вечер",
+    morning: "Утром",
+    evening: "Вечером",
+    both: "Утро + вечер",
     firstEntryTitle: "Первая запись",
     firstEntrySubtitle: "Начни прямо сейчас",
     placeholder: "Что сегодня получилось лучше всего?",
@@ -50,6 +53,9 @@ const translations = {
     morningTime: "Morning (08:00)",
     eveningTime: "Evening (21:00)",
     bothTimes: "Morning + Evening",
+    morning: "Morning",
+    evening: "Evening",
+    both: "Morning + Evening",
     firstEntryTitle: "First Entry",
     firstEntrySubtitle: "Start right now",
     placeholder: "What went best today?",
@@ -69,6 +75,9 @@ const translations = {
     morningTime: "Mañana (08:00)",
     eveningTime: "Noche (21:00)",
     bothTimes: "Mañana + Noche",
+    morning: "Mañana",
+    evening: "Noche",
+    both: "Mañana + Noche",
     firstEntryTitle: "Primera Entrada",
     firstEntrySubtitle: "Comienza ahora",
     placeholder: "¿Qué salió mejor hoy?",
@@ -88,6 +97,9 @@ const translations = {
     morningTime: "Morgen (08:00)",
     eveningTime: "Abend (21:00)",
     bothTimes: "Morgen + Abend",
+    morning: "Morgen",
+    evening: "Abend",
+    both: "Morgen + Abend",
     firstEntryTitle: "Erster Eintrag",
     firstEntrySubtitle: "Jetzt starten",
     placeholder: "Was lief heute am besten?",
@@ -107,6 +119,9 @@ const translations = {
     morningTime: "Matin (08:00)",
     eveningTime: "Soir (21:00)",
     bothTimes: "Matin + Soir",
+    morning: "Matin",
+    evening: "Soir",
+    both: "Matin + Soir",
     firstEntryTitle: "Première Entrée",
     firstEntrySubtitle: "Commencer maintenant",
     placeholder: "Qu'est-ce qui s'est le mieux passé aujourd'hui?",
@@ -126,6 +141,9 @@ const translations = {
     morningTime: "早上 (08:00)",
     eveningTime: "晚上 (21:00)",
     bothTimes: "早上 + 晚上",
+    morning: "早上",
+    evening: "晚上",
+    both: "早上 + 晚上",
     firstEntryTitle: "第一条记录",
     firstEntrySubtitle: "现在开始",
     placeholder: "今天什么做得最好？",
@@ -145,6 +163,9 @@ const translations = {
     morningTime: "朝 (08:00)",
     eveningTime: "夜 (21:00)",
     bothTimes: "朝 + 夜",
+    morning: "朝",
+    evening: "夜",
+    both: "朝 + 夜",
     firstEntryTitle: "最初のエントリ",
     firstEntrySubtitle: "今すぐ始める",
     placeholder: "今日は何がうまくいきましたか？",
@@ -482,7 +503,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">Утром</span>
+              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.morning}</span>
             </div>
             <div
               onClick={(e) => {
@@ -512,7 +533,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">Вечером</span>
+              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.evening}</span>
             </div>
             <div
               onClick={(e) => {
@@ -542,7 +563,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">Утро + вечер</span>
+              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.both}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Clock className="w-3 h-3 text-[#756ef3]" />

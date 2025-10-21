@@ -79,7 +79,7 @@ export function MobileApp({
   if (showAuth && !userData) {
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-        <TranslationManager preloadLanguages={['en']}>
+        <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
           <AuthScreen
             onAuthComplete={onAuthComplete}
             onboardingData={onboardingData}
@@ -98,7 +98,7 @@ export function MobileApp({
 
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-        <TranslationManager preloadLanguages={['en']}>
+        <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
           {currentStep === 1 && <WelcomeScreen onNext={onWelcomeComplete} onSkip={onWelcomeSkip} currentStep={currentStep} totalSteps={4} onStepClick={() => {}} />}
           {currentStep === 2 && (
             <OnboardingScreen2
@@ -142,7 +142,7 @@ export function MobileApp({
   if (!hasUser) {
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-        <TranslationManager preloadLanguages={['en']}>
+        <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
           <div className="min-h-screen bg-gray-50">
             <AuthScreen onComplete={onAuthComplete} />
             <Toaster position="top-center" />
@@ -155,7 +155,7 @@ export function MobileApp({
   // Main mobile app - only show if user is authenticated
   return (
     <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-      <TranslationManager preloadLanguages={['en']}>
+      <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
         <div className="min-h-screen bg-gray-50">
           {activeScreen === "home" && (
             <Suspense fallback={<LoadingScreen />}>

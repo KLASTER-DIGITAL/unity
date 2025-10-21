@@ -3,6 +3,7 @@ import { TranslationCacheManager } from './cache';
 import { TranslationLoader } from './loader';
 import { I18nState, TranslationCache, Translations } from './types';
 import { getFallbackTranslation } from './fallback';
+import { SmartCache, LazyLoader, initializeOptimizations } from './optimizations';
 
 interface TranslationContextValue {
   state: I18nState;
@@ -80,27 +81,23 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 
     try {
       console.log(`Loading translations for language: ${language}`);
-      
-      // Используем новый загрузчик
-      const result = await TranslationLoader.loadTranslations({
-        language,
-        fallbackLanguage,
-        forceRefresh: false
-      });
-      
-      console.log(`Translations loaded for ${language}, used fallback: ${result.usedFallback}`);
-      
+
+      // Try SmartCache first (optimized)
+      let translations = await SmartCache.get(language as any);
+
+      if (!translations) {
+        // Use LazyLoader for optimized loading
+        translations = await LazyLoader.load(language as any, 'high');
+      }
+
+      console.log(`Translations loaded for ${language} (${Object.keys(translations).length} keys)`);
+
       // Обновляем состояние
       dispatch({
         type: 'SET_TRANSLATIONS',
-        payload: { language: result.language, translations: result.translations }
+        payload: { language, translations }
       });
-      
-      // Если использовался fallback, обновляем текущий язык
-      if (result.usedFallback && result.language !== language) {
-        dispatch({ type: 'SET_LANGUAGE', payload: result.language });
-      }
-      
+
       dispatch({ type: 'SET_LOADED', payload: true });
       
     } catch (error) {
@@ -201,9 +198,13 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
   useEffect(() => {
     const initialize = async () => {
       try {
-        // Валидация кэша при запуске
-        await TranslationLoader.validateCache();
-        
+        // Initialize optimizations
+        await initializeOptimizations({
+          enablePrefetch: true,
+          maxCachedLanguages: 3,
+          prefetchLanguages: ['ru', 'en'] // Popular languages
+        });
+
         // Загружаем переводы для текущего языка
         await loadTranslations(state.currentLanguage);
       } catch (error) {

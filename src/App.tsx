@@ -1,10 +1,15 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { checkSession, signOut } from "./utils/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
+import { setUser, addBreadcrumb } from "@/shared/lib/monitoring";
 
 // Lazy load app-level components for code splitting
 const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
 const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
+
+// Import E2E test component
+import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
+import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
 
 // Onboarding data interface
 interface OnboardingData {
@@ -45,14 +50,43 @@ export default function App() {
     firstEntry: ''
   });
 
+  // Check for test route
+  const [isTestRoute, setIsTestRoute] = useState(false);
+  const [isPerformanceRoute, setIsPerformanceRoute] = useState(false);
+
   // Check admin route ONLY via query parameter (NO auto-redirect based on role)
   useEffect(() => {
     const checkAdminRoute = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const isAdminParam = urlParams.get('view') === 'admin';
+      const isTestParam = urlParams.get('view') === 'test';
+      const isPerformanceParam = urlParams.get('view') === 'performance';
+
+      // Set test route
+      setIsTestRoute(isTestParam);
+      setIsPerformanceRoute(isPerformanceParam);
 
       // Set admin route ONLY if query param is present
       setIsAdminRoute(isAdminParam);
+
+      // 🔒 SECURITY: Проверка роли при изменении маршрута
+      if (userData) {
+        const userRole = userData.profile?.role || userData.role;
+
+        if (isAdminParam && userRole !== 'super_admin') {
+          // Обычный пользователь пытается открыть админ-панель
+          console.log("🚫 Access denied: user role is not super_admin, redirecting to PWA");
+          window.location.href = '/';
+          return;
+        }
+
+        if (!isAdminParam && !isTestParam && !isPerformanceParam && userRole === 'super_admin') {
+          // Супер-админ пытается открыть PWA кабинет
+          console.log("🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel");
+          window.location.href = '/?view=admin';
+          return;
+        }
+      }
 
       // Show/hide admin auth screen based on session
       if (isAdminParam && !userData) {
@@ -83,6 +117,48 @@ export default function App() {
         // Check if session is successful (has user data)
         if (session && session.success !== false && session.user) {
           setUserData(session);
+
+          // Устанавливаем пользователя в Sentry для отслеживания
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            username: session.profile?.name || session.user.email,
+          });
+
+          addBreadcrumb({
+            category: 'auth',
+            message: 'User session restored',
+            level: 'info',
+            data: {
+              role: session.profile?.role || session.role,
+            },
+          });
+
+          // 🔒 SECURITY: Проверка роли и редирект при несоответствии
+          const urlParams = new URLSearchParams(window.location.search);
+          const isAdminView = urlParams.get('view') === 'admin';
+          const userRole = session.profile?.role || session.role;
+
+          if (isAdminView && userRole !== 'super_admin') {
+            // Обычный пользователь пытается открыть админ-панель
+            console.log("🚫 Access denied: user role is not super_admin, redirecting to PWA");
+            window.location.href = '/';
+            return;
+          }
+
+          if (!isAdminView && userRole === 'super_admin') {
+            // Супер-админ пытается открыть PWA кабинет
+            console.log("🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel");
+            window.location.href = '/?view=admin';
+            return;
+          }
+
+          // ✅ Загружаем язык из профиля пользователя
+          if (session.profile?.language) {
+            console.log("🌐 Loading user language from profile:", session.profile.language);
+            setSelectedLanguage(session.profile.language);
+            setOnboardingData(prev => ({ ...prev, language: session.profile.language }));
+          }
 
           // ✅ Проверяем onboardingCompleted из профиля
           if (session.profile?.onboardingCompleted) {
@@ -149,6 +225,23 @@ export default function App() {
     setUserData(user);
     setShowAuth(false);
 
+    // Устанавливаем пользователя в Sentry
+    setUser({
+      id: user.user?.id || user.id,
+      email: user.user?.email || user.email,
+      username: user.profile?.name || user.name || user.email,
+    });
+
+    addBreadcrumb({
+      category: 'auth',
+      message: 'User authenticated',
+      level: 'info',
+      data: {
+        role: user.profile?.role || user.role,
+        onboardingCompleted: user.onboardingCompleted,
+      },
+    });
+
     if (user.onboardingCompleted) {
       setOnboardingComplete(true);
       setCurrentStep(5);
@@ -157,17 +250,64 @@ export default function App() {
     }
   };
 
+  // PWA пользователь: ПОЛНЫЙ выход через настройки (показывает welcome screen)
   const handleLogout = async () => {
-    await signOut();
+    console.log("🚪 [App.tsx] PWA user full logout - clearing session for welcome screen");
+
+    addBreadcrumb({
+      category: 'auth',
+      message: 'PWA user logged out',
+      level: 'info',
+    });
+
+    await signOut(); // Полная очистка сессии чтобы показать welcome screen
+    setUser(null); // Очищаем пользователя в Sentry
     setUserData(null);
     setOnboardingComplete(false);
-    setCurrentStep(1);
+    setCurrentStep(1); // Возврат к welcome screen
     setShowAdminAuth(false);
   };
 
+  // Супер-админ: полный выход с очисткой сессии для безопасности
+  const handleAdminLogout = async () => {
+    console.log("🔐 [App.tsx] Admin logout - clearing session for security");
+
+    addBreadcrumb({
+      category: 'auth',
+      message: 'Admin logged out',
+      level: 'info',
+    });
+
+    await signOut(); // Полная очистка сессии для безопасности
+    setUser(null); // Очищаем пользователя в Sentry
+    setUserData(null);
+    setOnboardingComplete(false);
+    setCurrentStep(1);
+    setShowAdminAuth(true); // Показываем форму входа админа
+  };
+
   const handleAdminAuthComplete = (adminUser: any) => {
+    console.log("🔐 [App.tsx] Admin auth complete:", adminUser.email, "role:", adminUser.role);
+
+    // Устанавливаем админа в Sentry
+    setUser({
+      id: adminUser.id,
+      email: adminUser.email,
+      username: adminUser.profile?.name || adminUser.email,
+    });
+
+    addBreadcrumb({
+      category: 'auth',
+      message: 'Admin authenticated',
+      level: 'info',
+      data: {
+        role: adminUser.role,
+      },
+    });
+
     setUserData(adminUser);
     setShowAdminAuth(false);
+    setIsCheckingSession(false); // ✅ FIX: Stop showing loading screen after admin login
   };
 
   const handleProfileUpdate = (updatedProfile: any) => {
@@ -199,7 +339,7 @@ export default function App() {
           userData={userData}
           showAdminAuth={showAdminAuth}
           onAuthComplete={handleAdminAuthComplete}
-          onLogout={handleLogout}
+          onLogout={handleAdminLogout} // Используем handleAdminLogout для полной очистки сессии
           onBack={() => {
             window.location.href = '/';
           }}
@@ -218,6 +358,24 @@ export default function App() {
             <p className="text-muted-foreground">Загрузка...</p>
           </div>
         </div>
+      </ThemeProvider>
+    );
+  }
+
+  // Test route
+  if (isTestRoute) {
+    return (
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
+        <I18nE2ETest />
+      </ThemeProvider>
+    );
+  }
+
+  // Performance dashboard route
+  if (isPerformanceRoute) {
+    return (
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
+        <PerformanceDashboard />
       </ThemeProvider>
     );
   }

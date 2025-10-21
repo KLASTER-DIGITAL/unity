@@ -1,0 +1,145 @@
+name: Documentation Quality Check
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'scripts/check-*.sh'
+      - '.github/workflows/check-docs.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'scripts/check-*.sh'
+  schedule:
+    # Каждую пятницу в 9:00 UTC (12:00 MSK)
+    - cron: '0 9 * * 5'
+  workflow_dispatch:
+
+jobs:
+  check-docs:
+    name: Check Documentation Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check Documentation Ratio
+        id: ratio
+        run: |
+          echo "📊 Checking documentation ratio..."
+          bash scripts/check-docs-ratio.sh
+          
+      - name: Check Broken Links
+        id: links
+        run: |
+          echo "🔗 Checking broken links..."
+          bash scripts/check-broken-links.sh 2>&1 | tee broken-links-report.txt
+          
+          # Извлечь количество битых ссылок
+          BROKEN_COUNT=$(grep "❌ Битых ссылок:" broken-links-report.txt | awk '{print $3}' || echo "0")
+          echo "broken_count=$BROKEN_COUNT" >> $GITHUB_OUTPUT
+          
+          # Если больше 100 битых ссылок - это критично
+          if [ "$BROKEN_COUNT" -gt 100 ]; then
+            echo "::error::Слишком много битых ссылок: $BROKEN_COUNT (максимум 100)"
+            exit 1
+          fi
+          
+      - name: Check Naming Conventions
+        id: naming
+        run: |
+          echo "📝 Checking naming conventions..."
+          
+          # Проверка changelog
+          echo "Checking changelog naming..."
+          WRONG_CHANGELOG=$(find docs/changelog -name "*.md" \
+            ! -path "*/archive/*" \
+            ! -name "README.md" \
+            ! -name "CHANGELOG.md" \
+            ! -name "FIX.md" \
+            -type f 2>/dev/null | while read f; do
+              basename "$f" | grep -E "^[0-9]{4}-[0-9]{2}-[0-9]{2}_[a-z_]+\.md$" > /dev/null || echo "$f"
+            done)
+          
+          # Проверка tasks
+          echo "Checking tasks naming..."
+          WRONG_TASKS=$(find docs/plan/tasks -name "*.md" \
+            ! -name "README.md" \
+            -type f 2>/dev/null | while read f; do
+              basename "$f" | grep -E "^[a-z-]+\.md$" > /dev/null || echo "$f"
+            done)
+          
+          # Проверка architecture (разрешаем исключения для главных планов)
+          echo "Checking architecture naming..."
+          WRONG_ARCH=$(find docs/architecture -name "*.md" \
+            ! -name "UNITY_MASTER_PLAN_2025.md" \
+            ! -name "UNITY_VISION_AND_ROADMAP_2026.md" \
+            -type f 2>/dev/null | while read f; do
+              basename "$f" | grep -E "^[A-Z_]+\.md$" > /dev/null || echo "$f"
+            done)
+          
+          VIOLATIONS=""
+          if [ -n "$WRONG_CHANGELOG" ]; then
+            VIOLATIONS="$VIOLATIONS$WRONG_CHANGELOG"$'\n'
+          fi
+          if [ -n "$WRONG_TASKS" ]; then
+            VIOLATIONS="$VIOLATIONS$WRONG_TASKS"$'\n'
+          fi
+          if [ -n "$WRONG_ARCH" ]; then
+            VIOLATIONS="$VIOLATIONS$WRONG_ARCH"$'\n'
+          fi
+          
+          if [ -n "$VIOLATIONS" ]; then
+            VIOLATIONS_COUNT=$(echo "$VIOLATIONS" | grep -v "^$" | wc -l | tr -d ' ')
+            echo "::warning::Найдено нарушений naming conventions: $VIOLATIONS_COUNT"
+            echo "$VIOLATIONS" | grep -v "^$" | while read file; do
+              echo "::warning file=$file::Нарушение naming convention"
+            done
+          else
+            echo "✅ Все файлы соответствуют naming conventions"
+          fi
+          
+      - name: Upload Broken Links Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: broken-links-report
+          path: broken-links-report.txt
+          retention-days: 30
+          
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('broken-links-report.txt', 'utf8');
+            const brokenCount = '${{ steps.links.outputs.broken_count }}';
+            
+            const body = `## 📊 Documentation Quality Check
+            
+            ### 🔗 Broken Links
+            ${brokenCount > 0 ? `⚠️ Found ${brokenCount} broken links` : '✅ No broken links found'}
+            
+            <details>
+            <summary>View Full Report</summary>
+            
+            \`\`\`
+            ${report.slice(0, 5000)}
+            \`\`\`
+            
+            </details>
+            
+            ### 📝 Recommendations
+            ${brokenCount > 50 ? '- Consider fixing broken links before merging' : ''}
+            ${brokenCount > 100 ? '- ⚠️ Too many broken links! Please fix critical ones.' : ''}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+

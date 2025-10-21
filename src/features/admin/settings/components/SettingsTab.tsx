@@ -1,14 +1,26 @@
-"use client";
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
 import { APISettingsTab } from '@/components/screens/admin/settings/APISettingsTab';
-import { LanguagesTab } from '@/components/screens/admin/settings/LanguagesTab';
+import { AISettingsTab } from '@/components/screens/admin/settings/AISettingsTab';
 import { PWASettingsTab } from '@/components/screens/admin/settings/PWASettingsTab';
 import { PushNotificationsTab } from '@/components/screens/admin/settings/PushNotificationsTab';
 import { GeneralSettingsTab } from '@/components/screens/admin/settings/GeneralSettingsTab';
 import { SystemSettingsTab } from '@/components/screens/admin/settings/SystemSettingsTab';
 import { TelegramSettingsTab } from '@/components/screens/admin/settings/TelegramSettingsTab';
+import { LanguagesAndTranslationsTab } from './LanguagesAndTranslationsTab';
+import {
+  Key,
+  Brain,
+  MessageCircle,
+  Languages,
+  Smartphone,
+  Bell,
+  Settings,
+  Monitor,
+  Search
+} from 'lucide-react';
 
 interface SettingsTabProps {
   className?: string;
@@ -21,8 +33,9 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   activeSubTab,
   onSubTabChange
 }) => {
-  const [activeTab, setActiveTab] = useState(activeSubTab || 'api');
+  const [activeTab, setActiveTab] = useState(activeSubTab || 'openai-api');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] = useState<string | undefined>();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -30,13 +43,14 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   };
 
   const tabs = [
-    { value: 'api', label: 'API', icon: '🔑', description: 'Управление API ключами' },
-    { value: 'telegram', label: 'Telegram', icon: '📱', description: 'Интеграция с Telegram' },
-    { value: 'languages', label: 'Языки', icon: '🌍', description: 'Настройки языков' },
-    { value: 'pwa', label: 'PWA', icon: '📱', description: 'PWA настройки' },
-    { value: 'push', label: 'Push', icon: '🔔', description: 'Push-уведомления' },
-    { value: 'general', label: 'Общие', icon: '⚙️', description: 'Общие настройки' },
-    { value: 'system', label: 'Система', icon: '🖥️', description: 'Системные настройки' }
+    { value: 'openai-api', label: 'OpenAI API', icon: Key, description: 'Настройки OpenAI API' },
+    { value: 'ai', label: 'AI', icon: Brain, description: 'Настройки AI моделей' },
+    { value: 'telegram', label: 'Telegram', icon: MessageCircle, description: 'Интеграция с Telegram' },
+    { value: 'languages-translations', label: 'Языки и переводы', icon: Languages, description: 'Управление языками и переводами' },
+    { value: 'pwa', label: 'PWA', icon: Smartphone, description: 'PWA настройки' },
+    { value: 'push', label: 'Push', icon: Bell, description: 'Push-уведомления' },
+    { value: 'general', label: 'Общие', icon: Settings, description: 'Общие настройки' },
+    { value: 'system', label: 'Система', icon: Monitor, description: 'Системные настройки' }
   ];
 
   const filteredTabs = tabs.filter(tab =>
@@ -45,107 +59,99 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   );
 
   return (
-    <div className={`admin-panel ${className}`}>
-      <div className="admin-p-6 lg:admin-p-8 admin-pb-4 admin-max-w-[1400px] admin-mx-auto">
+    <div className={className}>
+      <div className="p-6 lg:p-8 pb-4 max-w-[1400px] mx-auto">
         {/* Заголовок страницы */}
-        <header className="admin-mb-10">
-          <h1 className="admin-text-4xl admin-font-bold admin-text-gray-900 admin-mb-3">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Настройки системы
           </h1>
-          <p className="admin-text-lg admin-text-gray-600">
+          <p className="text-base text-muted-foreground">
             Управление всеми аспектами системы
           </p>
         </header>
 
         {/* Поиск по настройкам */}
-        <div className="admin-search-container admin-mb-10 admin-max-w-xl">
-          <svg
-            className="admin-search-icon"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <input
+        <div className="relative mb-8 max-w-xl">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
             type="text"
-            placeholder="Поиск настроек..."
+            placeholder="Поиск по настройкам"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="admin-search-input admin-text-base"
-            aria-label="Поиск по настройкам"
+            className="pl-10"
           />
         </div>
 
         {/* Навигация по вкладкам */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <nav className="admin-mb-10" aria-label="Навигация по настройкам">
-            <TabsList className="admin-flex admin-flex-wrap admin-gap-3 admin-bg-white admin-border admin-border-gray-200 admin-p-2 admin-rounded-xl admin-shadow-sm">
-              {tabs.map((tab) => (
+          <TabsList className="inline-flex h-auto w-full flex-wrap items-center justify-start gap-2 rounded-lg bg-muted p-1 mb-8">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="admin-flex admin-items-center admin-gap-3 admin-px-6 admin-py-4 admin-rounded-lg admin-font-medium admin-text-base admin-transition-all admin-duration-200 admin-text-gray-700 hover:admin-text-gray-900 hover:admin-bg-gray-50 focus-visible:admin-ring-2 focus-visible:admin-ring-admin-primary focus-visible:admin-ring-offset-2 data-[state=active]:admin-bg-admin-primary data-[state=active]:admin-text-white data-[state=active]:admin-shadow-md"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                   aria-label={`${tab.label} - ${tab.description}`}
                 >
-                  <span className="admin-text-xl" aria-hidden="true">{tab.icon}</span>
+                  <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
                 </TabsTrigger>
-              ))}
-            </TabsList>
-          </nav>
+              );
+            })}
+          </TabsList>
 
           {/* Контент вкладок */}
-          <main className="min-h-[500px]">
+          <div className="min-h-[500px]">
             {filteredTabs.length === 0 && searchQuery ? (
-              <div className="admin-text-center admin-py-12">
-                <p className="admin-text-gray-500 admin-text-lg admin-mb-2">
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg mb-4">
                   Нет настроек, соответствующих "{searchQuery}"
                 </p>
-                <button
+                <Button
                   onClick={() => setSearchQuery('')}
-                  className="admin-btn admin-btn-outline"
+                  variant="outline"
                 >
                   Очистить поиск
-                </button>
+                </Button>
               </div>
             ) : (
               <>
-                <TabsContent value="api">
+                <TabsContent value="openai-api" className="mt-0">
                   <APISettingsTab />
                 </TabsContent>
 
-                <TabsContent value="telegram">
+                <TabsContent value="ai" className="mt-0">
+                  <AISettingsTab />
+                </TabsContent>
+
+                <TabsContent value="telegram" className="mt-0">
                   <TelegramSettingsTab />
                 </TabsContent>
 
-                <TabsContent value="languages">
-                  <LanguagesTab />
+                <TabsContent value="languages-translations" className="mt-0">
+                  <LanguagesAndTranslationsTab initialLanguage={selectedLanguageForTranslations} />
                 </TabsContent>
 
-                <TabsContent value="pwa">
+                <TabsContent value="pwa" className="mt-0">
                   <PWASettingsTab />
                 </TabsContent>
 
-                <TabsContent value="push">
+                <TabsContent value="push" className="mt-0">
                   <PushNotificationsTab />
                 </TabsContent>
 
-                <TabsContent value="general">
+                <TabsContent value="general" className="mt-0">
                   <GeneralSettingsTab />
                 </TabsContent>
 
-                <TabsContent value="system">
+                <TabsContent value="system" className="mt-0">
                   <SystemSettingsTab />
                 </TabsContent>
               </>
             )}
-          </main>
+          </div>
         </Tabs>
       </div>
     </div>

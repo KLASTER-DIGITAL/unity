@@ -66,6 +66,7 @@ app.post('/profiles/create', async (c) => {
       id: data.id,
       name: data.name,
       email: data.email,
+      role: data.role, // 🔒 SECURITY: Add role for access control
       language: data.language,
       diaryName: data.diary_name,
       diaryEmoji: data.diary_emoji,
@@ -112,6 +113,7 @@ app.get('/profiles/:userId', async (c) => {
       id: data.id,
       name: data.name,
       email: data.email,
+      role: data.role, // 🔒 SECURITY: Add role for access control
       avatar: data.avatar, // Profile photo URL
       language: data.language,
       diaryName: data.diary_name,

@@ -18,18 +18,24 @@ export class I18nAPI {
           'Authorization': `Bearer ${publicAnonKey}`,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch languages: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch languages');
+
+      // ✅ FIX: translations-api возвращает массив напрямую, а не объект с success
+      if (Array.isArray(data)) {
+        return data;
       }
-      
-      return data.languages || [];
+
+      // Fallback для старого формата
+      if (data.success && data.languages) {
+        return data.languages;
+      }
+
+      throw new Error('Invalid response format from translations-api');
     } catch (error) {
       console.error('Error fetching supported languages:', error);
       // Возвращаем fallback языки
@@ -42,24 +48,27 @@ export class I18nAPI {
     useCache?: boolean;
     etag?: string;
   }): Promise<Record<string, string>> {
+    console.log(`🔍 I18nAPI.getTranslations called for ${language}, options:`, options);
+
     try {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${publicAnonKey}`,
       };
 
-      // Добавляем ETag для проверки изменений
-      if (options?.etag) {
-        headers['If-None-Match'] = options.etag;
-      }
+      // ✅ FIX: Не используем If-None-Match из-за CORS ограничений
+      // if (options?.etag) {
+      //   headers['If-None-Match'] = options.etag;
+      // }
 
+      console.log(`📡 Fetching translations from API for ${language}...`);
       const response = await fetch(`${this.BASE_URL}/${language}`, {
         headers,
       });
       
       if (response.status === 304) {
         // Контент не изменен, используем кэш
-        const cached = TranslationCacheManager.getCache(language);
+        const cached = await TranslationCacheManager.getCache(language);
         if (cached) {
           console.log(`Using cached translations for ${language}`);
           return cached.translations;
@@ -72,31 +81,51 @@ export class I18nAPI {
       }
       
       const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch translations');
+      console.log(`📦 Received data for ${language}:`, {
+        type: typeof data,
+        isArray: Array.isArray(data),
+        keys: Object.keys(data).length,
+        sampleKeys: Object.keys(data).slice(0, 5)
+      });
+
+      // ✅ FIX: translations-api возвращает объект переводов напрямую, а не {success: true, translations: {...}}
+      const translations = typeof data === 'object' && !Array.isArray(data) ? data : {};
+
+      console.log(`✅ Translations for ${language}:`, {
+        count: Object.keys(translations).length,
+        hasWelcomeTitle: !!translations.welcomeTitle,
+        hasStartButton: !!translations.startButton
+      });
+
+      if (Object.keys(translations).length === 0) {
+        throw new Error('No translations received from API');
       }
-      
+
       const etag = response.headers.get('ETag');
-      const translations = data.translations || {};
-      
+
       // Сохраняем в кэш с ETag
       if (options?.useCache !== false) {
-        TranslationCacheManager.setCache(language, translations, etag || undefined);
+        await TranslationCacheManager.setCache(language, translations, etag || undefined);
       }
-      
+
       console.log(`Loaded ${Object.keys(translations).length} translations for ${language}`);
       return translations;
     } catch (error) {
       console.error(`Error fetching translations for ${language}:`, error);
-      
+      console.error(`Error details:`, {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error,
+        error
+      });
+
       // Пробуем загрузить из кэша даже при ошибке
-      const cached = TranslationCacheManager.getCache(language);
+      const cached = await TranslationCacheManager.getCache(language);
       if (cached) {
         console.log(`Using cached translations for ${language} due to API error`);
         return cached.translations;
       }
-      
+
       throw error;
     }
   }

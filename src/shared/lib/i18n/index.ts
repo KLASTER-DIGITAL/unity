@@ -15,9 +15,20 @@ export * from './useTranslation';
 export * from './LanguageSelector';
 export * from './I18nTestComponent';
 export * from './TranslationLoader';
+export * from './helpers';
 
 // Re-export types
 export * from './types';
+export * from './types/TranslationKeys';
 
-// Re-export old i18n utilities (useTranslations function)
-export * from '../../../utils/i18n';
+// Re-export optimizations
+export * from './optimizations';
+
+// Re-export pluralization
+export * from './pluralization';
+
+// Re-export formatting
+export * from './formatting';
+
+// Re-export RTL support
+export * from './rtl';

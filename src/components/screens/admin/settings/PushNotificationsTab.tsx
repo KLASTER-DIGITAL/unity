@@ -43,7 +43,8 @@ export const PushNotificationsTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/send-notification', {
+      // ✅ Используем admin-api вместо make-server
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/notifications/send', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -86,7 +87,8 @@ export const PushNotificationsTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/settings', {
+      // ✅ Используем admin-api вместо make-server
+      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/settings', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

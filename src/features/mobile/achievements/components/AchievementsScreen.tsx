@@ -4,9 +4,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Progress } from "@/shared/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { useTranslations } from "@/shared/lib/i18n";
+import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
-import { calculateAchievements, calculateUserStats, type Achievement } from "@/utils/statsCalculator";
+import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
 import {
   Trophy,
@@ -41,7 +41,7 @@ const iconMap: Record<string, any> = {
 
 export function AchievementsScreen({ userData }: { userData?: any }) {
   // Получаем переводы для языка пользователя
-  const t = useTranslations(userData?.language || 'ru');
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -109,31 +109,31 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   const milestones = [
     {
       id: 1,
-      title: "10 записей",
+      title: t('milestone_10_entries', '10 записей'),
       completed: userStats.totalEntries >= 10,
-      reward: "Бейдж 'Начинающий'"
+      reward: t('badge_beginner', 'Бейдж "Начинающий"')
     },
     {
       id: 2,
-      title: "Неделя подряд",
+      title: t('milestone_week_streak', 'Неделя подряд'),
       completed: userStats.currentStreak >= 7,
-      reward: "Бейдж 'Постоянство'"
+      reward: t('badge_consistency', 'Бейдж "Постоянство"')
     },
     {
       id: 3,
-      title: "50 записей",
+      title: t('milestone_50_entries', '50 записей'),
       completed: userStats.totalEntries >= 50,
       progress: userStats.totalEntries,
       total: 50,
-      reward: "Премиум тема"
+      reward: t('premium_theme', 'Премиум тема')
     },
     {
       id: 4,
-      title: "Месяц подряд",
+      title: t('milestone_month_streak', 'Месяц подряд'),
       completed: userStats.longestStreak >= 30,
       progress: userStats.longestStreak,
       total: 30,
-      reward: "Бейдж 'Легенда'"
+      reward: t('badge_legend', 'Бейдж "Легенда"')
     }
   ];
 
@@ -174,8 +174,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
           <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
             <Crown className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl mb-1 text-foreground font-semibold">Уровень {userStats.level}</h1>
-          <p className="text-muted-foreground">Мастер достижений</p>
+          <h1 className="text-2xl mb-1 text-foreground font-semibold">{t('level', 'Уровень')} {userStats.level}</h1>
+          <p className="text-muted-foreground">{t('achievement_master', 'Мастер достижений')}</p>
         </div>
 
         <div className="grid grid-cols-4 gap-4 mb-6">

@@ -1,0 +1,44 @@
+name: Documentation Ratio Check
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'src/**'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'src/**'
+  schedule:
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check-docs-ratio:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install bc (calculator)
+        run: sudo apt-get update && sudo apt-get install -y bc
+        
+      - name: Run documentation ratio check
+        run: |
+          chmod +x scripts/check-docs-ratio.sh
+          ./scripts/check-docs-ratio.sh
+        
+      - name: Comment on PR (if failed)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Documentation Ratio Check Failed**\n\nThe documentation files exceed the source code files. Please archive old documentation or consolidate related files.\n\nSee the [1:1 Documentation Ratio](../docs/plan/BACKLOG.md#documentation-ratio) rule for more details.'
+            })
+

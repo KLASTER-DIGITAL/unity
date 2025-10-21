@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Users, 
-  CreditCard, 
-  Settings, 
+import {
+  Users,
+  CreditCard,
+  Settings,
   Smartphone,
   Shield,
   Database,
@@ -14,16 +14,20 @@ import {
   Menu,
   X,
   LayoutDashboard,
-  RefreshCw
+  RefreshCw,
+  Brain
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { toast } from "sonner";
+import { useTranslation } from "@/shared/lib/i18n";
 import { UsersManagementTab } from "./UsersManagementTab";
 import { SubscriptionsTab } from "@/features/admin/settings";
 import { SettingsTab } from "@/features/admin/settings";
+import { AIAnalyticsTab } from "@/features/admin/analytics";
 import { createClient } from "@/utils/supabase/client";
+import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
 
 interface AdminDashboardProps {
   userData?: any;
@@ -33,6 +37,7 @@ interface AdminDashboardProps {
 const SUPER_ADMIN_EMAIL = "diary@leadshunter.biz";
 
 export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
@@ -110,7 +115,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
       console.log('Admin stats loaded:', statsData);
     } catch (error) {
       console.error('Error loading stats:', error);
-      toast.error('Ошибка загрузки статистики');
+      toast.error(t('error_loading_stats', 'Ошибка загрузки статистики'));
       
       // Fallback к пустым данным при ошибке
       setStats({
@@ -151,10 +156,11 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   }
 
   const menuItems = [
-    { id: "overview", label: "Обзор", icon: LayoutDashboard },
-    { id: "users", label: "Пользователи", icon: Users },
-    { id: "subscriptions", label: "Подписки", icon: CreditCard },
-    { id: "settings", label: "Настройки", icon: Settings },
+    { id: "overview", label: t('admin_overview', 'Обзор'), icon: LayoutDashboard },
+    { id: "users", label: t('admin_users', 'Пользователи'), icon: Users },
+    { id: "subscriptions", label: t('admin_subscriptions', 'Подписки'), icon: CreditCard },
+    { id: "ai-analytics", label: t('admin_ai_analytics', 'AI Analytics'), icon: Brain },
+    { id: "settings", label: t('admin_settings', 'Настройки'), icon: Settings },
   ];
 
   return (
@@ -255,7 +261,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
                   </div>
                   <div>
                     <h1 className="text-white !text-[17px]">Admin</h1>
-                    <p className="text-white/80 !text-[13px] !font-normal">Панель управления</p>
+                    <p className="text-white/80 !text-[13px] !font-normal">{t('admin_panel', 'Панель управления')}</p>
                   </div>
                 </div>
                 <button onClick={() => setIsSidebarOpen(false)} className="text-white">
@@ -365,15 +371,18 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
               }}
               className="w-full"
             >
-              {activeTab === "overview" && <OverviewTab stats={stats} isLoading={isLoadingStats} onRefresh={loadStats} />}
-              {activeTab === "users" && <UsersManagementTab />}
-              {activeTab === "subscriptions" && <SubscriptionsTab />}
-              {activeTab === "settings" && (
-                <SettingsTab
-                  activeSubTab={settingsSubTab}
-                  onSubTabChange={setSettingsSubTab}
-                />
-              )}
+              <CompactErrorBoundary>
+                {activeTab === "overview" && <OverviewTab stats={stats} isLoading={isLoadingStats} onRefresh={loadStats} />}
+                {activeTab === "users" && <UsersManagementTab />}
+                {activeTab === "subscriptions" && <SubscriptionsTab />}
+                {activeTab === "ai-analytics" && <AIAnalyticsTab />}
+                {activeTab === "settings" && (
+                  <SettingsTab
+                    activeSubTab={settingsSubTab}
+                    onSubTabChange={setSettingsSubTab}
+                  />
+                )}
+              </CompactErrorBoundary>
             </motion.div>
           </AnimatePresence>
         </main>
@@ -384,6 +393,8 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 
 // Overview Tab Component
 function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: boolean, onRefresh: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* Header with Refresh */}
@@ -409,13 +420,13 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <Users className="w-4 h-4" />
-              Всего пользователей
+              {t('total_users', 'Всего пользователей')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="!text-[34px] text-foreground">{stats.totalUsers}</div>
             <p className="!text-[13px] text-accent !font-normal mt-1">
-              +{stats.newUsersToday} сегодня
+              +{stats.newUsersToday} {t('new_today', 'сегодня')}
             </p>
           </CardContent>
         </Card>
@@ -424,13 +435,13 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <Activity className="w-4 h-4" />
-              Активные пользователи
+              {t('active_users', 'Активные пользователи')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="!text-[34px] text-foreground">{stats.activeUsers}</div>
             <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              {stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% от всех
+              {stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% {t('of_all', 'от всех')}
             </p>
           </CardContent>
         </Card>
@@ -439,13 +450,13 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <UserCheck className="w-4 h-4" />
-              Premium подписки
+              {t('premium_subscriptions', 'Premium подписки')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="!text-[34px] text-foreground">{stats.premiumUsers}</div>
             <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              {stats.totalUsers > 0 ? Math.round((stats.premiumUsers / stats.totalUsers) * 100) : 0}% конверсия
+              {stats.totalUsers > 0 ? Math.round((stats.premiumUsers / stats.totalUsers) * 100) : 0}% {t('conversion', 'конверсия')}
             </p>
           </CardContent>
         </Card>
@@ -454,7 +465,7 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Общий доход
+              {t('total_revenue', 'Общий доход')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -472,13 +483,13 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <Database className="w-4 h-4" />
-              Всего записей
+              {t('total_entries', 'Всего записей')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="!text-[34px] text-foreground">{stats.totalEntries}</div>
             <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              {stats.activeUsers > 0 ? (stats.totalEntries / stats.activeUsers).toFixed(1) : 0} на активного пользователя
+              {stats.activeUsers > 0 ? (stats.totalEntries / stats.activeUsers).toFixed(1) : 0} {t('per_active_user', 'на активного пользователя')}
             </p>
           </CardContent>
         </Card>
@@ -487,13 +498,13 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
           <CardHeader className="pb-2">
             <CardTitle className="!text-[13px] !font-normal text-muted-foreground flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
-              PWA установок
+              {t('pwa_installs', 'PWA установки')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="!text-[34px] text-foreground">{stats.pwaInstalls}</div>
             <p className="!text-[13px] text-muted-foreground !font-normal mt-1">
-              {stats.totalUsers > 0 ? Math.round((stats.pwaInstalls / stats.totalUsers) * 100) : 0}% от всех пользователей
+              {stats.totalUsers > 0 ? Math.round((stats.pwaInstalls / stats.totalUsers) * 100) : 0}% {t('of_all_users', 'от всех пользователей')}
             </p>
           </CardContent>
         </Card>
@@ -502,8 +513,8 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
       {/* Quick Actions */}
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="!text-[17px]">Быстрые действия</CardTitle>
-          <CardDescription className="!text-[13px] !font-normal">Управление ключевыми функциями приложения</CardDescription>
+          <CardTitle className="!text-[17px]">{t('quick_actions', 'Быстрые действия')}</CardTitle>
+          <CardDescription className="!text-[13px] !font-normal">{t('quick_actions_desc', 'Управление ключевыми функциями приложения')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -517,16 +528,16 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
                   <Smartphone className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="!text-[15px] text-foreground">Настройки PWA</p>
+                  <p className="!text-[15px] text-foreground">{t('pwa_settings', 'Настройки PWA')}</p>
                   <p className="!text-[13px] text-muted-foreground !font-normal">
-                    Управление установкой и обновлениями
+                    {t('pwa_settings_desc', 'Управление установкой и обновлениями')}
                   </p>
                 </div>
               </div>
             </Button>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="justify-start h-auto py-4 border-border"
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'settings', subtab: 'push' } }))}
             >
@@ -535,16 +546,16 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
                   <Activity className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="!text-[15px] text-foreground">Push-уведомления</p>
+                  <p className="!text-[15px] text-foreground">{t('push_notifications', 'Push-уведомления')}</p>
                   <p className="!text-[13px] text-muted-foreground !font-normal">
-                    Отправка уведомлений пользователям
+                    {t('push_notifications_desc', 'Настройка уведомлений')}
                   </p>
                 </div>
               </div>
             </Button>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="justify-start h-auto py-4 border-border"
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'users' } }))}
             >
@@ -553,16 +564,16 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
                   <Users className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="!text-[15px] text-foreground">Управление пользователями</p>
+                  <p className="!text-[15px] text-foreground">{t('user_management', 'Управление пользователями')}</p>
                   <p className="!text-[13px] text-muted-foreground !font-normal">
-                    Просмотр и редактирование пользователей
+                    {t('user_management_desc', 'Просмотр и редактирование пользователей')}
                   </p>
                 </div>
               </div>
             </Button>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="justify-start h-auto py-4 border-border"
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'subscriptions' } }))}
             >
@@ -571,9 +582,9 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
                   <CreditCard className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="!text-[15px] text-foreground">Управление подписками</p>
+                  <p className="!text-[15px] text-foreground">{t('subscription_management', 'Управление подписками')}</p>
                   <p className="!text-[13px] text-muted-foreground !font-normal">
-                    Premium подписки и платежи
+                    {t('subscription_management_desc', 'Premium подписки и платежи')}
                   </p>
                 </div>
               </div>

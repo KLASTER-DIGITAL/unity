@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { supabase } from '../../../../../utils/supabase/client';
 import { SimpleChart } from '../../../../../shared/components/SimpleChart';
+import { BarChart3, Bot, Globe, Mic, FileText, Package, Loader2 } from 'lucide-react';
 
 interface OperationStats {
   operation_type: string;
@@ -18,14 +21,22 @@ const COLORS = {
 };
 
 const OPERATION_LABELS = {
-  ai_card: '🤖 AI Анализ',
-  translation: '🌍 Переводы',
-  transcription: '🎤 Транскрипция',
-  pdf_export: '📄 PDF Экспорт',
-  other: '📦 Другое'
+  ai_card: 'AI Анализ',
+  translation: 'Переводы',
+  transcription: 'Транскрипция',
+  pdf_export: 'PDF Экспорт',
+  other: 'Другое'
 };
 
-export const UsageBreakdown = () => {
+const OPERATION_ICONS = {
+  ai_card: Bot,
+  translation: Globe,
+  transcription: Mic,
+  pdf_export: FileText,
+  other: Package
+};
+
+export function UsageBreakdown() {
   const [data, setData] = useState<OperationStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
@@ -113,53 +124,58 @@ export const UsageBreakdown = () => {
   };
 
   return (
-    <div className="admin-card">
-      <div className="admin-card-header">
-        <div className="admin-flex admin-justify-between admin-items-center">
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
           <div>
-            <h3 className="admin-card-title">📊 Разбивка использования</h3>
-            <p className="admin-card-description">
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Разбивка использования
+            </CardTitle>
+            <CardDescription>
               По типам операций
-            </p>
+            </CardDescription>
           </div>
-          <div className="admin-flex admin-gap-2">
+          <div className="flex gap-2">
             {/* Переключатель метрики */}
-            <select
-              value={metric}
-              onChange={(e) => setMetric(e.target.value as any)}
-              className="admin-input admin-py-2 admin-px-3 admin-text-sm"
-            >
-              <option value="requests">Запросы</option>
-              <option value="tokens">Токены</option>
-              <option value="cost">Стоимость</option>
-            </select>
-            
+            <Select value={metric} onValueChange={(value: any) => setMetric(value)}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="requests">Запросы</SelectItem>
+                <SelectItem value="tokens">Токены</SelectItem>
+                <SelectItem value="cost">Стоимость</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Переключатель периода */}
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value as any)}
-              className="admin-input admin-py-2 admin-px-3 admin-text-sm"
-            >
-              <option value="7d">7 дней</option>
-              <option value="30d">30 дней</option>
-              <option value="90d">90 дней</option>
-            </select>
+            <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">7 дней</SelectItem>
+                <SelectItem value="30d">30 дней</SelectItem>
+                <SelectItem value="90d">90 дней</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="admin-card-content">
+      <CardContent>
         {isLoading ? (
-          <div className="admin-flex admin-justify-center admin-items-center admin-h-64">
-            <div className="admin-spinner admin-w-8 admin-h-8" />
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : data.length === 0 ? (
-          <div className="admin-text-center admin-py-12 admin-text-gray-500">
-            <div className="admin-text-4xl admin-mb-4">📊</div>
+          <div className="text-center py-12 text-muted-foreground">
+            <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <p>Нет данных за выбранный период</p>
           </div>
         ) : (
-          <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-2 admin-gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Chart */}
             <div>
               <SimpleChart
@@ -172,62 +188,64 @@ export const UsageBreakdown = () => {
             </div>
 
             {/* Детальная таблица */}
-            <div className="admin-space-y-4">
-              <div className="admin-text-center admin-mb-6">
-                <div className="admin-text-sm admin-text-gray-600 admin-mb-1">
+            <div className="space-y-4">
+              <div className="text-center mb-6">
+                <div className="text-sm text-muted-foreground mb-1">
                   Всего {metric === 'requests' ? 'запросов' : metric === 'tokens' ? 'токенов' : 'стоимость'}
                 </div>
-                <div className="admin-text-3xl admin-font-bold admin-text-gray-900">
+                <div className="text-3xl font-bold">
                   {formatValue(getTotalValue())}
                 </div>
               </div>
 
-              <div className="admin-space-y-3">
+              <div className="space-y-3">
                 {data.map((item) => {
                   const percentage = (
-                    (metric === 'requests' 
-                      ? item.total_requests 
-                      : metric === 'tokens' 
-                      ? item.total_tokens 
+                    (metric === 'requests'
+                      ? item.total_requests
+                      : metric === 'tokens'
+                      ? item.total_tokens
                       : item.total_cost) / getTotalValue() * 100
                   );
+                  const Icon = OPERATION_ICONS[item.operation_type as keyof typeof OPERATION_ICONS] || Package;
 
                   return (
-                    <div key={item.operation_type} className="admin-border admin-border-gray-200 admin-rounded-lg admin-p-4">
-                      <div className="admin-flex admin-justify-between admin-items-center admin-mb-2">
-                        <div className="admin-flex admin-items-center admin-gap-2">
-                          <div 
-                            className="admin-w-3 admin-h-3 admin-rounded-full"
+                    <div key={item.operation_type} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: COLORS[item.operation_type as keyof typeof COLORS] || COLORS.other }}
                           />
-                          <span className="admin-font-medium admin-text-gray-900">
+                          <Icon className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">
                             {OPERATION_LABELS[item.operation_type as keyof typeof OPERATION_LABELS] || item.operation_type}
                           </span>
                         </div>
-                        <span className="admin-text-sm admin-text-gray-600">
+                        <span className="text-sm text-muted-foreground">
                           {percentage.toFixed(1)}%
                         </span>
                       </div>
-                      
-                      <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2 admin-mb-2">
+
+                      <div className="w-full bg-secondary rounded-full h-2 mb-2">
                         <div
-                          className="admin-h-2 admin-rounded-full admin-transition-all"
-                          style={{ 
+                          className="h-2 rounded-full transition-all"
+                          style={{
                             width: `${percentage}%`,
                             backgroundColor: COLORS[item.operation_type as keyof typeof COLORS] || COLORS.other
                           }}
                         />
                       </div>
 
-                      <div className="admin-grid admin-grid-cols-3 admin-gap-2 admin-text-xs admin-text-gray-600">
+                      <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                         <div>
-                          <span className="admin-font-medium">{item.total_requests}</span> запросов
+                          <span className="font-medium text-foreground">{item.total_requests}</span> запросов
                         </div>
                         <div>
-                          <span className="admin-font-medium">{item.total_tokens.toLocaleString()}</span> токенов
+                          <span className="font-medium text-foreground">{item.total_tokens.toLocaleString()}</span> токенов
                         </div>
                         <div>
-                          <span className="admin-font-medium">${item.total_cost.toFixed(2)}</span>
+                          <span className="font-medium text-foreground">${item.total_cost.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -237,7 +255,7 @@ export const UsageBreakdown = () => {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
-};
+}

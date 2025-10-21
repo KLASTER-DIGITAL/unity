@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getEntries, deleteEntry, updateEntry, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
-import { useTranslations } from "@/shared/lib/i18n";
+import { useTranslation } from "@/shared/lib/i18n";
 import { MediaPreview } from "@/features/mobile/media"; // ✅ NEW: Import MediaPreview
 import {
   Search,
@@ -61,7 +61,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
   const [successMessage, setSuccessMessage] = useState("");
 
   // Получаем переводы для языка пользователя
-  const t = useTranslations(userData?.language || 'ru');
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadEntries();
@@ -124,7 +124,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 
   const handleSaveEdit = async () => {
     if (!editingEntry || !editText.trim()) {
-      toast.error("Текст записи не может быть пустым");
+      toast.error(t('entry_text_required', 'Текст записи не может быть пустым'));
       return;
     }
 
@@ -332,7 +332,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-              <p className="!text-[14px] text-muted-foreground">Загрузка...</p>
+              <p className="!text-[14px] text-muted-foreground">{t('loading', 'Загрузка...')}</p>
             </div>
           </div>
         ) : filteredEntries.length === 0 ? (
@@ -341,12 +341,12 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
               <Calendar className="h-8 w-8 text-accent" strokeWidth={2} />
             </div>
             <h3 className="!text-[18px] !font-semibold text-foreground mb-2">
-              Записей не найдено
+              {t('no_entries_found', 'Записей не найдено')}
             </h3>
             <p className="!text-[14px] text-muted-foreground">
               {searchQuery || selectedCategory || selectedSentiment
-                ? "Попробуйте изменить фильтры"
-                : "Создайте первую запись"}
+                ? t('try_change_filters', 'Попробуйте изменить фильтры')
+                : t('create_first_entry', 'Создайте первую запись')}
             </p>
           </div>
         ) : (
@@ -510,7 +510,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                 {/* Text Input */}
                 <div>
                   <label className="block !text-[13px] !font-medium text-muted-foreground mb-2">
-                    Текст записи
+                    {t('entry_text', 'Текст записи')}
                   </label>
                   <textarea
                     value={editText}
@@ -518,7 +518,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                     disabled={isSaving}
                     rows={6}
                     className="w-full px-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors resize-none disabled:opacity-50"
-                    placeholder="Опишите ваше достижение..."
+                    placeholder={t('describe_achievement', 'Опишите ваше достижение...')}
                   />
                 </div>
 

@@ -1,6 +1,7 @@
 import { I18nAPI } from './api';
 import { TranslationCacheManager } from './cache';
 import { LoadTranslationsOptions, TranslationResult } from './types';
+import { storage } from '../platform/storage';
 
 export class TranslationLoader {
   private static readonly DEFAULT_TIMEOUT = 10000; // 10 секунд
@@ -63,7 +64,7 @@ export class TranslationLoader {
     
     // 1. Проверяем кэш (если не принудительное обновление)
     if (!forceRefresh && attempt === 0) {
-      const cached = TranslationCacheManager.getCache(language);
+      const cached = await TranslationCacheManager.getCache(language);
       if (cached && !this.isCacheStale(cached)) {
         return {
           translations: cached.translations,
@@ -75,10 +76,11 @@ export class TranslationLoader {
     }
     
     // 2. Загружаем из API с таймаутом
+    const etag = attempt === 0 ? await TranslationCacheManager.getCacheETag(language) : undefined;
     const translations = await this.withTimeout(
-      I18nAPI.getTranslations(language, { 
+      I18nAPI.getTranslations(language, {
         useCache: true,
-        etag: attempt === 0 ? TranslationCacheManager.getCacheETag(language) : undefined
+        etag
       }),
       timeout
     );
@@ -164,35 +166,36 @@ export class TranslationLoader {
   // Валидация и восстановление кэша
   static async validateCache(): Promise<void> {
     console.log('Validating translation cache...');
-    
+
     try {
       const languages = await I18nAPI.getSupportedLanguages();
       const validLanguages = languages.map(lang => lang.code);
-      
+
       // Проверяем кэш для каждого языка
       for (const language of validLanguages) {
-        const cached = TranslationCacheManager.getCache(language);
-        
+        const cached = await TranslationCacheManager.getCache(language);
+
         if (cached) {
           // Проверяем целостность кэша
           if (!this.validateCacheIntegrity(cached)) {
             console.warn(`Cache integrity check failed for ${language}, removing...`);
-            TranslationCacheManager.removeCache(language);
+            await TranslationCacheManager.removeCache(language);
           }
         }
       }
-      
+
       // Очищаем кэш для неактивных языков
-      Object.keys(localStorage)
-        .filter(key => key.startsWith('i18n_cache_'))
-        .forEach(cacheKey => {
-          const language = cacheKey.replace('i18n_cache_', '');
-          if (!validLanguages.includes(language)) {
-            console.log(`Removing cache for inactive language: ${language}`);
-            TranslationCacheManager.removeCache(language);
-          }
-        });
-      
+      const allKeys = await storage.getAllKeys();
+      const cacheKeys = allKeys.filter(key => key.startsWith('i18n_cache_'));
+
+      for (const cacheKey of cacheKeys) {
+        const language = cacheKey.replace('i18n_cache_', '');
+        if (!validLanguages.includes(language)) {
+          console.log(`Removing cache for inactive language: ${language}`);
+          await TranslationCacheManager.removeCache(language);
+        }
+      }
+
       console.log('Cache validation completed');
     } catch (error) {
       console.error('Cache validation failed:', error);
@@ -202,14 +205,17 @@ export class TranslationLoader {
   // Очистка всех переводов
   static async clearAllTranslations(): Promise<void> {
     console.log('Clearing all translations...');
-    
-    TranslationCacheManager.clearCache();
-    
+
+    await TranslationCacheManager.clearCache();
+
     // Очищаем возможные временные данные
-    Object.keys(localStorage)
-      .filter(key => key.startsWith('i18n_'))
-      .forEach(key => localStorage.removeItem(key));
-    
+    const allKeys = await storage.getAllKeys();
+    const i18nKeys = allKeys.filter(key => key.startsWith('i18n_'));
+
+    if (i18nKeys.length > 0) {
+      await storage.multiRemove(i18nKeys);
+    }
+
     console.log('All translations cleared');
   }
   

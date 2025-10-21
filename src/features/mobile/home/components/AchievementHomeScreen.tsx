@@ -4,7 +4,7 @@ import { AchievementHeader } from "./AchievementHeader";
 import { ChatInputSection } from "./ChatInputSection";
 import { RecentEntriesFeed } from "./RecentEntriesFeed";
 import { getEntries, getUserStats, getMotivationCards, markCardAsRead, type DiaryEntry, type MotivationCard } from "@/shared/lib/api";
-import { useTranslations, getCategoryTranslation, type Language } from "@/shared/lib/i18n";
+import { useTranslation, getCategoryTranslation, type Language } from "@/shared/lib/i18n";
 import { toast } from "sonner";
 import {
   Undo2,
@@ -462,6 +462,7 @@ export function AchievementHomeScreen({
   userData,
   onNavigateToHistory
 }: AchievementHomeScreenProps) {
+  const { t } = useTranslation();
   const [cards, setCards] = useState<AchievementCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showUndo, setShowUndo] = useState(false);
@@ -511,8 +512,8 @@ export function AchievementHomeScreen({
 
     } catch (error) {
       console.error("Error loading motivation cards:", error);
-      toast.error("Не удалось загрузить карточки", {
-        description: "Проверьте подключение к интернету"
+      toast.error(t('failed_load_cards', 'Не удалось загрузить карточки'), {
+        description: t('check_internet_connection', 'Проверьте подключение к интернету')
       });
       // В случае ошибки показываем дефолтные мотивации
       const userLanguage = (userData?.language || 'ru') as Language;
@@ -565,8 +566,8 @@ export function AchievementHomeScreen({
       });
     }, 3000); // 3 секунды - достаточно для AI-анализа
 
-    toast.success("Отлично! 🎉", {
-      description: "Твоё достижение сохранено"
+    toast.success(t('achievement_saved_title', 'Отлично! 🎉'), {
+      description: t('achievement_saved_desc', 'Твоё достижение сохранено')
     });
   };
 

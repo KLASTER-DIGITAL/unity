@@ -4,9 +4,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Progress } from "@/shared/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { useTranslations } from "@/shared/lib/i18n";
+import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
-import { calculateUserStats, type UserStats } from "@/utils/statsCalculator";
+import { calculateUserStats, type UserStats } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
 import {
   Download,
@@ -26,7 +26,7 @@ import {
 
 export function ReportsScreen({ userData }: { userData?: any }) {
   // Получаем переводы для языка пользователя
-  const t = useTranslations(userData?.language || 'ru');
+  const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [isLoading, setIsLoading] = useState(true);
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
@@ -119,8 +119,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
             <Brain className="h-6 w-6" strokeWidth={2} />
           </div>
           <div>
-            <h2 className="text-xl">AI Обзоры</h2>
-            <p className="text-muted-foreground opacity-90">Анализ твоих достижений</p>
+            <h2 className="text-xl">{t('ai_reviews', 'AI Обзоры')}</h2>
+            <p className="text-muted-foreground opacity-90">{t('analysis_achievements', 'Анализ твоих достижений')}</p>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
               onClick={() => setSelectedPeriod(period)}
               className={selectedPeriod === period ? "" : "border-card/30 text-white hover:bg-card/10"}
             >
-              {period === "week" ? "Неделя" : period === "month" ? "Месяц" : "Квартал"}
+              {period === "week" ? t('week', 'Неделя') : period === "month" ? t('month', 'Месяц') : t('quarter', 'Квартал')}
             </Button>
           ))}
         </div>
@@ -161,7 +161,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="text-center">
                 <div className="text-2xl text-[var(--ios-purple)] mb-1">{monthlyReport.totalEntries}</div>
-                <div className="text-sm text-muted-foreground">Записей</div>
+                <div className="text-sm text-muted-foreground">{t('entries_count', 'Записей')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl text-[var(--ios-green)] mb-1">{monthlyReport.streakDays}</div>
@@ -194,7 +194,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
       <div className="px-4">
         <Tabs defaultValue="mood">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="mood">Настроение</TabsTrigger>
+            <TabsTrigger value="mood">{t('mood', 'Настроение')}</TabsTrigger>
             <TabsTrigger value="categories">Категории</TabsTrigger>
             <TabsTrigger value="insights">Инсайты</TabsTrigger>
           </TabsList>

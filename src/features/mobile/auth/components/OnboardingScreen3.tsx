@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
+import { toast } from "sonner";
 
 interface OnboardingScreen3Props {
   selectedLanguage: string;
@@ -15,43 +16,57 @@ const translations = {
     title: "Дай имя своему дневнику",
     subtitle: "Персонализируй свой путь к успеху",
     placeholder: "Название дневника",
-    presets: ["Мой путь", "Достижения", "Я — молодец!"]
+    presets: ["Мой путь", "Достижения", "Я — молодец!"],
+    readyMessage: "Готово! Нажмите стрелку →",
+    validationError: "Пожалуйста, введите название дневника или выберите готовый вариант"
   },
   en: {
     title: "Name your diary",
     subtitle: "Personalize your path to success",
     placeholder: "Diary name",
-    presets: ["My Path", "Achievements", "I'm Awesome!"]
+    presets: ["My Path", "Achievements", "I'm Awesome!"],
+    readyMessage: "Ready! Click the arrow →",
+    validationError: "Please enter a diary name or choose a preset"
   },
   es: {
     title: "Dale nombre a tu diario",
     subtitle: "Personaliza tu camino al éxito",
     placeholder: "Nombre del diario",
-    presets: ["Mi Camino", "Logros", "¡Soy Genial!"]
+    presets: ["Mi Camino", "Logros", "¡Soy Genial!"],
+    readyMessage: "¡Listo! Haz clic en la flecha →",
+    validationError: "Por favor, ingresa un nombre para el diario o elige una opción"
   },
   de: {
     title: "Benenne dein Tagebuch",
     subtitle: "Personalisiere deinen Weg zum Erfolg",
     placeholder: "Tagebuch Name",
-    presets: ["Mein Weg", "Erfolge", "Ich bin toll!"]
+    presets: ["Mein Weg", "Erfolge", "Ich bin toll!"],
+    readyMessage: "Fertig! Klicke auf den Pfeil →",
+    validationError: "Bitte gib einen Tagebuchnamen ein oder wähle eine Vorlage"
   },
   fr: {
     title: "Nomme ton journal",
     subtitle: "Personnalise ton chemin vers le succès",
     placeholder: "Nom du journal",
-    presets: ["Mon Chemin", "Réussites", "Je suis génial!"]
+    presets: ["Mon Chemin", "Réussites", "Je suis génial!"],
+    readyMessage: "Prêt! Cliquez sur la flèche →",
+    validationError: "Veuillez entrer un nom de journal ou choisir une option"
   },
   zh: {
     title: "为你的日记命名",
     subtitle: "个性化你的成功之路",
     placeholder: "日记名称",
-    presets: ["我的道路", "成就", "我很棒!"]
+    presets: ["我的道路", "成就", "我很棒!"],
+    readyMessage: "准备好了！点击箭头 →",
+    validationError: "请输入日记名称或选择预设选项"
   },
   ja: {
     title: "日記に名前をつけよう",
     subtitle: "成功への道のりをパーソナライズ",
     placeholder: "日記の名前",
-    presets: ["私の道", "成果", "私は素晴らしい!"]
+    presets: ["私の道", "成果", "私は素晴らしい!"],
+    readyMessage: "準備完了！矢印をクリック →",
+    validationError: "日記の名前を入力するか、プリセットを選択してください"
   }
 };
 
@@ -252,13 +267,13 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
         <motion.span
           className="text-green-600 !text-[12px] !font-semibold"
           initial={{ opacity: 0, x: -10 }}
-          animate={{ 
+          animate={{
             opacity: diaryName.trim() ? 1 : 0,
             x: diaryName.trim() ? 0 : -10
           }}
           transition={{ duration: 0.3 }}
         >
-          Готово! Нажмите стрелку →
+          {currentTranslations.readyMessage}
         </motion.span>
       </motion.div>
     </motion.div>
@@ -331,31 +346,54 @@ function ArrowRight1({ onClick, disabled }: { onClick: () => void; disabled: boo
   );
 }
 
-function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolean }) {
+function NextButton({ onNext, disabled, validationMessage }: { onNext: () => void; disabled: boolean; validationMessage?: string }) {
+  const [shake, setShake] = useState(false);
+
+  const handleClick = () => {
+    if (disabled) {
+      // ✅ FIX: Встряхивание кнопки + toast-уведомление при попытке нажать на disabled кнопку
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+
+      // Показываем toast-уведомление с переводом
+      if (validationMessage) {
+        toast.error(validationMessage, {
+          duration: 3000,
+          position: 'top-center',
+        });
+      }
+      return;
+    }
+    onNext();
+  };
+
   return (
-    <motion.div 
-      className="absolute contents" 
+    <motion.div
+      className="absolute contents"
       style={{
         bottom: "max(-2px, calc(0px - 2vh))",
         right: "max(-1px, calc(0px - 1vw))"
       }}
       data-name="Next Button"
       initial={{ opacity: 0, scale: 0.8, x: 50 }}
-      animate={{ 
-        opacity: disabled ? 0.5 : 1, 
+      animate={{
+        opacity: disabled ? 0.5 : 1,
         scale: 1,
-        x: 0
+        x: shake ? [0, -10, 10, -10, 10, 0] : 0
       }}
-      transition={{ delay: 0.6, duration: 0.6, type: "spring" }}
-      whileHover={{ 
+      transition={{
+        delay: shake ? 0 : 0.6,
+        duration: shake ? 0.5 : 0.6,
+        type: shake ? "tween" : "spring"
+      }}
+      whileHover={{
         scale: disabled ? 1 : 1.05,
         rotate: disabled ? 0 : 0
       }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
     >
       <button
-        onClick={onNext}
-        disabled={disabled}
+        onClick={handleClick}
         className={`absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent border-0 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         style={{
           bottom: "max(-2px, calc(0px - 2vh))",
@@ -366,7 +404,7 @@ function NextButton({ onNext, disabled }: { onNext: () => void; disabled: boolea
           <img className="block max-w-none size-full" src={imgRectangle5904} />
         </div>
       </button>
-      <ArrowRight1 onClick={onNext} disabled={disabled} />
+      <ArrowRight1 onClick={handleClick} disabled={disabled} />
     </motion.div>
   );
 }
@@ -403,6 +441,7 @@ function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, on
       <NextButton
         onNext={() => handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)}
         disabled={!isFormComplete}
+        validationMessage={currentTranslations.validationError}
       />
     </motion.div>
   );

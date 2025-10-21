@@ -1,0 +1,280 @@
+/**
+ * RTL CSS utilities
+ * 
+ * Provides CSS classes and utilities for RTL support
+ */
+
+/* Base RTL classes */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Text alignment utilities */
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/* Margin utilities (logical properties) */
+.ms-1 { margin-inline-start: 0.25rem; }
+.ms-2 { margin-inline-start: 0.5rem; }
+.ms-3 { margin-inline-start: 0.75rem; }
+.ms-4 { margin-inline-start: 1rem; }
+.ms-5 { margin-inline-start: 1.25rem; }
+.ms-6 { margin-inline-start: 1.5rem; }
+.ms-8 { margin-inline-start: 2rem; }
+
+.me-1 { margin-inline-end: 0.25rem; }
+.me-2 { margin-inline-end: 0.5rem; }
+.me-3 { margin-inline-end: 0.75rem; }
+.me-4 { margin-inline-end: 1rem; }
+.me-5 { margin-inline-end: 1.25rem; }
+.me-6 { margin-inline-end: 1.5rem; }
+.me-8 { margin-inline-end: 2rem; }
+
+/* Padding utilities (logical properties) */
+.ps-1 { padding-inline-start: 0.25rem; }
+.ps-2 { padding-inline-start: 0.5rem; }
+.ps-3 { padding-inline-start: 0.75rem; }
+.ps-4 { padding-inline-start: 1rem; }
+.ps-5 { padding-inline-start: 1.25rem; }
+.ps-6 { padding-inline-start: 1.5rem; }
+.ps-8 { padding-inline-start: 2rem; }
+
+.pe-1 { padding-inline-end: 0.25rem; }
+.pe-2 { padding-inline-end: 0.5rem; }
+.pe-3 { padding-inline-end: 0.75rem; }
+.pe-4 { padding-inline-end: 1rem; }
+.pe-5 { padding-inline-end: 1.25rem; }
+.pe-6 { padding-inline-end: 1.5rem; }
+.pe-8 { padding-inline-end: 2rem; }
+
+/* Border utilities (logical properties) */
+.border-s { border-inline-start: 1px solid; }
+.border-e { border-inline-end: 1px solid; }
+
+.border-s-2 { border-inline-start-width: 2px; }
+.border-e-2 { border-inline-end-width: 2px; }
+
+/* Position utilities (logical properties) */
+.start-0 { inset-inline-start: 0; }
+.start-1 { inset-inline-start: 0.25rem; }
+.start-2 { inset-inline-start: 0.5rem; }
+.start-4 { inset-inline-start: 1rem; }
+
+.end-0 { inset-inline-end: 0; }
+.end-1 { inset-inline-end: 0.25rem; }
+.end-2 { inset-inline-end: 0.5rem; }
+.end-4 { inset-inline-end: 1rem; }
+
+/* Flexbox utilities */
+.flex-row-reverse-rtl {
+  flex-direction: row;
+}
+
+.rtl .flex-row-reverse-rtl {
+  flex-direction: row-reverse;
+}
+
+/* Transform utilities for RTL */
+.rtl .transform-flip-x {
+  transform: scaleX(-1);
+}
+
+/* Icon mirroring for RTL */
+.rtl .icon-mirror {
+  transform: scaleX(-1);
+}
+
+/* Specific icon classes that should be mirrored in RTL */
+.rtl .icon-arrow-left,
+.rtl .icon-arrow-right,
+.rtl .icon-chevron-left,
+.rtl .icon-chevron-right,
+.rtl .icon-angle-left,
+.rtl .icon-angle-right {
+  transform: scaleX(-1);
+}
+
+/* Float utilities */
+.float-start {
+  float: inline-start;
+}
+
+.float-end {
+  float: inline-end;
+}
+
+/* Clear utilities */
+.clear-start {
+  clear: inline-start;
+}
+
+.clear-end {
+  clear: inline-end;
+}
+
+/* RTL-specific overrides for common patterns */
+
+/* Navigation items */
+.rtl .nav-item {
+  margin-inline-start: 0;
+  margin-inline-end: 1rem;
+}
+
+.rtl .nav-item:last-child {
+  margin-inline-end: 0;
+}
+
+/* Breadcrumbs */
+.rtl .breadcrumb-separator::before {
+  content: "\\";
+  transform: scaleX(-1);
+}
+
+/* Dropdown menus */
+.rtl .dropdown-menu {
+  left: auto;
+  right: 0;
+}
+
+/* Tooltips */
+.rtl .tooltip-arrow-left {
+  transform: scaleX(-1);
+}
+
+/* Modal positioning */
+.rtl .modal-close {
+  left: 1rem;
+  right: auto;
+}
+
+/* Form inputs with icons */
+.rtl .input-icon-start {
+  left: auto;
+  right: 0.75rem;
+}
+
+.rtl .input-icon-end {
+  right: auto;
+  left: 0.75rem;
+}
+
+/* Card layouts */
+.rtl .card-image-left {
+  order: 2;
+}
+
+.rtl .card-content-right {
+  order: 1;
+}
+
+/* List items with bullets */
+.rtl ul,
+.rtl ol {
+  padding-inline-start: 2rem;
+  padding-inline-end: 0;
+}
+
+/* Table alignment */
+.rtl table {
+  text-align: right;
+}
+
+.rtl th,
+.rtl td {
+  text-align: inherit;
+}
+
+/* Animations that need RTL adjustment */
+@keyframes slideInStart {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInEnd {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.rtl .slide-in-start {
+  animation: slideInEnd 0.3s ease-out;
+}
+
+.rtl .slide-in-end {
+  animation: slideInStart 0.3s ease-out;
+}
+
+/* Utility classes for conditional RTL styling */
+.rtl-only {
+  display: none;
+}
+
+.rtl .rtl-only {
+  display: block;
+}
+
+.ltr-only {
+  display: block;
+}
+
+.rtl .ltr-only {
+  display: none;
+}
+
+/* Inline RTL utilities */
+.rtl-inline-only {
+  display: none;
+}
+
+.rtl .rtl-inline-only {
+  display: inline;
+}
+
+.ltr-inline-only {
+  display: inline;
+}
+
+.rtl .ltr-inline-only {
+  display: none;
+}
+
+/* Responsive RTL utilities */
+@media (min-width: 640px) {
+  .sm\:ms-4 { margin-inline-start: 1rem; }
+  .sm\:me-4 { margin-inline-end: 1rem; }
+  .sm\:ps-4 { padding-inline-start: 1rem; }
+  .sm\:pe-4 { padding-inline-end: 1rem; }
+}
+
+@media (min-width: 768px) {
+  .md\:ms-6 { margin-inline-start: 1.5rem; }
+  .md\:me-6 { margin-inline-end: 1.5rem; }
+  .md\:ps-6 { padding-inline-start: 1.5rem; }
+  .md\:pe-6 { padding-inline-end: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:ms-8 { margin-inline-start: 2rem; }
+  .lg\:me-8 { margin-inline-end: 2rem; }
+  .lg\:ps-8 { padding-inline-start: 2rem; }
+  .lg\:pe-8 { padding-inline-end: 2rem; }
+}
+

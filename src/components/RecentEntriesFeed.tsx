@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { getEntries, type DiaryEntry } from "../utils/api";
-import { getCategoryTranslation, type Language } from "../utils/i18n";
+import { getCategoryTranslation, type Language } from "../shared/lib/i18n";
 import {
   ChevronRight,
   ThumbsUp,

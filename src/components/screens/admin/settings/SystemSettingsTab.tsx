@@ -48,7 +48,8 @@ export const SystemSettingsTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/restart/${service.toLowerCase()}`, {
+      // ✅ Используем admin-api вместо make-server
+      const response = await fetch(`https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/system/restart/${service.toLowerCase()}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

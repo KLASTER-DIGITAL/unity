@@ -1,0 +1,9 @@
+# Игнорировать node_modules
+node_modules/
+
+# Игнорировать архивные документы
+docs/archive/
+
+# Игнорировать автоматически сгенерированные файлы
+docs/reports/weekly-audit-*.md
+

@@ -32,6 +32,7 @@
             "@radix-ui/react-toggle": "^1.1.2",
             "@radix-ui/react-toggle-group": "^1.1.2",
             "@radix-ui/react-tooltip": "^1.1.8",
+            "@sentry/react": "^10.20.0",
             "@supabase/supabase-js": "^2.49.8",
             "@tsparticles/engine": "^3.9.1",
             "@tsparticles/react": "^3.0.0",
@@ -41,6 +42,7 @@
             "clsx": "*",
             "cmdk": "^1.1.1",
             "embla-carousel-react": "^8.6.0",
+            "es-toolkit": "^1.40.0",
             "hono": "*",
             "input-otp": "^1.4.2",
             "lodash-es": "^4.17.21",
@@ -66,9 +68,12 @@
             "@types/react-dom": "^18.3.7",
             "@vitejs/plugin-react-swc": "^3.10.2",
             "@vitest/ui": "^3.2.4",
+            "dotenv": "^17.2.3",
             "gh-pages": "^6.3.0",
+            "markdownlint-cli": "^0.45.0",
             "playwright": "^1.56.0",
             "rollup-plugin-visualizer": "^6.0.5",
+            "tsx": "^4.20.6",
             "vite": "6.3.5",
             "vitest": "^3.2.4"
       },
@@ -78,6 +83,8 @@
             "build:analyze": "ANALYZE=true vite build",
             "preview": "vite preview",
             "lint": "echo 'Linting not configured yet'",
+            "lint:md": "markdownlint 'docs/**/*.md' --ignore docs/archive",
+            "lint:md:fix": "markdownlint 'docs/**/*.md' --ignore docs/archive --fix",
             "test": "vitest",
             "test:ui": "vitest --ui",
             "test:e2e": "playwright test",
@@ -88,10 +95,12 @@
             "analyze": "node scripts/analyze-bundle.js",
             "optimize:images": "node scripts/optimize-images.js",
             "optimize:images:convert": "node scripts/optimize-images.js convert",
+            "i18n:generate-types": "tsx scripts/generate-translation-types.ts",
             "update:image-imports": "node scripts/update-image-imports.js",
             "lighthouse": "node scripts/lighthouse-audit.js",
             "lighthouse:url": "node scripts/lighthouse-audit.js url",
             "perf": "npm run build && npm run analyze",
-            "perf:full": "npm run build && npm run analyze && npm run lighthouse"
+            "perf:full": "npm run build && npm run analyze && npm run lighthouse",
+            "monitor:queries": "tsx scripts/monitor-query-performance.ts"
       }
 }
