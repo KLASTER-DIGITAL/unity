@@ -101,7 +101,7 @@
 - Поле `role`: `super_admin` (супер-администратор)
 
 **Доступ к админ-панели**:
-- URL: `https://unity-diary-app.netlify.app/?view=admin`
+- URL: `https://unity-wine.vercel.app/?view=admin`
 - ⚠️ **ВАЖНО**: Супер-админ НЕ может войти через обычную форму PWA
 - ✅ Автоматический редирект на `/?view=admin` при попытке открыть PWA кабинет
 - ✅ Строгое разделение доступа (см. [ROLE_BASED_ACCESS_CONTROL.md](../architecture/ROLE_BASED_ACCESS_CONTROL.md))
@@ -144,7 +144,7 @@
 ### Вход в мобильное приложение (PWA)
 
 **Для обычных пользователей (Rustam, Anna)**:
-1. Открыть: `https://unity-diary-app.netlify.app`
+1. Открыть: `https://unity-wine.vercel.app`
 2. Нажать "Войти" на WelcomeScreen
 3. Ввести email и пароль из таблицы выше
 4. Нажать "Войти"
@@ -154,7 +154,7 @@
 ### Вход в админ-панель
 
 **Способ 1 (прямой URL)**:
-1. Открыть: `https://unity-diary-app.netlify.app/?view=admin`
+1. Открыть: `https://unity-wine.vercel.app/?view=admin`
 2. Ввести email супер-админа: `diary@leadshunter.biz`
 3. Ввести пароль: `admin123`
 4. Нажать "Войти"
@@ -185,7 +185,7 @@
 
 ### Создание новой тестовой учетной записи
 
-1. Открыть приложение: `https://unity-diary-app.netlify.app`
+1. Открыть приложение: `https://unity-wine.vercel.app`
 2. Пройти onboarding flow (WelcomeScreen → OnboardingScreen2/3/4)
 3. Зарегистрироваться с новым email
 4. Учетная запись создается автоматически с ролью `user`
@@ -266,7 +266,8 @@ WHERE email IN (
 
 При возникновении проблем с учетными записями:
 - Проверить Supabase Dashboard: `https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc`
-- Проверить логи в Netlify: `https://app.netlify.com`
+- Проверить логи в Vercel: `https://vercel.com/get-leadshunters-projects/unity`
+- Проверить ошибки в Sentry: `https://klaster-js.sentry.io/projects/unity-v2/`
 - Обратиться к документации: `/docs/testing/`
 
 ---
