@@ -6,7 +6,6 @@
    ============================================ */
 
 /* All @import statements must be at the top */
-@import url("https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@400;600&display=swap");
 @import "./styles/theme-light.css";
 @import "./styles/theme-dark.css";
 @import "./styles/theme-tokens.css";
