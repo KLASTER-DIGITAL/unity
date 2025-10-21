@@ -112,23 +112,42 @@ export function LottiePreloader({
 
 /**
  * Компактный вариант прелоадера для использования внутри компонентов
+ * Поддерживает опциональный minDuration для страниц
  */
 export function LottiePreloaderCompact({
   message = "Загрузка...",
   size = 'sm',
   showMessage = false,
+  minDuration,
+  onMinDurationComplete,
   className = ''
-}: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'>) {
+}: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
+  minDuration?: number;
+  onMinDurationComplete?: () => void;
+}) {
   const { theme } = useTheme();
   const animationData = theme === 'dark' ? blackAnimation : whiteAnimation;
-  
+  const [minDurationElapsed, setMinDurationElapsed] = useState(false);
+
+  // Если указан minDuration, запускаем таймер
+  useEffect(() => {
+    if (minDuration && minDuration > 0) {
+      const timer = setTimeout(() => {
+        setMinDurationElapsed(true);
+        onMinDurationComplete?.();
+      }, minDuration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [minDuration, onMinDurationComplete]);
+
   const sizeClasses = {
     sm: 'w-12 h-12',
     md: 'w-16 h-16',
     lg: 'w-24 h-24',
     xl: 'w-32 h-32'
   };
-  
+
   return (
     <div className={`flex flex-col items-center justify-center gap-2 ${className}`}>
       <div className={`${sizeClasses[size]}`}>

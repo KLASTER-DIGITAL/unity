@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TranslationLoader } from './loader';
 import { useTranslationContext } from './TranslationProvider';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
 
 interface TranslationManagerProps {
   children: React.ReactNode;
@@ -56,20 +57,11 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
   // Показываем загрузку только при первой инициализации
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Setting up your experience</h2>
-          <p className="text-muted-foreground mb-4">
-            Loading translations and preparing the app...
-          </p>
-          {initError && (
-            <div className="text-sm text-red-500 bg-red-50 p-3 rounded">
-              Error: {initError}
-            </div>
-          )}
-        </div>
-      </div>
+      <LottiePreloader
+        showMessage={false}
+        minDuration={5000}
+        size="lg"
+      />
     );
   }
 

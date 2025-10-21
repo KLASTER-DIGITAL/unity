@@ -8,6 +8,7 @@ import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateUserStats, type UserStats } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
+import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Download,
   Sparkles,
@@ -102,10 +103,11 @@ export function ReportsScreen({ userData }: { userData?: any }) {
   if (isLoading) {
     return (
       <div className="pb-20 min-h-screen bg-background flex items-center justify-center transition-colors duration-300">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--ios-purple)] mx-auto mb-4" />
-          <p className="text-muted-foreground">Загрузка статистики...</p>
-        </div>
+        <LottiePreloaderCompact
+          showMessage={false}
+          minDuration={1000}
+          size="md"
+        />
       </div>
     );
   }

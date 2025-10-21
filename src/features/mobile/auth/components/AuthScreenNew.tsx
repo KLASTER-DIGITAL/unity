@@ -8,7 +8,6 @@ import { imgEllipse, imgApple, imgGroup659 } from "@/imports/svg-ok0q3";
 import { facebookIconSvg } from "@/imports/social-icons";
 import { imgTelegramSvgrepoCom1 } from "@/imports/svg-jjwu7";
 import TelegramLoginButton from 'react-telegram-login';
-import { LottiePreloaderInline } from "@/shared/components/LottiePreloader";
 
 // Переводы для AuthScreen
 const translations = {
@@ -533,7 +532,7 @@ export function AuthScreen({
             whileTap={{ scale: isLoading ? 1 : 0.98 }}
           >
             {isLoading ? (
-              <LottiePreloaderInline size="sm" className="brightness-0 invert" />
+              "Загрузка..."
             ) : (
               isLogin ? currentTranslations.signIn : currentTranslations.signUp
             )}

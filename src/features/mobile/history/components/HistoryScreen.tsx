@@ -4,6 +4,7 @@ import { getEntries, deleteEntry, updateEntry, type DiaryEntry } from "@/shared/
 import { toast } from "sonner";
 import { useTranslation } from "@/shared/lib/i18n";
 import { MediaPreview } from "@/features/mobile/media"; // ✅ NEW: Import MediaPreview
+import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Search,
   Filter,
@@ -330,10 +331,11 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       <div className="px-6 py-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-              <p className="!text-[14px] text-muted-foreground">{t('loading', 'Загрузка...')}</p>
-            </div>
+            <LottiePreloaderCompact
+              showMessage={false}
+              minDuration={1000}
+              size="md"
+            />
           </div>
         ) : filteredEntries.length === 0 ? (
           <div className="text-center py-12">
@@ -560,10 +562,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                     className="flex-1 px-4 py-3 bg-accent text-white rounded-[12px] !text-[15px] !font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Сохранение...
-                      </>
+                      "Сохранение..."
                     ) : (
                       <>
                         <Save className="h-4 w-4" strokeWidth={2} />
