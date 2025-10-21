@@ -14,7 +14,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
-import { showFeedbackWidget, hideFeedbackWidget } from "@/shared/lib/monitoring/sentry";
+import { showFeedbackWidget } from "@/shared/lib/monitoring/sentry";
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
@@ -38,7 +38,8 @@ import {
   Trash2,
   Smartphone,
   Crown,
-  X
+  X,
+  Bug
 } from "lucide-react";
 
 interface SettingsScreenProps {
@@ -133,15 +134,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     checkBiometric();
   }, []);
 
-  // Показать Sentry Feedback виджет только на странице настроек
-  useEffect(() => {
-    showFeedbackWidget();
 
-    // Скрыть виджет при размонтировании компонента
-    return () => {
-      hideFeedbackWidget();
-    };
-  }, []);
 
   // Синхронизация локального профиля с userData
   useEffect(() => {
@@ -443,6 +436,21 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
           title={t.rateApp || "Оценить приложение"}
           description="Поделитесь отзывом"
           onClick={() => setShowRateApp(true)}
+        />
+        <SettingsRow
+          icon={Bug}
+          iconColor="text-[var(--ios-red)]"
+          iconBgColor="bg-[var(--ios-red)]/10"
+          title="Сообщить об ошибке"
+          description="Помогите улучшить приложение"
+          onClick={() => {
+            try {
+              showFeedbackWidget();
+            } catch (error) {
+              console.error('Failed to show feedback widget:', error);
+              toast.error('Не удалось открыть форму обратной связи');
+            }
+          }}
         />
         <SettingsRow
           icon={HelpCircle}

@@ -36,7 +36,7 @@ function UserAvatar({ userName, userEmail, avatarUrl, onClick }: { userName?: st
       tabIndex={0}
       aria-label="Перейти в настройки профиля"
     >
-      <Avatar className="h-[70px] w-[70px] ring-1 ring-border">
+      <Avatar className="h-[46px] w-[46px] ring-1 ring-border">
         <AvatarImage src={displayAvatarUrl} alt={userName} className="object-cover" />
         <AvatarFallback className="bg-muted">
           <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
@@ -222,13 +222,13 @@ export function AchievementHeader({
 
             {/* Greeting - адаптивный размер шрифта для узких экранов (340px Telegram) */}
             <div className="flex-1 min-w-0">
-              {/* Приветствие - уменьшается на узких экранах, не переносится */}
+              {/* Приветствие - увеличено на 2px (20-26px вместо 18-24px) */}
               <h1 className="!font-semibold text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
-                <span className="text-[clamp(18px,5.5vw,24px)] flex-shrink-0">🙌</span>
-                <span className="!text-[clamp(18px,5.5vw,24px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
+                <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
+                <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
-              {/* Вопрос - уменьшается на узких экранах, не переносится */}
-              <p className="text-muted-foreground !text-[clamp(12px,3.8vw,15px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
+              {/* Вопрос - уменьшен (11-13px вместо 12-15px) */}
+              <p className="text-muted-foreground !text-[clamp(11px,3.5vw,13px)] !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
