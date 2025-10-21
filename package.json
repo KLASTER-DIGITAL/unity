@@ -1,6 +1,6 @@
 {
-      "name": "Дневник",
-      "version": "0.1.0",
+      "name": "unity-v2",
+      "version": "2.0.0",
       "private": true,
       "homepage": "https://klaster-digital.github.io/unity",
       "dependencies": {
