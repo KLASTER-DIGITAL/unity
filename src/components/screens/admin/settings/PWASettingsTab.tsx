@@ -9,7 +9,7 @@ import { Label } from '@/shared/components/ui/label';
 import { Button } from '@/shared/components/ui/button';
 import { Switch } from '@/shared/components/ui/switch';
 import { Badge } from '@/shared/components/ui/badge';
-import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, TrendingUp, Bell, Settings } from 'lucide-react';
+import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, TrendingUp, Bell, Settings, RotateCcw } from 'lucide-react';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
