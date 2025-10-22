@@ -172,7 +172,7 @@ export function MobileApp({
   return (
     <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
       <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-        <div className="min-h-screen bg-background backdrop-blur-sm overflow-hidden">
+        <div className="min-h-screen bg-background backdrop-blur-sm">
           <AnimatePresence mode="wait" custom={direction}>
             {activeScreen === "home" && (
               <motion.div

@@ -635,7 +635,7 @@ export function AchievementHomeScreen({
   const daysInApp = currentStreak > 0 ? currentStreak : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-20 overflow-x-hidden scrollbar-hide">
+    <div className="min-h-screen bg-background pb-20 scrollbar-hide">
       {/* Achievement Header */}
       <AchievementHeader
         userName={userName}
