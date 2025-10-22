@@ -100,8 +100,8 @@ function Text({ currentTranslations }: { currentTranslations: any }) {
       >
         <p className="leading-[18px] font-[Days_One] font-bold font-normal text-[12px]">{currentTranslations.subtitle}</p>
       </motion.div>
-      <motion.div 
-        className="[grid-area:2_/_1] font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] text-[28px] tracking-[-1px] w-full" 
+      <motion.div
+        className="[grid-area:2_/_1] font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] dark:text-[#1a1a1a] text-[28px] tracking-[-1px] w-full"
         style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
         key={currentTranslations.title}
         initial={{ opacity: 0 }}

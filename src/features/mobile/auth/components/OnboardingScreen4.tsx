@@ -305,7 +305,7 @@ function ChatGPTInput({
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-[#8d8d8d] placeholder:text-[11px] placeholder:font-normal text-[#002055]"
+          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-[#8d8d8d] placeholder:text-[11px] placeholder:font-normal text-[#002055] dark:text-[#1a1a1a]"
           style={{
             height: `${textareaHeight}px`,
             fontSize: '13px',
@@ -463,8 +463,8 @@ function HabitsAndEntryForm({
       </motion.div>
 
       {/* Main Title */}
-      <motion.div 
-        className="font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] text-[28px] tracking-[-1px] w-full" 
+      <motion.div
+        className="font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] dark:text-[#1a1a1a] text-[28px] tracking-[-1px] w-full"
         style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
         key={currentTranslations.title}
         initial={{ opacity: 0 }}
@@ -503,7 +503,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.morning}</span>
+              <span className="!text-[#002055] dark:!text-[#1a1a1a] !text-[13px] !font-medium">{currentTranslations.morning}</span>
             </div>
             <div
               onClick={(e) => {
@@ -533,7 +533,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.evening}</span>
+              <span className="!text-[#002055] dark:!text-[#1a1a1a] !text-[13px] !font-medium">{currentTranslations.evening}</span>
             </div>
             <div
               onClick={(e) => {
@@ -563,7 +563,7 @@ function HabitsAndEntryForm({
                   <div className="w-2 h-2 rounded-full bg-card" />
                 )}
               </div>
-              <span className="!text-[#002055] !text-[13px] !font-medium">{currentTranslations.both}</span>
+              <span className="!text-[#002055] dark:!text-[#1a1a1a] !text-[13px] !font-medium">{currentTranslations.both}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Clock className="w-3 h-3 text-[#756ef3]" />
@@ -584,7 +584,7 @@ function HabitsAndEntryForm({
       >
         <div>
           <h3 className="!text-[#756ef3] !text-[14px] !font-semibold mb-1">{currentTranslations.firstEntryTitle}</h3>
-          <p className="!text-[#002055]/70 !text-[12px]">{currentTranslations.firstEntrySubtitle}</p>
+          <p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 !text-[12px]">{currentTranslations.firstEntrySubtitle}</p>
         </div>
 
         <ChatGPTInput
@@ -615,7 +615,7 @@ function HabitsAndEntryForm({
           >
             <div className="text-center space-y-3 mb-6">
               <Bell className="w-12 h-12 text-[#756ef3] mx-auto" />
-              <h3 className="!text-[17px] !font-semibold !text-[#002055]">{currentTranslations.permissionRequest}</h3>
+              <h3 className="!text-[17px] !font-semibold !text-[#002055] dark:!text-[#1a1a1a]">{currentTranslations.permissionRequest}</h3>
             </div>
             
             <div className="flex gap-3">
@@ -859,7 +859,7 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
             >
               <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
             </motion.div>
-            <p className="!text-[16px] !text-[#002055]">{currentTranslations.successMessage}</p>
+            <p className="!text-[16px] !text-[#002055] dark:!text-[#1a1a1a]">{currentTranslations.successMessage}</p>
           </motion.div>
         </motion.div>
       )}

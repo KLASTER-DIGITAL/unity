@@ -127,8 +127,8 @@ function PersonalizationForm({ currentTranslations, onNext, onUpdate }: {
       </motion.div>
 
       {/* Main Title */}
-      <motion.div 
-        className="font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] text-[28px] tracking-[-1px] w-full" 
+      <motion.div
+        className="font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] dark:text-[#1a1a1a] text-[28px] tracking-[-1px] w-full"
         style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
         key={currentTranslations.title}
         initial={{ opacity: 0 }}

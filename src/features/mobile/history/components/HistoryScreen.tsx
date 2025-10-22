@@ -364,7 +364,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                           <CategoryIcon className="h-5 w-5 text-accent" strokeWidth={2} />
                         </div>
                         <div>
-                          <p className="!text-[14px] !font-semibold text-foreground">
+                          <p className="!text-[14px] !font-semibold text-foreground dark:text-white">
                             {entry.category}
                           </p>
                           <p className="!text-[12px] text-muted-foreground">
@@ -392,7 +392,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                       </div>
                     )}
 
-                    <p className="!text-[15px] text-foreground leading-[22px] mb-3">
+                    <p className="!text-[15px] text-foreground dark:text-white leading-[22px] mb-3">
                       {entry.text}
                     </p>
 

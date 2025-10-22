@@ -72,7 +72,8 @@ export default function App() {
       setIsAdminRoute(isAdminParam);
 
       // 🔒 SECURITY: Проверка роли при изменении маршрута
-      if (userData) {
+      // ТОЛЬКО если сессия проверена (userData !== null)
+      if (userData && !isCheckingSession) {
         const userRole = userData.profile?.role || userData.role;
 
         if (isAdminParam && userRole !== 'super_admin') {
@@ -107,7 +108,7 @@ export default function App() {
       window.removeEventListener('popstate', checkAdminRoute);
       window.removeEventListener('hashchange', checkAdminRoute);
     };
-  }, [userData]);
+  }, [userData, isCheckingSession]);
 
   // Check session on mount
   useEffect(() => {

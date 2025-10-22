@@ -222,12 +222,12 @@ export function AchievementHeader({
             <svg className="absolute w-[130px] h-[130px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 130 130">
               {/* Обводка для светлого режима - темная */}
               <circle cx="65" cy="65" r="60" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
-              {/* Обводка для темного режима - светлая */}
-              <circle cx="65" cy="65" r="60" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
+              {/* Обводка для темного режима - белая с прозрачностью 80% */}
+              <circle cx="65" cy="65" r="60" stroke="rgba(255,255,255,0.8)" strokeWidth="2" fill="none" className="dark:block hidden" />
             </svg>
 
             {/* Текст внутри кружка - центрирован с минимальным отступом */}
-            <div className="relative flex flex-col items-center justify-center gap-0.5">
+            <div className="relative flex flex-col items-center justify-center gap-0">
               <p className="!text-[44px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
