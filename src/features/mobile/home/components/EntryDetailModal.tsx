@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { type DiaryEntry } from "@/shared/lib/api";
+import { MediaPreview } from "@/features/mobile/media";
 
 interface EntryDetailModalProps {
   entry: DiaryEntry | null;
@@ -91,6 +92,13 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
                 </span>
               )}
             </div>
+
+            {/* Media Preview */}
+            {entry.media && entry.media.length > 0 && (
+              <div className="mb-4">
+                <MediaPreview media={entry.media} />
+              </div>
+            )}
 
             {/* Title */}
             {entry.text && (
