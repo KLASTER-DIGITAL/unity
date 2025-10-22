@@ -224,13 +224,13 @@ export function AchievementHeader({
           {/* Right: Days Counter - фиксированный 64x64px с отступом как у аватара */}
           <div className="relative w-[64px] h-[64px] flex-shrink-0">
             <svg className="block w-[64px] h-[64px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="30" stroke="#E0E0E0" strokeWidth="1" fill="none" />
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-muted-foreground" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="!text-[22px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="text-caption-2 text-foreground mt-0">
+              <p className="text-caption-2 text-muted-foreground mt-0">
                 День
               </p>
             </div>

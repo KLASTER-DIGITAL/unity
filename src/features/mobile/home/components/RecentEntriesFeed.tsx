@@ -129,30 +129,30 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
       {/* Горизонтальный скролл */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-3 px-4">
-          {/* Последние 3 записи - 240x140px */}
+          {/* Последние 3 записи - ФИКСИРОВАННЫЙ размер 240x140px */}
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
+              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden flex flex-col"
               onClick={() => onEntryClick?.(entry)}
             >
               {/* Время и категория */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="!text-[11px] text-muted-foreground">{formatTimeAgo(entry.createdAt)}</span>
+              <div className="flex items-center justify-between mb-2 flex-shrink-0">
+                <span className="!text-[11px] text-muted-foreground whitespace-nowrap">{formatTimeAgo(entry.createdAt)}</span>
                 <Badge
-                  className={`!text-[11px] px-2 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
+                  className={`!text-[11px] px-2 py-0.5 rounded-full flex-shrink-0 ${getSentimentColor(entry.sentiment)}`}
                 >
                   {getCategoryEmoji(entry.category)}
                 </Badge>
               </div>
 
               {/* Заголовок */}
-              <h3 className="!font-semibold text-foreground mb-1 !text-[13px] line-clamp-1">
+              <h3 className="!font-semibold text-foreground mb-1 !text-[13px] line-clamp-1 flex-shrink-0 min-w-0">
                 {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
-              {/* Превью текста с тонким градиентом затухания */}
-              <div className="relative">
+              {/* Превью текста с тонким градиентом затухания - РАСТЯГИВАЕТСЯ */}
+              <div className="relative flex-1 min-h-0">
                 <p className="!text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
                   {entry.text}
                 </p>
