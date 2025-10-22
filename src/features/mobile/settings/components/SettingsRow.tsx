@@ -118,7 +118,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
 }) => {
   return (
     <div className={cn('px-4 pt-6 pb-2', className)}>
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-3 text-center">
         {title}
       </h3>
       <div className="bg-card rounded-2xl shadow-sm border-0 overflow-hidden divide-y divide-border transition-colors duration-300">

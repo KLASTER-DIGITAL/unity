@@ -246,13 +246,6 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
   return (
     <div className="pb-20 min-h-screen bg-background">
-      {/* Header - User Name */}
-      <div className="bg-card border-b border-border pt-12 pb-6 transition-colors duration-300">
-        <h1 className="text-center text-lg font-semibold text-foreground">
-          {profile?.name || 'Мой аккаунт'}
-        </h1>
-      </div>
-
       {/* Profile Section */}
       <div className="bg-card px-6 py-8 border-b border-border transition-colors duration-300">
         <div className="flex flex-col items-center">
@@ -272,8 +265,11 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
             </button>
           </div>
 
-          {/* User Info */}
+          {/* User Info - Name and Email */}
           <div className="mt-4 text-center">
+            <h1 className="text-lg font-semibold text-foreground mb-1">
+              {profile?.name || 'Мой аккаунт'}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {profile?.email}
             </p>
