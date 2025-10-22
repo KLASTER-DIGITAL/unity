@@ -10,7 +10,7 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { Button } from '@/shared/components/ui/button';
 import { Switch } from '@/shared/components/ui/switch';
 import { Badge } from '@/shared/components/ui/badge';
-import { Bell, Send, Save, BarChart3, RotateCcw } from 'lucide-react';
+import { Bell, Send, Save, BarChart3, RotateCcw, Settings } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
 interface PushStats {
