@@ -196,31 +196,33 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
           {t.historyTitle}
         </h1>
 
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Поиск по записям..."
-            className="w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
-          />
-        </div>
+        {/* Search and Filters in one row */}
+        <div className="flex gap-3 items-center">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Поиск по записям..."
+              className="w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
+            />
+          </div>
 
-        {/* Filters Button */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-[10px] !text-[14px] !font-medium"
-        >
-          <Filter className="h-5 w-5" strokeWidth={2} />
-          {t.filters}
-          {(selectedCategory || selectedSentiment) && (
-            <span className="bg-accent text-white px-2 py-0.5 rounded-full !text-[12px]">
-              {(selectedCategory ? 1 : 0) + (selectedSentiment ? 1 : 0)}
-            </span>
-          )}
-        </button>
+          {/* Filters Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-3 bg-accent/10 text-accent rounded-[12px] !text-[14px] !font-medium hover:bg-accent/20 transition-colors flex-shrink-0"
+          >
+            <Filter className="h-5 w-5" strokeWidth={2} />
+            {(selectedCategory || selectedSentiment) && (
+              <span className="bg-accent text-white px-2 py-0.5 rounded-full !text-[12px]">
+                {(selectedCategory ? 1 : 0) + (selectedSentiment ? 1 : 0)}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Filters Panel */}
@@ -308,24 +310,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
         )}
       </AnimatePresence>
 
-      {/* Stats Bar */}
-      <div className="bg-accent/5 px-6 py-3 flex items-center justify-between">
-        <p className="!text-[13px] text-muted-foreground">
-          {t.foundEntries}: <span className="!font-semibold text-foreground">{filteredEntries.length}</span>
-        </p>
-        {(selectedCategory || selectedSentiment || searchQuery) && (
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCategory(null);
-              setSelectedSentiment(null);
-            }}
-            className="!text-[13px] text-accent !font-medium"
-          >
-            Сбросить
-          </button>
-        )}
-      </div>
+      {/* Stats Bar - REMOVED per user request */}
 
       {/* Entries List */}
       <div className="px-6 py-4">

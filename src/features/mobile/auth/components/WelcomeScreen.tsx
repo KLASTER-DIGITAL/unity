@@ -97,7 +97,8 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
         <LottiePreloader
           showMessage={false}
           minDuration={5000}
-          size="lg"
+          animationType="initial"
+          size="md"
         />
       </div>
     );

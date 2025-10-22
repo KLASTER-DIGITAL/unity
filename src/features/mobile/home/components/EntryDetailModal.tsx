@@ -110,7 +110,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
             {entry.tags && entry.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px] border border-muted-foreground/30 dark:border-muted-foreground/50">
+                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px] !font-medium border border-muted-foreground/30 dark:border-muted-foreground/50">
                     #{tag}
                   </span>
                 ))}

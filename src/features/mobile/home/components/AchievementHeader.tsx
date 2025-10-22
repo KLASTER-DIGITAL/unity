@@ -216,22 +216,22 @@ export function AchievementHeader({
             </div>
           </div>
 
-          {/* Right: Days Counter - кружок в 2 раза больше (128x128px) с обводкой */}
-          <div className="relative w-[128px] h-[128px] flex-shrink-0 flex items-center justify-center">
+          {/* Right: Days Counter - кружок в 2 раза больше (256x256px) с обводкой */}
+          <div className="relative w-[256px] h-[256px] flex-shrink-0 flex items-center justify-center">
             {/* Кружок с обводкой - видна на обоих режимах */}
-            <svg className="absolute w-[128px] h-[128px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 128 128">
+            <svg className="absolute w-[256px] h-[256px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
               {/* Обводка для светлого режима - темная */}
-              <circle cx="64" cy="64" r="60" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
+              <circle cx="128" cy="128" r="120" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
               {/* Обводка для темного режима - светлая */}
-              <circle cx="64" cy="64" r="60" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
+              <circle cx="128" cy="128" r="120" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
             </svg>
 
             {/* Текст внутри кружка */}
             <div className="relative flex flex-col items-center justify-center">
-              <p className="!text-[44px] !font-semibold text-[var(--ios-green)] leading-[1]">
+              <p className="!text-[88px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="!text-[14px] text-muted-foreground mt-1">
+              <p className="!text-[12px] text-muted-foreground mt-2">
                 День
               </p>
             </div>
