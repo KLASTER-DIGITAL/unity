@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
 import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
-import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp.tsx";
+import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
 // Import hero image directly for Vite to process
 import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp";
 
@@ -55,8 +55,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
           headers: {
             'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
           }
         });
         if (response.ok) {
@@ -106,7 +105,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
 
   return (
     <motion.div
-      className="bg-white relative w-full h-[100dvh] flex flex-col overflow-hidden scrollbar-hide"
+      className="bg-white relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -366,11 +365,11 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
           </motion.div>
         </div>
 
-        {/* Buttons Section - ФИКСИРОВАНО ВНИЗУ */}
-        <motion.div 
+        {/* Buttons Section - ПОДНЯТО ВЫШЕ для предотвращения перекрытия */}
+        <motion.div
           className="relative z-10 w-full px-6"
-          style={{ 
-            paddingBottom: 'max(env(safe-area-inset-bottom, 24px), 32px)',
+          style={{
+            paddingBottom: 'max(env(safe-area-inset-bottom, 48px), 64px)',
           }}
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

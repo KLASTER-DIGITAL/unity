@@ -221,7 +221,7 @@ export function AchievementHeader({
             </div>
           </div>
 
-          {/* Right: Days Counter - уменьшен до 64x64px */}
+          {/* Right: Days Counter - фиксированный 64x64px */}
           <div className="relative w-[64px] h-[64px] flex-shrink-0">
             <svg className="block w-[64px] h-[64px]" fill="none" preserveAspectRatio="none" viewBox="0 0 64 64">
               <circle cx="32" cy="32" r="31.5" stroke="var(--border)" />
@@ -238,27 +238,22 @@ export function AchievementHeader({
         </div>
       </div>
 
-      {/* Floating Quick Actions Button - glassmorphism, отступ от мобильного меню */}
-      <motion.button
+      {/* FAB кнопка скрыта по запросу пользователя */}
+      {/* <motion.button
         onClick={() => setShowMenu(true)}
-        className="fixed z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-        style={{
-          bottom: 'calc(7rem + var(--safe-area-bottom))', // 7rem = bottom-28
-          right: 'calc(1.5rem + var(--safe-area-right))' // 1.5rem = right-6
-        }}
+        className="fixed bottom-28 right-6 z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
         <Menu className="h-6 w-6 text-white" strokeWidth={2.5} />
       </motion.button>
 
-      {/* Quick Actions Menu */}
       <QuickActionsMenu
         isOpen={showMenu}
         onClose={() => setShowMenu(false)}
         onNavigateToHistory={onNavigateToHistory}
         onNavigateToSettings={onNavigateToSettings}
-      />
+      /> */}
     </>
   );
 }

@@ -159,7 +159,7 @@ export function MobileApp({
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-          <div className="min-h-[100dvh] bg-gray-50">
+          <div className="min-h-screen bg-background backdrop-blur-sm">
             <AuthScreen onComplete={onAuthComplete} />
             <Toaster position="top-center" />
           </div>
@@ -172,7 +172,7 @@ export function MobileApp({
   return (
     <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
       <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-        <div className="min-h-[100dvh] bg-background overflow-hidden">
+        <div className="min-h-screen bg-background backdrop-blur-sm overflow-hidden">
           <AnimatePresence mode="wait" custom={direction}>
             {activeScreen === "home" && (
               <motion.div

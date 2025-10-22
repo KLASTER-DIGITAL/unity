@@ -3,7 +3,6 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from "motion/re
 import { AchievementHeader } from "./AchievementHeader";
 import { ChatInputSection } from "./ChatInputSection";
 import { RecentEntriesFeed } from "./RecentEntriesFeed";
-import { EntryDetailModal } from "./EntryDetailModal";
 import { getEntries, getUserStats, getMotivationCards, markCardAsRead, type DiaryEntry, type MotivationCard } from "@/shared/lib/api";
 import { useTranslation, getCategoryTranslation, type Language } from "@/shared/lib/i18n";
 import { toast } from "sonner";
@@ -476,8 +475,6 @@ export function AchievementHomeScreen({
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
   const [showAllRead, setShowAllRead] = useState(true); // ✅ NEW: "Все прочитано!" visibility
-  const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
-  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const undoTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Получаем текущую дату
@@ -638,7 +635,7 @@ export function AchievementHomeScreen({
   const daysInApp = currentStreak > 0 ? currentStreak : 1;
 
   return (
-    <div className="min-h-[100dvh] bg-background pb-20 overflow-x-hidden scrollbar-hide">
+    <div className="min-h-screen bg-background pb-20 overflow-x-hidden scrollbar-hide">
       {/* Achievement Header */}
       <AchievementHeader
         userName={userName}
@@ -730,24 +727,15 @@ export function AchievementHomeScreen({
           userData={userData}
           language={userData?.language || 'ru'}
           onEntryClick={(entry) => {
-            setSelectedEntry(entry);
-            setIsEntryModalOpen(true);
+            console.log("Entry clicked:", entry);
+            // TODO: Открыть детальный просмотр записи
           }}
           onViewAllClick={() => {
+            console.log("Navigate to History");
             onNavigateToHistory?.();
           }}
         />
       )}
-
-      {/* Entry Detail Modal */}
-      <EntryDetailModal
-        entry={selectedEntry}
-        isOpen={isEntryModalOpen}
-        onClose={() => {
-          setIsEntryModalOpen(false);
-          setSelectedEntry(null);
-        }}
-      />
     </div>
   );
 }

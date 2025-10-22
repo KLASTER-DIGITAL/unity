@@ -164,7 +164,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   }
 
   return (
-    <div className="pb-20 min-h-[100dvh] overflow-x-hidden scrollbar-hide bg-background">
+    <div className="pb-20 min-h-screen overflow-x-hidden scrollbar-hide bg-background">
       {/* Header Section */}
       <div className="p-4 bg-card transition-colors duration-300">
         <div className="text-center mb-6">

@@ -54,6 +54,8 @@ export function MobileBottomNav({
       className={cn(
         // Position & Layout
         "fixed left-0 right-0 z-navigation max-w-md mx-auto",
+        // Floating effect (unless sticky)
+        stickyBottom ? "bottom-0" : "bottom-4",
         // Horizontal margins for floating effect
         stickyBottom ? "" : "mx-4",
         // Background & Border
@@ -61,7 +63,7 @@ export function MobileBottomNav({
         // Rounded corners - 16px for floating, none for sticky
         stickyBottom ? "rounded-none border-t" : "rounded-[16px] shadow-xl",
         // Padding
-        "px-2",
+        "px-2 py-3",
         // Transitions
         "transition-colors duration-300"
       )}
@@ -69,10 +71,6 @@ export function MobileBottomNav({
         // iOS-style blur effect
         WebkitBackdropFilter: "blur(20px)",
         backdropFilter: "blur(20px)",
-        // Safe area support
-        bottom: stickyBottom ? 'var(--safe-area-bottom)' : 'calc(1rem + var(--safe-area-bottom))',
-        paddingTop: '0.75rem',
-        paddingBottom: stickyBottom ? 'calc(0.75rem + var(--safe-area-bottom))' : '0.75rem'
       }}
     >
       <div className="flex justify-around items-center gap-1">
