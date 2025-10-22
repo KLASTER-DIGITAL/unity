@@ -193,7 +193,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       {/* Header */}
       <div className="bg-card border-b border-border px-6 pt-16 pb-4 transition-colors duration-300">
         <h1 className="!text-[28px] !font-semibold text-foreground mb-4">
-          {t.historyTitle}
+          {t('historyTitle', 'История')}
         </h1>
 
         {/* Search and Filters in one row */}

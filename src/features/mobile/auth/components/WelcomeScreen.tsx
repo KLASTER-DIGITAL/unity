@@ -457,7 +457,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                     setSelectedLanguage(language.code);
                     setShowDropdown(false);
                     // ✅ FIX: Вызываем changeLanguage для переключения языка в i18n системе
-                    await changeLanguage(language.code);
+                    await changeLanguage(language.code as any);
                   }}
                   className="w-full flex items-center justify-between pl-[22px] pr-[13px] h-14 text-left hover:bg-accent/5 active:bg-accent/10 transition-colors"
                   style={{
