@@ -81,9 +81,9 @@
 - Добавлена задача TASK-010 в BACKLOG.md: Улучшение тестовых данных для демо-аккаунта
 
 **Детали**:
-- [2025-10-21_docs_structure_reorganization.md](2025-10-21_docs_structure_reorganization.md)
-- [2025-10-21_links_update_report.md](2025-10-21_links_update_report.md)
-- [testing/TEST_ACCOUNTS.md](../testing/TEST_ACCOUNTS.md)
+- [2025-10-21_docs_structure_reorganization.md](changelog/archive/2025-10-21_docs_structure_reorganization.md)
+- [2025-10-21_links_update_report.md](changelog/archive/2025-10-21_links_update_report.md)
+- [testing/TEST_ACCOUNTS.md](testing/TEST_ACCOUNTS.md)
 
 ---
 
