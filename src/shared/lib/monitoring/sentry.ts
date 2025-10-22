@@ -56,14 +56,14 @@ export function initSentry() {
           maskAllText: true,
           blockAllMedia: true,
         }),
-        
-        // Feedback для сбора отзывов пользователей
-        // autoInject: false - не показывать автоматически, только вручную
-        Sentry.feedbackIntegration({
-          colorScheme: 'system',
-          showBranding: false,
-          autoInject: false, // Отключаем автоматический показ
-        }),
+
+        // Feedback ОТКЛЮЧЕН - вызывает ошибку "Error invoking post: Method not found"
+        // Fixes UNITY-V2-B
+        // Sentry.feedbackIntegration({
+        //   colorScheme: 'system',
+        //   showBranding: false,
+        //   autoInject: false,
+        // }),
       ],
 
       // Performance Monitoring
@@ -310,48 +310,43 @@ export const withProfiler = Sentry.withProfiler;
 /**
  * Показать Sentry Feedback виджет вручную
  *
- * Используется только на странице настроек/профиля
+ * ОТКЛЮЧЕНО - Feedback интеграция вызывает ошибку "Error invoking post: Method not found"
+ * Fixes UNITY-V2-B
  *
- * @param openForm - Если true, открывает форму сразу в раскрытом состоянии
- *
- * @example
- * import { showFeedbackWidget } from '@/shared/lib/monitoring/sentry';
- * // Открыть форму сразу
- * showFeedbackWidget(true);
- * // Показать только иконку виджета
- * showFeedbackWidget(false);
+ * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function showFeedbackWidget(openForm: boolean = false) {
-  if (import.meta.env.PROD) {
-    const feedback = Sentry.getFeedback();
-    if (feedback) {
-      if (openForm) {
-        // Открываем форму сразу в раскрытом состоянии
-        feedback.openDialog();
-      } else {
-        // Показываем только иконку виджета
-        feedback.createWidget();
-      }
-    }
-  } else {
-    console.log('ℹ️ [Sentry Feedback] Доступен только в production', { openForm });
-  }
+  console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
+  // if (import.meta.env.PROD) {
+  //   const feedback = Sentry.getFeedback();
+  //   if (feedback) {
+  //     if (openForm) {
+  //       feedback.openDialog();
+  //     } else {
+  //       feedback.createWidget();
+  //     }
+  //   }
+  // } else {
+  //   console.log('ℹ️ [Sentry Feedback] Доступен только в production', { openForm });
+  // }
 }
 
 /**
  * Скрыть Sentry Feedback виджет
  *
- * @example
- * import { hideFeedbackWidget } from '@/shared/lib/monitoring/sentry';
- * hideFeedbackWidget();
+ * ОТКЛЮЧЕНО - Feedback интеграция вызывает ошибку "Error invoking post: Method not found"
+ * Fixes UNITY-V2-B
+ *
+ * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function hideFeedbackWidget() {
-  if (import.meta.env.PROD) {
-    const feedback = Sentry.getFeedback();
-    if (feedback) {
-      feedback.removeWidget();
-    }
-  }
+  console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
+  // if (import.meta.env.PROD) {
+  //   const feedback = Sentry.getFeedback();
+  //   if (feedback) {
+  //     feedback.removeWidget();
+  //   }
+  // }
 }
 
 // Re-export Sentry для прямого использования если нужно
