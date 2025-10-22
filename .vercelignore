@@ -40,7 +40,6 @@ Thumbs.db
 
 # Build artifacts (keep only source)
 dist/
-build/
 .next/
 
 # Supabase
