@@ -1,0 +1,52 @@
+# Documentation
+docs/
+README.md
+CHANGELOG.md
+FIX.md
+ROADMAP.md
+BACKLOG.md
+RECOMMENDATIONS.md
+
+# Development
+.git
+.gitignore
+.env.local
+.env.*.local
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Testing
+vitest.config.ts
+playwright.config.ts
+coverage/
+.test-cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Build artifacts (keep only source)
+dist/
+build/
+.next/
+
+# Supabase
+supabase/migrations/
+supabase/seed.sql
+
+# Scripts
+scripts/
+
