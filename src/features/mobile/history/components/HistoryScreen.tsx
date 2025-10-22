@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/shared/lib/i18n";
 import { MediaPreview } from "@/features/mobile/media"; // ✅ NEW: Import MediaPreview
 import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
+import { Confetti } from "@/shared/components/Confetti";
 import {
   Search,
   Filter,
@@ -566,6 +567,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       <AnimatePresence>
         {showSuccessModal && (
           <>
+            <Confetti trigger={showSuccessModal} duration={2000} particleCount={80} />
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

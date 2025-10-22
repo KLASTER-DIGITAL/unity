@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, CheckCircle2, Clock } from "lucide-react";
 import { useSpeechRecognition } from "@/components/hooks/useSpeechRecognition";
 import { TimePickerModal } from "@/components/TimePickerModal";
+import { Confetti } from "@/shared/components/Confetti";
 
 interface OnboardingScreen4Props {
   selectedLanguage: string;
@@ -840,28 +841,31 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
 
       {/* Success Modal */}
       {showSuccess && (
-        <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 pb-24 scrollbar-hide"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
+        <>
+          <Confetti trigger={showSuccess} duration={2000} particleCount={80} />
           <motion.div
-            className="bg-card rounded-xl p-6 space-y-4 w-[300px] mx-4 text-center border border-border transition-colors duration-300"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 pb-24 scrollbar-hide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+              className="bg-card rounded-xl p-6 space-y-4 w-[300px] mx-4 text-center border border-border transition-colors duration-300"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+              >
+                <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+              </motion.div>
+              <p className="!text-[16px] !text-[#002055] dark:!text-[#1a1a1a]">{currentTranslations.successMessage}</p>
             </motion.div>
-            <p className="!text-[16px] !text-[#002055] dark:!text-[#1a1a1a]">{currentTranslations.successMessage}</p>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </motion.div>
   );
