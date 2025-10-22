@@ -98,7 +98,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
           showMessage={false}
           minDuration={5000}
           animationType="initial"
-          size="md"
+          size="sm"
         />
       </div>
     );

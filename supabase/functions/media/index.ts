@@ -207,13 +207,30 @@ async function handleRequest(req: Request): Promise<Response> {
       let signedUrl = '';
       if (signedUrlResponse.ok) {
         const signedUrlData = await signedUrlResponse.json();
-        const relativePath = signedUrlData.signedURL || '';
+        console.log(`[MEDIA v7] 📋 Signed URL response:`, signedUrlData);
+
+        // Try different possible field names for the signed URL
+        const relativePath = signedUrlData.signedURL || signedUrlData.signed_url || signedUrlData.url || '';
+
         // Convert relative path to full URL
-        signedUrl = relativePath ? `${supabaseUrl}/storage/v1${relativePath}` : '';
-        console.log(`[MEDIA v6] ✅ Step 2 complete: Signed URL created`);
-        console.log(`[MEDIA v6] 🔗 Full URL: ${signedUrl}`);
+        if (relativePath) {
+          // If it's already a full URL, use it as-is
+          if (relativePath.startsWith('http')) {
+            signedUrl = relativePath;
+          } else {
+            // Otherwise, prepend the Supabase URL
+            signedUrl = `${supabaseUrl}/storage/v1${relativePath}`;
+          }
+        }
+
+        console.log(`[MEDIA v7] ✅ Step 2 complete: Signed URL created`);
+        console.log(`[MEDIA v7] 🔗 Full URL: ${signedUrl}`);
       } else {
-        console.warn(`[MEDIA v6] ⚠️ Step 2 warning: Signed URL creation failed, continuing...`);
+        const errorText = await signedUrlResponse.text();
+        console.warn(`[MEDIA v7] ⚠️ Step 2 warning: Signed URL creation failed (${signedUrlResponse.status}):`, errorText);
+        // Fallback: Create a public URL directly
+        signedUrl = `${supabaseUrl}/storage/v1/object/public/${MEDIA_BUCKET_NAME}/${uniqueFileName}`;
+        console.log(`[MEDIA v7] 🔗 Using fallback public URL: ${signedUrl}`);
       }
 
       // ШАГ 3: Сохраняем метаданные в PostgreSQL

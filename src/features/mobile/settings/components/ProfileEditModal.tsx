@@ -137,14 +137,23 @@ export function ProfileEditModal({
       // Upload avatar if changed
       if (avatarFile) {
         try {
+          console.log('📸 [PROFILE] Uploading avatar...');
           const mediaFile = await uploadMedia(avatarFile, profile.id);
+          console.log('📸 [PROFILE] Upload response:', mediaFile);
+
           if (mediaFile && mediaFile.url) {
             uploadedAvatarUrl = mediaFile.url;
+            console.log('📸 [PROFILE] Avatar URL set:', uploadedAvatarUrl);
+          } else {
+            console.warn('📸 [PROFILE] No URL in response:', mediaFile);
+            toast.error('Ошибка загрузки фото', {
+              description: 'Не удалось получить URL фото. Профиль будет сохранен без нового фото'
+            });
           }
-        } catch (uploadError) {
-          console.error('Avatar upload error:', uploadError);
+        } catch (uploadError: any) {
+          console.error('📸 [PROFILE] Avatar upload error:', uploadError);
           toast.error('Ошибка загрузки фото', {
-            description: 'Профиль будет сохранен без нового фото'
+            description: uploadError.message || 'Профиль будет сохранен без нового фото'
           });
         }
       }

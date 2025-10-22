@@ -216,22 +216,22 @@ export function AchievementHeader({
             </div>
           </div>
 
-          {/* Right: Days Counter - кружок в 2 раза больше (256x256px) с обводкой */}
-          <div className="relative w-[256px] h-[256px] flex-shrink-0 flex items-center justify-center">
+          {/* Right: Days Counter - оптимальный размер кружка (130x130px) */}
+          <div className="relative w-[130px] h-[130px] flex-shrink-0 flex items-center justify-center">
             {/* Кружок с обводкой - видна на обоих режимах */}
-            <svg className="absolute w-[256px] h-[256px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 256">
+            <svg className="absolute w-[130px] h-[130px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 130 130">
               {/* Обводка для светлого режима - темная */}
-              <circle cx="128" cy="128" r="120" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
+              <circle cx="65" cy="65" r="60" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
               {/* Обводка для темного режима - светлая */}
-              <circle cx="128" cy="128" r="120" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
+              <circle cx="65" cy="65" r="60" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
             </svg>
 
-            {/* Текст внутри кружка */}
-            <div className="relative flex flex-col items-center justify-center">
-              <p className="!text-[88px] !font-semibold text-[var(--ios-green)] leading-[1]">
+            {/* Текст внутри кружка - центрирован с минимальным отступом */}
+            <div className="relative flex flex-col items-center justify-center gap-0.5">
+              <p className="!text-[44px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="!text-[12px] text-muted-foreground mt-2">
+              <p className="!text-[10px] text-muted-foreground leading-[1]">
                 День
               </p>
             </div>

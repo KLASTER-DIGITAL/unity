@@ -238,9 +238,25 @@ export function ChatInputSection({
 
       } catch (error: any) {
         console.error('Transcription error:', error);
-        toast.error("Ошибка распознавания", { 
+
+        // Более информативные сообщения об ошибках
+        let errorMessage = "Ошибка распознавания";
+        let errorDescription = error.message;
+
+        if (error.message?.includes('OpenAI API key')) {
+          errorMessage = "Сервис недоступен";
+          errorDescription = "Администратор не настроил OpenAI API. Попробуйте позже.";
+        } else if (error.message?.includes('Transcription failed')) {
+          errorMessage = "Ошибка распознавания";
+          errorDescription = "Не удалось распознать речь. Попробуйте еще раз.";
+        } else if (error.message?.includes('No active session')) {
+          errorMessage = "Ошибка авторизации";
+          errorDescription = "Пожалуйста, перезагрузите приложение.";
+        }
+
+        toast.error(errorMessage, {
           id: 'transcribing',
-          description: error.message 
+          description: errorDescription
         });
       } finally {
         setIsTranscribing(false);

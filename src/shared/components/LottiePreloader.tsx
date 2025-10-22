@@ -33,6 +33,10 @@ interface LottiePreloaderProps {
   /**
    * Размер анимации
    * @default "md"
+   * sm: 96x96px (w-24 h-24)
+   * md: 128x128px (w-32 h-32)
+   * lg: 192x192px (w-48 h-48)
+   * xl: 256x256px (w-64 h-64)
    */
   size?: 'sm' | 'md' | 'lg' | 'xl';
 
