@@ -478,14 +478,14 @@
     width: 100%;
     max-width: 100vw;
     position: relative;
-    overflow-x: hidden;
+    /* FIXED: Removed overflow-x: hidden to allow vertical scrolling */
   }
 
   html {
     width: 100%;
     max-width: 100vw;
     position: relative;
-    overflow-x: hidden;
+    /* FIXED: Removed overflow-x: hidden to allow vertical scrolling */
   }
 }
 
