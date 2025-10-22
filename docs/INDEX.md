@@ -78,9 +78,11 @@
 - [I18N_TYPESCRIPT_TYPES_GUIDE.md](i18n/I18N_TYPESCRIPT_TYPES_GUIDE.md) - TypeScript типы
 
 ### ⚡ Производительность
+- [MONITORING_AND_SCALING_STRATEGY.md](performance/MONITORING_AND_SCALING_STRATEGY.md) - 🚀 **стратегия мониторинга и масштабирования до 100K пользователей**
+- [QUERY_PERFORMANCE_MONITORING.md](performance/QUERY_PERFORMANCE_MONITORING.md) - мониторинг производительности запросов
+- [PERFORMANCE_OPTIMIZATION_REPORT.md](performance/PERFORMANCE_OPTIMIZATION_REPORT.md) - отчет оптимизации бандла
 - [PERFORMANCE_OPTIMIZATION_COMPLETE.md](archive/completed/2025-10/performance/PERFORMANCE_OPTIMIZATION_COMPLETE.md) - полный отчет
 - [PERFORMANCE_FINAL_REPORT.md](archive/completed/2025-10/performance/PERFORMANCE_FINAL_REPORT.md) - финальный отчет
-- [PERFORMANCE_OPTIMIZATION_REPORT.md](performance/PERFORMANCE_OPTIMIZATION_REPORT.md) - отчет оптимизации
 - [performance-optimization.md](plan/tasks/planned/performance-optimization.md) - план задачи
 
 ### ✅ Тестирование
