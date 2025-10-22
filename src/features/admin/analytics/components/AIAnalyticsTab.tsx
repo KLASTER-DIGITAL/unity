@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Brain, TrendingUp, DollarSign, Zap, RefreshCw, Download, Calendar } from "lucide-react";
+import { Brain, TrendingUp, DollarSign, Zap, RefreshCw, Download, Calendar, AlertTriangle, Lightbulb, TrendingDown, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { toast } from "sonner";
 import {
   Table,
@@ -47,6 +48,20 @@ interface AIStats {
   dailyUsage: Array<{ date: string; requests: number; cost: number; tokens: number }>;
 }
 
+interface AIRecommendation {
+  type: 'warning' | 'info' | 'success';
+  title: string;
+  description: string;
+  impact?: string;
+}
+
+interface CostForecast {
+  nextMonth: number;
+  nextQuarter: number;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  percentageChange: number;
+}
+
 
 
 export function AIAnalyticsTab() {
@@ -63,6 +78,8 @@ export function AIAnalyticsTab() {
     dailyUsage: []
   });
   const [period, setPeriod] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
+  const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
+  const [forecast, setForecast] = useState<CostForecast | null>(null);
 
   useEffect(() => {
     loadAIAnalytics();
@@ -162,7 +179,7 @@ export function AIAnalyticsTab() {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         .slice(-14); // Last 14 days
 
-      setStats({
+      const newStats = {
         totalRequests,
         totalTokens,
         totalCost,
@@ -171,7 +188,17 @@ export function AIAnalyticsTab() {
         operationBreakdown,
         modelBreakdown,
         dailyUsage
-      });
+      };
+
+      setStats(newStats);
+
+      // Generate recommendations
+      const recs = generateRecommendations(newStats);
+      setRecommendations(recs);
+
+      // Calculate forecast
+      const forecastData = calculateForecast(dailyUsage);
+      setForecast(forecastData);
 
       toast.success('AI аналитика загружена');
     } catch (error: any) {
@@ -203,6 +230,89 @@ export function AIAnalyticsTab() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success('CSV файл экспортирован');
+  };
+
+  const generateRecommendations = (stats: AIStats): AIRecommendation[] => {
+    const recs: AIRecommendation[] = [];
+
+    // High cost alert
+    if (stats.totalCost > 100) {
+      recs.push({
+        type: 'warning',
+        title: 'Высокие расходы на AI',
+        description: `Общая стоимость за период составляет $${stats.totalCost.toFixed(2)}. Рекомендуем оптимизировать использование API.`,
+        impact: 'Критично'
+      });
+    }
+
+    // Expensive model usage
+    const expensiveModels = stats.modelBreakdown.filter(m =>
+      m.model.includes('gpt-4') && m.requests > stats.totalRequests * 0.5
+    );
+    if (expensiveModels.length > 0) {
+      recs.push({
+        type: 'info',
+        title: 'Оптимизация моделей',
+        description: 'Более 50% запросов используют дорогие модели GPT-4. Рассмотрите использование GPT-3.5-turbo для простых задач.',
+        impact: 'Экономия до 90%'
+      });
+    }
+
+    // High average cost per request
+    if (stats.avgCostPerRequest > 0.05) {
+      recs.push({
+        type: 'warning',
+        title: 'Высокая средняя стоимость запроса',
+        description: `Средняя стоимость запроса $${stats.avgCostPerRequest.toFixed(4)} выше нормы. Проверьте размеры промптов и контекста.`,
+        impact: 'Средне'
+      });
+    }
+
+    // Low usage - good news
+    if (stats.totalCost < 10 && stats.totalRequests > 0) {
+      recs.push({
+        type: 'success',
+        title: 'Эффективное использование',
+        description: 'Расходы на AI находятся в пределах нормы. Продолжайте в том же духе!',
+        impact: 'Отлично'
+      });
+    }
+
+    // No usage
+    if (stats.totalRequests === 0) {
+      recs.push({
+        type: 'info',
+        title: 'Нет активности',
+        description: 'За выбранный период не было AI запросов. Убедитесь, что API настроен корректно.',
+        impact: 'Информация'
+      });
+    }
+
+    return recs;
+  };
+
+  const calculateForecast = (dailyUsage: Array<{ date: string; cost: number }>): CostForecast | null => {
+    if (dailyUsage.length < 7) return null;
+
+    // Calculate average daily cost for last 7 days
+    const last7Days = dailyUsage.slice(-7);
+    const avgDailyCost = last7Days.reduce((sum, day) => sum + day.cost, 0) / 7;
+
+    // Calculate trend
+    const first3Days = last7Days.slice(0, 3).reduce((sum, day) => sum + day.cost, 0) / 3;
+    const last3Days = last7Days.slice(-3).reduce((sum, day) => sum + day.cost, 0) / 3;
+    const percentageChange = first3Days > 0 ? ((last3Days - first3Days) / first3Days) * 100 : 0;
+
+    let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
+    if (percentageChange > 10) trend = 'increasing';
+    else if (percentageChange < -10) trend = 'decreasing';
+
+    return {
+      nextMonth: avgDailyCost * 30,
+      nextQuarter: avgDailyCost * 90,
+      trend,
+      percentageChange
+    };
   };
 
   return (
@@ -309,6 +419,130 @@ export function AIAnalyticsTab() {
                 <Brain className="w-5 h-5 text-orange-500" />
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* AI Recommendations & Forecast */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* AI Recommendations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="!text-[17px] flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-yellow-500" />
+              AI Рекомендации
+            </CardTitle>
+            <CardDescription className="!text-[13px] !font-normal">
+              Автоматические рекомендации по оптимизации
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recommendations.length === 0 ? (
+              <p className="text-center text-muted-foreground !text-[13px] py-8">
+                Загрузите данные для получения рекомендаций
+              </p>
+            ) : (
+              recommendations.map((rec, index) => (
+                <Alert
+                  key={index}
+                  variant={rec.type === 'warning' ? 'destructive' : 'default'}
+                  className={
+                    rec.type === 'success'
+                      ? 'border-green-500/50 bg-green-500/10'
+                      : rec.type === 'info'
+                      ? 'border-blue-500/50 bg-blue-500/10'
+                      : ''
+                  }
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle className="!text-[14px] !font-semibold">
+                    {rec.title}
+                    {rec.impact && (
+                      <Badge variant="outline" className="ml-2 !text-[11px]">
+                        {rec.impact}
+                      </Badge>
+                    )}
+                  </AlertTitle>
+                  <AlertDescription className="!text-[13px] !font-normal">
+                    {rec.description}
+                  </AlertDescription>
+                </Alert>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Cost Forecast */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="!text-[17px] flex items-center gap-2">
+              <Target className="w-5 h-5 text-purple-500" />
+              Прогноз затрат
+            </CardTitle>
+            <CardDescription className="!text-[13px] !font-normal">
+              Прогнозирование расходов на основе текущих трендов
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!forecast ? (
+              <p className="text-center text-muted-foreground !text-[13px] py-8">
+                Недостаточно данных для прогноза (минимум 7 дней)
+              </p>
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="!text-[13px] text-muted-foreground">Следующий месяц</span>
+                    <span className="!text-[20px] !font-bold text-foreground">
+                      ${forecast.nextMonth.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {forecast.trend === 'increasing' ? (
+                      <>
+                        <TrendingUp className="w-4 h-4 text-red-500" />
+                        <span className="!text-[12px] text-red-500">
+                          Рост {Math.abs(forecast.percentageChange).toFixed(1)}%
+                        </span>
+                      </>
+                    ) : forecast.trend === 'decreasing' ? (
+                      <>
+                        <TrendingDown className="w-4 h-4 text-green-500" />
+                        <span className="!text-[12px] text-green-500">
+                          Снижение {Math.abs(forecast.percentageChange).toFixed(1)}%
+                        </span>
+                      </>
+                    ) : (
+                      <span className="!text-[12px] text-muted-foreground">
+                        Стабильно
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="!text-[13px] text-muted-foreground">Следующий квартал</span>
+                    <span className="!text-[20px] !font-bold text-foreground">
+                      ${forecast.nextQuarter.toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="!text-[12px] text-muted-foreground">
+                    Прогноз на 90 дней при текущем уровне использования
+                  </p>
+                </div>
+
+                {forecast.trend === 'increasing' && forecast.percentageChange > 20 && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle className="!text-[14px]">Внимание!</AlertTitle>
+                    <AlertDescription className="!text-[13px]">
+                      Расходы растут быстрыми темпами. Рекомендуем пересмотреть стратегию использования AI.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -1,10 +1,3 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import svgPaths from "@/imports/svg-wgvq4zqu0u";
-import {
-  BookOpen,
-  Settings
-} from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 
 interface AchievementHeaderProps {
@@ -20,7 +13,7 @@ interface AchievementHeaderProps {
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 // Компонент аватарки с пульсацией онлайн-статуса
-function UserAvatar({ userName, userEmail, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
+function UserAvatar({ userName, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
   // Используем дефолтное фото если нет аватара
   const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
 
@@ -48,144 +41,12 @@ function UserAvatar({ userName, userEmail, avatarUrl, onClick }: { userName?: st
   );
 }
 
-// Компонент иконки категории (4 квадратика)
-function CategoryIcon() {
-  return (
-    <div className="absolute inset-[12.5%]">
-      <div className="absolute inset-[-5%]">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 17 17">
-          <g>
-            <path
-              clipRule="evenodd"
-              d={svgPaths.p30955100}
-              fillRule="evenodd"
-              stroke="var(--icon-primary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-            <path
-              clipRule="evenodd"
-              d={svgPaths.p2ab2d180}
-              fillRule="evenodd"
-              stroke="var(--icon-primary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-            <path
-              clipRule="evenodd"
-              d={svgPaths.p2d147e00}
-              fillRule="evenodd"
-              stroke="var(--icon-primary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-            <path
-              clipRule="evenodd"
-              d={svgPaths.p3a3f5900}
-              fillRule="evenodd"
-              stroke="var(--icon-primary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-            />
-          </g>
-        </svg>
-      </div>
-    </div>
-  );
-}
-
-// Модальное окно быстрых действий
-function QuickActionsMenu({
-  isOpen,
-  onClose,
-  onNavigateToHistory,
-  onNavigateToSettings
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onNavigateToHistory?: () => void;
-  onNavigateToSettings?: () => void;
-}) {
-  const quickActions = [
-    {
-      icon: BookOpen,
-      label: "История записей",
-      color: "bg-[var(--action-history)]",
-      action: () => {
-        onNavigateToHistory?.();
-        onClose();
-      }
-    },
-    {
-      icon: Settings,
-      label: "Настройки",
-      color: "bg-[var(--action-settings)]",
-      action: () => {
-        onNavigateToSettings?.();
-        onClose();
-      }
-    }
-  ];
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-          />
-          
-          {/* Menu - без заголовка "Быстрые действия" */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-modal bg-card rounded-[24px] shadow-2xl p-modal w-[280px] border border-border transition-colors duration-300"
-            style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
-          >
-            <div className="space-y-2">
-              {quickActions.map((action, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={action.action}
-                  className="w-full flex items-center gap-responsive-sm p-row rounded-[12px] hover:bg-muted transition-colors active:scale-95"
-                >
-                  <div className={`${action.color} w-10 h-10 rounded-[10px] flex items-center justify-center`}>
-                    <action.icon className="h-5 w-5 text-white" strokeWidth={2} />
-                  </div>
-                  <span className="text-subhead text-foreground">{action.label}</span>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
-
 export function AchievementHeader({
   userName = "Пользователь",
   daysInApp = 1,
-  userEmail,
   avatarUrl,
-  onNavigateToSettings,
-  onNavigateToHistory
+  onNavigateToSettings
 }: AchievementHeaderProps) {
-  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <>
@@ -197,7 +58,6 @@ export function AchievementHeader({
             {/* Avatar with online pulse - клик переходит в настройки */}
             <UserAvatar
               userName={userName}
-              userEmail={userEmail}
               avatarUrl={avatarUrl}
               onClick={onNavigateToSettings}
             />

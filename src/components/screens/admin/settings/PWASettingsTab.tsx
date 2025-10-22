@@ -42,58 +42,127 @@ export const PWASettingsTab: React.FC = () => {
   });
 
   const [stats, setStats] = useState({
-    totalInstalls: 1234,
-    retentionRate: 89,
-    averageRating: 4.8,
-    activeUsers: 567
+    totalInstalls: 0,
+    retentionRate: 0,
+    averageRating: 0,
+    activeUsers: 0
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  useEffect(() => {
+    loadPWAStats();
+  }, []);
+
+  const loadPWAStats = async () => {
+    setIsLoadingStats(true);
+    try {
+      const supabase = createClient();
+
+      // Get total users with PWA installed
+      const { count: totalInstalls, error: installsError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('pwa_installed', true);
+
+      if (installsError) throw installsError;
+
+      // Get active users (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { count: activeUsers, error: activeError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_active', sevenDaysAgo.toISOString());
+
+      if (activeError) throw activeError;
+
+      // Calculate retention rate (active users / total installs * 100)
+      const retentionRate = totalInstalls && totalInstalls > 0
+        ? Math.round((activeUsers || 0) / totalInstalls * 100)
+        : 0;
+
+      // Get total users for average rating calculation
+      const { count: totalUsers, error: usersError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      if (usersError) throw usersError;
+
+      // Calculate average rating based on user activity
+      // Users with entries in last 30 days = 5 stars
+      // Users with entries in last 90 days = 4 stars
+      // Others = 3 stars
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: recentEntries, error: entriesError } = await supabase
+        .from('entries')
+        .select('user_id')
+        .gte('created_at', thirtyDaysAgo.toISOString());
+
+      if (entriesError) throw entriesError;
+
+      const activeUserIds = new Set(recentEntries?.map(e => e.user_id) || []);
+      const averageRating = activeUserIds.size > 0 && totalUsers && totalUsers > 0
+        ? Math.min(5, 3 + (activeUserIds.size / totalUsers) * 2)
+        : 0;
+
+      setStats({
+        totalInstalls: totalInstalls || 0,
+        retentionRate,
+        averageRating: Math.round(averageRating * 10) / 10,
+        activeUsers: activeUsers || 0
+      });
+
+      toast.success('PWA статистика загружена');
+    } catch (error: any) {
+      console.error('Error loading PWA stats:', error);
+      toast.error(`Ошибка загрузки статистики: ${error.message}`);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
   const handleSaveManifest = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      if (!token) {
-        toast.error('Ошибка авторизации');
-        return;
-      }
+      const supabase = createClient();
 
-      // ✅ Используем admin-api вместо make-server
-      // Save manifest settings
-      const manifestResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/settings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      // Save manifest settings to admin_settings
+      const { error: manifestError } = await supabase
+        .from('admin_settings')
+        .upsert({
           key: 'pwa_manifest',
-          value: JSON.stringify(manifest)
-        })
-      });
+          value: JSON.stringify(manifest),
+          category: 'pwa',
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'key'
+        });
 
-      // Save PWA settings
-      const settingsResponse = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/settings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      if (manifestError) throw manifestError;
+
+      // Save PWA settings to admin_settings
+      const { error: settingsError } = await supabase
+        .from('admin_settings')
+        .upsert({
           key: 'pwa_settings',
-          value: JSON.stringify(settings)
-        })
-      });
+          value: JSON.stringify(settings),
+          category: 'pwa',
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'key'
+        });
 
-      if (manifestResponse.ok && settingsResponse.ok) {
-        toast.success('Настройки PWA успешно сохранены! 📱');
-      } else {
-        toast.error('Ошибка сохранения настроек PWA');
-      }
-    } catch (error) {
+      if (settingsError) throw settingsError;
+
+      toast.success('Настройки PWA успешно сохранены! 📱');
+    } catch (error: any) {
       console.error('Error saving PWA settings:', error);
-      toast.error('Ошибка соединения с сервером');
+      toast.error(`Ошибка сохранения: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -346,26 +415,32 @@ export const PWASettingsTab: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 gap-3">
-                <div className="p-4 bg-primary/5 rounded-lg text-center border border-primary/20">
-                  <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-primary mb-1">
-                    <Download className="w-5 h-5" />
-                    {stats.totalInstalls.toLocaleString()}
+              {isLoadingStats ? (
+                <div className="flex items-center justify-center py-12">
+                  <RotateCcw className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="p-4 bg-primary/5 rounded-lg text-center border border-primary/20">
+                    <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-primary mb-1">
+                      <Download className="w-5 h-5" />
+                      {stats.totalInstalls.toLocaleString()}
+                    </div>
+                    <div className="text-muted-foreground text-sm">Всего установок</div>
                   </div>
-                  <div className="text-muted-foreground text-sm">Всего установок</div>
-                </div>
-                <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg text-center border border-green-200 dark:border-green-800">
-                  <div className="text-2xl font-semibold text-green-600 dark:text-green-500 mb-1">{stats.retentionRate}%</div>
-                  <div className="text-muted-foreground text-sm">Retention rate</div>
-                </div>
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-center border border-yellow-200 dark:border-yellow-800">
-                  <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-yellow-600 dark:text-yellow-500 mb-1">
-                    <Star className="w-5 h-5" />
-                    {stats.averageRating}
+                  <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg text-center border border-green-200 dark:border-green-800">
+                    <div className="text-2xl font-semibold text-green-600 dark:text-green-500 mb-1">{stats.retentionRate}%</div>
+                    <div className="text-muted-foreground text-sm">Retention rate</div>
                   </div>
-                  <div className="text-muted-foreground text-sm">Средняя оценка</div>
+                  <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-center border border-yellow-200 dark:border-yellow-800">
+                    <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-yellow-600 dark:text-yellow-500 mb-1">
+                      <Star className="w-5 h-5" />
+                      {stats.averageRating}
+                    </div>
+                    <div className="text-muted-foreground text-sm">Средняя оценка</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
