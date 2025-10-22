@@ -71,7 +71,7 @@ export function UsersManagementTab() {
         registeredAt: user.createdAt,
         lastActive: user.lastActivity,
         entriesCount: user.entriesCount,
-        streak: 0 // TODO: добавить streak в API
+        streak: user.currentStreak || 0 // ✅ FIXED: Use currentStreak from API
       }));
       
       setUsers(formattedUsers);
@@ -152,6 +152,7 @@ export function UsersManagementTab() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                autoComplete="off"
               />
             </div>
             <div className="flex gap-2">

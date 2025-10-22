@@ -161,13 +161,13 @@ Deno.serve(async (req) => {
     if (endpoint === 'users' && req.method === 'GET') {
       // ✅ FIX N+1: Используем один запрос с подсчетом через SQL
       // Вместо 1 + N запросов (где N = количество пользователей)
-      // делаем 1 запрос с LEFT JOIN и COUNT
+      // делаем 1 запрос с LEFT JOIN и COUNT + streak calculation
       const { data: usersRaw, error } = await supabaseAdmin
-        .rpc('get_users_with_entries_count');
+        .rpc('get_users_with_stats');
 
       if (error) {
         // Fallback на старый метод если RPC функция не существует
-        console.warn('⚠️ RPC function get_users_with_entries_count not found, using fallback');
+        console.warn('⚠️ RPC function get_users_with_stats not found, using fallback');
 
         const { data: users, error: usersError } = await supabaseAdmin
           .from('profiles')
@@ -202,8 +202,29 @@ Deno.serve(async (req) => {
         );
       }
 
+      // ✅ FIX: Map snake_case to camelCase for frontend
+      const usersFormatted = (usersRaw || []).map((user: any) => ({
+        ...user,
+        entriesCount: user.entries_count || 0,
+        currentStreak: user.current_streak || 0, // ✅ NEW: Add streak
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+        isPremium: user.is_premium,
+        diaryName: user.diary_name,
+        diaryEmoji: user.diary_emoji,
+        notificationSettings: user.notification_settings,
+        onboardingCompleted: user.onboarding_completed,
+        telegramId: user.telegram_id,
+        telegramUsername: user.telegram_username,
+        telegramAvatar: user.telegram_avatar,
+        biometricEnabled: user.biometric_enabled,
+        backupEnabled: user.backup_enabled,
+        firstDayOfWeek: user.first_day_of_week,
+        privacySettings: user.privacy_settings
+      }));
+
       return new Response(
-        JSON.stringify({ success: true, users: usersRaw }),
+        JSON.stringify({ success: true, users: usersFormatted, total: usersFormatted.length }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

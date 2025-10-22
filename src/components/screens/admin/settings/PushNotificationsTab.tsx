@@ -3,6 +3,14 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '../../../../shared/components/SimpleChart';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Button } from '@/shared/components/ui/button';
+import { Switch } from '@/shared/components/ui/switch';
+import { Badge } from '@/shared/components/ui/badge';
+import { Bell, Send, Save, BarChart3, Star, Settings, Users } from 'lucide-react';
 
 const notificationStats = [
   { metric: 'Отправлено', value: 12345, color: '#3b82f6' },
@@ -113,294 +121,276 @@ export const PushNotificationsTab: React.FC = () => {
   };
 
   return (
-    <div className="admin-space-y-8">
+    <div className="space-y-6">
       {/* Заголовок раздела */}
-      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
-        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
-          🔔
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Bell className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Push-уведомления</h2>
+            <p className="text-sm text-muted-foreground">
+              Создание и управление push уведомлениями для пользователей
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
-            Push-уведомления
-          </h2>
-          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
-            Создание и управление push уведомлениями для пользователей
-          </p>
-        </div>
-        <div className="admin-ml-auto admin-flex admin-gap-2">
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
-            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+        <div className="flex gap-2">
+          <Badge variant="success" className="gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
             Активен
-          </div>
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
-            📨 12,345 отправлено
-          </div>
+          </Badge>
+          <Badge variant="outline">
+            <Send className="w-3 h-3 mr-1" />
+            12,345 отправлено
+          </Badge>
         </div>
-      </header>
+      </div>
 
-      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Основная форма создания уведомления */}
-        <div className="lg:admin-col-span-2 admin-space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Форма создания уведомления */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📝 Создание уведомления
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Создание уведомления
+              </CardTitle>
+              <CardDescription>
                 Отправка push уведомлений пользователям
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-space-y-4">
-                <div className="admin-space-y-3">
-                  <label htmlFor="notification-title" className="admin-font-medium admin-text-gray-900">
-                    Заголовок уведомления
-                  </label>
-                  <input
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="notification-title">Заголовок уведомления</Label>
+                  <Input
                     id="notification-title"
                     type="text"
                     value={notification.title}
                     onChange={(e) => setNotification(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="Введите заголовок уведомления"
-                    className="admin-input"
                   />
                 </div>
 
-                <div className="admin-space-y-3">
-                  <label htmlFor="notification-body" className="admin-font-medium admin-text-gray-900">
-                    Текст уведомления
-                  </label>
-                  <textarea
+                <div className="space-y-2">
+                  <Label htmlFor="notification-body">Текст уведомления</Label>
+                  <Textarea
                     id="notification-body"
                     value={notification.body}
                     onChange={(e) => setNotification(prev => ({ ...prev, body: e.target.value }))}
                     placeholder="Введите текст уведомления"
                     rows={4}
-                    className="admin-input admin-textarea"
                   />
                 </div>
 
-                <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                  <div className="admin-space-y-3">
-                    <label htmlFor="notification-icon" className="admin-font-medium admin-text-gray-900">
-                      Иконка (URL)
-                    </label>
-                    <input
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="notification-icon">Иконка (URL)</Label>
+                    <Input
                       id="notification-icon"
                       type="text"
                       value={notification.icon}
                       onChange={(e) => setNotification(prev => ({ ...prev, icon: e.target.value }))}
                       placeholder="https://example.com/icon.png"
-                      className="admin-input"
                     />
                   </div>
-                  <div className="admin-space-y-3">
-                    <label htmlFor="notification-badge" className="admin-font-medium admin-text-gray-900">
-                      Бейдж (URL)
-                    </label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="notification-badge">Бейдж (URL)</Label>
+                    <Input
                       id="notification-badge"
                       type="text"
                       value={notification.badge}
                       onChange={(e) => setNotification(prev => ({ ...prev, badge: e.target.value }))}
                       placeholder="https://example.com/badge.png"
-                      className="admin-input"
                     />
                   </div>
                 </div>
 
-                <div className="admin-flex admin-justify-center admin-pt-4">
-                  <button
+                <div className="flex justify-center pt-4">
+                  <Button
                     onClick={handleSendNotification}
                     disabled={!notification.title || !notification.body || isSending}
-                    className="admin-btn admin-btn-primary admin-font-medium admin-text-lg"
+                    size="lg"
                   >
                     {isSending ? (
-                      <div className="admin-flex admin-items-center admin-gap-2">
-                        <div className="admin-spinner" />
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                         Отправляю уведомление...
-                      </div>
+                      </>
                     ) : (
                       <>
-                        <span className="mr-2">🚀</span>
+                        <Send className="w-4 h-4 mr-2" />
                         Отправить уведомление
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Статистика и настройки */}
-        <div className="admin-space-y-6">
+        <div className="space-y-6">
           {/* Статистика уведомлений */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📊 Статистика
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Статистика
+              </CardTitle>
+              <CardDescription>
                 Эффективность уведомлений
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-4">
-              <div className="admin-grid admin-grid-cols-1 admin-gap-4">
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-3">
                 {notificationStats.map((stat, index) => (
-                  <div key={index} className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-text-center admin-border admin-border-gray-200">
-                    <div className={`admin-text-2xl admin-font-semibold admin-mb-2 ${stat.percentage ? 'admin-text-admin-success' : 'admin-text-admin-primary'}`}>
+                  <div key={index} className="p-4 bg-muted rounded-lg text-center border">
+                    <div className={`text-2xl font-semibold mb-2 ${stat.percentage ? 'text-green-600 dark:text-green-500' : 'text-primary'}`}>
                       {stat.percentage ? `${stat.value}%` : stat.value.toLocaleString()}
                     </div>
-                    <div className="admin-text-gray-600 admin-text-sm">{stat.metric}</div>
+                    <div className="text-muted-foreground text-sm">{stat.metric}</div>
                   </div>
                 ))}
               </div>
 
               {/* Рейтинговая система */}
-              <div className="admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light">
-                <div className="admin-text-center admin-mb-4">
-                  <div className="admin-font-medium admin-text-gray-900 admin-mb-2">Оценка качества уведомлений</div>
-                  <div className="admin-flex admin-justify-center admin-gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="text-center mb-4">
+                  <div className="font-medium mb-2">Оценка качества уведомлений</div>
+                  <div className="flex justify-center gap-1">
+                    {[1, 2, 3, 4, 5].map((starValue) => (
                       <button
-                        key={star}
-                        onClick={() => setRating(star)}
-                        className={`admin-text-3xl admin-transition-all admin-duration-200 admin-transform hover:admin-scale-110 ${
-                          star <= rating ? 'admin-text-admin-warning' : 'admin-text-gray-400'
-                        }`}
-                        aria-label={`Оценка ${star} из 5`}
+                        key={starValue}
+                        onClick={() => setRating(starValue)}
+                        className="transition-all duration-200 transform hover:scale-110"
+                        aria-label={`Оценка ${starValue} из 5`}
                       >
-                        ★
+                        <Star
+                          className={`w-8 h-8 ${
+                            starValue <= rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'
+                          }`}
+                        />
                       </button>
                     ))}
                   </div>
-                  <div className="admin-text-gray-700 admin-text-sm admin-mt-2">
-                    Средняя оценка: <span className="admin-font-semibold admin-text-admin-warning">{rating}/5</span>
+                  <div className="text-sm mt-2">
+                    Средняя оценка: <span className="font-semibold text-yellow-600 dark:text-yellow-500">{rating}/5</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Настройки уведомлений */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                ⚙️ Настройки
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Настройки
+              </CardTitle>
+              <CardDescription>
                 Управление параметрами уведомлений
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-space-y-4">
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      🔔 Включить push уведомления
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-5 h-5 text-primary" />
+                    <div>
+                      <div className="font-medium">Включить push уведомления</div>
+                      <p className="text-sm text-muted-foreground">
+                        Разрешить отправку уведомлений
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Разрешить отправку уведомлений
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-push"
-                      type="checkbox"
-                      checked={settings.enablePush}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enablePush: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-push"
+                    checked={settings.enablePush}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enablePush: checked }))}
+                  />
                 </div>
 
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      ⏰ Отложенная отправка
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-5 h-5 text-primary" />
+                    <div>
+                      <div className="font-medium">Отложенная отправка</div>
+                      <p className="text-sm text-muted-foreground">
+                        Планирование отправки
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Планирование отправки
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-scheduled"
-                      type="checkbox"
-                      checked={settings.enableScheduled}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableScheduled: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-scheduled"
+                    checked={settings.enableScheduled}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableScheduled: checked }))}
+                  />
                 </div>
 
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      🎯 Сегментация аудитории
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-primary" />
+                    <div>
+                      <div className="font-medium">Сегментация аудитории</div>
+                      <p className="text-sm text-muted-foreground">
+                        Отправка разным группам
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Отправка разным группам
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-segmentation"
-                      type="checkbox"
-                      checked={settings.enableSegmentation}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableSegmentation: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-segmentation"
+                    checked={settings.enableSegmentation}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableSegmentation: checked }))}
+                  />
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Действия и кнопки */}
-      <div className="admin-flex admin-justify-center admin-gap-4">
-        <button
+      <div className="flex justify-center gap-4">
+        <Button
           onClick={handleSaveSettings}
           disabled={isSavingSettings}
-          className="admin-btn admin-btn-success admin-font-medium"
+          variant="default"
         >
           {isSavingSettings ? (
-            <div className="admin-flex admin-items-center admin-gap-2">
-              <div className="admin-spinner" />
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               Сохраняю...
-            </div>
+            </>
           ) : (
             <>
-              <span className="mr-2">💾</span>
+              <Save className="w-4 h-4 mr-2" />
               Сохранить настройки
             </>
           )}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             toast.info('Анализ кампаний в разработке 📊');
           }}
-          className="admin-btn admin-btn-outline admin-font-medium"
+          variant="outline"
         >
-          <span className="mr-2">📊</span>
+          <BarChart3 className="w-4 h-4 mr-2" />
           Анализ кампаний
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             toast.info('A/B тестирование в разработке 🎯');
           }}
-          className="admin-btn admin-btn-outline admin-font-medium"
+          variant="outline"
         >
-          <span className="mr-2">🎯</span>
+          <Users className="w-4 h-4 mr-2" />
           A/B тестирование
-        </button>
+        </Button>
       </div>
     </div>
   );

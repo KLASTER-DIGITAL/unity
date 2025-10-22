@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/client';
 // ✅ Microservices base URLs (2025-10-20)
 const PROFILES_API_URL = `https://${projectId}.supabase.co/functions/v1/profiles`;
 const ENTRIES_API_URL = `https://${projectId}.supabase.co/functions/v1/entries`;
-const AI_ANALYSIS_API_URL = `https://${projectId}.supabase.co/functions/v1/ai-analysis`;
+const AI_ANALYSIS_API_URL = `https://${projectId}.supabase.co/functions/v1/ai-analysis/analyze`; // ✅ FIXED: Added /analyze endpoint
 const MOTIVATIONS_API_URL = `https://${projectId}.supabase.co/functions/v1/motivations`;
 const MEDIA_API_URL = `https://${projectId}.supabase.co/functions/v1/media`;
 const TRANSCRIPTION_API_URL = `https://${projectId}.supabase.co/functions/v1/transcription-api`;

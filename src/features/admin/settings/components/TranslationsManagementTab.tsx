@@ -378,6 +378,7 @@ export function TranslationsManagementTab({ initialLanguage }: TranslationsManag
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
+                  autoComplete="off"
                 />
               </div>
             </div>

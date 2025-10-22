@@ -3,14 +3,10 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '../../../../shared/components/SimpleChart';
-import '../../../../styles/admin/admin-theme.css';
-import '../../../../styles/admin/admin-typography.css';
-import '../../../../styles/admin/admin-cards.css';
-import '../../../../styles/admin/admin-buttons.css';
-import '../../../../styles/admin/admin-forms.css';
-import '../../../../styles/admin/admin-tables.css';
-import '../../../../styles/admin/admin-utilities.css';
-import '../../../../styles/admin/admin-responsive.css';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Monitor, Database, Server, HardDrive, Wifi, RotateCw, Save, Activity, AlertCircle } from 'lucide-react';
 
 const systemMetrics = [
   { time: '00:00', cpu: 45, memory: 67, disk: 23, network: 12 },
@@ -116,374 +112,371 @@ export const SystemSettingsTab: React.FC = () => {
   };
 
   return (
-    <div className="admin-space-y-8">
+    <div className="space-y-8">
       {/* Заголовок раздела */}
-      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
-        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
-          🖥️
+      <div className="flex items-center justify-between pb-4 border-b">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Monitor className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Системные настройки</h2>
+            <p className="text-sm text-muted-foreground">
+              Мониторинг и управление системными ресурсами в реальном времени
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
-            Системные настройки
-          </h2>
-          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
-            Мониторинг и управление системными ресурсами в реальном времени
-          </p>
-        </div>
-        <div className="admin-ml-auto admin-flex admin-gap-2">
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
-            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+        <div className="flex gap-2">
+          <Badge variant="success" className="gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
             Все системы работают
-          </div>
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
-            📊 Мониторинг активен
-          </div>
+          </Badge>
+          <Badge variant="outline">
+            <Activity className="w-3 h-3 mr-1" />
+            Мониторинг активен
+          </Badge>
         </div>
-      </header>
+      </div>
 
-      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Статус системы */}
-        <div className="lg:admin-col-span-2 admin-space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Статус сервисов */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                🔍 Статус системы
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Статус системы
+              </CardTitle>
+              <CardDescription>
                 Мониторинг состояния всех сервисов
-              </p>
-            </div>
-            <div className="admin-card-content">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-p-6 admin-bg-admin-success-lighter admin-rounded-lg admin-border admin-border-admin-success-light admin-relative admin-overflow-hidden">
-                  <div className="admin-absolute admin-top-2 admin-right-2">
-                    <div className="admin-w-3 admin-h-3 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-6 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
                   </div>
-                  <div className="admin-text-center">
-                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-success admin-mb-2" aria-hidden="true">🗄️</div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">База данных</div>
-                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">PostgreSQL</div>
-                    <div className="admin-px-3 admin-py-1 admin-bg-admin-success admin-text-white admin-rounded admin-text-xs admin-font-medium">
-                      ✅ Работает стабильно
-                    </div>
+                  <div className="text-center">
+                    <Database className="w-12 h-12 text-green-600 dark:text-green-500 mx-auto mb-2" />
+                    <div className="font-medium mb-1">База данных</div>
+                    <div className="text-muted-foreground text-sm mb-3">PostgreSQL</div>
+                    <Badge variant="success">Работает стабильно</Badge>
                   </div>
                 </div>
 
-                <div className="admin-p-6 admin-bg-admin-primary-lighter admin-rounded-lg admin-border admin-border-admin-primary-light admin-relative admin-overflow-hidden">
-                  <div className="admin-absolute admin-top-2 admin-right-2">
-                    <div className="admin-w-3 admin-h-3 admin-bg-admin-primary admin-rounded-full" aria-hidden="true"></div>
+                <div className="p-6 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full" />
                   </div>
-                  <div className="admin-text-center">
-                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-primary admin-mb-2" aria-hidden="true">🚀</div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">API сервер</div>
-                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Edge Functions</div>
-                    <div className="admin-px-3 admin-py-1 admin-bg-admin-primary admin-text-white admin-rounded admin-text-xs admin-font-medium">
-                      ✅ Высокая производительность
-                    </div>
+                  <div className="text-center">
+                    <Server className="w-12 h-12 text-blue-600 dark:text-blue-500 mx-auto mb-2" />
+                    <div className="font-medium mb-1">API сервер</div>
+                    <div className="text-muted-foreground text-sm mb-3">Edge Functions</div>
+                    <Badge className="bg-blue-600 text-white">Высокая производительность</Badge>
                   </div>
                 </div>
 
-                <div className="admin-p-6 admin-bg-admin-secondary-lighter admin-rounded-lg admin-border admin-border-admin-secondary-light admin-relative admin-overflow-hidden">
-                  <div className="admin-absolute admin-top-2 admin-right-2">
-                    <div className="admin-w-3 admin-h-3 admin-bg-admin-secondary admin-rounded-full" aria-hidden="true"></div>
+                <div className="p-6 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full" />
                   </div>
-                  <div className="admin-text-center">
-                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-secondary admin-mb-2" aria-hidden="true">💾</div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Хранилище</div>
-                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Supabase Storage</div>
-                    <div className="admin-px-3 admin-py-1 admin-bg-admin-secondary admin-text-white admin-rounded admin-text-xs admin-font-medium">
-                      ✅ Доступно и стабильно
-                    </div>
+                  <div className="text-center">
+                    <HardDrive className="w-12 h-12 text-purple-600 dark:text-purple-500 mx-auto mb-2" />
+                    <div className="font-medium mb-1">Хранилище</div>
+                    <div className="text-muted-foreground text-sm mb-3">Supabase Storage</div>
+                    <Badge className="bg-purple-600 text-white">Доступно и стабильно</Badge>
                   </div>
                 </div>
 
-                <div className="admin-p-6 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light admin-relative admin-overflow-hidden">
-                  <div className="admin-absolute admin-top-2 admin-right-2">
-                    <div className="admin-w-3 admin-h-3 admin-bg-admin-warning admin-rounded-full" aria-hidden="true"></div>
+                <div className="p-6 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                   </div>
-                  <div className="admin-text-center">
-                    <div className="admin-text-3xl admin-font-semibold admin-text-admin-warning admin-mb-2" aria-hidden="true">⚡</div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Кэш</div>
-                    <div className="admin-text-gray-600 admin-text-sm admin-mb-3">Redis</div>
-                    <div className="admin-px-3 admin-py-1 admin-bg-admin-warning admin-text-white admin-rounded admin-text-xs admin-font-medium">
-                      ✅ Быстрый отклик
-                    </div>
+                  <div className="text-center">
+                    <Wifi className="w-12 h-12 text-yellow-600 dark:text-yellow-500 mx-auto mb-2" />
+                    <div className="font-medium mb-1">Кэш</div>
+                    <div className="text-muted-foreground text-sm mb-3">Redis</div>
+                    <Badge className="bg-yellow-600 text-white">Быстрый отклик</Badge>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Метрики ресурсов */}
-        <div className="admin-space-y-6">
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📊 Ресурсы системы
-              </h3>
-              <p className="admin-card-description">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Ресурсы системы
+              </CardTitle>
+              <CardDescription>
                 Использование в реальном времени
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-space-y-4">
-                <div className="admin-space-y-2">
-                  <div className="admin-flex admin-justify-between">
-                    <span className="admin-text-gray-700">CPU</span>
-                    <span className="admin-font-medium admin-text-gray-900">{metrics.cpu}%</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">CPU</span>
+                    <span className="font-medium">{metrics.cpu}%</span>
                   </div>
-                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="admin-bg-admin-warning admin-h-2 admin-rounded-full admin-transition-all"
+                      className="bg-yellow-500 h-2 rounded-full transition-all"
                       style={{ width: `${metrics.cpu}%` }}
                       aria-label={`Использование CPU: ${metrics.cpu}%`}
-                    ></div>
+                    />
                   </div>
                 </div>
 
-                <div className="admin-space-y-2">
-                  <div className="admin-flex admin-justify-between">
-                    <span className="admin-text-gray-700">Память</span>
-                    <span className="admin-font-medium admin-text-gray-900">{metrics.memory}%</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Память</span>
+                    <span className="font-medium">{metrics.memory}%</span>
                   </div>
-                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="admin-bg-admin-error admin-h-2 admin-rounded-full admin-transition-all"
+                      className="bg-red-500 h-2 rounded-full transition-all"
                       style={{ width: `${metrics.memory}%` }}
                       aria-label={`Использование памяти: ${metrics.memory}%`}
-                    ></div>
+                    />
                   </div>
                 </div>
 
-                <div className="admin-space-y-2">
-                  <div className="admin-flex admin-justify-between">
-                    <span className="admin-text-gray-700">Диск</span>
-                    <span className="admin-font-medium admin-text-gray-900">{metrics.disk}%</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Диск</span>
+                    <span className="font-medium">{metrics.disk}%</span>
                   </div>
-                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="admin-bg-admin-primary admin-h-2 admin-rounded-full admin-transition-all"
+                      className="bg-blue-500 h-2 rounded-full transition-all"
                       style={{ width: `${metrics.disk}%` }}
                       aria-label={`Использование диска: ${metrics.disk}%`}
-                    ></div>
+                    />
                   </div>
                 </div>
 
-                <div className="admin-space-y-2">
-                  <div className="admin-flex admin-justify-between">
-                    <span className="admin-text-gray-700">Сеть</span>
-                    <span className="admin-font-medium admin-text-gray-900">{metrics.network}%</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Сеть</span>
+                    <span className="font-medium">{metrics.network}%</span>
                   </div>
-                  <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="admin-bg-admin-success admin-h-2 admin-rounded-full admin-transition-all"
+                      className="bg-green-500 h-2 rounded-full transition-all"
                       style={{ width: `${metrics.network}%` }}
                       aria-label={`Использование сети: ${metrics.network}%`}
-                    ></div>
+                    />
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Графики метрик */}
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-            📈 Мониторинг ресурсов (24ч)
-          </h3>
-          <p className="admin-card-description">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Мониторинг ресурсов (24ч)
+          </CardTitle>
+          <CardDescription>
             Графики использования системных ресурсов
-          </p>
-        </div>
-        <div className="admin-card-content">
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <SimpleChart
             data={systemMetrics}
             xAxisKey="time"
             title="Использование системных ресурсов"
             type="line"
           />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Управление сервисами */}
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-            🔧 Управление сервисами
-          </h3>
-          <p className="admin-card-description">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Server className="w-5 h-5" />
+            Управление сервисами
+          </CardTitle>
+          <CardDescription>
             Перезапуск и обслуживание системных компонентов
-          </p>
-        </div>
-        <div className="admin-card-content">
-          <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 lg:admin-grid-cols-4 admin-gap-4">
-            <button
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <Button
               onClick={() => handleRestartService('API')}
               disabled={isRestarting === 'API'}
-              className="admin-btn admin-btn-primary admin-font-medium"
+              variant="default"
             >
               {isRestarting === 'API' ? (
-                <div className="admin-flex admin-items-center admin-gap-2">
-                  <div className="admin-spinner" />
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Перезапуск...
-                </div>
+                </>
               ) : (
                 <>
-                  <span className="mr-2">🚀</span>
+                  <Server className="w-4 h-4 mr-2" />
                   API сервер
                 </>
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => handleRestartService('Database')}
               disabled={isRestarting === 'Database'}
-              className="admin-btn admin-btn-success admin-font-medium"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {isRestarting === 'Database' ? (
-                <div className="admin-flex admin-items-center admin-gap-2">
-                  <div className="admin-spinner" />
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Перезапуск...
-                </div>
+                </>
               ) : (
                 <>
-                  <span className="mr-2">🗄️</span>
+                  <Database className="w-4 h-4 mr-2" />
                   База данных
                 </>
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => handleRestartService('Cache')}
               disabled={isRestarting === 'Cache'}
-              className="admin-btn admin-btn-warning admin-font-medium"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white"
             >
               {isRestarting === 'Cache' ? (
-                <div className="admin-flex admin-items-center admin-gap-2">
-                  <div className="admin-spinner" />
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Очистка...
-                </div>
+                </>
               ) : (
                 <>
-                  <span className="mr-2">⚡</span>
+                  <Wifi className="w-4 h-4 mr-2" />
                   Очистить кэш
                 </>
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => handleRestartService('Storage')}
               disabled={isRestarting === 'Storage'}
-              className="admin-btn admin-btn-outline admin-font-medium"
+              variant="outline"
             >
               {isRestarting === 'Storage' ? (
-                <div className="admin-flex admin-items-center admin-gap-2">
-                  <div className="admin-spinner" />
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Перезапуск...
-                </div>
+                </>
               ) : (
                 <>
-                  <span className="mr-2">💾</span>
+                  <HardDrive className="w-4 h-4 mr-2" />
                   Хранилище
                 </>
               )}
-            </button>
+            </Button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Резервное копирование */}
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-            💾 Резервное копирование
-          </h3>
-          <p className="admin-card-description">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <HardDrive className="w-5 h-5" />
+            Резервное копирование
+          </CardTitle>
+          <CardDescription>
             Управление резервными копиями данных
-          </p>
-        </div>
-        <div className="admin-card-content">
-          <div className="admin-space-y-6">
-            <div className="admin-flex admin-gap-4">
-              <button
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex gap-3">
+              <Button
                 onClick={handleBackupDatabase}
                 disabled={isBackingUp}
-                className="admin-btn admin-btn-success admin-font-medium"
+                className="bg-green-600 hover:bg-green-700 text-white"
               >
                 {isBackingUp ? (
-                  <div className="admin-flex admin-items-center admin-gap-2">
-                    <div className="admin-spinner" />
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     Создаю копию...
-                  </div>
+                  </>
                 ) : (
                   <>
-                    <span className="mr-2">💾</span>
+                    <Save className="w-4 h-4 mr-2" />
                     Создать резервную копию
                   </>
                 )}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={handleRestoreBackup}
-                className="admin-btn admin-btn-outline admin-font-medium"
+                variant="outline"
               >
-                <span className="mr-2">📂</span>
+                <RotateCw className="w-4 h-4 mr-2" />
                 Восстановить из копии
-              </button>
+              </Button>
             </div>
 
-            <div className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-3 admin-gap-4 admin-text-center">
+            <div className="p-4 bg-muted rounded-lg border">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Последняя копия</div>
-                  <div className="admin-text-gray-600 admin-text-sm">2 часа назад</div>
+                  <div className="font-medium mb-1">Последняя копия</div>
+                  <div className="text-sm text-muted-foreground">2 часа назад</div>
                 </div>
                 <div>
-                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Размер</div>
-                  <div className="admin-text-gray-600 admin-text-sm">45.2 MB</div>
+                  <div className="font-medium mb-1">Размер</div>
+                  <div className="text-sm text-muted-foreground">45.2 MB</div>
                 </div>
                 <div>
-                  <div className="admin-font-medium admin-text-gray-900 admin-mb-1">Статус</div>
-                  <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded admin-text-xs admin-font-medium admin-inline-block">
-                    ✅ Успешно
-                  </div>
+                  <div className="font-medium mb-1">Статус</div>
+                  <Badge variant="success">Успешно</Badge>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Системные логи */}
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-            📝 Системные логи
-          </h3>
-          <p className="admin-card-description">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            Системные логи
+          </CardTitle>
+          <CardDescription>
             Последние записи в логах системы
-          </p>
-        </div>
-        <div className="admin-card-content">
-          <div className="admin-bg-gray-900 admin-text-green-400 admin-p-6 admin-rounded-lg admin-font-mono admin-text-sm admin-max-h-64 admin-overflow-y-auto admin-border admin-border-gray-700">
-            <div className="admin-space-y-1">
-              <div className="admin-text-green-300">[2024-01-15 10:30:15] INFO: API request processed successfully</div>
-              <div className="admin-text-green-300">[2024-01-15 10:30:12] INFO: User authentication successful</div>
-              <div className="admin-text-blue-300">[2024-01-15 10:30:08] INFO: Database connection established</div>
-              <div className="admin-text-green-300">[2024-01-15 10:30:05] INFO: Cache cleared successfully</div>
-              <div className="admin-text-green-300">[2024-01-15 10:30:02] INFO: System startup completed</div>
-              <div className="admin-text-yellow-300">[2024-01-15 10:29:58] WARN: High memory usage detected</div>
-              <div className="admin-text-green-300">[2024-01-15 10:29:55] INFO: Scheduled backup completed</div>
-              <div className="admin-text-green-300">[2024-01-15 10:29:50] INFO: API rate limit reset</div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-slate-950 text-green-400 p-6 rounded-lg font-mono text-sm max-h-64 overflow-y-auto border border-slate-800">
+            <div className="space-y-1">
+              <div className="text-green-300">[2024-01-15 10:30:15] INFO: API request processed successfully</div>
+              <div className="text-green-300">[2024-01-15 10:30:12] INFO: User authentication successful</div>
+              <div className="text-blue-300">[2024-01-15 10:30:08] INFO: Database connection established</div>
+              <div className="text-green-300">[2024-01-15 10:30:05] INFO: Cache cleared successfully</div>
+              <div className="text-green-300">[2024-01-15 10:30:02] INFO: System startup completed</div>
+              <div className="text-yellow-300">[2024-01-15 10:29:58] WARN: High memory usage detected</div>
+              <div className="text-green-300">[2024-01-15 10:29:55] INFO: Scheduled backup completed</div>
+              <div className="text-green-300">[2024-01-15 10:29:50] INFO: API rate limit reset</div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -3,14 +3,13 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '../../../../shared/components/SimpleChart';
-import '../../../../styles/admin/admin-theme.css';
-import '../../../../styles/admin/admin-typography.css';
-import '../../../../styles/admin/admin-cards.css';
-import '../../../../styles/admin/admin-buttons.css';
-import '../../../../styles/admin/admin-forms.css';
-import '../../../../styles/admin/admin-tables.css';
-import '../../../../styles/admin/admin-utilities.css';
-import '../../../../styles/admin/admin-responsive.css';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Button } from '@/shared/components/ui/button';
+import { Switch } from '@/shared/components/ui/switch';
+import { Badge } from '@/shared/components/ui/badge';
+import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, TrendingUp, Bell, Settings } from 'lucide-react';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -119,217 +118,196 @@ export const PWASettingsTab: React.FC = () => {
   };
 
   return (
-    <div className="admin-space-y-8">
+    <div className="space-y-6">
       {/* Заголовок раздела */}
-      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
-        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
-          📱
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Smartphone className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Настройки PWA</h2>
+            <p className="text-sm text-muted-foreground">
+              Настройки Progressive Web App для лучшего пользовательского опыта
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
-            Настройки PWA
-          </h2>
-          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
-            Настройки Progressive Web App для лучшего пользовательского опыта
-          </p>
-        </div>
-        <div className="admin-ml-auto admin-flex admin-gap-2">
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
-            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
+        <div className="flex gap-2">
+          <Badge variant="success" className="gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
             Активен
-          </div>
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
-            📱 {stats.totalInstalls.toLocaleString()} установок
-          </div>
+          </Badge>
+          <Badge variant="outline">
+            <Smartphone className="w-3 h-3 mr-1" />
+            {stats.totalInstalls.toLocaleString()} установок
+          </Badge>
         </div>
-      </header>
+      </div>
 
-      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Основные настройки PWA */}
-        <div className="lg:admin-col-span-2 admin-space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Манифест PWA */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📋 Манифест PWA
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5" />
+                Манифест PWA
+              </CardTitle>
+              <CardDescription>
                 Настройка веб-манифеста приложения
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-space-y-3">
-                  <label htmlFor="app-name" className="admin-font-medium admin-text-gray-900">
-                    Название приложения
-                  </label>
-                  <input
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="app-name">Название приложения</Label>
+                  <Input
                     id="app-name"
                     type="text"
                     value={manifest.appName}
                     onChange={(e) => setManifest(prev => ({ ...prev, appName: e.target.value }))}
-                    className="admin-input"
                   />
                 </div>
-                <div className="admin-space-y-3">
-                  <label htmlFor="short-name" className="admin-font-medium admin-text-gray-900">
-                    Короткое название
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="short-name">Короткое название</Label>
+                  <Input
                     id="short-name"
                     type="text"
                     value={manifest.shortName}
                     onChange={(e) => setManifest(prev => ({ ...prev, shortName: e.target.value }))}
-                    className="admin-input"
                   />
                 </div>
               </div>
 
-              <div className="admin-space-y-3">
-                <label htmlFor="description" className="admin-font-medium admin-text-gray-900">
-                  Описание
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="description">Описание</Label>
+                <Input
                   id="description"
                   type="text"
                   value={manifest.description}
                   onChange={(e) => setManifest(prev => ({ ...prev, description: e.target.value }))}
-                  className="admin-input"
                 />
               </div>
 
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-space-y-3">
-                  <label htmlFor="theme-color" className="admin-font-medium admin-text-gray-900">
-                    Цвет темы
-                  </label>
-                  <div className="admin-flex admin-gap-3 admin-items-center">
-                    <input
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="theme-color">Цвет темы</Label>
+                  <div className="flex gap-3 items-center">
+                    <Input
                       id="theme-color"
                       type="text"
                       value={manifest.themeColor}
                       onChange={(e) => setManifest(prev => ({ ...prev, themeColor: e.target.value }))}
-                      className="admin-input admin-flex-1"
+                      className="flex-1"
                     />
                     <div
-                      className="admin-w-12 admin-h-12 admin-rounded-lg admin-border-2 admin-border-gray-300 admin-shadow-sm"
+                      className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
                       style={{ backgroundColor: manifest.themeColor }}
                       aria-hidden="true"
                     />
                   </div>
                 </div>
-                <div className="admin-space-y-3">
-                  <label htmlFor="bg-color" className="admin-font-medium admin-text-gray-900">
-                    Цвет фона
-                  </label>
-                  <div className="admin-flex admin-gap-3 admin-items-center">
-                    <input
+                <div className="space-y-2">
+                  <Label htmlFor="bg-color">Цвет фона</Label>
+                  <div className="flex gap-3 items-center">
+                    <Input
                       id="bg-color"
                       type="text"
                       value={manifest.backgroundColor}
                       onChange={(e) => setManifest(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                      className="admin-input admin-flex-1"
+                      className="flex-1"
                     />
                     <div
-                      className="admin-w-12 admin-h-12 admin-rounded-lg admin-border-2 admin-border-gray-300 admin-shadow-sm"
+                      className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
                       style={{ backgroundColor: manifest.backgroundColor }}
                       aria-hidden="true"
                     />
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Функции PWA */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                ⚙️ Функции PWA
-              </h3>
-              <p className="admin-card-description">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Функции PWA
+              </CardTitle>
+              <CardDescription>
                 Включение и отключение возможностей приложения
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      🔔 Push-уведомления
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-5 h-5 text-primary" />
+                    <div>
+                      <div className="font-medium">Push-уведомления</div>
+                      <p className="text-sm text-muted-foreground">
+                        Разрешить отправку уведомлений
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Разрешить отправку уведомлений
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-notifications"
-                      type="checkbox"
-                      checked={settings.enableNotifications}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableNotifications: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-notifications"
+                    checked={settings.enableNotifications}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableNotifications: checked }))}
+                  />
                 </div>
 
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      📱 Офлайн режим
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <Smartphone className="w-5 h-5 text-primary" />
+                    <div>
+                      <div className="font-medium">Офлайн режим</div>
+                      <p className="text-sm text-muted-foreground">
+                        Работа без интернета
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Работа без интернета
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-offline"
-                      type="checkbox"
-                      checked={settings.enableOfflineMode}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableOfflineMode: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-offline"
+                    checked={settings.enableOfflineMode}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableOfflineMode: checked }))}
+                  />
                 </div>
 
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light md:admin-col-span-2">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      💡 Подсказка установки
+                <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800 md:col-span-2">
+                  <div className="flex items-center gap-3">
+                    <Download className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
+                    <div>
+                      <div className="font-medium">Подсказка установки</div>
+                      <p className="text-sm text-muted-foreground">
+                        Предложить установить приложение
+                      </p>
                     </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Предложить установить приложение
-                    </p>
                   </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-install-prompt"
-                      type="checkbox"
-                      checked={settings.enableInstallPrompt}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableInstallPrompt: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
+                  <Switch
+                    id="enable-install-prompt"
+                    checked={settings.enableInstallPrompt}
+                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableInstallPrompt: checked }))}
+                  />
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Визуализация и статистика */}
-        <div className="admin-space-y-6">
+        <div className="space-y-6">
           {/* График установок */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📈 Установки PWA
-              </h3>
-            </div>
-            <div className="admin-card-content">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Установки PWA
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <SimpleChart
                 data={installationData}
                 dataKey="installs"
@@ -337,17 +315,18 @@ export const PWASettingsTab: React.FC = () => {
                 title="Установки PWA по месяцам"
                 type="line"
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Распределение по платформам */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📱 По платформам
-              </h3>
-            </div>
-            <div className="admin-card-content">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5" />
+                По платформам
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <SimpleChart
                 data={platformData}
                 dataKey="value"
@@ -355,71 +334,76 @@ export const PWASettingsTab: React.FC = () => {
                 title="Распределение по платформам"
                 type="pie"
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Статистика установок */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📊 Метрики
-              </h3>
-            </div>
-            <div className="admin-card-content admin-space-y-4">
-              <div className="admin-grid admin-grid-cols-1 admin-gap-4">
-                <div className="admin-p-4 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-primary-light">
-                  <div className="admin-text-2xl admin-font-semibold admin-text-admin-primary admin-mb-1">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Метрики
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="p-4 bg-primary/5 rounded-lg text-center border border-primary/20">
+                  <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-primary mb-1">
+                    <Download className="w-5 h-5" />
                     {stats.totalInstalls.toLocaleString()}
                   </div>
-                  <div className="admin-text-gray-600 admin-text-sm">Всего установок</div>
+                  <div className="text-muted-foreground text-sm">Всего установок</div>
                 </div>
-                <div className="admin-p-4 admin-bg-admin-success-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-success-light">
-                  <div className="admin-text-2xl admin-font-semibold admin-text-admin-success admin-mb-1">{stats.retentionRate}%</div>
-                  <div className="admin-text-gray-600 admin-text-sm">Retention rate</div>
+                <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg text-center border border-green-200 dark:border-green-800">
+                  <div className="text-2xl font-semibold text-green-600 dark:text-green-500 mb-1">{stats.retentionRate}%</div>
+                  <div className="text-muted-foreground text-sm">Retention rate</div>
                 </div>
-                <div className="admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-warning-light">
-                  <div className="admin-text-2xl admin-font-semibold admin-text-admin-warning admin-mb-1">⭐ {stats.averageRating}</div>
-                  <div className="admin-text-gray-600 admin-text-sm">Средняя оценка</div>
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-center border border-yellow-200 dark:border-yellow-800">
+                  <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-yellow-600 dark:text-yellow-500 mb-1">
+                    <Star className="w-5 h-5" />
+                    {stats.averageRating}
+                  </div>
+                  <div className="text-muted-foreground text-sm">Средняя оценка</div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Действия и кнопки */}
-      <div className="admin-flex admin-justify-center admin-gap-4">
-        <button
+      <div className="flex justify-center gap-4">
+        <Button
           onClick={handleSaveManifest}
           disabled={isSaving}
-          className="admin-btn admin-btn-success admin-font-medium"
+          variant="default"
         >
           {isSaving ? (
-            <div className="admin-flex admin-items-center admin-gap-2">
-              <div className="admin-spinner" />
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               Сохраняю...
-            </div>
+            </>
           ) : (
             <>
-              <span className="mr-2">💾</span>
+              <Save className="w-4 h-4 mr-2" />
               Сохранить настройки
             </>
           )}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handlePublishUpdate}
-          className="admin-btn admin-btn-warning admin-font-medium"
+          variant="secondary"
         >
-          <span className="mr-2">🚀</span>
+          <Rocket className="w-4 h-4 mr-2" />
           Опубликовать обновление
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleAnalyzeMetrics}
-          className="admin-btn admin-btn-primary admin-font-medium"
+          variant="outline"
         >
-          <span className="mr-2">📊</span>
+          <BarChart3 className="w-4 h-4 mr-2" />
           Анализ метрик
-        </button>
+        </Button>
       </div>
     </div>
   );

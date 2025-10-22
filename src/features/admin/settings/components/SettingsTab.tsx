@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
-import { APISettingsTab } from '@/components/screens/admin/settings/APISettingsTab';
+import { APIServicesTab } from '@/components/screens/admin/settings/APIServicesTab';
 import { AISettingsTab } from '@/components/screens/admin/settings/AISettingsTab';
 import { PWASettingsTab } from '@/components/screens/admin/settings/PWASettingsTab';
 import { PushNotificationsTab } from '@/components/screens/admin/settings/PushNotificationsTab';
@@ -43,7 +43,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   };
 
   const tabs = [
-    { value: 'openai-api', label: 'OpenAI API', icon: Key, description: 'Настройки OpenAI API' },
+    { value: 'api-services', label: 'API Services', icon: Key, description: 'Управление API сервисами' },
     { value: 'ai', label: 'AI', icon: Brain, description: 'Настройки AI моделей' },
     { value: 'telegram', label: 'Telegram', icon: MessageCircle, description: 'Интеграция с Telegram' },
     { value: 'languages-translations', label: 'Языки и переводы', icon: Languages, description: 'Управление языками и переводами' },
@@ -80,6 +80,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            autoComplete="off"
           />
         </div>
 
@@ -118,8 +119,8 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
               </div>
             ) : (
               <>
-                <TabsContent value="openai-api" className="mt-0">
-                  <APISettingsTab />
+                <TabsContent value="api-services" className="mt-0">
+                  <APIServicesTab />
                 </TabsContent>
 
                 <TabsContent value="ai" className="mt-0">

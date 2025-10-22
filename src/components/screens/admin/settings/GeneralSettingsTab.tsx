@@ -1,52 +1,106 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Button } from '@/shared/components/ui/button';
+import { Switch } from '@/shared/components/ui/switch';
+import { Badge } from '@/shared/components/ui/badge';
+import { Settings, Save, RotateCcw, Loader2 } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 
 export const GeneralSettingsTab: React.FC = () => {
   const [settings, setSettings] = useState({
-    appName: 'Дневник Достижений',
-    appDescription: 'Персональный дневник для отслеживания достижений и целей',
-    supportEmail: 'support@diary.com',
+    appName: '',
+    appDescription: '',
+    supportEmail: '',
     maxEntriesPerDay: 10,
     enableAnalytics: true,
     enableErrorReporting: true,
     maintenanceMode: false
   });
 
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setIsLoading(true);
+      const supabase = createClient();
+      
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('key, value')
+        .in('key', [
+          'app_name',
+          'app_description',
+          'support_email',
+          'max_entries_per_day',
+          'enable_analytics',
+          'enable_error_reporting',
+          'maintenance_mode'
+        ]);
+
+      if (error) throw error;
+
+      const settingsMap = data?.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {} as Record<string, string>) || {};
+
+      setSettings({
+        appName: settingsMap.app_name || '',
+        appDescription: settingsMap.app_description || '',
+        supportEmail: settingsMap.support_email || '',
+        maxEntriesPerDay: parseInt(settingsMap.max_entries_per_day || '10'),
+        enableAnalytics: settingsMap.enable_analytics === 'true',
+        enableErrorReporting: settingsMap.enable_error_reporting === 'true',
+        maintenanceMode: settingsMap.maintenance_mode === 'true'
+      });
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      toast.error('Ошибка загрузки настроек');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-      if (!token) {
-        toast.error('Ошибка авторизации');
-        return;
+      const supabase = createClient();
+
+      const updates = [
+        { key: 'app_name', value: settings.appName },
+        { key: 'app_description', value: settings.appDescription },
+        { key: 'support_email', value: settings.supportEmail },
+        { key: 'max_entries_per_day', value: settings.maxEntriesPerDay.toString() },
+        { key: 'enable_analytics', value: settings.enableAnalytics.toString() },
+        { key: 'enable_error_reporting', value: settings.enableErrorReporting.toString() },
+        { key: 'maintenance_mode', value: settings.maintenanceMode.toString() }
+      ];
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('admin_settings')
+          .update({ value: update.value, updated_at: new Date().toISOString() })
+          .eq('key', update.key);
+
+        if (error) throw error;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/settings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          key: 'general_settings',
-          value: JSON.stringify(settings)
-        })
-      });
-
-      if (response.ok) {
-        toast.success('Настройки успешно сохранены! ✅');
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.error || 'Ошибка сохранения настроек');
-      }
+      toast.success('Настройки успешно сохранены! ✅');
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Ошибка соединения с сервером');
+      toast.error('Ошибка сохранения настроек');
     } finally {
       setIsSaving(false);
     }
@@ -55,322 +109,175 @@ export const GeneralSettingsTab: React.FC = () => {
   const handleReset = async () => {
     setIsResetting(true);
     try {
-      // Сброс к значениям по умолчанию
-      setSettings({
-        appName: 'Дневник Достижений',
-        appDescription: 'Персональный дневник для отслеживания достижений и целей',
-        supportEmail: 'support@diary.com',
-        maxEntriesPerDay: 10,
-        enableAnalytics: true,
-        enableErrorReporting: true,
-        maintenanceMode: false
-      });
-      
-      toast.success('Настройки сброшены к значениям по умолчанию! 🔄');
+      await loadSettings();
+      toast.success('Настройки перезагружены! 🔄');
     } catch (error) {
       console.error('Error resetting settings:', error);
-      toast.error('Ошибка при сбросе настроек');
+      toast.error('Ошибка при перезагрузке настроек');
     } finally {
       setIsResetting(false);
     }
   };
 
-  const handleExportSettings = () => {
-    try {
-      const dataStr = JSON.stringify(settings, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = 'unity-general-settings.json';
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-      
-      toast.success('Настройки экспортированы! 📤');
-    } catch (error) {
-      toast.error('Ошибка экспорта настроек');
-    }
-  };
-
-  const handleImportSettings = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const importedSettings = JSON.parse(content);
-        setSettings(importedSettings);
-        toast.success('Настройки импортированы! 📥');
-      } catch (error) {
-        toast.error('Ошибка импорта файла настроек');
-      }
-    };
-    reader.readAsText(file);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-space-y-8">
-      {/* Заголовок раздела */}
-      <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
-        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
-          ⚙️
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="admin-text-2xl admin-font-semibold admin-text-gray-900">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Settings className="w-6 h-6" />
             Общие настройки
           </h2>
-          <p className="admin-text-sm admin-text-gray-600 admin-mt-1">
-            Основные параметры и конфигурация приложения
+          <p className="text-sm text-muted-foreground mt-1">
+            Основные параметры приложения
           </p>
         </div>
-        <div className="admin-ml-auto admin-flex admin-gap-2">
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-success-lighter admin-text-admin-success admin-rounded-full admin-text-xs admin-font-medium admin-flex admin-items-center admin-gap-1">
-            <div className="admin-w-2 admin-h-2 admin-bg-admin-success admin-rounded-full" aria-hidden="true"></div>
-            Активен
-          </div>
-          <div className="admin-px-3 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded-full admin-text-xs admin-font-medium">
-            🔧 Готов к настройке
-          </div>
-        </div>
-      </header>
-
-      <div className="admin-grid admin-grid-cols-1 lg:admin-grid-cols-3 admin-gap-8">
-        {/* Основные настройки приложения */}
-        <div className="lg:admin-col-span-2 admin-space-y-6">
-          {/* Основные параметры */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                📋 Основные параметры
-              </h3>
-              <p className="admin-card-description">
-                Базовая конфигурация приложения
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-space-y-3">
-                  <label htmlFor="app-name" className="admin-font-medium admin-text-gray-900">
-                    Название приложения
-                  </label>
-                  <input
-                    id="app-name"
-                    type="text"
-                    value={settings.appName}
-                    onChange={(e) => setSettings(prev => ({ ...prev, appName: e.target.value }))}
-                    className="admin-input"
-                  />
-                </div>
-                <div className="admin-space-y-3">
-                  <label htmlFor="support-email" className="admin-font-medium admin-text-gray-900">
-                    Email поддержки
-                  </label>
-                  <input
-                    id="support-email"
-                    type="email"
-                    value={settings.supportEmail}
-                    onChange={(e) => setSettings(prev => ({ ...prev, supportEmail: e.target.value }))}
-                    className="admin-input"
-                  />
-                </div>
-              </div>
-
-              <div className="admin-space-y-3">
-                <label htmlFor="app-description" className="admin-font-medium admin-text-gray-900">
-                  Описание приложения
-                </label>
-                <textarea
-                  id="app-description"
-                  value={settings.appDescription}
-                  onChange={(e) => setSettings(prev => ({ ...prev, appDescription: e.target.value }))}
-                  rows={3}
-                  className="admin-input admin-textarea"
-                />
-              </div>
-
-              <div className="admin-space-y-3">
-                <label htmlFor="max-entries" className="admin-font-medium admin-text-gray-900">
-                  Максимум записей в день
-                </label>
-                <input
-                  id="max-entries"
-                  type="number"
-                  value={settings.maxEntriesPerDay}
-                  onChange={(e) => setSettings(prev => ({ ...prev, maxEntriesPerDay: parseInt(e.target.value) || 0 }))}
-                  className="admin-input"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Системные функции */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                🔧 Системные функции
-              </h3>
-              <p className="admin-card-description">
-                Конфигурация дополнительных возможностей
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-6">
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      📊 Аналитика
-                    </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Сбор данных об использовании
-                    </p>
-                  </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-analytics"
-                      type="checkbox"
-                      checked={settings.enableAnalytics}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableAnalytics: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
-                </div>
-
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-gray-50 admin-rounded-lg admin-border admin-border-gray-200">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      🐛 Отчеты об ошибках
-                    </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Автоматическая отправка отчетов
-                    </p>
-                  </div>
-                  <div className="admin-switch">
-                    <input
-                      id="enable-error-reporting"
-                      type="checkbox"
-                      checked={settings.enableErrorReporting}
-                      onChange={(e) => setSettings(prev => ({ ...prev, enableErrorReporting: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
-                </div>
-
-                <div className="admin-flex admin-items-center admin-justify-between admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-border admin-border-admin-warning-light md:admin-col-span-2">
-                  <div>
-                    <div className="admin-font-medium admin-text-gray-900 admin-mb-1">
-                      🔧 Режим обслуживания
-                    </div>
-                    <p className="admin-text-sm admin-text-gray-600">
-                      Временно отключить приложение
-                    </p>
-                  </div>
-                  <div className="admin-switch">
-                    <input
-                      id="maintenance-mode"
-                      type="checkbox"
-                      checked={settings.maintenanceMode}
-                      onChange={(e) => setSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
-                      className="admin-sr-only"
-                    />
-                    <div className="admin-switch-slider"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Управление данными */}
-        <div className="admin-space-y-6">
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title admin-flex admin-items-center admin-gap-2">
-                💾 Управление данными
-              </h3>
-              <p className="admin-card-description">
-                Экспорт и импорт настроек
-              </p>
-            </div>
-            <div className="admin-card-content admin-space-y-6">
-              <div className="admin-space-y-4">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="admin-btn admin-btn-success admin-w-full admin-font-medium"
-                >
-                  {isSaving ? (
-                    <div className="admin-flex admin-items-center admin-gap-2">
-                      <div className="admin-spinner" />
-                      Сохраняю настройки...
-                    </div>
-                  ) : (
-                    <>
-                      <span className="mr-2">💾</span>
-                      Сохранить настройки
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={handleReset}
-                  disabled={isResetting}
-                  className="admin-btn admin-btn-outline admin-w-full admin-font-medium"
-                >
-                  {isResetting ? (
-                    <div className="admin-flex admin-items-center admin-gap-2">
-                      <div className="admin-spinner" />
-                      Сбрасываю...
-                    </div>
-                  ) : (
-                    <>
-                      <span className="mr-2">🔄</span>
-                      Сбросить настройки
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <div className="admin-grid admin-grid-cols-1 admin-gap-4">
-                <div className="admin-p-4 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-primary-light">
-                  <div className="admin-text-xl admin-font-semibold admin-text-admin-primary admin-mb-2">
-                    📤 Экспорт
-                  </div>
-                  <button
-                    onClick={handleExportSettings}
-                    className="admin-btn admin-btn-outline admin-btn-sm"
-                  >
-                    Скачать JSON
-                  </button>
-                </div>
-                <div className="admin-p-4 admin-bg-admin-success-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-success-light">
-                  <div className="admin-text-xl admin-font-semibold admin-text-admin-success admin-mb-2">
-                    📥 Импорт
-                  </div>
-                  <button
-                    onClick={() => document.getElementById('import-settings-file')?.click()}
-                    className="admin-btn admin-btn-outline admin-btn-sm"
-                  >
-                    Загрузить файл
-                  </button>
-                  <input
-                    id="import-settings-file"
-                    type="file"
-                    accept=".json"
-                    className="admin-hidden"
-                    onChange={handleImportSettings}
-                    aria-label="Импорт настроек из файла"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex gap-2">
+          <Button onClick={handleReset} variant="outline" disabled={isResetting || isSaving}>
+            {isResetting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Перезагрузка...
+              </>
+            ) : (
+              <>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Перезагрузить
+              </>
+            )}
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving || isResetting}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Сохраняю...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Сохранить
+              </>
+            )}
+          </Button>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Настройки приложения</CardTitle>
+          <CardDescription>Основная информация о приложении</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="appName">Название приложения</Label>
+            <Input
+              id="appName"
+              value={settings.appName}
+              onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
+              placeholder="UNITY Diary"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="appDescription">Описание приложения</Label>
+            <Textarea
+              id="appDescription"
+              value={settings.appDescription}
+              onChange={(e) => setSettings({ ...settings, appDescription: e.target.value })}
+              placeholder="Персональный дневник достижений"
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="supportEmail">Email поддержки</Label>
+            <Input
+              id="supportEmail"
+              type="email"
+              value={settings.supportEmail}
+              onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
+              placeholder="support@example.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="maxEntriesPerDay">Максимум записей в день</Label>
+            <Input
+              id="maxEntriesPerDay"
+              type="number"
+              min="1"
+              max="100"
+              value={settings.maxEntriesPerDay}
+              onChange={(e) => setSettings({ ...settings, maxEntriesPerDay: parseInt(e.target.value) || 10 })}
+            />
+            <p className="text-xs text-muted-foreground">
+              Ограничение количества записей, которые пользователь может создать за день
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Функции</CardTitle>
+          <CardDescription>Включение/отключение функций приложения</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="enableAnalytics">Аналитика</Label>
+              <p className="text-sm text-muted-foreground">
+                Сбор анонимной статистики использования
+              </p>
+            </div>
+            <Switch
+              id="enableAnalytics"
+              checked={settings.enableAnalytics}
+              onCheckedChange={(checked) => setSettings({ ...settings, enableAnalytics: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="enableErrorReporting">Отчеты об ошибках</Label>
+              <p className="text-sm text-muted-foreground">
+                Автоматическая отправка отчетов об ошибках
+              </p>
+            </div>
+            <Switch
+              id="enableErrorReporting"
+              checked={settings.enableErrorReporting}
+              onCheckedChange={(checked) => setSettings({ ...settings, enableErrorReporting: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="space-y-0.5 flex-1">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="maintenanceMode">Режим обслуживания</Label>
+                {settings.maintenanceMode && (
+                  <Badge variant="destructive">Активен</Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Временно отключить доступ к приложению для обслуживания
+              </p>
+            </div>
+            <Switch
+              id="maintenanceMode"
+              checked={settings.maintenanceMode}
+              onCheckedChange={(checked) => setSettings({ ...settings, maintenanceMode: checked })}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
