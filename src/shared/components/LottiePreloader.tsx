@@ -3,8 +3,13 @@ import Lottie from 'lottie-react';
 import { useTheme } from '@/shared/components/theme-provider';
 
 // Import Lottie animations
+// Initial loading (Welcome screen) - Black.json для темной темы, White.json для светлой
 import blackAnimation from '@/components/preloader/Black.json';
 import whiteAnimation from '@/components/preloader/White.json';
+
+// Page transitions - Black-2.json для темной темы, White-2.json для светлой
+import blackAnimation2 from '@/components/preloader/Black-2.json';
+import whiteAnimation2 from '@/components/preloader/White-2.json';
 
 interface LottiePreloaderProps {
   /**
@@ -12,45 +17,57 @@ interface LottiePreloaderProps {
    * @default "Загрузка..."
    */
   message?: string;
-  
+
   /**
    * Минимальное время показа прелоадера в миллисекундах
    * @default 5000 (5 секунд)
    */
   minDuration?: number;
-  
+
   /**
    * Показывать ли текст сообщения
    * @default true
    */
   showMessage?: boolean;
-  
+
   /**
    * Размер анимации
    * @default "md"
    */
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  
+
   /**
    * Дополнительные CSS классы
    */
   className?: string;
-  
+
   /**
    * Callback когда минимальное время истекло
    */
   onMinDurationComplete?: () => void;
+
+  /**
+   * Тип анимации прелоадера
+   * @default "initial" - для первой загрузки (Welcome screen)
+   * @value "initial" - Black.json/White.json для первой загрузки
+   * @value "transition" - Black-2.json/White-2.json для переходов между страницами
+   */
+  animationType?: 'initial' | 'transition';
 }
 
 /**
- * Универсальный Lottie прелоадер с поддержкой тем
- * 
+ * Универсальный Lottie прелоадер с поддержкой тем и типов анимации
+ *
  * Автоматически переключается между черной и белой анимацией
- * в зависимости от текущей темы (light/dark)
- * 
+ * в зависимости от текущей темы (light/dark) и типа анимации
+ *
  * @example
  * ```tsx
- * <LottiePreloader message="Загрузка данных..." minDuration={5000} />
+ * // Для первой загрузки (Welcome screen)
+ * <LottiePreloader message="Загрузка..." minDuration={5000} animationType="initial" />
+ *
+ * // Для переходов между страницами
+ * <LottiePreloader showMessage={false} animationType="transition" size="md" />
  * ```
  */
 export function LottiePreloader({
@@ -59,15 +76,22 @@ export function LottiePreloader({
   showMessage = true,
   size = 'md',
   className = '',
-  onMinDurationComplete
+  onMinDurationComplete,
+  animationType = 'initial'
 }: LottiePreloaderProps) {
   const { theme } = useTheme();
   const [minDurationElapsed, setMinDurationElapsed] = useState(false);
-  
-  // Определяем какую анимацию использовать в зависимости от темы
-  // White.json - для светлой темы (светлая анимация на светлом фоне)
-  // Black.json - для темной темы (темная анимация на темном фоне)
-  const animationData = theme === 'dark' ? blackAnimation : whiteAnimation;
+
+  // Определяем какую анимацию использовать в зависимости от темы и типа
+  // Initial loading (Welcome screen):
+  //   - White.json - для светлой темы (светлая анимация на светлом фоне)
+  //   - Black.json - для темной темы (темная анимация на темном фоне)
+  // Page transitions:
+  //   - White-2.json - для светлой темы
+  //   - Black-2.json - для темной темы
+  const animationData = animationType === 'transition'
+    ? (theme === 'dark' ? blackAnimation2 : whiteAnimation2)
+    : (theme === 'dark' ? blackAnimation : whiteAnimation);
   
   // Размеры анимации
   const sizeClasses = {
@@ -113,6 +137,7 @@ export function LottiePreloader({
 /**
  * Компактный вариант прелоадера для использования внутри компонентов
  * Поддерживает опциональный minDuration для страниц
+ * Используется для переходов между страницами (animationType="transition")
  */
 export function LottiePreloaderCompact({
   message = "Загрузка...",
@@ -120,13 +145,17 @@ export function LottiePreloaderCompact({
   showMessage = false,
   minDuration,
   onMinDurationComplete,
-  className = ''
+  className = '',
+  animationType = 'transition'
 }: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
   minDuration?: number;
   onMinDurationComplete?: () => void;
 }) {
   const { theme } = useTheme();
-  const animationData = theme === 'dark' ? blackAnimation : whiteAnimation;
+  // Компактный вариант использует анимацию переходов (Black-2.json/White-2.json)
+  const animationData = animationType === 'transition'
+    ? (theme === 'dark' ? blackAnimation2 : whiteAnimation2)
+    : (theme === 'dark' ? blackAnimation : whiteAnimation);
   const [minDurationElapsed, setMinDurationElapsed] = useState(false);
 
   // Если указан minDuration, запускаем таймер
@@ -168,13 +197,19 @@ export function LottiePreloaderCompact({
 
 /**
  * Inline вариант прелоадера для использования в кнопках и других элементах
+ * Используется для переходов между страницами (animationType="transition")
  */
 export function LottiePreloaderInline({
   size = 'sm',
-  className = ''
-}: Pick<LottiePreloaderProps, 'size' | 'className'>) {
+  className = '',
+  animationType = 'transition'
+}: Pick<LottiePreloaderProps, 'size' | 'className' | 'animationType'>) {
   const { theme } = useTheme();
-  const animationData = theme === 'dark' ? whiteAnimation : blackAnimation;
+  // Inline вариант использует анимацию переходов (Black-2.json/White-2.json)
+  // Инвертируем цвета для inline элементов (светлая анимация на темном фоне и наоборот)
+  const animationData = animationType === 'transition'
+    ? (theme === 'dark' ? whiteAnimation2 : blackAnimation2)
+    : (theme === 'dark' ? whiteAnimation : blackAnimation);
   
   const sizeClasses = {
     sm: 'w-4 h-4',
