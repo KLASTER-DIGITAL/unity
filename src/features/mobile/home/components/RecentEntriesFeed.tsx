@@ -151,13 +151,13 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
                 {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
-              {/* Превью текста с градиентом */}
+              {/* Превью текста с тонким градиентом затухания */}
               <div className="relative">
                 <p className="!text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
                   {entry.text}
                 </p>
-                {/* Градиент блюра для читаемости текста */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent backdrop-blur-sm pointer-events-none" />
+                {/* Тонкий градиент затухания только в конце (20-30px) */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-card via-card/50 to-transparent pointer-events-none" />
               </div>
             </div>
           ))}
