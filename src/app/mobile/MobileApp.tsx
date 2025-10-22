@@ -172,100 +172,108 @@ export function MobileApp({
   return (
     <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
       <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-        <div className="relative min-h-screen bg-background backdrop-blur-sm overflow-hidden">
-          <AnimatePresence mode="wait" custom={direction}>
-            {activeScreen === "home" && (
-              <motion.div
-                key="home"
-                custom={direction}
-                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                animate={{ x: 0, opacity: 1 }}
-                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="absolute inset-0"
-              >
-                <Suspense fallback={<LoadingScreen />}>
-                  <AchievementHomeScreen
-                    userData={userData}
-                    onNavigateToHistory={() => handleTabChange("history")}
-                    onNavigateToSettings={() => handleTabChange("settings")}
-                  />
-                </Suspense>
-              </motion.div>
-            )}
-            {activeScreen === "history" && (
-              <motion.div
-                key="history"
-                custom={direction}
-                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                animate={{ x: 0, opacity: 1 }}
-                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="absolute inset-0"
-              >
-                <Suspense fallback={<LoadingScreen />}>
-                  <HistoryScreen
-                    userData={userData}
-                  />
-                </Suspense>
-              </motion.div>
-            )}
-            {activeScreen === "achievements" && (
-              <motion.div
-                key="achievements"
-                custom={direction}
-                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                animate={{ x: 0, opacity: 1 }}
-                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="absolute inset-0"
-              >
-                <Suspense fallback={<LoadingScreen />}>
-                  <AchievementsScreen
-                    userData={userData}
-                  />
-                </Suspense>
-              </motion.div>
-            )}
-            {activeScreen === "reports" && (
-              <motion.div
-                key="reports"
-                custom={direction}
-                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                animate={{ x: 0, opacity: 1 }}
-                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="absolute inset-0"
-              >
-                <Suspense fallback={<LoadingScreen />}>
-                  <ReportsScreen
-                    userData={userData}
-                  />
-                </Suspense>
-              </motion.div>
-            )}
-            {activeScreen === "settings" && (
-              <motion.div
-                key="settings"
-                custom={direction}
-                initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                animate={{ x: 0, opacity: 1 }}
-                exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="absolute inset-0"
-              >
-                <Suspense fallback={<LoadingScreen />}>
-                  <SettingsScreen
-                    userData={userData}
-                    onLogout={onLogout}
-                    onProfileUpdate={onProfileUpdate}
-                  />
-                </Suspense>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* OUTER: Scrollable container - allows vertical scroll */}
+        <div className="min-h-screen bg-background backdrop-blur-sm">
 
-          {/* Mobile Bottom Navigation */}
+          {/* INNER: Animation container - NO overflow-hidden */}
+          <div className="min-h-screen">
+            {/* Screens container - relative ONLY for absolute positioning of screens, overflow-hidden for animations */}
+            <div className="relative min-h-screen overflow-hidden">
+              <AnimatePresence mode="wait" custom={direction}>
+                {activeScreen === "home" && (
+                  <motion.div
+                    key="home"
+                    custom={direction}
+                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute inset-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<LoadingScreen />}>
+                      <AchievementHomeScreen
+                        userData={userData}
+                        onNavigateToHistory={() => handleTabChange("history")}
+                        onNavigateToSettings={() => handleTabChange("settings")}
+                      />
+                    </Suspense>
+                  </motion.div>
+                )}
+                {activeScreen === "history" && (
+                  <motion.div
+                    key="history"
+                    custom={direction}
+                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute inset-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<LoadingScreen />}>
+                      <HistoryScreen
+                        userData={userData}
+                      />
+                    </Suspense>
+                  </motion.div>
+                )}
+                {activeScreen === "achievements" && (
+                  <motion.div
+                    key="achievements"
+                    custom={direction}
+                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute inset-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<LoadingScreen />}>
+                      <AchievementsScreen
+                        userData={userData}
+                      />
+                    </Suspense>
+                  </motion.div>
+                )}
+                {activeScreen === "reports" && (
+                  <motion.div
+                    key="reports"
+                    custom={direction}
+                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute inset-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<LoadingScreen />}>
+                      <ReportsScreen
+                        userData={userData}
+                      />
+                    </Suspense>
+                  </motion.div>
+                )}
+                {activeScreen === "settings" && (
+                  <motion.div
+                    key="settings"
+                    custom={direction}
+                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute inset-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<LoadingScreen />}>
+                      <SettingsScreen
+                        userData={userData}
+                        onLogout={onLogout}
+                        onProfileUpdate={onProfileUpdate}
+                      />
+                    </Suspense>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Navigation - FIXED poверх всего */}
           <MobileBottomNav
             activeTab={activeScreen}
             onTabChange={handleTabChange}

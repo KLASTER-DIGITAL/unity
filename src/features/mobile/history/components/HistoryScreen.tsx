@@ -412,11 +412,11 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
                     </p>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-2 py-1 rounded-[6px] !text-[11px] !font-medium ${SENTIMENT_COLORS[entry.sentiment]}`}>
+                      <span className={`px-2 py-1 rounded-[6px] !text-[11px] !font-medium border ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}>
                         {entry.sentiment === 'positive' ? '😊 Позитив' : entry.sentiment === 'neutral' ? '😐 Нейтрал' : '😔 Грусть'}
                       </span>
                       {(entry.tags || []).map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px]">
+                        <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px] border border-muted-foreground/30 dark:border-muted-foreground/50">
                           #{tag}
                         </span>
                       ))}

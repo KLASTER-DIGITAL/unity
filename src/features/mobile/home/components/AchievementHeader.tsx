@@ -2,13 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import svgPaths from "@/imports/svg-wgvq4zqu0u";
 import {
-  Plus,
-  Mic,
-  Camera,
-  Sparkles,
   BookOpen,
-  Settings,
-  Menu
+  Settings
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 
@@ -196,7 +191,7 @@ export function AchievementHeader({
     <>
       <div className="relative p-section bg-background transition-colors duration-300">
         {/* Top Bar - аватарка, приветствие и счетчик дней */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-3">
           {/* Left: Avatar + Greeting */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {/* Avatar with online pulse - клик переходит в настройки */}
@@ -221,16 +216,22 @@ export function AchievementHeader({
             </div>
           </div>
 
-          {/* Right: Days Counter - фиксированный 64x64px с отступом как у аватара */}
-          <div className="relative w-[64px] h-[64px] flex-shrink-0">
-            <svg className="block w-[64px] h-[64px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-muted-foreground" />
+          {/* Right: Days Counter - кружок в 2 раза больше (128x128px) с обводкой */}
+          <div className="relative w-[128px] h-[128px] flex-shrink-0 flex items-center justify-center">
+            {/* Кружок с обводкой - видна на обоих режимах */}
+            <svg className="absolute w-[128px] h-[128px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 128 128">
+              {/* Обводка для светлого режима - темная */}
+              <circle cx="64" cy="64" r="60" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
+              {/* Обводка для темного режима - светлая */}
+              <circle cx="64" cy="64" r="60" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" className="dark:block hidden" />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="!text-[22px] !font-semibold text-[var(--ios-green)] leading-[1]">
+
+            {/* Текст внутри кружка */}
+            <div className="relative flex flex-col items-center justify-center">
+              <p className="!text-[44px] !font-semibold text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="text-caption-2 text-muted-foreground mt-0">
+              <p className="!text-[14px] text-muted-foreground mt-1">
                 День
               </p>
             </div>

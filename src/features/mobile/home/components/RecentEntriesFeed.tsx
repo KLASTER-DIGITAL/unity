@@ -128,35 +128,35 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
 
       {/* Горизонтальный скролл */}
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-3 px-4">
+        <div className="flex gap-3 px-4 items-start">
           {/* Последние 3 записи - ФИКСИРОВАННЫЙ размер 240x140px */}
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden flex flex-col"
+              className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
               onClick={() => onEntryClick?.(entry)}
             >
               {/* Время и категория */}
-              <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                <span className="!text-[11px] text-muted-foreground whitespace-nowrap">{formatTimeAgo(entry.createdAt)}</span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="!text-[11px] text-white/70 whitespace-nowrap">{formatTimeAgo(entry.createdAt)}</span>
                 <Badge
-                  className={`!text-[11px] px-2 py-0.5 rounded-full flex-shrink-0 ${getSentimentColor(entry.sentiment)}`}
+                  className={`!text-[11px] px-2 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
                 >
                   {getCategoryEmoji(entry.category)}
                 </Badge>
               </div>
 
               {/* Заголовок */}
-              <h3 className="!font-semibold text-foreground mb-1 !text-[13px] line-clamp-1 flex-shrink-0 min-w-0">
+              <h3 className="!font-semibold text-white mb-1 !text-[13px] line-clamp-1">
                 {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
-              {/* Превью текста с тонким градиентом затухания - РАСТЯГИВАЕТСЯ */}
-              <div className="relative flex-1 min-h-0">
-                <p className="!text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
+              {/* Превью текста - ФИКСИРОВАННАЯ высота 60px, текст обрезается */}
+              <div className="relative w-full h-[60px] overflow-hidden">
+                <p className="!text-[11px] text-white/80 leading-relaxed break-words absolute top-0 left-0 right-0">
                   {entry.text}
                 </p>
-                {/* Тонкий градиент затухания только в конце (20-30px) */}
+                {/* Градиент затухания в конце */}
                 <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-card via-card/50 to-transparent pointer-events-none" />
               </div>
             </div>
