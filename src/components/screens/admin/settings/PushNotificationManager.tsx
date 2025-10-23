@@ -10,6 +10,11 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import {
+  getPushTemplate,
+  getAvailableTemplateTypes,
+  type PushTemplateType
+} from '@/shared/lib/i18n/push-templates';
 
 const supabase = createClient();
 
@@ -28,6 +33,9 @@ export function PushNotificationManager() {
   const [stats, setStats] = useState<PushStats | null>(null);
   
   // Form state
+  const [useTemplate, setUseTemplate] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<PushTemplateType>('daily_reminder');
+  const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [icon, setIcon] = useState('/icon-192.png');
@@ -273,8 +281,81 @@ export function PushNotificationManager() {
       {/* Send Push Notification */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
         <h3 className="text-lg font-semibold mb-4">Отправить уведомление</h3>
-        
+
         <div className="space-y-4">
+          {/* Template Toggle */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="useTemplate"
+              checked={useTemplate}
+              onChange={(e) => {
+                setUseTemplate(e.target.checked);
+                if (e.target.checked) {
+                  const template = getPushTemplate(selectedTemplate, selectedLanguage);
+                  setTitle(template.title);
+                  setBody(template.body);
+                  setIcon(template.icon || '/icon-192.png');
+                }
+              }}
+              className="w-4 h-4"
+            />
+            <label htmlFor="useTemplate" className="text-sm font-medium">
+              Использовать шаблон
+            </label>
+          </div>
+
+          {/* Template Selection */}
+          {useTemplate && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Язык</label>
+                <select
+                  value={selectedLanguage}
+                  onChange={(e) => {
+                    setSelectedLanguage(e.target.value);
+                    const template = getPushTemplate(selectedTemplate, e.target.value);
+                    setTitle(template.title);
+                    setBody(template.body);
+                    setIcon(template.icon || '/icon-192.png');
+                  }}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+                >
+                  <option value="ru">🇷🇺 Русский</option>
+                  <option value="en">🇬🇧 English</option>
+                  <option value="es">🇪🇸 Español</option>
+                  <option value="de">🇩🇪 Deutsch</option>
+                  <option value="fr">🇫🇷 Français</option>
+                  <option value="zh">🇨🇳 中文</option>
+                  <option value="ja">🇯🇵 日本語</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Шаблон</label>
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => {
+                    const newTemplate = e.target.value as PushTemplateType;
+                    setSelectedTemplate(newTemplate);
+                    const template = getPushTemplate(newTemplate, selectedLanguage);
+                    setTitle(template.title);
+                    setBody(template.body);
+                    setIcon(template.icon || '/icon-192.png');
+                  }}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+                >
+                  <option value="daily_reminder">📝 Ежедневное напоминание</option>
+                  <option value="weekly_report">📊 Еженедельный отчет</option>
+                  <option value="achievement_unlocked">🏆 Новое достижение</option>
+                  <option value="motivational">💪 Мотивационное сообщение</option>
+                  <option value="streak_milestone">🔥 Серия достижений</option>
+                  <option value="custom">✏️ Пользовательское</option>
+                </select>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-sm font-medium mb-2">Заголовок</label>
             <input
@@ -283,6 +364,7 @@ export function PushNotificationManager() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Новое достижение!"
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+              disabled={useTemplate && selectedTemplate !== 'custom'}
             />
           </div>
 
@@ -294,6 +376,7 @@ export function PushNotificationManager() {
               placeholder="Поздравляем с новым достижением!"
               rows={3}
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+              disabled={useTemplate && selectedTemplate !== 'custom'}
             />
           </div>
 
