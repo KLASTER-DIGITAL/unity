@@ -26,6 +26,7 @@ import { UsersManagementTab } from "./UsersManagementTab";
 import { SubscriptionsTab } from "@/features/admin/settings";
 import { SettingsTab } from "@/features/admin/settings";
 import { AIAnalyticsTab } from "@/features/admin/analytics";
+import { PWAOverview, PWASettings, PushNotifications, PWAAnalytics, PWACache } from "@/features/admin/pwa";
 import { createClient } from "@/utils/supabase/client";
 import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
 
@@ -42,6 +43,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [settingsSubTab, setSettingsSubTab] = useState("pwa");
+  const [pwaSubTab, setPwaSubTab] = useState("overview");
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
@@ -160,6 +162,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
     { id: "users", label: t('admin_users', 'Пользователи'), icon: Users },
     { id: "subscriptions", label: t('admin_subscriptions', 'Подписки'), icon: CreditCard },
     { id: "ai-analytics", label: t('admin_ai_analytics', 'AI Analytics'), icon: Brain },
+    { id: "pwa", label: t('admin_pwa', 'PWA'), icon: Smartphone },
     { id: "settings", label: t('admin_settings', 'Настройки'), icon: Settings },
   ];
 
@@ -376,6 +379,36 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
                 {activeTab === "users" && <UsersManagementTab />}
                 {activeTab === "subscriptions" && <SubscriptionsTab />}
                 {activeTab === "ai-analytics" && <AIAnalyticsTab />}
+                {activeTab === "pwa" && (
+                  <div className="space-y-6">
+                    {/* PWA Sub-navigation */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                      {[
+                        { id: 'overview', label: 'Overview' },
+                        { id: 'settings', label: 'Settings' },
+                        { id: 'push', label: 'Push Notifications' },
+                        { id: 'analytics', label: 'Analytics' },
+                        { id: 'cache', label: 'Cache' },
+                      ].map((tab) => (
+                        <Button
+                          key={tab.id}
+                          variant={pwaSubTab === tab.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setPwaSubTab(tab.id)}
+                        >
+                          {tab.label}
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* PWA Content */}
+                    {pwaSubTab === 'overview' && <PWAOverview />}
+                    {pwaSubTab === 'settings' && <PWASettings />}
+                    {pwaSubTab === 'push' && <PushNotifications />}
+                    {pwaSubTab === 'analytics' && <PWAAnalytics />}
+                    {pwaSubTab === 'cache' && <PWACache />}
+                  </div>
+                )}
                 {activeTab === "settings" && (
                   <SettingsTab
                     activeSubTab={settingsSubTab}
