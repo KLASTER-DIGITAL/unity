@@ -174,6 +174,7 @@ export async function getPushAnalytics(
   endDate?: Date
 ): Promise<PushAnalyticsStats | null> {
   try {
+    console.log('[getPushAnalytics] Called with:', { startDate, endDate });
     const supabase = createClient();
 
     // Формируем запрос
@@ -195,14 +196,18 @@ export async function getPushAnalytics(
       query = query.lte('created_at', endDate.toISOString());
     }
 
+    console.log('[getPushAnalytics] Executing query...');
     const { data: events, error } = await query;
 
     if (error) {
-      console.error('[Push Analytics] Failed to get analytics:', error);
+      console.error('[getPushAnalytics] Failed to get analytics:', error);
       return null;
     }
 
+    console.log('[getPushAnalytics] Received events:', events?.length || 0);
+
     if (!events || events.length === 0) {
+      console.log('[getPushAnalytics] No events found, returning empty stats');
       return {
         total_sent: 0,
         total_delivered: 0,
@@ -309,7 +314,7 @@ export async function getPushAnalytics(
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    return {
+    const result = {
       total_sent: totalSent,
       total_delivered: delivered,
       total_opened: opened,
@@ -321,8 +326,11 @@ export async function getPushAnalytics(
       by_hour: byHour,
       by_day: byDay,
     };
+
+    console.log('[getPushAnalytics] Returning stats:', result);
+    return result;
   } catch (error) {
-    console.error('[Push Analytics] Error getting analytics:', error);
+    console.error('[getPushAnalytics] Error getting analytics:', error);
     return null;
   }
 }

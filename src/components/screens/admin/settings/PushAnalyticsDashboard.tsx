@@ -22,6 +22,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
   const [period, setPeriod] = useState<'7d' | '30d' | 'all'>('7d');
 
   const loadAnalytics = async () => {
+    console.log('[PushAnalyticsDashboard] Loading analytics, period:', period);
     setLoading(true);
     try {
       let startDate: Date | undefined;
@@ -35,12 +36,15 @@ export const PushAnalyticsDashboard: React.FC = () => {
         startDate.setDate(startDate.getDate() - 30);
       }
 
+      console.log('[PushAnalyticsDashboard] Calling getPushAnalytics with:', { startDate, endDate });
       const data = await getPushAnalytics(startDate, endDate);
+      console.log('[PushAnalyticsDashboard] Received data:', data);
       setStats(data);
     } catch (error) {
-      console.error('Failed to load push analytics:', error);
+      console.error('[PushAnalyticsDashboard] Failed to load push analytics:', error);
     } finally {
       setLoading(false);
+      console.log('[PushAnalyticsDashboard] Loading complete');
     }
   };
 
