@@ -81,7 +81,7 @@ src/public/
 src/features/admin/pwa/
 ├── components/
 │   ├── PWAOverview.tsx        # Главная страница PWA (stats, quick actions)
-│   ├── PWASettings.tsx        # Настройки PWA (Install Prompt, functions)
+│   ├── PWASettings.tsx        # Настройки PWA (Manifest + Install Prompt + functions)
 │   ├── PushNotifications.tsx  # Push управление (Send/Test/History/Templates)
 │   ├── PWAAnalytics.tsx       # Аналитика (Push/Advanced/Cohort/Funnel)
 │   ├── PWACache.tsx           # Управление кэшем
@@ -89,12 +89,14 @@ src/features/admin/pwa/
 └── index.ts
 
 src/components/screens/admin/settings/
-├── PWASettingsTab.tsx         # DEPRECATED - moved to PWASettings
-├── PushNotificationsTab.tsx   # DEPRECATED - moved to PushNotifications
 ├── PushNotificationManager.tsx # Used in PushNotifications
 ├── PushNotificationTester.tsx  # Used in PushNotifications
 ├── PushAnalyticsDashboard.tsx  # Used in PWAAnalytics
 └── CacheManager.tsx            # Used in PWACache
+
+⚠️ УДАЛЕНО (2025-10-23):
+├── PWASettingsTab.tsx         # УДАЛЁН - дублировал PWASettings
+└── PushNotificationsTab.tsx   # УДАЛЁН - дублировал PushNotifications
 ```
 
 ---
@@ -215,6 +217,18 @@ profiles (
 
 ## 📝 Changelog
 
+### 2025-10-23 (v4.0 - АРХИТЕКТУРНЫЙ РЕФАКТОРИНГ)
+- 🏗️ **КРИТИЧЕСКИЙ РЕФАКТОРИНГ**: Удалено дублирование PWA функциональности
+- ✅ Удалены вкладки PWA и Push из Settings раздела (было 8 вкладок, стало 6)
+- ✅ Перенесена уникальная функциональность Манифест PWA в PWASettings
+- ✅ Удалены файлы PWASettingsTab.tsx (692 строки) и PushNotificationsTab.tsx
+- ✅ Обновлена навигация в AdminDashboard - кнопки быстрого доступа используют CustomEvent
+- ✅ Добавлена поддержка параметра pwaSubTab в event handler
+- 📊 Bundle size: admin-features уменьшился с 215.91 kB до 189.59 kB (экономия 26.32 kB)
+- 🎯 **РЕЗУЛЬТАТ**: ВСЯ PWA функциональность ТОЛЬКО в отдельном разделе PWA
+- 📋 Settings раздел: 6 вкладок (API, AI, Telegram, Языки, Общие, Система)
+- 📋 PWA раздел: 5 вкладок (Overview, Settings, Push, Analytics, Cache)
+
 ### 2025-10-23 (v3.0 - ADMIN PANEL PWA SECTION)
 - ✅ **Создан отдельный раздел PWA в админ-панели**
 - ✅ Создана структура `src/features/admin/pwa/` с 5 компонентами
@@ -245,7 +259,7 @@ profiles (
 
 ---
 
-**Последнее обновление**: 2025-10-23 v3.0
-**Статус**: ✅ ADMIN PANEL PWA SECTION ГОТОВ
-**Следующий шаг**: Тестирование PWA раздела в админ-панели
+**Последнее обновление**: 2025-10-23 v4.0
+**Статус**: ✅ АРХИТЕКТУРНЫЙ РЕФАКТОРИНГ ЗАВЕРШЁН
+**Следующий шаг**: Деплой на Vercel и production тестирование
 
