@@ -23,6 +23,7 @@ import {
   trackInstallAccepted,
   trackInstallDismissed,
 } from "@/shared/lib/analytics/pwa-tracking";
+import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
 
 // Import E2E test component
 import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
@@ -257,6 +258,9 @@ export default function App() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, [isPWALoading, pwaSettings, userData, onboardingComplete]);
+
+  // Инициализируем Push Analytics
+  useInitPushAnalytics(userData?.id);
 
   // PWA Install Handlers
   const handleInstall = async () => {

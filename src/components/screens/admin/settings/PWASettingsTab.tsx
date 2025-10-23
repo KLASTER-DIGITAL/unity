@@ -13,6 +13,7 @@ import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, Tre
 import { createClient } from '@/utils/supabase/client';
 import { PushNotificationTester } from './PushNotificationTester';
 import { PushNotificationManager } from './PushNotificationManager';
+import { PushAnalyticsDashboard } from './PushAnalyticsDashboard';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -546,6 +547,9 @@ export const PWASettingsTab: React.FC = () => {
               <PushNotificationManager />
             </CardContent>
           </Card>
+
+          {/* Push Analytics Dashboard */}
+          <PushAnalyticsDashboard />
         </div>
 
         {/* Визуализация и статистика */}
