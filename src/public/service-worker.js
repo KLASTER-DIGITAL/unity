@@ -207,3 +207,201 @@ self.addEventListener('notificationclose', (event) => {
       })
   );
 });
+
+// ==========================================
+// BACKGROUND SYNC
+// ==========================================
+
+/**
+ * Background Sync event handler
+ * Syncs pending entries when connection is restored
+ */
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Sync event triggered:', event.tag);
+
+  if (event.tag === 'sync-entries') {
+    event.waitUntil(syncPendingEntries());
+  }
+});
+
+/**
+ * Sync pending entries from IndexedDB
+ */
+async function syncPendingEntries() {
+  console.log('[SW] Starting sync of pending entries...');
+
+  try {
+    // Open IndexedDB
+    const db = await openDB();
+    const transaction = db.transaction(['pending_entries'], 'readonly');
+    const store = transaction.objectStore('pending_entries');
+    const pendingEntries = await getAllFromStore(store);
+
+    console.log(`[SW] Found ${pendingEntries.length} pending entries`);
+
+    let synced = 0;
+    let failed = 0;
+
+    for (const entry of pendingEntries) {
+      // Skip if already syncing or exceeded retry limit
+      if (entry.syncStatus === 'syncing' || entry.retryCount >= 3) {
+        continue;
+      }
+
+      try {
+        // Mark as syncing
+        await updateEntryStatus(db, entry.id, 'syncing');
+
+        // Sync entry to server
+        const response = await fetch('/api/entries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: entry.userId,
+            text: entry.text,
+            sentiment: entry.sentiment,
+            category: entry.category,
+            mood: entry.mood,
+            media: entry.media,
+            tags: entry.tags,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const savedEntry = await response.json();
+        console.log(`[SW] Entry ${entry.id} synced successfully`);
+
+        // Delete from pending entries
+        await deleteEntry(db, entry.id);
+        synced++;
+
+        // Notify clients
+        const clients = await self.clients.matchAll();
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'ENTRY_SYNCED',
+            entryId: entry.id,
+            savedEntry,
+          });
+        });
+      } catch (error) {
+        console.error(`[SW] Failed to sync entry ${entry.id}:`, error);
+
+        // Update retry count
+        await updateEntryRetry(db, entry.id, error.message);
+        failed++;
+
+        // Notify clients
+        const clients = await self.clients.matchAll();
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'ENTRY_SYNC_FAILED',
+            entryId: entry.id,
+            error: error.message,
+          });
+        });
+      }
+    }
+
+    console.log(`[SW] Sync complete: ${synced} synced, ${failed} failed`);
+
+    // Notify clients about completion
+    const clients = await self.clients.matchAll();
+    clients.forEach((client) => {
+      client.postMessage({
+        type: 'BACKGROUND_SYNC_COMPLETE',
+        synced,
+        failed,
+      });
+    });
+  } catch (error) {
+    console.error('[SW] Background sync failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Open IndexedDB
+ */
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('unity-diary-offline', 1);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Get all items from store
+ */
+function getAllFromStore(store) {
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Update entry sync status
+ */
+async function updateEntryStatus(db, entryId, status) {
+  const transaction = db.transaction(['pending_entries'], 'readwrite');
+  const store = transaction.objectStore('pending_entries');
+  const entry = await new Promise((resolve, reject) => {
+    const request = store.get(entryId);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+
+  if (entry) {
+    entry.syncStatus = status;
+    await new Promise((resolve, reject) => {
+      const request = store.put(entry);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+}
+
+/**
+ * Update entry retry count
+ */
+async function updateEntryRetry(db, entryId, errorMessage) {
+  const transaction = db.transaction(['pending_entries'], 'readwrite');
+  const store = transaction.objectStore('pending_entries');
+  const entry = await new Promise((resolve, reject) => {
+    const request = store.get(entryId);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+
+  if (entry) {
+    entry.syncStatus = 'failed';
+    entry.retryCount = (entry.retryCount || 0) + 1;
+    entry.lastError = errorMessage;
+    await new Promise((resolve, reject) => {
+      const request = store.put(entry);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+}
+
+/**
+ * Delete entry from IndexedDB
+ */
+async function deleteEntry(db, entryId) {
+  const transaction = db.transaction(['pending_entries'], 'readwrite');
+  const store = transaction.objectStore('pending_entries');
+  await new Promise((resolve, reject) => {
+    const request = store.delete(entryId);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}

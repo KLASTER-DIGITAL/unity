@@ -5,6 +5,7 @@ import { analyzeTextWithAI, createEntry, transcribeAudio, type DiaryEntry } from
 import { toast } from "sonner";
 import { useVoiceRecorder, useMediaUploader, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
 import { DragDropZone } from "@/shared/components/DragDropZone";
+import { saveEntryOffline } from "@/shared/lib/offline";
 
 interface ChatMessage {
   id: string;
@@ -138,25 +139,57 @@ export function ChatInputSection({
       };
 
       console.log("Creating entry in database with", uploadedMedia.length, "media files...");
-      const savedEntry = await createEntry(entryData);
 
-      console.log("Entry saved successfully:", savedEntry);
+      // Check if online
+      if (!navigator.onLine) {
+        console.log("App is offline, saving entry for later sync...");
 
-      // Обновляем сообщение пользователя с ID записи
-      userMessage.entryId = savedEntry.id;
+        // Save offline
+        const pendingEntry = await saveEntryOffline(userId, userText, {
+          sentiment: analysis.sentiment,
+          category: selectedCategory || analysis.category,
+          mood: analysis.mood,
+          media: uploadedMedia.length > 0 ? uploadedMedia : undefined,
+          tags: analysis.tags,
+        });
 
-      // Callbacks
-      onMessageSent?.(userMessage);
-      onEntrySaved?.(savedEntry);
+        console.log("Entry saved offline:", pendingEntry);
 
-      // Автоматически скрываем modal через 2 секунды после успешного сохранения
-      setTimeout(() => {
-        setShowSuccessModal(false);
-      }, 2000);
+        // Show offline toast
+        toast.info("Сохранено офлайн", {
+          description: "Запись будет синхронизирована когда появится интернет",
+          duration: 4000
+        });
+
+        // Callbacks with pending entry
+        onMessageSent?.(userMessage);
+
+        // Автоматически скрываем modal через 2 секунды
+        setTimeout(() => {
+          setShowSuccessModal(false);
+        }, 2000);
+      } else {
+        // Save online
+        const savedEntry = await createEntry(entryData);
+
+        console.log("Entry saved successfully:", savedEntry);
+
+        // Обновляем сообщение пользователя с ID записи
+        userMessage.entryId = savedEntry.id;
+
+        // Callbacks
+        onMessageSent?.(userMessage);
+        onEntrySaved?.(savedEntry);
+
+        // Автоматически скрываем modal через 2 секунды после успешного сохранения
+        setTimeout(() => {
+          setShowSuccessModal(false);
+        }, 2000);
+      }
 
     } catch (error) {
       console.error("Error processing message:", error);
-      
+
       // Error toast
       toast.error("Ошибка обработки", {
         description: "Не удалось сохранить запись. Попробуйте снова.",

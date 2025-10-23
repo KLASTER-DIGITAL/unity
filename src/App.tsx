@@ -15,6 +15,9 @@ const PWAStatus = lazy(() => import("@/shared/components/pwa").then(m => ({ defa
 const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAUpdatePrompt })));
 const InstallPrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.InstallPrompt })));
 
+// Offline Components
+const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator").then(m => ({ default: m.OfflineSyncIndicator })));
+
 import { usePWASettings, shouldShowInstallPrompt, incrementVisitCount } from "@/shared/hooks/usePWASettings";
 import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
 import {
@@ -24,6 +27,7 @@ import {
   trackInstallDismissed,
 } from "@/shared/lib/analytics/pwa-tracking";
 import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
+import { initBackgroundSync } from "@/shared/lib/offline";
 
 // Import E2E test component
 import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
@@ -253,6 +257,13 @@ export default function App() {
 
     // Инициализируем PWA analytics
     initPWAAnalytics(userData?.id || null);
+
+    // Инициализируем Background Sync
+    if (userData?.id) {
+      initBackgroundSync().catch(error => {
+        console.error('[App] Failed to initialize Background Sync:', error);
+      });
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -519,6 +530,11 @@ export default function App() {
               onClose={handleInstallClose}
               onInstall={handleInstall}
             />
+          )}
+
+          {/* Offline Sync Indicator - показывает pending syncs */}
+          {userData?.user?.id && !isAdminRoute && (
+            <OfflineSyncIndicator userId={userData.user.id} />
           )}
         </Suspense>
 
