@@ -206,8 +206,22 @@ export function CacheManager() {
         </CardHeader>
         <CardContent>
           {caches.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Нет активных кэшей
+            <div className="flex flex-col items-center justify-center py-12">
+              <Database className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">Нет активных кэшей</h3>
+              <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
+                Кэши будут созданы автоматически при первом использовании PWA.
+                Service Worker начнёт кэшировать ресурсы после установки.
+              </p>
+              <Button
+                onClick={loadCacheStats}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Обновить
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">

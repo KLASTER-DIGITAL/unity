@@ -15,6 +15,13 @@ import {
   getAvailableTemplateTypes,
   type PushTemplateType
 } from '@/shared/lib/i18n/push-templates';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui/collapsible';
+import { Button } from '@/shared/components/ui/button';
+import { ChevronDown, Key } from 'lucide-react';
 
 const supabase = createClient();
 
@@ -31,7 +38,8 @@ export function PushNotificationManager() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [stats, setStats] = useState<PushStats | null>(null);
-  
+  const [isVapidOpen, setIsVapidOpen] = useState(false);
+
   // Form state
   const [useTemplate, setUseTemplate] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PushTemplateType>('daily_reminder');
@@ -205,52 +213,63 @@ export function PushNotificationManager() {
 
   return (
     <div className="space-y-6">
-      {/* VAPID Keys Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-        <h3 className="text-lg font-semibold mb-4">VAPID Keys</h3>
-        
-        {!vapidPublicKey || !vapidPrivateKey ? (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              VAPID keys не настроены. Сгенерируйте их для работы Web Push API.
-            </p>
-            <button
-              onClick={generateVapidKeys}
-              disabled={isGenerating}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isGenerating ? 'Генерация...' : 'Сгенерировать VAPID Keys'}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Public Key</label>
-              <input
-                type="text"
-                value={vapidPublicKey}
-                readOnly
-                className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Private Key</label>
-              <input
-                type="password"
-                value={vapidPrivateKey}
-                readOnly
-                className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
-              />
-            </div>
-            <button
-              onClick={generateVapidKeys}
-              disabled={isGenerating}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 text-sm"
-            >
-              Перегенерировать
-            </button>
-          </div>
-        )}
+      {/* VAPID Keys Section - Collapsible */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+        <Collapsible open={isVapidOpen} onOpenChange={setIsVapidOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full justify-between">
+              <span className="flex items-center gap-2">
+                <Key className="w-4 h-4" />
+                VAPID Keys {vapidPublicKey && vapidPrivateKey && '(настроены)'}
+              </span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${isVapidOpen ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            {!vapidPublicKey || !vapidPrivateKey ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  VAPID keys не настроены. Сгенерируйте их для работы Web Push API.
+                </p>
+                <button
+                  onClick={generateVapidKeys}
+                  disabled={isGenerating}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isGenerating ? 'Генерация...' : 'Сгенерировать VAPID Keys'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Public Key</label>
+                  <input
+                    type="text"
+                    value={vapidPublicKey}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Private Key</label>
+                  <input
+                    type="password"
+                    value={vapidPrivateKey}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
+                  />
+                </div>
+                <button
+                  onClick={generateVapidKeys}
+                  disabled={isGenerating}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 text-sm"
+                >
+                  Перегенерировать
+                </button>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {/* Statistics */}

@@ -76,9 +76,6 @@ export function PWAOverview() {
     installsGrowth: 0
   });
   const [installationData, setInstallationData] = useState<InstallationData[]>([
-    { month: 'Jan', installs: 120, uninstalls: 15 },
-    { month: 'Feb', installs: 150, uninstalls: 12 },
-    { month: 'Mar', installs: 200, uninstalls: 18 },
     { month: 'Apr', installs: 180, uninstalls: 20 },
     { month: 'May', installs: 250, uninstalls: 22 },
     { month: 'Jun', installs: 300, uninstalls: 25 },
@@ -239,13 +236,13 @@ export function PWAOverview() {
 
       {/* График установок */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
             Динамика установок
           </CardTitle>
-          <CardDescription>
-            Установки и удаления за последние 6 месяцев
+          <CardDescription className="text-sm">
+            Последние 3 месяца
           </CardDescription>
         </CardHeader>
         <CardContent>

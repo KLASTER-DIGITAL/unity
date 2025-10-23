@@ -170,12 +170,18 @@ export function PWASettings() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${
+              settings.enableNotifications
+                ? 'border-primary/20 bg-primary/5'
+                : 'bg-muted border-border'
+            }`}>
               <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="font-medium">Push-уведомления</div>
-                  <p className="text-sm text-muted-foreground">
+                <Bell className={`w-5 h-5 ${settings.enableNotifications ? 'text-primary' : 'text-muted-foreground'}`} />
+                <div className="space-y-0.5">
+                  <div className={`text-sm font-medium ${settings.enableNotifications ? 'text-primary' : ''}`}>
+                    Push-уведомления
+                  </div>
+                  <p className="text-xs text-muted-foreground">
                     Разрешить отправку уведомлений
                   </p>
                 </div>
@@ -186,12 +192,18 @@ export function PWASettings() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${
+              settings.enableOfflineMode
+                ? 'border-primary/20 bg-primary/5'
+                : 'bg-muted border-border'
+            }`}>
               <div className="flex items-center gap-3">
-                <Wifi className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="font-medium">Offline режим</div>
-                  <p className="text-sm text-muted-foreground">
+                <Wifi className={`w-5 h-5 ${settings.enableOfflineMode ? 'text-primary' : 'text-muted-foreground'}`} />
+                <div className="space-y-0.5">
+                  <div className={`text-sm font-medium ${settings.enableOfflineMode ? 'text-primary' : ''}`}>
+                    Offline режим
+                  </div>
+                  <p className="text-xs text-muted-foreground">
                     Работа без интернета
                   </p>
                 </div>
@@ -202,12 +214,18 @@ export function PWASettings() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${
+              settings.enableInstallPrompt
+                ? 'border-primary/20 bg-primary/5'
+                : 'bg-muted border-border'
+            }`}>
               <div className="flex items-center gap-3">
-                <Download className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="font-medium">Install Prompt</div>
-                  <p className="text-sm text-muted-foreground">
+                <Download className={`w-5 h-5 ${settings.enableInstallPrompt ? 'text-primary' : 'text-muted-foreground'}`} />
+                <div className="space-y-0.5">
+                  <div className={`text-sm font-medium ${settings.enableInstallPrompt ? 'text-primary' : ''}`}>
+                    Install Prompt
+                  </div>
+                  <p className="text-xs text-muted-foreground">
                     Предложение установки
                   </p>
                 </div>
