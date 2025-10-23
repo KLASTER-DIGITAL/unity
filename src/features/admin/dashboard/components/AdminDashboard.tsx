@@ -72,13 +72,16 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   // Слушаем события навигации
   useEffect(() => {
     const handleAdminNavigate = (event: any) => {
-      const { tab, subtab } = event.detail;
-      console.log('[AdminDashboard] admin-navigate event:', { tab, subtab });
+      const { tab, subtab, pwaSubTab: pwaSubTabParam } = event.detail;
+      console.log('[AdminDashboard] admin-navigate event:', { tab, subtab, pwaSubTab: pwaSubTabParam });
       if (tab) {
         setActiveTab(tab);
       }
       if (subtab) {
         setSettingsSubTab(subtab);
+      }
+      if (pwaSubTabParam) {
+        setPwaSubTab(pwaSubTabParam);
       }
     };
 
@@ -564,10 +567,10 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="justify-start h-auto py-4 border-border"
-              onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'settings', subtab: 'pwa' } }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'settings' } }))}
             >
               <div className="flex items-center gap-3 w-full">
                 <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">
@@ -585,7 +588,7 @@ function OverviewTab({ stats, isLoading, onRefresh }: { stats: any, isLoading: b
             <Button
               variant="outline"
               className="justify-start h-auto py-4 border-border"
-              onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'settings', subtab: 'push' } }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'push' } }))}
             >
               <div className="flex items-center gap-3 w-full">
                 <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">

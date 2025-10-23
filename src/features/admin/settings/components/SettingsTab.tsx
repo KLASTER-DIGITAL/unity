@@ -4,8 +4,6 @@ import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
 import { APIServicesTab } from '@/components/screens/admin/settings/APIServicesTab';
 import { AISettingsTab } from '@/components/screens/admin/settings/AISettingsTab';
-import { PWASettingsTab } from '@/components/screens/admin/settings/PWASettingsTab';
-import { PushNotificationsTab } from '@/components/screens/admin/settings/PushNotificationsTab';
 import { GeneralSettingsTab } from '@/components/screens/admin/settings/GeneralSettingsTab';
 import { SystemSettingsTab } from '@/components/screens/admin/settings/SystemSettingsTab';
 import { TelegramSettingsTab } from '@/components/screens/admin/settings/TelegramSettingsTab';
@@ -15,8 +13,6 @@ import {
   Brain,
   MessageCircle,
   Languages,
-  Smartphone,
-  Bell,
   Settings,
   Monitor,
   Search
@@ -47,8 +43,6 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
     { value: 'ai', label: 'AI', icon: Brain, description: 'Настройки AI моделей' },
     { value: 'telegram', label: 'Telegram', icon: MessageCircle, description: 'Интеграция с Telegram' },
     { value: 'languages-translations', label: 'Языки и переводы', icon: Languages, description: 'Управление языками и переводами' },
-    { value: 'pwa', label: 'PWA', icon: Smartphone, description: 'PWA настройки' },
-    { value: 'push', label: 'Push', icon: Bell, description: 'Push-уведомления' },
     { value: 'general', label: 'Общие', icon: Settings, description: 'Общие настройки' },
     { value: 'system', label: 'Система', icon: Monitor, description: 'Системные настройки' }
   ];
@@ -133,14 +127,6 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 
                 <TabsContent value="languages-translations" className="mt-0">
                   <LanguagesAndTranslationsTab initialLanguage={selectedLanguageForTranslations} />
-                </TabsContent>
-
-                <TabsContent value="pwa" className="mt-0">
-                  <PWASettingsTab />
-                </TabsContent>
-
-                <TabsContent value="push" className="mt-0">
-                  <PushNotificationsTab />
                 </TabsContent>
 
                 <TabsContent value="general" className="mt-0">

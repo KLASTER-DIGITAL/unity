@@ -22,7 +22,8 @@ import {
   Save,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Smartphone
 } from 'lucide-react';
 
 interface PWASettings {
@@ -37,6 +38,14 @@ interface PWASettings {
   installPromptDescription: string;
   installPromptButtonText: string;
   installPromptSkipText: string;
+}
+
+interface PWAManifest {
+  appName: string;
+  shortName: string;
+  description: string;
+  themeColor: string;
+  backgroundColor: string;
 }
 
 export function PWASettings() {
@@ -56,6 +65,14 @@ export function PWASettings() {
     installPromptSkipText: 'pwa.install.skip',
   });
 
+  const [manifest, setManifest] = useState<PWAManifest>({
+    appName: 'Дневник Достижений',
+    shortName: 'Дневник',
+    description: 'Персональный дневник для отслеживания достижений',
+    themeColor: '#3b82f6',
+    backgroundColor: '#ffffff'
+  });
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -71,15 +88,28 @@ export function PWASettings() {
         return;
       }
 
-      const { data, error } = await supabase
+      // Load PWA settings
+      const { data: settingsData, error: settingsError } = await supabase
         .from('admin_settings')
         .select('value')
         .eq('key', 'pwa_settings');
 
-      if (error) throw error;
+      if (settingsError) throw settingsError;
 
-      if (data && data.length > 0 && data[0]?.value) {
-        setSettings(JSON.parse(data[0].value as string));
+      if (settingsData && settingsData.length > 0 && settingsData[0]?.value) {
+        setSettings(JSON.parse(settingsData[0].value as string));
+      }
+
+      // Load PWA manifest
+      const { data: manifestData, error: manifestError } = await supabase
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'pwa_manifest');
+
+      if (manifestError) throw manifestError;
+
+      if (manifestData && manifestData.length > 0 && manifestData[0]?.value) {
+        setManifest(JSON.parse(manifestData[0].value as string));
       }
     } catch (error) {
       console.error('Error loading PWA settings:', error);
@@ -91,26 +121,48 @@ export function PWASettings() {
 
   const handleSave = async () => {
     console.log('[PWASettings] Saving settings:', settings);
+    console.log('[PWASettings] Saving manifest:', manifest);
     setIsSaving(true);
     try {
-      const payload = {
+      // Save PWA settings
+      const settingsPayload = {
         key: 'pwa_settings',
         value: JSON.stringify(settings),
         category: 'pwa',
         updated_at: new Date().toISOString()
       };
-      console.log('[PWASettings] Upsert payload:', payload);
+      console.log('[PWASettings] Settings upsert payload:', settingsPayload);
 
-      const { data, error } = await supabase
+      const { data: settingsData, error: settingsError } = await supabase
         .from('admin_settings')
-        .upsert(payload, {
+        .upsert(settingsPayload, {
           onConflict: 'key'
         })
         .select();
 
-      console.log('[PWASettings] Upsert result:', { data, error });
+      console.log('[PWASettings] Settings upsert result:', { data: settingsData, error: settingsError });
 
-      if (error) throw error;
+      if (settingsError) throw settingsError;
+
+      // Save PWA manifest
+      const manifestPayload = {
+        key: 'pwa_manifest',
+        value: JSON.stringify(manifest),
+        category: 'pwa',
+        updated_at: new Date().toISOString()
+      };
+      console.log('[PWASettings] Manifest upsert payload:', manifestPayload);
+
+      const { data: manifestData, error: manifestError } = await supabase
+        .from('admin_settings')
+        .upsert(manifestPayload, {
+          onConflict: 'key'
+        })
+        .select();
+
+      console.log('[PWASettings] Manifest upsert result:', { data: manifestData, error: manifestError });
+
+      if (manifestError) throw manifestError;
 
       toast.success('Настройки PWA успешно сохранены! 📱');
     } catch (error: any) {
@@ -156,6 +208,88 @@ export function PWASettings() {
           )}
         </Button>
       </div>
+
+      {/* Манифест PWA */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Smartphone className="w-5 h-5" />
+            Манифест PWA
+          </CardTitle>
+          <CardDescription className="text-sm">
+            Настройка веб-манифеста приложения
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="app-name">Название приложения</Label>
+              <Input
+                id="app-name"
+                type="text"
+                value={manifest.appName}
+                onChange={(e) => setManifest(prev => ({ ...prev, appName: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="short-name">Короткое название</Label>
+              <Input
+                id="short-name"
+                type="text"
+                value={manifest.shortName}
+                onChange={(e) => setManifest(prev => ({ ...prev, shortName: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Описание</Label>
+            <Input
+              id="description"
+              type="text"
+              value={manifest.description}
+              onChange={(e) => setManifest(prev => ({ ...prev, description: e.target.value }))}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="theme-color">Цвет темы</Label>
+              <div className="flex gap-3 items-center">
+                <Input
+                  id="theme-color"
+                  type="text"
+                  value={manifest.themeColor}
+                  onChange={(e) => setManifest(prev => ({ ...prev, themeColor: e.target.value }))}
+                  className="flex-1"
+                />
+                <div
+                  className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
+                  style={{ backgroundColor: manifest.themeColor }}
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bg-color">Цвет фона</Label>
+              <div className="flex gap-3 items-center">
+                <Input
+                  id="bg-color"
+                  type="text"
+                  value={manifest.backgroundColor}
+                  onChange={(e) => setManifest(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                  className="flex-1"
+                />
+                <div
+                  className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
+                  style={{ backgroundColor: manifest.backgroundColor }}
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Функции PWA */}
       <Card>
