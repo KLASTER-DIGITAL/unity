@@ -14,6 +14,7 @@ import { createClient } from '@/utils/supabase/client';
 import { PushNotificationTester } from './PushNotificationTester';
 import { PushNotificationManager } from './PushNotificationManager';
 import { PushAnalyticsDashboard } from './PushAnalyticsDashboard';
+import { CacheManager } from './CacheManager';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -631,6 +632,22 @@ export const PWASettingsTab: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Cache Manager */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Управление кэшем
+          </CardTitle>
+          <CardDescription>
+            Stale-While-Revalidate стратегия для оптимальной производительности
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CacheManager />
+        </CardContent>
+      </Card>
 
       {/* Действия и кнопки */}
       <div className="flex justify-center gap-4">

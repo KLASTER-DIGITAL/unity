@@ -1,4 +1,14 @@
 const CACHE_NAME = 'achievement-diary-v1';
+const CACHE_NAME_API = 'achievement-diary-api-v1';
+const CACHE_NAME_STATIC = 'achievement-diary-static-v1';
+
+// Cache TTL (Time To Live) в миллисекундах
+const CACHE_TTL = {
+  api: 5 * 60 * 1000,      // 5 минут для API
+  static: 24 * 60 * 60 * 1000, // 24 часа для статики
+  images: 7 * 24 * 60 * 60 * 1000 // 7 дней для изображений
+};
+
 const urlsToCache = [
   '/',
   '/App.tsx',
@@ -22,11 +32,13 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  const currentCaches = [CACHE_NAME, CACHE_NAME_API, CACHE_NAME_STATIC];
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (!currentCaches.includes(cacheName)) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -37,36 +49,167 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Helper: Check if cache entry is expired
+function isCacheExpired(cachedResponse, ttl) {
+  if (!cachedResponse) return true;
+
+  const cachedTime = cachedResponse.headers.get('sw-cache-time');
+  if (!cachedTime) return true;
+
+  const age = Date.now() - parseInt(cachedTime, 10);
+  return age > ttl;
+}
+
+// Helper: Add timestamp to response
+function addCacheTimestamp(response) {
+  const clonedResponse = response.clone();
+  const headers = new Headers(clonedResponse.headers);
+  headers.set('sw-cache-time', Date.now().toString());
+
+  return new Response(clonedResponse.body, {
+    status: clonedResponse.status,
+    statusText: clonedResponse.statusText,
+    headers: headers
+  });
+}
+
+// Helper: Determine cache strategy based on request
+function getCacheStrategy(request) {
+  const url = new URL(request.url);
+
+  // API requests - Stale-While-Revalidate
+  if (url.pathname.startsWith('/api/') ||
+      url.pathname.includes('supabase.co') ||
+      url.pathname.includes('/rest/v1/')) {
+    return {
+      strategy: 'stale-while-revalidate',
+      cacheName: CACHE_NAME_API,
+      ttl: CACHE_TTL.api
+    };
+  }
+
+  // Images - Cache-First with long TTL
+  if (request.destination === 'image' ||
+      /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname)) {
+    return {
+      strategy: 'cache-first',
+      cacheName: CACHE_NAME_STATIC,
+      ttl: CACHE_TTL.images
+    };
+  }
+
+  // Static assets - Cache-First
+  if (request.destination === 'style' ||
+      request.destination === 'script' ||
+      /\.(css|js|woff2?|ttf|eot)$/i.test(url.pathname)) {
+    return {
+      strategy: 'cache-first',
+      cacheName: CACHE_NAME_STATIC,
+      ttl: CACHE_TTL.static
+    };
+  }
+
+  // Default - Network-First
+  return {
+    strategy: 'network-first',
+    cacheName: CACHE_NAME,
+    ttl: CACHE_TTL.static
+  };
+}
+
+// Stale-While-Revalidate strategy
+async function staleWhileRevalidate(request, cacheName, ttl) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+
+  // Fetch from network in background
+  const fetchPromise = fetch(request).then(async (networkResponse) => {
+    if (networkResponse && networkResponse.status === 200) {
+      const responseWithTimestamp = addCacheTimestamp(networkResponse);
+      await cache.put(request, responseWithTimestamp.clone());
+      return responseWithTimestamp;
+    }
+    return networkResponse;
+  }).catch((error) => {
+    console.log('[SW] Network fetch failed:', error);
+    return null;
+  });
+
+  // Return cached response immediately if available and not expired
+  if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
+    console.log('[SW] Serving from cache (stale-while-revalidate):', request.url);
+    // Update cache in background
+    fetchPromise.catch(() => {}); // Ignore errors
+    return cachedResponse;
+  }
+
+  // Wait for network if cache is expired or missing
+  console.log('[SW] Waiting for network (cache expired):', request.url);
+  const networkResponse = await fetchPromise;
+  return networkResponse || cachedResponse || new Response('Network error', { status: 503 });
+}
+
+// Cache-First strategy
+async function cacheFirst(request, cacheName, ttl) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+
+  // Return cached if available and not expired
+  if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
+    console.log('[SW] Serving from cache (cache-first):', request.url);
+    return cachedResponse;
+  }
+
+  // Fetch from network
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      const responseWithTimestamp = addCacheTimestamp(networkResponse);
+      await cache.put(request, responseWithTimestamp.clone());
+      return responseWithTimestamp;
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('[SW] Network fetch failed, returning stale cache:', error);
+    return cachedResponse || new Response('Network error', { status: 503 });
+  }
+}
+
+// Network-First strategy
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      const cache = await caches.open(cacheName);
+      const responseWithTimestamp = addCacheTimestamp(networkResponse);
+      await cache.put(request, responseWithTimestamp.clone());
+      return responseWithTimestamp;
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('[SW] Network fetch failed, trying cache:', error);
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+    return cachedResponse || new Response('Network error', { status: 503 });
+  }
+}
+
+// Fetch event - use appropriate caching strategy
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
 
-        return fetch(event.request).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
+  const { strategy, cacheName, ttl } = getCacheStrategy(event.request);
 
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
-  );
+  if (strategy === 'stale-while-revalidate') {
+    event.respondWith(staleWhileRevalidate(event.request, cacheName, ttl));
+  } else if (strategy === 'cache-first') {
+    event.respondWith(cacheFirst(event.request, cacheName, ttl));
+  } else {
+    event.respondWith(networkFirst(event.request, cacheName));
+  }
 });
 
 // Handle messages from clients

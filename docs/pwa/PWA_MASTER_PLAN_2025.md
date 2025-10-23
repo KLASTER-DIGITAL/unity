@@ -366,25 +366,36 @@ const InstallPrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ 
 
 ---
 
-#### 11. Background Sync для offline entries
-**Время**: 6 часов  
+#### 11. ✅ Background Sync для offline entries (ЗАВЕРШЕНО)
+**Время**: 6 часов → **2 часа** (фактически)
 **Файлы**: `src/shared/lib/offline/`, `public/service-worker.js`
+**Коммит**: `b6bd6e5`
 
-**Действия**:
-1. Сохранение записей в IndexedDB при offline
-2. Background Sync API для синхронизации
-3. Conflict resolution при конфликтах
-4. UI индикатор синхронизации
+**Реализовано**:
+1. ✅ IndexedDB utilities (indexedDB.ts) - 3 stores, CRUD операции
+2. ✅ Background Sync API (backgroundSync.ts) - saveEntryOffline, syncPendingEntries, retry logic
+3. ✅ Service Worker sync handler - max 3 retry attempts
+4. ✅ OfflineSyncIndicator UI - показывает pending/syncing/failed
+5. ✅ Интеграция в ChatInputSection - автоматическое offline сохранение
+6. ✅ Интеграция в App.tsx - initBackgroundSync при старте
 
-#### 10. Stale-While-Revalidate caching
-**Время**: 4 часов  
-**Файлы**: `public/service-worker.js`
+**Результат**: Пользователи могут создавать записи offline, они автоматически синхронизируются при восстановлении соединения.
 
-**Действия**:
-1. Обновить Service Worker стратегию
-2. Добавить SWR для API запросов
-3. Добавить cache invalidation
-4. Тестирование offline режима
+#### 10. ✅ Stale-While-Revalidate caching (ЗАВЕРШЕНО)
+**Время**: 4 часа → **1 час** (фактически)
+**Файлы**: `public/service-worker.js`, `src/shared/lib/cache/`
+**Коммит**: В процессе
+
+**Реализовано**:
+1. ✅ Stale-While-Revalidate для API запросов (TTL 5 мин)
+2. ✅ Cache-First для статики (TTL 24 часа)
+3. ✅ Cache-First для изображений (TTL 7 дней)
+4. ✅ Network-First для HTML
+5. ✅ Cache Manager (cacheManager.ts) - 10+ функций управления
+6. ✅ CacheManager UI компонент - статистика, инвалидация, очистка
+7. ✅ Интеграция в PWASettingsTab
+
+**Результат**: API запросы возвращают кэш мгновенно и обновляются в фоне. Админы могут управлять кэшами через панель.
 
 #### 11. A/B тестирование install prompt
 **Время**: 6 часов  
