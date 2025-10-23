@@ -1,15 +1,20 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Mic, Send, Camera, Sparkles, X, Image as ImageIcon, Square } from "lucide-react";
-import { analyzeTextWithAI, createEntry, transcribeAudio, type DiaryEntry } from "@/shared/lib/api";
+import { AnimatePresence } from "motion/react";
+import { analyzeTextWithAI, createEntry, transcribeAudio } from "@/shared/lib/api";
 import { toast } from "sonner";
-import { useVoiceRecorder, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
+import { useVoiceRecorder, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
 import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
-import { DragDropZone } from "@/shared/components/DragDropZone";
 import { saveEntryOffline } from "@/shared/lib/offline";
 
 // Import modular components and types
-import { CATEGORIES, RecordingIndicator, SuccessModal } from "./chat-input";
+import {
+  RecordingIndicator,
+  SuccessModal,
+  AIHintSection,
+  InputArea,
+  checkMicrophonePermission,
+  triggerHapticFeedback
+} from "./chat-input";
 import type { ChatMessage, ChatInputSectionProps } from "./chat-input";
 
 // Re-export types for backward compatibility
@@ -87,9 +92,7 @@ export function ChatInputSection({
     setIsProcessing(true);
 
     // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
+    triggerHapticFeedback(50);
 
     try {
       // Запрос к AI для анализа текста
@@ -190,21 +193,7 @@ export function ChatInputSection({
     }
   };
 
-  // Проверка статуса разрешений микрофона
-  const checkMicrophonePermission = async (): Promise<'granted' | 'denied' | 'prompt'> => {
-    try {
-      // Проверяем Permissions API
-      if (navigator.permissions && navigator.permissions.query) {
-        const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        return result.state as 'granted' | 'denied' | 'prompt';
-      }
-    } catch (error) {
-      console.log('Permissions API not available:', error);
-    }
-    
-    // Fallback - пробуем получить доступ
-    return 'prompt';
-  };
+
 
   // Обработка голосового ввода
   const handleVoiceInput = async () => {
@@ -243,9 +232,7 @@ export function ChatInputSection({
         });
 
         // Haptic feedback
-        if (navigator.vibrate) {
-          navigator.vibrate([50, 100, 50]);
-        }
+        triggerHapticFeedback([50, 100, 50]);
 
       } catch (error: any) {
         console.error('Transcription error:', error);
@@ -301,11 +288,9 @@ export function ChatInputSection({
       try {
         await startRecording();
         toast.success("Говорите...", { duration: 1000 });
-        
+
         // Haptic feedback
-        if (navigator.vibrate) {
-          navigator.vibrate(50);
-        }
+        triggerHapticFeedback(50);
       } catch (error: any) {
         console.error('Recording error:', error);
         
@@ -357,11 +342,9 @@ export function ChatInputSection({
       
       if (uploadedMedia.length > 0) {
         toast.success("Медиа загружено!");
-        
+
         // Haptic feedback
-        if (navigator.vibrate) {
-          navigator.vibrate(50);
-        }
+        triggerHapticFeedback(50);
       }
     } catch (error: any) {
       console.error('Media upload error:', error);
@@ -407,9 +390,7 @@ export function ChatInputSection({
       toast.info("Drag & drop загрузка в разработке");
 
       // Haptic feedback
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
+      triggerHapticFeedback(50);
     } catch (error: any) {
       console.error('Drag & drop upload error:', error);
       toast.error("Ошибка загрузки", {
@@ -522,158 +503,35 @@ export function ChatInputSection({
           onCancel={handleCancelRecording}
         />
 
-        {/* Main Input Container with Drag & Drop */}
-        <DragDropZone
-          onFilesSelected={handleFilesDropped}
-          disabled={isUploading || !userId || userId === 'anonymous'}
-        >
-          <div className="relative backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] border border-white/20 transition-colors duration-300">
-            <div className="flex items-end gap-responsive-xs p-2">
-            {/* Voice Button */}
-            <button
-              onClick={handleVoiceInput}
-              disabled={isTranscribing}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
-                isRecording
-                  ? 'bg-red-500'
-                  : isTranscribing
-                  ? 'bg-blue-500'
-                  : 'hover:bg-muted active:scale-95'
-              } ${isTranscribing ? 'opacity-50' : ''}`}
-            >
-              {isTranscribing ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                />
-              ) : (
-                <Mic className="w-4 h-4" style={{ color: isRecording ? "white" : "var(--icon-primary)" }} />
-              )}
-            </button>
-
-            {/* Text Input */}
-            <div className="flex-1 min-w-0">
-              <textarea
-                ref={textareaRef}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Опиши главную мысль, момент, благодарность"
-                rows={1}
-                className="w-full resize-none border-none outline-none bg-transparent !text-[14px] !font-normal leading-[20px] text-foreground placeholder:text-muted-foreground/40 max-h-[100px]"
-                style={{
-                  fontFamily: 'Inter, sans-serif'
-                }}
-              />
-            </div>
-
-            {/* Media Upload Button */}
-            <button
-              onClick={handleMediaUpload}
-              disabled={isUploading}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
-                isUploading
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-muted active:scale-95'
-              }`}
-            >
-              {isUploading ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full"
-                />
-              ) : (
-                <ImageIcon className="w-4 h-4 text-foreground" />
-              )}
-            </button>
-
-            {/* Send Button */}
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputText.trim() && uploadedMedia.length === 0}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
-                inputText.trim() || uploadedMedia.length > 0
-                  ? 'hover:bg-muted active:scale-95'
-                  : 'opacity-40 cursor-not-allowed'
-              }`}
-            >
-              <Send className="w-4 h-4 text-foreground" />
-            </button>
-          </div>
-
-          {/* Media Preview */}
-          {(uploadedMedia.length > 0 || isUploading) && (
-            <div className="mt-2 px-2">
-              <MediaPreview
-                media={uploadedMedia}
-                onRemove={removeMedia}
-                onImageClick={handleMediaClick}
-                isUploading={isUploading}
-                uploadProgress={uploadProgress}
-              />
-            </div>
-          )}
-          </div>
-        </DragDropZone>
-
-        {/* Categories - горизонтальный скролл */}
-        <div className="flex gap-responsive-xs mt-3 flex-nowrap overflow-x-auto scrollbar-hide">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => toggleCategory(category.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all flex-shrink-0 ${
-                selectedCategory === category.id
-                  ? 'bg-accent/10 border-accent'
-                  : 'bg-transparent border-border hover:bg-accent/5 active:scale-95'
-              }`}
-            >
-              <span className="text-[10px]">{category.icon}</span>
-              <span className="!text-[12px] !font-light text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                {category.label}
-              </span>
-            </button>
-          ))}
-        </div>
+        {/* Main Input Area */}
+        <InputArea
+          inputText={inputText}
+          selectedCategory={selectedCategory}
+          isRecording={isRecording}
+          isTranscribing={isTranscribing}
+          isUploading={isUploading}
+          uploadProgress={uploadProgress}
+          uploadedMedia={uploadedMedia}
+          userId={userId}
+          textareaRef={textareaRef}
+          onInputChange={setInputText}
+          onKeyPress={handleKeyPress}
+          onVoiceClick={handleVoiceInput}
+          onMediaUpload={handleMediaUpload}
+          onSendMessage={handleSendMessage}
+          onFilesDropped={handleFilesDropped}
+          onRemoveMedia={removeMedia}
+          onMediaClick={handleMediaClick}
+          onCategoryToggle={toggleCategory}
+        />
       </div>
 
-      {/* ✅ FIX: AI Suggestions с крестиком для закрытия + glassmorphism */}
-      <AnimatePresence>
-        {messages.length === 0 && showAiHint && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6"
-          >
-            <div className="backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] p-card border border-white/20 relative">
-              {/* Close Button */}
-              <button
-                onClick={() => setShowAiHint(false)}
-                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-card/50 hover:bg-card transition-colors"
-                aria-label="Закрыть"
-              >
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-
-              <div className="flex items-start gap-responsive-sm pr-8">
-                <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="!text-[13px] !font-semibold text-foreground mb-1">
-                    AI подскажет
-                  </h4>
-                  <p className="!text-[11px] !font-normal text-muted-foreground leading-[16px]">
-                    Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* AI Hint Section */}
+      <AIHintSection
+        showHint={showAiHint}
+        messagesCount={messages.length}
+        onClose={() => setShowAiHint(false)}
+      />
 
       {/* Media Lightbox */}
       <MediaLightbox
