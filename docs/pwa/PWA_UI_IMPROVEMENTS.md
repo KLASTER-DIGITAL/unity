@@ -336,11 +336,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 1. ✅ **PWA Analytics**: Интегрировать графики вместо таблиц
 2. ✅ **PWA Analytics**: Выделить критичные проблемы (низкий % доставки)
 
-### P1 - Важно (1 неделя)
-3. ✅ **PWA Overview**: Уменьшить отступы в карточках
-4. ✅ **PWA Overview**: Выделить главные метрики
-5. ✅ **PWA Settings**: Уменьшить вертикальное пространство
-6. ✅ **Push Notifications**: Увеличить размер статистики
+### P1 - Важно (1 неделя) - ✅ РЕАЛИЗОВАНО 2025-10-23
+3. ✅ **PWA Overview**: Уменьшить отступы в карточках (pb-2, pt-0, mt-1)
+4. ✅ **PWA Overview**: Выделить главные метрики (border-primary/20, text-4xl, text-primary)
+5. ✅ **PWA Settings**: Уменьшить вертикальное пространство (space-y-4, pb-3, text-base)
+6. ✅ **Push Notifications**: Увеличить размер статистики (text-3xl, bg-muted/50, p-3)
 
 ### P2 - Желательно (1 месяц)
 7. ⏸️ **PWA Overview**: Сократить динамику установок до 3 месяцев
