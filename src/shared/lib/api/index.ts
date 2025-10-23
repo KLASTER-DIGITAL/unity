@@ -45,6 +45,33 @@ export {
   updateUserProfile,
 } from './services/profiles';
 
+// Entries API
+export {
+  createEntry,
+  getEntries,
+  getEntry,
+  updateEntry,
+  deleteEntry,
+} from './services/entries';
+
+// AI Analysis API
+export {
+  analyzeTextWithAI,
+} from './services/ai-analysis';
+
+// Media API
+export {
+  uploadMedia,
+  getSignedUrl,
+  deleteMedia,
+} from './services/media';
+
+// Motivations API
+export {
+  getMotivationCards,
+  markCardAsRead,
+} from './services/motivations';
+
 // ==========================================
 // LEGACY API (from api.ts)
 // ==========================================
