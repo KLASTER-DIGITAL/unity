@@ -8,6 +8,22 @@ import { LottiePreloader } from "@/shared/components/LottiePreloader";
 const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
 const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
 
+// PWA Components - Lazy loaded для улучшения производительности
+const PWAHead = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAHead })));
+const PWASplash = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWASplash })));
+const PWAStatus = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAStatus })));
+const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAUpdatePrompt })));
+const InstallPrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.InstallPrompt })));
+
+import { usePWASettings, shouldShowInstallPrompt, incrementVisitCount } from "@/shared/hooks/usePWASettings";
+import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
+import {
+  initPWAAnalytics,
+  trackInstallPromptShown,
+  trackInstallAccepted,
+  trackInstallDismissed,
+} from "@/shared/lib/analytics/pwa-tracking";
+
 // Import E2E test component
 import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
 import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
@@ -37,6 +53,11 @@ export default function App() {
   const [showAdminAuth, setShowAdminAuth] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
+
+  // PWA state
+  const { settings: pwaSettings, isLoading: isPWALoading } = usePWASettings();
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   // Onboarding data state
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
@@ -188,6 +209,90 @@ export default function App() {
 
     initSession();
   }, []);
+
+  // PWA Install Prompt Logic
+  useEffect(() => {
+    // Инкремент счетчика визитов
+    incrementVisitCount();
+
+    // Слушаем beforeinstallprompt event
+    const handleBeforeInstallPrompt = (e: any) => {
+      console.log('[PWA] beforeinstallprompt event fired');
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Проверяем нужно ли показать install prompt
+    if (!isPWALoading) {
+      // Определяем текущую локацию
+      let currentLocation: 'onboarding' | 'user_cabinet' | undefined;
+
+      if (!userData) {
+        // Пользователь не залогинен = онбординг
+        currentLocation = 'onboarding';
+      } else if (userData && onboardingComplete) {
+        // Пользователь залогинен и прошел онбординг = кабинет
+        currentLocation = 'user_cabinet';
+      }
+
+      const shouldShow = shouldShowInstallPrompt(pwaSettings, currentLocation);
+      console.log('[PWA] Should show install prompt:', shouldShow, 'location:', currentLocation, pwaSettings);
+
+      if (shouldShow) {
+        // Небольшая задержка для лучшего UX
+        setTimeout(() => {
+          setShowInstallPrompt(true);
+          // Track показ install prompt
+          trackInstallPromptShown(userData?.id || null);
+        }, 1000);
+      }
+    }
+
+    // Инициализируем PWA analytics
+    initPWAAnalytics(userData?.id || null);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, [isPWALoading, pwaSettings, userData, onboardingComplete]);
+
+  // PWA Install Handlers
+  const handleInstall = async () => {
+    console.log('[PWA] Install button clicked');
+
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`[PWA] User response: ${outcome}`);
+
+      if (outcome === 'accepted') {
+        console.log('[PWA] User accepted the install prompt');
+        // Track установку PWA
+        trackInstallAccepted(userData?.id || null);
+      } else {
+        console.log('[PWA] User dismissed the install prompt');
+        // Track отказ от установки
+        trackInstallDismissed(userData?.id || null, 'user_declined');
+      }
+
+      setDeferredPrompt(null);
+    } else {
+      console.log('[PWA] No deferred prompt available (iOS or already installed)');
+    }
+
+    markInstallPromptAsShown();
+    setShowInstallPrompt(false);
+  };
+
+  const handleInstallClose = () => {
+    // Track закрытие install prompt
+    trackInstallDismissed(userData?.id || null, 'user_closed');
+    console.log('[PWA] Install prompt closed');
+    markInstallPromptAsShown();
+    setShowInstallPrompt(false);
+  };
 
   const handleWelcomeComplete = (language: string) => {
     setSelectedLanguage(language);
@@ -388,25 +493,50 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-      <MobileApp
-        userData={userData}
-        onboardingComplete={onboardingComplete}
-        currentStep={currentStep}
-        selectedLanguage={selectedLanguage}
-        showAuth={showAuth}
-        authMode={authMode}
-        onboardingData={onboardingData}
-        onWelcomeComplete={handleWelcomeComplete}
-        onWelcomeSkip={handleWelcomeSkip}
-        onOnboarding2Complete={handleOnboarding2Complete}
-        onOnboarding3Complete={handleOnboarding3Complete}
-        onOnboarding4Complete={handleOnboarding4Complete}
-        onAuthComplete={handleAuthComplete}
-        onLogout={handleLogout}
-        onProfileUpdate={handleProfileUpdate}
-      />
-    </ThemeProvider>
+    <>
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
+        {/* PWA Components - Lazy loaded с Suspense для производительности */}
+        <Suspense fallback={null}>
+          {/* PWA Head - динамические meta tags */}
+          <PWAHead />
+
+          {/* PWA Splash Screen - показывается при первом запуске в standalone */}
+          <PWASplash />
+
+          {/* PWA Status - уведомление об успешной установке */}
+          <PWAStatus />
+
+          {/* PWA Update Prompt - обновление Service Worker */}
+          <PWAUpdatePrompt />
+
+          {/* Install Prompt - настраиваемый через админ-панель */}
+          {showInstallPrompt && (
+            <InstallPrompt
+              onClose={handleInstallClose}
+              onInstall={handleInstall}
+            />
+          )}
+        </Suspense>
+
+        <MobileApp
+          userData={userData}
+          onboardingComplete={onboardingComplete}
+          currentStep={currentStep}
+          selectedLanguage={selectedLanguage}
+          showAuth={showAuth}
+          authMode={authMode}
+          onboardingData={onboardingData}
+          onWelcomeComplete={handleWelcomeComplete}
+          onWelcomeSkip={handleWelcomeSkip}
+          onOnboarding2Complete={handleOnboarding2Complete}
+          onOnboarding3Complete={handleOnboarding3Complete}
+          onOnboarding4Complete={handleOnboarding4Complete}
+          onAuthComplete={handleAuthComplete}
+          onLogout={handleLogout}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      </ThemeProvider>
+    </>
   );
 }
 

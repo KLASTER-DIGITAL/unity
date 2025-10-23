@@ -11,6 +11,7 @@ import { Switch } from '@/shared/components/ui/switch';
 import { Badge } from '@/shared/components/ui/badge';
 import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, TrendingUp, Bell, Settings, RotateCcw } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { PushNotificationTester } from './PushNotificationTester';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -39,7 +40,16 @@ export const PWASettingsTab: React.FC = () => {
   const [settings, setSettings] = useState({
     enableNotifications: true,
     enableOfflineMode: true,
-    enableInstallPrompt: true
+    enableInstallPrompt: true,
+    // Install Prompt настройки
+    installPromptTiming: 'after_visits' as 'immediate' | 'after_visits' | 'after_time' | 'manual',
+    installPromptVisitsCount: 3,
+    installPromptDelayMinutes: 5,
+    installPromptLocation: 'anywhere' as 'onboarding' | 'user_cabinet' | 'both' | 'anywhere',
+    installPromptTitle: 'pwa.install.title',
+    installPromptDescription: 'pwa.install.description',
+    installPromptButtonText: 'pwa.install.button',
+    installPromptSkipText: 'pwa.install.skip',
   });
 
   const [stats, setStats] = useState({
@@ -365,6 +375,160 @@ export const PWASettingsTab: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Настройки Install Prompt */}
+          {settings.enableInstallPrompt && (
+            <Card className="border-yellow-200 dark:border-yellow-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Download className="w-5 h-5 text-yellow-600" />
+                  Настройки подсказки установки
+                </CardTitle>
+                <CardDescription>
+                  Настройте когда и как показывать предложение установить PWA
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Timing Strategy */}
+                <div className="space-y-3">
+                  <Label htmlFor="install-timing">Когда показывать подсказку</Label>
+                  <select
+                    id="install-timing"
+                    value={settings.installPromptTiming}
+                    onChange={(e) => setSettings(prev => ({
+                      ...prev,
+                      installPromptTiming: e.target.value as any
+                    }))}
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                  >
+                    <option value="immediate">Сразу при первом визите</option>
+                    <option value="after_visits">После N визитов</option>
+                    <option value="after_time">Через N минут с первого визита</option>
+                    <option value="manual">Вручную (не показывать автоматически)</option>
+                  </select>
+                  <p className="text-sm text-muted-foreground">
+                    {settings.installPromptTiming === 'immediate' && '⚡ Показывать сразу при первом визите (может быть навязчиво)'}
+                    {settings.installPromptTiming === 'after_visits' && '👥 Показывать после нескольких визитов (рекомендуется)'}
+                    {settings.installPromptTiming === 'after_time' && '⏱️ Показывать через определенное время'}
+                    {settings.installPromptTiming === 'manual' && '🔧 Не показывать автоматически (только вручную)'}
+                  </p>
+                </div>
+
+                {/* Visits Count (если timing = after_visits) */}
+                {settings.installPromptTiming === 'after_visits' && (
+                  <div className="space-y-3">
+                    <Label htmlFor="visits-count">После скольких визитов показывать</Label>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        id="visits-count"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={settings.installPromptVisitsCount}
+                        onChange={(e) => setSettings(prev => ({
+                          ...prev,
+                          installPromptVisitsCount: parseInt(e.target.value) || 3
+                        }))}
+                        className="w-32"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        визитов (рекомендуется 3-5)
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Delay Minutes (если timing = after_time) */}
+                {settings.installPromptTiming === 'after_time' && (
+                  <div className="space-y-3">
+                    <Label htmlFor="delay-minutes">Через сколько минут показывать</Label>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        id="delay-minutes"
+                        type="number"
+                        min="1"
+                        max="1440"
+                        value={settings.installPromptDelayMinutes}
+                        onChange={(e) => setSettings(prev => ({
+                          ...prev,
+                          installPromptDelayMinutes: parseInt(e.target.value) || 5
+                        }))}
+                        className="w-32"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        минут с первого визита
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Location - ГДЕ показывать */}
+                <div className="space-y-3">
+                  <Label htmlFor="install-location">Где показывать подсказку</Label>
+                  <select
+                    id="install-location"
+                    value={settings.installPromptLocation}
+                    onChange={(e) => setSettings(prev => ({
+                      ...prev,
+                      installPromptLocation: e.target.value as any
+                    }))}
+                    className="w-full px-3 py-2 border rounded-md bg-background"
+                  >
+                    <option value="anywhere">Везде (любая страница)</option>
+                    <option value="onboarding">Только на онбординге</option>
+                    <option value="user_cabinet">Только в кабинете пользователя</option>
+                    <option value="both">На онбординге И в кабинете</option>
+                  </select>
+                  <p className="text-sm text-muted-foreground">
+                    {settings.installPromptLocation === 'anywhere' && '🌍 Подсказка может появиться на любой странице приложения'}
+                    {settings.installPromptLocation === 'onboarding' && '🎯 Подсказка появится только во время онбординга (первое знакомство)'}
+                    {settings.installPromptLocation === 'user_cabinet' && '👤 Подсказка появится только в кабинете пользователя (после входа)'}
+                    {settings.installPromptLocation === 'both' && '🎯👤 Подсказка может появиться на онбординге ИЛИ в кабинете'}
+                  </p>
+                </div>
+
+                {/* Preview */}
+                <div className="p-4 bg-muted rounded-lg border">
+                  <div className="text-sm font-medium mb-2">📱 Предпросмотр настроек:</div>
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    {/* КОГДА */}
+                    <div>
+                      <strong>⏰ Когда:</strong>
+                      {settings.installPromptTiming === 'immediate' && ' Сразу при первом визите'}
+                      {settings.installPromptTiming === 'after_visits' && ` После ${settings.installPromptVisitsCount} визита(ов)`}
+                      {settings.installPromptTiming === 'after_time' && ` Через ${settings.installPromptDelayMinutes} минут с первого визита`}
+                      {settings.installPromptTiming === 'manual' && ' Не показывать автоматически'}
+                    </div>
+
+                    {/* ГДЕ */}
+                    <div>
+                      <strong>📍 Где:</strong>
+                      {settings.installPromptLocation === 'anywhere' && ' Везде (любая страница)'}
+                      {settings.installPromptLocation === 'onboarding' && ' Только на онбординге'}
+                      {settings.installPromptLocation === 'user_cabinet' && ' Только в кабинете пользователя'}
+                      {settings.installPromptLocation === 'both' && ' На онбординге ИЛИ в кабинете'}
+                    </div>
+
+                    {/* Итоговое сообщение */}
+                    <div className="pt-2 border-t">
+                      {settings.installPromptTiming !== 'manual' ? (
+                        <p className="text-green-600 dark:text-green-400">
+                          ✅ Подсказка будет показана автоматически
+                        </p>
+                      ) : (
+                        <p className="text-yellow-600 dark:text-yellow-400">
+                          ⚠️ Подсказка не будет показана автоматически
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Push Notification Tester */}
+          <PushNotificationTester />
         </div>
 
         {/* Визуализация и статистика */}
