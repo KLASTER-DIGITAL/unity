@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { Mic, Send, Camera, Sparkles, X, Image as ImageIcon, Square } from "lucide-react";
 import { analyzeTextWithAI, createEntry, transcribeAudio, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
-import { useVoiceRecorder, useMediaUploader, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
+import { useVoiceRecorder, MediaPreview, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
+import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
 import { DragDropZone } from "@/shared/components/DragDropZone";
 import { saveEntryOffline } from "@/shared/lib/offline";
 

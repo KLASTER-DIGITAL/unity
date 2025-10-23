@@ -4,7 +4,7 @@ import { imgMicrophone, imgImage, imgPaperPlaneRight } from "@/imports/svg-w5pu5
 import { imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
 import { Switch } from "@/components/ui/switch";
 import { Bell, CheckCircle2, Clock } from "lucide-react";
-import { useSpeechRecognition } from "@/components/hooks/useSpeechRecognition";
+import { useSpeechRecognition } from "@/shared/hooks/useSpeechRecognition";
 import { TimePickerModal } from "@/components/TimePickerModal";
 import { Confetti } from "@/shared/components/Confetti";
 

@@ -1,64 +1,39 @@
-import { projectId, publicAnonKey } from './supabase/info';
 import { createClient } from '@/utils/supabase/client';
 
-// ✅ Microservices base URLs (2025-10-20)
-const PROFILES_API_URL = `https://${projectId}.supabase.co/functions/v1/profiles`;
-const ENTRIES_API_URL = `https://${projectId}.supabase.co/functions/v1/entries`;
-const AI_ANALYSIS_API_URL = `https://${projectId}.supabase.co/functions/v1/ai-analysis/analyze`; // ✅ FIXED: Added /analyze endpoint
-const MOTIVATIONS_API_URL = `https://${projectId}.supabase.co/functions/v1/motivations`;
-const MEDIA_API_URL = `https://${projectId}.supabase.co/functions/v1/media`;
-const TRANSCRIPTION_API_URL = `https://${projectId}.supabase.co/functions/v1/transcription-api`;
-const ADMIN_API_URL = `https://${projectId}.supabase.co/functions/v1/admin-api`;
-const TRANSLATIONS_API_URL = `https://${projectId}.supabase.co/functions/v1/translations-api`;
+// ✅ NEW: Import from modular API structure (2025-10-23)
+import { API_URLS } from './config/urls';
+import { apiRequest as coreApiRequest, blobToBase64, getAuthHeaders } from './core/request';
+import type { ApiOptions } from './core/request';
 
-// ❌ REMOVED: Monolithic API (2025-10-20)
-// const LEGACY_API_URL = `https://${projectId}.supabase.co/functions/v1/make-server-9729c493`;
-// const API_BASE_URL = LEGACY_API_URL;
+// Re-export types for backward compatibility
+export type {
+  UserProfile,
+  MediaFile,
+  AIAnalysisResult,
+  DiaryEntry,
+  UserStats,
+  UploadMediaOptions,
+  MotivationCard,
+  BookDraft,
+  BookGenerationRequest,
+} from './types';
+
+// NOTE: Profile functions are now in ./services/profiles
+// They are re-exported from ./index.ts for backward compatibility
+// DO NOT re-export them here to avoid duplicate exports
+
+// ✅ Microservices base URLs (backward compatibility)
+const PROFILES_API_URL = API_URLS.PROFILES;
+const ENTRIES_API_URL = API_URLS.ENTRIES;
+const AI_ANALYSIS_API_URL = API_URLS.AI_ANALYSIS;
+const MOTIVATIONS_API_URL = API_URLS.MOTIVATIONS;
+const MEDIA_API_URL = API_URLS.MEDIA;
+const TRANSCRIPTION_API_URL = API_URLS.TRANSCRIPTION;
+const ADMIN_API_URL = API_URLS.ADMIN;
+const TRANSLATIONS_API_URL = API_URLS.TRANSLATIONS;
 
 // TODO: Books API microservice not yet created - using direct Supabase client for now
 const API_BASE_URL = ''; // Placeholder - will be removed when Books API is migrated
-
-// Export UserProfile type for use in other modules
-export interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string; // Profile photo URL
-  diaryName?: string;
-  diaryEmoji?: string;
-  language?: string;
-  notificationSettings?: any;
-  onboardingCompleted?: boolean;
-  createdAt?: string;
-  // New fields from migration 20251018
-  theme?: string;
-  isPremium?: boolean;
-  biometricEnabled?: boolean;
-  backupEnabled?: boolean;
-  firstDayOfWeek?: string;
-  privacySettings?: any;
-}
-
-export interface MediaFile {
-  id: string;
-  userId: string;
-  fileName: string;
-  filePath: string;
-  fileType: string;
-  fileSize: number;
-  createdAt: string;
-  url?: string;
-  path?: string;
-  type?: string;
-  mimeType?: string;
-}
-
-interface ApiOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body?: any;
-  headers?: Record<string, string>;
-  requireOpenAI?: boolean; // Флаг для указания необходимости OpenAI ключа
-}
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
@@ -605,58 +580,9 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 // USER PROFILES
 // ==========================================
 
-export async function createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
-  console.log('[PROFILES] Creating user profile:', profile);
-
-  const response = await profilesApiRequest('/create', {
-    method: 'POST',
-    body: profile
-  });
-
-  if (!response.success) {
-    console.error('[PROFILES] Profile creation failed:', response);
-    throw new Error(response.error || 'Failed to create profile');
-  }
-
-  console.log('[PROFILES] Profile created successfully:', response.profile);
-  return response.profile;
-}
-
-export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-  try {
-    console.log('[PROFILES] Fetching profile for user:', userId);
-
-    const response = await profilesApiRequest(`/${userId}`);
-
-    if (!response.success) {
-      console.log('[PROFILES] Profile not found for user:', userId);
-      return null;
-    }
-
-    console.log('[PROFILES] Profile found:', response.profile);
-    return response.profile;
-  } catch (error) {
-    console.error('[PROFILES] Error fetching profile:', error);
-    return null;
-  }
-}
-
-export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
-  console.log('[PROFILES] Updating user profile:', userId, updates);
-
-  const response = await profilesApiRequest(`/${userId}`, {
-    method: 'PUT',
-    body: updates
-  });
-
-  if (!response.success) {
-    console.error('[PROFILES] Profile update failed:', response);
-    throw new Error('Failed to update profile');
-  }
-
-  console.log('[PROFILES] Profile updated successfully:', response.profile);
-  return response.profile;
-}
+// NOTE: Profile functions moved to ./services/profiles.ts
+// They are re-exported from ./index.ts for backward compatibility
+// See ./services/profiles.ts for implementation
 
 // ==========================================
 // VOICE TRANSCRIPTION (Whisper API)

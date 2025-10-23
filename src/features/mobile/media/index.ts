@@ -20,4 +20,5 @@ export { PermissionGuide } from './components/PermissionGuide';
 
 // Hooks
 export { useVoiceRecorder } from './hooks/useVoiceRecorder';
-export { useMediaUploader } from './hooks/useMediaUploader';
+// NOTE: useMediaUploader moved to @/shared/hooks/useMediaUploader
+// Import directly from @/shared/hooks/useMediaUploader instead
