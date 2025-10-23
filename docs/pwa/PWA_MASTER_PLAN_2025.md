@@ -411,11 +411,32 @@ const InstallPrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ 
 
 ### P3 - ИДЕИ (1 месяц+)
 
-#### 12. Advanced analytics dashboard
-- Детальная статистика установок по дням/неделям
-- Retention rate по когортам
-- Funnel анализ (показ prompt → установка → активность)
-- Export в CSV/JSON
+#### 12. ✅ Advanced analytics dashboard (ЗАВЕРШЕНО)
+**Время**: 8 часов → **2 часа** (фактически)
+**Файлы**: `src/components/admin/analytics/`, `src/shared/lib/analytics/`
+**Коммит**: В процессе
+
+**Реализовано**:
+- ✅ Advanced PWA Analytics (advanced-pwa-analytics.ts) - 10+ функций
+- ✅ Cohort Retention Analysis - retention по неделям (week1-4)
+- ✅ Funnel Analysis - конверсия на каждом этапе (prompt → install → usage)
+- ✅ Time Series Data - динамика установок по дням
+- ✅ AdvancedPWAAnalytics UI компонент - таблицы, графики, фильтры
+- ✅ Export в CSV/JSON - полный экспорт всех данных
+- ✅ Интеграция в PWASettingsTab
+
+**Функции**:
+- `getCohortRetention()` - retention rate по когортам
+- `getFunnelAnalysis()` - funnel анализ (3 этапа)
+- `getTimeSeriesData()` - time series по дням
+- `exportToCSV()` / `exportToJSON()` - экспорт данных
+
+**Метрики**:
+- Retention: week1, week2, week3, week4 (%)
+- Funnel: prompt shown → installed → active usage
+- Time Series: installs, uninstalls, active users, standalone usage
+
+**Результат**: Админы видят детальную аналитику с retention, funnel, time series и могут экспортировать данные.
 
 #### 13. Push segmentation
 - Сегментация по активности (active/inactive)

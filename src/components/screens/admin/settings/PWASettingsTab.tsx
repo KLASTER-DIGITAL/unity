@@ -15,6 +15,7 @@ import { PushNotificationTester } from './PushNotificationTester';
 import { PushNotificationManager } from './PushNotificationManager';
 import { PushAnalyticsDashboard } from './PushAnalyticsDashboard';
 import { CacheManager } from './CacheManager';
+import { AdvancedPWAAnalytics } from '../analytics/AdvancedPWAAnalytics';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -648,6 +649,9 @@ export const PWASettingsTab: React.FC = () => {
           <CacheManager />
         </CardContent>
       </Card>
+
+      {/* Advanced PWA Analytics */}
+      <AdvancedPWAAnalytics />
 
       {/* Действия и кнопки */}
       <div className="flex justify-center gap-4">
