@@ -64,10 +64,16 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
     }
   }, [isSuperAdmin]);
 
+  // Логирование изменений activeTab
+  useEffect(() => {
+    console.log('[AdminDashboard] activeTab changed:', activeTab);
+  }, [activeTab]);
+
   // Слушаем события навигации
   useEffect(() => {
     const handleAdminNavigate = (event: any) => {
       const { tab, subtab } = event.detail;
+      console.log('[AdminDashboard] admin-navigate event:', { tab, subtab });
       if (tab) {
         setActiveTab(tab);
       }
@@ -189,7 +195,10 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
             return (
               <motion.button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  console.log('[AdminDashboard] Menu item clicked:', item.id);
+                  setActiveTab(item.id);
+                }}
                 className={`
                   w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] transition-all !text-[15px] relative
                   ${isActive
@@ -375,6 +384,10 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
               className="w-full"
             >
               <CompactErrorBoundary>
+                {(() => {
+                  console.log('[AdminDashboard] Rendering content for activeTab:', activeTab);
+                  return null;
+                })()}
                 {activeTab === "overview" && <OverviewTab stats={stats} isLoading={isLoadingStats} onRefresh={loadStats} />}
                 {activeTab === "users" && <UsersManagementTab />}
                 {activeTab === "subscriptions" && <SubscriptionsTab />}

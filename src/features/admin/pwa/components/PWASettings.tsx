@@ -90,24 +90,31 @@ export function PWASettings() {
   };
 
   const handleSave = async () => {
+    console.log('[PWASettings] Saving settings:', settings);
     setIsSaving(true);
     try {
-      const { error } = await supabase
+      const payload = {
+        key: 'pwa_settings',
+        value: JSON.stringify(settings),
+        category: 'pwa',
+        updated_at: new Date().toISOString()
+      };
+      console.log('[PWASettings] Upsert payload:', payload);
+
+      const { data, error } = await supabase
         .from('admin_settings')
-        .upsert({
-          key: 'pwa_settings',
-          value: JSON.stringify(settings),
-          category: 'pwa',
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(payload, {
           onConflict: 'key'
-        });
+        })
+        .select();
+
+      console.log('[PWASettings] Upsert result:', { data, error });
 
       if (error) throw error;
 
       toast.success('Настройки PWA успешно сохранены! 📱');
     } catch (error: any) {
-      console.error('Error saving PWA settings:', error);
+      console.error('[PWASettings] Error saving PWA settings:', error);
       toast.error(`Ошибка сохранения: ${error.message}`);
     } finally {
       setIsSaving(false);

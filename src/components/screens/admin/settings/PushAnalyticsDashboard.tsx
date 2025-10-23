@@ -52,7 +52,10 @@ export const PushAnalyticsDashboard: React.FC = () => {
     loadAnalytics();
   }, [period]);
 
+  console.log('[PushAnalyticsDashboard] Render state:', { loading, stats: !!stats });
+
   if (loading) {
+    console.log('[PushAnalyticsDashboard] Rendering loading state');
     return (
       <Card>
         <CardContent className="p-8">
@@ -66,6 +69,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
   }
 
   if (!stats) {
+    console.log('[PushAnalyticsDashboard] Rendering no stats state');
     return (
       <Card>
         <CardContent className="p-8">
