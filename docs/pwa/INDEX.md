@@ -78,9 +78,23 @@ src/public/
 
 ### Admin Panel
 ```
+src/features/admin/pwa/
+├── components/
+│   ├── PWAOverview.tsx        # Главная страница PWA (stats, quick actions)
+│   ├── PWASettings.tsx        # Настройки PWA (Install Prompt, functions)
+│   ├── PushNotifications.tsx  # Push управление (Send/Test/History/Templates)
+│   ├── PWAAnalytics.tsx       # Аналитика (Push/Advanced/Cohort/Funnel)
+│   ├── PWACache.tsx           # Управление кэшем
+│   └── index.ts               # Re-exports
+└── index.ts
+
 src/components/screens/admin/settings/
-├── PWASettingsTab.tsx         # Настройки PWA (manifest, stats)
-└── PushNotificationsTab.tsx   # Push уведомления (отправка, analytics)
+├── PWASettingsTab.tsx         # DEPRECATED - moved to PWASettings
+├── PushNotificationsTab.tsx   # DEPRECATED - moved to PushNotifications
+├── PushNotificationManager.tsx # Used in PushNotifications
+├── PushNotificationTester.tsx  # Used in PushNotifications
+├── PushAnalyticsDashboard.tsx  # Used in PWAAnalytics
+└── CacheManager.tsx            # Used in PWACache
 ```
 
 ---
@@ -201,6 +215,19 @@ profiles (
 
 ## 📝 Changelog
 
+### 2025-10-23 (v3.0 - ADMIN PANEL PWA SECTION)
+- ✅ **Создан отдельный раздел PWA в админ-панели**
+- ✅ Создана структура `src/features/admin/pwa/` с 5 компонентами
+- ✅ PWAOverview - главная страница с статистикой и быстрыми действиями
+- ✅ PWASettings - настройки Install Prompt и PWA функций
+- ✅ PushNotifications - управление push с 4 табами
+- ✅ PWAAnalytics - аналитика с 4 табами
+- ✅ PWACache - управление кэшем
+- ✅ Интеграция в AdminDashboard sidebar с sub-navigation
+- ✅ Использован эталонный дизайн shadcn/ui
+- ✅ Реальные данные из Supabase
+- 📋 Обновлена документация: `PWA_MASTER_PLAN_2025.md`, `INDEX.md`
+
 ### 2025-10-22 (v2.0 - КРИТИЧЕСКОЕ ОБНОВЛЕНИЕ)
 - 🚨 **ОБНАРУЖЕНЫ критические неточности** в документации
 - ✅ Создан `PWA_MASTER_PLAN_2025.md` - обновленный мастер-план с реальными статусами
@@ -218,7 +245,7 @@ profiles (
 
 ---
 
-**Последнее обновление**: 2025-10-22 v2.0
-**Статус**: 🚨 КРИТИЧЕСКИЕ НЕТОЧНОСТИ ИСПРАВЛЕНЫ
-**Следующий шаг**: P0 задачи - интеграция PWA компонентов (2 часа)
+**Последнее обновление**: 2025-10-23 v3.0
+**Статус**: ✅ ADMIN PANEL PWA SECTION ГОТОВ
+**Следующий шаг**: Тестирование PWA раздела в админ-панели
 
