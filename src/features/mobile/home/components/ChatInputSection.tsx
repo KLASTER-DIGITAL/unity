@@ -8,35 +8,12 @@ import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
 import { DragDropZone } from "@/shared/components/DragDropZone";
 import { saveEntryOffline } from "@/shared/lib/offline";
 
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'ai';
-  text: string;
-  timestamp: Date;
-  category?: string;
-  sentiment?: 'positive' | 'neutral' | 'negative';
-  entryId?: string;
-}
+// Import modular components and types
+import { CATEGORIES, RecordingIndicator, SuccessModal } from "./chat-input";
+import type { ChatMessage, ChatInputSectionProps } from "./chat-input";
 
-interface ChatInputSectionProps {
-  onMessageSent?: (message: ChatMessage) => void;
-  onEntrySaved?: (entry: DiaryEntry) => void;
-  userName?: string;
-  userId?: string;
-}
-
-// Категории для быстрого выбора - все 9 тегов системы
-const CATEGORIES = [
-  { id: 'Семья', label: 'Семья', icon: '👨‍👩‍👧', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Работа', label: 'Работа', icon: '💼', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Финансы', label: 'Финансы', icon: '💰', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Благодарность', label: 'Благодарность', icon: '🙏', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Здоровье', label: 'Здоровье', icon: '💪', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Личное развитие', label: 'Личное развитие', icon: '📚', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Творчество', label: 'Творчество', icon: '🎨', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Отношения', label: 'Отношения', icon: '❤️', color: 'var(--gradient-neutral-1-start)' },
-  { id: 'Другое', label: 'Другое', icon: '✨', color: 'var(--gradient-neutral-1-start)' }
-];
+// Re-export types for backward compatibility
+export type { ChatMessage, ChatInputSectionProps };
 
 export function ChatInputSection({
   onMessageSent,
@@ -537,68 +514,13 @@ export function ChatInputSection({
       {/* Input Area */}
       <div className="relative">
         {/* Recording Indicator */}
-        <AnimatePresence>
-          {isRecording && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="absolute -top-16 left-0 right-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-[16px] p-3 shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 1 }}
-                    className="w-3 h-3 bg-card rounded-full"
-                  />
-                  <div>
-                    <p className="!text-[13px] text-white !font-semibold">
-                      Идет запись...
-                    </p>
-                    <p className="!text-[11px] text-white/80">
-                      {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Audio Level Visualizer */}
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="w-1 bg-card rounded-full"
-                      animate={{
-                        height: audioLevel * 20 * (1 + i * 0.2)
-                      }}
-                      transition={{ duration: 0.1 }}
-                      style={{ minHeight: '4px' }}
-                    />
-                  ))}
-                </div>
-
-                {/* Stop and Cancel buttons */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleVoiceInput}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
-                    aria-label="Остановить запись"
-                  >
-                    <Square className="w-3.5 h-3.5 text-white" fill="currentColor" />
-                    <span className="!text-[11px] text-white !font-medium">Stop</span>
-                  </button>
-                  <button
-                    onClick={handleCancelRecording}
-                    className="p-1 hover:bg-card/20 rounded-full transition-colors"
-                    aria-label="Отменить запись"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <RecordingIndicator
+          isRecording={isRecording}
+          recordingTime={recordingTime}
+          audioLevel={audioLevel}
+          onStop={handleVoiceInput}
+          onCancel={handleCancelRecording}
+        />
 
         {/* Main Input Container with Drag & Drop */}
         <DragDropZone
@@ -772,50 +694,8 @@ export function ChatInputSection({
         )}
       </AnimatePresence>
 
-      {/* ✅ FIX #4: Success Modal (как на onboarding) */}
-      <AnimatePresence>
-        {showSuccessModal && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            {/* ✅ FIX: Modal 300px ширина */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-modal bg-card rounded-[24px] p-modal shadow-2xl border border-border transition-colors duration-300"
-              style={{ width: '300px', minHeight: '230px' }}
-            >
-              {/* Success Icon */}
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-responsive-md">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                >
-                  <svg className="w-8 h-8 text-[var(--ios-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </motion.div>
-              </div>
-
-              {/* Text */}
-              <h3 className="text-center !text-[18px] !font-semibold text-foreground mb-2">
-                Отлично {userName}!<br />Ваша запись сохранена! 🎉
-              </h3>
-              <p className="text-center !text-[14px] text-muted-foreground">
-                AI обрабатывает запись и создает мотивационную карточку...
-              </p>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Success Modal */}
+      <SuccessModal isOpen={showSuccessModal} userName={userName} />
     </div>
   );
 }
