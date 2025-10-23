@@ -74,13 +74,12 @@ export function PWASettings() {
       const { data, error } = await supabase
         .from('admin_settings')
         .select('value')
-        .eq('key', 'pwa_settings')
-        .single();
+        .eq('key', 'pwa_settings');
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
-      if (data?.value) {
-        setSettings(JSON.parse(data.value as string));
+      if (data && data.length > 0 && data[0]?.value) {
+        setSettings(JSON.parse(data[0].value as string));
       }
     } catch (error) {
       console.error('Error loading PWA settings:', error);
