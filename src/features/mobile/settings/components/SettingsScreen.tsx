@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
@@ -15,39 +14,37 @@ import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
 import { showFeedbackWidget } from "@/shared/lib/monitoring/sentry";
-import { PushSubscriptionManager } from "@/shared/components/pwa/PushSubscriptionManager";
 
-// Дефолтное фото для аватара
-const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
+// Import modular components
 import {
-  Bell,
+  DEFAULT_AVATAR_URL,
+  DEFAULT_LANGUAGES,
+  NotificationsSection,
+  SecuritySection,
+  ProfileHeader
+} from "./settings";
+import type { SettingsScreenProps, NotificationSettings } from "./settings";
+
+// Re-export types for backward compatibility
+export type { SettingsScreenProps };
+
+import {
   Star,
-  Lock,
-  Shield,
   Globe,
   HelpCircle,
   MessageCircle,
   LogOut,
-  Edit2,
   User,
   Phone,
   Mail,
   Palette,
-  Calendar,
   Download,
   Upload,
   Trash2,
   Smartphone,
-  Crown,
   X,
   Bug
 } from "lucide-react";
-
-interface SettingsScreenProps {
-  userData?: any;
-  onLogout?: () => void;
-  onProfileUpdate?: (updatedProfile: any) => void;
-}
 
 export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
   // Extract profile from userData (userData = { success, user, profile })
@@ -59,7 +56,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const { t, changeLanguage } = useTranslation();
 
   // State для уведомлений
-  const [notifications, setNotifications] = useState({
+  const [notifications, setNotifications] = useState<NotificationSettings>({
     dailyReminder: profile?.notificationSettings?.dailyReminder || false,
     weeklyReport: profile?.notificationSettings?.weeklyReport || false,
     achievements: profile?.notificationSettings?.achievements || false,
@@ -81,15 +78,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const [showPWAInstall, setShowPWAInstall] = useState(false);
 
   // Динамическая загрузка языков из API
-  const [languages, setLanguages] = useState([
-    { code: 'ru', name: 'Russian', native_name: 'Русский', flag: '🇷🇺', is_active: true },
-    { code: 'en', name: 'English', native_name: 'English', flag: '🇺🇸', is_active: true },
-    { code: 'es', name: 'Spanish', native_name: 'Español', flag: '🇪🇸', is_active: true },
-    { code: 'de', name: 'German', native_name: 'Deutsch', flag: '🇩🇪', is_active: true },
-    { code: 'fr', name: 'French', native_name: 'Français', flag: '🇫🇷', is_active: true },
-    { code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
-    { code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
-  ]);
+  const [languages, setLanguages] = useState(DEFAULT_LANGUAGES);
 
   // Загрузка языков из API при монтировании
   useEffect(() => {
@@ -248,86 +237,15 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   return (
     <div className="pb-20 min-h-screen bg-background">
       {/* Profile Section */}
-      <div className="bg-card px-6 py-8 border-b border-border transition-colors duration-300">
-        <div className="flex flex-col items-center">
-          <div className="relative">
-            <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-              <AvatarImage src={profile?.avatar || DEFAULT_AVATAR_URL} alt={profile?.name} />
-              <AvatarFallback className="bg-muted">
-                <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
-              </AvatarFallback>
-            </Avatar>
-            <button
-              onClick={() => setShowEditProfile(true)}
-              className="absolute bottom-0 right-0 p-2 bg-card rounded-full shadow-lg border border-border hover:bg-muted transition-colors"
-              aria-label="Edit profile"
-            >
-              <Edit2 className="h-5 w-5 text-foreground" strokeWidth={2} />
-            </button>
-          </div>
-
-          {/* User Info - Name and Email */}
-          <div className="mt-4 text-center">
-            <h1 className="text-lg font-semibold text-foreground mb-1">
-              {profile?.name || 'Мой аккаунт'}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {profile?.email}
-            </p>
-          </div>
-        </div>
-      </div>
+      <ProfileHeader profile={profile} onEditClick={() => setShowEditProfile(true)} />
 
       {/* Уведомления */}
-      <SettingsSection title={t.notifications || "Уведомления"}>
-        {/* Push Notifications Manager */}
-        {profile?.id && (
-          <div className="mb-4">
-            <PushSubscriptionManager userId={profile.id} />
-          </div>
-        )}
-
-        <SettingsRow
-          icon={Bell}
-          iconColor="text-[var(--ios-blue)]"
-          iconBgColor="bg-[var(--ios-blue)]/10"
-          title={t.dailyReminders || "Ежедневные напоминания"}
-          description="Напоминания о записях"
-          rightElement="switch"
-          switchChecked={notifications.dailyReminder}
-          onSwitchChange={(checked) => setNotifications(prev => ({...prev, dailyReminder: checked}))}
-        />
-        <SettingsRow
-          icon={Calendar}
-          iconColor="text-[var(--ios-purple)]"
-          iconBgColor="bg-[var(--ios-purple)]/10"
-          title={t.weeklyReports || "Еженедельные отчеты"}
-          description="Статистика за неделю"
-          rightElement="switch"
-          switchChecked={notifications.weeklyReport}
-          onSwitchChange={(checked) => setNotifications(prev => ({...prev, weeklyReport: checked}))}
-        />
-        <SettingsRow
-          icon={Star}
-          iconColor="text-[var(--ios-green)]"
-          iconBgColor="bg-[var(--ios-green)]/10"
-          title={t.newAchievements || "Новые достижения"}
-          description="Уведомления о наградах"
-          rightElement="switch"
-          switchChecked={notifications.achievements}
-          onSwitchChange={(checked) => setNotifications(prev => ({...prev, achievements: checked}))}
-        />
-        <SettingsRow
-          icon={Crown}
-          iconColor="text-[var(--ios-orange)]"
-          iconBgColor="bg-[var(--ios-orange)]/10"
-          title={t.motivationalMessages || "Мотивационные сообщения"}
-          description="Мотивационные карточки"
-          rightElement="switch"
-          switchChecked={notifications.motivational}
-          onSwitchChange={(checked) => setNotifications(prev => ({...prev, motivational: checked}))}
-        />
-      </SettingsSection>
+      <NotificationsSection
+        notifications={notifications}
+        onNotificationsChange={setNotifications}
+        userId={profile?.id}
+        t={t}
+      />
 
       {/* Темы оформления - shadcn/ui стандарт */}
       <SettingsSection title={t.themes || "Темы оформления"}>
@@ -343,41 +261,16 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       </SettingsSection>
 
       {/* Безопасность и приватность */}
-      <SettingsSection title={t.security || "Безопасность"}>
-        <SettingsRow
-          icon={Lock}
-          iconColor="text-[var(--ios-blue)]"
-          iconBgColor="bg-[var(--ios-blue)]/10"
-          title={t.biometricProtection || "Биометрическая защита"}
-          description={biometricAvailable ? "Доступно" : "Недоступно в браузере"}
-          rightElement="switch"
-          switchChecked={biometricEnabled}
-          onSwitchChange={setBiometricEnabled}
-          disabled={!biometricAvailable}
-        />
-        <SettingsRow
-          icon={Shield}
-          iconColor="text-[var(--ios-green)]"
-          iconBgColor="bg-[var(--ios-green)]/10"
-          title={t.autoBackup || "Автоматическое резервирование"}
-          description={userData?.isPremium ? "Премиум функция" : "Требуется премиум"}
-          rightElement="switch"
-          switchChecked={autoBackupEnabled}
-          onSwitchChange={(checked) => {
-            if (!userData?.isPremium && checked) {
-              setShowPremium(true);
-            } else {
-              setAutoBackupEnabled(checked);
-            }
-          }}
-          onClick={() => {
-            if (!userData?.isPremium) {
-              setShowPremium(true);
-            }
-          }}
-          disabled={!userData?.isPremium}
-        />
-      </SettingsSection>
+      <SecuritySection
+        biometricEnabled={biometricEnabled}
+        biometricAvailable={biometricAvailable}
+        autoBackupEnabled={autoBackupEnabled}
+        isPremium={userData?.isPremium || false}
+        onBiometricChange={setBiometricEnabled}
+        onAutoBackupChange={setAutoBackupEnabled}
+        onPremiumRequired={() => setShowPremium(true)}
+        t={t}
+      />
 
       {/* Дополнительно */}
       <SettingsSection title={t.additional || "Дополнительно"}>
