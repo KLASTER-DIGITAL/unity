@@ -1,19 +1,13 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { toast } from "sonner";
 import { useTranslation } from "@/shared/lib/i18n";
 import { updateUserProfile } from "@/shared/lib/api";
 import { SettingsRow, SettingsSection } from "./SettingsRow";
-import { Switch } from "@/shared/components/ui/switch";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
-import { showFeedbackWidget } from "@/shared/lib/monitoring/sentry";
 
 // Import modular components
 import {
@@ -21,7 +15,14 @@ import {
   DEFAULT_LANGUAGES,
   NotificationsSection,
   SecuritySection,
-  ProfileHeader
+  ProfileHeader,
+  AdditionalSection,
+  SupportSection,
+  FAQModal,
+  SupportModal,
+  RateAppModal,
+  LanguageModal,
+  PWAInstallModal
 } from "./settings";
 import type { SettingsScreenProps, NotificationSettings } from "./settings";
 
@@ -29,21 +30,8 @@ import type { SettingsScreenProps, NotificationSettings } from "./settings";
 export type { SettingsScreenProps };
 
 import {
-  Star,
-  Globe,
-  HelpCircle,
-  MessageCircle,
   LogOut,
-  User,
-  Phone,
-  Mail,
-  Palette,
-  Download,
-  Upload,
-  Trash2,
-  Smartphone,
-  X,
-  Bug
+  Palette
 } from "lucide-react";
 
 export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
@@ -273,100 +261,22 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       />
 
       {/* Дополнительно */}
-      <SettingsSection title={t.additional || "Дополнительно"}>
-        <SettingsRow
-          icon={Globe}
-          iconColor="text-[var(--ios-indigo)]"
-          iconBgColor="bg-[var(--ios-indigo)]/10"
-          title={t.language || "Язык"}
-          description={languages.find(l => l.code === profile?.language)?.native_name || 'Русский'}
-          onClick={() => setShowLanguage(true)}
-        />
-        <SettingsRow
-          icon={Calendar}
-          iconColor="text-[var(--ios-blue)]"
-          iconBgColor="bg-[var(--ios-blue)]/10"
-          title={t.firstDayOfWeek || "Первый день недели"}
-          description={userData?.firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
-          onClick={() => toast.info('Feature coming soon')}
-        />
-        <SettingsRow
-          icon={Download}
-          iconColor="text-[var(--ios-green)]"
-          iconBgColor="bg-[var(--ios-green)]/10"
-          title={t.exportData || "Экспортировать данные"}
-          description="JSON, CSV, ZIP"
-          onClick={() => toast.info('Feature coming soon')}
-        />
-        <SettingsRow
-          icon={Upload}
-          iconColor="text-[var(--ios-purple)]"
-          iconBgColor="bg-[var(--ios-purple)]/10"
-          title={t.importData || "Импортировать данные"}
-          description="Восстановить из файла"
-          onClick={() => toast.info('Feature coming soon')}
-        />
-        <SettingsRow
-          icon={Trash2}
-          iconColor="text-[var(--ios-red)]"
-          iconBgColor="bg-[var(--ios-red)]/10"
-          title={t.deleteAllData || "Удалить все данные"}
-          description="Необратимое действие"
-          onClick={() => toast.error('Требуется подтверждение')}
-        />
-      </SettingsSection>
+      <AdditionalSection
+        currentLanguage={profile?.language}
+        languageName={languages.find(l => l.code === profile?.language)?.native_name || 'Русский'}
+        firstDayOfWeek={userData?.firstDayOfWeek}
+        onLanguageClick={() => setShowLanguage(true)}
+        t={t}
+      />
 
       {/* Поддержка */}
-      <SettingsSection title={t.support || "Поддержка"}>
-        <SettingsRow
-          icon={MessageCircle}
-          iconColor="text-[var(--ios-blue)]"
-          iconBgColor="bg-[var(--ios-blue)]/10"
-          title={t.contactSupport || "Связаться с поддержкой"}
-          description="Напишите нам"
-          onClick={() => setShowSupport(true)}
-        />
-        <SettingsRow
-          icon={Star}
-          iconColor="text-[var(--ios-yellow)]"
-          iconBgColor="bg-[var(--ios-yellow)]/10"
-          title={t.rateApp || "Оценить приложение"}
-          description="Поделитесь отзывом"
-          onClick={() => setShowRateApp(true)}
-        />
-        <SettingsRow
-          icon={Bug}
-          iconColor="text-[var(--ios-red)]"
-          iconBgColor="bg-[var(--ios-red)]/10"
-          title="Сообщить об ошибке"
-          description="Помогите улучшить приложение"
-          onClick={() => {
-            try {
-              // Открываем форму сразу в раскрытом состоянии
-              showFeedbackWidget(true);
-            } catch (error) {
-              console.error('Failed to show feedback widget:', error);
-              toast.error('Не удалось открыть форму обратной связи');
-            }
-          }}
-        />
-        <SettingsRow
-          icon={HelpCircle}
-          iconColor="text-[var(--ios-green)]"
-          iconBgColor="bg-[var(--ios-green)]/10"
-          title={t.faq || "FAQ"}
-          description="Часто задаваемые вопросы"
-          onClick={() => setShowFAQ(true)}
-        />
-        <SettingsRow
-          icon={Smartphone}
-          iconColor="text-[var(--ios-purple)]"
-          iconBgColor="bg-[var(--ios-purple)]/10"
-          title={t.installPWA || "Установить приложение"}
-          description="PWA на главный экран"
-          onClick={() => setShowPWAInstall(true)}
-        />
-      </SettingsSection>
+      <SupportSection
+        onSupportClick={() => setShowSupport(true)}
+        onRateAppClick={() => setShowRateApp(true)}
+        onFAQClick={() => setShowFAQ(true)}
+        onPWAInstallClick={() => setShowPWAInstall(true)}
+        t={t}
+      />
 
       {/* Logout Button */}
       <div className="px-4 pt-6 pb-8">
@@ -384,342 +294,39 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
       {/* FAQ Modal */}
       <AnimatePresence>
-        {showFAQ && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowFAQ(false)}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-title-3 text-foreground">{t.faq || "FAQ"}</h3>
-                <button
-                  onClick={() => setShowFAQ(false)}
-                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-
-              <p className="text-footnote text-muted-foreground mb-4">Часто задаваемые вопросы</p>
-
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger>Как создать запись в дневнике?</AccordionTrigger>
-                  <AccordionContent>
-                    Нажмите кнопку "+" на главном экране, опишите ваше достижение или неудачу, и AI автоматически проанализирует запись.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger>Как работает AI-анализ?</AccordionTrigger>
-                  <AccordionContent>
-                    AI анализирует вашу запись, определяет тип события (достижение/неудача), эмоциональный тон и создает мотивационную карточку с советами.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>Что такое мотивационные карточки?</AccordionTrigger>
-                  <AccordionContent>
-                    Это персонализированные сообщения от AI, которые помогают вам развивать полезные привычки на основе ваших записей.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-4">
-                  <AccordionTrigger>Как получить премиум-доступ?</AccordionTrigger>
-                  <AccordionContent>
-                    Премиум-функции включают дополнительные темы, автоматическое резервирование и расширенную аналитику. Свяжитесь с поддержкой для подключения.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-5">
-                  <AccordionTrigger>Как экспортировать данные?</AccordionTrigger>
-                  <AccordionContent>
-                    Перейдите в Настройки → Дополнительно → Экспортировать данные. Доступны форматы JSON, CSV и ZIP.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </motion.div>
-          </>
-        )}
+        <FAQModal isOpen={showFAQ} onClose={() => setShowFAQ(false)} t={t} />
       </AnimatePresence>
 
       {/* Contact Support Modal */}
       <AnimatePresence>
-        {showSupport && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSupport(false)}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-title-3 text-foreground">{t.contactSupport || "Связаться с поддержкой"}</h3>
-                <button
-                  onClick={() => setShowSupport(false)}
-                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-
-              <p className="text-footnote text-muted-foreground mb-4">Напишите нам, и мы ответим в течение 24 часов</p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="text-footnote font-medium text-foreground mb-1 block">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    value={profile?.email || ''}
-                    disabled
-                    className="bg-muted"
-                  />
-                </div>
-                <div>
-                  <label className="text-footnote font-medium text-foreground mb-1 block">
-                    Тема обращения
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Например: Проблема с AI-анализом"
-                  />
-                </div>
-                <div>
-                  <label className="text-footnote font-medium text-foreground mb-1 block">
-                    Сообщение
-                  </label>
-                  <Textarea
-                    placeholder="Опишите вашу проблему или вопрос..."
-                    rows={6}
-                  />
-                </div>
-                <Button
-                  onClick={() => {
-                    toast.success("Сообщение отправлено! Мы ответим в течение 24 часов.");
-                    setShowSupport(false);
-                  }}
-                  className="w-full"
-                >
-                  Отправить
-                </Button>
-              </div>
-            </motion.div>
-          </>
-        )}
+        <SupportModal
+          isOpen={showSupport}
+          onClose={() => setShowSupport(false)}
+          userEmail={profile?.email}
+          t={t}
+        />
       </AnimatePresence>
 
       {/* Rate App Modal */}
       <AnimatePresence>
-        {showRateApp && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowRateApp(false)}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-title-3 text-foreground">Оценить приложение</h3>
-                <button
-                  onClick={() => setShowRateApp(false)}
-                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-
-              <p className="text-footnote text-muted-foreground mb-6">Ваше мнение помогает нам стать лучше</p>
-
-              <div className="space-y-6">
-                {/* Star Rating */}
-                <div className="space-y-3">
-                  <label className="text-footnote font-medium text-foreground">Ваша оценка</label>
-                  <div className="flex gap-responsive-sm justify-center py-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        className="transition-transform hover:scale-110"
-                      >
-                        <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-center text-footnote text-muted-foreground">Отлично! 🎉</p>
-                </div>
-
-                {/* Comment */}
-                <div className="space-y-2">
-                  <label className="text-footnote font-medium text-foreground">Комментарий (необязательно)</label>
-                  <Textarea
-                    placeholder="Расскажите, что вам понравилось или что можно улучшить..."
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
-
-                <Button
-                  onClick={() => {
-                    toast.success("Спасибо за вашу оценку! ⭐");
-                    setShowRateApp(false);
-                  }}
-                  className="w-full"
-                >
-                  Отправить отзыв
-                </Button>
-              </div>
-            </motion.div>
-          </>
-        )}
+        <RateAppModal isOpen={showRateApp} onClose={() => setShowRateApp(false)} />
       </AnimatePresence>
 
       {/* Language Selection Modal */}
       <AnimatePresence>
-        {showLanguage && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLanguage(false)}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-title-3 text-foreground">{t.language || "Выбрать язык"}</h3>
-                <button
-                  onClick={() => setShowLanguage(false)}
-                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-
-              <p className="text-footnote text-muted-foreground mb-4">Выберите язык интерфейса приложения</p>
-
-              <div className="space-y-2">
-                {languages.map(language => (
-                  <button
-                    key={language.code}
-                    onClick={() => handleLanguageChange(language.code)}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
-                      profile?.language === language.code
-                        ? 'bg-primary/10 border-2 border-primary'
-                        : 'bg-card border border-border hover:bg-accent/5'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{language.flag}</span>
-                      <div className="text-left">
-                        <p className="font-medium text-foreground">{language.native_name}</p>
-                        <p className="text-sm text-muted-foreground">{language.name}</p>
-                      </div>
-                    </div>
-                    {profile?.language === language.code && (
-                      <div className="p-1.5 bg-primary rounded-full">
-                        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </>
-        )}
+        <LanguageModal
+          isOpen={showLanguage}
+          onClose={() => setShowLanguage(false)}
+          languages={languages}
+          currentLanguage={profile?.language}
+          onLanguageChange={handleLanguageChange}
+          t={t}
+        />
       </AnimatePresence>
 
       {/* PWA Install Modal */}
       <AnimatePresence>
-        {showPWAInstall && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowPWAInstall(false)}
-              className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-title-3 text-foreground">{t.installPWA || "Установить приложение"}</h3>
-                <button
-                  onClick={() => setShowPWAInstall(false)}
-                  className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-
-              <p className="text-footnote text-muted-foreground mb-4">Добавьте UNITY на главный экран</p>
-
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="text-headline text-blue-900 mb-2">iOS (Safari)</h4>
-                  <ol className="list-decimal list-inside space-y-1 text-footnote text-blue-800">
-                    <li>Нажмите кнопку "Поделиться" внизу экрана</li>
-                    <li>Выберите "На экран Домой"</li>
-                    <li>Нажмите "Добавить"</li>
-                  </ol>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h4 className="text-headline text-green-900 mb-2">Android (Chrome)</h4>
-                  <ol className="list-decimal list-inside space-y-1 text-footnote text-green-800">
-                    <li>Нажмите меню (три точки) в правом верхнем углу</li>
-                    <li>Выберите "Установить приложение"</li>
-                    <li>Нажмите "Установить"</li>
-                  </ol>
-                </div>
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-purple-900 mb-2">Преимущества PWA</h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-purple-800">
-                    <li>Работает офлайн</li>
-                    <li>Быстрая загрузка</li>
-                    <li>Иконка на главном экране</li>
-                    <li>Полноэкранный режим</li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
+        <PWAInstallModal isOpen={showPWAInstall} onClose={() => setShowPWAInstall(false)} t={t} />
       </AnimatePresence>
 
       {/* Premium Modal */}
