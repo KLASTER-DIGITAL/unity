@@ -12,6 +12,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Smartphone, Save, Rocket, BarChart3, Download, Upload, Star, Users, TrendingUp, Bell, Settings, RotateCcw } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { PushNotificationTester } from './PushNotificationTester';
+import { PushNotificationManager } from './PushNotificationManager';
 
 const installationData = [
   { month: 'Jan', installs: 120, uninstalls: 15 },
@@ -529,6 +530,22 @@ export const PWASettingsTab: React.FC = () => {
 
           {/* Push Notification Tester */}
           <PushNotificationTester />
+
+          {/* Push Notification Manager */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Управление Push Уведомлениями
+              </CardTitle>
+              <CardDescription>
+                Отправка push уведомлений пользователям
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PushNotificationManager />
+            </CardContent>
+          </Card>
         </div>
 
         {/* Визуализация и статистика */}

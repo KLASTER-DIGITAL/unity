@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
 import { showFeedbackWidget } from "@/shared/lib/monitoring/sentry";
+import { PushSubscriptionManager } from "@/shared/components/pwa/PushSubscriptionManager";
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
@@ -279,6 +280,13 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
       {/* Уведомления */}
       <SettingsSection title={t.notifications || "Уведомления"}>
+        {/* Push Notifications Manager */}
+        {profile?.id && (
+          <div className="mb-4">
+            <PushSubscriptionManager userId={profile.id} />
+          </div>
+        )}
+
         <SettingsRow
           icon={Bell}
           iconColor="text-[var(--ios-blue)]"
