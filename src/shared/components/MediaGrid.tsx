@@ -3,7 +3,7 @@ import { X, Play, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PhotoViewer } from './PhotoViewer';
 import { VideoPlayer } from './VideoPlayer';
-import type { MediaFile } from '../../utils/api';
+import type { MediaFile } from '@/shared/lib/api';
 
 interface MediaGridProps {
   media: MediaFile[];

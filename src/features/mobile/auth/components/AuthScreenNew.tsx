@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, signInWithFacebook, signInWithApple, signInWithTelegram } from "@/utils/auth";
 import { createClient } from "@/utils/supabase/client";
-import { getUserProfile } from "@/utils/api";
+import { getUserProfile } from "@/shared/lib/api";
 import { toast } from "sonner";
 import { imgEllipse, imgApple, imgGroup659 } from "@/imports/svg-ok0q3";
 import { facebookIconSvg } from "@/imports/social-icons";

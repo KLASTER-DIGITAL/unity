@@ -1,5 +1,5 @@
 import { createClient } from './supabase/client';
-import { createUserProfile, getUserProfile, createEntry, analyzeTextWithAI, type UserProfile } from './api';
+import { createUserProfile, getUserProfile, createEntry, analyzeTextWithAI, type UserProfile } from '@/shared/lib/api';
 
 export interface AuthResult {
   success: boolean;
