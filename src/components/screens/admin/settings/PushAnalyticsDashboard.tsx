@@ -15,7 +15,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { BarChart3, TrendingUp, Users, Bell, Clock, Calendar, RefreshCw, AlertTriangle } from 'lucide-react';
 import { getPushAnalytics, type PushAnalyticsStats } from '@/shared/lib/analytics/push-analytics';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { SimpleChart } from '@/shared/components/SimpleChart';
 
 export const PushAnalyticsDashboard: React.FC = () => {
   const [stats, setStats] = useState<PushAnalyticsStats | null>(null);
@@ -223,51 +223,15 @@ export const PushAnalyticsDashboard: React.FC = () => {
               <CardDescription>Динамика отправки и открытия уведомлений</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={stats.by_day.map((d) => ({
-                    date: new Date(d.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
-                    Доставлено: d.delivered,
-                    Открыто: d.opened,
-                  }))}
-                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis
-                    dataKey="date"
-                    className="text-xs"
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <YAxis
-                    className="text-xs"
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="Доставлено"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ fill: '#10b981', r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Открыто"
-                    stroke="#8b5cf6"
-                    strokeWidth={2}
-                    dot={{ fill: '#8b5cf6', r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <SimpleChart
+                data={stats.by_day.map((d) => ({
+                  date: new Date(d.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
+                  Доставлено: d.delivered,
+                  Открыто: d.opened,
+                }))}
+                xAxisKey="date"
+                type="line"
+              />
             </CardContent>
           </Card>
         )}
@@ -283,45 +247,15 @@ export const PushAnalyticsDashboard: React.FC = () => {
               <CardDescription>Лучшее время для отправки уведомлений</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={stats.by_hour.map((h) => ({
-                    hour: `${h.hour}:00`,
-                    Доставлено: h.delivered,
-                    Открыто: h.opened,
-                  }))}
-                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis
-                    dataKey="hour"
-                    className="text-xs"
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <YAxis
-                    className="text-xs"
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="Доставлено"
-                    fill="#3b82f6"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="Открыто"
-                    fill="#f59e0b"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <SimpleChart
+                data={stats.by_hour.map((h) => ({
+                  hour: `${h.hour}:00`,
+                  Доставлено: h.delivered,
+                  Открыто: h.opened,
+                }))}
+                xAxisKey="hour"
+                type="bar"
+              />
             </CardContent>
           </Card>
         )}
