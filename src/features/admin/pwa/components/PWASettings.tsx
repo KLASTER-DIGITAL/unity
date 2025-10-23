@@ -130,7 +130,7 @@ export function PWASettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Заголовок */}
       <div className="flex items-center justify-between">
         <div>
@@ -159,16 +159,16 @@ export function PWASettings() {
 
       {/* Функции PWA */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
             <Settings className="w-5 h-5" />
             Функции PWA
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Включение и отключение возможностей приложения
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
               <div className="flex items-center gap-3">
@@ -224,16 +224,16 @@ export function PWASettings() {
       {/* Install Prompt настройки */}
       {settings.enableInstallPrompt && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
               <Download className="w-5 h-5" />
               Настройки Install Prompt
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Когда и где показывать предложение установки
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {/* Timing */}
             <div className="space-y-2">
               <Label>Когда показывать</Label>

@@ -258,21 +258,21 @@ export function PushNotificationManager() {
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
           <h3 className="text-lg font-semibold mb-4">Статистика</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">{stats.totalSubscriptions}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Всего подписок</div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <div className="text-3xl font-bold text-primary">{stats.totalSubscriptions}</div>
+              <p className="text-xs text-muted-foreground mt-1">Всего подписок</p>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">{stats.activeSubscriptions}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Активных</div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <div className="text-3xl font-bold text-green-600">{stats.activeSubscriptions}</div>
+              <p className="text-xs text-muted-foreground mt-1">Активных</p>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-600">{stats.totalSent}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Отправлено</div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <div className="text-3xl font-bold text-purple-600">{stats.totalSent}</div>
+              <p className="text-xs text-muted-foreground mt-1">Отправлено</p>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-orange-600">{stats.totalDelivered}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Доставлено</div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <div className="text-3xl font-bold text-orange-600">{stats.totalDelivered}</div>
+              <p className="text-xs text-muted-foreground mt-1">Доставлено</p>
             </div>
           </div>
         </div>

@@ -176,16 +176,17 @@ export function PWAOverview() {
 
       {/* Статистические карточки */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        {/* Главная метрика - Всего установок */}
+        <Card className="border-primary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-primary">
               Всего установок
             </CardTitle>
-            <Smartphone className="h-4 w-4 text-muted-foreground" />
+            <Smartphone className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalInstalls.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-4xl font-bold text-primary">{stats.totalInstalls.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               +{stats.installsGrowth}% за последний месяц
             </p>
           </CardContent>
@@ -198,9 +199,9 @@ export function PWAOverview() {
             </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">{stats.retentionRate}%</div>
-            <Progress value={stats.retentionRate} className="mt-2" />
+            <Progress value={stats.retentionRate} className="mt-1" />
           </CardContent>
         </Card>
 
@@ -211,24 +212,25 @@ export function PWAOverview() {
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">{stats.activeUsers.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               За последние 7 дней
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Главная метрика - Push подписки */}
+        <Card className="border-primary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-primary">
               Push подписки
             </CardTitle>
-            <Bell className="h-4 w-4 text-muted-foreground" />
+            <Bell className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pushSubscriptions.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-4xl font-bold text-primary">{stats.pushSubscriptions.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {stats.pushSubscriptionRate}% от установок
             </p>
           </CardContent>
