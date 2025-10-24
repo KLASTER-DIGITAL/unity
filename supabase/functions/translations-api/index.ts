@@ -13,22 +13,25 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // ✅ FIX: Use Authorization header if present, otherwise use ANON_KEY for public endpoints
+    const authHeader = req.headers.get('Authorization');
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
+      authHeader ? {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! }
+          headers: { Authorization: authHeader }
         }
-      }
+      } : undefined
     );
 
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(p => p);
     const path = pathParts[pathParts.length - 1] || 'languages';
-    
+
     console.log('Request path:', path);
     console.log('Request method:', req.method);
+    console.log('Has Authorization:', !!authHeader);
 
     // ✅ NEW: Get translations by language code (e.g., /ru, /en)
     // Check if path is a 2-letter language code

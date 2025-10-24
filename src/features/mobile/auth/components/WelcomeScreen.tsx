@@ -48,14 +48,14 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
   const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
 
-  // Загрузка языков из API (публичный endpoint, не требует авторизации)
+  // Загрузка языков из API (публичный endpoint с ANON_KEY)
   useEffect(() => {
     const loadLanguages = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
           headers: {
             'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
           }
         });
         if (response.ok) {
