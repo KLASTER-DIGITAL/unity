@@ -47,13 +47,13 @@ export async function uploadMedia(
   };
 
   try {
-    console.log('[MEDIA] 🎯 Attempting media microservice (10s timeout)...');
+    console.log('[MEDIA] 🎯 Attempting media-upload-api microservice (10s timeout)...');
 
     // Create abort controller for timeout (10s for file upload)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(`${API_URLS.MEDIA}/upload`, {
+    const response = await fetch(`${API_URLS.MEDIA_UPLOAD}/upload`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export async function uploadMedia(
       throw new Error(data.error || 'Microservice returned error');
     }
 
-    console.log('[MEDIA] ✅ Microservice success:', data.path);
+    console.log('[MEDIA] ✅ media-upload-api success:', data.path);
 
     const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
 
@@ -116,12 +116,12 @@ export async function getSignedUrl(path: string): Promise<string> {
   const requestBody = { path };
 
   try {
-    console.log('[MEDIA] 🎯 Getting signed URL via microservice (5s timeout)...');
+    console.log('[MEDIA] 🎯 Getting signed URL via media-manage-api (5s timeout)...');
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch(`${API_URLS.MEDIA}/signed-url`, {
+    const response = await fetch(`${API_URLS.MEDIA_MANAGE}/signed-url`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export async function getSignedUrl(path: string): Promise<string> {
       throw new Error(data.error || 'No URL returned');
     }
 
-    console.log('[MEDIA] ✅ Signed URL obtained');
+    console.log('[MEDIA] ✅ Signed URL obtained from media-manage-api');
     return data.url;
 
   } catch (microserviceError: any) {
@@ -177,12 +177,12 @@ export async function deleteMedia(path: string): Promise<void> {
   }
 
   try {
-    console.log('[MEDIA] 🎯 Attempting media microservice for delete (5s timeout)...');
+    console.log('[MEDIA] 🎯 Attempting media-manage-api for delete (5s timeout)...');
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch(`${API_URLS.MEDIA}/${encodeURIComponent(path)}`, {
+    const response = await fetch(`${API_URLS.MEDIA_MANAGE}/${encodeURIComponent(path)}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ export async function deleteMedia(path: string): Promise<void> {
       throw new Error(data.error || 'Delete failed');
     }
 
-    console.log('[MEDIA] ✅ Media deleted via microservice');
+    console.log('[MEDIA] ✅ Media deleted via media-manage-api');
     return;
 
   } catch (microserviceError: any) {

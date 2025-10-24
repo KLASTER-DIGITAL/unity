@@ -9,12 +9,21 @@ import { projectId } from '../supabase/info';
  * - admin-users-api: /users endpoint
  * - admin-settings-api: /languages, /translations, /settings endpoints
  * - admin-system-api: /notifications, /system endpoints
+ *
+ * NOTE: media was split into 2 microservices (2025-10-24):
+ * - media-upload-api: POST /upload, GET /health
+ * - media-manage-api: POST /signed-url, DELETE /:path, GET /health
  */
 export const API_URLS = {
   PROFILES: `https://${projectId}.supabase.co/functions/v1/profiles`,
   ENTRIES: `https://${projectId}.supabase.co/functions/v1/entries`,
   AI_ANALYSIS: `https://${projectId}.supabase.co/functions/v1/ai-analysis/analyze`,
   MOTIVATIONS: `https://${projectId}.supabase.co/functions/v1/motivations`,
+
+  // Media microservices (split from media)
+  MEDIA_UPLOAD: `https://${projectId}.supabase.co/functions/v1/media-upload-api`,
+  MEDIA_MANAGE: `https://${projectId}.supabase.co/functions/v1/media-manage-api`,
+  // Legacy (deprecated, use MEDIA_UPLOAD and MEDIA_MANAGE above)
   MEDIA: `https://${projectId}.supabase.co/functions/v1/media`,
   TRANSCRIPTION: `https://${projectId}.supabase.co/functions/v1/transcription-api`,
   // Admin microservices (split from admin-api)
