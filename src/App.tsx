@@ -1,5 +1,6 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy, useMemo, useCallback } from "react";
 import { checkSession, signOut } from "./utils/auth";
+import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminRoute, isTestRoute as checkIsTestRoute, isPerformanceRoute as checkIsPerformanceRoute } from "@/shared/lib/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { setUser, addBreadcrumb } from "@/shared/lib/monitoring";
 import { LottiePreloader } from "@/shared/components/LottiePreloader";
@@ -83,58 +84,44 @@ export default function App() {
   const [isPerformanceRoute, setIsPerformanceRoute] = useState(false);
 
   // Check admin route ONLY via query parameter (NO auto-redirect based on role)
+  // Memoized route check function to avoid recreating on every render
+  const checkRouteAndAccess = useCallback(() => {
+    const params = parseRouteParams();
+    const isAdminParam = checkIsAdminRoute(params);
+    const isTestParam = checkIsTestRoute(params);
+    const isPerformanceParam = checkIsPerformanceRoute(params);
+
+    // Set route states
+    setIsTestRoute(isTestParam);
+    setIsPerformanceRoute(isPerformanceParam);
+    setIsAdminRoute(isAdminParam);
+
+    // 🔒 SECURITY: Проверка роли при изменении маршрута
+    // ТОЛЬКО если сессия проверена (userData !== null)
+    if (userData && !isCheckingSession) {
+      const redirected = checkAccessAndRedirect(userData, params);
+      if (redirected) return;
+    }
+
+    // Show/hide admin auth screen based on session
+    if (isAdminParam && !userData) {
+      setShowAdminAuth(true);
+    } else if (isAdminParam && userData) {
+      // User is authenticated, hide auth screen
+      setShowAdminAuth(false);
+    }
+  }, [userData, isCheckingSession]);
+
   useEffect(() => {
-    const checkAdminRoute = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isAdminParam = urlParams.get('view') === 'admin';
-      const isTestParam = urlParams.get('view') === 'test';
-      const isPerformanceParam = urlParams.get('view') === 'performance';
-
-      // Set test route
-      setIsTestRoute(isTestParam);
-      setIsPerformanceRoute(isPerformanceParam);
-
-      // Set admin route ONLY if query param is present
-      setIsAdminRoute(isAdminParam);
-
-      // 🔒 SECURITY: Проверка роли при изменении маршрута
-      // ТОЛЬКО если сессия проверена (userData !== null)
-      if (userData && !isCheckingSession) {
-        const userRole = userData.profile?.role || userData.role;
-
-        if (isAdminParam && userRole !== 'super_admin') {
-          // Обычный пользователь пытается открыть админ-панель
-          console.log("🚫 Access denied: user role is not super_admin, redirecting to PWA");
-          window.location.href = '/';
-          return;
-        }
-
-        if (!isAdminParam && !isTestParam && !isPerformanceParam && userRole === 'super_admin') {
-          // Супер-админ пытается открыть PWA кабинет
-          console.log("🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel");
-          window.location.href = '/?view=admin';
-          return;
-        }
-      }
-
-      // Show/hide admin auth screen based on session
-      if (isAdminParam && !userData) {
-        setShowAdminAuth(true);
-      } else if (isAdminParam && userData) {
-        // User is authenticated, hide auth screen
-        setShowAdminAuth(false);
-      }
-    };
-
-    checkAdminRoute();
-    window.addEventListener('popstate', checkAdminRoute);
-    window.addEventListener('hashchange', checkAdminRoute);
+    checkRouteAndAccess();
+    window.addEventListener('popstate', checkRouteAndAccess);
+    window.addEventListener('hashchange', checkRouteAndAccess);
 
     return () => {
-      window.removeEventListener('popstate', checkAdminRoute);
-      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', checkRouteAndAccess);
+      window.removeEventListener('hashchange', checkRouteAndAccess);
     };
-  }, [userData, isCheckingSession]);
+  }, [checkRouteAndAccess]);
 
   // Check session on mount
   useEffect(() => {
@@ -164,23 +151,8 @@ export default function App() {
           });
 
           // 🔒 SECURITY: Проверка роли и редирект при несоответствии
-          const urlParams = new URLSearchParams(window.location.search);
-          const isAdminView = urlParams.get('view') === 'admin';
-          const userRole = session.profile?.role || session.role;
-
-          if (isAdminView && userRole !== 'super_admin') {
-            // Обычный пользователь пытается открыть админ-панель
-            console.log("🚫 Access denied: user role is not super_admin, redirecting to PWA");
-            window.location.href = '/';
-            return;
-          }
-
-          if (!isAdminView && userRole === 'super_admin') {
-            // Супер-админ пытается открыть PWA кабинет
-            console.log("🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel");
-            window.location.href = '/?view=admin';
-            return;
-          }
+          const redirected = checkAccessAndRedirect(session);
+          if (redirected) return;
 
           // ✅ Загружаем язык из профиля пользователя
           if (session.profile?.language) {
