@@ -113,13 +113,22 @@ export default function App() {
     }
   }, [userData, isCheckingSession]);
 
-  // Initialize Performance Monitoring
+  // Initialize Performance Monitoring with Sentry integration
   useEffect(() => {
     if (import.meta.env.PROD) {
       reportWebVitals((metric) => {
-        // Send to analytics in production
-        console.log('Web Vitals:', metric);
-        // TODO: Send to analytics service (Google Analytics, Sentry, etc.)
+        // Send Web Vitals to Sentry
+        addBreadcrumb({
+          category: 'performance',
+          message: `${metric.name}: ${metric.value.toFixed(2)}ms`,
+          level: metric.rating === 'good' ? 'info' : metric.rating === 'needs-improvement' ? 'warning' : 'error',
+          data: {
+            name: metric.name,
+            value: metric.value,
+            rating: metric.rating,
+            timestamp: metric.timestamp,
+          },
+        });
       });
     }
   }, []);

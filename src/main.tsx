@@ -3,9 +3,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initSentry } from "@/shared/lib/monitoring";
+import { initSentryPerformanceIntegration } from "@/shared/lib/performance";
 
 // Инициализируем Sentry перед всем остальным
 initSentry();
+
+// Инициализируем Sentry Performance Integration
+initSentryPerformanceIntegration();
 
 // Обработка ошибок preload для предотвращения белого экрана
 window.addEventListener('vite:preloadError', (event) => {

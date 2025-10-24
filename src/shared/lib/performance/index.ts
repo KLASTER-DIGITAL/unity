@@ -25,3 +25,8 @@ export {
   type PerformanceEntry
 } from './monitoring';
 
+export {
+  initSentryPerformanceIntegration,
+  reportPerformanceSummary
+} from './sentry-integration';
+
