@@ -13,6 +13,15 @@ app.use('*', cors({
 }));
 app.use('*', logger(console.log));
 
+// Explicit OPTIONS handler for preflight requests
+app.options('*', (c) => {
+  return c.text('', 204, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  });
+});
+
 // Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -22,8 +31,18 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // PROFILE ENDPOINTS
 // ======================
 
+// Health check (MUST be before dynamic routes)
+app.get('/health', (c) => {
+  return c.json({
+    success: true,
+    status: 'ok',
+    service: 'profiles',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Create user profile
-app.post('/profiles/create', async (c) => {
+app.post('/create', async (c) => {
   try {
     const profileData = await c.req.json();
 
@@ -86,10 +105,10 @@ app.post('/profiles/create', async (c) => {
   }
 });
 
-// Get user profile
-app.get('/profiles/:userId', async (c) => {
+// Get user profile by ID
+app.get('/:id', async (c) => {
   try {
-    const userId = c.req.param('userId');
+    const userId = c.req.param('id');
 
     console.log(`[PROFILES] Fetching profile for user: ${userId}`);
 
@@ -140,9 +159,9 @@ app.get('/profiles/:userId', async (c) => {
 });
 
 // Update user profile
-app.put('/profiles/:userId', async (c) => {
+app.put('/:id', async (c) => {
   try {
-    const userId = c.req.param('userId');
+    const userId = c.req.param('id');
     const updates = await c.req.json();
 
     console.log(`[PROFILES] Updating profile for user: ${userId}`, updates);
@@ -210,16 +229,6 @@ app.put('/profiles/:userId', async (c) => {
     console.error('[PROFILES] Error updating profile:', error);
     return c.json({ success: false, error: error.message }, 500);
   }
-});
-
-// Health check
-app.get('/profiles/health', async (c) => {
-  return c.json({
-    success: true,
-    status: 'ok',
-    service: 'profiles',
-    timestamp: new Date().toISOString()
-  });
 });
 
 // Запуск сервера
