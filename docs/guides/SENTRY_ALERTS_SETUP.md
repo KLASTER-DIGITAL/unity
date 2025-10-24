@@ -327,7 +327,146 @@ View in Sentry: [Link]
 
 ---
 
-**Автор:** AI Assistant (Augment Agent)  
-**Дата:** 21 октября 2025  
+**Автор:** AI Assistant (Augment Agent)
+**Дата:** 21 октября 2025
+**Обновлено:** 24 октября 2025
 **Статус:** ✅ Готово к использованию
+
+---
+
+## 🚀 PERFORMANCE ALERTS (NEW - 2025-10-24)
+
+### Overview
+
+С интеграцией Performance Monitoring теперь можно настроить алерты для Web Vitals и производительности.
+
+### Alert 1: Poor LCP Performance
+
+**Trigger:** LCP > 4000ms
+
+**Configuration:**
+```
+Alert Name: Poor LCP Performance
+Environment: production
+
+Conditions:
+- When: An event is captured
+- If: message contains "Poor LCP"
+- And: level equals warning
+
+Then: Send notification to:
+- Email: your-email@example.com
+- Slack: #unity-alerts (optional)
+
+Frequency:
+- At most once every: 1 hour
+```
+
+---
+
+### Alert 2: Poor FID Performance
+
+**Trigger:** FID > 300ms
+
+**Configuration:**
+```
+Alert Name: Poor FID Performance
+Environment: production
+
+Conditions:
+- When: An event is captured
+- If: message contains "Poor FID"
+- And: level equals warning
+
+Frequency:
+- At most once every: 1 hour
+```
+
+---
+
+### Alert 3: Poor CLS Performance
+
+**Trigger:** CLS > 0.25
+
+**Configuration:**
+```
+Alert Name: Poor CLS Performance
+Environment: production
+
+Conditions:
+- When: An event is captured
+- If: message contains "Poor CLS"
+- And: level equals warning
+
+Frequency:
+- At most once every: 1 hour
+```
+
+---
+
+### Alert 4: Overall Performance Score < 50
+
+**Trigger:** Performance Summary с score < 50
+
+**Configuration:**
+```
+Alert Name: Low Overall Performance Score
+Environment: production
+
+Conditions:
+- When: An event is captured
+- If: message contains "Performance Summary"
+- And: overallScore < 50
+
+Frequency:
+- At most once every: 6 hours
+```
+
+---
+
+### Alert 5: Multiple Poor Metrics
+
+**Trigger:** > 10 poor metrics в 1 час
+
+**Configuration:**
+```
+Alert Name: Multiple Poor Performance Metrics
+Environment: production
+
+Conditions:
+- When: Number of events
+- If: message contains "Poor"
+- And: category equals "performance"
+- Is: greater than 10
+- In: 1 hour
+
+Then: Send notification to:
+- Email: your-email@example.com
+- Slack: #unity-alerts
+- PagerDuty: #unity-oncall (optional)
+
+Frequency:
+- At most once every: 1 hour
+```
+
+---
+
+### Performance Dashboard
+
+**Create Custom Dashboard:**
+
+1. Sentry → Dashboards → Create Dashboard
+2. Name: "UNITY-v2 Performance"
+3. Add Widgets:
+   - Performance Score Trend (Line Chart)
+   - Poor Metrics Count (Bar Chart)
+   - Alert Frequency (Table)
+
+---
+
+### Related Documentation
+
+- [Sentry Performance Integration](../performance/SENTRY_PERFORMANCE_INTEGRATION.md)
+- [Performance Monitoring](../performance/MONITORING_AND_SCALING_STRATEGY.md)
+- [Lighthouse CI Setup](../performance/LIGHTHOUSE_CI_SETUP.md)
 
