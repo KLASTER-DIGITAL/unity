@@ -32,7 +32,7 @@ export function FiltersPanel({
         >
           <div className="px-6 py-4">
             {/* Categories */}
-            <div className="mb-4">
+            <div className="mb-4" data-testid="category-filter">
               <p className="!text-[13px] !font-medium text-muted-foreground mb-2">
                 Категория
               </p>

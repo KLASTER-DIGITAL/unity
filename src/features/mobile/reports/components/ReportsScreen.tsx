@@ -194,7 +194,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
       {/* Вкладки с деталями */}
       <div className="px-4">
-        <Tabs defaultValue="mood">
+        <Tabs defaultValue="mood" data-testid="stats-tab">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="mood">{t('mood', 'Настроение')}</TabsTrigger>
             <TabsTrigger value="categories">Категории</TabsTrigger>

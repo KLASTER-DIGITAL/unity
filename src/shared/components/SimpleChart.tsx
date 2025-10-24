@@ -27,9 +27,9 @@ export function SimpleChart({ data, dataKey, xAxisKey = 'date', title, type = 'l
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-testid="chart">
       {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
-      
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>

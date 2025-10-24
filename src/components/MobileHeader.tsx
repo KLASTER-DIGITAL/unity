@@ -82,7 +82,7 @@ export function MobileHeader({
           )}
           
           {/* User Profile */}
-          <div className="flex items-center gap-2 ml-2">
+          <div className="flex items-center gap-2 ml-2" data-testid="user-menu">
             <div className="text-right text-sm">
               <div className="text-[#0d062d]">{userName}</div>
               <div className="text-[#787486] text-xs">Пользователь</div>

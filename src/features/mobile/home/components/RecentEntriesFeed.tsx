@@ -134,6 +134,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
           {entries.map((entry) => (
             <div
               key={entry.id}
+              data-testid="entry-item"
               className="flex-shrink-0 w-[240px] h-[140px] bg-card rounded-[16px] p-3 cursor-pointer hover:shadow-sm transition-shadow border border-border relative overflow-hidden"
               onClick={() => onEntryClick?.(entry)}
             >

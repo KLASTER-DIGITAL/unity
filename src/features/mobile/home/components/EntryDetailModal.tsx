@@ -57,6 +57,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
           {/* Modal */}
           <motion.div
+            data-testid="entry-details"
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
