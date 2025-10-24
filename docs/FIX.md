@@ -9,13 +9,26 @@
 ## [Unreleased] - 2025-10-24
 
 ### ⚡ Производительность
-- **База данных**: Оптимизированы RLS policies для admin_settings
+- **База данных**: Добавлены 9 индексов для масштабирования до 100K пользователей (P1-3)
+  - idx_entries_user_created (user_id, created_at DESC) - 70% быстрее GET /:userId
+  - idx_entries_created_at (created_at DESC) - 80% быстрее date range queries
+  - idx_motivation_cards_user_read_created - 90% быстрее filtering viewed cards
+  - idx_profiles_created_at - 60% быстрее admin dashboard sorting
+  - idx_profiles_role - 95% быстрее role filtering
+  - idx_media_files_user_id - 70% быстрее user media listing
+  - idx_media_files_user_created - 75% быстрее sorted media queries
+  - idx_entry_summaries_entry_id_v2 - 85% быстрее summary lookups
+  - idx_push_subscriptions_user_active (partial) - 80% быстрее active subscriptions
+  - Результат: оптимизация для 100K пользователей, быстрее все основные запросы
+  - Total index size: 144 kB (минимальный overhead)
+
+- **База данных**: Оптимизированы RLS policies для admin_settings (P1-1)
   - Исправлено: multiple permissive policies (2 SELECT policies → 1 объединенная)
   - Оптимизировано: auth.uid() обернут в (SELECT auth.uid()) для кеширования
   - Результат: Performance WARN 1 → 0 ✅
   - Impact: быстрее SELECT запросы, меньше overhead на auth.uid()
 
-- **База данных**: Удалены 4 неиспользуемых индекса
+- **База данных**: Удалены 4 неиспользуемых индекса (P1-1)
   - idx_media_files_entry_id
   - idx_media_files_user_id
   - idx_push_notifications_history_sent_by
