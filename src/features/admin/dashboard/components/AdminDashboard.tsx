@@ -22,6 +22,7 @@ import { AIAnalyticsTab } from "@/features/admin/analytics";
 import { PWAOverview, PWASettings, PushNotifications, PWAAnalytics, PWACache } from "@/features/admin/pwa";
 import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { ReactNativeReadinessTest } from "@/features/admin/components/ReactNativeReadinessTest";
+import { PerformanceDashboard } from "@/features/admin/components/PerformanceDashboard";
 
 // Import modular components
 import {
@@ -232,6 +233,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
                 )}
                 {activeTab === "developer" && (
                   <div className="space-y-6">
+                    <PerformanceDashboard />
                     <ReactNativeReadinessTest />
                   </div>
                 )}
