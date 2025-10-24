@@ -18,9 +18,9 @@ export async function loadAdminStats(t: (key: string, fallback: string) => strin
       throw new Error('No session');
     }
 
-    // Загружаем реальные данные с сервера
+    // Загружаем реальные данные с сервера (admin-stats-api microservice)
     const response = await fetch(
-      `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/stats`,
+      `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-stats-api`,
       {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,

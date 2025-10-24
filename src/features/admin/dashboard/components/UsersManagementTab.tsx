@@ -45,9 +45,9 @@ export function UsersManagementTab() {
         throw new Error('No session');
       }
       
-      // Загружаем реальных пользователей
+      // Загружаем реальных пользователей (admin-users-api microservice)
       const response = await fetch(
-        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api/admin/users`,
+        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-users-api`,
         {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,

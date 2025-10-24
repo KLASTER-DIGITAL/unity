@@ -3,6 +3,12 @@ import { projectId } from '../supabase/info';
 /**
  * Microservices base URLs configuration
  * All Edge Functions are deployed to Supabase
+ *
+ * NOTE: admin-api was split into 4 microservices (2025-10-24):
+ * - admin-stats-api: /stats endpoint
+ * - admin-users-api: /users endpoint
+ * - admin-settings-api: /languages, /translations, /settings endpoints
+ * - admin-system-api: /notifications, /system endpoints
  */
 export const API_URLS = {
   PROFILES: `https://${projectId}.supabase.co/functions/v1/profiles`,
@@ -11,6 +17,12 @@ export const API_URLS = {
   MOTIVATIONS: `https://${projectId}.supabase.co/functions/v1/motivations`,
   MEDIA: `https://${projectId}.supabase.co/functions/v1/media`,
   TRANSCRIPTION: `https://${projectId}.supabase.co/functions/v1/transcription-api`,
+  // Admin microservices (split from admin-api)
+  ADMIN_STATS: `https://${projectId}.supabase.co/functions/v1/admin-stats-api`,
+  ADMIN_USERS: `https://${projectId}.supabase.co/functions/v1/admin-users-api`,
+  ADMIN_SETTINGS: `https://${projectId}.supabase.co/functions/v1/admin-settings-api`,
+  ADMIN_SYSTEM: `https://${projectId}.supabase.co/functions/v1/admin-system-api`,
+  // Legacy (deprecated, use specific admin microservices above)
   ADMIN: `https://${projectId}.supabase.co/functions/v1/admin-api`,
   TRANSLATIONS: `https://${projectId}.supabase.co/functions/v1/translations-api`,
 } as const;
