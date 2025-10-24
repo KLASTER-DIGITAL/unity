@@ -197,17 +197,9 @@ export async function handleEmailAuth({
       const result = await signInWithEmail(email, password);
 
       if (result.success && result.user && result.profile) {
-        // 🔒 SECURITY: Проверка роли - супер-админ не может войти через PWA
-        if (result.profile.role === 'super_admin') {
-          toast.error("Доступ запрещен", {
-            description: "Используйте /?view=admin для входа в админ-панель"
-          });
-          // Выходим из системы
-          const supabase = createClient();
-          await supabase.auth.signOut();
-          setIsLoading(false);
-          return;
-        }
+        // ✅ REMOVED: Проверка роли super_admin убрана
+        // Теперь App.tsx автоматически редиректит super_admin на /?view=admin
+        // через checkAccessAndRedirect() в useEffect
 
         toast.success("Добро пожаловать! 👋");
         handleComplete?.({
