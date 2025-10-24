@@ -15,6 +15,7 @@
  * @date 2025-10-19
  */
 
+import { memo, useMemo } from "react";
 import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "@/shared/lib/i18n";
@@ -26,20 +27,21 @@ interface MobileBottomNavProps {
   stickyBottom?: boolean; // Enable sticky bottom mode (no margin)
 }
 
-export function MobileBottomNav({
+export const MobileBottomNav = memo(function MobileBottomNav({
   activeTab,
   onTabChange,
   stickyBottom = false
 }: MobileBottomNavProps) {
   const { t } = useTranslation();
 
-  const tabs = [
+  // Memoize tabs array to prevent recreation on every render
+  const tabs = useMemo(() => [
     { id: 'home', label: t('home', 'Главная'), icon: Home },
     { id: 'history', label: t('history', 'История'), icon: History },
     { id: 'achievements', label: t('achievements', 'Достижения'), icon: Trophy },
     { id: 'reports', label: t('reports', 'Отчеты'), icon: BarChart3 },
     { id: 'settings', label: t('settings', 'Настройки'), icon: Settings },
-  ];
+  ], [t]);
 
   return (
     <motion.nav
@@ -124,4 +126,4 @@ export function MobileBottomNav({
       </div>
     </motion.nav>
   );
-}
+});

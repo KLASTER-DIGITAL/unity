@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 
 interface AchievementHeaderProps {
@@ -12,8 +13,8 @@ interface AchievementHeaderProps {
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
-// Компонент аватарки с пульсацией онлайн-статуса
-function UserAvatar({ userName, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
+// Компонент аватарки с пульсацией онлайн-статуса - memoized
+const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
   // Используем дефолтное фото если нет аватара
   const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
 
@@ -39,9 +40,9 @@ function UserAvatar({ userName, avatarUrl, onClick }: { userName?: string; userE
       </span>
     </div>
   );
-}
+});
 
-export function AchievementHeader({
+export const AchievementHeader = memo(function AchievementHeader({
   userName = "Пользователь",
   daysInApp = 1,
   avatarUrl,
@@ -117,4 +118,4 @@ export function AchievementHeader({
       /> */}
     </>
   );
-}
+});
