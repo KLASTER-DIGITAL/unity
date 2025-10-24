@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { getCategoryTranslation, type Language } from "@/shared/lib/i18n";
@@ -25,11 +25,8 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
     dragFree: true
   });
 
-  useEffect(() => {
-    loadRecentEntries();
-  }, [userData?.id]);
-
-  const loadRecentEntries = async () => {
+  // Memoized loader to avoid recreation
+  const loadRecentEntries = useCallback(async () => {
     try {
       setIsLoading(true);
       const userId = userData?.user?.id || userData?.id || "anonymous";  // ✅ FIXED: Try user.id first
@@ -40,7 +37,11 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userData?.user?.id, userData?.id]);
+
+  useEffect(() => {
+    loadRecentEntries();
+  }, [loadRecentEntries]);
 
   const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString);

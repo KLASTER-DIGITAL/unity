@@ -94,7 +94,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       console.log('🔄 [SettingsScreen] Syncing profile from userData:', newProfile);
       setProfile(newProfile);
     }
-  }, [userData]);
+  }, [userData, profile?.id]); // Added profile?.id to dependencies
 
   // Синхронизация state с userData при изменении профиля
   useEffect(() => {
@@ -114,7 +114,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     }
   }, [profile?.id]); // Обновляем только при смене пользователя
 
-  // Автосохранение уведомлений
+  // Автосохранение уведомлений (debounced)
   useEffect(() => {
     const userId = profile?.id;
     if (!userId) return;
@@ -123,9 +123,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       saveNotificationSettings(userId, profile.notificationSettings, notifications);
     }, 1000);
     return () => clearTimeout(timeoutId);
-  }, [notifications, profile?.id]);
+  }, [notifications, profile?.id, profile?.notificationSettings]); // Added profile.notificationSettings
 
-  // Автосохранение настроек безопасности
+  // Автосохранение настроек безопасности (debounced)
   useEffect(() => {
     const userId = profile?.id;
     if (!userId) return;

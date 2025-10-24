@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Users,
@@ -48,22 +48,35 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   // Проверка прав супер-админа
   const isSuperAdmin = checkSuperAdmin(userData);
 
+  // Memoized stats loader to avoid recreation
+  const handleLoadStats = useCallback(async () => {
+    setIsLoadingStats(true);
+    const statsData = await loadAdminStats(t);
+    setStats(statsData);
+    setIsLoadingStats(false);
+  }, [t]);
+
+  // Load stats when super admin status changes
   useEffect(() => {
     if (isSuperAdmin) {
       handleLoadStats();
     }
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, handleLoadStats]);
 
-  // Логирование изменений activeTab
+  // Логирование изменений activeTab (only in development)
   useEffect(() => {
-    console.log('[AdminDashboard] activeTab changed:', activeTab);
+    if (import.meta.env.DEV) {
+      console.log('[AdminDashboard] activeTab changed:', activeTab);
+    }
   }, [activeTab]);
 
-  // Слушаем события навигации
+  // Слушаем события навигации - memoized handler
   useEffect(() => {
     const handleAdminNavigate = (event: any) => {
       const { tab, subtab, pwaSubTab: pwaSubTabParam } = event.detail;
-      console.log('[AdminDashboard] admin-navigate event:', { tab, subtab, pwaSubTab: pwaSubTabParam });
+      if (import.meta.env.DEV) {
+        console.log('[AdminDashboard] admin-navigate event:', { tab, subtab, pwaSubTab: pwaSubTabParam });
+      }
       if (tab) {
         setActiveTab(tab);
       }
@@ -79,14 +92,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
     return () => {
       window.removeEventListener('admin-navigate', handleAdminNavigate as EventListener);
     };
-  }, []);
-
-  const handleLoadStats = async () => {
-    setIsLoadingStats(true);
-    const statsData = await loadAdminStats(t);
-    setStats(statsData);
-    setIsLoadingStats(false);
-  };
+  }, []); // Empty deps - event handler doesn't depend on state
 
   // Если не супер-админ, показываем ошибку
   if (!isSuperAdmin) {
