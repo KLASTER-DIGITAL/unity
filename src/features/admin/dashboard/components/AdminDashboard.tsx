@@ -9,7 +9,8 @@ import {
   LayoutDashboard,
   Brain,
   Menu,
-  LogOut
+  LogOut,
+  Code
 } from "lucide-react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
@@ -20,6 +21,7 @@ import { SettingsTab } from "@/features/admin/settings";
 import { AIAnalyticsTab } from "@/features/admin/analytics";
 import { PWAOverview, PWASettings, PushNotifications, PWAAnalytics, PWACache } from "@/features/admin/pwa";
 import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
+import { ReactNativeReadinessTest } from "@/features/admin/components/ReactNativeReadinessTest";
 
 // Import modular components
 import {
@@ -122,6 +124,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
     { id: "subscriptions", label: t('admin_subscriptions', 'Подписки'), icon: CreditCard },
     { id: "ai-analytics", label: t('admin_ai_analytics', 'AI Analytics'), icon: Brain },
     { id: "pwa", label: t('admin_pwa', 'PWA'), icon: Smartphone },
+    { id: "developer", label: t('admin_developer', 'Developer Tools'), icon: Code },
     { id: "settings", label: t('admin_settings', 'Настройки'), icon: Settings },
   ];
 
@@ -225,6 +228,11 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
                     {pwaSubTab === 'push' && <PushNotifications />}
                     {pwaSubTab === 'analytics' && <PWAAnalytics />}
                     {pwaSubTab === 'cache' && <PWACache />}
+                  </div>
+                )}
+                {activeTab === "developer" && (
+                  <div className="space-y-6">
+                    <ReactNativeReadinessTest />
                   </div>
                 )}
                 {activeTab === "settings" && (

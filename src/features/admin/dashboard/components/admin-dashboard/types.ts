@@ -20,7 +20,7 @@ export interface AdminStats {
   pwaInstalls: number;
 }
 
-export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "settings";
+export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings";
 export type PWASubTab = "overview" | "settings" | "push" | "analytics" | "cache";
 
 export interface MenuItem {
@@ -73,6 +73,6 @@ export interface OverviewTabProps {
   onRefresh: () => void;
 }
 
-export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "settings";
+export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings";
 export type PWASubTab = "overview" | "settings" | "push" | "analytics" | "cache";
 
