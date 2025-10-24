@@ -15,3 +15,13 @@ export {
   routePrefetcher,
 } from './prefetch';
 
+export {
+  PerformanceMonitor,
+  performanceMonitor,
+  reportWebVitals,
+  PERFORMANCE_THRESHOLDS,
+  type WebVitalsMetrics,
+  type CustomMetrics,
+  type PerformanceEntry
+} from './monitoring';
+

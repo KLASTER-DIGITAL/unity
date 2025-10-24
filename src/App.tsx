@@ -4,6 +4,7 @@ import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminR
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { setUser, addBreadcrumb } from "@/shared/lib/monitoring";
 import { LottiePreloader } from "@/shared/components/LottiePreloader";
+import { reportWebVitals } from "@/shared/lib/performance";
 
 // Lazy load app-level components for code splitting
 const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
@@ -111,6 +112,17 @@ export default function App() {
       setShowAdminAuth(false);
     }
   }, [userData, isCheckingSession]);
+
+  // Initialize Performance Monitoring
+  useEffect(() => {
+    if (import.meta.env.PROD) {
+      reportWebVitals((metric) => {
+        // Send to analytics in production
+        console.log('Web Vitals:', metric);
+        // TODO: Send to analytics service (Google Analytics, Sentry, etc.)
+      });
+    }
+  }, []);
 
   useEffect(() => {
     checkRouteAndAccess();

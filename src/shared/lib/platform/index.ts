@@ -41,6 +41,14 @@ export {
   type NavigationOptions
 } from './navigation';
 
+// React Native readiness checker
+export {
+  ReactNativeReadinessChecker,
+  checkReactNativeReadiness,
+  type ReadinessCheckResult,
+  type ReadinessReport
+} from './react-native-readiness';
+
 /**
  * Platform abstraction utilities
  */
