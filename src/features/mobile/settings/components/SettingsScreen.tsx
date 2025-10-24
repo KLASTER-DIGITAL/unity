@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
 import { ProfileEditModal } from "./ProfileEditModal";
 
-// Import modular components
+// Import modular components and handlers
 import {
   DEFAULT_AVATAR_URL,
   DEFAULT_LANGUAGES,
@@ -22,7 +22,12 @@ import {
   SupportModal,
   RateAppModal,
   LanguageModal,
-  PWAInstallModal
+  PWAInstallModal,
+  loadLanguages,
+  checkBiometricAvailability,
+  saveNotificationSettings,
+  saveSecuritySettings,
+  handleLanguageChange as handleLanguageChangeUtil
 } from "./settings";
 import type { SettingsScreenProps, NotificationSettings } from "./settings";
 
@@ -70,46 +75,14 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
   // Загрузка языков из API при монтировании
   useEffect(() => {
-    const loadLanguages = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          const loadedLanguages = Array.isArray(data) ? data : (data.languages || []);
-          // Фильтруем только активные языки
-          const activeLanguages = loadedLanguages.filter((lang: any) => lang.is_active || lang.enabled);
-          if (activeLanguages.length > 0) {
-            setLanguages(activeLanguages);
-            console.log('✅ Loaded languages from API:', activeLanguages.length);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading languages:', error);
-        // Используем fallback языки при ошибке
-      }
-    };
-
-    loadLanguages();
+    loadLanguages().then(langs => {
+      if (langs) setLanguages(langs);
+    });
   }, []);
 
   // Проверка поддержки WebAuthn для биометрии
   useEffect(() => {
-    const checkBiometric = async () => {
-      if (window.PublicKeyCredential) {
-        try {
-          const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-          setBiometricAvailable(available);
-        } catch (error) {
-          setBiometricAvailable(false);
-        }
-      }
-    };
-    checkBiometric();
+    checkBiometricAvailability().then(setBiometricAvailable);
   }, []);
 
 
@@ -143,45 +116,23 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
   // Автосохранение уведомлений
   useEffect(() => {
-    const saveNotifications = async () => {
-      const userId = profile?.id;
-      if (!userId) return;
+    const userId = profile?.id;
+    if (!userId) return;
 
-      try {
-        await updateUserProfile(userId, {
-          notificationSettings: {
-            ...profile.notificationSettings,
-            ...notifications
-          }
-        });
-        console.log('✅ Notifications saved:', notifications);
-      } catch (error) {
-        console.error('❌ Error saving notifications:', error);
-      }
-    };
-
-    const timeoutId = setTimeout(saveNotifications, 1000);
+    const timeoutId = setTimeout(() => {
+      saveNotificationSettings(userId, profile.notificationSettings, notifications);
+    }, 1000);
     return () => clearTimeout(timeoutId);
   }, [notifications, profile?.id]);
 
   // Автосохранение настроек безопасности
   useEffect(() => {
-    const saveSecurity = async () => {
-      const userId = profile?.id;
-      if (!userId) return;
+    const userId = profile?.id;
+    if (!userId) return;
 
-      try {
-        await updateUserProfile(userId, {
-          biometricEnabled: biometricEnabled,
-          backupEnabled: autoBackupEnabled
-        });
-        console.log('✅ Security settings saved');
-      } catch (error) {
-        console.error('❌ Error saving security settings:', error);
-      }
-    };
-
-    const timeoutId = setTimeout(saveSecurity, 1000);
+    const timeoutId = setTimeout(() => {
+      saveSecuritySettings(userId, biometricEnabled, autoBackupEnabled);
+    }, 1000);
     return () => clearTimeout(timeoutId);
   }, [biometricEnabled, autoBackupEnabled, profile?.id]);
 
@@ -194,33 +145,16 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 
   // Обработчик смены языка
-  const handleLanguageChange = async (languageCode: string) => {
-    try {
-      const userId = profile?.id;
-      if (userId) {
-        // Сохраняем язык в базу данных
-        await updateUserProfile(userId, { language: languageCode });
-        console.log(`✅ Language "${languageCode}" saved to DB`);
-
-        // Обновляем локальный профиль
-        setProfile((prev: any) => ({ ...prev, language: languageCode }));
-
-        // Вызываем onProfileUpdate если передан
-        if (onProfileUpdate) {
-          onProfileUpdate({ ...profile, language: languageCode });
-        }
-      }
-
-      // Переключаем язык в i18n системе
-      await changeLanguage(languageCode);
-
-      toast.success(t('languageChanged', 'Язык изменен!'));
-      setShowLanguage(false);
-    } catch (error) {
-      console.error('Error changing language:', error);
-      toast.error(t('languageChangeError', 'Ошибка при изменении языка'));
-    }
-  };
+  const handleLanguageChangeLocal = (languageCode: string) => handleLanguageChangeUtil({
+    languageCode,
+    userId: profile?.id,
+    profile,
+    setProfile,
+    onProfileUpdate,
+    changeLanguage,
+    t,
+    setShowLanguage
+  });
 
   return (
     <div className="pb-20 min-h-screen bg-background">
@@ -319,7 +253,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
           onClose={() => setShowLanguage(false)}
           languages={languages}
           currentLanguage={profile?.language}
-          onLanguageChange={handleLanguageChange}
+          onLanguageChange={handleLanguageChangeLocal}
           t={t}
         />
       </AnimatePresence>

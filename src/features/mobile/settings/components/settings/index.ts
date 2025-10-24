@@ -19,3 +19,12 @@ export {
   PWAInstallModal
 } from "./modals";
 
+// Handlers
+export {
+  loadLanguages,
+  checkBiometricAvailability,
+  saveNotificationSettings,
+  saveSecuritySettings,
+  handleLanguageChange
+} from "./settingsHandlers";
+
