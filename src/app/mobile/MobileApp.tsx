@@ -1,9 +1,10 @@
-import { useState, Suspense, lazy, useRef } from "react";
+import { useState, Suspense, lazy, useRef, useEffect } from "react";
 import { Toaster } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { TranslationProvider } from "@/shared/lib/i18n";
 import { TranslationManager } from "@/shared/lib/i18n";
 import { LoadingScreen } from "@/shared/components/LoadingScreen";
+import { prefetchOnIdle, routePrefetcher } from "@/shared/lib/performance";
 
 // Onboarding screens - критичные для первого запуска, загружаем сразу
 import { WelcomeScreen } from "@/features/mobile/auth/components/WelcomeScreen";
@@ -15,11 +16,18 @@ import { OnboardingScreen4 } from "@/features/mobile/auth/components/OnboardingS
 import { AuthScreen } from "@/features/mobile/auth/components/AuthScreenNew";
 
 // Main screens - lazy loading для оптимизации производительности
-const AchievementHomeScreen = lazy(() => import("@/features/mobile/home").then(module => ({ default: module.AchievementHomeScreen })));
-const HistoryScreen = lazy(() => import("@/features/mobile/history").then(module => ({ default: module.HistoryScreen })));
-const AchievementsScreen = lazy(() => import("@/features/mobile/achievements").then(module => ({ default: module.AchievementsScreen })));
-const ReportsScreen = lazy(() => import("@/features/mobile/reports").then(module => ({ default: module.ReportsScreen })));
-const SettingsScreen = lazy(() => import("@/features/mobile/settings").then(module => ({ default: module.SettingsScreen })));
+// Import functions для prefetch
+const importAchievementHomeScreen = () => import("@/features/mobile/home").then(module => ({ default: module.AchievementHomeScreen }));
+const importHistoryScreen = () => import("@/features/mobile/history").then(module => ({ default: module.HistoryScreen }));
+const importAchievementsScreen = () => import("@/features/mobile/achievements").then(module => ({ default: module.AchievementsScreen }));
+const importReportsScreen = () => import("@/features/mobile/reports").then(module => ({ default: module.ReportsScreen }));
+const importSettingsScreen = () => import("@/features/mobile/settings").then(module => ({ default: module.SettingsScreen }));
+
+const AchievementHomeScreen = lazy(importAchievementHomeScreen);
+const HistoryScreen = lazy(importHistoryScreen);
+const AchievementsScreen = lazy(importAchievementsScreen);
+const ReportsScreen = lazy(importReportsScreen);
+const SettingsScreen = lazy(importSettingsScreen);
 
 // Layout components
 import { MobileBottomNav } from "@/shared/components/layout";
@@ -81,7 +89,22 @@ export function MobileApp({
   // Tab order for directional animations
   const tabOrder = ["home", "history", "achievements", "reports", "settings"];
 
-  // Handle tab change with direction
+  // Register routes for smart prefetching
+  useEffect(() => {
+    routePrefetcher.registerRoute('home', importAchievementHomeScreen);
+    routePrefetcher.registerRoute('history', importHistoryScreen);
+    routePrefetcher.registerRoute('achievements', importAchievementsScreen);
+    routePrefetcher.registerRoute('reports', importReportsScreen);
+    routePrefetcher.registerRoute('settings', importSettingsScreen);
+
+    // Prefetch critical screens on idle after onboarding
+    if (onboardingComplete) {
+      prefetchOnIdle(importHistoryScreen, 1000);
+      prefetchOnIdle(importSettingsScreen, 2000);
+    }
+  }, [onboardingComplete]);
+
+  // Handle tab change with direction and prefetch
   const handleTabChange = (newTab: string) => {
     const prevIndex = tabOrder.indexOf(prevScreenRef.current);
     const newIndex = tabOrder.indexOf(newTab);
@@ -89,6 +112,9 @@ export function MobileApp({
     setDirection(newIndex > prevIndex ? 1 : -1);
     prevScreenRef.current = newTab;
     setActiveScreen(newTab as "home" | "history" | "achievements" | "reports" | "settings");
+
+    // Track navigation for smart prefetching
+    routePrefetcher.trackNavigation(newTab);
   };
 
   // Show auth screen if user clicked "У меня уже есть аккаунт" or completed onboarding
