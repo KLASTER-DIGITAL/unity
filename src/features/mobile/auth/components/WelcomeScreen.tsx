@@ -112,7 +112,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
       transition={{ duration: 0.5 }}
     >
       {/* Top Section - Purple Background with Image + Language Selector */}
-      <div className="relative flex-shrink-0 overflow-hidden" style={{ height: 'min(50vh, 400px)' }}>
+      <div className="relative shrink-0 overflow-hidden" style={{ height: 'min(50vh, 400px)' }}>
         {/* Generated Image Background - адаптивная с WebP оптимизацией */}
         <div className="absolute inset-0">
           <PriorityOptimizedImage
@@ -233,8 +233,8 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
       </div>
 
       {/* Bottom Section - White Block with Content */}
-      <div 
-        className="relative flex-1 bg-gradient-to-b from-[#ffffff] to-[#f8f6ff] rounded-t-[30px] flex flex-col overflow-hidden"
+      <div
+        className="relative flex-1 bg-linear-to-b from-[#ffffff] to-[#f8f6ff] rounded-t-[30px] flex flex-col overflow-hidden"
         style={{
           marginTop: '-30px', // Перекрытие для плавного перехода
           zIndex: 10
