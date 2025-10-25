@@ -37,6 +37,19 @@
   - Note: индексы можно восстановить при необходимости
 
 ### 🔄 Изменено
+- **Sentry**: Настроена автоматическая загрузка source maps (P1-4)
+  - Установлен @sentry/vite-plugin
+  - Настроен vite.config.ts для production source maps (hidden mode)
+  - Создан .sentryclirc для аутентификации
+  - Добавлены environment variables: VITE_SENTRY_DSN, VITE_APP_VERSION
+  - Source maps загружаются автоматически при production build
+  - Результат: читаемые stacktraces в Sentry вместо минифицированного кода
+
+- **Motion library**: Унифицированы импорты (P1-4)
+  - Заменены все импорты с 'framer-motion' на 'motion/react'
+  - Файлы: magnetic-button, shimmering-text, counter
+  - Результат: исправлена ошибка "motion is not defined" (UNITY-V2-H)
+
 - **Edge Functions**: Разбит admin-api на 4 микросервиса (P1-2)
   - admin-api (482 строки) → admin-stats-api (181), admin-users-api (179), admin-settings-api (259), admin-system-api (205)
   - Результат: средний размер 206 строк (было 482)

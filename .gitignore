@@ -16,6 +16,9 @@ dist/
 .env.test.local
 .env.production.local
 
+# Sentry
+.sentryclirc
+
 # Netlify
 .netlify/
 

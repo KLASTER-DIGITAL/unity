@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { CSSProperties } from "react";
-import { type HTMLMotionProps, motion, type Transition } from 'framer-motion';
+import { type HTMLMotionProps, motion, type Transition } from 'motion/react';
 
 import { cn } from '../../utils';
 

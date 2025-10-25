@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 export default defineConfig(({ mode }) => ({
   base: '/',
@@ -16,6 +17,22 @@ export default defineConfig(({ mode }) => ({
         gzipSize: true,
         brotliSize: true,
         template: 'treemap', // treemap, sunburst, network
+      })
+    ] : []),
+    // Sentry plugin для загрузки source maps (только в production)
+    ...(mode === 'production' ? [
+      sentryVitePlugin({
+        org: 'klaster-js',
+        project: 'unity-v2',
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        sourcemaps: {
+          assets: './build/assets/**',
+          filesToDeleteAfterUpload: './build/assets/**/*.map',
+        },
+        release: {
+          name: `unity-v2@${process.env.VITE_APP_VERSION || '2.0.0'}`,
+        },
+        telemetry: false,
       })
     ] : []),
   ],
@@ -63,7 +80,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: 'esnext',
     outDir: 'build',
-    sourcemap: false, // Отключаем sourcemap для production
+    sourcemap: mode === 'production' ? 'hidden' : false, // Hidden sourcemaps для Sentry (не доступны в браузере)
     minify: 'esbuild', // Используем esbuild вместо terser
     cssCodeSplit: true, // Разделение CSS по chunks
     assetsInlineLimit: 4096, // Inline assets < 4kb
