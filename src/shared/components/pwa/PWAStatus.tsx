@@ -50,7 +50,7 @@ export function PWAStatus() {
           exit={{ opacity: 0, y: -100 }}
           className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)]"
         >
-          <div className="bg-accent text-accent-foreground rounded-[var(--radius-xl)] shadow-2xl p-4 flex items-center gap-3">
+          <div className="bg-accent text-accent-foreground rounded-xl shadow-2xl p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
               <Smartphone className="w-5 h-5" />
             </div>

@@ -31,7 +31,7 @@ export function RecordingIndicator({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="absolute -top-16 left-0 right-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-[16px] p-3 shadow-lg"
+          className="absolute -top-16 left-0 right-0 bg-linear-to-r from-red-500 to-pink-500 rounded-[16px] p-3 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

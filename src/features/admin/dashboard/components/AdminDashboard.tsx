@@ -159,7 +159,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-[var(--radius)] hover:bg-muted flex items-center justify-center"
+                className="lg:hidden w-10 h-10 rounded-(--radius) hover:bg-muted flex items-center justify-center"
               >
                 <Menu className="w-5 h-5 text-foreground" />
               </button>
@@ -170,7 +170,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 
             <button
               onClick={onLogout}
-              className="lg:hidden w-10 h-10 rounded-[var(--radius)] hover:bg-muted flex items-center justify-center"
+              className="lg:hidden w-10 h-10 rounded-(--radius) hover:bg-muted flex items-center justify-center"
               title="Выход"
             >
               <LogOut className="w-5 h-5 text-muted-foreground" />

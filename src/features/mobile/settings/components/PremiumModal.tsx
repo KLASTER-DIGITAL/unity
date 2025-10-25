@@ -77,7 +77,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 
             <div className="space-y-6">
               {/* Pricing */}
-              <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 p-modal rounded-lg border-2 border-yellow-500/20">
+              <div className="bg-linear-to-br from-yellow-500/10 to-orange-500/10 p-modal rounded-lg border-2 border-yellow-500/20">
                 <div className="text-center">
                   <div className="text-large-title text-foreground">
                     $4.99
@@ -111,7 +111,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
               {/* CTA */}
               <div className="space-y-3 pt-4">
                 <Button
-                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold"
+                  className="w-full bg-linear-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold"
                   onClick={() => {
                     toast.info("Функция покупки Premium будет доступна в следующей версии");
                     onClose();

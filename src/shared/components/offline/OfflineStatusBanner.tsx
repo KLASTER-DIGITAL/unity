@@ -69,15 +69,15 @@ export function OfflineStatusBanner() {
   const getVariantStyles = () => {
     switch (variant) {
       case 'offline':
-        return 'bg-gradient-to-r from-gray-600 to-gray-700';
+        return 'bg-linear-to-r from-gray-600 to-gray-700';
       case 'syncing':
-        return 'bg-gradient-to-r from-blue-500 to-blue-600';
+        return 'bg-linear-to-r from-blue-500 to-blue-600';
       case 'success':
-        return 'bg-gradient-to-r from-green-500 to-green-600';
+        return 'bg-linear-to-r from-green-500 to-green-600';
       case 'error':
-        return 'bg-gradient-to-r from-orange-500 to-orange-600';
+        return 'bg-linear-to-r from-orange-500 to-orange-600';
       default:
-        return 'bg-gradient-to-r from-gray-600 to-gray-700';
+        return 'bg-linear-to-r from-gray-600 to-gray-700';
     }
   };
 

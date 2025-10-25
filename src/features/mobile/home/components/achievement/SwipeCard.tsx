@@ -133,7 +133,7 @@ export function SwipeCard({
       whileTap={{ cursor: "grabbing", scale: isTop ? 1.02 : stackStyle.scale }}
     >
       <div
-        className={`bg-gradient-to-br ${card.gradient} rounded-[36px] overflow-hidden relative`}
+        className={`bg-linear-to-br ${card.gradient} rounded-[36px] overflow-hidden relative`}
         style={{
           boxShadow: index === 0 ? '0 20px 60px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.2)',
           backgroundColor: '#FE7669', // Непрозрачный фон под градиентом
@@ -143,7 +143,7 @@ export function SwipeCard({
         {isTop && (
           <motion.div
             style={{ opacity: likeOpacity }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-green-500/20 to-green-500/40 pointer-events-none z-10 flex items-center justify-center"
+            className="absolute inset-0 bg-linear-to-r from-transparent via-green-500/20 to-green-500/40 pointer-events-none z-10 flex items-center justify-center"
           >
             <div className="bg-green-500 text-white px-8 py-4 rounded-2xl rotate-12 border-4 border-white shadow-xl">
               <Heart className="w-12 h-12" fill="currentColor" />

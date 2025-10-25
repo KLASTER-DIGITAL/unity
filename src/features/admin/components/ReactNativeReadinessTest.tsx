@@ -93,7 +93,7 @@ export function ReactNativeReadinessTest() {
       {report && (
         <div className="mt-6 space-y-6">
           {/* Overall Status */}
-          <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+          <div className="p-6 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold mb-1">Общий статус</h3>

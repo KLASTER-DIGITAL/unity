@@ -76,7 +76,7 @@ export function PWAUpdatePrompt() {
           exit={{ opacity: 0, y: 100 }}
           className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)]"
         >
-          <div className="bg-card border border-border rounded-[var(--radius-xl)] shadow-2xl p-4">
+          <div className="bg-card border border-border rounded-xl shadow-2xl p-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                 <RefreshCw className="w-5 h-5 text-accent" />

@@ -115,7 +115,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
   return (
     <div className="pb-20 min-h-screen bg-background overflow-x-hidden scrollbar-hide">
       {/* Заголовок */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+      <div className="bg-linear-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-card/20 rounded-full flex items-center justify-center backdrop-blur-sm">
             <Brain className="h-6 w-6" strokeWidth={2} />
@@ -310,7 +310,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
                 <CardContent>
                   <div className="space-y-3">
                     {aiQuotes.map((quote, index) => (
-                      <div key={index} className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-l-4 border-yellow-400">
+                      <div key={index} className="p-4 bg-linear-to-r from-yellow-50 to-orange-50 rounded-lg border-l-4 border-yellow-400">
                         <p className="text-sm text-foreground italic">"{quote}"</p>
                       </div>
                     ))}

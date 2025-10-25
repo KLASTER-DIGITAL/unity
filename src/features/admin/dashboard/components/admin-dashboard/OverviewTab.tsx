@@ -150,7 +150,7 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'settings' } }))}
             >
               <div className="flex items-center gap-3 w-full">
-                <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
                   <Smartphone className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
@@ -168,7 +168,7 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'push' } }))}
             >
               <div className="flex items-center gap-3 w-full">
-                <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
                   <Activity className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
@@ -186,7 +186,7 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'users' } }))}
             >
               <div className="flex items-center gap-3 w-full">
-                <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">
@@ -204,7 +204,7 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
               onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'subscriptions' } }))}
             >
               <div className="flex items-center gap-3 w-full">
-                <div className="w-10 h-10 rounded-[var(--radius)] bg-accent/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
                   <CreditCard className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1 text-left">

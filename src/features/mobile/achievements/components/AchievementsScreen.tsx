@@ -167,7 +167,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       {/* Header Section */}
       <div className="p-4 bg-card transition-colors duration-300">
         <div className="text-center mb-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
+          <div className="w-20 h-20 bg-linear-to-br from-primary to-primary/80 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
             <Crown className="h-10 w-10 text-primary-foreground" />
           </div>
           <h1 className="text-2xl mb-1 text-foreground font-semibold">{t('level', 'Уровень')} {userStats.level}</h1>
@@ -200,7 +200,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-300"
+              className="bg-linear-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-300"
               style={{ width: `${userStats.nextLevelProgress}%` }}
             />
           </div>
@@ -223,10 +223,10 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
                   <div className="relative mb-3">
                     <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${
                       badge.earned
-                        ? badge.rarity === 'legendary' ? 'bg-gradient-to-br from-purple-400 to-purple-600' :
-                          badge.rarity === 'rare' ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
-                          badge.rarity === 'uncommon' ? 'bg-gradient-to-br from-green-400 to-green-600' :
-                          'bg-gradient-to-br from-gray-400 to-gray-600'
+                        ? badge.rarity === 'legendary' ? 'bg-linear-to-br from-purple-400 to-purple-600' :
+                          badge.rarity === 'rare' ? 'bg-linear-to-br from-blue-400 to-blue-600' :
+                          badge.rarity === 'uncommon' ? 'bg-linear-to-br from-green-400 to-green-600' :
+                          'bg-linear-to-br from-gray-400 to-gray-600'
                         : 'bg-muted'
                     }`}>
                       <Icon className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`} />

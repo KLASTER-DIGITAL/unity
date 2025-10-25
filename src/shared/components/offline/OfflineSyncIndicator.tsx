@@ -120,7 +120,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+        className="fixed top-0 left-0 right-0 z-50 bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg"
       >
         <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between">

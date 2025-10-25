@@ -50,7 +50,7 @@ export function SocialAuthButtons({
           type="button"
           onClick={() => onSocialAuth('google')}
           disabled={isLoading}
-          className="relative h-[58px] w-[60px] bg-card rounded-[var(--radius)] border border-border hover:border-primary transition-all duration-200 disabled:opacity-50"
+          className="relative h-[58px] w-[60px] bg-card rounded-(--radius) border border-border hover:border-primary transition-all duration-200 disabled:opacity-50"
         >
           <img className="absolute inset-0 m-auto w-6 h-6" src={imgGroup659} alt="Google" />
         </button>

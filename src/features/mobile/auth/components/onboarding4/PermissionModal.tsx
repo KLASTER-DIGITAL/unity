@@ -33,7 +33,7 @@ export function PermissionModal({
       onClick={onLater}
     >
       <motion.div
-        className="bg-card rounded-[var(--radius)] p-6 w-full max-w-[300px] shadow-lg border border-border transition-colors duration-300"
+        className="bg-card rounded-(--radius) p-6 w-full max-w-[300px] shadow-lg border border-border transition-colors duration-300"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -47,13 +47,13 @@ export function PermissionModal({
         <div className="flex gap-3">
           <button
             onClick={onLater}
-            className="flex-1 py-3 px-4 rounded-[var(--radius)] bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all duration-200 active:scale-95"
+            className="flex-1 py-3 px-4 rounded-(--radius) bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all duration-200 active:scale-95"
           >
             {laterLabel}
           </button>
           <button
             onClick={onAllow}
-            className="flex-1 py-3 px-4 rounded-[var(--radius)] bg-[#756ef3] text-white hover:bg-[#6b62e8] transition-all duration-200 active:scale-95"
+            className="flex-1 py-3 px-4 rounded-(--radius) bg-[#756ef3] text-white hover:bg-[#6b62e8] transition-all duration-200 active:scale-95"
           >
             {allowLabel}
           </button>

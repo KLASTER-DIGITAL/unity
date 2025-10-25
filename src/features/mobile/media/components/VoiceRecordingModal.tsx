@@ -52,7 +52,7 @@ export function VoiceRecordingModal({
             transition={{ repeat: Infinity, duration: 1.5 }}
             className="relative"
           >
-            <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+            <div className="w-24 h-24 bg-linear-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
               <Mic className="w-12 h-12 text-white" />
             </div>
 
@@ -90,7 +90,7 @@ export function VoiceRecordingModal({
             return (
               <motion.div
                 key={i}
-                className="flex-1 bg-gradient-to-t from-red-500 to-pink-500 rounded-full"
+                className="flex-1 bg-linear-to-t from-red-500 to-pink-500 rounded-full"
                 animate={{
                   height: `${height}px`
                 }}

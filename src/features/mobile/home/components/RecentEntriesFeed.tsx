@@ -159,7 +159,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
                   {entry.text}
                 </p>
                 {/* Градиент затухания в конце */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-card via-card/50 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-linear-to-t from-card via-card/50 to-transparent pointer-events-none" />
               </div>
             </div>
           ))}
@@ -167,7 +167,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
           {/* Карточка "Смотреть все" - 240x140px */}
           <div
             onClick={onViewAllClick}
-            className="flex-shrink-0 w-[240px] h-[140px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
+            className="flex-shrink-0 w-[240px] h-[140px] bg-linear-to-br from-accent/10 to-accent/5 rounded-[16px] p-4 cursor-pointer hover:shadow-sm transition-all border border-accent/20 flex flex-col items-center justify-center gap-2"
           >
             <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />

@@ -37,7 +37,7 @@ export function PWASplash() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] bg-gradient-to-br from-accent via-blue-500 to-blue-600 flex items-center justify-center"
+          className="fixed inset-0 z-[100] bg-linear-to-br from-accent via-blue-500 to-blue-600 flex items-center justify-center"
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}

@@ -258,7 +258,7 @@ export function AchievementHomeScreen({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-card rounded-[var(--radius-xl)] p-5 border border-border text-center relative"
+            className="bg-card rounded-xl p-5 border border-border text-center relative"
           >
             {/* Close Button */}
             <button

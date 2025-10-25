@@ -48,7 +48,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.2, type: "spring", damping: 15 }}
-              className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-accent to-blue-600 rounded-[24px] flex items-center justify-center shadow-xl"
+              className="w-24 h-24 mx-auto mb-6 bg-linear-to-br from-accent to-blue-600 rounded-[24px] flex items-center justify-center shadow-xl"
             >
               <span className="text-[48px]">🏆</span>
             </motion.div>
@@ -106,7 +106,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="bg-accent/5 rounded-[var(--radius-xl)] p-4 mb-6"
+                className="bg-accent/5 rounded-xl p-4 mb-6"
               >
                 <p className="text-[13px]! font-normal! text-foreground text-center leading-[1.5]">
                   Нажмите <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/20 rounded-md mx-1">

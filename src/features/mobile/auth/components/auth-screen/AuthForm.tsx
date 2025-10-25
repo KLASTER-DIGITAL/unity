@@ -46,7 +46,7 @@ export function AuthForm({
             value={name}
             onChange={(e) => onNameChange(e.target.value)}
             placeholder={translations.yourName}
-            className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-[var(--radius)] outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
+            className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
             required
           />
         </div>
@@ -59,7 +59,7 @@ export function AuthForm({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           placeholder={translations.yourEmail}
-          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-[var(--radius)] outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
+          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
           required
         />
       </div>
@@ -71,7 +71,7 @@ export function AuthForm({
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           placeholder={translations.password}
-          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-[var(--radius)] outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
+          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
           required
           minLength={6}
         />
@@ -81,7 +81,7 @@ export function AuthForm({
       <motion.button
         type="submit"
         disabled={isLoading}
-        className="w-full h-12 bg-[#756ef3] text-white rounded-[var(--radius)] shadow-[0px_8px_24px_rgba(117,110,243,0.3)] hover:bg-[#6b62e8] transition-all duration-200 active:scale-98 flex items-center justify-center disabled:opacity-50"
+        className="w-full h-12 bg-[#756ef3] text-white rounded-(--radius) shadow-[0px_8px_24px_rgba(117,110,243,0.3)] hover:bg-[#6b62e8] transition-all duration-200 active:scale-98 flex items-center justify-center disabled:opacity-50"
         whileTap={{ scale: isLoading ? 1 : 0.98 }}
       >
         {isLoading ? (
