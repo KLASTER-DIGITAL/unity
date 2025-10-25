@@ -50,6 +50,13 @@
   - Файлы: magnetic-button, shimmering-text, counter
   - Результат: исправлена ошибка "motion is not defined" (UNITY-V2-H)
 
+- **Lazy imports**: Исправлены неправильные lazy imports (P1-4)
+  - App.tsx: исправлены импорты PWA компонентов и OfflineSyncIndicator
+  - Проблема: использовался `.then(m => ({ default: m.Component }))` для named exports
+  - Решение: добавлены default exports ко всем PWA компонентам
+  - Файлы: PWAHead, PWASplash, PWAStatus, PWAUpdatePrompt, InstallPrompt, OfflineSyncIndicator
+  - Результат: исправлена ошибка "Element type is invalid" (UNITY-V2-K)
+
 - **Edge Functions**: Разбит admin-api на 4 микросервиса (P1-2)
   - admin-api (482 строки) → admin-stats-api (181), admin-users-api (179), admin-settings-api (259), admin-system-api (205)
   - Результат: средний размер 206 строк (было 482)

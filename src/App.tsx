@@ -11,14 +11,14 @@ const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: m
 const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
 
 // PWA Components - Lazy loaded для улучшения производительности
-const PWAHead = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAHead })));
-const PWASplash = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWASplash })));
-const PWAStatus = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAStatus })));
-const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.PWAUpdatePrompt })));
-const InstallPrompt = lazy(() => import("@/shared/components/pwa").then(m => ({ default: m.InstallPrompt })));
+const PWAHead = lazy(() => import("@/shared/components/pwa/PWAHead"));
+const PWASplash = lazy(() => import("@/shared/components/pwa/PWASplash"));
+const PWAStatus = lazy(() => import("@/shared/components/pwa/PWAStatus"));
+const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa/PWAUpdatePrompt"));
+const InstallPrompt = lazy(() => import("@/shared/components/pwa/InstallPrompt"));
 
 // Offline Components
-const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator").then(m => ({ default: m.OfflineSyncIndicator })));
+const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator"));
 
 import { usePWASettings, shouldShowInstallPrompt, incrementVisitCount } from "@/shared/hooks/usePWASettings";
 import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";

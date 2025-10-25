@@ -112,3 +112,5 @@ export function PWASplash() {
     </AnimatePresence>
   );
 }
+
+export default PWASplash;

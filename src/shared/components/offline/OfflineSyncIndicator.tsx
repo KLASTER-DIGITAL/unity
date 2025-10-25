@@ -240,3 +240,4 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
   );
 }
 
+export default OfflineSyncIndicator;

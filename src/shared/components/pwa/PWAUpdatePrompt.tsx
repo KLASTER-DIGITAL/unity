@@ -115,3 +115,4 @@ export function PWAUpdatePrompt() {
     </AnimatePresence>
   );
 }
+export default PWAUpdatePrompt;

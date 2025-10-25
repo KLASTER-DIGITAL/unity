@@ -147,3 +147,4 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
     </AnimatePresence>
   );
 }
+export default InstallPrompt;

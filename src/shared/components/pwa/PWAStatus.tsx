@@ -64,3 +64,4 @@ export function PWAStatus() {
     </AnimatePresence>
   );
 }
+export default PWAStatus;

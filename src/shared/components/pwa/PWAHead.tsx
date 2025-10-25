@@ -46,3 +46,5 @@ export function PWAHead() {
 
   return null;
 }
+
+export default PWAHead;
