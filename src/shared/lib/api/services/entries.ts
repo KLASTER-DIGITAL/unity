@@ -235,7 +235,7 @@ export async function updateEntry(entryId: string, updates: Partial<DiaryEntry>)
  * Delete an entry
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function deleteEntry(entryId: string, userId: string): Promise<void> {
+export async function deleteEntry(entryId: string, _userId: string): Promise<void> {
   console.log('[ENTRIES] Deleting entry:', entryId);
 
   const supabase = createClient();

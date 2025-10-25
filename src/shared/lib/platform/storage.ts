@@ -185,18 +185,18 @@ class WebStorageAdapter implements StorageAdapter {
  * This will be implemented when migrating to React Native
  */
 class NativeStorageAdapter implements StorageAdapter {
-  async getItem(key: string): Promise<string | null> {
+  async getItem(_key: string): Promise<string | null> {
     // TODO: Implement with React Native AsyncStorage
     console.warn('NativeStorageAdapter not implemented yet');
     return null;
   }
 
-  async setItem(key: string, value: string): Promise<void> {
+  async setItem(_key: string, _value: string): Promise<void> {
     // TODO: Implement with React Native AsyncStorage
     console.warn('NativeStorageAdapter not implemented yet');
   }
 
-  async removeItem(key: string): Promise<void> {
+  async removeItem(_key: string): Promise<void> {
     // TODO: Implement with React Native AsyncStorage
     console.warn('NativeStorageAdapter not implemented yet');
   }
@@ -218,12 +218,12 @@ class NativeStorageAdapter implements StorageAdapter {
     return keys.map(key => [key, null]);
   }
 
-  async multiSet(keyValuePairs: Array<[string, string]>): Promise<void> {
+  async multiSet(_keyValuePairs: Array<[string, string]>): Promise<void> {
     // TODO: Implement with React Native AsyncStorage
     console.warn('NativeStorageAdapter not implemented yet');
   }
 
-  async multiRemove(keys: string[]): Promise<void> {
+  async multiRemove(_keys: string[]): Promise<void> {
     // TODO: Implement with React Native AsyncStorage
     console.warn('NativeStorageAdapter not implemented yet');
   }

@@ -52,7 +52,7 @@ export const AnimatedTooltip = ({ items, content, children }: AnimatedTooltipPro
   if (items && items.length > 0) {
     return (
       <>
-        {items.map((item, idx) => (
+        {items.map((item, _idx) => (
           <div
             className="group relative -mr-4"
             key={item.name}

@@ -104,7 +104,7 @@ export function ChatGPTInput({
       className="bg-card relative rounded-xl w-full border-2 border-border focus-within:border-[#756ef3] focus-within:shadow-[0_4px_20px_rgba(117,110,243,0.2)] transition-all duration-300"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3 } as any}
     >
       <div className="flex items-start gap-2 p-3">
         {/* Microphone Button */}

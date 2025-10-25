@@ -9,7 +9,7 @@
  */
 
 import { motion, AnimatePresence } from 'motion/react';
-import { Cloud, CloudOff, RefreshCw, CheckCircle, AlertCircle, WifiOff } from 'lucide-react';
+import { CloudOff, RefreshCw, CheckCircle, AlertCircle, WifiOff } from 'lucide-react';
 import { useOfflineMode } from '@/shared/lib/offline';
 import { useEffect, useState } from 'react';
 

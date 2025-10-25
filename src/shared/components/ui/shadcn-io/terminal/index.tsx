@@ -49,7 +49,7 @@ export const TypingAnimation = ({
 
   const MotionComponent = motion.create({
     forwardMotionProps: true,
-  });
+  } as any);
 
   const [displayedText, setDisplayedText] = useState<string>("");
   const [started, setStarted] = useState(false);
@@ -82,7 +82,7 @@ export const TypingAnimation = ({
 
   return (
     <MotionComponent
-      ref={elementRef}
+      ref={elementRef as any}
       className={cn("text-sm font-normal tracking-tight", className)}
       {...props}
     >

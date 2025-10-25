@@ -8,7 +8,7 @@ import { getUserStats, getMotivationCards, markCardAsRead, type DiaryEntry } fro
 import { useTranslation, type Language } from "@/shared/lib/i18n";
 import { toast } from "sonner";
 import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
-import { Undo2, X } from "lucide-react";
+import { X } from "lucide-react";
 
 // Import modular components
 import {
@@ -33,7 +33,7 @@ export type { DiaryData, AchievementHomeScreenProps, AchievementCard };
 
 // Основной компонент
 export function AchievementHomeScreen({
-  diaryData = { name: "Мой дневник", emoji: "🏆" },
+  diaryData: _diaryData = { name: "Мой дневник", emoji: "🏆" },
   userData,
   onNavigateToHistory,
   onNavigateToSettings
@@ -41,24 +41,24 @@ export function AchievementHomeScreen({
   const { t } = useTranslation();
   const [cards, setCards] = useState<AchievementCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showUndo, setShowUndo] = useState(false);
-  const [lastRemovedCard, setLastRemovedCard] = useState<AchievementCard | null>(null);
+  const [_showUndo, setShowUndo] = useState(false);
+  const [_lastRemovedCard, setLastRemovedCard] = useState<AchievementCard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentStreak, setCurrentStreak] = useState(0);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [_isFirstLoad, setIsFirstLoad] = useState(true);
   const [feedRefreshKey, setFeedRefreshKey] = useState(0);
   const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
   const [showAllRead, setShowAllRead] = useState(true); // ✅ NEW: "Все прочитано!" visibility
   const undoTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Получаем текущую дату
-  const currentDate = new Date();
-  const dateFormatter = new Intl.DateTimeFormat('ru', { 
-    weekday: 'long', 
-    day: 'numeric',
-    month: 'long'
-  });
-  const formattedDate = dateFormatter.format(currentDate);
+  // Date formatter (currently unused but kept for future use)
+  // const currentDate = new Date();
+  // const dateFormatter = new Intl.DateTimeFormat('ru', {
+  //   weekday: 'long',
+  //   day: 'numeric',
+  //   month: 'long'
+  // });
+  // const formattedDate = dateFormatter.format(currentDate);
 
   // Загрузка записей и статистики при монтировании
   useEffect(() => {
@@ -69,7 +69,7 @@ export function AchievementHomeScreen({
     try {
       setIsLoading(true);
       const userId = userData?.user?.id || userData?.id || "anonymous";  // ✅ FIXED: Try user.id first
-      const userLanguage = (userData?.profile?.language || userData?.language || 'ru') as Language;
+      // const userLanguage = (userData?.profile?.language || userData?.language || 'ru') as Language;
 
       // Загружаем мотивационные карточки и статистику параллельно
       const [motivationCards, stats] = await Promise.all([
@@ -185,17 +185,18 @@ export function AchievementHomeScreen({
     setCurrentIndex(prev => prev + 1);
   };
 
-  const handleUndo = () => {
-    if (lastRemovedCard) {
-      setCurrentIndex(prev => prev - 1);
-      setShowUndo(false);
-      setLastRemovedCard(null);
-      
-      if (undoTimeoutRef.current) {
-        clearTimeout(undoTimeoutRef.current);
-      }
-    }
-  };
+  // Undo handler (currently unused but kept for future use)
+  // const handleUndo = () => {
+  //   if (lastRemovedCard) {
+  //     setCurrentIndex(prev => prev - 1);
+  //     setShowUndo(false);
+  //     setLastRemovedCard(null);
+
+  //     if (undoTimeoutRef.current) {
+  //       clearTimeout(undoTimeoutRef.current);
+  //     }
+  //   }
+  // };
 
   const visibleCards = cards.slice(currentIndex, currentIndex + 4);
   const hasCards = currentIndex < cards.length;
@@ -232,7 +233,7 @@ export function AchievementHomeScreen({
         <div className="p-section">
           {/* Cards Stack Container - адаптивная высота по содержимому */}
           <div className="relative w-full min-h-[280px] mb-responsive-md">
-            <AnimatedPresence initial={false}>
+            <AnimatedPresence>
               {visibleCards.reverse().map((card, idx) => {
                 const actualIndex = visibleCards.length - 1 - idx;
                 return (

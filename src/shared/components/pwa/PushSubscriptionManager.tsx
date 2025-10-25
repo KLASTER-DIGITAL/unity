@@ -16,7 +16,7 @@ import {
   isPushSubscribed,
   initWebPush,
 } from '@/shared/lib/notifications/webPush';
-import { trackPushPermission, trackPushDenied, trackPushSubscribed, trackPushUnsubscribed } from '@/shared/lib/analytics/pwa-tracking';
+import { trackPushDenied, trackPushSubscribed, trackPushUnsubscribed } from '@/shared/lib/analytics/pwa-tracking';
 
 interface PushSubscriptionManagerProps {
   userId: string;

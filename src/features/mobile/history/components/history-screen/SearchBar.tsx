@@ -14,7 +14,7 @@ interface SearchBarProps {
  */
 export function SearchBar({
   searchQuery,
-  showFilters,
+  showFilters: _showFilters,
   activeFiltersCount,
   onSearchChange,
   onToggleFilters

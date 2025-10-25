@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react";
 import { Pie, PieChart } from "recharts"
 
 import {
@@ -62,8 +61,7 @@ export function ChartPieSimple() {
         >
           <PieChart>
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              {...({ content: <ChartTooltipContent hideLabel /> } as any)}
             />
             <Pie data={chartData} dataKey="visitors" nameKey="browser" />
           </PieChart>

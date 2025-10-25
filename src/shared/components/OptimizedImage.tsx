@@ -39,7 +39,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   onLoad,
   onError,
 }) => {
-  const [imageError, setImageError] = useState(false);
+  const [_imageError, setImageError] = useState(false);
   const [webpError, setWebpError] = useState(false);
 
   // Генерируем WebP версию пути
@@ -67,7 +67,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   // Если поддерживается WebP и нет ошибки, используем WebP
   const webpSrc = getWebPSrc(src);
-  const shouldUseWebP = !webpError && !imageError;
+  // const shouldUseWebP = !webpError && !imageError;
 
   // Определяем loading стратегию
   const loadingStrategy = priority ? 'eager' : loading;

@@ -220,7 +220,7 @@ class WebNavigationAdapter implements NavigationAdapter {
  * This will be implemented when migrating to React Native
  */
 class NativeNavigationAdapter implements NavigationAdapter {
-  navigate(route: string, options?: NavigationOptions): void {
+  navigate(_route: string, _options?: NavigationOptions): void {
     // TODO: Implement with React Navigation
     console.warn('NativeNavigationAdapter not implemented yet');
   }
@@ -230,12 +230,12 @@ class NativeNavigationAdapter implements NavigationAdapter {
     console.warn('NativeNavigationAdapter not implemented yet');
   }
 
-  replace(route: string, options?: NavigationOptions): void {
+  replace(_route: string, _options?: NavigationOptions): void {
     // TODO: Implement with React Navigation
     console.warn('NativeNavigationAdapter not implemented yet');
   }
 
-  reset(route: string, options?: NavigationOptions): void {
+  reset(_route: string, _options?: NavigationOptions): void {
     // TODO: Implement with React Navigation
     console.warn('NativeNavigationAdapter not implemented yet');
   }
@@ -252,7 +252,7 @@ class NativeNavigationAdapter implements NavigationAdapter {
     return false;
   }
 
-  addListener(event: string, callback: (data?: any) => void): () => void {
+  addListener(_event: string, _callback: (data?: any) => void): () => void {
     // TODO: Implement with React Navigation
     console.warn('NativeNavigationAdapter not implemented yet');
     return () => {};
@@ -290,7 +290,7 @@ class MemoryNavigationAdapter implements NavigationAdapter {
     this.navigate(route, { ...options, replace: true });
   }
 
-  reset(route: string, options?: NavigationOptions): void {
+  reset(route: string, _options?: NavigationOptions): void {
     this.history = [route];
     this.currentRoute = route;
     this.emit('state', { route });
@@ -341,46 +341,50 @@ export const navigation: NavigationAdapter = Platform.select({
 });
 
 /**
+ * UNITY app routes
+ */
+const ROUTES = {
+  // Auth routes
+  WELCOME: '/',
+  ONBOARDING: '/onboarding',
+  AUTH: '/auth',
+
+  // Main app routes
+  HOME: '/home',
+  HISTORY: '/history',
+  ACHIEVEMENTS: '/achievements',
+  REPORTS: '/reports',
+  SETTINGS: '/settings',
+
+  // Admin routes
+  ADMIN_LOGIN: '/admin',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+
+  // Utility routes
+  NOT_FOUND: '/404'
+} as const;
+
+type RouteKey = keyof typeof ROUTES;
+
+/**
  * Navigation utilities and route definitions
  */
 export const NavigationUtils = {
-  /**
-   * UNITY app routes
-   */
-  routes: {
-    // Auth routes
-    WELCOME: '/',
-    ONBOARDING: '/onboarding',
-    AUTH: '/auth',
-    
-    // Main app routes
-    HOME: '/home',
-    HISTORY: '/history',
-    ACHIEVEMENTS: '/achievements',
-    REPORTS: '/reports',
-    SETTINGS: '/settings',
-    
-    // Admin routes
-    ADMIN_LOGIN: '/admin',
-    ADMIN_DASHBOARD: '/admin/dashboard',
-    
-    // Utility routes
-    NOT_FOUND: '/404'
-  } as const,
+  routes: ROUTES,
 
   /**
    * Navigate to route with type safety
    */
-  navigateTo(route: keyof typeof NavigationUtils.routes, options?: NavigationOptions): void {
-    const routePath = NavigationUtils.routes[route];
+  navigateTo(route: RouteKey, options?: NavigationOptions): void {
+    const routePath = ROUTES[route];
     navigation.navigate(routePath, options);
   },
 
   /**
    * Check if current route matches
    */
-  isCurrentRoute(route: keyof typeof NavigationUtils.routes): boolean {
-    const routePath = NavigationUtils.routes[route];
+  isCurrentRoute(route: RouteKey): boolean {
+    const routePath = ROUTES[route];
     const currentRoute = navigation.getCurrentRoute();
     
     // Handle exact match and path prefix match

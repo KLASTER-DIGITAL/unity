@@ -34,7 +34,7 @@ export function AuthScreen({
   const handleComplete = onAuthComplete || onComplete;
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTelegramLoading, setIsTelegramLoading] = useState(false);
+  const [_isTelegramLoading, setIsTelegramLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

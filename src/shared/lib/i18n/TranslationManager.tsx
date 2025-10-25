@@ -16,7 +16,7 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
   onLanguageChange,
   validateCacheOnMount = true
 }) => {
-  const { currentLanguage, changeLanguage, isLoading, error, isLoaded } = useTranslationContext();
+  const { currentLanguage, changeLanguage: _changeLanguage, isLoading: _isLoading, error: _error, isLoaded } = useTranslationContext();
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 

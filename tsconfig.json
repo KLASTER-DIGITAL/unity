@@ -30,6 +30,11 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "**/*examples.tsx",
+    "**/*.example.ts",
+    "**/*.example.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 

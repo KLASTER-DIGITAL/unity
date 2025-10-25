@@ -237,10 +237,10 @@ export async function sendTestNotification(title: string, body: string, icon?: s
       body,
       icon: icon || '/icon-192x192.png',
       badge: '/icon-96x96.png',
-      vibrate: [200, 100, 200],
+      // vibrate: [200, 100, 200], // Not supported in NotificationOptions type
       tag: 'test-notification',
       requireInteraction: false,
-    });
+    } as any);
   } else {
     // Fallback на обычное уведомление
     new Notification(title, {

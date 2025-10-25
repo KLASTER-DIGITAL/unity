@@ -5,7 +5,7 @@
  * Uses IndexedDB for storage and Service Worker Background Sync API.
  */
 
-import { createEntry, type DiaryEntry } from '@/shared/lib/api';
+import { createEntry } from '@/shared/lib/api';
 import {
   addItem,
   getItem,
@@ -63,7 +63,7 @@ export async function saveEntryOffline(
   if (isBackgroundSyncSupported()) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register(SYNC_TAG);
+      await (registration as any).sync.register(SYNC_TAG);
       console.log('[BackgroundSync] Sync registered successfully');
     } catch (error) {
       console.error('[BackgroundSync] Failed to register sync:', error);

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Pause, Play, Trash2 } from 'lucide-react';
+import { X, Pause, Trash2 } from 'lucide-react';
 import { UploadProgress } from './UploadProgress';
 import type { UploadStatus } from '../hooks/useMediaUploader';
 
@@ -19,7 +19,7 @@ interface UploadQueueProps {
 export function UploadQueue({
   queue,
   onPause,
-  onResume,
+  onResume: _onResume,
   onCancel,
   onClearCompleted
 }: UploadQueueProps) {

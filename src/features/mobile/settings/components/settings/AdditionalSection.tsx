@@ -15,7 +15,7 @@ interface AdditionalSectionProps {
 }
 
 export function AdditionalSection({
-  currentLanguage,
+  currentLanguage: _currentLanguage,
   languageName,
   firstDayOfWeek,
   onLanguageClick,

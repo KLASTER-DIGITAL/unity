@@ -1,14 +1,14 @@
 /**
  * Platform Abstraction Layer for UNITY-v2
- * 
+ *
  * Provides cross-platform utilities and adapters for Web and React Native
- * 
+ *
  * @author UNITY Team
  * @date 2025-01-18
  */
 
 // Platform detection
-export {
+import {
   Platform,
   PlatformConstants,
   PlatformFeatures,
@@ -16,6 +16,15 @@ export {
   type PlatformType,
   type PlatformSpecific
 } from './detection';
+
+export {
+  Platform,
+  PlatformConstants,
+  PlatformFeatures,
+  PlatformDev,
+  type PlatformType,
+  type PlatformSpecific
+};
 
 // Storage adapter
 export {

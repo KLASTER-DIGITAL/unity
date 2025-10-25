@@ -11,7 +11,7 @@ interface SimpleChartProps {
   type?: 'line' | 'area' | 'bar' | 'pie';
 }
 
-export function SimpleChart({ data, dataKey, xAxisKey = 'date', title, type = 'line' }: SimpleChartProps) {
+export function SimpleChart({ data, dataKey: _dataKey, xAxisKey = 'date', title, type: _type = 'line' }: SimpleChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">

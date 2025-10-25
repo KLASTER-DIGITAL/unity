@@ -5,13 +5,13 @@ import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 
 // 3D и анимированные компоненты (тяжелые для рендеринга)
 const Card3D = lazy(() => import("../shadcn-io/3d-card").then(module => ({ default: module.CardContainer })));
-const AnimatedModal = lazy(() => import("../shadcn-io/animated-modal").then(module => ({ default: module.AnimatedModal })));
+const AnimatedModal = lazy(() => import("../shadcn-io/animated-modal").then(module => ({ default: module.Modal })));
 const AnimatedTooltip = lazy(() => import("../shadcn-io/animated-tooltip").then(module => ({ default: module.AnimatedTooltip })));
 const BackgroundGradient = lazy(() => import("../shadcn-io/background-gradient").then(module => ({ default: module.BackgroundGradient })));
 const MagneticButton = lazy(() => import("../shadcn-io/magnetic-button").then(module => ({ default: module.MagneticButton })));
 const MotionHighlight = lazy(() => import("../shadcn-io/motion-highlight").then(module => ({ default: module.MotionHighlight })));
 const ShimmeringText = lazy(() => import("../shadcn-io/shimmering-text").then(module => ({ default: module.ShimmeringText })));
-const Sparkles = lazy(() => import("../shadcn-io/sparkles").then(module => ({ default: module.Sparkles })));
+const Sparkles = lazy(() => import("../shadcn-io/sparkles").then(module => ({ default: module.SparklesCore })));
 
 // Сложные интерактивные компоненты
 const ColorPicker = lazy(() => import("../shadcn-io/color-picker").then(module => ({ default: module.ColorPicker })));

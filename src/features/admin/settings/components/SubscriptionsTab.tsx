@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CreditCard, TrendingUp, DollarSign, Users, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -13,7 +13,7 @@ import {
 
 export function SubscriptionsTab() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
-  const [stats, setStats] = useState({
+  const [stats, _setStats] = useState({
     totalRevenue: 47280,
     activeSubscriptions: 156,
     churnRate: 3.2,

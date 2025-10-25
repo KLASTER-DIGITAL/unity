@@ -1,6 +1,5 @@
 'use client';
 
-import React from "react";
 import { motion, type HTMLMotionProps, type Transition } from 'motion/react';
 
 import { cn } from '../../utils';

@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "motion/react";
 import { Button } from "@/shared/components/ui/button";
-import { toast } from "sonner";
 import { useTranslation } from "@/shared/lib/i18n";
-import { updateUserProfile } from "@/shared/lib/api";
 import { SettingsRow, SettingsSection } from "./SettingsRow";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
 import { PremiumModal } from "./PremiumModal";
@@ -11,7 +9,6 @@ import { ProfileEditModal } from "./ProfileEditModal";
 
 // Import modular components and handlers
 import {
-  DEFAULT_AVATAR_URL,
   DEFAULT_LANGUAGES,
   NotificationsSection,
   SecuritySection,
@@ -145,16 +142,18 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 
   // Обработчик смены языка
-  const handleLanguageChangeLocal = (languageCode: string) => handleLanguageChangeUtil({
-    languageCode,
-    userId: profile?.id,
-    profile,
-    setProfile,
-    onProfileUpdate,
-    changeLanguage,
-    t,
-    setShowLanguage
-  });
+  const handleLanguageChangeLocal = async (languageCode: string) => {
+    await handleLanguageChangeUtil({
+      languageCode,
+      userId: profile?.id,
+      profile,
+      setProfile,
+      onProfileUpdate,
+      changeLanguage: changeLanguage as (code: string) => Promise<void>,
+      t,
+      setShowLanguage
+    });
+  };
 
   return (
     <div className="pb-20 min-h-screen bg-background">
@@ -170,13 +169,13 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       />
 
       {/* Темы оформления - shadcn/ui стандарт */}
-      <SettingsSection title={t.themes || "Темы оформления"}>
+      <SettingsSection title={t("themes", "Темы оформления")}>
         <SettingsRow
           icon={Palette}
           iconColor="text-[var(--ios-purple)]"
           iconBgColor="bg-[var(--ios-purple)]/10"
-          title={t.appearance || "Внешний вид"}
-          description={t.appearanceDescription || "Переключение темы"}
+          title={t("appearance" as any, "Внешний вид")}
+          description={t("appearanceDescription" as any, "Переключение темы")}
           rightElement="custom"
           customRightElement={<ThemeToggle />}
         />
@@ -220,7 +219,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
           className="w-full h-14 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 font-medium"
         >
           <LogOut className="h-5 w-5 mr-2" strokeWidth={2} />
-          {t.logout || "Выйти"}
+          {t("logout", "Выйти")}
         </Button>
       </div>
 

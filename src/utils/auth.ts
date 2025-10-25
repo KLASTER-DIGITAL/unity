@@ -26,7 +26,7 @@ export async function signUpWithEmail(
     const supabase = createClient();
     
     // Регистрация в Supabase Auth
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -135,7 +135,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   try {
     const supabase = createClient();
     
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });

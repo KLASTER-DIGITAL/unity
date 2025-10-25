@@ -15,7 +15,7 @@ import type { SwipeCardProps } from "./types";
 export function SwipeCard({
   card,
   index,
-  totalCards,
+  totalCards: _totalCards,
   onSwipe,
   isTop
 }: SwipeCardProps) {
@@ -76,7 +76,7 @@ export function SwipeCard({
 
   const stackStyle = getStackStyle();
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 

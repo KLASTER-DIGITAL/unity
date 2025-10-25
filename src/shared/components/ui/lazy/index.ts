@@ -6,7 +6,7 @@ export {
   BarChart,
   LineChart,
   PieChart,
-  UsageChart,
+  // UsageChart, // Not implemented yet
   preloadCharts,
   useChartPreload
 } from '../charts/LazyCharts';
@@ -40,8 +40,8 @@ export const preloadAll = {
     await Promise.all([
       preloadCharts.barChart(),
       preloadCharts.lineChart(),
-      preloadCharts.pieChart(),
-      preloadCharts.usageChart()
+      preloadCharts.pieChart()
+      // preloadCharts.usageChart() // Not implemented yet
     ]);
   },
   

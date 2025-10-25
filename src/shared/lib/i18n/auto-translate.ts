@@ -1,4 +1,4 @@
-import { AutoTranslateOptions, AutoTranslationResult } from './types';
+import { AutoTranslationResult } from './types';
 
 export class AutoTranslationService {
   private static readonly BATCH_SIZE = 10;
@@ -407,9 +407,9 @@ IMPORTANT:
 
   // Получение стоимости автоперевода
   static estimateTranslationCost(
-    sourceLanguage: string,
+    _sourceLanguage: string,
     targetLanguages: string[],
-    apiKey: string
+    _apiKey: string
   ): Promise<{
     estimatedCost: number;
     estimatedTime: number;

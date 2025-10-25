@@ -1,4 +1,4 @@
-import { DiaryEntry } from '../types';
+import type { DiaryEntry } from './index';
 
 export interface UserStats {
   totalEntries: number;

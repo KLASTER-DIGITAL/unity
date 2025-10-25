@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useContext, useImperativeHandle, isValidElement } from "react";
-import type { ReactNode, ReactElementProps } from "react";
+import React from "react";
 import { motion, type Transition, type HTMLMotionProps } from 'motion/react';
 
 import { cn } from "../../utils";
@@ -170,7 +169,7 @@ function TabsTrigger({
   const { activeValue, handleValueChange, registerTrigger } = useTabs();
 
   const localRef = React.useRef<HTMLButtonElement | null>(null);
-  React.useImperativeHandle(ref, () => localRef.current as HTMLButtonElement);
+  React.useImperativeHandle(ref as any, () => localRef.current!);
 
   React.useEffect(() => {
     registerTrigger(value, localRef.current);

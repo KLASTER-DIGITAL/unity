@@ -1,5 +1,5 @@
 import { TranslationCache, CacheConfig } from './types';
-import { storage, StorageUtils } from '../platform/storage';
+import { storage } from '../platform/storage';
 
 export class TranslationCacheManager {
   private static readonly CACHE_PREFIX = 'i18n_cache_';
@@ -252,7 +252,7 @@ export class TranslationCacheManager {
     caches.sort((a, b) => a.lastUpdated.getTime() - b.lastUpdated.getTime());
 
     // Удаляем самые старые кэши до освобождения 50% места
-    const totalSize = caches.reduce((sum, cache) => sum + cache.size, 0);
+    // const totalSize = caches.reduce((sum, cache) => sum + cache.size, 0);
     const targetSize = this.DEFAULT_CONFIG.maxSize * 0.5;
 
     let currentSize = 0;

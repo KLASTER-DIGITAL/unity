@@ -14,15 +14,12 @@ import {
   Sparkles,
   TrendingUp,
   BarChart3,
-  Calendar,
   Heart,
   Star,
   Brain,
-  FileText,
   Share2,
   Crown,
-  Target,
-  Loader2
+  Target
 } from "lucide-react";
 
 export function ReportsScreen({ userData }: { userData?: any }) {
@@ -30,7 +27,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
   const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [isLoading, setIsLoading] = useState(true);
-  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [_entries, setEntries] = useState<DiaryEntry[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
@@ -93,12 +90,13 @@ export function ReportsScreen({ userData }: { userData?: any }) {
     "Твоя благодарность семье показывает, что ты ценишь близких людей ❤️"
   ];
 
-  const weeklyStats = [
-    { week: "1 неделя", entries: 6, mood: 4.2 },
-    { week: "2 неделя", entries: 5, mood: 4.5 },
-    { week: "3 неделя", entries: 7, mood: 4.8 },
-    { week: "4 неделя", entries: 5, mood: 4.3 }
-  ];
+  // Weekly stats (currently unused but kept for future use)
+  // const weeklyStats = [
+  //   { week: "1 неделя", entries: 6, mood: 4.2 },
+  //   { week: "2 неделя", entries: 5, mood: 4.5 },
+  //   { week: "3 неделя", entries: 7, mood: 4.8 },
+  //   { week: "4 неделя", entries: 5, mood: 4.3 }
+  // ];
 
   if (isLoading) {
     return (

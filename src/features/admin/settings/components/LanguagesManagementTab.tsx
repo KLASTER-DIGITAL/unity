@@ -18,16 +18,12 @@ import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
 import { createClient } from '@/utils/supabase/client';
 import {
-  Languages as LanguagesIcon,
   Plus,
-  Edit2,
-  Trash2,
   CheckCircle,
   AlertCircle,
   Loader2,
   ArrowRight,
-  Globe,
-  Sparkles
+  Globe
 } from 'lucide-react';
 
 interface Language {
@@ -202,12 +198,13 @@ export function LanguagesManagementTab({ onNavigateToTranslations }: LanguagesMa
     }
   };
 
-  const getProgressColor = (progress: number) => {
-    if (progress >= 90) return 'bg-green-500';
-    if (progress >= 70) return 'bg-blue-500';
-    if (progress >= 50) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
+  // Progress color helper (currently unused but kept for future use)
+  // const getProgressColor = (progress: number) => {
+  //   if (progress >= 90) return 'bg-green-500';
+  //   if (progress >= 70) return 'bg-blue-500';
+  //   if (progress >= 50) return 'bg-yellow-500';
+  //   return 'bg-red-500';
+  // };
 
   const totalKeys = languages[0]?.total_keys || 0;
   const activeLanguages = languages.filter(l => l.is_active);

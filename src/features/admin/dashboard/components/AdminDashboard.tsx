@@ -31,8 +31,7 @@ import {
   OverviewTab,
   loadAdminStats,
   isSuperAdmin as checkSuperAdmin,
-  INITIAL_STATS,
-  PWA_SUB_TABS
+  INITIAL_STATS
 } from "./admin-dashboard";
 import type { AdminDashboardProps, AdminStats, MenuItem, TabId, PWASubTab } from "./admin-dashboard";
 
@@ -54,7 +53,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
   // Memoized stats loader to avoid recreation
   const handleLoadStats = useCallback(async () => {
     setIsLoadingStats(true);
-    const statsData = await loadAdminStats(t);
+    const statsData = await loadAdminStats(t as any);
     setStats(statsData);
     setIsLoadingStats(false);
   }, [t]);

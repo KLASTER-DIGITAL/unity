@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Lottie from 'lottie-react';
 import { useTheme } from '@/shared/components/theme-provider';
 
@@ -84,7 +84,7 @@ export function LottiePreloader({
   animationType = 'initial'
 }: LottiePreloaderProps) {
   const { theme } = useTheme();
-  const [minDurationElapsed, setMinDurationElapsed] = useState(false);
+  const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
 
   // Определяем какую анимацию использовать в зависимости от темы и типа
   // Initial loading (Welcome screen):
@@ -160,7 +160,7 @@ export function LottiePreloaderCompact({
   const animationData = animationType === 'transition'
     ? (theme === 'dark' ? blackAnimation2 : whiteAnimation2)
     : (theme === 'dark' ? blackAnimation : whiteAnimation);
-  const [minDurationElapsed, setMinDurationElapsed] = useState(false);
+  const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
 
   // Если указан minDuration, запускаем таймер
   useEffect(() => {

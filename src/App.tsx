@@ -31,8 +31,8 @@ import {
 import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
 import { initBackgroundSync } from "@/shared/lib/offline";
 
-// Import E2E test component
-import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
+// Import E2E test component (disabled - moved to .example.tsx)
+// import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
 import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
 
 // Onboarding data interface
@@ -483,11 +483,14 @@ export default function App() {
     );
   }
 
-  // Test route
+  // Test route (disabled - I18nE2ETest moved to .example.tsx)
   if (isTestRoute) {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-        <I18nE2ETest />
+        <div className="p-8">
+          <h1 className="text-2xl font-bold">Test Route Disabled</h1>
+          <p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
+        </div>
       </ThemeProvider>
     );
   }

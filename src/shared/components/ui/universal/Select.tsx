@@ -12,12 +12,10 @@ import React, { useState, useRef, useEffect, forwardRef } from 'react';
 import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import { ChevronDownIcon, CheckIcon } from 'lucide-react';
-import { 
-  UniversalComponentProps, 
+import {
   UniversalEventHandlers,
   FormFieldProps,
-  SelectOption,
-  UniversalComponentRef
+  SelectOption
 } from './types';
 
 /**
@@ -126,7 +124,7 @@ const WebSelect = forwardRef<HTMLDivElement, SelectProps>(
 
     // Handle value change
     const handleValueChange = (newValue: string | number | null) => {
-      setSelectedValue(newValue);
+      setSelectedValue(newValue ?? undefined);
       if (onValueChange) onValueChange(newValue);
       setIsOpen(false);
       setSearchQuery('');
@@ -292,10 +290,10 @@ const NativeSelect = forwardRef<any, SelectProps>(
     // This is a placeholder for React Native implementation
     
     const [selectedValue, setSelectedValue] = useState(value || defaultValue);
-    const selectedOption = options.find(opt => opt.value === selectedValue) || null;
+    // const selectedOption = options.find(opt => opt.value === selectedValue) || null;
 
     const handleValueChange = (newValue: string | number | null) => {
-      setSelectedValue(newValue);
+      setSelectedValue(newValue ?? undefined);
       if (onValueChange) onValueChange(newValue);
     };
 

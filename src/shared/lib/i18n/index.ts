@@ -18,7 +18,7 @@ export * from './TranslationLoader';
 export * from './helpers';
 
 // Re-export types
-export * from './types';
+export type { Language, Translations } from './types';
 export * from './types/TranslationKeys';
 
 // Re-export optimizations

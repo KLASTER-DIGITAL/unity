@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { TranslationCacheManager } from './cache';
 import { TranslationLoader } from './loader';
-import { I18nState, TranslationCache, Translations } from './types';
+import { I18nState, Translations } from './types';
 import { getFallbackTranslation } from './fallback';
 import { SmartCache, LazyLoader, initializeOptimizations } from './optimizations';
 

@@ -27,7 +27,7 @@ export function ChatInputSection({
   userId = "anonymous"
 }: ChatInputSectionProps) {
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, _setMessages] = useState<ChatMessage[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -157,7 +157,7 @@ export function ChatInputSection({
                 key={message.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.3 } as any}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div

@@ -7,14 +7,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Cloud, CloudOff, RefreshCw, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Cloud, CloudOff, RefreshCw, AlertCircle, X } from 'lucide-react';
 import {
   getPendingEntries,
   syncPendingEntries,
   retryFailedEntry,
   deleteFailedEntry,
-  type PendingEntry,
 } from '@/shared/lib/offline/backgroundSync';
+import type { PendingEntry } from '@/shared/lib/offline/indexedDB';
 
 interface OfflineSyncIndicatorProps {
   userId: string;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, MoreVertical, Mail, Calendar, TrendingUp, Ban, CheckCircle, RefreshCw } from "lucide-react";
+import { Search, MoreVertical, Mail, Ban, CheckCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
@@ -87,7 +87,7 @@ export function UsersManagementTab() {
     }
   };
 
-  const handleTogglePremium = async (userId: string, currentStatus: string) => {
+  const handleTogglePremium = async (_userId: string, currentStatus: string) => {
     try {
       const newIsPremium = currentStatus !== 'premium';
       // await updateUserSubscription(userId, newIsPremium);

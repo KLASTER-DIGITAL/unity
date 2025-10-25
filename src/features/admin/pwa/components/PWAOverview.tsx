@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
-import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Progress } from '@/shared/components/ui/progress';
 import { createClient } from '@/utils/supabase/client';
@@ -13,10 +12,7 @@ import {
   TrendingUp,
   Database,
   Settings,
-  Loader2,
-  ArrowRight,
-  CheckCircle,
-  AlertCircle
+  Loader2
 } from 'lucide-react';
 
 interface PWAStats {
@@ -75,7 +71,7 @@ export function PWAOverview() {
     pushSubscriptionRate: 0,
     installsGrowth: 0
   });
-  const [installationData, setInstallationData] = useState<InstallationData[]>([
+  const [_installationData, _setInstallationData] = useState<InstallationData[]>([
     { month: 'Apr', installs: 180, uninstalls: 20 },
     { month: 'May', installs: 250, uninstalls: 22 },
     { month: 'Jun', installs: 300, uninstalls: 25 },
@@ -246,7 +242,7 @@ export function PWAOverview() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SimpleChart data={installationData} />
+          <SimpleChart data={_installationData} />
         </CardContent>
       </Card>
 

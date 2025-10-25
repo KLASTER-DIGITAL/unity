@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, useContext, useImperativeHandle, cloneElement, isValidElement } from "react";
-import type { ReactNode, ReactElementProps } from "react";
+import React from "react";
 import { AnimatePresence, Transition, motion } from 'motion/react';
 
 import { cn } from "../../utils";
@@ -127,7 +126,7 @@ function MotionHighlight<T extends string>({
   } = props;
 
   const localRef = React.useRef<HTMLDivElement>(null);
-  React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
+  React.useImperativeHandle(ref as any, () => localRef.current!);
 
   const [activeValue, setActiveValue] = React.useState<T | null>(
     value ?? defaultValue ?? null,
@@ -389,7 +388,7 @@ function MotionHighlightItem({
   const itemTransition = transition ?? contextTransition;
 
   const localRef = React.useRef<HTMLDivElement>(null);
-  React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
+  React.useImperativeHandle(ref as any, () => localRef.current!);
 
   React.useEffect(() => {
     if (mode !== 'parent') return;

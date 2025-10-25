@@ -24,10 +24,10 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
   return React.createElement(
     motion.div,
     {
-      initial,
-      animate,
-      exit,
-      transition,
+      initial: initial as any,
+      animate: animate as any,
+      exit: exit as any,
+      transition: transition as any,
       className,
       style,
       onAnimationComplete,

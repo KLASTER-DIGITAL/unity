@@ -220,42 +220,42 @@ class WebMediaAdapter implements MediaAdapter {
  * This will be implemented when migrating to React Native
  */
 class NativeMediaAdapter implements MediaAdapter {
-  async readAsDataURL(file: File): Promise<string> {
+  async readAsDataURL(_file: File): Promise<string> {
     // TODO: Implement with React Native FileSystem
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  async readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  async readAsArrayBuffer(_file: File): Promise<ArrayBuffer> {
     // TODO: Implement with React Native FileSystem
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  async readAsText(file: File): Promise<string> {
+  async readAsText(_file: File): Promise<string> {
     // TODO: Implement with React Native FileSystem
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  createObjectURL(file: File | Blob): string {
+  createObjectURL(_file: File | Blob): string {
     // TODO: Implement with React Native file URI
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  revokeObjectURL(url: string): void {
+  revokeObjectURL(_url: string): void {
     // TODO: Implement cleanup for React Native
     console.warn('NativeMediaAdapter not implemented yet');
   }
 
-  async getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  async getImageDimensions(_file: File): Promise<{ width: number; height: number }> {
     // TODO: Implement with React Native Image.getSize
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  async getVideoMetadata(file: File): Promise<{
+  async getVideoMetadata(_file: File): Promise<{
     duration: number;
     width: number;
     height: number;
@@ -265,7 +265,7 @@ class NativeMediaAdapter implements MediaAdapter {
     throw new Error('NativeMediaAdapter not implemented yet');
   }
 
-  createCanvas(width: number, height: number): any {
+  createCanvas(_width: number, _height: number): any {
     // TODO: Implement with React Native Skia or similar
     console.warn('NativeMediaAdapter not implemented yet');
     throw new Error('NativeMediaAdapter not implemented yet');
@@ -288,36 +288,36 @@ class NativeMediaAdapter implements MediaAdapter {
  * Memory media adapter (fallback)
  */
 class MemoryMediaAdapter implements MediaAdapter {
-  async readAsDataURL(file: File): Promise<string> {
+  async readAsDataURL(_file: File): Promise<string> {
     // Fallback: return empty data URL
     return 'data:text/plain;base64,';
   }
 
-  async readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  async readAsArrayBuffer(_file: File): Promise<ArrayBuffer> {
     // Fallback: return empty array buffer
     return new ArrayBuffer(0);
   }
 
-  async readAsText(file: File): Promise<string> {
+  async readAsText(_file: File): Promise<string> {
     // Fallback: return empty string
     return '';
   }
 
-  createObjectURL(file: File | Blob): string {
+  createObjectURL(_file: File | Blob): string {
     // Fallback: return blob URL
     return 'blob:memory://fallback';
   }
 
-  revokeObjectURL(url: string): void {
+  revokeObjectURL(_url: string): void {
     // No-op for memory adapter
   }
 
-  async getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  async getImageDimensions(_file: File): Promise<{ width: number; height: number }> {
     // Fallback: return default dimensions
     return { width: 0, height: 0 };
   }
 
-  async getVideoMetadata(file: File): Promise<{
+  async getVideoMetadata(_file: File): Promise<{
     duration: number;
     width: number;
     height: number;

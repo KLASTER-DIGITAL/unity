@@ -7,7 +7,7 @@
  * @date 2025-10-24
  */
 
-import { Platform, PlatformFeatures, PlatformDev } from './detection';
+import { Platform, PlatformFeatures } from './detection';
 import { storage } from './storage';
 import { media } from './media';
 import { navigation } from './navigation';
@@ -167,10 +167,11 @@ export class ReactNativeReadinessChecker {
    */
   private checkMediaAdapter(): ReadinessCheckResult {
     try {
-      const hasPickImage = typeof media.pickImage === 'function';
-      const hasPickVideo = typeof media.pickVideo === 'function';
-      const hasPickAudio = typeof media.pickAudio === 'function';
-      const hasPickFile = typeof media.pickFile === 'function';
+      const mediaAny = media as any;
+      const hasPickImage = typeof mediaAny.pickImage === 'function';
+      const hasPickVideo = typeof mediaAny.pickVideo === 'function';
+      const hasPickAudio = typeof mediaAny.pickAudio === 'function';
+      const hasPickFile = typeof mediaAny.pickFile === 'function';
 
       const score = [hasPickImage, hasPickVideo, hasPickAudio, hasPickFile]
         .filter(Boolean).length * 25;

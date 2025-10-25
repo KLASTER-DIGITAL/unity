@@ -11,11 +11,9 @@
 import React, { useState, forwardRef } from 'react';
 import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
-import { 
-  UniversalComponentProps, 
+import {
   UniversalEventHandlers,
-  FormFieldProps,
-  UniversalComponentRef
+  FormFieldProps
 } from './types';
 
 /**

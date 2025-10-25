@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
-import { Camera, User, Loader2, X, ImagePlus } from 'lucide-react';
+import { Camera, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { updateUserProfile } from '@/shared/lib/api';
 import { uploadMedia } from '@/shared/lib/api';
@@ -80,11 +80,11 @@ export function ProfileEditModal({
       console.log(`📸 [AVATAR] Original file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
       // Compress image with aggressive settings for large files
-      const compressedFile = await compressImage(file, {
-        maxWidth: 512,
-        maxHeight: 512,
-        quality: file.size > 5 * 1024 * 1024 ? 0.7 : 0.8, // Lower quality for large files
-      });
+      const compressedFile = await compressImage(
+        file,
+        512, // maxWidth
+        file.size > 5 * 1024 * 1024 ? 0.7 : 0.8 // quality - lower for large files
+      );
 
       console.log(`📸 [AVATAR] Compressed: ${(compressedFile.size / 1024).toFixed(2)}KB`);
 

@@ -4,9 +4,9 @@
  * Visual dashboard for monitoring i18n performance metrics
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { PerformanceMonitor, type PerformanceStats } from './PerformanceMonitor';
-import { Activity, Zap, Database, AlertCircle, TrendingUp, Download } from 'lucide-react';
+import { Activity, Zap, AlertCircle, TrendingUp, Download } from 'lucide-react';
 
 export function PerformanceDashboard() {
   const [stats, setStats] = useState<PerformanceStats | null>(null);

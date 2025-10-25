@@ -35,19 +35,12 @@ export function initSentry() {
       integrations: [
         // Browser Tracing для мониторинга производительности
         Sentry.browserTracingIntegration({
-          // Отслеживание навигации
-          tracePropagationTargets: [
-            'localhost',
-            /^https:\/\/unity-wine\.vercel\.app/,
-            /^https:\/\/.*\.vercel\.app/,
-            /^https:\/\/.*\.supabase\.co/,
-          ],
-          // Настройки для медленных запросов
-          tracingOrigins: [
-            'localhost',
-            /^https:\/\/unity-wine\.vercel\.app/,
-            /^https:\/\/.*\.supabase\.co/,
-          ],
+          // Настройки для медленных запросов (tracingOrigins deprecated, use tracePropagationTargets)
+          // tracingOrigins: [
+          //   'localhost',
+          //   /^https:\/\/unity-wine\.vercel\.app/,
+          //   /^https:\/\/.*\.supabase\.co/,
+          // ],
         }),
         
         // Session Replay для воспроизведения ошибок
@@ -151,7 +144,7 @@ export function initSentry() {
  */
 export function captureException(
   error: Error,
-  context?: Sentry.CaptureContext
+  context?: any
 ) {
   if (import.meta.env.PROD) {
     Sentry.captureException(error, context);
@@ -171,7 +164,7 @@ export function captureException(
  */
 export function captureMessage(
   message: string,
-  context?: Sentry.CaptureContext
+  context?: any
 ) {
   if (import.meta.env.PROD) {
     Sentry.captureMessage(message, context);
@@ -315,7 +308,7 @@ export const withProfiler = Sentry.withProfiler;
  *
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
-export function showFeedbackWidget(openForm: boolean = false) {
+export function showFeedbackWidget(_openForm: boolean = false) {
   console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
   // if (import.meta.env.PROD) {
   //   const feedback = Sentry.getFeedback();

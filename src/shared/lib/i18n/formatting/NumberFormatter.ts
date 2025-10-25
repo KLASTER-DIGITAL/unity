@@ -130,7 +130,7 @@ export function formatFileSize(
  */
 export function formatDuration(
   seconds: number,
-  locale: string,
+  _locale: string,
   style: 'short' | 'long' = 'short'
 ): string {
   const hours = Math.floor(seconds / 3600);

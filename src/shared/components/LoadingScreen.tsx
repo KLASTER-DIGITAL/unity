@@ -1,4 +1,3 @@
-import React from 'react';
 import { LottiePreloader } from './LottiePreloader';
 
 interface LoadingScreenProps {
@@ -15,7 +14,7 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({
-  message = "Загрузка...",
+  message: _message = "Загрузка...",
   minDuration = 5000,
   onMinDurationComplete
 }: LoadingScreenProps) {

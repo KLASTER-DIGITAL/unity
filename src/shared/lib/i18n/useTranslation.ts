@@ -25,7 +25,6 @@ import {
   getRTLConfig,
   type TextDirection
 } from './rtl/RTLDetector';
-import { PerformanceMonitor } from './monitoring/PerformanceMonitor';
 
 /**
  * Hook for accessing translation functionality with TypeScript autocomplete

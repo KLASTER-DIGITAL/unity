@@ -16,6 +16,7 @@ export interface TranslationCache {
   translations: Record<string, string>;
   version: string;
   lastUpdated: string;
+  timestamp?: number;
   etag?: string;
   checksum?: string;
 }

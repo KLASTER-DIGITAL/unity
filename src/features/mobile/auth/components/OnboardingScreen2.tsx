@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
-import { imgCircle, imgSliedbar, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
+import { imgCircle, imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
 // Import hero image directly for Vite to process
 import heroImageSrc from "@/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp";
 

@@ -12,11 +12,10 @@ import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import { 
   UniversalComponentProps, 
-  UniversalEventHandlers, 
+  UniversalEventHandlers,
   UniversalAnimationProps,
-  ButtonVariant, 
-  ButtonSize,
-  UniversalComponentRef
+  ButtonVariant,
+  ButtonSize
 } from './types';
 
 /**

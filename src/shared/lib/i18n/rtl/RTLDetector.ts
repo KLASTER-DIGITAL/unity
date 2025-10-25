@@ -220,7 +220,7 @@ export function getTransform(
   // Flip translateX values
   return transform.replace(
     /translateX\((-?\d+(?:\.\d+)?)(px|%|em|rem)\)/g,
-    (match, value, unit) => {
+    (_match, value, unit) => {
       const flipped = -parseFloat(value);
       return `translateX(${flipped}${unit})`;
     }

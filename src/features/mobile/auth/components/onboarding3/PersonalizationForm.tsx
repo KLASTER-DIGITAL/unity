@@ -7,7 +7,7 @@ import type { PersonalizationFormProps } from "./types";
  * Personalization Form Component
  * Allows user to name their diary and select an emoji
  */
-export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: PersonalizationFormProps) {
+export function PersonalizationForm({ currentTranslations, onNext: _onNext, onUpdate }: PersonalizationFormProps) {
   const [diaryName, setDiaryName] = useState("");
   const [selectedEmoji, setSelectedEmoji] = useState("🏆");
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -27,11 +27,12 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
     onUpdate?.(diaryName, emoji);
   };
 
-  const handleNext = () => {
-    if (diaryName.trim()) {
-      onNext(diaryName.trim(), selectedEmoji);
-    }
-  };
+  // Next handler (currently unused but kept for future use)
+  // const handleNext = () => {
+  //   if (diaryName.trim()) {
+  //     onNext(diaryName.trim(), selectedEmoji);
+  //   }
+  // };
 
   return (
     <motion.div 

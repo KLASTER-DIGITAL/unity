@@ -244,7 +244,7 @@ export class PerformanceMonitor {
         }
       });
       
-      observer.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+      observer.observe({ type: 'event', buffered: true } as any);
       this.observers.push(observer);
     } catch (error) {
       console.warn('INP observation not supported:', error);

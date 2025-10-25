@@ -19,10 +19,10 @@ export class TranslationLoader {
     } = options;
     
     console.log(`Loading translations for ${language} (fallback: ${fallbackLanguage})`);
-    
+
     let attempt = 0;
-    let lastError: Error | null = null;
-    
+    // let lastError: Error | null = null;
+
     while (attempt < retryCount) {
       try {
         const result = await this.attemptLoad({
@@ -32,11 +32,11 @@ export class TranslationLoader {
           timeout,
           attempt
         });
-        
+
         console.log(`Successfully loaded translations for ${language}, source: ${result.fromCache ? 'cache' : 'api'}`);
         return result;
       } catch (error) {
-        lastError = error as Error;
+        // lastError = error as Error;
         attempt++;
         
         console.warn(`Attempt ${attempt} failed for ${language}:`, error);
@@ -60,7 +60,7 @@ export class TranslationLoader {
     timeout: number;
     attempt: number;
   }): Promise<TranslationResult> {
-    const { language, fallbackLanguage, forceRefresh, timeout, attempt } = options;
+    const { language, fallbackLanguage: _fallbackLanguage, forceRefresh, timeout, attempt } = options;
     
     // 1. Проверяем кэш (если не принудительное обновление)
     if (!forceRefresh && attempt === 0) {
@@ -102,7 +102,7 @@ export class TranslationLoader {
     console.log(`Loading fallback translations for ${fallbackLanguage}`);
     
     // Сначала пробуем кэш fallback языка
-    const cached = TranslationCacheManager.getCache(fallbackLanguage);
+    const cached = await TranslationCacheManager.getCache(fallbackLanguage);
     if (cached) {
       console.log(`Using cached fallback translations for ${fallbackLanguage}`);
       return {
@@ -220,15 +220,15 @@ export class TranslationLoader {
   }
   
   // Получение статистики загрузки
-  static getLoadingStats(): {
+  static async getLoadingStats(): Promise<{
     cacheStats: any;
     lastSync: Date | null;
     supportedLanguages: string[];
-  } {
+  }> {
     return {
       cacheStats: TranslationCacheManager.getCacheStats(),
-      lastSync: TranslationCacheManager.getLastSync(),
-      supportedLanguages: TranslationCacheManager.getCachedLanguages()
+      lastSync: await TranslationCacheManager.getLastSync(),
+      supportedLanguages: await TranslationCacheManager.getCachedLanguages()
     };
   }
   

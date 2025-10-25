@@ -98,7 +98,7 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
       {/* Photo Viewer */}
       {selectedMedia && selectedMedia.type === 'image' && (
         <PhotoViewer
-          imageUrl={selectedMedia.url}
+          imageUrl={selectedMedia.url ?? ''}
           fileName={selectedMedia.fileName}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}
@@ -108,7 +108,7 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
       {/* Video Player */}
       {selectedMedia && selectedMedia.type === 'video' && (
         <VideoPlayer
-          videoUrl={selectedMedia.url}
+          videoUrl={selectedMedia.url ?? ''}
           fileName={selectedMedia.fileName}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}

@@ -7,12 +7,18 @@
  * @date 2025-01-18
  */
 
-import React, { forwardRef } from 'react';
+import React from 'react';
 
 // Types and interfaces
+import type { UniversalComponentProps, ColorScheme } from './types';
 export * from './types';
 
 // Core components
+import { ButtonUtils } from './Button';
+import { SelectUtils } from './Select';
+import { SwitchUtils } from './Switch';
+import { ModalUtils } from './Modal';
+
 export { Button, ButtonUtils } from './Button';
 export type { ButtonProps } from './Button';
 
@@ -275,4 +281,3 @@ export const useUniversalTheme = (colorScheme: ColorScheme = 'auto') => {
 
 // Platform detection for components
 import { Platform } from '../../../lib/platform';
-import React from 'react';

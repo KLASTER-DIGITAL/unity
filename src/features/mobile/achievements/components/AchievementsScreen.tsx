@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Progress } from "@/shared/components/ui/progress";
 import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
@@ -10,13 +8,9 @@ import { toast } from "sonner";
 import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Trophy,
-  Medal,
   Star,
   Target,
-  Calendar,
   Flame,
-  TrendingUp,
-  Award,
   Crown,
   Zap,
   Heart,
@@ -42,7 +36,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   // Получаем переводы для языка пользователя
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
-  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [_entries, setEntries] = useState<DiaryEntry[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userStats, setUserStats] = useState({
     totalEntries: 0,
@@ -136,23 +130,24 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
     }
   ];
 
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case "common": return "bg-muted text-foreground border-border";
-      case "uncommon": return "bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20";
-      case "rare": return "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20";
-      case "legendary": return "bg-[var(--ios-purple)]/10 text-[var(--ios-purple)] border-[var(--ios-purple)]/20";
-      default: return "bg-muted text-foreground border-border";
-    }
-  };
+  // Helper functions for rarity styling (currently unused but kept for future use)
+  // const getRarityColor = (rarity: string) => {
+  //   switch (rarity) {
+  //     case "common": return "bg-muted text-foreground border-border";
+  //     case "uncommon": return "bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20";
+  //     case "rare": return "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20";
+  //     case "legendary": return "bg-[var(--ios-purple)]/10 text-[var(--ios-purple)] border-[var(--ios-purple)]/20";
+  //     default: return "bg-muted text-foreground border-border";
+  //   }
+  // };
 
-  const getRarityGlow = (rarity: string) => {
-    switch (rarity) {
-      case "rare": return "shadow-[var(--ios-blue)]/20";
-      case "legendary": return "shadow-[var(--ios-purple)]/20";
-      default: return "";
-    }
-  };
+  // const getRarityGlow = (rarity: string) => {
+  //   switch (rarity) {
+  //     case "rare": return "shadow-[var(--ios-blue)]/20";
+  //     case "legendary": return "shadow-[var(--ios-purple)]/20";
+  //     default: return "";
+  //   }
+  // };
 
   if (isLoading) {
     return (

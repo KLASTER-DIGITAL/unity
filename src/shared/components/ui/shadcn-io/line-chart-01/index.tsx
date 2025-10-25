@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 
 import {
@@ -107,7 +107,6 @@ export function ChartLineInteractive() {
           className="h-[250px] w-full"
         >
           <LineChart
-            accessibilityLayer
             data={chartData}
             margin={{
               left: 12,
@@ -130,9 +129,8 @@ export function ChartLineInteractive() {
               }}
             />
             <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
+              {...({
+                content: <ChartTooltipContent
                   className="w-[150px]"
                   nameKey="views"
                   labelFormatter={(value) => {
@@ -143,7 +141,7 @@ export function ChartLineInteractive() {
                     })
                   }}
                 />
-              }
+              } as any)}
             />
             <Line
               dataKey={activeChart}

@@ -666,7 +666,7 @@ const fallbackTranslations: Record<Language, Translations> = {
 // Хук для получения переводов
 export function useTranslations(language: Language = 'ru'): Translations {
   const [translations, setTranslations] = useState<Translations>(fallbackTranslations[language]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadTranslations = async () => {

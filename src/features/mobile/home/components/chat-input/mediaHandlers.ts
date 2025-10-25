@@ -71,7 +71,7 @@ interface FilesDroppedParams {
  */
 export async function handleFilesDropped({
   userId,
-  files
+  files: _files
 }: FilesDroppedParams) {
   if (!userId || userId === 'anonymous') {
     toast.error("Необходимо авторизоваться", {

@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ChevronDown, Check } from "lucide-react";
 import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
-import { imgLayer1, imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
+import { imgEllipse22, imgEllipse13, imgEllipse14, imgEllipse15, imgEllipse20, imgEllipse21, imgEllipse12, imgEllipse11, imgEllipse23, imgEllipse27, imgEllipse36, imgEllipse32, imgEllipse33, imgEllipse34, imgEllipse29, imgEllipse30, imgEllipse24, imgEllipse25, imgEllipse35 } from "@/imports/svg-lqmvp";
 // Import hero image directly for Vite to process
 import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp";
 
 // Новая i18n система
 import { useTranslation } from "@/shared/lib/i18n";
-import { LanguageSelector } from "@/shared/lib/i18n";
 import { LottiePreloader } from "@/shared/components/LottiePreloader";
 
 interface WelcomeScreenProps {
@@ -41,12 +40,12 @@ const fallbackLanguages: Language[] = [
   { id: '7', code: "ja", name: "Japanese", native_name: "日本語", flag: "🇯🇵", is_active: true },
 ];
 
-export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepClick }: WelcomeScreenProps) {
+export function WelcomeScreen({ onNext, onSkip, currentStep: _currentStep, totalSteps: _totalSteps, onStepClick: _onStepClick }: WelcomeScreenProps) {
   const { t, changeLanguage, currentLanguage: i18nLanguage, isLoaded } = useTranslation();
   const [selectedLanguage, setSelectedLanguage] = useState(i18nLanguage || "ru");
   const [showDropdown, setShowDropdown] = useState(false);
   const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
-  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+  const [_isLoadingLanguages, setIsLoadingLanguages] = useState(true);
 
   // Загрузка языков из API (публичный endpoint с ANON_KEY)
   useEffect(() => {

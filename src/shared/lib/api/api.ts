@@ -2,20 +2,14 @@ import { createClient } from '@/utils/supabase/client';
 
 // ✅ NEW: Import from modular API structure (2025-10-23)
 import { API_URLS } from './config/urls';
-import { apiRequest as coreApiRequest, blobToBase64, getAuthHeaders } from './core/request';
+import { apiRequest as _coreApiRequest, blobToBase64 } from './core/request';
 import type { ApiOptions } from './core/request';
+import type { MediaFile } from './types';
 
 // Re-export types for backward compatibility
 export type {
   UserProfile,
   MediaFile,
-  AIAnalysisResult,
-  DiaryEntry,
-  UserStats,
-  UploadMediaOptions,
-  MotivationCard,
-  BookDraft,
-  BookGenerationRequest,
 } from './types';
 
 // NOTE: Profile functions are now in ./services/profiles
@@ -23,14 +17,7 @@ export type {
 // DO NOT re-export them here to avoid duplicate exports
 
 // ✅ Microservices base URLs (backward compatibility)
-const PROFILES_API_URL = API_URLS.PROFILES;
-const ENTRIES_API_URL = API_URLS.ENTRIES;
-const AI_ANALYSIS_API_URL = API_URLS.AI_ANALYSIS;
-const MOTIVATIONS_API_URL = API_URLS.MOTIVATIONS;
-const MEDIA_API_URL = API_URLS.MEDIA;
 const TRANSCRIPTION_API_URL = API_URLS.TRANSCRIPTION;
-const ADMIN_API_URL = API_URLS.ADMIN;
-const TRANSLATIONS_API_URL = API_URLS.TRANSLATIONS;
 
 // TODO: Books API microservice not yet created - using direct Supabase client for now
 const API_BASE_URL = ''; // Placeholder - will be removed when Books API is migrated
@@ -93,117 +80,6 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
     throw error;
   }
 }
-
-// Функция для запросов к микросервису profiles
-async function profilesApiRequest(endpoint: string, options: ApiOptions = {}) {
-  const { method = 'GET', body, headers = {} } = options;
-
-  // Получаем access token из сессии
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
-    throw new Error('No active session. Please log in.');
-  }
-
-  const requestHeaders = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
-    ...headers
-  };
-
-  const config: RequestInit = {
-    method,
-    headers: requestHeaders,
-  };
-
-  if (body && method !== 'GET') {
-    config.body = JSON.stringify(body);
-  }
-
-  try {
-    console.log(`[PROFILES API] ${method} ${endpoint}`, body ? { body } : '');
-
-    const response = await fetch(`${PROFILES_API_URL}${endpoint}`, config);
-
-    const responseText = await response.text();
-    console.log(`[PROFILES API Response] ${endpoint}:`, responseText);
-
-    let jsonData;
-    try {
-      jsonData = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error(`Failed to parse JSON response from ${endpoint}:`, responseText);
-      throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
-    }
-
-    if (!response.ok) {
-      console.error(`PROFILES API Error [${endpoint}]:`, jsonData);
-      throw new Error(jsonData.error || `API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return jsonData;
-  } catch (error) {
-    console.error(`PROFILES API Request Error [${endpoint}]:`, error);
-    throw error;
-  }
-}
-
-// Функция для запросов к микросервису entries
-async function entriesApiRequest(endpoint: string, options: ApiOptions = {}) {
-  const { method = 'GET', body, headers = {} } = options;
-
-  // Получаем access token из сессии
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
-    throw new Error('No active session. Please log in.');
-  }
-
-  const requestHeaders = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
-    ...headers
-  };
-
-  const config: RequestInit = {
-    method,
-    headers: requestHeaders,
-  };
-
-  if (body && method !== 'GET') {
-    config.body = JSON.stringify(body);
-  }
-
-  try {
-    console.log(`[ENTRIES API] ${method} ${endpoint}`, body ? { body } : '');
-
-    const response = await fetch(`${ENTRIES_API_URL}${endpoint}`, config);
-
-    const responseText = await response.text();
-    console.log(`[ENTRIES API Response] ${endpoint}:`, responseText);
-
-    let jsonData;
-    try {
-      jsonData = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error(`Failed to parse JSON response from ${endpoint}:`, responseText);
-      throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
-    }
-
-    if (!response.ok) {
-      console.error(`ENTRIES API Error [${endpoint}]:`, jsonData);
-      throw new Error(jsonData.error || `API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return jsonData;
-  } catch (error) {
-    console.error(`ENTRIES API Request Error [${endpoint}]:`, error);
-    throw error;
-  }
-}
-
 
 // ==========================================
 // CHAT & AI ANALYSIS

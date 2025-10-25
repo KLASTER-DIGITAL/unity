@@ -56,7 +56,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   
   const handleLanguageSelect = async (languageCode: string) => {
     setIsOpen(false);
-    await changeLanguage(languageCode);
+    await changeLanguage(languageCode as any);
     onLanguageChange?.(languageCode);
   };
 
@@ -168,7 +168,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     onClick={() => setIsOpen(false)}
                     className="w-full mt-4"
                   >
-                    {t('cancel_button', 'Cancel')}
+                    {t('cancel_button' as any, 'Cancel')}
                   </Button>
                 </motion.div>
               </div>

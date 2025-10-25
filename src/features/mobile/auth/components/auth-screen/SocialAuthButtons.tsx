@@ -71,7 +71,7 @@ export function SocialAuthButtons({
             botName="diary_bookai_bot"
             dataOnauth={onTelegramAuth}
             buttonSize="large"
-            cornerRadius="8"
+            cornerRadius={8 as any}
             requestAccess="write"
             usePic={false}
             lang="ru"

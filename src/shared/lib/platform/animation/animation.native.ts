@@ -17,13 +17,13 @@ import type { AnimatedViewProps, AnimatedPresenceProps } from './types';
  */
 export const AnimatedView: React.FC<AnimatedViewProps> = ({
   children,
-  initial,
-  animate,
-  exit,
-  transition,
+  initial: _initial,
+  animate: _animate,
+  exit: _exit,
+  transition: _transition,
   className,
   style,
-  onAnimationComplete,
+  onAnimationComplete: _onAnimationComplete,
 }) => {
   // PLACEHOLDER: Return children without animation for now
   // Will be replaced with Reanimated implementation
@@ -46,8 +46,8 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
  */
 export const AnimatedPresence: React.FC<AnimatedPresenceProps> = ({
   children,
-  mode,
-  custom,
+  mode: _mode,
+  custom: _custom,
 }) => {
   // PLACEHOLDER: Return children without animation for now
   console.warn('AnimatedPresence.native: Not implemented yet. Using fallback.');

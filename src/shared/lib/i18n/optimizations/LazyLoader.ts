@@ -185,12 +185,13 @@ export class LazyLoader {
     console.log(`🧹 LazyLoader: Cleaning up old languages (${this.loadedLanguages.size}/${this.maxCachedLanguages})`);
     
     // Get languages sorted by last access time
-    const languagesByAccess = Array.from(this.loadedLanguages)
-      .map(lang => ({
+    const languagesByAccess = await Promise.all(
+      Array.from(this.loadedLanguages).map(async lang => ({
         language: lang,
-        lastAccess: this.getLastAccessTime(lang)
+        lastAccess: await this.getLastAccessTime(lang)
       }))
-      .sort((a, b) => a.lastAccess - b.lastAccess);
+    );
+    languagesByAccess.sort((a, b) => a.lastAccess - b.lastAccess);
     
     // Remove oldest languages
     const toRemove = languagesByAccess.slice(0, this.loadedLanguages.size - this.maxCachedLanguages);
@@ -200,9 +201,9 @@ export class LazyLoader {
     }
   }
   
-  private static getLastAccessTime(language: LanguageCode): number {
+  private static async getLastAccessTime(language: LanguageCode): Promise<number> {
     // Get from cache metadata
-    const cached = TranslationCacheManager.getCache(language);
+    const cached = await TranslationCacheManager.getCache(language);
     return cached?.timestamp || 0;
   }
   

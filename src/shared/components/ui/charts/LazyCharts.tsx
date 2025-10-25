@@ -1,5 +1,4 @@
 import { Suspense, lazy } from "react";
-import { LoadingScreen } from "@/shared/components/LoadingScreen";
 
 // Lazy load chart components для оптимизации производительности
 // Эти компоненты используют recharts - тяжелую библиотеку для графиков
@@ -12,9 +11,6 @@ const LineChart01 = lazy(() => import("../shadcn-io/line-chart-01").then(module 
 
 // Pie Chart Components
 const PieChart01 = lazy(() => import("../shadcn-io/pie-chart-01").then(module => ({ default: module.ChartPieSimple })));
-
-// Admin Usage Chart (тяжелый компонент с recharts)
-const UsageChart = lazy(() => import("../../../../components/screens/admin/settings/api/UsageChart").then(module => ({ default: module.UsageChart })));
 
 // Chart Loading Component
 const ChartLoadingFallback = () => (
@@ -46,18 +42,18 @@ export const LazyPieChart = (props: any) => (
   </Suspense>
 );
 
-export const LazyUsageChart = (props: any) => (
-  <Suspense fallback={<ChartLoadingFallback />}>
-    <UsageChart {...props} />
-  </Suspense>
-);
+// UsageChart component (currently not implemented)
+// export const LazyUsageChart = (props: any) => (
+//   <Suspense fallback={<ChartLoadingFallback />}>
+//     <UsageChart {...props} />
+//   </Suspense>
+// );
 
 // Preload функции для критических графиков
 export const preloadCharts = {
   barChart: () => import("../shadcn-io/bar-chart-01"),
-  lineChart: () => import("../shadcn-io/line-chart-01"), 
-  pieChart: () => import("../shadcn-io/pie-chart-01"),
-  usageChart: () => import("../../../../components/screens/admin/settings/api/UsageChart")
+  lineChart: () => import("../shadcn-io/line-chart-01"),
+  pieChart: () => import("../shadcn-io/pie-chart-01")
 };
 
 // Hook для preloading графиков при hover
@@ -75,9 +71,9 @@ export const useChartPreload = () => {
 // Экспорт всех lazy chart компонентов
 export {
   LazyBarChart as BarChart,
-  LazyLineChart as LineChart, 
-  LazyPieChart as PieChart,
-  LazyUsageChart as UsageChart
+  LazyLineChart as LineChart,
+  LazyPieChart as PieChart
+  // LazyUsageChart as UsageChart // Not implemented yet
 };
 
 // Экспорт для обратной совместимости
@@ -85,7 +81,7 @@ export default {
   BarChart: LazyBarChart,
   LineChart: LazyLineChart,
   PieChart: LazyPieChart,
-  UsageChart: LazyUsageChart,
+  // UsageChart: LazyUsageChart, // Not implemented yet
   preloadCharts,
   useChartPreload
 };

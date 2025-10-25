@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { uploadMedia, type MediaFile } from '@/shared/lib/api';
 import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVideoFile } from '../../utils/imageCompression';
 import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '../../utils/videoCompression';
-import { media, MediaUtils, Platform } from '../lib/platform';
+import { Platform } from '../lib/platform';
 
 // Export MediaFile as UploadedMedia for backward compatibility
 export type UploadedMedia = MediaFile;

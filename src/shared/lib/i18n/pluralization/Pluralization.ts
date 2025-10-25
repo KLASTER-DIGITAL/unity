@@ -85,7 +85,7 @@ export function pluralize(options: PluralizationOptions): string {
  * ```
  */
 export function createPluralTranslations(
-  language: string,
+  _language: string,
   forms: Partial<PluralTranslations>
 ): PluralTranslations {
   // Ensure 'other' form exists (fallback to 'many' or 'one')

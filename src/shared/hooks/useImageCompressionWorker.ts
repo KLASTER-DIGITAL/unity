@@ -116,7 +116,6 @@ export function useImageCompressionWorker() {
         const compressed = await mainThreadCompress(
           file,
           options?.maxWidth,
-          options?.maxHeight,
           options?.quality
         );
         

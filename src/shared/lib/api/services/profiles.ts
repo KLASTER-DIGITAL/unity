@@ -1,4 +1,4 @@
-import { apiRequest, getAuthHeaders } from '../core/request';
+import { getAuthHeaders } from '../core/request';
 import { API_URLS } from '../config/urls';
 import type { UserProfile } from '../types';
 

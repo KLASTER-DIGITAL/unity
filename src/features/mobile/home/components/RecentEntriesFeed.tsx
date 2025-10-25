@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
-import { getCategoryTranslation, type Language } from "@/shared/lib/i18n";
-import { MediaPreview } from "@/features/mobile/media";
+import { type Language } from "@/shared/lib/i18n";
 import useEmblaCarousel from 'embla-carousel-react';
 import {
-  ChevronRight,
   ArrowRight
 } from "lucide-react";
 
@@ -16,7 +14,7 @@ interface RecentEntriesFeedProps {
   onViewAllClick?: () => void;
 }
 
-export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onViewAllClick }: RecentEntriesFeedProps) {
+export function RecentEntriesFeed({ userData, language: _language = 'ru', onEntryClick, onViewAllClick }: RecentEntriesFeedProps) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [emblaRef] = useEmblaCarousel({

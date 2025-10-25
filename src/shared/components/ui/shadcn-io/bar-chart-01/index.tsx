@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {
@@ -107,7 +107,6 @@ export function ChartBarInteractive() {
           className="h-[250px] w-full"
         >
           <BarChart
-            accessibilityLayer
             data={chartData}
             margin={{
               left: 12,
@@ -130,19 +129,7 @@ export function ChartBarInteractive() {
               }}
             />
             <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="views"
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  }}
-                />
-              }
+              {...({ content: <ChartTooltipContent className="w-[150px]" nameKey="views" /> } as any)}
             />
             <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
           </BarChart>

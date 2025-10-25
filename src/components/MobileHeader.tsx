@@ -14,14 +14,14 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({
-  title,
+  title: _title,
   showMenu = true,
   showNotifications = true,
   showSearch = true,
   userName = "Пользователь",
   onMenuClick,
   onNotificationClick,
-  onSearchClick
+  onSearchClick: _onSearchClick
 }: MobileHeaderProps) {
   return (
     <div className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3">

@@ -172,7 +172,7 @@ export function logPWADebugInfo(): void {
   console.log('Browser Info:', {
     userAgent: navigator.userAgent,
     isIOSSafari: isIOSSafari(),
-    platform: navigator.platform,
+    navigatorPlatform: navigator.platform,
     ...getInstallInstructions()
   });
   

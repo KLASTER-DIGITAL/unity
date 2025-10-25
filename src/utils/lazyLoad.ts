@@ -29,9 +29,9 @@ interface LazyLoadOptions {
  */
 export function lazyWithRetry<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
-  // // options: LazyLoadOptions = {}
+  _options: LazyLoadOptions = {}
 ): React.LazyExoticComponent<T> {
-  const { delay = 0, retry = 3 } = options;
+  const { delay = 0, retry = 3 } = _options;
 
   return lazy(() => {
     return new Promise<{ default: T }>((resolve, reject) => {
@@ -158,12 +158,12 @@ export function createPreloadLink(
 ) {
   return {
     onMouseEnter: () => {
-      const LazyComponent = routes[routeName]();
+      const LazyComponent = routes[routeName]() as any;
       preloadComponent(LazyComponent);
       onMouseEnter?.();
     },
     onFocus: () => {
-      const LazyComponent = routes[routeName]();
+      const LazyComponent = routes[routeName]() as any;
       preloadComponent(LazyComponent);
     }
   };
