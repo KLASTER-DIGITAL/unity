@@ -116,3 +116,4 @@ export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, total
     </motion.div>
   );
 }
+export default OnboardingScreen3;

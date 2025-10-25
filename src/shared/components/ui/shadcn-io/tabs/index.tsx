@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useContext, useImperativeHandle, isValidElement, Component } from "react";
-import type { ReactNode, ReactElement, ComponentProps } from "react";
+import React, { useState, useEffect, useRef, useContext, useImperativeHandle, isValidElement } from "react";
+import type { ReactNode, ReactElementProps } from "react";
 import { motion, type Transition, type HTMLMotionProps } from 'motion/react';
 
 import { cn } from "../../utils";

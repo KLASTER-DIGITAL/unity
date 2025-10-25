@@ -48,10 +48,10 @@ export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProp
             </div>
 
             {/* Text */}
-            <h3 className="text-center !text-[18px] !font-semibold text-foreground mb-2">
+            <h3 className="text-center text-[18px]! font-semibold! text-foreground mb-2">
               Отлично {userName}!<br />Ваша запись сохранена! 🎉
             </h3>
-            <p className="text-center !text-[14px] text-muted-foreground">
+            <p className="text-center text-[14px]! text-muted-foreground">
               AI обрабатывает запись и создает мотивационную карточку...
             </p>
           </motion.div>

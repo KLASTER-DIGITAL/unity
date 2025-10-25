@@ -9,7 +9,7 @@ import { media } from '../shared/lib/platform';
 export async function compressImage(
   file: File,
   maxWidth: number = 1920,
-  maxHeight: number = 1920,
+  // // maxHeight: number = 1920,
   quality: number = 0.8
 ): Promise<File> {
   // Проверка типа файла

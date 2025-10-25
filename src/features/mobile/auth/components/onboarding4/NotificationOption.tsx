@@ -29,7 +29,7 @@ export function NotificationOption({
       return (
         <div className="flex items-center space-x-1">
           <Clock className="w-3 h-3 text-[#756ef3]" />
-          <span className="!text-[#756ef3] !text-[13px] !font-medium">
+          <span className="!text-[#756ef3] text-[13px]! font-medium!">
             ({morningTime} & {eveningTime})
           </span>
         </div>
@@ -46,7 +46,7 @@ export function NotificationOption({
         className="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-muted transition-colors cursor-pointer"
       >
         <Clock className="w-3 h-3 text-[#756ef3]" />
-        <span className="!text-[#756ef3] !text-[13px] !font-medium">({time})</span>
+        <span className="!text-[#756ef3] text-[13px]! font-medium!">({time})</span>
       </div>
     );
   };
@@ -67,7 +67,7 @@ export function NotificationOption({
             <div className="w-2 h-2 rounded-full bg-card" />
           )}
         </div>
-        <span className="!text-[#002055] dark:!text-[#1a1a1a] !text-[13px] !font-medium">{label}</span>
+        <span className="!text-[#002055] dark:!text-[#1a1a1a] text-[13px]! font-medium!">{label}</span>
       </div>
       {renderTimeDisplay()}
     </motion.button>

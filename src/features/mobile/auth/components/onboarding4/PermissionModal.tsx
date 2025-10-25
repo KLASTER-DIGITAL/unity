@@ -41,7 +41,7 @@ export function PermissionModal({
       >
         <div className="text-center space-y-3 mb-6">
           <Bell className="w-12 h-12 text-[#756ef3] mx-auto" />
-          <h3 className="!text-[17px] !font-semibold !text-[#002055] dark:!text-[#1a1a1a]">{title}</h3>
+          <h3 className="text-[17px]! font-semibold! !text-[#002055] dark:!text-[#1a1a1a]">{title}</h3>
         </div>
         
         <div className="flex gap-3">

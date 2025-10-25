@@ -10,7 +10,7 @@ import { RefreshCw, Trash2, Database, HardDrive } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-  getAllCaches,
+
   clearCache,
   clearAllCaches,
   invalidateAPICache,

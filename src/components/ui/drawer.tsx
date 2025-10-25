@@ -1,8 +1,7 @@
 "use client";
 
-import React, { Component } from "react";
-import type { ComponentProps } from "react";
-import { Drawer as DrawerPrimitive } from "vaul@1.1.2";
+import React from "react";
+import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "./utils";
 

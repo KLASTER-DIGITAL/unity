@@ -55,8 +55,8 @@ export function PWAStatus() {
               <Smartphone className="w-5 h-5" />
             </div>
             <div className="flex-1">
-              <p className="!text-[14px] !font-semibold">Приложение установлено!</p>
-              <p className="!text-[12px] !font-normal opacity-90">Теперь вы можете использовать его оффлайн</p>
+              <p className="text-[14px]! font-semibold!">Приложение установлено!</p>
+              <p className="text-[12px]! font-normal! opacity-90">Теперь вы можете использовать его оффлайн</p>
             </div>
           </div>
         </motion.div>

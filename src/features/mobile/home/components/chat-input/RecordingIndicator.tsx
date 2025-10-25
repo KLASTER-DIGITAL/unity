@@ -41,10 +41,10 @@ export function RecordingIndicator({
                 className="w-3 h-3 bg-card rounded-full"
               />
               <div>
-                <p className="!text-[13px] text-white !font-semibold">
+                <p className="text-[13px]! text-white font-semibold!">
                   Идет запись...
                 </p>
-                <p className="!text-[11px] text-white/80">
+                <p className="text-[11px]! text-white/80">
                   {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                 </p>
               </div>
@@ -73,7 +73,7 @@ export function RecordingIndicator({
                 aria-label="Остановить запись"
               >
                 <Square className="w-3.5 h-3.5 text-white" fill="currentColor" />
-                <span className="!text-[11px] text-white !font-medium">Stop</span>
+                <span className="text-[11px]! text-white font-medium!">Stop</span>
               </button>
               <button
                 onClick={onCancel}

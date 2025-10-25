@@ -39,7 +39,7 @@ export function EntryActionsModal({
           className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300 max-h-[85vh]"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="!text-[18px] !font-semibold text-foreground">Действия</h3>
+            <h3 className="text-[18px]! font-semibold! text-foreground">Действия</h3>
             <button
               onClick={onClose}
               className="p-1 hover:bg-accent/10 rounded-full transition-colors"
@@ -54,7 +54,7 @@ export function EntryActionsModal({
               className="w-full flex items-center gap-3 p-3 text-foreground hover:bg-accent/10 rounded-[12px] transition-colors"
             >
               <Edit className="h-5 w-5" strokeWidth={2} />
-              <span className="!text-[15px] !font-medium">Редактировать</span>
+              <span className="text-[15px]! font-medium!">Редактировать</span>
             </button>
 
             <button
@@ -62,7 +62,7 @@ export function EntryActionsModal({
               className="w-full flex items-center gap-3 p-3 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-[12px] transition-colors"
             >
               <Trash2 className="h-5 w-5" strokeWidth={2} />
-              <span className="!text-[15px] !font-medium">Удалить запись</span>
+              <span className="text-[15px]! font-medium!">Удалить запись</span>
             </button>
           </div>
         </motion.div>

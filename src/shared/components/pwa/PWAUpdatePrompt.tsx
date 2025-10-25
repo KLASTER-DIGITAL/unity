@@ -83,10 +83,10 @@ export function PWAUpdatePrompt() {
               </div>
               
               <div className="flex-1">
-                <h3 className="text-foreground !text-[15px] !font-semibold mb-1">
+                <h3 className="text-foreground text-[15px]! font-semibold! mb-1">
                   Доступно обновление
                 </h3>
-                <p className="text-muted-foreground !text-[13px] !font-normal mb-3">
+                <p className="text-muted-foreground text-[13px]! font-normal! mb-3">
                   Новая версия приложения готова к установке
                 </p>
                 
@@ -96,7 +96,7 @@ export function PWAUpdatePrompt() {
                     disabled={isUpdating}
                     className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground rounded-[var(--radius-lg)] py-2 px-4 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span className="!text-[13px] !font-semibold">
+                    <span className="text-[13px]! font-semibold!">
                       {isUpdating ? 'Обновление...' : 'Обновить'}
                     </span>
                   </button>

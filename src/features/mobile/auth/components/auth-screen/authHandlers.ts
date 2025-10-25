@@ -205,18 +205,23 @@ export async function handleEmailAuth({
         handleComplete?.({
           id: result.user.id,
           email: result.user.email,
-          name: result.profile.name,
-          role: result.profile.role, // Добавляем role
+          name: result.profile.name || 'Пользователь',
+          role: result.profile.role,
           diaryData: {
-            name: result.profile.diaryName,
-            emoji: result.profile.diaryEmoji
+            name: result.profile.diaryName || 'Мой дневник',
+            emoji: result.profile.diaryEmoji || '🏆'
           },
-          diaryName: result.profile.diaryName,
-          diaryEmoji: result.profile.diaryEmoji,
-          language: result.profile.language,
-          notificationSettings: result.profile.notificationSettings,
-          onboardingCompleted: result.profile.onboardingCompleted, // ✅ Передаем статус онбординга
-          createdAt: result.profile.createdAt
+          diaryName: result.profile.diaryName || 'Мой дневник',
+          diaryEmoji: result.profile.diaryEmoji || '🏆',
+          language: result.profile.language || 'ru',
+          notificationSettings: result.profile.notificationSettings || {
+            selectedTime: 'none',
+            morningTime: '09:00',
+            eveningTime: '21:00',
+            permissionGranted: false
+          },
+          onboardingCompleted: result.profile.onboardingCompleted ?? false,
+          createdAt: result.profile.createdAt || new Date().toISOString()
         });
       } else {
         toast.error("Ошибка входа", {
@@ -238,17 +243,22 @@ export async function handleEmailAuth({
         const userData: UserData = {
           id: result.user.id,
           email: result.user.email,
-          name: result.profile.name,
+          name: result.profile.name || 'Пользователь',
           diaryData: {
-            name: result.profile.diaryName,
-            emoji: result.profile.diaryEmoji
+            name: result.profile.diaryName || 'Мой дневник',
+            emoji: result.profile.diaryEmoji || '🏆'
           },
-          diaryName: result.profile.diaryName,
-          diaryEmoji: result.profile.diaryEmoji,
-          language: result.profile.language,
-          notificationSettings: result.profile.notificationSettings,
-          onboardingCompleted: result.profile.onboardingCompleted,
-          createdAt: result.profile.createdAt
+          diaryName: result.profile.diaryName || 'Мой дневник',
+          diaryEmoji: result.profile.diaryEmoji || '🏆',
+          language: result.profile.language || 'ru',
+          notificationSettings: result.profile.notificationSettings || {
+            selectedTime: 'none',
+            morningTime: '09:00',
+            eveningTime: '21:00',
+            permissionGranted: false
+          },
+          onboardingCompleted: result.profile.onboardingCompleted ?? false,
+          createdAt: result.profile.createdAt || new Date().toISOString()
         };
 
         toast.success("Аккаунт создан! 🎉");

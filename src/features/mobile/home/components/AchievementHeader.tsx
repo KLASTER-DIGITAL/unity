@@ -66,12 +66,12 @@ export const AchievementHeader = memo(function AchievementHeader({
             {/* Greeting - адаптивный размер шрифта для узких экранов (340px Telegram) */}
             <div className="flex-1 min-w-0">
               {/* Приветствие - увеличено на 2px (20-26px вместо 18-24px) */}
-              <h1 className="!font-semibold text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
+              <h1 className="font-semibold! text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
                 <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
                 <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
               {/* Вопрос - увеличен до 15px для читаемости */}
-              <p className="text-muted-foreground !text-[15px] !leading-[1.3] mt-0.5 whitespace-nowrap">
+              <p className="text-muted-foreground text-[15px]! !leading-[1.3] mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
@@ -89,10 +89,10 @@ export const AchievementHeader = memo(function AchievementHeader({
 
             {/* Текст внутри кружка - центрирован с минимальным отступом */}
             <div className="relative flex flex-col items-center justify-center gap-0">
-              <p className="!text-[44px] !font-semibold text-[var(--ios-green)] leading-[1]">
+              <p className="text-[44px]! font-semibold! text-[var(--ios-green)] leading-[1]">
                 {daysInApp}
               </p>
-              <p className="!text-[10px] text-muted-foreground leading-[1]">
+              <p className="text-[10px]! text-muted-foreground leading-[1]">
                 День
               </p>
             </div>

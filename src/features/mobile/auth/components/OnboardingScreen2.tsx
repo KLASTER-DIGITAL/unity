@@ -108,7 +108,7 @@ function Text({ currentTranslations }: { currentTranslations: any }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <p className="!leading-[33px] !text-[24px] !font-semibold !font-[Days_One]">{currentTranslations.title}</p>
+        <p className="!leading-[33px] text-[24px]! font-semibold! font-![Days_One]">{currentTranslations.title}</p>
       </motion.div>
     </motion.div>
   );
@@ -266,3 +266,4 @@ export function OnboardingScreen2({ selectedLanguage, onNext, currentStep, total
     </div>
   );
 }
+export default OnboardingScreen2;

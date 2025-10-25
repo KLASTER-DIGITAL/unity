@@ -34,7 +34,6 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
           maxSizeMB: 0.5,
           maxWidthOrHeight: options?.maxWidth || 1920,
           useWebWorker: false, // Already in worker
-          quality: options?.quality || 0.8,
           fileType: 'image/jpeg',
           initialQuality: options?.quality || 0.8,
           alwaysKeepResolution: false,
@@ -58,7 +57,7 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
           maxSizeMB: 0.05,
           maxWidthOrHeight: 200,
           useWebWorker: false,
-          quality: 0.7,
+          initialQuality: 0.7,
           fileType: 'image/jpeg'
         });
 

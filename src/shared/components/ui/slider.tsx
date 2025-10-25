@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useMemo, Component } from "react";
-import type { ComponentProps } from "react";
+import React, { useMemo } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "./utils";

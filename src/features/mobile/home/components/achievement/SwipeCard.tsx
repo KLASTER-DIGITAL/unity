@@ -12,20 +12,23 @@ import type { SwipeCardProps } from "./types";
  * - Haptic feedback
  * - Smooth animations
  */
-export function SwipeCard({ 
-  card, 
-  index, 
-  totalCards, 
-  onSwipe, 
+export function SwipeCard({
+  card,
+  index,
+  totalCards,
+  onSwipe,
   isTop
 }: SwipeCardProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-25, 0, 25]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
-  
+
   // Overlay для визуального feedback при свайпе (только лайк)
   const likeOpacity = useTransform(x, [0, 100], [0, 1]);
+
+  // ✅ FIX UNITY-V2-S: Вызываем useTransform ВСЕГДА (не условно)
+  const scaleTransform = useTransform(opacity, [0.5, 1], [0.9, 1]);
 
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +86,7 @@ export function SwipeCard({
       if (navigator.vibrate) {
         navigator.vibrate(50);
       }
-      
+
       onSwipe(offset > 0 ? 'right' : 'left');
     } else {
       // Возвращаем карточку на место
@@ -103,7 +106,7 @@ export function SwipeCard({
         x: isTop ? x : 0,
         y: isTop ? y : stackStyle.y,
         rotate: isTop ? rotate : stackStyle.rotate,
-        scale: isTop ? opacity.get() > 0.8 ? stackStyle.scale : useTransform(opacity, [0.5, 1], [0.9, stackStyle.scale]) : stackStyle.scale,
+        scale: isTop ? (opacity.get() > 0.8 ? stackStyle.scale : scaleTransform) : stackStyle.scale,
         zIndex: stackStyle.zIndex,
       }}
       initial={{ 

@@ -66,7 +66,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="!text-[20px] !font-semibold text-foreground">Запись</h2>
+              <h2 className="text-[20px]! font-semibold! text-foreground">Запись</h2>
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-accent/10 rounded-full transition-colors"
@@ -77,18 +77,18 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
             {/* Date */}
             <div className="mb-4">
-              <p className="!text-[13px] text-muted-foreground">
+              <p className="text-[13px]! text-muted-foreground">
                 {formatDate(entry.createdAt)}
               </p>
             </div>
 
             {/* Category & Sentiment */}
             <div className="flex items-center gap-2 mb-4">
-              <span className={`px-3 py-1 rounded-full !text-[12px] !font-medium ${getSentimentColor(entry.sentiment)}`}>
+              <span className={`px-3 py-1 rounded-full text-[12px]! font-medium! ${getSentimentColor(entry.sentiment)}`}>
                 {getSentimentLabel(entry.sentiment)}
               </span>
               {entry.category && (
-                <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full !text-[12px]">
+                <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-[12px]!">
                   {entry.category}
                 </span>
               )}
@@ -103,14 +103,14 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
             {/* Title */}
             {entry.text && (
-              <h3 className="!text-[18px] !font-semibold text-foreground mb-3">
+              <h3 className="text-[18px]! font-semibold! text-foreground mb-3">
                 {entry.text.split('\n')[0]}
               </h3>
             )}
 
             {/* Full Text */}
             <div className="mb-6">
-              <p className="!text-[15px] text-foreground leading-[22px] whitespace-pre-wrap">
+              <p className="text-[15px]! text-foreground leading-[22px] whitespace-pre-wrap">
                 {entry.text}
               </p>
             </div>
@@ -119,7 +119,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
             {entry.tags && entry.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px] !font-medium border border-muted-foreground/30 dark:border-muted-foreground/50">
+                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] text-[11px]! font-medium! border border-muted-foreground/30 dark:border-muted-foreground/50">
                     #{tag}
                   </span>
                 ))}

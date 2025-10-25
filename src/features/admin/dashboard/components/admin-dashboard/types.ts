@@ -47,32 +47,3 @@ export interface OverviewTabProps {
   isLoading: boolean;
   onRefresh: () => void;
 }
-
-export interface MenuItem {
-  id: string;
-  label: string;
-  icon: any;
-}
-
-export interface SidebarProps {
-  menuItems: MenuItem[];
-  activeTab: string;
-  userData?: any;
-  onTabChange: (tab: string) => void;
-  onLogout: () => void;
-}
-
-export interface MobileSidebarProps extends SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export interface OverviewTabProps {
-  stats: AdminStats;
-  isLoading: boolean;
-  onRefresh: () => void;
-}
-
-export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings";
-export type PWASubTab = "overview" | "settings" | "push" | "analytics" | "cache";
-

@@ -47,7 +47,7 @@ export const TypingAnimation = ({
     throw new Error("TypingAnimation: children must be a string. Received:");
   }
 
-  const MotionComponent = motion.create(Component, {
+  const MotionComponent = motion.create({
     forwardMotionProps: true,
   });
 

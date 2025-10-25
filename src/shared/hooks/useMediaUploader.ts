@@ -4,6 +4,9 @@ import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVi
 import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '../../utils/videoCompression';
 import { media, MediaUtils, Platform } from '../lib/platform';
 
+// Export MediaFile as UploadedMedia for backward compatibility
+export type UploadedMedia = MediaFile;
+
 export interface UploadStatus {
   fileName: string;
   progress: number;

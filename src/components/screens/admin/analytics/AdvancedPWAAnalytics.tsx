@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   TrendingUp,
-  Users,
+
   Download,
   Calendar,
   BarChart3,
@@ -80,12 +80,6 @@ export function AdvancedPWAAnalytics() {
 
   // Export handlers
   const handleExportCSV = () => {
-    const data = {
-      cohorts,
-      funnel,
-      timeSeries,
-    };
-    
     exportToCSV(timeSeries, `pwa-analytics-${period}-${Date.now()}.csv`);
     toast.success('Экспорт в CSV завершен');
   };
@@ -98,7 +92,7 @@ export function AdvancedPWAAnalytics() {
       funnel,
       timeSeries,
     };
-    
+
     exportToJSON(data, `pwa-analytics-${period}-${Date.now()}.json`);
     toast.success('Экспорт в JSON завершен');
   };

@@ -35,10 +35,10 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
             <CategoryIcon className="h-5 w-5 text-accent" strokeWidth={2} />
           </div>
           <div>
-            <p className="!text-[14px] !font-semibold text-foreground dark:text-white">
+            <p className="text-[14px]! font-semibold! text-foreground dark:text-white">
               {entry.category}
             </p>
-            <p className="!text-[12px] text-muted-foreground">
+            <p className="text-[12px]! text-muted-foreground">
               {dateStr}
             </p>
           </div>
@@ -63,16 +63,16 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
         </div>
       )}
 
-      <p className="!text-[15px] text-foreground dark:text-white leading-[22px] mb-3">
+      <p className="text-[15px]! text-foreground dark:text-white leading-[22px] mb-3">
         {entry.text}
       </p>
 
       <div className="flex items-center gap-2 flex-wrap">
-        <span className={`px-2 py-1 rounded-[6px] !text-[11px] !font-medium border ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}>
+        <span className={`px-2 py-1 rounded-[6px] text-[11px]! font-medium! border ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}>
           {entry.sentiment === 'positive' ? '😊 Позитив' : entry.sentiment === 'neutral' ? '😐 Нейтрал' : '😔 Грусть'}
         </span>
         {(entry.tags || []).map(tag => (
-          <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] !text-[11px] border border-muted-foreground/30 dark:border-muted-foreground/50">
+          <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] text-[11px]! border border-muted-foreground/30 dark:border-muted-foreground/50">
             #{tag}
           </span>
         ))}

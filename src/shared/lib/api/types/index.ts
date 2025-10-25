@@ -5,6 +5,7 @@ export interface UserProfile {
   id: string;
   email: string;
   name: string;
+  role?: 'user' | 'super_admin';
   avatar?: string;
   diaryName?: string;
   diaryEmoji?: string;

@@ -143,7 +143,8 @@ type: "always_apply"
 ```
 - **Feature-Sliced Design** архитектура
 - **PWA приложение** (НЕ Telegram Mini App)
-- **React Native Expo**: 95%+ готовность, platform-agnostic архитектура
+- **React Native Expo**: platform-agnostic архитектура
+- **Platform Adapters**: ОБЯЗАТЕЛЬНО для новых фич (анимации, storage, media, navigation)
 ```
 
 ### 2. Access & Credentials

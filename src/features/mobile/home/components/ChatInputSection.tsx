@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatedView, AnimatedPresence } from "@/shared/lib/platform/animation";
 import { toast } from "sonner";
 import { useVoiceRecorder, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
 import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
@@ -142,7 +142,7 @@ export function ChatInputSection({
     <div className="p-section pb-24">
       {/* Question Header */}
       <div className="mb-6">
-        <h2 className="text-center !text-[20px] !font-semibold text-black leading-[26px]">
+        <h2 className="text-center text-[20px]! font-semibold! text-black leading-[26px]">
           Что сегодня получилось<br />лучше всего?
         </h2>
       </div>
@@ -151,9 +151,9 @@ export function ChatInputSection({
       {/* Messages Area */}
       {false && messages.length > 0 && (
         <div className="mb-6 space-y-3 max-h-[300px] overflow-y-auto scrollbar-hide">
-          <AnimatePresence>
+          <AnimatedPresence>
             {messages.map((message) => (
-              <motion.div
+              <AnimatedView
                 key={message.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -167,46 +167,34 @@ export function ChatInputSection({
                       : 'bg-card text-card-foreground'
                   }`}
                 >
-                  <p className="!text-[15px] !font-normal leading-[20px]">
+                  <p className="text-[15px]! font-normal! leading-[20px]">
                     {message.text}
                   </p>
                   {message.category && (
-                    <span className="!text-[12px] opacity-70 mt-1 block">
+                    <span className="text-[12px]! opacity-70 mt-1 block">
                       #{message.category}
                     </span>
                   )}
                 </div>
-              </motion.div>
+              </AnimatedView>
             ))}
-          </AnimatePresence>
+          </AnimatedPresence>
 
           {/* AI Processing Indicator */}
           {isProcessing && (
-            <motion.div
+            <AnimatedView
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-start"
             >
               <div className="bg-muted rounded-[16px] px-4 py-3 flex items-center gap-2 transition-colors duration-300">
                 <div className="flex gap-1">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.6, delay: 0 }}
-                    className="w-2 h-2 bg-muted-foreground rounded-full"
-                  />
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
-                    className="w-2 h-2 bg-muted-foreground rounded-full"
-                  />
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
-                    className="w-2 h-2 bg-muted-foreground rounded-full"
-                  />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_0.4s_infinite]" />
                 </div>
               </div>
-            </motion.div>
+            </AnimatedView>
           )}
 
           <div ref={messagesEndRef} />
@@ -263,7 +251,7 @@ export function ChatInputSection({
       />
 
       {/* Permission Guide */}
-      <AnimatePresence>
+      <AnimatedPresence>
         {showPermissionGuide && (
           <PermissionGuide
             type={showPermissionGuide}
@@ -271,7 +259,7 @@ export function ChatInputSection({
             onClose={() => setShowPermissionGuide(null)}
           />
         )}
-      </AnimatePresence>
+      </AnimatedPresence>
 
       {/* Success Modal */}
       <SuccessModal isOpen={showSuccessModal} userName={userName} />

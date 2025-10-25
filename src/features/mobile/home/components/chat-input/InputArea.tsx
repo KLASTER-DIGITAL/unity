@@ -91,7 +91,7 @@ export function InputArea({
                 onKeyPress={onKeyPress}
                 placeholder="Опиши главную мысль, момент, благодарность"
                 rows={1}
-                className="w-full resize-none border-none outline-none bg-transparent !text-[14px] !font-normal leading-[20px] text-foreground placeholder:text-muted-foreground/40 max-h-[100px]"
+                className="w-full resize-none border-none outline-none bg-transparent text-[14px]! font-normal! leading-[20px] text-foreground placeholder:text-muted-foreground/40 max-h-[100px]"
                 style={{
                   fontFamily: 'Inter, sans-serif'
                 }}
@@ -161,7 +161,7 @@ export function InputArea({
             }`}
           >
             <span className="text-[10px]">{category.icon}</span>
-            <span className="!text-[12px] !font-light text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <span className="text-[12px]! font-light! text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               {category.label}
             </span>
           </button>

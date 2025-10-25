@@ -8,7 +8,7 @@ import { INITIAL_STATS } from "./constants";
  */
 
 // Load admin statistics from server
-export async function loadAdminStats(t: (key: string, fallback: string) => string): Promise<AdminStats> {
+export async function loadAdminStats(t: (key: string, fallback?: string) => string): Promise<AdminStats> {
   try {
     // Получаем токен авторизации
     const supabase = createClient();

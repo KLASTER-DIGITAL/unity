@@ -163,7 +163,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
               >
                 <Menu className="w-5 h-5 text-foreground" />
               </button>
-              <h2 className="text-foreground !text-[17px]">
+              <h2 className="text-foreground text-[17px]!">
                 {menuItems.find(item => item.id === activeTab)?.label}
               </h2>
             </div>
@@ -206,11 +206,11 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
                     {/* PWA Sub-navigation */}
                     <div className="flex items-center gap-2 overflow-x-auto pb-2">
                       {[
-                        { id: 'overview', label: 'Overview' },
-                        { id: 'settings', label: 'Settings' },
-                        { id: 'push', label: 'Push Notifications' },
-                        { id: 'analytics', label: 'Analytics' },
-                        { id: 'cache', label: 'Cache' },
+                        { id: 'overview' as PWASubTab, label: 'Overview' },
+                        { id: 'settings' as PWASubTab, label: 'Settings' },
+                        { id: 'push' as PWASubTab, label: 'Push Notifications' },
+                        { id: 'analytics' as PWASubTab, label: 'Analytics' },
+                        { id: 'cache' as PWASubTab, label: 'Cache' },
                       ].map((tab) => (
                         <Button
                           key={tab.id}
@@ -253,3 +253,5 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 }
 
 
+
+export default AdminDashboard;

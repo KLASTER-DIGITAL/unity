@@ -36,11 +36,11 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
               <CheckCircle2 className="h-8 w-8 text-[var(--ios-green)]" strokeWidth={2} />
             </div>
 
-            <h3 className="!text-[20px] !font-semibold text-foreground">
+            <h3 className="text-[20px]! font-semibold! text-foreground">
               Успешно!
             </h3>
 
-            <p className="!text-[15px] text-muted-foreground">
+            <p className="text-[15px]! text-muted-foreground">
               {message}
             </p>
           </div>

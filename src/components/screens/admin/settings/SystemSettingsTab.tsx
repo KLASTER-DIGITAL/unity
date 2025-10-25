@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
-import { Monitor, Database, Server, HardDrive, Wifi, RotateCw, Activity, AlertCircle, Info } from 'lucide-react';
+import { Monitor, Database, Server, HardDrive, RotateCw, Activity, AlertCircle, Info } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
 interface SystemStatus {

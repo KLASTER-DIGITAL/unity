@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/utils/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';

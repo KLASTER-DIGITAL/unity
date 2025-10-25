@@ -67,7 +67,7 @@ export function PWASplash() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-white !text-[32px] !font-semibold tracking-tight mb-2"
+              className="text-white text-[32px]! font-semibold! tracking-tight mb-2"
             >
               Дневник Достижений
             </motion.h1>
@@ -77,7 +77,7 @@ export function PWASplash() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-white/90 !text-[16px] !font-normal"
+              className="text-white/90 text-[16px]! font-normal!"
             >
               Фиксируйте успехи каждый день
             </motion.p>

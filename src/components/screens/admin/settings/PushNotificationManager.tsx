@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import {
   getPushTemplate,
-  getAvailableTemplateTypes,
+
   type PushTemplateType
 } from '@/shared/lib/i18n/push-templates';
 import {

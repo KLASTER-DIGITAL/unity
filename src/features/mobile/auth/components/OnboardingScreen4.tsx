@@ -13,11 +13,11 @@ import {
   BackgroundElements,
   onboarding4Translations as translations,
   type OnboardingScreen4Props,
-  type NotificationSettings as NotificationSettingsType
+  type NotificationSettingsType
 } from "./onboarding4";
 
 // Re-export types for backward compatibility
-export type { OnboardingScreen4Props, NotificationSettings as NotificationSettingsType };
+export type { OnboardingScreen4Props, NotificationSettingsType };
 
 // NOTE: Translations moved to ./onboarding4/translations.ts
 // NOTE: ChatGPTInput component moved to ./onboarding4/ChatGPTInput.tsx
@@ -99,9 +99,9 @@ function HabitsAndEntryForm({
         console.log('Notification permission request failed:', error);
       }
     } else {
-      const newSettings = {
+      const newSettings: NotificationSettingsType = {
         ...notificationSettings,
-        selectedTime: 'none'
+        selectedTime: 'none' as const
       };
       setNotificationSettings(newSettings);
       onUpdate?.(firstEntry, newSettings);
@@ -138,7 +138,7 @@ function HabitsAndEntryForm({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
-        <p className="!leading-[18px] !font-[Days_One] !font-bold !text-[12px]">{currentTranslations.subtitle}</p>
+        <p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">{currentTranslations.subtitle}</p>
       </motion.div>
 
       {/* Main Title */}
@@ -150,7 +150,7 @@ function HabitsAndEntryForm({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <p className="!leading-[28px] !text-[20px] !font-semibold !font-[Days_One]">{currentTranslations.title}</p>
+        <p className="!leading-[28px] text-[20px]! font-semibold! font-![Days_One]">{currentTranslations.title}</p>
       </motion.div>
 
       <NotificationSettings
@@ -173,8 +173,8 @@ function HabitsAndEntryForm({
         transition={{ delay: 0.8, duration: 0.5 }}
       >
         <div>
-          <h3 className="!text-[#756ef3] !text-[14px] !font-semibold mb-1">{currentTranslations.firstEntryTitle}</h3>
-          <p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 !text-[12px]">{currentTranslations.firstEntrySubtitle}</p>
+          <h3 className="!text-[#756ef3] text-[14px]! font-semibold! mb-1">{currentTranslations.firstEntryTitle}</h3>
+          <p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 text-[12px]!">{currentTranslations.firstEntrySubtitle}</p>
         </div>
 
         <ChatGPTInput
@@ -299,3 +299,4 @@ export function OnboardingScreen4({ selectedLanguage, onNext, currentStep, total
     </motion.div>
   );
 }
+export default OnboardingScreen4;

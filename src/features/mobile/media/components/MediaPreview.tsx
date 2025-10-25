@@ -99,7 +99,7 @@ export function MediaPreview({
             >
               {item.type === 'image' ? (
                 <LazyImage
-                  src={item.url}
+                  src={item.url || ''}
                   alt={item.fileName || ''}
                   className="w-full h-full cursor-pointer"
                 />
@@ -152,7 +152,7 @@ export function MediaPreview({
               {/* Media Counter Badge */}
               {index === 0 && media.length > 1 && (
                 <div className="absolute bottom-1 right-1 px-2 py-0.5 bg-black/70 rounded-full">
-                  <span className="!text-[11px] text-white !font-semibold">
+                  <span className="text-[11px]! text-white font-semibold!">
                     +{media.length - 1}
                   </span>
                 </div>
@@ -165,7 +165,7 @@ export function MediaPreview({
       {/* Photo Viewer */}
       {selectedMedia && selectedMedia.type === 'image' && (
         <PhotoViewer
-          imageUrl={selectedMedia.url}
+          imageUrl={selectedMedia.url || ''}
           fileName={selectedMedia.fileName}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}
@@ -175,7 +175,7 @@ export function MediaPreview({
       {/* Video Player */}
       {selectedMedia && selectedMedia.type === 'video' && (
         <VideoPlayer
-          videoUrl={selectedMedia.url}
+          videoUrl={selectedMedia.url || ''}
           fileName={selectedMedia.fileName}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}

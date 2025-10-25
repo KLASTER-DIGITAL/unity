@@ -60,10 +60,10 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
           <div className="space-y-4 mb-6">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="!text-[13px] text-accent !font-semibold">1</span>
+                <span className="text-[13px]! text-accent font-semibold!">1</span>
               </div>
               <div className="flex-1">
-                <p className="!text-[14px] !font-normal text-foreground">
+                <p className="text-[14px]! font-normal! text-foreground">
                   Найдите иконку {isMicrophone ? '🎤' : '📷'} в адресной строке браузера
                 </p>
               </div>
@@ -71,10 +71,10 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="!text-[13px] text-accent !font-semibold">2</span>
+                <span className="text-[13px]! text-accent font-semibold!">2</span>
               </div>
               <div className="flex-1">
-                <p className="!text-[14px] !font-normal text-foreground">
+                <p className="text-[14px]! font-normal! text-foreground">
                   Нажмите на неё и выберите <strong>"Разрешить"</strong>
                 </p>
               </div>
@@ -82,10 +82,10 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="!text-[13px] text-accent !font-semibold">3</span>
+                <span className="text-[13px]! text-accent font-semibold!">3</span>
               </div>
               <div className="flex-1">
-                <p className="!text-[14px] !font-normal text-foreground">
+                <p className="text-[14px]! font-normal! text-foreground">
                   Обновите страницу и попробуйте снова
                 </p>
               </div>
@@ -94,10 +94,10 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 
           {/* Browser-specific hints */}
           <div className="bg-muted rounded-[12px] p-4 mb-4">
-            <p className="!text-[12px] !font-semibold text-foreground mb-2">
+            <p className="text-[12px]! font-semibold! text-foreground mb-2">
               💡 Подсказка:
             </p>
-            <p className="!text-[12px] !font-normal text-muted-foreground">
+            <p className="text-[12px]! font-normal! text-muted-foreground">
               В Chrome и Safari иконка разрешений находится слева от адреса сайта.
               В Firefox - справа от адресной строки.
             </p>
@@ -107,7 +107,7 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
           <div className="bg-primary/10 border border-primary/20 rounded-[12px] p-3 mb-4">
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-              <p className="!text-[13px] !font-normal text-accent">
+              <p className="text-[13px]! font-normal! text-accent">
                 Ваши данные в безопасности. Мы используем {isMicrophone ? 'микрофон' : 'камеру'} только для указанных функций и не храним записи на серверах.
               </p>
             </div>

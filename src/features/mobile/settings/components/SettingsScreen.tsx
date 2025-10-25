@@ -290,3 +290,5 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   );
 }
 
+
+export default SettingsScreen;

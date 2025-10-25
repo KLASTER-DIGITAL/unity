@@ -159,21 +159,21 @@ export function UsersManagementTab() {
               <Button
                 variant={filterStatus === "all" ? "default" : "outline"}
                 onClick={() => setFilterStatus("all")}
-                className="!text-[13px]"
+                className="text-[13px]!"
               >
                 Все
               </Button>
               <Button
                 variant={filterStatus === "active" ? "default" : "outline"}
                 onClick={() => setFilterStatus("active")}
-                className="!text-[13px]"
+                className="text-[13px]!"
               >
                 Активные
               </Button>
               <Button
                 variant={filterStatus === "premium" ? "default" : "outline"}
                 onClick={() => setFilterStatus("premium")}
-                className="!text-[13px]"
+                className="text-[13px]!"
               >
                 Premium
               </Button>
@@ -198,15 +198,15 @@ export function UsersManagementTab() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
-                        <div className="!text-[14px] !font-semibold text-foreground">{user.name}</div>
-                        <div className="!text-[12px] !font-normal text-muted-foreground">{user.email}</div>
+                        <div className="text-[14px]! font-semibold! text-foreground">{user.name}</div>
+                        <div className="text-[12px]! font-normal! text-muted-foreground">{user.email}</div>
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
-                    <TableCell className="!text-[13px]">
+                    <TableCell className="text-[13px]!">
                       {user.registeredAt ? new Date(user.registeredAt).toLocaleDateString('ru-RU') : '-'}
                     </TableCell>
-                    <TableCell className="!text-[13px]">{user.entriesCount}</TableCell>
+                    <TableCell className="text-[13px]!">{user.entriesCount}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="bg-accent/10 text-accent">
                         🔥 {user.streak}

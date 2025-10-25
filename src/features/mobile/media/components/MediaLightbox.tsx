@@ -49,7 +49,7 @@ export function MediaLightbox({
           {/* Counter */}
           {media.length > 1 && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 bg-card/10 rounded-full">
-              <span className="!text-[14px] text-white !font-semibold">
+              <span className="text-[14px]! text-white font-semibold!">
                 {currentIndex + 1} / {media.length}
               </span>
             </div>

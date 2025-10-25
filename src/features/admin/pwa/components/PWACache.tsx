@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Database } from 'lucide-react';
 import { CacheManager } from '@/components/screens/admin/settings/CacheManager';
 

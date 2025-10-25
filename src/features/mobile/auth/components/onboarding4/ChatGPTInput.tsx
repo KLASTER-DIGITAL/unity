@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import { AnimatedView } from "@/shared/lib/platform/animation";
 import { imgMicrophone, imgPaperPlaneRight } from "@/imports/svg-w5pu5";
 import { useSpeechRecognition } from "@/shared/hooks/useSpeechRecognition";
 
@@ -100,36 +100,29 @@ export function ChatGPTInput({
   }, [transcript, lastTranscript, value, onChange]);
 
   return (
-    <motion.div
-      className="bg-card relative rounded-xl w-full border-2 border-border focus-within:border-[#756ef3] transition-all duration-300"
-      data-name="Input"
+    <AnimatedView
+      className="bg-card relative rounded-xl w-full border-2 border-border focus-within:border-[#756ef3] focus-within:shadow-[0_4px_20px_rgba(117,110,243,0.2)] transition-all duration-300"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      whileFocusWithin={{ 
-        boxShadow: "0 4px 20px rgba(117, 110, 243, 0.2)" 
-      }}
     >
       <div className="flex items-start gap-2 p-3">
         {/* Microphone Button */}
-        <motion.button
+        <button
           onClick={toggleRecording}
           disabled={disabled}
-          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 flex-shrink-0 mt-0 ${
-            isListening ? 'bg-red-100 text-red-600' : 'hover:bg-[#756ef3]/10 text-[#756ef3]'
+          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0 mt-0 active:scale-95 ${
+            isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'hover:bg-[#756ef3]/10 text-[#756ef3]'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          whileTap={{ scale: 0.95 }}
-          animate={isListening ? { scale: [1, 1.1, 1] } : {}}
-          transition={isListening ? { repeat: Infinity, duration: 1 } : {}}
         >
           <div className="w-4 h-4">
-            <img 
-              className="w-full h-full" 
+            <img
+              className="w-full h-full"
               src={imgMicrophone}
               style={{ filter: isListening ? 'sepia(1) saturate(5) hue-rotate(300deg)' : 'sepia(1) saturate(5) hue-rotate(240deg)' }}
             />
           </div>
-        </motion.button>
+        </button>
 
         {/* Text Input */}
         <textarea
@@ -153,15 +146,14 @@ export function ChatGPTInput({
         />
 
         {/* Send Button */}
-        <motion.button
+        <button
           onClick={onSubmit}
           disabled={!value.trim() || disabled}
-          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 flex-shrink-0 mt-0 ${
+          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0 mt-0 active:scale-95 ${
             value.trim() && !disabled
               ? 'bg-primary text-white hover:bg-primary/90'
               : 'bg-[#e5e5e5] text-[#8d8d8d] cursor-not-allowed'
           }`}
-          whileTap={value.trim() && !disabled ? { scale: 0.95 } : {}}
         >
           <div className="w-4 h-4">
             <img
@@ -170,9 +162,9 @@ export function ChatGPTInput({
               style={{ filter: value.trim() && !disabled ? 'brightness(0) invert(1)' : undefined }}
             />
           </div>
-        </motion.button>
+        </button>
       </div>
-    </motion.div>
+    </AnimatedView>
   );
 }
 

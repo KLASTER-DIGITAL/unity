@@ -1,8 +1,7 @@
 "use client";
 
-import React, { Component } from "react";
-import type { ComponentProps } from "react";
-import { Command as CommandPrimitive } from "cmdk@1.1.1";
+import React from "react";
+import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "./utils";

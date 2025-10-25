@@ -40,8 +40,10 @@ export type TranslationKey =
   | 'password'
 
   // Navigation
+  | 'achievements'
   | 'history'
   | 'home'
+  | 'reports'
   | 'settings'
 
   // Home
@@ -74,6 +76,10 @@ export type TranslationKey =
   | 'milestone_week_streak'
 
   // Reports
+  | 'reports.avgPerDay'
+  | 'reports.completionRate'
+  | 'reports.totalDuration'
+  | 'reports.totalEntries'
   | 'weeklyReports'
 
   // Settings
@@ -100,8 +106,10 @@ export type TranslationKey =
 
   // Admin
   | 'admin_ai_analytics'
+  | 'admin_developer'
   | 'admin_overview'
   | 'admin_panel'
+  | 'admin_pwa'
   | 'admin_settings'
   | 'admin_subscriptions'
   | 'admin_users'

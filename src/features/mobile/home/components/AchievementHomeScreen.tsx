@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatedView, AnimatedPresence } from "@/shared/lib/platform/animation";
 import { AchievementHeader } from "./AchievementHeader";
 import { ChatInputSection } from "./ChatInputSection";
 import { RecentEntriesFeed } from "./RecentEntriesFeed";
@@ -232,7 +232,7 @@ export function AchievementHomeScreen({
         <div className="p-section">
           {/* Cards Stack Container - адаптивная высота по содержимому */}
           <div className="relative w-full min-h-[280px] mb-responsive-md">
-            <AnimatePresence initial={false}>
+            <AnimatedPresence initial={false}>
               {visibleCards.reverse().map((card, idx) => {
                 const actualIndex = visibleCards.length - 1 - idx;
                 return (
@@ -246,7 +246,7 @@ export function AchievementHomeScreen({
                   />
                 );
               })}
-            </AnimatePresence>
+            </AnimatedPresence>
           </div>
         </div>
       )}
@@ -254,7 +254,7 @@ export function AchievementHomeScreen({
       {/* ✅ FIX: "Все прочитано!" с крестиком для закрытия */}
       {!isLoading && !hasCards && showAllRead && (
         <div className="px-6 pt-0 pb-3">
-          <motion.div
+          <AnimatedView
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -272,11 +272,11 @@ export function AchievementHomeScreen({
             <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-2">
               <span className="text-[24px]">🎉</span>
             </div>
-            <h3 className="text-foreground mb-1.5 !text-[16px]">Все прочитано!</h3>
-            <p className="text-muted-foreground !text-[13px] leading-[1.4]">
+            <h3 className="text-foreground mb-1.5 text-[16px]!">Все прочитано!</h3>
+            <p className="text-muted-foreground text-[13px]! leading-[1.4]">
               Вы просмотрели все карточки. Создайте новую запись, чтобы добавить больше достижений.
             </p>
-          </motion.div>
+          </AnimatedView>
         </div>
       )}
 
@@ -319,3 +319,5 @@ export function AchievementHomeScreen({
     </div>
   );
 }
+
+export default AchievementHomeScreen;

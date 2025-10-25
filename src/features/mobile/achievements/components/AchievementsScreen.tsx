@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Progress } from "@/shared/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
@@ -321,3 +320,4 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
     </div>
   );
 }
+export default AchievementsScreen;

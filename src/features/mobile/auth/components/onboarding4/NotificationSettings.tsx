@@ -38,7 +38,7 @@ export function NotificationSettings({
     >
       <div className="flex items-center space-x-2">
         <Bell className="w-4 h-4 text-[#756ef3]" />
-        <h3 className="!text-[#756ef3] !text-[14px] !font-semibold">{reminderTitle}</h3>
+        <h3 className="!text-[#756ef3] text-[14px]! font-semibold!">{reminderTitle}</h3>
       </div>
 
       <div className="space-y-2">

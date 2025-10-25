@@ -31,7 +31,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(activeSubTab || 'openai-api');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] = useState<string | undefined>();
+  const [selectedLanguageForTranslations] = useState<string | undefined>();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);

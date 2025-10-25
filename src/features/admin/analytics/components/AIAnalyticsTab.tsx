@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Brain, RefreshCw, Download, Calendar } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
 import { toast } from "sonner";
 import {
   Table,
@@ -197,11 +198,11 @@ export function AIAnalyticsTab() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="!text-[26px] text-foreground flex items-center gap-2">
+          <h3 className="text-[26px]! text-foreground flex items-center gap-2">
             <Brain className="w-7 h-7 text-accent" />
             AI Analytics
           </h3>
-          <p className="!text-[15px] text-muted-foreground !font-normal">
+          <p className="text-[15px]! text-muted-foreground font-normal!">
             Аналитика использования OpenAI API
           </p>
         </div>
@@ -255,8 +256,8 @@ export function AIAnalyticsTab() {
         {/* Daily Usage Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="!text-[17px]">Использование по дням</CardTitle>
-            <CardDescription className="!text-[13px] !font-normal">Запросы и стоимость за последние 14 дней</CardDescription>
+            <CardTitle className="text-[17px]!">Использование по дням</CardTitle>
+            <CardDescription className="text-[13px]! font-normal!">Запросы и стоимость за последние 14 дней</CardDescription>
           </CardHeader>
           <CardContent>
             <SimpleChart
@@ -272,8 +273,8 @@ export function AIAnalyticsTab() {
         {/* Model Breakdown Pie Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="!text-[17px]">Распределение по моделям</CardTitle>
-            <CardDescription className="!text-[13px] !font-normal">Использование разных моделей OpenAI</CardDescription>
+            <CardTitle className="text-[17px]!">Распределение по моделям</CardTitle>
+            <CardDescription className="text-[13px]! font-normal!">Использование разных моделей OpenAI</CardDescription>
           </CardHeader>
           <CardContent>
             <SimpleChart
@@ -292,8 +293,8 @@ export function AIAnalyticsTab() {
         {/* Operation Breakdown Bar Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="!text-[17px]">Распределение по операциям</CardTitle>
-            <CardDescription className="!text-[13px] !font-normal">Типы AI операций и их стоимость</CardDescription>
+            <CardTitle className="text-[17px]!">Распределение по операциям</CardTitle>
+            <CardDescription className="text-[13px]! font-normal!">Типы AI операций и их стоимость</CardDescription>
           </CardHeader>
           <CardContent>
             <SimpleChart
@@ -309,23 +310,23 @@ export function AIAnalyticsTab() {
         {/* Top Users */}
         <Card>
           <CardHeader>
-            <CardTitle className="!text-[17px]">Топ пользователей</CardTitle>
-            <CardDescription className="!text-[13px] !font-normal">Пользователи с наибольшими расходами</CardDescription>
+            <CardTitle className="text-[17px]!">Топ пользователей</CardTitle>
+            <CardDescription className="text-[13px]! font-normal!">Пользователи с наибольшими расходами</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {stats.topUsers.length === 0 ? (
-                <p className="text-center text-muted-foreground !text-[13px] py-8">Нет данных</p>
+                <p className="text-center text-muted-foreground text-[13px]! py-8">Нет данных</p>
               ) : (
                 stats.topUsers.map((user, index) => (
                   <div key={user.user_id} className="flex items-center justify-between p-3 rounded-lg bg-accent/5 hover:bg-accent/10 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center !text-[13px] !font-semibold text-accent">
+                      <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-[13px]! font-semibold! text-accent">
                         {index + 1}
                       </div>
                       <div>
-                        <p className="!text-[15px] !font-medium text-foreground">{user.user_name}</p>
-                        <p className="!text-[13px] text-muted-foreground">{user.requests} запросов</p>
+                        <p className="text-[15px]! font-medium! text-foreground">{user.user_name}</p>
+                        <p className="text-[13px]! text-muted-foreground">{user.requests} запросов</p>
                       </div>
                     </div>
                     <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
@@ -342,8 +343,8 @@ export function AIAnalyticsTab() {
       {/* Recent Logs Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="!text-[17px]">Последние запросы</CardTitle>
-          <CardDescription className="!text-[13px] !font-normal">100 последних AI запросов</CardDescription>
+          <CardTitle className="text-[17px]!">Последние запросы</CardTitle>
+          <CardDescription className="text-[13px]! font-normal!">100 последних AI запросов</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -353,25 +354,25 @@ export function AIAnalyticsTab() {
           ) : logs.length === 0 ? (
             <div className="text-center py-12">
               <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-muted-foreground !text-[15px]">Нет данных за выбранный период</p>
+              <p className="text-muted-foreground text-[15px]!">Нет данных за выбранный период</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="!text-[13px]">Дата</TableHead>
-                    <TableHead className="!text-[13px]">Пользователь</TableHead>
-                    <TableHead className="!text-[13px]">Операция</TableHead>
-                    <TableHead className="!text-[13px]">Модель</TableHead>
-                    <TableHead className="!text-[13px] text-right">Токены</TableHead>
-                    <TableHead className="!text-[13px] text-right">Стоимость</TableHead>
+                    <TableHead className="text-[13px]!">Дата</TableHead>
+                    <TableHead className="text-[13px]!">Пользователь</TableHead>
+                    <TableHead className="text-[13px]!">Операция</TableHead>
+                    <TableHead className="text-[13px]!">Модель</TableHead>
+                    <TableHead className="text-[13px]! text-right">Токены</TableHead>
+                    <TableHead className="text-[13px]! text-right">Стоимость</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {logs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="!text-[13px]">
+                      <TableCell className="text-[13px]!">
                         {new Date(log.created_at).toLocaleString('ru-RU', {
                           day: '2-digit',
                           month: '2-digit',
@@ -379,26 +380,26 @@ export function AIAnalyticsTab() {
                           minute: '2-digit'
                         })}
                       </TableCell>
-                      <TableCell className="!text-[13px]">
+                      <TableCell className="text-[13px]!">
                         <div>
-                          <p className="!font-medium">{log.user_name}</p>
-                          <p className="text-muted-foreground !text-[11px]">{log.user_email}</p>
+                          <p className="font-medium!">{log.user_name}</p>
+                          <p className="text-muted-foreground text-[11px]!">{log.user_email}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="!text-[13px]">
+                      <TableCell className="text-[13px]!">
                         <Badge variant="outline" className="bg-accent/10 text-accent">
                           {log.operation_type}
                         </Badge>
                       </TableCell>
-                      <TableCell className="!text-[13px]">
+                      <TableCell className="text-[13px]!">
                         <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
                           {log.model}
                         </Badge>
                       </TableCell>
-                      <TableCell className="!text-[13px] text-right !font-mono">
+                      <TableCell className="text-[13px]! text-right font-mono!">
                         {log.total_tokens.toLocaleString()}
                       </TableCell>
-                      <TableCell className="!text-[13px] text-right !font-mono text-green-600">
+                      <TableCell className="text-[13px]! text-right font-mono! text-green-600">
                         ${log.estimated_cost.toFixed(6)}
                       </TableCell>
                     </TableRow>

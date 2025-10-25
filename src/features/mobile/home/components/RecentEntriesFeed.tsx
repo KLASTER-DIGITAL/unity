@@ -117,7 +117,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
     <div className="mb-6 mt-6">
       {/* Заголовок */}
       <div className="flex items-center justify-between mb-4 px-4">
-        <h2 className="!text-[20px] !font-semibold text-foreground">Лента последних записей</h2>
+        <h2 className="text-[20px]! font-semibold! text-foreground">Лента последних записей</h2>
         <button
           onClick={onViewAllClick}
           className="flex items-center justify-center w-8 h-8 rounded-full text-foreground hover:bg-muted transition-colors"
@@ -140,22 +140,22 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
             >
               {/* Время и категория */}
               <div className="flex items-center justify-between mb-2">
-                <span className="!text-[11px] text-white/70 whitespace-nowrap">{formatTimeAgo(entry.createdAt)}</span>
+                <span className="text-[11px]! text-white/70 whitespace-nowrap">{formatTimeAgo(entry.createdAt)}</span>
                 <Badge
-                  className={`!text-[11px] px-2 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
+                  className={`text-[11px]! px-2 py-0.5 rounded-full ${getSentimentColor(entry.sentiment)}`}
                 >
                   {getCategoryEmoji(entry.category)}
                 </Badge>
               </div>
 
               {/* Заголовок */}
-              <h3 className="!font-semibold text-white mb-1 !text-[13px] line-clamp-1">
+              <h3 className="font-semibold! text-white mb-1 text-[13px]! line-clamp-1">
                 {entry.text.split('\n')[0].substring(0, 30)}
               </h3>
 
               {/* Превью текста - ФИКСИРОВАННАЯ высота 60px, текст обрезается */}
               <div className="relative w-full h-[60px] overflow-hidden">
-                <p className="!text-[11px] text-white/80 leading-relaxed break-words absolute top-0 left-0 right-0">
+                <p className="text-[11px]! text-white/80 leading-relaxed break-words absolute top-0 left-0 right-0">
                   {entry.text}
                 </p>
                 {/* Градиент затухания в конце */}
@@ -172,7 +172,7 @@ export function RecentEntriesFeed({ userData, language = 'ru', onEntryClick, onV
             <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
             </div>
-            <p className="!text-[13px] !font-medium text-accent text-center">
+            <p className="text-[13px]! font-medium! text-accent text-center">
               Смотреть все
             </p>
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy, useMemo, useCallback } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback } from "react";
 import { checkSession, signOut } from "./utils/auth";
 import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminRoute, isTestRoute as checkIsTestRoute, isPerformanceRoute as checkIsPerformanceRoute } from "@/shared/lib/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
@@ -167,7 +167,7 @@ export default function App() {
             message: 'User session restored',
             level: 'info',
             data: {
-              role: session.profile?.role || session.role,
+              role: session.profile?.role || 'user',
             },
           });
 
@@ -179,7 +179,8 @@ export default function App() {
           if (session.profile?.language) {
             console.log("🌐 Loading user language from profile:", session.profile.language);
             setSelectedLanguage(session.profile.language);
-            setOnboardingData(prev => ({ ...prev, language: session.profile.language }));
+            const language = session.profile.language || 'ru';
+            setOnboardingData(prev => ({ ...prev, language }));
           }
 
           // ✅ Проверяем onboardingCompleted из профиля

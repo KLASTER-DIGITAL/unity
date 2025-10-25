@@ -30,7 +30,7 @@ export function SocialAuthButtons({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <p className="text-[#868d95] text-center mb-6 !text-[14px]">
+      <p className="text-[#868d95] text-center mb-6 text-[14px]!">
         {isLogin ? translations.signInWith : translations.signUpWith}
       </p>
       

@@ -349,3 +349,4 @@ export function ReportsScreen({ userData }: { userData?: any }) {
     </div>
   );
 }
+export default ReportsScreen;

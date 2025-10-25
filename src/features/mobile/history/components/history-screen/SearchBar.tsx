@@ -29,18 +29,18 @@ export function SearchBar({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Поиск по записям..."
-          className="w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
+          className="w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-[12px] text-[15px]! text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
         />
       </div>
 
       {/* Filters Button */}
       <button
         onClick={onToggleFilters}
-        className="flex items-center gap-2 px-4 py-3 bg-accent/10 text-accent rounded-[12px] !text-[14px] !font-medium hover:bg-accent/20 transition-colors flex-shrink-0"
+        className="flex items-center gap-2 px-4 py-3 bg-accent/10 text-accent rounded-[12px] text-[14px]! font-medium! hover:bg-accent/20 transition-colors flex-shrink-0"
       >
         <Filter className="h-5 w-5" strokeWidth={2} />
         {activeFiltersCount > 0 && (
-          <span className="bg-accent text-white px-2 py-0.5 rounded-full !text-[12px]">
+          <span className="bg-accent text-white px-2 py-0.5 rounded-full text-[12px]!">
             {activeFiltersCount}
           </span>
         )}

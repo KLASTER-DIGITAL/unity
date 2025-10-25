@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-import type { ComponentProps } from "react";
+import React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,

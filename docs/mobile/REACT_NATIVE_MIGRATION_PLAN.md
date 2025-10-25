@@ -139,23 +139,47 @@ export const mediaPicker: MediaPickerAdapter = Platform.select({
 ### 4. Animation System
 
 **Проблема:** Framer Motion не работает в React Native
-**Решение:** Universal animation components
+**Решение:** ✅ Universal Animation Adapter (IMPLEMENTED)
 
-```typescript
-// src/shared/components/ui/universal/AnimatedView.tsx
-interface AnimatedViewProps {
-  children: React.ReactNode;
-  initial?: AnimationConfig;
-  animate?: AnimationConfig;
-  exit?: AnimationConfig;
-}
+**Статус:**
+- ✅ Web (PWA): Framer Motion - 100% готово
+- 🔄 Native: React Native Reanimated - Placeholder (Q3 2025)
 
-export const AnimatedView = Platform.select({
-  web: MotionAnimatedView,      // Framer Motion
-  native: ReanimatedView,       // React Native Reanimated
-  default: MotionAnimatedView
-});
+**Документация:** `docs/architecture/ANIMATION_SYSTEM.md`
+
+**Структура:**
 ```
+src/shared/lib/platform/animation/
+├── index.ts                    # Public API + platform detection
+├── types.ts                    # Shared types + presets
+├── animation.web.ts            # Framer Motion (PWA) ✅
+├── animation.native.ts         # Reanimated (RN) 🔄
+└── hooks.ts                    # Animation hooks
+```
+
+**API:**
+```typescript
+import { AnimatedView, AnimatedPresence, AnimationPresets } from '@/shared/lib/platform/animation';
+
+// Simple animation
+<AnimatedView {...AnimationPresets.fadeIn}>
+  <div>Content</div>
+</AnimatedView>
+
+// Screen transitions
+<AnimatedPresence mode="wait">
+  <AnimatedView {...ScreenTransitions.slideLeft(direction)}>
+    <HomeScreen />
+  </AnimatedView>
+</AnimatedPresence>
+```
+
+**Migration Status:**
+- 19 файлов используют Framer Motion
+- Приоритет P0: MobileApp.tsx, HistoryScreen.tsx (критические переходы)
+- Приоритет P1: UI компоненты (BottomSheet, modals, media)
+- Приоритет P2: PWA компоненты
+- Приоритет P3: shadcn-io декоративные компоненты
 
 ### 5. Theme System
 

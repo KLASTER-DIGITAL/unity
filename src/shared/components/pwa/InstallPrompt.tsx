@@ -58,7 +58,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-center text-foreground mb-3 !text-[24px] !font-semibold"
+              className="text-center text-foreground mb-3 text-[24px]! font-semibold!"
             >
               Добавить на главный экран?
             </motion.h2>
@@ -68,7 +68,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-center text-muted-foreground !text-[15px] !font-normal mb-8 leading-[1.5]"
+              className="text-center text-muted-foreground text-[15px]! font-normal! mb-8 leading-[1.5]"
             >
               Установите приложение для быстрого доступа к вашему дневнику достижений
             </motion.p>
@@ -84,19 +84,19 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-[20px]">⚡️</span>
                 </div>
-                <p className="!text-[14px] !font-normal text-foreground">Мгновенный запуск как нативное приложение</p>
+                <p className="text-[14px]! font-normal! text-foreground">Мгновенный запуск как нативное приложение</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-[20px]">📱</span>
                 </div>
-                <p className="!text-[14px] !font-normal text-foreground">Работает без интернета</p>
+                <p className="text-[14px]! font-normal! text-foreground">Работает без интернета</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-[20px]">🔔</span>
                 </div>
-                <p className="!text-[14px] !font-normal text-foreground">Push-уведомления о ваших целях</p>
+                <p className="text-[14px]! font-normal! text-foreground">Push-уведомления о ваших целях</p>
               </div>
             </motion.div>
 
@@ -108,7 +108,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
                 transition={{ delay: 0.6 }}
                 className="bg-accent/5 rounded-[var(--radius-xl)] p-4 mb-6"
               >
-                <p className="!text-[13px] !font-normal text-foreground text-center leading-[1.5]">
+                <p className="text-[13px]! font-normal! text-foreground text-center leading-[1.5]">
                   Нажмите <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/20 rounded-md mx-1">
                     <Download className="w-3 h-3" />
                     Поделиться
@@ -127,7 +127,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-[var(--radius-lg)] py-4 px-6 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
               >
                 <Smartphone className="w-5 h-5" />
-                <span className="!text-[16px] !font-semibold">Установить приложение</span>
+                <span className="text-[16px]! font-semibold!">Установить приложение</span>
               </motion.button>
             )}
 
@@ -139,7 +139,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
               onClick={onClose}
               className="w-full mt-3 text-muted-foreground hover:text-foreground transition-colors py-3"
             >
-              <span className="!text-[14px] !font-normal">Может быть позже</span>
+              <span className="text-[14px]! font-normal!">Может быть позже</span>
             </motion.button>
           </div>
         </motion.div>

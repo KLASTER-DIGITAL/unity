@@ -86,7 +86,7 @@ export function AuthScreen({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <p className="text-accent !text-[16px] !font-semibold">{contextText}</p>
+            <p className="text-accent text-[16px]! font-semibold!">{contextText}</p>
           </motion.div>
         )}
         
@@ -100,7 +100,7 @@ export function AuthScreen({
           <h1 className="text-[#002055] mb-3">
             {isLogin ? currentTranslations.signIn : currentTranslations.signUp}
           </h1>
-          <p className="text-[#868d95] !text-[14px] leading-relaxed max-w-[300px]">
+          <p className="text-[#868d95] text-[14px]! leading-relaxed max-w-[300px]">
             {isLogin 
               ? currentTranslations.welcomeBack
               : currentTranslations.createAccount
@@ -143,3 +143,5 @@ export function AuthScreen({
     </div>
   );
 }
+
+export default AuthScreen;

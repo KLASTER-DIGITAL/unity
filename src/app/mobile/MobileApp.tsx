@@ -1,6 +1,6 @@
 import { useState, Suspense, lazy, useRef, useEffect } from "react";
 import { Toaster } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatedView, AnimatedPresence, ScreenTransitions } from "@/shared/lib/platform/animation";
 import { TranslationProvider } from "@/shared/lib/i18n";
 import { TranslationManager } from "@/shared/lib/i18n";
 import { LoadingScreen } from "@/shared/components/LoadingScreen";
@@ -205,14 +205,11 @@ export function MobileApp({
           <div className="min-h-screen">
             {/* Screens container - relative ONLY for absolute positioning of screens, overflow-hidden for animations */}
             <div className="relative min-h-screen overflow-hidden">
-              <AnimatePresence mode="wait" custom={direction}>
+              <AnimatedPresence>
                 {activeScreen === "home" && (
-                  <motion.div
+                  <AnimatedView
                     key="home"
-                    custom={direction}
-                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
+                    {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="absolute inset-0 overflow-y-auto"
                   >
@@ -223,16 +220,12 @@ export function MobileApp({
                         onNavigateToSettings={() => handleTabChange("settings")}
                       />
                     </Suspense>
-                  </motion.div>
+                  </AnimatedView>
                 )}
                 {activeScreen === "history" && (
-                  <motion.div
+                  <AnimatedView
                     key="history"
-                    custom={direction}
-                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     className="absolute inset-0 overflow-y-auto"
                   >
                     <Suspense fallback={<LoadingScreen />}>
@@ -240,16 +233,12 @@ export function MobileApp({
                         userData={userData}
                       />
                     </Suspense>
-                  </motion.div>
+                  </AnimatedView>
                 )}
                 {activeScreen === "achievements" && (
-                  <motion.div
+                  <AnimatedView
                     key="achievements"
-                    custom={direction}
-                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     className="absolute inset-0 overflow-y-auto"
                   >
                     <Suspense fallback={<LoadingScreen />}>
@@ -257,16 +246,12 @@ export function MobileApp({
                         userData={userData}
                       />
                     </Suspense>
-                  </motion.div>
+                  </AnimatedView>
                 )}
                 {activeScreen === "reports" && (
-                  <motion.div
+                  <AnimatedView
                     key="reports"
-                    custom={direction}
-                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     className="absolute inset-0 overflow-y-auto"
                   >
                     <Suspense fallback={<LoadingScreen />}>
@@ -274,16 +259,12 @@ export function MobileApp({
                         userData={userData}
                       />
                     </Suspense>
-                  </motion.div>
+                  </AnimatedView>
                 )}
                 {activeScreen === "settings" && (
-                  <motion.div
+                  <AnimatedView
                     key="settings"
-                    custom={direction}
-                    initial={(dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 })}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={(dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 })}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     className="absolute inset-0 overflow-y-auto"
                   >
                     <Suspense fallback={<LoadingScreen />}>
@@ -293,9 +274,9 @@ export function MobileApp({
                         onProfileUpdate={onProfileUpdate}
                       />
                     </Suspense>
-                  </motion.div>
+                  </AnimatedView>
                 )}
-              </AnimatePresence>
+              </AnimatedPresence>
             </div>
           </div>
 
@@ -303,7 +284,6 @@ export function MobileApp({
           <MobileBottomNav
             activeTab={activeScreen}
             onTabChange={handleTabChange}
-            language={userData?.language || 'ru'}
           />
 
           <Toaster position="top-center" />

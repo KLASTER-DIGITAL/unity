@@ -36,8 +36,8 @@ export function MobileSidebar({ menuItems, activeTab, userData, isOpen, onTabCha
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-white !text-[17px]">Admin</h1>
-                  <p className="text-white/80 !text-[13px] !font-normal">{t('admin_panel', 'Панель управления')}</p>
+                  <h1 className="text-white text-[17px]!">Admin</h1>
+                  <p className="text-white/80 text-[13px]! font-normal!">{t('admin_panel', 'Панель управления')}</p>
                 </div>
               </div>
               <button onClick={onClose} className="text-white">
@@ -57,7 +57,7 @@ export function MobileSidebar({ menuItems, activeTab, userData, isOpen, onTabCha
                       onClose();
                     }}
                     className={`
-                      w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] transition-all !text-[15px] relative
+                      w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] transition-all text-[15px]! relative
                       ${isActive
                         ? 'bg-accent text-accent-foreground shadow-lg'
                         : 'text-foreground hover:bg-muted'
@@ -88,13 +88,13 @@ export function MobileSidebar({ menuItems, activeTab, userData, isOpen, onTabCha
                   {userData?.email?.[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="!text-[14px] text-foreground truncate">{userData?.email}</p>
-                  <p className="!text-[12px] text-muted-foreground !font-normal">Супер-админ</p>
+                  <p className="text-[14px]! text-foreground truncate">{userData?.email}</p>
+                  <p className="text-[12px]! text-muted-foreground font-normal!">Супер-админ</p>
                 </div>
               </div>
               <Button 
                 variant="outline" 
-                className="w-full justify-start gap-2 !text-[15px]"
+                className="w-full justify-start gap-2 text-[15px]!"
                 onClick={onLogout}
               >
                 <LogOut className="w-4 h-4" />

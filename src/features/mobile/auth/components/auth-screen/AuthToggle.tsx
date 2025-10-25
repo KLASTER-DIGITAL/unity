@@ -33,12 +33,12 @@ export function AuthToggle({
           type="button"
           onClick={onToggle}
           disabled={isLoading}
-          className="!text-[14px] hover:opacity-80 transition-opacity disabled:opacity-50"
+          className="text-[14px]! hover:opacity-80 transition-opacity disabled:opacity-50"
         >
           <span className="text-[#868d95]">
             {isLogin ? translations.notRegisteredYet + ' ' : translations.alreadyHaveAccountAuth + ' '}
           </span>
-          <span className="text-[#756ef3] !font-semibold">
+          <span className="text-[#756ef3] font-semibold!">
             {isLogin ? translations.signUp : translations.signIn}
           </span>
         </button>
@@ -56,7 +56,7 @@ export function AuthToggle({
             type="button"
             onClick={onBack}
             disabled={isLoading}
-            className="text-[#868d95] !text-[13px] hover:opacity-80 transition-opacity disabled:opacity-50"
+            className="text-[#868d95] text-[13px]! hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             ← {translations.back}
           </button>

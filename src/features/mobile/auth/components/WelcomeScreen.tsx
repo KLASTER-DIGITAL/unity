@@ -454,7 +454,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
                 <button
                   key={language.code}
                   onClick={async () => {
-                    setSelectedLanguage(language.code);
+                    setSelectedLanguage(language.code as any);
                     setShowDropdown(false);
                     // ✅ FIX: Вызываем changeLanguage для переключения языка в i18n системе
                     await changeLanguage(language.code as any);
@@ -482,3 +482,5 @@ export function WelcomeScreen({ onNext, onSkip, currentStep, totalSteps, onStepC
     </motion.div>
   );
 }
+
+export default WelcomeScreen;

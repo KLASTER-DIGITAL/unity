@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useContext, Component } from "react";
-import type { ComponentProps } from "react";
-import { OTPInput, OTPInputContext } from "input-otp@1.4.2";
+import React, { useContext } from "react";
+import { OTPInput, OTPInputContext } from "input-otp";
 import { MinusIcon } from "lucide-react";
 
 import { cn } from "./utils";

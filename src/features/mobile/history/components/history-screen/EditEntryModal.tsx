@@ -50,7 +50,7 @@ export function EditEntryModal({
           className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300 max-h-[85vh]"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="!text-[18px] !font-semibold text-foreground">Редактировать запись</h3>
+            <h3 className="text-[18px]! font-semibold! text-foreground">Редактировать запись</h3>
             <button
               onClick={() => !isSaving && onClose()}
               disabled={isSaving}
@@ -63,7 +63,7 @@ export function EditEntryModal({
           <div className="space-y-4">
             {/* Text Input */}
             <div>
-              <label className="block !text-[13px] !font-medium text-muted-foreground mb-2">
+              <label className="block text-[13px]! font-medium! text-muted-foreground mb-2">
                 {t('entry_text', 'Текст записи')}
               </label>
               <textarea
@@ -71,21 +71,21 @@ export function EditEntryModal({
                 onChange={(e) => onTextChange(e.target.value)}
                 disabled={isSaving}
                 rows={6}
-                className="w-full px-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors resize-none disabled:opacity-50"
+                className="w-full px-4 py-3 bg-muted border border-border rounded-[12px] text-[15px]! text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors resize-none disabled:opacity-50"
                 placeholder={t('describe_achievement', 'Опишите ваше достижение...')}
               />
             </div>
 
             {/* Category Select */}
             <div>
-              <label className="block !text-[13px] !font-medium text-muted-foreground mb-2">
+              <label className="block text-[13px]! font-medium! text-muted-foreground mb-2">
                 Категория
               </label>
               <select
                 value={editCategory}
                 onChange={(e) => onCategoryChange(e.target.value)}
                 disabled={isSaving}
-                className="w-full px-4 py-3 bg-muted border border-border rounded-[12px] !text-[15px] text-foreground outline-none focus:border-accent transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 bg-muted border border-border rounded-[12px] text-[15px]! text-foreground outline-none focus:border-accent transition-colors disabled:opacity-50"
               >
                 {CATEGORIES.map(category => (
                   <option key={category} value={category}>
@@ -100,14 +100,14 @@ export function EditEntryModal({
               <button
                 onClick={() => !isSaving && onClose()}
                 disabled={isSaving}
-                className="flex-1 px-4 py-3 bg-muted text-foreground rounded-[12px] !text-[15px] !font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-muted text-foreground rounded-[12px] text-[15px]! font-medium! hover:bg-muted/80 transition-colors disabled:opacity-50"
               >
                 Отмена
               </button>
               <button
                 onClick={onSave}
                 disabled={isSaving || !editText.trim()}
-                className="flex-1 px-4 py-3 bg-accent text-white rounded-[12px] !text-[15px] !font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-accent text-white rounded-[12px] text-[15px]! font-medium! hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   "Сохранение..."

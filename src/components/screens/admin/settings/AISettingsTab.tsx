@@ -189,11 +189,11 @@ export const AISettingsTab: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="!text-[26px] text-foreground flex items-center gap-2">
+          <h3 className="text-[26px]! text-foreground flex items-center gap-2">
             <Brain className="w-7 h-7 text-accent" />
             AI Settings
           </h3>
-          <p className="!text-[15px] text-muted-foreground !font-normal">
+          <p className="text-[15px]! text-muted-foreground font-normal!">
             Управление моделями, лимитами и бюджетом AI
           </p>
         </div>
@@ -212,15 +212,15 @@ export const AISettingsTab: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="!text-[17px] flex items-center gap-2">
+              <CardTitle className="text-[17px]! flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-green-500" />
                 Бюджет AI
               </CardTitle>
-              <CardDescription className="!text-[13px] !font-normal">
+              <CardDescription className="text-[13px]! font-normal!">
                 Месячный лимит и текущие расходы
               </CardDescription>
             </div>
-            <Badge variant={isOverBudget ? 'destructive' : 'outline'} className="!text-[13px]">
+            <Badge variant={isOverBudget ? 'destructive' : 'outline'} className="text-[13px]!">
               {budgetPercentage.toFixed(1)}% использовано
             </Badge>
           </div>
@@ -228,7 +228,7 @@ export const AISettingsTab: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="monthly_budget" className="!text-[13px]">Месячный бюджет ($)</Label>
+              <Label htmlFor="monthly_budget" className="text-[13px]!">Месячный бюджет ($)</Label>
               <Input
                 id="monthly_budget"
                 type="number"
@@ -238,7 +238,7 @@ export const AISettingsTab: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="alert_threshold" className="!text-[13px]">Порог уведомления (%)</Label>
+              <Label htmlFor="alert_threshold" className="text-[13px]!">Порог уведомления (%)</Label>
               <Input
                 id="alert_threshold"
                 type="number"
@@ -248,8 +248,8 @@ export const AISettingsTab: React.FC = () => {
               />
             </div>
             <div>
-              <Label className="!text-[13px]">Текущие расходы</Label>
-              <div className="mt-1.5 h-10 px-3 rounded-md border border-input bg-muted flex items-center !text-[15px] !font-semibold text-foreground">
+              <Label className="text-[13px]!">Текущие расходы</Label>
+              <div className="mt-1.5 h-10 px-3 rounded-md border border-input bg-muted flex items-center text-[15px]! font-semibold! text-foreground">
                 ${budgetConfig.current_spend.toFixed(2)}
               </div>
             </div>
@@ -257,9 +257,9 @@ export const AISettingsTab: React.FC = () => {
 
           {/* Progress Bar */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between !text-[13px]">
+            <div className="flex items-center justify-between text-[13px]!">
               <span className="text-muted-foreground">Использовано</span>
-              <span className={isOverBudget ? 'text-red-500 !font-semibold' : 'text-foreground'}>
+              <span className={isOverBudget ? 'text-red-500 font-semibold!' : 'text-foreground'}>
                 ${budgetConfig.current_spend.toFixed(2)} / ${budgetConfig.monthly_budget.toFixed(2)}
               </span>
             </div>
@@ -276,8 +276,8 @@ export const AISettingsTab: React.FC = () => {
             <div className="flex items-center gap-3">
               <Settings2 className="w-5 h-5 text-accent" />
               <div>
-                <p className="!text-[15px] !font-medium text-foreground">Тестовый режим</p>
-                <p className="!text-[13px] text-muted-foreground">Использование sandbox-ключа без реальных затрат</p>
+                <p className="text-[15px]! font-medium! text-foreground">Тестовый режим</p>
+                <p className="text-[13px]! text-muted-foreground">Использование sandbox-ключа без реальных затрат</p>
               </div>
             </div>
             <Switch
@@ -290,8 +290,8 @@ export const AISettingsTab: React.FC = () => {
             <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
               <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
               <div>
-                <p className="!text-[15px] !font-medium text-red-600">Превышен порог бюджета!</p>
-                <p className="!text-[13px] text-red-600/80">
+                <p className="text-[15px]! font-medium! text-red-600">Превышен порог бюджета!</p>
+                <p className="text-[13px]! text-red-600/80">
                   Текущие расходы превысили {budgetConfig.alert_threshold}% от месячного бюджета.
                 </p>
               </div>
@@ -303,11 +303,11 @@ export const AISettingsTab: React.FC = () => {
       {/* Model Assignment Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="!text-[17px] flex items-center gap-2">
+          <CardTitle className="text-[17px]! flex items-center gap-2">
             <Zap className="w-5 h-5 text-accent" />
             Назначение моделей по операциям
           </CardTitle>
-          <CardDescription className="!text-[13px] !font-normal">
+          <CardDescription className="text-[13px]! font-normal!">
             Выберите оптимальную модель для каждого типа AI операции
           </CardDescription>
         </CardHeader>
@@ -321,11 +321,11 @@ export const AISettingsTab: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="!text-[13px]">Тип операции</TableHead>
-                    <TableHead className="!text-[13px]">Модель</TableHead>
-                    <TableHead className="!text-[13px]">Max токенов</TableHead>
-                    <TableHead className="!text-[13px]">Temperature</TableHead>
-                    <TableHead className="!text-[13px]">Стоимость</TableHead>
+                    <TableHead className="text-[13px]!">Тип операции</TableHead>
+                    <TableHead className="text-[13px]!">Модель</TableHead>
+                    <TableHead className="text-[13px]!">Max токенов</TableHead>
+                    <TableHead className="text-[13px]!">Temperature</TableHead>
+                    <TableHead className="text-[13px]!">Стоимость</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -339,8 +339,8 @@ export const AISettingsTab: React.FC = () => {
                       <TableRow key={opType.value}>
                         <TableCell>
                           <div>
-                            <p className="!text-[15px] !font-medium text-foreground">{opType.label}</p>
-                            <p className="!text-[13px] text-muted-foreground">{opType.description}</p>
+                            <p className="text-[15px]! font-medium! text-foreground">{opType.label}</p>
+                            <p className="text-[13px]! text-muted-foreground">{opType.description}</p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -357,7 +357,7 @@ export const AISettingsTab: React.FC = () => {
                                   <div className="flex items-center gap-2">
                                     {model.label}
                                     {model.recommended && (
-                                      <Badge variant="outline" className="!text-[10px] bg-green-500/10 text-green-600 border-green-500/20">
+                                      <Badge variant="outline" className="text-[10px]! bg-green-500/10 text-green-600 border-green-500/20">
                                         ✓
                                       </Badge>
                                     )}
@@ -406,7 +406,7 @@ export const AISettingsTab: React.FC = () => {
       {/* Recommendations Card */}
       <Card className="border-accent/20 bg-accent/5">
         <CardHeader>
-          <CardTitle className="!text-[17px] flex items-center gap-2">
+          <CardTitle className="text-[17px]! flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-500" />
             Рекомендации по оптимизации
           </CardTitle>
@@ -414,11 +414,11 @@ export const AISettingsTab: React.FC = () => {
         <CardContent className="space-y-3">
           <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
             <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
-              <span className="!text-[15px]">💡</span>
+              <span className="text-[15px]!">💡</span>
             </div>
             <div>
-              <p className="!text-[15px] !font-medium text-foreground">Используйте GPT-4o-mini для массовых операций</p>
-              <p className="!text-[13px] text-muted-foreground">
+              <p className="text-[15px]! font-medium! text-foreground">Используйте GPT-4o-mini для массовых операций</p>
+              <p className="text-[13px]! text-muted-foreground">
                 Для мотивационных карточек и анализа эмоций GPT-4o-mini обеспечивает отличное качество при стоимости в 8 раз ниже GPT-4o
               </p>
             </div>
@@ -426,11 +426,11 @@ export const AISettingsTab: React.FC = () => {
 
           <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
             <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
-              <span className="!text-[15px]">📊</span>
+              <span className="text-[15px]!">📊</span>
             </div>
             <div>
-              <p className="!text-[15px] !font-medium text-foreground">Оптимизируйте max_tokens</p>
-              <p className="!text-[13px] text-muted-foreground">
+              <p className="text-[15px]! font-medium! text-foreground">Оптимизируйте max_tokens</p>
+              <p className="text-[13px]! text-muted-foreground">
                 Установите разумные лимиты токенов для каждой операции. Для карточек достаточно 500 токенов, для отчетов - 2000
               </p>
             </div>
@@ -438,11 +438,11 @@ export const AISettingsTab: React.FC = () => {
 
           <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
             <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
-              <span className="!text-[15px]">⚡</span>
+              <span className="text-[15px]!">⚡</span>
             </div>
             <div>
-              <p className="!text-[15px] !font-medium text-foreground">Настройте temperature правильно</p>
-              <p className="!text-[13px] text-muted-foreground">
+              <p className="text-[15px]! font-medium! text-foreground">Настройте temperature правильно</p>
+              <p className="text-[13px]! text-muted-foreground">
                 Для аналитики используйте 0.5-0.7, для креативных задач (AI Coach) - 0.8-1.0
               </p>
             </div>

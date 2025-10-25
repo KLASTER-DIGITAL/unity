@@ -26,7 +26,7 @@ export async function signUpWithEmail(
     const supabase = createClient();
     
     // Регистрация в Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -101,12 +101,12 @@ export async function signUpWithEmail(
         await createEntry({
           userId: data.user.id,
           text: userData.firstEntry.trim(),
-          sentiment: analysis.sentiment || 'positive',
+          sentiment: (analysis.sentiment || 'positive') as 'positive' | 'neutral' | 'negative',
           category: analysis.category || 'Другое',
           tags: analysis.tags || [],
           aiReply: analysis.reply || '',
-          aiSummary: analysis.summary || null,
-          aiInsight: analysis.insight || null,
+          aiSummary: analysis.summary || undefined,
+          aiInsight: analysis.insight || undefined,
           isAchievement: analysis.isAchievement || true,
           mood: analysis.mood || 'хорошее'
         });
@@ -135,7 +135,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   try {
     const supabase = createClient();
     
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
@@ -179,7 +179,7 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   try {
     const supabase = createClient();
     
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin
@@ -205,7 +205,7 @@ export async function signInWithFacebook(): Promise<AuthResult> {
   try {
     const supabase = createClient();
     
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
         redirectTo: window.location.origin
@@ -230,7 +230,7 @@ export async function signInWithApple(): Promise<AuthResult> {
   try {
     const supabase = createClient();
     
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
         redirectTo: window.location.origin

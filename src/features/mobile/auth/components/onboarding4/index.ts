@@ -12,5 +12,5 @@ export { NextButton } from './NextButton';
 export { BackgroundElements } from './BackgroundElements';
 
 export { onboarding4Translations } from './translations';
-export type { OnboardingScreen4Props, NotificationSettings } from './types';
+export type { OnboardingScreen4Props, NotificationSettingsType } from './types';
 

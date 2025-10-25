@@ -23,9 +23,9 @@ export function useVoiceRecorder(): VoiceRecorderHook {
   const animationFrameRef = useRef<number | null>(null);
   const timerIntervalRef = useRef<number | null>(null);
 
-  const isSupported = typeof window !== 'undefined' && 
-    navigator.mediaDevices && 
-    navigator.mediaDevices.getUserMedia;
+  const isSupported = typeof window !== 'undefined' &&
+    !!navigator.mediaDevices &&
+    !!navigator.mediaDevices.getUserMedia;
 
   // Анализ уровня звука
   const analyzeAudio = useCallback(() => {

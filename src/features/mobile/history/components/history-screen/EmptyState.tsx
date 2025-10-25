@@ -17,10 +17,10 @@ export function EmptyState({ hasFilters }: EmptyStateProps) {
       <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
         <Calendar className="h-8 w-8 text-accent" strokeWidth={2} />
       </div>
-      <h3 className="!text-[18px] !font-semibold text-foreground mb-2">
+      <h3 className="text-[18px]! font-semibold! text-foreground mb-2">
         {t('no_entries_found', 'Записей не найдено')}
       </h3>
-      <p className="!text-[14px] text-muted-foreground">
+      <p className="text-[14px]! text-muted-foreground">
         {hasFilters
           ? t('try_change_filters', 'Попробуйте изменить фильтры')
           : t('create_first_entry', 'Создайте первую запись')}

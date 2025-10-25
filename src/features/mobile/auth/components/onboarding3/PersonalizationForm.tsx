@@ -54,7 +54,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
-        <p className="!leading-[18px] !font-[Days_One] !font-bold !text-[12px]">{currentTranslations.subtitle}</p>
+        <p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">{currentTranslations.subtitle}</p>
       </motion.div>
 
       {/* Main Title */}
@@ -66,7 +66,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <p className="!leading-[33px] !text-[24px] !font-semibold !font-[Days_One]">{currentTranslations.title}</p>
+        <p className="!leading-[33px] text-[24px]! font-semibold! font-![Days_One]">{currentTranslations.title}</p>
       </motion.div>
 
       {/* Emoji Selection */}
@@ -110,7 +110,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           placeholder={currentTranslations.placeholder}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center !text-[16px] !font-semibold bg-white text-gray-900"
+          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center text-[16px]! font-semibold! bg-white text-gray-900"
           maxLength={30}
           animate={{
             scale: isInputFocused ? 1.02 : 1,
@@ -140,7 +140,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
         transition={{ delay: 0.9, duration: 0.5 }}
       >
         <motion.p
-          className="text-center text-[#8d8d8d] !text-[12px] mb-1"
+          className="text-center text-[#8d8d8d] text-[12px]! mb-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.3 }}
@@ -152,7 +152,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
           <motion.button
             key={preset}
             onClick={() => handlePresetClick(preset)}
-            className={`px-4 py-3 rounded-lg border-2 transition-all duration-300 text-center !text-[14px] !font-semibold ${
+            className={`px-4 py-3 rounded-lg border-2 transition-all duration-300 text-center text-[14px]! font-semibold! ${
               diaryName === preset
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border hover:border-primary hover:bg-primary/5'
@@ -196,7 +196,7 @@ export function PersonalizationForm({ currentTranslations, onNext, onUpdate }: P
           transition={{ duration: 0.4, ease: "easeOut" }}
         />
         <motion.span
-          className="text-green-600 !text-[12px] !font-semibold"
+          className="text-green-600 text-[12px]! font-semibold!"
           initial={{ opacity: 0, x: -10 }}
           animate={{
             opacity: diaryName.trim() ? 1 : 0,

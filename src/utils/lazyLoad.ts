@@ -29,7 +29,7 @@ interface LazyLoadOptions {
  */
 export function lazyWithRetry<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
-  options: LazyLoadOptions = {}
+  // // options: LazyLoadOptions = {}
 ): React.LazyExoticComponent<T> {
   const { delay = 0, retry = 3 } = options;
 
@@ -87,7 +87,7 @@ export function preloadComponent<T extends ComponentType<any>>(
  */
 export function lazyWithPreload<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
-  options: LazyLoadOptions = {}
+  // // options: LazyLoadOptions = {}
 ): {
   Component: React.LazyExoticComponent<T>;
   preload: () => void;

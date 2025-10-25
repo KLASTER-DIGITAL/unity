@@ -1,7 +1,6 @@
 "use client";
 
-import React, { Component } from "react";
-import type { ComponentProps } from "react";
+import React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 
 import { cn } from "./utils";
