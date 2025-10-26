@@ -20,7 +20,7 @@ export interface AdminStats {
   pwaInstalls: number;
 }
 
-export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings";
+export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings" | "test-lab";
 export type PWASubTab = "overview" | "settings" | "push" | "analytics" | "cache";
 
 export interface MenuItem {
