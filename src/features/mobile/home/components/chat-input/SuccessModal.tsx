@@ -42,7 +42,7 @@ export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProp
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               >
-                <svg className="w-8 h-8 text-[var(--ios-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-8 h-8 text-(--ios-green)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>

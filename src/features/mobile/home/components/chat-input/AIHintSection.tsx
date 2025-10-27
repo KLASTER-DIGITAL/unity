@@ -34,7 +34,7 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
             </button>
 
             <div className="flex items-start gap-responsive-sm pr-8">
-              <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+              <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-[13px]! font-semibold! text-foreground mb-1">
                   AI подскажет

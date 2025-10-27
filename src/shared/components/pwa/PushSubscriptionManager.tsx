@@ -136,8 +136,8 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
           )}
 
           {permission === 'granted' && isSubscribed && (
-            <div className="mb-3 p-3 bg-[var(--ios-green)]/10 border border-[var(--ios-green)]/20 rounded-lg transition-colors duration-300">
-              <p className="text-footnote text-[var(--ios-green)]">
+            <div className="mb-3 p-3 bg-(--ios-green)/10 border border-(--ios-green)/20 rounded-lg transition-colors duration-300">
+              <p className="text-footnote text-(--ios-green)">
                 ✅ Вы подписаны на уведомления
               </p>
             </div>
