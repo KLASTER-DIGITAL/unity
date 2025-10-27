@@ -1,9 +1,10 @@
-import { motion } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion } from "@/shared/lib/platform/animation";
 import { Mic, Send, Image as ImageIcon } from "lucide-react";
 import { DragDropZone } from "@/shared/components/DragDropZone";
 import { MediaPreview } from "@/features/mobile/media";
 import type { UploadedMedia } from "@/shared/hooks/useMediaUploader";
-import { CATEGORIES } from "./constants";
+import { useCategoriesForUI } from "@/shared/hooks/useCategories";
 
 interface InputAreaProps {
   inputText: string;
@@ -50,6 +51,9 @@ export function InputArea({
   onMediaClick,
   onCategoryToggle
 }: InputAreaProps) {
+  // ✅ Load dynamic categories from database
+  const { categories, isLoading } = useCategoriesForUI(userId);
+
   return (
     <div className="relative">
       {/* Main Input Container with Drag & Drop */}
@@ -63,7 +67,7 @@ export function InputArea({
             <button
               onClick={onVoiceClick}
               disabled={isTranscribing}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
+              className={`shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
                 isRecording
                   ? 'bg-red-500'
                   : isTranscribing
@@ -102,7 +106,7 @@ export function InputArea({
             <button
               onClick={onMediaUpload}
               disabled={isUploading}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
+              className={`shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
                 isUploading
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:bg-muted active:scale-95'
@@ -123,7 +127,7 @@ export function InputArea({
             <button
               onClick={onSendMessage}
               disabled={!inputText.trim() && uploadedMedia.length === 0}
-              className={`flex-shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
+              className={`shrink-0 w-[28px] h-[28px] rounded-[16px] flex items-center justify-center transition-all ${
                 inputText.trim() || uploadedMedia.length > 0
                   ? 'hover:bg-muted active:scale-95'
                   : 'opacity-40 cursor-not-allowed'
@@ -150,22 +154,34 @@ export function InputArea({
 
       {/* Categories - horizontal scroll */}
       <div className="flex gap-responsive-xs mt-3 flex-nowrap overflow-x-auto scrollbar-hide">
-        {CATEGORIES.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => onCategoryToggle(category.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all flex-shrink-0 ${
-              selectedCategory === category.id
-                ? 'bg-accent/10 border-accent'
-                : 'bg-transparent border-border hover:bg-accent/5 active:scale-95'
-            }`}
-          >
-            <span className="text-[10px]">{category.icon}</span>
-            <span className="text-[12px]! font-light! text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              {category.label}
-            </span>
-          </button>
-        ))}
+        {isLoading ? (
+          // Loading skeleton
+          <div className="flex gap-responsive-xs">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="shrink-0 h-[32px] w-[80px] rounded-[10px] bg-muted/20 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : (
+          categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => onCategoryToggle(category.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border transition-all shrink-0 ${
+                selectedCategory === category.id
+                  ? 'bg-accent/10 border-accent'
+                  : 'bg-transparent border-border hover:bg-accent/5 active:scale-95'
+              }`}
+            >
+              <span className="text-[10px]">{category.icon}</span>
+              <span className="text-[12px]! font-light! text-foreground whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                {category.label}
+              </span>
+            </button>
+          ))
+        )}
       </div>
     </div>
   );

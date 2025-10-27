@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { uploadMedia, type MediaFile } from '@/shared/lib/api';
 import { compressImage, generateThumbnail, getImageDimensions, isImageFile, isVideoFile } from '../../utils/imageCompression';
 import { compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo } from '../../utils/videoCompression';
-import { Platform } from '../lib/platform';
+import { mediaPicker } from '../lib/platform/media-picker';
 
 // Export MediaFile as UploadedMedia for backward compatibility
 export type UploadedMedia = MediaFile;
@@ -232,26 +232,33 @@ export function useMediaUploader(): UseMediaUploaderResult {
 
   // File picker method
   const selectAndUploadMedia = useCallback(async (userId: string) => {
-    // Platform-specific file selection
-    if (Platform.isWeb) {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*,video/*';
-      input.multiple = true;
+    try {
+      // Use Media Picker Adapter for cross-platform file selection
+      const mediaFiles = await mediaPicker.pickMedia({
+        multiple: true,
+        maxFiles: 10
+      });
 
-      input.onchange = async (e) => {
-        const files = Array.from((e.target as HTMLInputElement).files || []);
-        if (files.length === 0) return;
-        await processAndUploadFiles(files, userId);
-      };
+      if (mediaFiles.length === 0) return;
 
-      input.click();
-    } else if (Platform.isNative) {
-      // TODO: Implement React Native file picker
-      console.warn('File picker not implemented for React Native yet');
-      // This will be implemented with react-native-image-picker or expo-image-picker
-    } else {
-      console.warn('File picker not available on this platform');
+      // Convert MediaFile[] to File[] for processing
+      // For web: fetch blob from URI and create File
+      // For native: will need different handling in future
+      const files = await Promise.all(
+        mediaFiles.map(async (mediaFile) => {
+          const response = await fetch(mediaFile.uri);
+          const blob = await response.blob();
+          return new File(
+            [blob],
+            mediaFile.name || 'file',
+            { type: mediaFile.mimeType || 'application/octet-stream' }
+          );
+        })
+      );
+
+      await processAndUploadFiles(files, userId);
+    } catch (error) {
+      console.error('Failed to select media:', error);
     }
   }, [processAndUploadFiles]);
 

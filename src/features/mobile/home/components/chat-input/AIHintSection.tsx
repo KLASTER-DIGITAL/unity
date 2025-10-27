@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
 import { Sparkles, X } from "lucide-react";
 
 interface AIHintSectionProps {
@@ -13,7 +14,7 @@ interface AIHintSectionProps {
  */
 export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectionProps) {
   return (
-    <AnimatePresence>
+    <AnimatedPresence>
       {messagesCount === 0 && showHint && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -46,7 +47,7 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatedPresence>
   );
 }
 

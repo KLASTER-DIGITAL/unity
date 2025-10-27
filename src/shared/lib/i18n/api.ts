@@ -16,6 +16,7 @@ export class I18nAPI {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${publicAnonKey}`,
+          'apikey': publicAnonKey,
         },
       });
 
@@ -54,6 +55,7 @@ export class I18nAPI {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${publicAnonKey}`,
+        'apikey': publicAnonKey,
       };
 
       // ✅ FIX: Не используем If-None-Match из-за CORS ограничений
@@ -137,6 +139,7 @@ export class I18nAPI {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${publicAnonKey}`,
+          'apikey': publicAnonKey,
         },
       });
       

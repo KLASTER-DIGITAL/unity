@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Sparkles } from "lucide-react";
 import type { DiaryEntry } from "@/shared/lib/api";
 import { MediaPreview } from "@/features/mobile/media";
 import { CATEGORY_ICONS, SENTIMENT_COLORS } from "./constants";
@@ -16,7 +16,29 @@ interface EntryCardProps {
  * Displays a single diary entry
  */
 export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
-  const CategoryIcon = CATEGORY_ICONS[entry.category] || CATEGORY_ICONS['Другое'];
+  // ✅ SAFETY: Case-insensitive category icon lookup with fallback for custom categories
+  const getCategoryIcon = (category: string) => {
+    if (!category) return Sparkles; // Empty category fallback
+
+    // Try exact match first
+    if (CATEGORY_ICONS[category]) {
+      return CATEGORY_ICONS[category];
+    }
+
+    // Try case-insensitive match for default categories
+    const matchedKey = Object.keys(CATEGORY_ICONS).find(
+      key => key.toLowerCase() === category.toLowerCase()
+    );
+
+    if (matchedKey && CATEGORY_ICONS[matchedKey]) {
+      return CATEGORY_ICONS[matchedKey];
+    }
+
+    // Fallback to Sparkles for custom user categories
+    return Sparkles;
+  };
+
+  const CategoryIcon = getCategoryIcon(entry.category);
   const entryDate = new Date(entry.createdAt);
   const dateStr = formatEntryDate(entryDate);
 

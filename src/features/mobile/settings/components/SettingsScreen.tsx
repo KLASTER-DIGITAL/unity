@@ -15,11 +15,13 @@ import {
   ProfileHeader,
   AdditionalSection,
   SupportSection,
+  CategoriesSection,
   FAQModal,
   SupportModal,
   RateAppModal,
   LanguageModal,
   PWAInstallModal,
+  CategoriesModal,
   loadLanguages,
   checkBiometricAvailability,
   saveNotificationSettings,
@@ -66,6 +68,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const [showFAQ, setShowFAQ] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
   const [showPWAInstall, setShowPWAInstall] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
 
   // Динамическая загрузка языков из API
   const [languages, setLanguages] = useState(DEFAULT_LANGUAGES);
@@ -193,6 +196,12 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
         t={t}
       />
 
+      {/* Персонализация */}
+      <CategoriesSection
+        onCategoriesClick={() => setShowCategories(true)}
+        t={t}
+      />
+
       {/* Дополнительно */}
       <AdditionalSection
         currentLanguage={profile?.language}
@@ -261,6 +270,14 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       <AnimatePresence>
         <PWAInstallModal isOpen={showPWAInstall} onClose={() => setShowPWAInstall(false)} t={t} />
       </AnimatePresence>
+
+      {/* Categories Modal */}
+      <CategoriesModal
+        isOpen={showCategories}
+        onClose={() => setShowCategories(false)}
+        userId={profile?.id}
+        t={t}
+      />
 
       {/* Premium Modal */}
       <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />

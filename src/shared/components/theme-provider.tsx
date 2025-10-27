@@ -5,6 +5,7 @@
  */
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { storage } from "@/shared/lib/platform/storage";
 
 type Theme = "dark" | "light" | "system";
 
@@ -32,9 +33,16 @@ export function ThemeProvider({
   storageKey = "unity-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+
+  // Load theme from storage on mount
+  useEffect(() => {
+    storage.getItem(storageKey).then(savedTheme => {
+      if (savedTheme) {
+        setTheme(savedTheme as Theme);
+      }
+    });
+  }, [storageKey]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -58,7 +66,7 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      storage.setItem(storageKey, theme);
       setTheme(theme);
     },
   };

@@ -309,13 +309,20 @@ export class TranslationLoader {
     currentCache: any;
     loadingStats: any;
     apiHealth: boolean;
-    localStorageUsage: number;
+    storageUsage: number;
   }> {
+    // Получаем все ключи из storage для подсчета использования
+    const allKeys = await storage.getAllKeys();
+    const allValues = await storage.multiGet(allKeys);
+    const storageSize = allValues.reduce((total, [, value]) => {
+      return total + (value ? JSON.stringify(value).length : 0);
+    }, 0);
+
     return {
       currentCache: TranslationCacheManager.exportCache(),
       loadingStats: this.getLoadingStats(),
       apiHealth: await I18nAPI.healthCheck(),
-      localStorageUsage: JSON.stringify(localStorage).length
+      storageUsage: storageSize
     };
   }
 }

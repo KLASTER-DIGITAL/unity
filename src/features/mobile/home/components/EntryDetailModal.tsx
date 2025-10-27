@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
 import { X } from "lucide-react";
 import { type DiaryEntry } from "@/shared/lib/api";
 import { MediaPreview } from "@/features/mobile/media";
@@ -43,7 +44,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
   };
 
   return (
-    <AnimatePresence>
+    <AnimatedPresence>
       {isOpen && (
         <>
           {/* Backdrop */}
@@ -83,12 +84,12 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
             </div>
 
             {/* Category & Sentiment */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className={`px-3 py-1 rounded-full text-[12px]! font-medium! ${getSentimentColor(entry.sentiment)}`}>
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className={`px-3 py-1 rounded-full text-[12px]! font-medium! border ${getSentimentColor(entry.sentiment)} border-current/30`}>
                 {getSentimentLabel(entry.sentiment)}
               </span>
               {entry.category && (
-                <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-[12px]!">
+                <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-[12px]! border border-muted-foreground/30 dark:border-muted-foreground/50 transition-colors duration-300">
                   {entry.category}
                 </span>
               )}
@@ -119,7 +120,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
             {entry.tags && entry.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] text-[11px]! font-medium! border border-muted-foreground/30 dark:border-muted-foreground/50">
+                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] text-[11px]! font-medium! border border-muted-foreground/30 dark:border-muted-foreground/50 transition-colors duration-300">
                     #{tag}
                   </span>
                 ))}
@@ -128,7 +129,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatedPresence>
   );
 }
 

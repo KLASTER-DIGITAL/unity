@@ -72,6 +72,20 @@ export {
   markCardAsRead,
 } from './services/motivations';
 
+// Categories API
+export {
+  getUserCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getCategoryByName,
+} from './services/categories';
+export type {
+  UserCategory,
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from './services/categories';
+
 // ==========================================
 // LEGACY API (from api.ts)
 // ==========================================

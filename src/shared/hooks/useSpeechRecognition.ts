@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { speech } from '../lib/platform/speech';
 
 interface SpeechRecognitionHook {
   isListening: boolean;
@@ -11,57 +12,52 @@ interface SpeechRecognitionHook {
 export function useSpeechRecognition(): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<any>(null);
-  
-  const isSupported = typeof window !== 'undefined' && 
-    ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+
+  const isSupported = speech.isSupported();
 
   useEffect(() => {
     if (!isSupported) return;
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-    recognitionRef.current = new SpeechRecognition();
-    
-    const recognition = recognitionRef.current;
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'ru-RU';
-
-    recognition.onstart = () => {
+    // Set up callbacks
+    speech.onStart(() => {
       setIsListening(true);
-    };
+    });
 
-    recognition.onresult = (event: any) => {
-      const speechResult = event.results[0][0].transcript;
-      setTranscript(speechResult);
-    };
+    speech.onResult((result) => {
+      if (result.isFinal) {
+        setTranscript(result.transcript);
+      }
+    });
 
-    recognition.onend = () => {
+    speech.onEnd(() => {
       setIsListening(false);
-    };
+    });
 
-    recognition.onerror = () => {
+    speech.onError((error) => {
+      console.error('Speech recognition error:', error);
       setIsListening(false);
-    };
+    });
 
     return () => {
-      if (recognition) {
-        recognition.stop();
+      if (speech.isListening()) {
+        speech.abort();
       }
     };
   }, [isSupported]);
 
   const startListening = () => {
-    if (!isSupported || !recognitionRef.current) return;
-    
+    if (!isSupported) return;
+
     setTranscript('');
-    recognitionRef.current.start();
+    speech.startListening({
+      language: 'ru-RU',
+      continuous: false,
+      interimResults: false,
+    });
   };
 
   const stopListening = () => {
-    if (!recognitionRef.current) return;
-    
-    recognitionRef.current.stop();
+    speech.stopListening();
   };
 
   return {

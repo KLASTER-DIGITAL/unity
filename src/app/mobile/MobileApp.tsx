@@ -4,6 +4,7 @@ import { AnimatedView, AnimatedPresence, ScreenTransitions } from "@/shared/lib/
 import { TranslationProvider } from "@/shared/lib/i18n";
 import { TranslationManager } from "@/shared/lib/i18n";
 import { LoadingScreen } from "@/shared/components/LoadingScreen";
+import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { prefetchOnIdle, routePrefetcher } from "@/shared/lib/performance";
 
 // Onboarding screens - критичные для первого запуска, загружаем сразу
@@ -241,11 +242,13 @@ export function MobileApp({
                     {...(direction > 0 ? ScreenTransitions.slideLeft : ScreenTransitions.slideRight)}
                     className="absolute inset-0 overflow-y-auto"
                   >
-                    <Suspense fallback={<LoadingScreen />}>
-                      <AchievementsScreen
-                        userData={userData}
-                      />
-                    </Suspense>
+                    <ErrorBoundary>
+                      <Suspense fallback={<LoadingScreen />}>
+                        <AchievementsScreen
+                          userData={userData}
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
                   </AnimatedView>
                 )}
                 {activeScreen === "reports" && (

@@ -35,6 +35,17 @@ const iconMap: Record<string, any> = {
 export function AchievementsScreen({ userData }: { userData?: any }) {
   // Получаем переводы для языка пользователя
   const { t } = useTranslation();
+
+  // ✅ SAFETY: Ensure t function is available
+  if (!t) {
+    console.error('[ACHIEVEMENTS] Translation function not available');
+    return (
+      <div className="pb-20 min-h-screen flex items-center justify-center bg-background">
+        <p className="text-foreground">Loading translations...</p>
+      </div>
+    );
+  }
+
   const [isLoading, setIsLoading] = useState(true);
   const [_entries, setEntries] = useState<DiaryEntry[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -88,16 +99,21 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   };
 
   // Преобразовать достижения в формат для UI
-  const badges = achievements.map(achievement => ({
-    id: achievement.id,
-    name: achievement.name,
-    description: achievement.description,
-    icon: iconMap[achievement.icon] || Star,
-    earned: achievement.earned,
-    rarity: achievement.rarity,
-    earnedDate: achievement.earnedDate,
-    progress: achievement.progress
-  }));
+  const badges = achievements.map(achievement => {
+    // ✅ SAFETY: Ensure icon is always a valid component
+    const IconComponent = iconMap[achievement.icon];
+
+    return {
+      id: achievement.id,
+      name: achievement.name,
+      description: achievement.description,
+      icon: IconComponent || Star, // Fallback to Star if icon not found
+      earned: achievement.earned,
+      rarity: achievement.rarity,
+      earnedDate: achievement.earnedDate,
+      progress: achievement.progress
+    };
+  });
 
   const milestones = [
     {
@@ -206,7 +222,9 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
           {badges.map(badge => {
-            const Icon = badge.icon;
+            // ✅ SAFETY: Ensure Icon component exists before rendering
+            const Icon = badge.icon || Star;
+
             return (
               <Card
                 key={badge.id}
@@ -224,7 +242,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
                           'bg-linear-to-br from-gray-400 to-gray-600'
                         : 'bg-muted'
                     }`}>
-                      <Icon className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`} />
+                      {Icon && <Icon className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`} />}
                     </div>
                     {badge.earned && (
                       <div className="absolute -top-2 -right-2">

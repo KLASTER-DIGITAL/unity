@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react";
+// @ts-expect-error - recharts is not installed, this component is for future use
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {
@@ -120,7 +121,7 @@ export function ChartBarInteractive() {
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => {
+              tickFormatter={(value: string) => {
                 const date = new Date(value)
                 return date.toLocaleDateString("en-US", {
                   month: "short",

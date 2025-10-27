@@ -223,30 +223,32 @@ export default function App() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Проверяем нужно ли показать install prompt
+    // Проверяем нужно ли показать install prompt (async)
     if (!isPWALoading) {
-      // Определяем текущую локацию
-      let currentLocation: 'onboarding' | 'user_cabinet' | undefined;
+      (async () => {
+        // Определяем текущую локацию
+        let currentLocation: 'onboarding' | 'user_cabinet' | undefined;
 
-      if (!userData) {
-        // Пользователь не залогинен = онбординг
-        currentLocation = 'onboarding';
-      } else if (userData && onboardingComplete) {
-        // Пользователь залогинен и прошел онбординг = кабинет
-        currentLocation = 'user_cabinet';
-      }
+        if (!userData) {
+          // Пользователь не залогинен = онбординг
+          currentLocation = 'onboarding';
+        } else if (userData && onboardingComplete) {
+          // Пользователь залогинен и прошел онбординг = кабинет
+          currentLocation = 'user_cabinet';
+        }
 
-      const shouldShow = shouldShowInstallPrompt(pwaSettings, currentLocation);
-      console.log('[PWA] Should show install prompt:', shouldShow, 'location:', currentLocation, pwaSettings);
+        const shouldShow = await shouldShowInstallPrompt(pwaSettings, currentLocation);
+        console.log('[PWA] Should show install prompt:', shouldShow, 'location:', currentLocation, pwaSettings);
 
-      if (shouldShow) {
-        // Небольшая задержка для лучшего UX
-        setTimeout(() => {
-          setShowInstallPrompt(true);
-          // Track показ install prompt
-          trackInstallPromptShown(userData?.id || null);
-        }, 1000);
-      }
+        if (shouldShow) {
+          // Небольшая задержка для лучшего UX
+          setTimeout(() => {
+            setShowInstallPrompt(true);
+            // Track показ install prompt
+            trackInstallPromptShown(userData?.id || null);
+          }, 1000);
+        }
+      })();
     }
 
     // Инициализируем PWA analytics
@@ -291,15 +293,15 @@ export default function App() {
       console.log('[PWA] No deferred prompt available (iOS or already installed)');
     }
 
-    markInstallPromptAsShown();
+    await markInstallPromptAsShown();
     setShowInstallPrompt(false);
   };
 
-  const handleInstallClose = () => {
+  const handleInstallClose = async () => {
     // Track закрытие install prompt
     trackInstallDismissed(userData?.id || null, 'user_closed');
     console.log('[PWA] Install prompt closed');
-    markInstallPromptAsShown();
+    await markInstallPromptAsShown();
     setShowInstallPrompt(false);
   };
 

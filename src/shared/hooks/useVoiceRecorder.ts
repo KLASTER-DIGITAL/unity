@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { voice } from '../lib/platform/voice';
 
 interface VoiceRecorderHook {
   isRecording: boolean;
@@ -14,33 +15,11 @@ export function useVoiceRecorder(): VoiceRecorderHook {
   const [isRecording, setIsRecording] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [recordingTime, setRecordingTime] = useState(0);
-  
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+
   const timerIntervalRef = useRef<number | null>(null);
+  const audioLevelIntervalRef = useRef<number | null>(null);
 
-  const isSupported = !!(typeof window !== 'undefined' &&
-    navigator.mediaDevices &&
-    navigator.mediaDevices.getUserMedia);
-
-  // Анализ уровня звука
-  const analyzeAudio = useCallback(() => {
-    if (!analyserRef.current) return;
-
-    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    analyserRef.current.getByteFrequencyData(dataArray);
-
-    // Вычисляем средний уровень
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    const normalized = Math.min(average / 128, 1); // Нормализуем от 0 до 1
-
-    setAudioLevel(normalized);
-    animationFrameRef.current = requestAnimationFrame(analyzeAudio);
-  }, []);
+  const isSupported = voice.isSupported();
 
   // Начать запись
   const startRecording = useCallback(async () => {
@@ -49,98 +28,66 @@ export function useVoiceRecorder(): VoiceRecorderHook {
     }
 
     try {
-      // Запрашиваем доступ к микрофону
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
+      await voice.startRecording({
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
       });
 
-      streamRef.current = stream;
-
-      // Создаем AudioContext для анализа уровня звука
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      source.connect(analyserRef.current);
-
-      // Начинаем анализ звука
-      analyzeAudio();
-
-      // Создаем MediaRecorder
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
-        ? 'audio/webm' 
-        : 'audio/mp4';
-
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
 
-      // Запускаем таймер
+      // Запускаем таймер для времени записи
       timerIntervalRef.current = window.setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
+        setRecordingTime(voice.getDuration());
+      }, 100);
+
+      // Запускаем обновление уровня звука
+      audioLevelIntervalRef.current = window.setInterval(() => {
+        setAudioLevel(voice.getAudioLevel());
+      }, 50);
 
       console.log('Recording started');
     } catch (error: any) {
       console.error('Error starting recording:', error);
-      
-      // Обработка специфичных ошибок
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        throw new Error('Доступ к микрофону запрещен. Разрешите доступ в настройках браузера.');
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        throw new Error('Микрофон не найден. Подключите микрофон и попробуйте снова.');
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        throw new Error('Микрофон используется другим приложением.');
-      } else if (error.name === 'OverconstrainedError') {
-        throw new Error('Настройки микрофона не поддерживаются.');
-      } else {
-        throw new Error('Не удалось начать запись: ' + (error.message || 'Неизвестная ошибка'));
-      }
+      throw error;
     }
-  }, [isSupported, analyzeAudio]);
+  }, [isSupported]);
 
   // Остановить запись
   const stopRecording = useCallback(async (): Promise<Blob | null> => {
-    return new Promise((resolve) => {
-      if (!mediaRecorderRef.current || !isRecording) {
-        resolve(null);
-        return;
+    if (!isRecording) {
+      return null;
+    }
+
+    try {
+      const result = await voice.stopRecording();
+      cleanup();
+
+      if (!result) {
+        return null;
       }
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { 
-          type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
-        });
-
-        // Cleanup
-        cleanup();
-        resolve(audioBlob);
-      };
-
-      mediaRecorderRef.current.stop();
-    });
+      // Return Blob (web) or convert URI to Blob (native)
+      if (result.data instanceof Blob) {
+        return result.data;
+      } else {
+        // TODO: Convert native URI to Blob when implementing native
+        console.warn('Native audio URI not converted to Blob yet');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+      cleanup();
+      return null;
+    }
   }, [isRecording]);
 
   // Отменить запись
   const cancelRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
+    voice.cancelRecording();
     cleanup();
-  }, [isRecording]);
+  }, []);
 
   // Очистка ресурсов
   const cleanup = () => {
@@ -148,34 +95,26 @@ export function useVoiceRecorder(): VoiceRecorderHook {
     setAudioLevel(0);
     setRecordingTime(0);
 
-    // Останавливаем анализ
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
-    // Останавливаем таймер
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
 
-    // Закрываем аудио контекст
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
+    if (audioLevelIntervalRef.current) {
+      clearInterval(audioLevelIntervalRef.current);
+      audioLevelIntervalRef.current = null;
     }
-
-    // Останавливаем поток
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-
-    mediaRecorderRef.current = null;
-    audioChunksRef.current = [];
-    analyserRef.current = null;
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (isRecording) {
+        voice.cancelRecording();
+      }
+      cleanup();
+    };
+  }, [isRecording]);
 
   return {
     isRecording,

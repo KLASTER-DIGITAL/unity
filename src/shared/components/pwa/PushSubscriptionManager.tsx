@@ -120,37 +120,37 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+    <div className="bg-card rounded-xl p-4 border border-border transition-colors duration-300">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-callout font-semibold text-foreground mb-2">
             🔔 Push Уведомления
           </h3>
-          
+
           {permission === 'denied' && (
-            <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-800 dark:text-red-200">
+            <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg transition-colors duration-300">
+              <p className="text-footnote text-destructive">
                 ❌ Уведомления запрещены. Разрешите их в настройках браузера.
               </p>
             </div>
           )}
 
           {permission === 'granted' && isSubscribed && (
-            <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <p className="text-sm text-green-800 dark:text-green-200">
+            <div className="mb-3 p-3 bg-[var(--ios-green)]/10 border border-[var(--ios-green)]/20 rounded-lg transition-colors duration-300">
+              <p className="text-footnote text-[var(--ios-green)]">
                 ✅ Вы подписаны на уведомления
               </p>
             </div>
           )}
 
           {permission === 'default' && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            <p className="text-footnote text-muted-foreground mb-3">
               Получайте уведомления о новых достижениях и напоминания
             </p>
           )}
 
           {permission === 'granted' && !isSubscribed && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            <p className="text-footnote text-muted-foreground mb-3">
               Подпишитесь на уведомления, чтобы не пропустить важные события
             </p>
           )}
@@ -162,7 +162,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
           <button
             onClick={handleSubscribe}
             disabled={isLoading || permission === 'denied'}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isLoading ? 'Подписка...' : '🔔 Подписаться'}
           </button>
@@ -170,7 +170,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
           <button
             onClick={handleUnsubscribe}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/80 disabled:opacity-50 transition-all duration-200"
           >
             {isLoading ? 'Отписка...' : '🔕 Отписаться'}
           </button>
@@ -178,7 +178,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
       </div>
 
       {permission === 'denied' && (
-        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-3 text-caption-2 text-muted-foreground">
           <p className="font-semibold mb-1">Как разрешить уведомления:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Chrome: Настройки → Конфиденциальность → Уведомления</li>

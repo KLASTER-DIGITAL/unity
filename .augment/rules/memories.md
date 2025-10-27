@@ -1,5 +1,6 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "Example description"
 ---
 
 # UNITY-v2 - Руководство по долгосрочной памяти

@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import { motion, useMotionValue, useTransform } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion, useMotionValue, useTransform } from "@/shared/lib/platform/animation";
 import { Heart } from "lucide-react";
 import type { SwipeCardProps } from "./types";
 

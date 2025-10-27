@@ -8,6 +8,7 @@ export { SecuritySection } from "./SecuritySection";
 export { ProfileHeader } from "./ProfileHeader";
 export { AdditionalSection } from "./AdditionalSection";
 export { SupportSection } from "./SupportSection";
+export { CategoriesSection } from "./CategoriesSection";
 export type { SettingsScreenProps, NotificationSettings, Language } from "./types";
 
 // Modals
@@ -16,7 +17,8 @@ export {
   SupportModal,
   RateAppModal,
   LanguageModal,
-  PWAInstallModal
+  PWAInstallModal,
+  CategoriesModal
 } from "./modals";
 
 // Handlers

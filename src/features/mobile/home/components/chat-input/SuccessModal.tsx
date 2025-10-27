@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ interface SuccessModalProps {
  */
 export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProps) {
   return (
-    <AnimatePresence>
+    <AnimatedPresence>
       {isOpen && (
         <>
           {/* Backdrop */}
@@ -57,7 +58,7 @@ export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProp
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatedPresence>
   );
 }
 

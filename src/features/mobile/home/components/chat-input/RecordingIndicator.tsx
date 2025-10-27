@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from "motion/react";
+// ✅ REACT NATIVE READY: Use Platform Adapter for animations
+import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
 import { Square, X } from "lucide-react";
 
 interface RecordingIndicatorProps {
@@ -25,7 +26,7 @@ export function RecordingIndicator({
   onCancel
 }: RecordingIndicatorProps) {
   return (
-    <AnimatePresence>
+    <AnimatedPresence>
       {isRecording && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -86,7 +87,7 @@ export function RecordingIndicator({
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatedPresence>
   );
 }
 

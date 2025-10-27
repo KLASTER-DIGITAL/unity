@@ -1,6 +1,10 @@
 /**
  * Утилиты для работы с PWA
+ *
+ * Platform-agnostic PWA utilities using Storage Adapter
  */
+
+import { storage } from '@/shared/lib/platform/storage';
 
 export interface PWAInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -39,22 +43,23 @@ export function isPWAInstalled(): boolean {
 /**
  * Проверяет, показывалось ли уже приглашение установки
  */
-export function wasInstallPromptShown(): boolean {
-  return localStorage.getItem('installPromptShown') === 'true';
+export async function wasInstallPromptShown(): Promise<boolean> {
+  const value = await storage.getItem('installPromptShown');
+  return value === 'true';
 }
 
 /**
  * Помечает что приглашение установки было показано
  */
-export function markInstallPromptAsShown(): void {
-  localStorage.setItem('installPromptShown', 'true');
+export async function markInstallPromptAsShown(): Promise<void> {
+  await storage.setItem('installPromptShown', 'true');
 }
 
 /**
  * Проверяет, включена ли PWA в админ-панели
  */
-export function isPWAEnabled(): boolean {
-  const pwaEnabled = localStorage.getItem('pwa-enabled');
+export async function isPWAEnabled(): Promise<boolean> {
+  const pwaEnabled = await storage.getItem('pwa-enabled');
   // По умолчанию true, если ключ не установлен
   return pwaEnabled !== 'false';
 }
@@ -62,8 +67,8 @@ export function isPWAEnabled(): boolean {
 /**
  * Включает/выключает PWA
  */
-export function setPWAEnabled(enabled: boolean): void {
-  localStorage.setItem('pwa-enabled', enabled ? 'true' : 'false');
+export async function setPWAEnabled(enabled: boolean): Promise<void> {
+  await storage.setItem('pwa-enabled', enabled ? 'true' : 'false');
 }
 
 /**
@@ -147,39 +152,39 @@ export function getInstallInstructions(): { platform: string; steps: string[] } 
 /**
  * Логирует детальную информацию о PWA для отладки
  */
-export function logPWADebugInfo(): void {
+export async function logPWADebugInfo(): Promise<void> {
   console.group('🔍 PWA Debug Information');
-  
+
   console.log('PWA Support:', {
     serviceWorker: 'serviceWorker' in navigator,
     pushManager: 'PushManager' in window,
     beforeInstallPrompt: 'onbeforeinstallprompt' in window,
     notification: 'Notification' in window
   });
-  
+
   console.log('Installation Status:', {
     isPWAInstalled: isPWAInstalled(),
     displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser',
     standalone: (window.navigator as any).standalone,
-    wasPromptShown: wasInstallPromptShown()
+    wasPromptShown: await wasInstallPromptShown()
   });
-  
+
   console.log('PWA Settings:', {
-    isPWAEnabled: isPWAEnabled(),
-    pwaEnabledValue: localStorage.getItem('pwa-enabled')
+    isPWAEnabled: await isPWAEnabled(),
+    pwaEnabledValue: await storage.getItem('pwa-enabled')
   });
-  
+
   console.log('Browser Info:', {
     userAgent: navigator.userAgent,
     isIOSSafari: isIOSSafari(),
     navigatorPlatform: navigator.platform,
     ...getInstallInstructions()
   });
-  
+
   console.log('Service Worker:', {
     controller: navigator.serviceWorker?.controller,
     ready: navigator.serviceWorker?.ready
   });
-  
+
   console.groupEnd();
 }

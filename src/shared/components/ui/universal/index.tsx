@@ -15,21 +15,49 @@ export * from './types';
 
 // Core components
 import { ButtonUtils } from './Button';
-import { SelectUtils } from './Select';
-import { SwitchUtils } from './Switch';
 import { ModalUtils } from './Modal';
 
 export { Button, ButtonUtils } from './Button';
 export type { ButtonProps } from './Button';
 
-export { Select, SelectUtils } from './Select';
-export type { SelectProps } from './Select';
-
-export { Switch, SwitchUtils } from './Switch';
-export type { SwitchProps } from './Switch';
-
 export { Modal, ModalUtils } from './Modal';
 export type { ExtendedModalProps as ModalProps } from './Modal';
+
+export { toast, Toaster } from './Toast';
+export type { ToasterProps } from './Toast';
+
+export { RadioGroup, RadioGroupUtils } from './RadioGroup';
+export type { RadioGroupProps, RadioGroupOption } from './RadioGroup';
+
+export {
+  Dialog,
+  DialogTrigger,
+  DialogPortal,
+  DialogClose,
+  DialogOverlay,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from './Dialog';
+export type {
+  DialogProps,
+  DialogContentProps,
+  DialogHeaderProps,
+  DialogFooterProps,
+  DialogTitleProps,
+  DialogDescriptionProps,
+} from './Dialog';
+
+export { UniversalSelect, SelectUtils } from './UniversalSelect';
+export type { SelectProps as UniversalSelectProps, SelectOption } from './UniversalSelect';
+
+export { UniversalSwitch, SwitchUtils } from './UniversalSwitch';
+export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
+
+export { UniversalCheckbox, CheckboxUtils } from './UniversalCheckbox';
+export type { CheckboxProps as UniversalCheckboxProps } from './UniversalCheckbox';
 
 // Re-export common types for convenience
 export type {
@@ -38,7 +66,6 @@ export type {
   UniversalLayoutProps,
   UniversalAnimationProps,
   FormFieldProps,
-  SelectOption,
   ButtonVariant,
   ButtonSize,
   ModalSize,
@@ -61,10 +88,6 @@ export const UniversalUtils = {
     switch (componentType) {
       case 'Button':
         return ButtonUtils.validateProps(props);
-      case 'Select':
-        return SelectUtils.validateProps(props);
-      case 'Switch':
-        return SwitchUtils.validateProps(props);
       case 'Modal':
         return ModalUtils.validateProps(props);
       default:

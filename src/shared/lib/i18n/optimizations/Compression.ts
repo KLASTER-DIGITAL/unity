@@ -1,14 +1,15 @@
 /**
  * Compression utilities for translation data
- * 
+ *
  * Features:
  * - LZ-based compression for translation strings
  * - Deduplication of common phrases
- * - Efficient storage in localStorage
+ * - Efficient storage using Storage Adapter
  * - Automatic compression/decompression
  */
 
 import type { Translations } from '../types/TranslationKeys';
+import { storage } from '../../platform/storage';
 
 interface CompressedData {
   data: string;
@@ -183,29 +184,29 @@ export class OptimizedStorage {
   static async save(language: string, translations: Translations): Promise<void> {
     const compressed = Compression.compress(translations);
     const stats = Compression.getStats(compressed);
-    
+
     console.log(`💾 OptimizedStorage: Saving ${language}`, stats);
-    
+
     const storageData = {
       ...compressed,
       language,
       timestamp: Date.now()
     };
-    
+
     try {
-      localStorage.setItem(
+      await storage.setItem(
         `${this.STORAGE_PREFIX}${language}`,
         JSON.stringify(storageData)
       );
     } catch (error) {
       console.error(`❌ OptimizedStorage: Failed to save ${language}:`, error);
-      
+
       // Try to free space by removing old data
       await this.cleanup();
-      
+
       // Retry
       try {
-        localStorage.setItem(
+        await storage.setItem(
           `${this.STORAGE_PREFIX}${language}`,
           JSON.stringify(storageData)
         );
@@ -221,14 +222,14 @@ export class OptimizedStorage {
    */
   static async load(language: string): Promise<Translations | null> {
     try {
-      const stored = localStorage.getItem(`${this.STORAGE_PREFIX}${language}`);
+      const stored = await storage.getItem(`${this.STORAGE_PREFIX}${language}`);
       if (!stored) {
         return null;
       }
-      
+
       const storageData = JSON.parse(stored);
       const translations = Compression.decompress(storageData);
-      
+
       console.log(`📂 OptimizedStorage: Loaded ${language} (${Object.keys(translations).length} keys)`);
       return translations;
     } catch (error) {
@@ -236,79 +237,79 @@ export class OptimizedStorage {
       return null;
     }
   }
-  
+
   /**
    * Remove translations for a language
    */
   static async remove(language: string): Promise<void> {
-    localStorage.removeItem(`${this.STORAGE_PREFIX}${language}`);
+    await storage.removeItem(`${this.STORAGE_PREFIX}${language}`);
     console.log(`🗑️ OptimizedStorage: Removed ${language}`);
   }
-  
+
   /**
    * Cleanup old or unused translations
    */
   static async cleanup(): Promise<void> {
     console.log('🧹 OptimizedStorage: Cleaning up...');
-    
-    const keys = Object.keys(localStorage).filter(key => 
+
+    const keys = (await storage.getAllKeys()).filter(key =>
       key.startsWith(this.STORAGE_PREFIX)
     );
-    
+
     // Sort by timestamp (oldest first)
-    const entries = keys
-      .map(key => {
+    const entries = await Promise.all(
+      keys.map(async key => {
         try {
-          const data = JSON.parse(localStorage.getItem(key) || '{}');
+          const data = JSON.parse((await storage.getItem(key)) || '{}');
           return { key, timestamp: data.timestamp || 0 };
         } catch {
           return { key, timestamp: 0 };
         }
       })
-      .sort((a, b) => a.timestamp - b.timestamp);
-    
+    );
+    entries.sort((a, b) => a.timestamp - b.timestamp);
+
     // Remove oldest 25% of entries
     const toRemove = entries.slice(0, Math.ceil(entries.length * 0.25));
-    
-    for (const { key } of toRemove) {
-      localStorage.removeItem(key);
-      console.log(`🗑️ OptimizedStorage: Removed ${key}`);
-    }
-    
+
+    await storage.multiRemove(toRemove.map(({ key }) => key));
+
     console.log(`✅ OptimizedStorage: Cleaned up ${toRemove.length} entries`);
   }
   
   /**
    * Get storage statistics
    */
-  static getStats() {
-    const keys = Object.keys(localStorage).filter(key => 
+  static async getStats() {
+    const keys = (await storage.getAllKeys()).filter(key =>
       key.startsWith(this.STORAGE_PREFIX)
     );
-    
+
     let totalOriginalSize = 0;
     let totalCompressedSize = 0;
     let compressedCount = 0;
-    
-    keys.forEach(key => {
-      try {
-        const data = JSON.parse(localStorage.getItem(key) || '{}');
-        totalOriginalSize += data.originalSize || 0;
-        totalCompressedSize += data.compressedSize || 0;
-        if (data.compressed) compressedCount++;
-      } catch {
-        // Skip invalid entries
-      }
-    });
-    
+
+    await Promise.all(
+      keys.map(async key => {
+        try {
+          const data = JSON.parse((await storage.getItem(key)) || '{}');
+          totalOriginalSize += data.originalSize || 0;
+          totalCompressedSize += data.compressedSize || 0;
+          if (data.compressed) compressedCount++;
+        } catch {
+          // Skip invalid entries
+        }
+      })
+    );
+
     return {
       totalLanguages: keys.length,
       compressedLanguages: compressedCount,
       totalOriginalSize,
       totalCompressedSize,
       savedBytes: totalOriginalSize - totalCompressedSize,
-      savedPercent: totalOriginalSize > 0 
-        ? Math.round((1 - totalCompressedSize / totalOriginalSize) * 100) 
+      savedPercent: totalOriginalSize > 0
+        ? Math.round((1 - totalCompressedSize / totalOriginalSize) * 100)
         : 0
     };
   }

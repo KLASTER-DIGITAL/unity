@@ -59,5 +59,5 @@ export type {
 export { AnimationPresets, ScreenTransitions } from './types';
 
 // Export convenience hooks
-export { useAnimationState } from './hooks';
+export { useAnimationState, useMotionValue, useTransform } from './hooks';
 

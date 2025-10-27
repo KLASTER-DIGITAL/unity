@@ -10,12 +10,14 @@ import {
  * Category icons mapping
  */
 export const CATEGORY_ICONS: { [key: string]: any } = {
+  'Другое': Sparkles,
   'Семья': Users,
   'Работа': Briefcase,
   'Финансы': DollarSign,
   'Благодарность': Heart,
   'Здоровье': Sparkles,
   'Личное развитие': Sparkles,
+  'Обучение': Sparkles,
   'Творчество': Sparkles,
   'Отношения': Heart
 };

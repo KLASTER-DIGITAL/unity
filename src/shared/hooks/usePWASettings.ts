@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { storage } from '@/shared/lib/platform/storage';
 
 /**
  * PWA Settings из админ-панели
@@ -120,14 +121,14 @@ export function usePWASettings() {
 }
 
 /**
- * Утилита для проверки условий показа Install Prompt
+ * Утилита для проверки условий показа Install Prompt (async версия)
  * @param settings - PWA настройки из админ-панели
  * @param currentLocation - текущая локация ('onboarding' | 'user_cabinet')
  */
-export function shouldShowInstallPrompt(
+export async function shouldShowInstallPrompt(
   settings: PWASettings,
   currentLocation?: 'onboarding' | 'user_cabinet'
-): boolean {
+): Promise<boolean> {
   // Если install prompt выключен в админке
   if (!settings.enableInstallPrompt) {
     console.log('[shouldShowInstallPrompt] Install prompt disabled in admin panel');
@@ -147,7 +148,7 @@ export function shouldShowInstallPrompt(
   }
 
   // Проверяем уже показывали ли prompt
-  const promptShown = localStorage.getItem('installPromptShown');
+  const promptShown = await storage.getItem('installPromptShown');
   if (promptShown === 'true') {
     console.log('[shouldShowInstallPrompt] Prompt already shown');
     return false;
@@ -168,17 +169,17 @@ export function shouldShowInstallPrompt(
       return true;
 
     case 'after_visits': {
-      const visitCount = parseInt(localStorage.getItem('visitCount') || '0');
+      const visitCount = parseInt((await storage.getItem('visitCount')) || '0');
       const shouldShow = visitCount >= settings.installPromptVisitsCount;
       console.log(`[shouldShowInstallPrompt] After visits: ${visitCount}/${settings.installPromptVisitsCount} - ${shouldShow ? 'SHOW' : 'WAIT'}`);
       return shouldShow;
     }
 
     case 'after_time': {
-      const firstVisit = localStorage.getItem('firstVisitTime');
+      const firstVisit = await storage.getItem('firstVisitTime');
       if (!firstVisit) {
         // Первый визит - сохраняем время
-        localStorage.setItem('firstVisitTime', Date.now().toString());
+        await storage.setItem('firstVisitTime', Date.now().toString());
         console.log('[shouldShowInstallPrompt] First visit - saving time');
         return false;
       }
@@ -200,12 +201,12 @@ export function shouldShowInstallPrompt(
 }
 
 /**
- * Утилита для инкремента счетчика визитов
+ * Утилита для инкремента счетчика визитов (async версия)
  */
-export function incrementVisitCount(): number {
-  const currentCount = parseInt(localStorage.getItem('visitCount') || '0');
+export async function incrementVisitCount(): Promise<number> {
+  const currentCount = parseInt((await storage.getItem('visitCount')) || '0');
   const newCount = currentCount + 1;
-  localStorage.setItem('visitCount', newCount.toString());
+  await storage.setItem('visitCount', newCount.toString());
   console.log(`[incrementVisitCount] Visit count: ${currentCount} → ${newCount}`);
   return newCount;
 }
@@ -213,10 +214,8 @@ export function incrementVisitCount(): number {
 /**
  * Утилита для сброса счетчиков (для тестирования)
  */
-export function resetPWACounters(): void {
-  localStorage.removeItem('visitCount');
-  localStorage.removeItem('firstVisitTime');
-  localStorage.removeItem('installPromptShown');
+export async function resetPWACounters(): Promise<void> {
+  await storage.multiRemove(['visitCount', 'firstVisitTime', 'installPromptShown']);
   console.log('[resetPWACounters] All PWA counters reset');
 }
 

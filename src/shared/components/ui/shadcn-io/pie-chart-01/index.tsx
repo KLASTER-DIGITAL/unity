@@ -1,5 +1,6 @@
 "use client"
 
+// @ts-expect-error - recharts is not installed, this component is for future use
 import { Pie, PieChart } from "recharts"
 
 import {
