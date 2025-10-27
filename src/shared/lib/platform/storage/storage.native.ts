@@ -29,7 +29,6 @@ export class NativeStorageAdapter implements StorageAdapter {
       // Check if we're in a React Native environment
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         // Dynamic import to avoid bundling in web
-        // @ts-expect-error - @react-native-async-storage/async-storage is not installed in PWA build
         const AsyncStorage = await import('@react-native-async-storage/async-storage');
         this.asyncStorage = AsyncStorage.default;
         this.initialized = true;

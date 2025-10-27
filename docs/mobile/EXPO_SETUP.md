@@ -199,8 +199,56 @@ File-based routing layout для Expo Router.
 
 ## ✅ Статус
 
-**Expo Setup**: ✅ COMPLETE  
-**React Native Migration**: 🔄 IN PROGRESS  
-**Estimated Time**: 3-5 дней (вместо 7-10)  
+**Expo Setup**: ✅ COMPLETE
+**React Native Dependencies**: ✅ COMPLETE
+**Expo Router Setup**: ✅ COMPLETE
+**React Native Migration**: 🔄 IN PROGRESS (Ready for testing)
+**Estimated Time**: 3-5 дней (вместо 7-10)
 **Code Compatibility**: 90%+ готово
+
+---
+
+## 🎯 Установленные React Native зависимости
+
+### Storage
+- `@react-native-async-storage/async-storage@2.1.0` - Persistent storage
+
+### Media
+- `expo-file-system@18.0.11` - File system access
+- `expo-document-picker@13.0.3` - Document picker
+- `expo-image-picker@16.0.6` - Image/video picker
+
+### Navigation
+- `@react-navigation/native@7.0.14` - Navigation framework
+- `@react-navigation/stack@7.2.1` - Stack navigator
+- `react-native-screens@4.4.0` - Native screens
+- `react-native-safe-area-context@5.1.2` - Safe area handling
+- `react-native-gesture-handler@2.22.1` - Gesture handling
+
+---
+
+## 📱 Expo Router Structure
+
+### Entry Point
+- `index.js` - React Native entry point (uses `expo-router/entry`)
+
+### App Structure
+```
+app/
+├── _layout.tsx          # Root layout (Stack navigator)
+├── index.tsx            # Splash/redirect screen
+└── (tabs)/              # Tab navigation group
+    ├── _layout.tsx      # Tabs layout
+    ├── index.tsx        # Home tab
+    ├── diary.tsx        # Diary tab
+    ├── achievements.tsx # Achievements tab
+    └── settings.tsx     # Settings tab
+```
+
+### Navigation Flow
+1. App starts → `index.js` → Expo Router
+2. Root layout (`app/_layout.tsx`) → Stack navigator
+3. Initial screen (`app/index.tsx`) → Splash screen
+4. Redirect to tabs (`app/(tabs)/_layout.tsx`) → Bottom tabs
+5. Default tab (`app/(tabs)/index.tsx`) → Home screen
 

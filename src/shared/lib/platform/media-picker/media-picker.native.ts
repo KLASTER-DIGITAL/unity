@@ -29,7 +29,6 @@ export class NativeMediaPickerAdapter implements MediaPickerAdapter {
       // Check if we're in a React Native environment
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         // Dynamic import to avoid bundling in web
-        // @ts-expect-error - expo-image-picker is not installed in PWA build
         const ImagePicker = await import('expo-image-picker');
         this.imagePicker = ImagePicker;
         this.initialized = true;

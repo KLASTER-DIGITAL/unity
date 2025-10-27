@@ -68,3 +68,21 @@ temp/
 temp_*.js
 temp_*.txt
 pass.md
+
+# React Native / Expo
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+dist/
+
+# Metro
+.metro-health-check*
+
+# Expo
+__generated__/
