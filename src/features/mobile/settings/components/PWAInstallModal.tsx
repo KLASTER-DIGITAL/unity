@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/universal/Dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Smartphone, Monitor, Chrome, Apple } from "lucide-react";
 

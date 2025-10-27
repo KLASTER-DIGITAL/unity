@@ -93,7 +93,7 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
           {/* Info */}
           <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
             <div className="flex gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
               <div className="space-y-1 text-sm">
                 <p className="font-medium text-blue-900 dark:text-blue-100">
                   Как работает автоперевод:

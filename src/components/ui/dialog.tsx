@@ -1,5 +1,21 @@
 "use client";
 
+/**
+ * @deprecated This component is deprecated and will be removed in a future version.
+ * Please use the Universal Dialog component from '@/shared/components/ui/universal/Dialog' instead.
+ *
+ * Migration guide:
+ * - Replace: import { Dialog } from '@/components/ui/dialog'
+ * - With: import { Dialog } from '@/shared/components/ui/universal/Dialog'
+ *
+ * The API is identical, so no code changes are required beyond the import statement.
+ *
+ * Benefits of Universal Dialog:
+ * - Works on both web (Radix UI) and React Native (Modal)
+ * - Better performance with Platform Adapter
+ * - Ready for React Native migration
+ */
+
 import React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";

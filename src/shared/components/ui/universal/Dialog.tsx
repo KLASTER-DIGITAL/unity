@@ -12,10 +12,8 @@ import { Platform } from '@/shared/lib/platform';
 
 // Import implementations
 import * as WebDialog from './Dialog.web';
-// Note: NativeDialog is imported but not used in web build
-// This is intentional to avoid bundling native dependencies
-// @ts-expect-error - NativeDialog is imported for type checking but not used in runtime
-import * as NativeDialog from './Dialog.native';
+// Note: NativeDialog is NOT imported to avoid bundling react-native in web build
+// Native version is loaded dynamically when needed
 
 // ============================================================================
 // PLATFORM SELECT
@@ -51,9 +49,6 @@ export type {
   DialogTitleProps,
   DialogDescriptionProps,
 } from './Dialog.web';
-
-// Export native for dynamic import
-export { default as NativeDialog } from './Dialog.native';
 
 export default {
   Dialog,
