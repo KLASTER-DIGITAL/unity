@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "UNITY - Дневник достижений",
+    "slug": "unity-diary",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./public/icon-512.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "unity",
+    "splash": {
+      "image": "./public/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#007AFF"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.unity.diary",
+      "infoPlist": {
+        "NSCameraUsageDescription": "UNITY использует камеру для добавления фото к достижениям",
+        "NSPhotoLibraryUsageDescription": "UNITY использует галерею для добавления фото к достижениям",
+        "NSMicrophoneUsageDescription": "UNITY использует микрофон для записи голосовых заметок"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/icon-512.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.unity.diary",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./public/favicon.ico",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "unity-v2-expo"
+      }
+    }
+  }
+}
