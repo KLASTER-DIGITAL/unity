@@ -49,3 +49,12 @@ supabase/seed.sql
 # Scripts
 scripts/
 
+# React Native / Expo (не нужны для web build)
+app/
+index.js
+.expo/
+.expo-shared/
+metro.config.js
+babel.config.js
+eas.json
+app.json
