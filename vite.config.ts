@@ -91,17 +91,48 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor chunks - внешние библиотеки
           if (id.includes('node_modules')) {
-            // Charts - отдельный чанк (большой размер)
+            // Charts - отдельный чанк (большой размер ~200KB)
             if (id.includes('recharts') || id.includes('d3-')) {
               return 'vendor-charts';
             }
-            // Supabase - отдельный чанк
+
+            // Supabase - отдельный чанк (~140KB)
             if (id.includes('@supabase') || id.includes('postgrest')) {
               return 'vendor-supabase';
             }
-            // ВСЕ ОСТАЛЬНЫЕ БИБЛИОТЕКИ В ОДИН ЧАНК vendor-libs
-            // Это гарантирует правильный порядок загрузки
-            return 'vendor-libs';
+
+            // Framer Motion - отдельный чанк (~150KB)
+            if (id.includes('framer-motion') || id.includes('motion')) {
+              return 'vendor-motion';
+            }
+
+            // Lucide Icons - отдельный чанк (~100KB)
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+
+            // Radix UI - отдельный чанк (~200KB)
+            if (id.includes('@radix-ui')) {
+              return 'vendor-radix';
+            }
+
+            // Sentry - отдельный чанк (~80KB)
+            if (id.includes('@sentry')) {
+              return 'vendor-sentry';
+            }
+
+            // Lottie - отдельный чанк (~150KB)
+            if (id.includes('lottie-web')) {
+              return 'vendor-lottie';
+            }
+
+            // React core - критический чанк (~50KB)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
+
+            // Остальные библиотеки - меньший чанк (~200KB)
+            return 'vendor-misc';
           }
 
           // App chunks - разделение по функциональности
