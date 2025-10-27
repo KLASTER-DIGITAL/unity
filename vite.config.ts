@@ -86,6 +86,18 @@ export default defineConfig(({ mode }) => ({
     assetsInlineLimit: 4096, // Inline assets < 4kb
     chunkSizeWarningLimit: 1000, // Предупреждение для chunks > 1MB
     rollupOptions: {
+      // Исключаем React Native Expo файлы из web build
+      external: (id) => {
+        // Исключаем app/ (React Native Expo Router)
+        if (id.includes('/app/') && !id.includes('/src/app/')) {
+          return true;
+        }
+        // Исключаем index.js (React Native entry point)
+        if (id.endsWith('/index.js') && !id.includes('/src/') && !id.includes('/node_modules/')) {
+          return true;
+        }
+        return false;
+      },
       output: {
         // Настраиваем code splitting для оптимизации производительности
         manualChunks: (id) => {
@@ -196,6 +208,16 @@ export default defineConfig(({ mode }) => ({
     fs: {
       // Разрешаем доступ к файлам вне корня проекта
       allow: ['..'],
+    },
+    watch: {
+      // Игнорируем React Native Expo папки
+      ignored: [
+        '**/node_modules/**',
+        '**/app/**', // React Native Expo Router (НЕ src/app!)
+        '**/index.js', // React Native entry point
+        '**/.expo/**',
+        '**/.expo-shared/**',
+      ],
     },
   },
   // Предварительная загрузка модулей
