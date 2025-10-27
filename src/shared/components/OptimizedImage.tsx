@@ -9,6 +9,7 @@ interface OptimizedImageProps {
   loading?: 'lazy' | 'eager';
   priority?: boolean;
   sizes?: string;
+  blurDataURL?: string; // Base64 blur placeholder
   onLoad?: () => void;
   onError?: () => void;
 }
@@ -36,11 +37,13 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   loading = 'lazy',
   priority = false,
   sizes,
+  blurDataURL,
   onLoad,
   onError,
 }) => {
   const [_imageError, setImageError] = useState(false);
   const [webpError, setWebpError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Генерируем WebP версию пути
   const getWebPSrc = useCallback((originalSrc: string): string => {
@@ -62,6 +65,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   // Обработчик успешной загрузки
   const handleLoad = useCallback(() => {
+    setIsLoaded(true);
     onLoad?.();
   }, [onLoad]);
 
@@ -78,49 +82,87 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   if (!supportsWebP || webpError) {
     return (
-      <img
-        src={src}
-        alt={alt}
-        className={className}
-        width={width}
-        height={height}
-        loading={loadingStrategy}
-        sizes={sizes}
-        onLoad={handleLoad}
-        onError={handleImageError}
-        style={{
-          maxWidth: '100%',
-          height: 'auto',
-        }}
-      />
+      <div className={`relative ${className}`} style={{ width, height }}>
+        {/* Blur placeholder */}
+        {blurDataURL && !isLoaded && (
+          <img
+            src={blurDataURL}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover blur-sm"
+            style={{
+              filter: 'blur(20px)',
+              transform: 'scale(1.1)',
+            }}
+          />
+        )}
+
+        {/* Actual image */}
+        <img
+          src={src}
+          alt={alt}
+          className={`${blurDataURL ? 'relative z-10' : ''}`}
+          width={width}
+          height={height}
+          loading={loadingStrategy}
+          sizes={sizes}
+          onLoad={handleLoad}
+          onError={handleImageError}
+          style={{
+            maxWidth: '100%',
+            height: 'auto',
+            opacity: blurDataURL && !isLoaded ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        />
+      </div>
     );
   }
 
   return (
-    <picture className={className}>
-      {/* WebP версия для современных браузеров */}
-      <source
-        srcSet={webpSrc}
-        type="image/webp"
-        sizes={sizes}
-      />
-      
-      {/* Fallback для браузеров без поддержки WebP */}
-      <img
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        loading={loadingStrategy}
-        sizes={sizes}
-        onLoad={handleLoad}
-        onError={handleWebPError}
-        style={{
-          maxWidth: '100%',
-          height: 'auto',
-        }}
-      />
-    </picture>
+    <div className={`relative ${className}`} style={{ width, height }}>
+      {/* Blur placeholder */}
+      {blurDataURL && !isLoaded && (
+        <img
+          src={blurDataURL}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover blur-sm"
+          style={{
+            filter: 'blur(20px)',
+            transform: 'scale(1.1)',
+          }}
+        />
+      )}
+
+      {/* Picture element with WebP support */}
+      <picture className={blurDataURL ? 'relative z-10' : ''}>
+        {/* WebP версия для современных браузеров */}
+        <source
+          srcSet={webpSrc}
+          type="image/webp"
+          sizes={sizes}
+        />
+
+        {/* Fallback для браузеров без поддержки WebP */}
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={loadingStrategy}
+          sizes={sizes}
+          onLoad={handleLoad}
+          onError={handleWebPError}
+          style={{
+            maxWidth: '100%',
+            height: 'auto',
+            opacity: blurDataURL && !isLoaded ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        />
+      </picture>
+    </div>
   );
 };
 

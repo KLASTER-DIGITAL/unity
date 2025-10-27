@@ -10,6 +10,7 @@ import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp
 // Новая i18n система
 import { useTranslation } from "@/shared/lib/i18n";
 import { LottiePreloader } from "@/shared/components/LottiePreloader";
+import { getBlurPlaceholder } from "@/shared/lib/image";
 
 interface WelcomeScreenProps {
   onNext: (language: string) => void;
@@ -120,6 +121,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep: _currentStep, total
             alt="Welcome background"
             className="w-full h-full object-cover"
             priority={true}
+            blurDataURL={getBlurPlaceholder('hero')}
           />
         </div>
 
