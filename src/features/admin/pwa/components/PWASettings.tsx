@@ -5,13 +5,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select';
+import { Select } from '@/shared/components/ui/universal/Select.web';
 import { createClient } from '@/utils/supabase/client';
 import {
   Settings,
@@ -389,17 +383,14 @@ export function PWASettings() {
               <Select
                 value={settings.installPromptTiming}
                 onValueChange={(value: any) => setSettings({ ...settings, installPromptTiming: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="immediate">Сразу при первом визите</SelectItem>
-                  <SelectItem value="after_visits">После N визитов</SelectItem>
-                  <SelectItem value="after_time">После N минут на сайте</SelectItem>
-                  <SelectItem value="manual">Только вручную</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="Выберите время"
+                options={[
+                  { value: 'immediate', label: 'Сразу при первом визите' },
+                  { value: 'after_visits', label: 'После N визитов' },
+                  { value: 'after_time', label: 'После N минут на сайте' },
+                  { value: 'manual', label: 'Только вручную' },
+                ]}
+              />
             </div>
 
             {/* Visits Count */}
@@ -434,17 +425,14 @@ export function PWASettings() {
               <Select
                 value={settings.installPromptLocation}
                 onValueChange={(value: any) => setSettings({ ...settings, installPromptLocation: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="onboarding">Только на онбординге</SelectItem>
-                  <SelectItem value="user_cabinet">Только в личном кабинете</SelectItem>
-                  <SelectItem value="both">На онбординге и в кабинете</SelectItem>
-                  <SelectItem value="anywhere">Везде</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="Выберите место"
+                options={[
+                  { value: 'onboarding', label: 'Только на онбординге' },
+                  { value: 'user_cabinet', label: 'Только в личном кабинете' },
+                  { value: 'both', label: 'На онбординге и в кабинете' },
+                  { value: 'anywhere', label: 'Везде' },
+                ]}
+              />
             </div>
           </CardContent>
         </Card>

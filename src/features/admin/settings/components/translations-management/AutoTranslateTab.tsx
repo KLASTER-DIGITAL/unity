@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { TabsContent } from '@/shared/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select';
+import { Select } from '@/shared/components/ui/universal/Select.web';
 import { AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import type { Language } from './types';
 
@@ -59,18 +53,17 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
           {/* Source Language */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Исходный язык</label>
-            <Select value={autoTranslateSource} onValueChange={setAutoTranslateSource}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите исходный язык" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.filter(l => l.enabled).map(lang => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.native_name} ({lang.code})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Select
+              value={autoTranslateSource}
+              onValueChange={setAutoTranslateSource}
+              placeholder="Выберите исходный язык"
+              options={languages
+                .filter(l => l.enabled)
+                .map(lang => ({
+                  value: lang.code,
+                  label: `${lang.native_name} (${lang.code})`,
+                }))}
+            />
           </div>
 
           {/* Target Languages */}

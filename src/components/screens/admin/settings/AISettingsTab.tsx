@@ -9,13 +9,7 @@ import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
 import { Badge } from '@/shared/components/ui/badge';
 import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select';
+import { Select } from '@/shared/components/ui/universal/Select';
 import {
   Table,
   TableBody,
@@ -347,25 +341,25 @@ export const AISettingsTab: React.FC = () => {
                           <Select
                             value={config.model}
                             onValueChange={(value) => updateModelConfig(opType.value, 'model', value)}
-                          >
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {AI_MODELS.map((model) => (
-                                <SelectItem key={model.value} value={model.value}>
-                                  <div className="flex items-center gap-2">
-                                    {model.label}
-                                    {model.recommended && (
-                                      <Badge variant="outline" className="text-[10px]! bg-green-500/10 text-green-600 border-green-500/20">
-                                        ✓
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            className="w-[180px]"
+                            options={AI_MODELS.map((model) => ({
+                              value: model.value,
+                              label: model.label,
+                            }))}
+                            renderOption={(option) => {
+                              const model = AI_MODELS.find((m) => m.value === option.value);
+                              return (
+                                <div className="flex items-center gap-2">
+                                  {option.label}
+                                  {model?.recommended && (
+                                    <Badge variant="outline" className="text-[10px]! bg-green-500/10 text-green-600 border-green-500/20">
+                                      ✓
+                                    </Badge>
+                                  )}
+                                </div>
+                              );
+                            }}
+                          />
                         </TableCell>
                         <TableCell>
                           <Input

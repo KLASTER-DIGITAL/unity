@@ -1,3 +1,18 @@
+/**
+ * Select Component - Universal Select Re-export
+ *
+ * This file re-exports Universal Select for backward compatibility.
+ *
+ * DEPRECATED: Use @/shared/components/ui/universal/Select directly
+ *
+ * Migration from Radix UI to Universal Select:
+ * - Old API: Compositional (Select, SelectTrigger, SelectValue, SelectContent, SelectItem)
+ * - New API: Simple props-based (options array)
+ *
+ * @deprecated Use Universal Select from @/shared/components/ui/universal/Select
+ * @module components/ui/select
+ */
+
 "use client";
 
 import React from "react";
@@ -9,6 +24,10 @@ import {
 } from "lucide-react";
 
 import { cn } from "./utils";
+
+// ============================================================================
+// LEGACY RADIX UI COMPONENTS (for backward compatibility)
+// ============================================================================
 
 function Select({
   ...props

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Brain, RefreshCw, Download, Calendar } from "lucide-react";
+import { Brain, RefreshCw, Download } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { toast } from "sonner";
@@ -11,13 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
+import { Select } from "@/shared/components/ui/universal/Select.web";
 import { createClient } from "@/utils/supabase/client";
 import { SimpleChart } from "@/shared/components/SimpleChart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
@@ -207,18 +201,17 @@ export function AIAnalyticsTab() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
-            <SelectTrigger className="w-[140px]">
-              <Calendar className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">7 дней</SelectItem>
-              <SelectItem value="30d">30 дней</SelectItem>
-              <SelectItem value="90d">90 дней</SelectItem>
-              <SelectItem value="all">Все время</SelectItem>
-            </SelectContent>
-          </Select>
+          <Select
+            value={period}
+            onValueChange={(value: any) => setPeriod(value)}
+            className="w-[140px]"
+            options={[
+              { value: '7d', label: '7 дней' },
+              { value: '30d', label: '30 дней' },
+              { value: '90d', label: '90 дней' },
+              { value: 'all', label: 'Все время' },
+            ]}
+          />
           <Button
             variant="outline"
             size="sm"
