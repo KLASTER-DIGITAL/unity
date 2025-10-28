@@ -50,11 +50,13 @@ supabase/seed.sql
 scripts/
 
 # React Native / Expo (не нужны для web build)
-app/
-index.js
-.expo/
-.expo-shared/
-metro.config.js
-babel.config.js
-eas.json
-app.json
+# ВАЖНО: /app/ с ведущим слэшем исключает только корневую директорию app/,
+# НЕ затрагивая src/app/ (PWA компоненты)
+/app/
+/index.js
+/.expo/
+/.expo-shared/
+/metro.config.js
+/babel.config.js
+/eas.json
+/app.json
