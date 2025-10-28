@@ -10,6 +10,24 @@
 
 ### 🔄 Изменено
 
+**UI компоненты - цвета модальных окон** (коммит `5a83d52`):
+- Заменен `bg-background` на `bg-card` в модальных компонентах:
+  - `src/shared/components/ui/sheet.tsx`
+  - `src/shared/components/ui/alert-dialog.tsx`
+  - `src/shared/components/ui/drawer.tsx`
+  - `src/shared/components/ui/dialog.tsx` (deprecated)
+  - `src/components/ui/dialog.tsx` (legacy)
+- Добавлен `transition-colors duration-300` во все модальные/всплывающие компоненты:
+  - `src/shared/components/ui/popover.tsx`
+  - `src/shared/components/ui/dropdown-menu.tsx` (Content + SubContent)
+  - `src/shared/components/ui/command.tsx`
+  - `src/shared/components/ui/select.tsx`
+  - `src/shared/components/ui/hover-card.tsx`
+  - `src/shared/components/ui/context-menu.tsx` (Content + SubContent)
+  - `src/shared/components/ui/BottomSheet.tsx`
+  - `src/components/ui/popover.tsx` (legacy)
+- Результат: Модальные окна теперь имеют серый фон (#191919 в темной теме, #fafafa в светлой), отличающийся от черного/белого фона страниц
+
 **vite.config.ts** (коммит `dc60db5`):
 - Удалена ручная группировка app code в `manualChunks`:
   - Удалено: `admin-features`, `mobile-features`, `admin-app`, `mobile-app`
