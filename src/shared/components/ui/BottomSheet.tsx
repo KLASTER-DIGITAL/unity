@@ -175,6 +175,7 @@ export function BottomSheet({
               'rounded-t-3xl shadow-2xl',
               'max-w-md mx-auto',
               'flex flex-col',
+              'transition-colors duration-300',
               className
             )}
             data-testid={testID}
