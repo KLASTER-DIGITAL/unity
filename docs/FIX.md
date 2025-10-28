@@ -10,7 +10,16 @@
 
 ### 🔄 Изменено
 
-**vite.config.ts**:
+**vite.config.ts** (коммит `dc60db5`):
+- Удалена ручная группировка app code в `manualChunks`:
+  - Удалено: `admin-features`, `mobile-features`, `admin-app`, `mobile-app`
+  - Удалено: `shared-ui`, `shared-ui-universal`, `shared-ui-shadcn`, `shared-ui-charts`, `shared-ui-lazy`
+  - Удалено: `shared-pwa`, `shared-offline`, `shared-layout`, `shared-components`
+- Vite теперь автоматически управляет code splitting для app code
+- Сохранена группировка vendor chunks (react, supabase, motion, radix, icons, sentry, lottie, charts)
+- Результат: Нет circular dependencies, 40+ мелких chunks для оптимальной загрузки
+
+**vite.config.ts** (коммит `3657ab1`):
 - Удален `vendor-misc` chunk для исправления circular dependency
 - Изменено `return 'vendor-misc'` на `return undefined` для uncategorized node_modules
 - Результат: Bundle size -130KB, нет circular dependencies

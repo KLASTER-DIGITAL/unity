@@ -11,6 +11,12 @@
 
 ### 🐛 Исправления
 
+- **Circular Dependency в Code Splitting**: Исправлена критическая ошибка "Cannot access 'b' before initialization"
+  - Удалена ручная группировка app code в vite.config.ts (admin-features, mobile-features, shared-ui)
+  - Vite теперь автоматически управляет code splitting для app code
+  - Сохранена группировка vendor chunks для оптимизации
+  - Приложение теперь загружается без ошибок ReferenceError
+
 - **Production белый экран**: Исправлена критическая ошибка "Cannot access 'G' before initialization"
   - Удален vendor-misc chunk из vite.config.ts, вызывавший circular dependency
   - Bundle size improvement: -130KB (-38%)
@@ -22,6 +28,11 @@
   - Deployment теперь проходит успешно без ошибок
 
 ### ⚡ Производительность
+
+- **Code Splitting**: Улучшена стратегия разделения кода
+  - Vite создает 40+ мелких chunks вместо 3-4 больших
+  - Улучшена производительность загрузки через lazy loading
+  - Предотвращены circular dependencies между chunks
 
 - **Bundle Size**: Оптимизирован размер JavaScript бандлов
   - vendor-misc: 171KB → 0KB (удален)

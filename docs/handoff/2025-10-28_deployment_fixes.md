@@ -64,16 +64,24 @@
 
 ## ❌ Невыполненные задачи
 
-### 1. КРИТИЧЕСКАЯ: Исправление shared-components circular dependency
-**Ошибка**: `shared-components-Dhjy30pe.js:1 Uncaught ReferenceError: Cannot access 'd1' before initialization`
+### 1. ✅ РЕШЕНО: Исправление shared-components circular dependency
+**Ошибка**: `shared-ui-B0QudxGI.js:1 Uncaught ReferenceError: Cannot access 'b' before initialization`
 
-**Статус**: ❌ НЕ ИСПРАВЛЕНО
+**Статус**: ✅ ИСПРАВЛЕНО (2025-10-28, коммит `dc60db5`)
 
-**Следующие шаги**:
-1. Проверить консоль браузера на https://unity-wine.vercel.app/ для полного stack trace
-2. Использовать `codebase-retrieval` для поиска circular dependencies в shared-components
-3. Проанализировать `vite.config.ts` manualChunks конфигурацию
-4. Исправить проблему и задеплоить
+**Root Cause**:
+Circular dependency между chunks из-за ручной группировки в `vite.config.ts`:
+- `admin-features` импортировал UI компоненты из `shared-ui`
+- `shared-ui` импортировал утилиты из `admin-features`
+- Rollup не мог определить правильный порядок инициализации
+
+**Решение**:
+Удалена ручная группировка app code в `manualChunks`, Vite теперь автоматически управляет code splitting для app code, сохранена только группировка vendor chunks.
+
+**Результат**:
+- ✅ Ошибка ReferenceError устранена
+- ✅ Production build работает без ошибок
+- ✅ Vite создает 40+ мелких chunks для оптимальной загрузки
 
 ---
 
@@ -205,14 +213,12 @@ return undefined;
 
 ## ⚠️ Известные проблемы
 
-### 1. КРИТИЧЕСКАЯ: shared-components circular dependency
-**Ошибка**: `shared-components-Dhjy30pe.js:1 Uncaught ReferenceError: Cannot access 'd1' before initialization`
+### 1. ✅ РЕШЕНО: shared-components circular dependency
+**Ошибка**: `shared-ui-B0QudxGI.js:1 Uncaught ReferenceError: Cannot access 'b' before initialization`
 
-**Воздействие**: Приложение может не загружаться в некоторых браузерах
+**Статус**: ✅ ИСПРАВЛЕНО (2025-10-28, коммит `dc60db5`)
 
-**Приоритет**: ВЫСОКИЙ
-
-**Статус**: НЕ ИСПРАВЛЕНО
+**Решение**: Удалена ручная группировка app code в `vite.config.ts`, Vite автоматически управляет code splitting
 
 ---
 
