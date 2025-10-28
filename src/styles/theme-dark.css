@@ -79,11 +79,11 @@
   --foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
   /* Cards */
-  --card: oklch(0.15 0 0); /* #191919 - Gray 2 для модальных окон */
+  --card: oklch(0.22 0 0); /* #2b2b2b - Gray 3 для модальных окон (более светлый) */
   --card-foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
   /* Popovers */
-  --popover: oklch(0.15 0 0); /* #191919 - Gray 2 */
+  --popover: oklch(0.22 0 0); /* #2b2b2b - Gray 3 (более светлый) */
   --popover-foreground: oklch(1 0 0); /* #ffffff */
 
   /* Primary - iOS blue */
