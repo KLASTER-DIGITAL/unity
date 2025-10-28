@@ -149,9 +149,37 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('src/features/admin')) {
             return 'admin-features';
           }
+
+          // Разбиваем shared-components на более мелкие chunks
+          // чтобы избежать circular dependencies
+          if (id.includes('src/shared/components/ui/universal')) {
+            return 'shared-ui-universal';
+          }
+          if (id.includes('src/shared/components/ui/shadcn-io')) {
+            return 'shared-ui-shadcn';
+          }
+          if (id.includes('src/shared/components/ui/charts')) {
+            return 'shared-ui-charts';
+          }
+          if (id.includes('src/shared/components/ui/lazy')) {
+            return 'shared-ui-lazy';
+          }
+          if (id.includes('src/shared/components/ui')) {
+            return 'shared-ui';
+          }
+          if (id.includes('src/shared/components/pwa')) {
+            return 'shared-pwa';
+          }
+          if (id.includes('src/shared/components/offline')) {
+            return 'shared-offline';
+          }
+          if (id.includes('src/shared/components/layout')) {
+            return 'shared-layout';
+          }
           if (id.includes('src/shared/components')) {
             return 'shared-components';
           }
+
           if (id.includes('src/shared/lib')) {
             return 'shared-lib';
           }
