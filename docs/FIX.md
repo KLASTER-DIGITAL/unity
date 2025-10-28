@@ -6,6 +6,58 @@
 
 ---
 
+## [Unreleased] - 2025-10-28
+
+### 🔄 Изменено
+
+**vite.config.ts**:
+- Удален `vendor-misc` chunk для исправления circular dependency
+- Изменено `return 'vendor-misc'` на `return undefined` для uncategorized node_modules
+- Результат: Bundle size -130KB, нет circular dependencies
+
+**.vercelignore**:
+- Исправлена конфигурация для разделения PWA и React Native файлов
+- Изменено `app/` на `/app/` (с ведущим слэшем)
+- Теперь исключается только корневая директория `/app/` (React Native Expo Router)
+- `src/app/` (PWA компоненты) остается в build
+
+**Создано**:
+- `.npmrc` с `legacy-peer-deps=true` для совместимости Expo (React 19) с React 18.3.1
+- npm автоматически использует `.npmrc` при установке
+- Позволяет установить Expo зависимости без конфликтов
+
+### 🐛 Исправлено
+
+**Vercel Deployment**:
+- ✅ npm install: исправлен конфликт React версий через .npmrc
+- ✅ Build EISDIR: исправлена ошибка "illegal operation on a directory" через .vercelignore
+- ✅ Белый экран: исправлена circular dependency через удаление vendor-misc chunk
+
+**Bundle Optimization**:
+- vendor-misc: 171KB → 0KB (удален)
+- vendor-react: 169KB → 210KB (поглотил часть vendor-misc)
+- Итого: -130KB экономии
+
+### 📚 Документация
+
+**Создано**:
+- `docs/handoff/2025-10-28_deployment_fixes.md` - handoff документ для нового чата
+  - Выполненные задачи (4/4)
+  - Невыполненные задачи (10)
+  - Критические изменения (структура проекта, конфигурация)
+  - Известные проблемы (shared-components circular dependency)
+  - Следующие шаги (немедленно, короткий срок, средний срок)
+
+### ⚠️ Известные проблемы
+
+**shared-components circular dependency**:
+- Ошибка: `shared-components-Dhjy30pe.js:1 Uncaught ReferenceError: Cannot access 'd1' before initialization`
+- Статус: НЕ ИСПРАВЛЕНО
+- Приоритет: ВЫСОКИЙ
+- Требует: анализ circular dependencies в shared-components
+
+---
+
 ## [2.0.0] - 2025-10-26
 
 ### 🎉 ФАЗА 4: Финальная проверка - ЗАВЕРШЕНА

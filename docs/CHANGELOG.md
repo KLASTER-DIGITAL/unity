@@ -7,6 +7,29 @@
 
 ---
 
+## [Unreleased] - 2025-10-28
+
+### 🐛 Исправления
+
+- **Production белый экран**: Исправлена критическая ошибка "Cannot access 'G' before initialization"
+  - Удален vendor-misc chunk из vite.config.ts, вызывавший circular dependency
+  - Bundle size improvement: -130KB (-38%)
+  - Приложение теперь загружается корректно во всех браузерах
+
+- **Vercel Deployment**: Исправлены проблемы с автоматическим deployment
+  - Создан .npmrc с legacy-peer-deps=true для совместимости Expo с React 18.3.1
+  - Исправлен .vercelignore: изменено app/ на /app/ для сохранения src/app/ (PWA компоненты)
+  - Deployment теперь проходит успешно без ошибок
+
+### ⚡ Производительность
+
+- **Bundle Size**: Оптимизирован размер JavaScript бандлов
+  - vendor-misc: 171KB → 0KB (удален)
+  - vendor-react: 169KB → 210KB (поглотил часть vendor-misc)
+  - Итого: -130KB экономии
+
+---
+
 ## [2.0.0] - 2025-10-26
 
 ### 🎉 UNITY-v2 v2.0 - Production Ready!
