@@ -136,53 +136,9 @@ export default defineConfig(({ mode }) => ({
             return undefined;
           }
 
-          // App chunks - разделение по функциональности
-          if (id.includes('src/app/mobile')) {
-            return 'mobile-app';
-          }
-          if (id.includes('src/app/admin')) {
-            return 'admin-app';
-          }
-          if (id.includes('src/features/mobile')) {
-            return 'mobile-features';
-          }
-          if (id.includes('src/features/admin')) {
-            return 'admin-features';
-          }
-
-          // Разбиваем shared-components на более мелкие chunks
+          // НЕ используем manualChunks для app code
           // чтобы избежать circular dependencies
-          if (id.includes('src/shared/components/ui/universal')) {
-            return 'shared-ui-universal';
-          }
-          if (id.includes('src/shared/components/ui/shadcn-io')) {
-            return 'shared-ui-shadcn';
-          }
-          if (id.includes('src/shared/components/ui/charts')) {
-            return 'shared-ui-charts';
-          }
-          if (id.includes('src/shared/components/ui/lazy')) {
-            return 'shared-ui-lazy';
-          }
-          if (id.includes('src/shared/components/ui')) {
-            return 'shared-ui';
-          }
-          if (id.includes('src/shared/components/pwa')) {
-            return 'shared-pwa';
-          }
-          if (id.includes('src/shared/components/offline')) {
-            return 'shared-offline';
-          }
-          if (id.includes('src/shared/components/layout')) {
-            return 'shared-layout';
-          }
-          if (id.includes('src/shared/components')) {
-            return 'shared-components';
-          }
-
-          if (id.includes('src/shared/lib')) {
-            return 'shared-lib';
-          }
+          // Vite автоматически разделит код оптимально
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
