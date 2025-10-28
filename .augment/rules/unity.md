@@ -64,6 +64,22 @@ type: "always_apply"
 - **Spacing**: responsive padding через CSS переменные (`--spacing-modal-padding`, `--spacing-section-padding-x`)
 - **Animations**: Universal Animation Adapter (Framer Motion для PWA, Reanimated для RN)
 
+### Vite Code Splitting (предотвращение circular dependencies)
+- **ЗАПРЕТ**: НЕ использовать ручную группировку app code в `manualChunks`
+  - НЕ группировать `src/app/`, `src/features/`, `src/shared/` в отдельные chunks
+  - Позволить Vite автоматически управлять code splitting для app code
+- **РАЗРЕШЕНО**: Группировка ТОЛЬКО vendor chunks (node_modules)
+  - `vendor-react`, `vendor-supabase`, `vendor-motion`, `vendor-radix`, etc.
+- **ЗАПРЕТ**: Barrel exports (index.ts файлы) - создают circular dependencies
+  - Импортировать напрямую из конкретных файлов
+- **ОБЯЗАТЕЛЬНО**: Проверять build warnings о circular dependencies
+  - НЕ игнорировать предупреждения Vite/Rollup
+- **ОБЯЗАТЕЛЬНО**: Тестировать production build локально
+  - `npm run build` → `npm run preview` → проверка консоли браузера
+- **Root Cause**: Circular dependency возникает когда chunk A импортирует из chunk B, а chunk B импортирует из chunk A
+  - Пример: `admin-features` → `shared-ui` → `admin-features` (цикл)
+  - Rollup не может определить порядок инициализации → ReferenceError
+
 ---
 
 ## ⚠️ Критические правила
