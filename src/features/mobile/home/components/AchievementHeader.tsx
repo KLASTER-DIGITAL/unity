@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
+import { NetworkStatusIndicator } from "@/shared/components/offline/NetworkStatusIndicator";
 
 interface AchievementHeaderProps {
   userName?: string;
@@ -20,7 +21,7 @@ const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { 
 
   return (
     <div
-      className="relative flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+      className="relative shrink-0 cursor-pointer active:scale-95 transition-transform"
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -33,11 +34,8 @@ const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { 
         </AvatarFallback>
       </Avatar>
 
-      {/* Пульсирующий зеленый индикатор онлайн-статуса - пульсация от края */}
-      <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 z-10">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
-      </span>
+      {/* Dynamic network status indicator (🟢🟡🔴) */}
+      <NetworkStatusIndicator />
     </div>
   );
 });
@@ -67,18 +65,18 @@ export const AchievementHeader = memo(function AchievementHeader({
             <div className="flex-1 min-w-0">
               {/* Приветствие - увеличено на 2px (20-26px вместо 18-24px) */}
               <h1 className="font-semibold! text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
-                <span className="text-[clamp(20px,5.5vw,26px)] flex-shrink-0">🙌</span>
-                <span className="!text-[clamp(20px,5.5vw,26px)] whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
+                <span className="text-[clamp(20px,5.5vw,26px)] shrink-0">🙌</span>
+                <span className="text-[clamp(20px,5.5vw,26px)]! whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
               </h1>
               {/* Вопрос - увеличен до 15px для читаемости */}
-              <p className="text-muted-foreground text-[15px]! !leading-[1.3] mt-0.5 whitespace-nowrap">
+              <p className="text-muted-foreground text-[15px]! leading-[1.3]! mt-0.5 whitespace-nowrap">
                 Какие твои победы сегодня?
               </p>
             </div>
           </div>
 
           {/* Right: Days Counter - оптимальный размер кружка (130x130px) */}
-          <div className="relative w-[130px] h-[130px] flex-shrink-0 flex items-center justify-center">
+          <div className="relative w-[130px] h-[130px] shrink-0 flex items-center justify-center">
             {/* Кружок с обводкой - видна на обоих режимах */}
             <svg className="absolute w-[130px] h-[130px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 130 130">
               {/* Обводка для светлого режима - темная */}
@@ -89,10 +87,10 @@ export const AchievementHeader = memo(function AchievementHeader({
 
             {/* Текст внутри кружка - центрирован с минимальным отступом */}
             <div className="relative flex flex-col items-center justify-center gap-0">
-              <p className="text-[44px]! font-semibold! text-[var(--ios-green)] leading-[1]">
+              <p className="text-[44px]! font-semibold! text-(--ios-green) leading-none">
                 {daysInApp}
               </p>
-              <p className="text-[10px]! text-muted-foreground leading-[1]">
+              <p className="text-[10px]! text-muted-foreground leading-none">
                 День
               </p>
             </div>
