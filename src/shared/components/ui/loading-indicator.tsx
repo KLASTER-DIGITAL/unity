@@ -1,5 +1,5 @@
 import React from 'react';
-import { LottiePreloaderInline, LottiePreloaderCompact } from '@/shared/components/LottiePreloader';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 interface LoadingIndicatorProps {
   size?: 'sm' | 'md' | 'lg';
@@ -12,19 +12,26 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   text,
   className = ''
 }) => {
-  // Если есть текст, используем компактный вариант
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8'
+  };
+
+  // Если есть текст, показываем skeleton с текстом
   if (text) {
     return (
-      <div className={className}>
-        <LottiePreloaderCompact message={text} size={size} />
+      <div className={`flex flex-col items-center justify-center gap-2 ${className}`}>
+        <Skeleton className={`${sizeClasses[size]} rounded-full`} />
+        <p className="text-muted-foreground text-xs md:text-sm">{text}</p>
       </div>
     );
   }
 
-  // Если нет текста, используем inline вариант
+  // Если нет текста, показываем только skeleton
   return (
     <div className={className}>
-      <LottiePreloaderInline size={size} />
+      <Skeleton className={`${sizeClasses[size]} rounded-full`} />
     </div>
   );
 };

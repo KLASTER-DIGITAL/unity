@@ -1,14 +1,12 @@
 {
   "expo": {
     "name": "UNITY - Дневник достижений",
-    "slug": "unity-diary",
+    "slug": "unity",
     "version": "2.0.0",
     "orientation": "portrait",
-    "icon": "./public/icon-512.png",
     "userInterfaceStyle": "automatic",
     "scheme": "unity",
     "splash": {
-      "image": "./public/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#007AFF"
     },
@@ -21,14 +19,11 @@
       "infoPlist": {
         "NSCameraUsageDescription": "UNITY использует камеру для добавления фото к достижениям",
         "NSPhotoLibraryUsageDescription": "UNITY использует галерею для добавления фото к достижениям",
-        "NSMicrophoneUsageDescription": "UNITY использует микрофон для записи голосовых заметок"
+        "NSMicrophoneUsageDescription": "UNITY использует микрофон для записи голосовых заметок",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./public/icon-512.png",
-        "backgroundColor": "#FFFFFF"
-      },
       "package": "com.unity.diary",
       "permissions": [
         "CAMERA",
@@ -38,12 +33,12 @@
       ]
     },
     "web": {
-      "favicon": "./public/favicon.ico",
       "bundler": "metro"
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
@@ -51,9 +46,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "unity-v2-expo"
       }
     }
   }

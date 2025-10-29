@@ -38,14 +38,14 @@ export function UploadQueue({
       exit={{ opacity: 0, y: 20 }}
       className="fixed bottom-20 right-4 z-40 w-80 max-w-[calc(100vw-2rem)]"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card dark:bg-card rounded-lg shadow-2xl border border-border dark:border-border overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-3 border-b border-border dark:border-border">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-foreground dark:text-white">
               Загрузка файлов
             </h3>
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {activeCount > 0 && (
                 <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded">
                   {activeCount} активных
@@ -68,7 +68,7 @@ export function UploadQueue({
           {completedCount > 0 && onClearCompleted && (
             <button
               onClick={onClearCompleted}
-              className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              className="text-xs text-muted-foreground hover:text-foreground dark:hover:text-gray-300"
             >
               Очистить
             </button>
@@ -85,7 +85,7 @@ export function UploadQueue({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                className="border-b border-gray-100 dark:border-border last:border-b-0"
               >
                 <div className="p-3">
                   <div className="flex items-start gap-2">
@@ -107,10 +107,10 @@ export function UploadQueue({
                           {onPause && (
                             <button
                               onClick={() => onPause(item.id)}
-                              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                              className="p-1.5 hover:bg-muted dark:hover:bg-muted rounded transition-colors"
                               aria-label="Pause"
                             >
-                              <Pause className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                              <Pause className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
                             </button>
                           )}
                         </>
@@ -124,7 +124,7 @@ export function UploadQueue({
                           aria-label="Cancel"
                         >
                           {item.status === 'success' || item.status === 'error' ? (
-                            <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            <X className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
                           ) : (
                             <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                           )}

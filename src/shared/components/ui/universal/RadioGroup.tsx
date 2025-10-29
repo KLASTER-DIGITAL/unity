@@ -39,21 +39,16 @@
 
 import { Platform } from '@/shared/lib/platform';
 
-// Import web and native implementations
+// Import web implementation
 import * as WebRadioGroup from './RadioGroup.web';
 
-// Platform-specific exports
-const platformRadioGroup = Platform.select({
-  web: WebRadioGroup.RadioGroup,
-  native: WebRadioGroup.RadioGroup, // Placeholder - will be replaced with NativeRadioGroup in RN
-  default: WebRadioGroup.RadioGroup,
-});
-
-const platformRadioGroupUtils = Platform.select({
-  web: WebRadioGroup.RadioGroupUtils,
-  native: WebRadioGroup.RadioGroupUtils, // Placeholder - will be replaced with NativeRadioGroupUtils in RN
-  default: WebRadioGroup.RadioGroupUtils,
-});
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/RadioGroup.native.tsx
+ */
+const platformRadioGroup = WebRadioGroup.RadioGroup;
+const platformRadioGroupUtils = WebRadioGroup.RadioGroupUtils;
 
 /**
  * Universal RadioGroup component

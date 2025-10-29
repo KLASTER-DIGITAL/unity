@@ -1,21 +1,23 @@
 /**
  * Universal Toast Component
- * 
- * Platform-agnostic toast notifications that work in both React Web and React Native.
- * 
+ *
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation (sonner)
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Toast.native.tsx
+ *
  * Usage:
  * ```tsx
  * import { toast, Toaster } from '@/shared/components/ui/universal/Toast';
- * 
+ *
  * // In your root component
  * <Toaster position="top-center" />
- * 
+ *
  * // Show toasts
  * toast.success('Success!');
  * toast.error('Error!', { description: 'Something went wrong' });
  * toast.info('Info message');
  * toast.warning('Warning!');
- * 
+ *
  * // With action
  * toast.success('File uploaded', {
  *   action: {
@@ -23,7 +25,7 @@
  *     onClick: () => console.log('Undo clicked')
  *   }
  * });
- * 
+ *
  * // Promise toast
  * toast.promise(
  *   fetchData(),
@@ -36,33 +38,23 @@
  * ```
  */
 
-import { Platform } from '@/shared/lib/platform';
-
-// Import web and native implementations
+// ✅ PWA + React Native Architecture: ONLY import web module in PWA build
+// React Native files are in /app/shared/ and NOT bundled by Vite
 import * as WebToast from './Toast.web';
-
-// Platform-specific exports
-const platformToast = Platform.select({
-  web: WebToast.toast,
-  native: WebToast.toast, // Placeholder - will be replaced with NativeToast in RN
-  default: WebToast.toast,
-});
-
-const platformToaster = Platform.select({
-  web: WebToast.Toaster,
-  native: WebToast.Toaster, // Placeholder - will be replaced with NativeToaster in RN
-  default: WebToast.Toaster,
-});
 
 /**
  * Universal toast API
+ * PWA build: ONLY web implementation (sonner)
+ * React Native build: Uses /app/shared/components/ui/universal/Toast.native.tsx
  */
-export const toast = platformToast;
+export const toast = WebToast.toast;
 
 /**
  * Universal Toaster component
+ * PWA build: ONLY web implementation (sonner)
+ * React Native build: Uses /app/shared/components/ui/universal/Toast.native.tsx
  */
-export const Toaster = platformToaster;
+export const Toaster = WebToast.Toaster;
 
 /**
  * Re-export types

@@ -58,7 +58,7 @@ function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, on
 export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
   return (
     <motion.div
-      className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
+      className="bg-card content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
       data-name="Onboard 3"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

@@ -23,11 +23,11 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
           transition={{ delay: 0.5 }}
           className="mt-6"
         >
-          <div className="backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] p-card border border-white/20 relative">
+          <div className="backdrop-blur-md bg-muted/10 rounded-[16px] p-card border border-border/20 relative transition-colors duration-300">
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-card/50 hover:bg-card transition-colors"
+              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-card/50 hover:bg-card transition-colors duration-300"
               aria-label="Закрыть"
             >
               <X className="w-3.5 h-3.5 text-muted-foreground" />

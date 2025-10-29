@@ -92,7 +92,7 @@ export function PerformanceDashboard() {
       case 'good': return 'text-green-600 bg-green-50 border-green-200';
       case 'needs-improvement': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'poor': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-muted-foreground bg-muted border-border';
     }
   };
 
@@ -109,7 +109,7 @@ export function PerformanceDashboard() {
     switch (trend) {
       case 'up': return <TrendingUp className="w-4 h-4 text-red-500" />;
       case 'down': return <TrendingDown className="w-4 h-4 text-green-500" />;
-      default: return <Minus className="w-4 h-4 text-gray-500" />;
+      default: return <Minus className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -154,21 +154,21 @@ export function PerformanceDashboard() {
             <Activity className="w-6 h-6" />
             Performance Dashboard
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-muted-foreground mt-1">
             Real-time Web Vitals monitoring
           </p>
         </div>
         
         <div className="flex items-center gap-4">
           {lastUpdate && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Last update: {lastUpdate.toLocaleTimeString()}
             </div>
           )}
           
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${isMonitoring ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {isMonitoring ? 'Monitoring' : 'Stopped'}
             </span>
           </div>
@@ -195,7 +195,7 @@ export function PerformanceDashboard() {
           return (
             <Card key={metricName} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 uppercase">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase">
                   {metricLabels[metricName]}
                 </CardTitle>
               </CardHeader>
@@ -208,7 +208,7 @@ export function PerformanceDashboard() {
                         <div className="text-3xl font-bold">
                           {formatValue(metricName, stats.current)}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
+                        <div className="text-sm text-muted-foreground mt-1">
                           Current
                         </div>
                       </div>
@@ -225,19 +225,19 @@ export function PerformanceDashboard() {
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-2 pt-3 border-t">
                       <div>
-                        <div className="text-xs text-gray-500">Avg</div>
+                        <div className="text-xs text-muted-foreground">Avg</div>
                         <div className="text-sm font-semibold">
                           {formatValue(metricName, stats.average)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500">Min</div>
+                        <div className="text-xs text-muted-foreground">Min</div>
                         <div className="text-sm font-semibold text-green-600">
                           {formatValue(metricName, stats.min)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500">Max</div>
+                        <div className="text-xs text-muted-foreground">Max</div>
                         <div className="text-sm font-semibold text-red-600">
                           {formatValue(metricName, stats.max)}
                         </div>
@@ -246,11 +246,11 @@ export function PerformanceDashboard() {
 
                     {/* Threshold Indicator */}
                     <div className="pt-2">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
                         <span>Good: {formatValue(metricName, threshold.good)}</span>
                         <span>Poor: {formatValue(metricName, threshold.poor)}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                         <div
                           className={`h-full transition-all ${
                             stats.current <= threshold.good ? 'bg-green-500' :
@@ -265,12 +265,12 @@ export function PerformanceDashboard() {
                     </div>
 
                     {/* Sample Count */}
-                    <div className="text-xs text-gray-500 text-center pt-2 border-t">
+                    <div className="text-xs text-muted-foreground text-center pt-2 border-t">
                       {history?.length || 0} samples collected
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-muted-foreground">
                     <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Waiting for data...</p>
                   </div>

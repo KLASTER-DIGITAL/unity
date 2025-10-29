@@ -30,7 +30,7 @@ export function AdminApp({
       <ErrorBoundary showHomeButton>
         <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
           <TranslationManager preloadLanguages={['en']}>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-muted">
               <Suspense fallback={<LoadingScreen />}>
                 <AdminLoginScreen
                   onComplete={onAuthComplete}
@@ -50,7 +50,7 @@ export function AdminApp({
     <ErrorBoundary showHomeButton>
       <TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']}>
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen bg-muted">
             <Suspense fallback={<LoadingScreen />}>
               <AdminDashboard
                 userData={userData}

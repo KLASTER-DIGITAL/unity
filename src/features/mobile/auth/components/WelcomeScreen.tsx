@@ -94,7 +94,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep: _currentStep, total
   // ✅ FIX: Показываем загрузку, пока переводы не загрузились
   if (!isLoaded) {
     return (
-      <div className="bg-white w-full h-screen max-w-md mx-auto">
+      <div className="bg-card w-full h-screen max-w-md mx-auto">
         <LottiePreloader
           showMessage={false}
           minDuration={5000}
@@ -107,7 +107,7 @@ export function WelcomeScreen({ onNext, onSkip, currentStep: _currentStep, total
 
   return (
     <motion.div
-      className="bg-white relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
+      className="bg-card relative w-full h-screen flex flex-col overflow-hidden scrollbar-hide"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

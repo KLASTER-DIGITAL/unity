@@ -14,7 +14,7 @@ export function ExampleEntryDate({ createdAt }: { createdAt: string }) {
   const { t } = useTranslation();
   
   return (
-    <div className="text-sm text-gray-500">
+    <div className="text-sm text-muted-foreground">
       {/* Short date: "1/15/24" (en) / "15.01.24" (ru) */}
       <p>{t.formatDate(createdAt, { style: 'short' })}</p>
       
@@ -37,7 +37,7 @@ export function ExampleTimeAgo({ date }: { date: string }) {
   const { t } = useTranslation();
   
   return (
-    <div className="text-sm text-gray-500">
+    <div className="text-sm text-muted-foreground">
       {/* "5 minutes ago" / "2 hours ago" / "yesterday" */}
       <p>{t.formatRelativeTime(date)}</p>
       
@@ -151,11 +151,11 @@ export function ExampleHistoryEntry({
   return (
     <div className="border-b pb-4">
       <div className="flex justify-between items-start mb-2">
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {/* Relative time for recent entries */}
           {t.formatRelativeTime(entry.created_at)}
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted-foreground">
           {/* Exact time */}
           {t.formatTime(entry.created_at)}
         </div>
@@ -182,41 +182,41 @@ export function ExampleReportStats({
   
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="bg-white p-4 rounded-lg">
+      <div className="bg-card p-4 rounded-lg">
         <div className="text-2xl font-bold">
           {t.formatNumber(stats.totalEntries)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {t('reports.totalEntries', 'Total Entries')}
         </div>
       </div>
       
-      <div className="bg-white p-4 rounded-lg">
+      <div className="bg-card p-4 rounded-lg">
         <div className="text-2xl font-bold">
           {t.formatNumber(stats.avgPerDay, { 
             minimumFractionDigits: 1,
             maximumFractionDigits: 1 
           })}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {t('reports.avgPerDay', 'Avg per Day')}
         </div>
       </div>
       
-      <div className="bg-white p-4 rounded-lg">
+      <div className="bg-card p-4 rounded-lg">
         <div className="text-2xl font-bold">
           {t.formatPercent(stats.completionRate)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {t('reports.completionRate', 'Completion Rate')}
         </div>
       </div>
       
-      <div className="bg-white p-4 rounded-lg">
+      <div className="bg-card p-4 rounded-lg">
         <div className="text-2xl font-bold">
           {t.formatDuration(stats.totalDuration)}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {t('reports.totalDuration', 'Total Duration')}
         </div>
       </div>

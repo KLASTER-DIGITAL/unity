@@ -17,11 +17,12 @@ import * as WebSwitch from './Switch.web';
 // PLATFORM SELECT
 // ============================================================================
 
-const SwitchComponents = Platform.select({
-  web: WebSwitch,
-  native: WebSwitch, // Placeholder to avoid bundling native deps
-  default: WebSwitch,
-});
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Switch.native.tsx
+ */
+const SwitchComponents = WebSwitch;
 
 // ============================================================================
 // EXPORTS
@@ -33,8 +34,8 @@ export const SwitchUtils = SwitchComponents.SwitchUtils;
 // Export types
 export type { SwitchProps } from './Switch.web';
 
-// Export native for dynamic import
-export { default as NativeSwitch } from './Switch.native';
+// Note: NativeSwitch is NOT exported to avoid bundling react-native in web build
+// Native version is loaded dynamically when needed in React Native environment
 
 export default {
   Switch: UniversalSwitch,

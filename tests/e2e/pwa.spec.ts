@@ -18,30 +18,36 @@ test.describe('PWA Functionality', () => {
   test('should register service worker', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
+    // Wait for service worker registration (happens on window load event)
+    await page.waitForTimeout(1000);
+
     // Check if service worker is registered
     const swRegistered = await page.evaluate(async () => {
       if ('serviceWorker' in navigator) {
+        // Wait for registration to complete
+        await navigator.serviceWorker.ready;
         const registration = await navigator.serviceWorker.getRegistration();
         return !!registration;
       }
       return false;
     });
-    
+
     expect(swRegistered).toBeTruthy();
   });
 
   test('should have valid manifest.json', async ({ page }) => {
     await page.goto('/');
-    
+    await page.waitForLoadState('networkidle');
+
     // Check manifest link
     const manifestLink = await page.locator('link[rel="manifest"]').getAttribute('href');
     expect(manifestLink).toBeTruthy();
-    
+
     // Fetch and validate manifest
     const manifestResponse = await page.goto(manifestLink!);
     expect(manifestResponse?.status()).toBe(200);
-    
+
     const manifest = await manifestResponse?.json();
     expect(manifest.name).toBeTruthy();
     expect(manifest.short_name).toBeTruthy();
@@ -55,37 +61,50 @@ test.describe('PWA Functionality', () => {
     // Load page online first
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
-    // Wait for service worker to be ready
-    await page.waitForTimeout(2000);
-    
+
+    // Wait for service worker to be ready and cache assets
+    await page.evaluate(async () => {
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.ready;
+      }
+    });
+    await page.waitForTimeout(3000); // Give time for caching
+
     // Go offline
     await context.setOffline(true);
-    
+
     // Reload page
     await page.reload();
     await page.waitForLoadState('networkidle');
-    
+
     // Page should still load (from cache)
     const title = await page.title();
     expect(title).toBeTruthy();
-    
+
     // Should show offline indicator
     const hasOfflineIndicator = await page.locator('text=Offline').isVisible().catch(() => false);
     const hasNoConnection = await page.locator('text=Нет подключения').isVisible().catch(() => false);
-    
+
     expect(hasOfflineIndicator || hasNoConnection).toBeTruthy();
   });
 
   test('should cache static assets', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
+    // Wait for service worker to be ready and cache assets
+    await page.evaluate(async () => {
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.ready;
+      }
+    });
+    await page.waitForTimeout(2000); // Give time for caching
+
     // Check if assets are cached
     const cacheNames = await page.evaluate(async () => {
       return await caches.keys();
     });
-    
+
     expect(cacheNames.length).toBeGreaterThan(0);
     expect(cacheNames.some(name => name.includes('achievement-diary'))).toBeTruthy();
   });
@@ -148,7 +167,8 @@ test.describe('PWA Functionality', () => {
 
   test('should have valid theme color', async ({ page }) => {
     await page.goto('/');
-    
+    await page.waitForLoadState('networkidle');
+
     // Check theme-color meta tag
     const themeColor = await page.locator('meta[name="theme-color"]').getAttribute('content');
     expect(themeColor).toBeTruthy();
@@ -157,7 +177,8 @@ test.describe('PWA Functionality', () => {
 
   test('should have apple-touch-icon', async ({ page }) => {
     await page.goto('/');
-    
+    await page.waitForLoadState('networkidle');
+
     // Check apple-touch-icon link
     const appleTouchIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href');
     expect(appleTouchIcon).toBeTruthy();
@@ -188,10 +209,14 @@ test.describe('PWA Functionality', () => {
   test('should handle service worker updates', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
+    // Wait for service worker registration
+    await page.waitForTimeout(1000);
+
     // Check if service worker update mechanism works
     const hasUpdateMechanism = await page.evaluate(async () => {
       if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.ready;
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
           // Trigger update check
@@ -201,7 +226,7 @@ test.describe('PWA Functionality', () => {
       }
       return false;
     });
-    
+
     expect(hasUpdateMechanism).toBeTruthy();
   });
 

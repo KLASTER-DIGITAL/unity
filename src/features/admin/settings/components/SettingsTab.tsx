@@ -57,7 +57,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
       <div className="p-6 lg:p-8 pb-4 max-w-[1400px] mx-auto">
         {/* Заголовок страницы */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Настройки системы
           </h1>
           <p className="text-base text-muted-foreground">

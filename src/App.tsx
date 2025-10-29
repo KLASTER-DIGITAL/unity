@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense, lazy, useCallback } from "react";
 import { checkSession, signOut } from "./utils/auth";
 import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminRoute, isTestRoute as checkIsTestRoute, isPerformanceRoute as checkIsPerformanceRoute } from "@/shared/lib/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
-import { setUser, addBreadcrumb } from "@/shared/lib/monitoring";
+import { setUser, addBreadcrumb } from "@/shared/lib/monitoring/lazy";
 import { LottiePreloader } from "@/shared/components/LottiePreloader";
 import { reportWebVitals } from "@/shared/lib/performance";
 
@@ -19,6 +19,8 @@ const InstallPrompt = lazy(() => import("@/shared/components/pwa/InstallPrompt")
 
 // Offline Components
 const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator"));
+const OfflineModeBadge = lazy(() => import("@/shared/components/offline/OfflineModeBadge").then(m => ({ default: m.OfflineModeBadge })));
+const SyncCompletionModal = lazy(() => import("@/shared/components/offline/SyncCompletionModal").then(m => ({ default: m.SyncCompletionModal })));
 
 import { usePWASettings, shouldShowInstallPrompt, incrementVisitCount } from "@/shared/hooks/usePWASettings";
 import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
@@ -30,10 +32,12 @@ import {
 } from "@/shared/lib/analytics/pwa-tracking";
 import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
 import { initBackgroundSync } from "@/shared/lib/offline";
+import { getEntries, getUserStats } from "@/shared/lib/api";
 
 // Import E2E test component (disabled - moved to .example.tsx)
 // import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
 import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
+// import { ComponentShowcase } from "@/pages/ComponentShowcase";
 
 // Onboarding data interface
 interface OnboardingData {
@@ -65,6 +69,10 @@ export default function App() {
   const { settings: pwaSettings, isLoading: isPWALoading } = usePWASettings();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  // Offline state
+  const [showSyncComplete, setShowSyncComplete] = useState(false);
+  const [syncedCount, setSyncedCount] = useState(0);
 
   // Onboarding data state
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
@@ -175,6 +183,28 @@ export default function App() {
           const redirected = checkAccessAndRedirect(session);
           if (redirected) return;
 
+          // ✅ PREFETCH: Предзагрузка критических данных для улучшения LCP
+          if (session.user.id) {
+            console.log('[PREFETCH] Starting critical data prefetch for user:', session.user.id);
+
+            // Prefetch entries и stats параллельно (не блокируем UI)
+            Promise.all([
+              getEntries(session.user.id, 10).catch(err => {
+                console.error('[PREFETCH] Failed to prefetch entries:', err);
+                return [];
+              }),
+              getUserStats(session.user.id).catch(err => {
+                console.error('[PREFETCH] Failed to prefetch stats:', err);
+                return null;
+              })
+            ]).then(([entries, stats]) => {
+              console.log('[PREFETCH] Critical data prefetched:', {
+                entriesCount: entries.length,
+                stats: stats ? 'loaded' : 'failed'
+              });
+            });
+          }
+
           // ✅ Загружаем язык из профиля пользователя
           if (session.profile?.language) {
             console.log("🌐 Loading user language from profile:", session.profile.language);
@@ -269,6 +299,30 @@ export default function App() {
   // Инициализируем Push Analytics
   useInitPushAnalytics(userData?.id);
 
+  // Listen for sync completion events
+  useEffect(() => {
+    const handleSyncComplete = (event: MessageEvent) => {
+      const { type, data } = event.data || {};
+
+      if (type === 'BACKGROUND_SYNC_COMPLETE' && data?.synced > 0) {
+        console.log('[App] Sync completed:', data.synced, 'entries');
+        setSyncedCount(data.synced);
+        setShowSyncComplete(true);
+      }
+    };
+
+    // Listen for Service Worker messages
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleSyncComplete);
+    }
+
+    return () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleSyncComplete);
+      }
+    };
+  }, []);
+
   // PWA Install Handlers
   const handleInstall = async () => {
     console.log('[PWA] Install button clicked');
@@ -360,6 +414,29 @@ export default function App() {
         onboardingCompleted: user.onboardingCompleted,
       },
     });
+
+    // ✅ PREFETCH: Предзагрузка критических данных после авторизации
+    const userId = user.user?.id || user.id;
+    if (userId) {
+      console.log('[PREFETCH] Starting critical data prefetch after auth for user:', userId);
+
+      // Prefetch entries и stats параллельно (не блокируем UI)
+      Promise.all([
+        getEntries(userId, 10).catch(err => {
+          console.error('[PREFETCH] Failed to prefetch entries:', err);
+          return [];
+        }),
+        getUserStats(userId).catch(err => {
+          console.error('[PREFETCH] Failed to prefetch stats:', err);
+          return null;
+        })
+      ]).then(([entries, stats]) => {
+        console.log('[PREFETCH] Critical data prefetched after auth:', {
+          entriesCount: entries.length,
+          stats: stats ? 'loaded' : 'failed'
+        });
+      });
+    }
 
     if (user.onboardingCompleted) {
       setOnboardingComplete(true);
@@ -468,23 +545,6 @@ export default function App() {
     );
   }
 
-  // Mobile view - loading state
-  // Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
-  if (isCheckingSession || !minLoadingTimeElapsed) {
-    return (
-      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-        <div className="max-w-md mx-auto">
-          <LottiePreloader
-            showMessage={false}
-            minDuration={5000}
-            onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
-            size="lg"
-          />
-        </div>
-      </ThemeProvider>
-    );
-  }
-
   // Test route (disabled - I18nE2ETest moved to .example.tsx)
   if (isTestRoute) {
     return (
@@ -502,6 +562,25 @@ export default function App() {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <PerformanceDashboard />
+      </ThemeProvider>
+    );
+  }
+
+
+
+  // Mobile view - loading state
+  // Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
+  if (isCheckingSession || !minLoadingTimeElapsed) {
+    return (
+      <ThemeProvider defaultTheme="light" storageKey="unity-theme">
+        <div className="max-w-md mx-auto">
+          <LottiePreloader
+            showMessage={false}
+            minDuration={5000}
+            onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
+            size="lg"
+          />
+        </div>
       </ThemeProvider>
     );
   }
@@ -534,6 +613,20 @@ export default function App() {
           {/* Offline Sync Indicator - показывает pending syncs */}
           {userData?.user?.id && !isAdminRoute && (
             <OfflineSyncIndicator userId={userData.user.id} />
+          )}
+
+          {/* Offline Mode Badge - показывает offline статус и pending count */}
+          {userData?.user?.id && !isAdminRoute && (
+            <OfflineModeBadge />
+          )}
+
+          {/* Sync Completion Modal - показывается после успешной синхронизации */}
+          {userData?.user?.id && !isAdminRoute && (
+            <SyncCompletionModal
+              isOpen={showSyncComplete}
+              syncedCount={syncedCount}
+              onClose={() => setShowSyncComplete(false)}
+            />
           )}
         </Suspense>
 

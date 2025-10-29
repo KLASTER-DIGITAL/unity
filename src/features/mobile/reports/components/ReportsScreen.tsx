@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Progress } from "@/shared/components/ui/progress";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateUserStats, type UserStats } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
-import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Download,
   Sparkles,
@@ -100,12 +100,60 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="pb-20 min-h-screen bg-background flex items-center justify-center transition-colors duration-300">
-        <LottiePreloaderCompact
-          showMessage={false}
-          minDuration={1000}
-          size="md"
-        />
+      <div className="pb-20 min-h-screen bg-background transition-colors duration-300">
+        {/* Skeleton for reports header */}
+        <div className="p-4 space-y-4">
+          {/* Period selector skeleton */}
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-10 flex-1 rounded-[12px]" />
+            ))}
+          </div>
+
+          {/* AI Report card skeleton */}
+          <Card className="bg-card transition-colors duration-300">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+                <Skeleton className="h-6 w-20 rounded-full" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Stats grid skeleton */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="text-center space-y-1">
+                    <Skeleton className="h-8 w-16 mx-auto" />
+                    <Skeleton className="h-4 w-20 mx-auto" />
+                  </div>
+                ))}
+              </div>
+
+              {/* AI insights skeleton */}
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-4/6" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats cards skeleton */}
+          {[...Array(2)].map((_, i) => (
+            <Card key={i} className="bg-card transition-colors duration-300">
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-4/5" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { ChatInputSection } from "./ChatInputSection";
 import { RecentEntriesFeed } from "./RecentEntriesFeed";
 import { EntryDetailModal } from "./EntryDetailModal";
 import { getUserStats, type DiaryEntry } from "@/shared/lib/api";
-import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 // Lazy load MotivationCardsSection for better LCP
 const MotivationCardsSection = lazy(() =>
@@ -101,10 +101,21 @@ export function AchievementHomeScreen({
         onNavigateToHistory={onNavigateToHistory}
       />
 
-      {/* Loading State */}
+      {/* Loading State - Skeleton for stats */}
       {isLoading && (
-        <div className="p-section flex items-center justify-center">
-          <LottiePreloaderCompact showMessage={false} size="md" />
+        <div className="p-section space-y-4">
+          {/* Skeleton for motivation cards */}
+          <div className="relative w-full min-h-[280px] bg-card rounded-[24px] p-6 flex flex-col justify-between">
+            <div className="space-y-3">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+            <div className="flex items-center justify-between mt-4">
+              <Skeleton className="h-10 w-24 rounded-full" />
+              <Skeleton className="h-10 w-24 rounded-full" />
+            </div>
+          </div>
         </div>
       )}
 

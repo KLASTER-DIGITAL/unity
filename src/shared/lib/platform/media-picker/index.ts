@@ -10,6 +10,8 @@
 
 import { Platform } from '../index';
 import { WebMediaPickerAdapter } from './media-picker.web';
+// ✅ PWA + React Native Architecture: ONLY import web module in PWA build
+// React Native implementation is in /app/shared/lib/platform/media-picker.native.ts
 
 // ============================================================================
 // TYPES
@@ -101,14 +103,8 @@ export interface MediaPickerAdapter {
 
 /**
  * Universal media picker instance
- * Automatically selects the appropriate adapter based on platform
- * 
- * Note: NativeMediaPickerAdapter is not imported to avoid bundling
- * expo-image-picker in web builds
+ * PWA build: ONLY web implementation
+ * React Native build: Uses /app/shared/lib/platform/media-picker.native.ts
  */
-export const mediaPicker: MediaPickerAdapter = Platform.select({
-  web: new WebMediaPickerAdapter(),
-  native: new WebMediaPickerAdapter(), // Placeholder - will be replaced with NativeMediaPickerAdapter in RN
-  default: new WebMediaPickerAdapter(),
-});
+export const mediaPicker: MediaPickerAdapter = new WebMediaPickerAdapter();
 

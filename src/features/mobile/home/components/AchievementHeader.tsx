@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 import { NetworkStatusIndicator } from "@/shared/components/offline/NetworkStatusIndicator";
+import { Pressable } from "@/shared/components/ui/universal";
 
 interface AchievementHeaderProps {
   userName?: string;
@@ -20,11 +21,10 @@ const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { 
   const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
 
   return (
-    <div
-      className="relative shrink-0 cursor-pointer active:scale-95 transition-transform"
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
+    <Pressable
+      className="relative shrink-0"
+      onPress={onClick}
+      pressScale={0.95}
       aria-label="Перейти в настройки профиля"
     >
       <Avatar className="h-[46px] w-[46px] ring-1 ring-border">
@@ -36,7 +36,7 @@ const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { 
 
       {/* Dynamic network status indicator (🟢🟡🔴) */}
       <NetworkStatusIndicator />
-    </div>
+    </Pressable>
   );
 });
 

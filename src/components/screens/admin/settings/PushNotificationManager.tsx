@@ -114,15 +114,46 @@ export function PushNotificationManager() {
   };
 
   /**
-   * Генерирует новые VAPID keys
+   * Генерирует новые VAPID keys используя Web Crypto API
+   * Создает ECDSA P-256 ключевую пару для Web Push
    */
   const generateVapidKeys = async () => {
     setIsGenerating(true);
     try {
-      // В production нужно использовать web-push библиотеку
-      // Для демонстрации генерируем случайные ключи
-      const publicKey = btoa(crypto.getRandomValues(new Uint8Array(65)).join(','));
-      const privateKey = btoa(crypto.getRandomValues(new Uint8Array(32)).join(','));
+      // Генерируем ECDSA P-256 ключевую пару через Web Crypto API
+      const keyPair = await crypto.subtle.generateKey(
+        {
+          name: 'ECDSA',
+          namedCurve: 'P-256',
+        },
+        true, // extractable
+        ['sign', 'verify']
+      );
+
+      // Экспортируем публичный ключ в формате raw
+      const publicKeyBuffer = await crypto.subtle.exportKey('raw', keyPair.publicKey);
+      const publicKeyArray = new Uint8Array(publicKeyBuffer);
+
+      // Конвертируем в URL-safe base64
+      const publicKey = btoa(String.fromCharCode(...publicKeyArray))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
+      // Экспортируем приватный ключ в формате pkcs8
+      const privateKeyBuffer = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+      const privateKeyArray = new Uint8Array(privateKeyBuffer);
+
+      // Конвертируем в URL-safe base64
+      const privateKey = btoa(String.fromCharCode(...privateKeyArray))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
+      console.log('[VAPID] Generated keys:', {
+        publicKeyLength: publicKey.length,
+        privateKeyLength: privateKey.length,
+      });
 
       // Сохраняем в admin_settings
       await supabase.from('admin_settings').upsert([
@@ -214,7 +245,7 @@ export function PushNotificationManager() {
   return (
     <div className="space-y-6">
       {/* VAPID Keys Section - Collapsible */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <div className="bg-card dark:bg-card rounded-lg p-4 shadow">
         <Collapsible open={isVapidOpen} onOpenChange={setIsVapidOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" size="sm" className="w-full justify-between">
@@ -228,7 +259,7 @@ export function PushNotificationManager() {
           <CollapsibleContent className="mt-4">
             {!vapidPublicKey || !vapidPrivateKey ? (
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                   VAPID keys не настроены. Сгенерируйте их для работы Web Push API.
                 </p>
                 <button
@@ -247,7 +278,7 @@ export function PushNotificationManager() {
                     type="text"
                     value={vapidPublicKey}
                     readOnly
-                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
+                    className="w-full px-3 py-2 border rounded-lg bg-muted dark:bg-muted font-mono text-xs"
                   />
                 </div>
                 <div>
@@ -256,13 +287,13 @@ export function PushNotificationManager() {
                     type="password"
                     value={vapidPrivateKey}
                     readOnly
-                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-xs"
+                    className="w-full px-3 py-2 border rounded-lg bg-muted dark:bg-muted font-mono text-xs"
                   />
                 </div>
                 <button
                   onClick={generateVapidKeys}
                   disabled={isGenerating}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 text-sm"
+                  className="px-4 py-2 bg-muted text-white rounded-lg hover:bg-muted disabled:opacity-50 text-sm"
                 >
                   Перегенерировать
                 </button>
@@ -274,7 +305,7 @@ export function PushNotificationManager() {
 
       {/* Statistics */}
       {stats && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div className="bg-card dark:bg-card rounded-lg p-6 shadow">
           <h3 className="text-lg font-semibold mb-4">Статистика</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 rounded-lg bg-muted/50">
@@ -298,7 +329,7 @@ export function PushNotificationManager() {
       )}
 
       {/* Send Push Notification */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+      <div className="bg-card dark:bg-card rounded-lg p-6 shadow">
         <h3 className="text-lg font-semibold mb-4">Отправить уведомление</h3>
 
         <div className="space-y-4">
@@ -338,7 +369,7 @@ export function PushNotificationManager() {
                     setBody(template.body);
                     setIcon(template.icon || '/icon-192.png');
                   }}
-                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
                 >
                   <option value="ru">🇷🇺 Русский</option>
                   <option value="en">🇬🇧 English</option>
@@ -362,7 +393,7 @@ export function PushNotificationManager() {
                     setBody(template.body);
                     setIcon(template.icon || '/icon-192.png');
                   }}
-                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
                 >
                   <option value="daily_reminder">📝 Ежедневное напоминание</option>
                   <option value="weekly_report">📊 Еженедельный отчет</option>
@@ -382,7 +413,7 @@ export function PushNotificationManager() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Новое достижение!"
-              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
               disabled={useTemplate && selectedTemplate !== 'custom'}
             />
           </div>
@@ -394,7 +425,7 @@ export function PushNotificationManager() {
               onChange={(e) => setBody(e.target.value)}
               placeholder="Поздравляем с новым достижением!"
               rows={3}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
               disabled={useTemplate && selectedTemplate !== 'custom'}
             />
           </div>
@@ -405,7 +436,7 @@ export function PushNotificationManager() {
               type="text"
               value={icon}
               onChange={(e) => setIcon(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
+              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
             />
           </div>
 

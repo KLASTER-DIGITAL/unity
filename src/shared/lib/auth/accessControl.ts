@@ -81,6 +81,14 @@ export function isPerformanceRoute(params?: RouteParams): boolean {
 }
 
 /**
+ * Check if current route is showcase route (for E2E testing)
+ */
+export function isShowcaseRoute(params?: RouteParams): boolean {
+  const routeParams = params || parseRouteParams();
+  return routeParams.view === 'showcase';
+}
+
+/**
  * Validate access to route based on user role
  * Returns null if access is allowed, or redirect URL if access is denied
  */

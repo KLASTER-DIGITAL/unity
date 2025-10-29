@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useTranslation } from "@/shared/lib/i18n";
 import { getEntries, type DiaryEntry } from "@/shared/lib/api";
 import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
 import { toast } from "sonner";
-import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   Trophy,
   Star,
@@ -167,8 +167,53 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="pb-20 min-h-screen flex items-center justify-center bg-background">
-        <LottiePreloaderCompact showMessage={false} size="md" />
+      <div className="pb-20 min-h-screen bg-background">
+        {/* Skeleton for achievements header */}
+        <div className="p-4 bg-card transition-colors duration-300">
+          <div className="text-center mb-6">
+            <Skeleton className="w-20 h-20 rounded-full mx-auto mb-3" />
+            <Skeleton className="h-8 w-32 mx-auto mb-2" />
+            <Skeleton className="h-4 w-40 mx-auto" />
+          </div>
+
+          {/* Skeleton for stats grid */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="text-center">
+                <Skeleton className="h-8 w-12 mx-auto mb-1" />
+                <Skeleton className="h-3 w-16 mx-auto" />
+              </div>
+            ))}
+          </div>
+
+          {/* Skeleton for progress bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-8" />
+            </div>
+            <Skeleton className="h-2 w-full rounded-full" />
+          </div>
+        </div>
+
+        {/* Skeleton for achievement cards */}
+        <div className="p-4 space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-card rounded-[16px] p-4 transition-colors duration-300">
+              <div className="flex items-start gap-4">
+                <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <div className="flex items-center gap-2 mt-2">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

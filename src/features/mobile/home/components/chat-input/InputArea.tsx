@@ -61,7 +61,7 @@ export function InputArea({
         onFilesSelected={onFilesDropped}
         disabled={isUploading || !userId || userId === 'anonymous'}
       >
-        <div className="relative backdrop-blur-md bg-white/10 dark:bg-black/10 rounded-[16px] border border-white/20 transition-colors duration-300">
+        <div className="relative backdrop-blur-md bg-muted/10 rounded-[16px] border border-border/20 transition-colors duration-300">
           <div className="flex items-end gap-responsive-xs p-2">
             {/* Voice Button */}
             <button

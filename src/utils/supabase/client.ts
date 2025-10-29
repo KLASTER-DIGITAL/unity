@@ -1,5 +1,11 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): Uses import.meta.env (Vite)
+ * - React Native build (/app/): Uses expo-constants
+ */
+
 // Get Supabase credentials from environment variables with fallback
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
 const publicAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88';

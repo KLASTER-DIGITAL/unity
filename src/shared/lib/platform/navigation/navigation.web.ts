@@ -7,7 +7,7 @@
  */
 
 import type { NavigationAdapter, NavigationOptions, RouteParams } from '../navigation';
-import { Platform } from '../index';
+import { Platform } from '../detection';
 
 /**
  * Web navigation adapter using browser History API

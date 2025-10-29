@@ -43,7 +43,7 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
             {/* Thumbnail */}
             <button
               onClick={() => handleMediaClick(mediaFile)}
-              className="w-full h-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 hover:opacity-90 transition-opacity"
+              className="w-full h-full rounded-lg overflow-hidden bg-muted dark:bg-card hover:opacity-90 transition-opacity"
             >
               {mediaFile.type === 'image' ? (
                 <img
@@ -52,8 +52,8 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-                  <Play className="w-12 h-12 text-gray-400" />
+                <div className="w-full h-full flex items-center justify-center bg-muted dark:bg-muted">
+                  <Play className="w-12 h-12 text-muted-foreground" />
                 </div>
               )}
             </button>

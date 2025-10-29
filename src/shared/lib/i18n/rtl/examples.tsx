@@ -16,19 +16,19 @@ export function ExampleNavigation() {
   const { t } = useTranslation();
   
   return (
-    <nav dir={t.direction} className="bg-white border-b">
+    <nav dir={t.direction} className="bg-card border-b">
       <ul className="flex p-4">
         <li className="me-4">
           <a href="#" className="text-blue-600">{t('nav.home', 'Home')}</a>
         </li>
         <li className="me-4">
-          <a href="#" className="text-gray-600">{t('nav.history', 'History')}</a>
+          <a href="#" className="text-muted-foreground">{t('nav.history', 'History')}</a>
         </li>
         <li className="me-4">
-          <a href="#" className="text-gray-600">{t('nav.achievements', 'Achievements')}</a>
+          <a href="#" className="text-muted-foreground">{t('nav.achievements', 'Achievements')}</a>
         </li>
         <li>
-          <a href="#" className="text-gray-600">{t('nav.settings', 'Settings')}</a>
+          <a href="#" className="text-muted-foreground">{t('nav.settings', 'Settings')}</a>
         </li>
       </ul>
     </nav>
@@ -50,7 +50,7 @@ export function ExampleCard({
   const { t } = useTranslation();
   
   return (
-    <div className="bg-white rounded-lg shadow p-4" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow p-4" dir={t.direction}>
       <div className="flex gap-4">
         <img 
           src={image} 
@@ -59,7 +59,7 @@ export function ExampleCard({
         />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-start">{title}</h3>
-          <p className="text-sm text-gray-600 text-start">{description}</p>
+          <p className="text-sm text-muted-foreground text-start">{description}</p>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@ export function ExampleSearchInput() {
         placeholder={t('search.placeholder', 'Search...')}
         className="w-full ps-10 pe-4 py-2 border rounded-lg"
       />
-      <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
     </div>
   );
 }
@@ -104,12 +104,12 @@ export function ExampleModal({
   
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-lg max-w-md w-full" dir={t.direction}>
+      <div className="bg-card rounded-lg max-w-md w-full" dir={t.direction}>
         <div className="relative p-6 border-b">
           <h2 className="text-xl font-semibold text-start">{title}</h2>
           <button
             onClick={onClose}
-            className="absolute top-4 end-4 p-2 hover:bg-gray-100 rounded"
+            className="absolute top-4 end-4 p-2 hover:bg-muted rounded"
           >
             <X className="w-5 h-5" />
           </button>
@@ -141,10 +141,10 @@ export function ExampleBreadcrumbs({
               {item.label}
             </a>
           ) : (
-            <span className="text-gray-600">{item.label}</span>
+            <span className="text-muted-foreground">{item.label}</span>
           )}
           {index < items.length - 1 && (
-            <ChevronRight className="icon-mirror w-4 h-4 text-gray-400" />
+            <ChevronRight className="icon-mirror w-4 h-4 text-muted-foreground" />
           )}
         </React.Fragment>
       ))}
@@ -167,9 +167,9 @@ export function ExampleEntryCard({
   const { t } = useTranslation();
   
   return (
-    <div className="bg-white rounded-lg shadow p-4" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow p-4" dir={t.direction}>
       <div className="flex items-start justify-between mb-2">
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-muted-foreground">
           {t.formatRelativeTime(entry.created_at)}
         </span>
         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
@@ -203,16 +203,16 @@ export function ExampleSettingsList() {
   ];
   
   return (
-    <div className="bg-white rounded-lg shadow" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow" dir={t.direction}>
       {settings.map((setting, index) => (
         <a
           key={index}
           href={setting.href}
-          className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b last:border-b-0"
+          className="flex items-center gap-3 p-4 hover:bg-muted border-b last:border-b-0"
         >
-          <setting.icon className="w-5 h-5 text-gray-600" />
+          <setting.icon className="w-5 h-5 text-muted-foreground" />
           <span className="flex-1 text-start">{setting.label}</span>
-          <ChevronRight className="icon-mirror w-5 h-5 text-gray-400" />
+          <ChevronRight className="icon-mirror w-5 h-5 text-muted-foreground" />
         </a>
       ))}
     </div>
@@ -237,13 +237,13 @@ export function ExampleAchievementBadge({
   const percentage = (progress / total) * 100;
   
   return (
-    <div className="bg-white rounded-lg shadow p-4" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow p-4" dir={t.direction}>
       <h3 className="text-lg font-semibold text-start mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 text-start mb-4">{description}</p>
+      <p className="text-sm text-muted-foreground text-start mb-4">{description}</p>
       
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">
+          <span className="text-muted-foreground">
             {t('achievement.progress', 'Progress')}
           </span>
           <span className="font-semibold">
@@ -251,7 +251,7 @@ export function ExampleAchievementBadge({
           </span>
         </div>
         
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-muted rounded-full h-2">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all"
             style={{ width: `${percentage}%` }}
@@ -276,7 +276,7 @@ export function ExampleLanguageSwitcher() {
   ];
   
   return (
-    <div className="bg-white rounded-lg shadow p-4" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow p-4" dir={t.direction}>
       <h3 className="text-lg font-semibold text-start mb-4">
         {t('settings.language', 'Language')}
       </h3>
@@ -288,8 +288,8 @@ export function ExampleLanguageSwitcher() {
             onClick={() => changeLanguage(lang.code)}
             className={`
               w-full flex items-center justify-between p-3 rounded-lg border
-              ${currentLanguage === lang.code ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}
-              hover:bg-gray-50
+              ${currentLanguage === lang.code ? 'border-blue-600 bg-blue-50' : 'border-border'}
+              hover:bg-muted
             `}
           >
             <span className="text-start">{lang.name}</span>
@@ -319,7 +319,7 @@ export function ExampleRTLTextDetection() {
   ];
   
   return (
-    <div className="bg-white rounded-lg shadow p-4" dir={t.direction}>
+    <div className="bg-card rounded-lg shadow p-4" dir={t.direction}>
       <h3 className="text-lg font-semibold text-start mb-4">
         RTL Text Detection
       </h3>
@@ -328,7 +328,7 @@ export function ExampleRTLTextDetection() {
         {texts.map((item, index) => (
           <div key={index} className="border rounded p-3">
             <RTLText className="block mb-2">{item.text}</RTLText>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               Expected: {item.expected}
             </span>
           </div>

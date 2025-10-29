@@ -85,6 +85,23 @@ export async function saveSecuritySettings(
   }
 }
 
+/**
+ * Save offline mode setting to database
+ */
+export async function saveOfflineSettings(
+  userId: string,
+  offlineEnabled: boolean
+) {
+  try {
+    await updateUserProfile(userId, {
+      offlineEnabled: offlineEnabled
+    });
+    console.log('✅ Offline settings saved:', offlineEnabled);
+  } catch (error) {
+    console.error('❌ Error saving offline settings:', error);
+  }
+}
+
 interface LanguageChangeParams {
   languageCode: string;
   userId?: string;

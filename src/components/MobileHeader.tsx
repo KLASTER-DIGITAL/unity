@@ -24,7 +24,7 @@ export function MobileHeader({
   onSearchClick: _onSearchClick
 }: MobileHeaderProps) {
   return (
-    <div className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3">
+    <div className="sticky top-0 z-50 bg-card shadow-sm px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {showMenu && (
@@ -87,7 +87,7 @@ export function MobileHeader({
               <div className="text-[#0d062d]">{userName}</div>
               <div className="text-[#787486] text-xs">Пользователь</div>
             </div>
-            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200">
+            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-border">
               <ImageWithFallback
                 src="/api/placeholder/36/36"
                 alt="Profile"

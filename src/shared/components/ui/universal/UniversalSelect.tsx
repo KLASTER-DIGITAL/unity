@@ -17,11 +17,12 @@ import * as WebSelect from './Select.web';
 // PLATFORM SELECT
 // ============================================================================
 
-const SelectComponents = Platform.select({
-  web: WebSelect,
-  native: WebSelect, // Placeholder to avoid bundling native deps
-  default: WebSelect,
-});
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Select.native.tsx
+ */
+const SelectComponents = WebSelect;
 
 // ============================================================================
 // EXPORTS
@@ -33,8 +34,8 @@ export const SelectUtils = SelectComponents.SelectUtils;
 // Export types
 export type { SelectProps, SelectOption } from './Select.web';
 
-// Export native for dynamic import
-export { default as NativeSelect } from './Select.native';
+// Note: NativeSelect is NOT exported to avoid bundling react-native in web build
+// Native version is loaded dynamically when needed in React Native environment
 
 export default {
   Select: UniversalSelect,

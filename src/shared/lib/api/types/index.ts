@@ -17,6 +17,7 @@ export interface UserProfile {
   isPremium?: boolean;
   biometricEnabled?: boolean;
   backupEnabled?: boolean;
+  offlineEnabled?: boolean;
   firstDayOfWeek?: string;
   privacySettings?: any;
 }

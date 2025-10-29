@@ -148,15 +148,15 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
                 <button
                   onClick={handleManualSync}
                   disabled={isSyncing}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50"
+                  className="p-2 hover:bg-muted/20 rounded-lg transition-colors duration-300 disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
                 </button>
               )}
-              
+
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted/20 rounded-lg transition-colors duration-300"
               >
                 {showDetails ? <X className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
               </button>
@@ -175,7 +175,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
                 {pendingEntries.map((entry) => (
                   <div
                     key={entry.id}
-                    className="bg-white/10 rounded-lg p-3 backdrop-blur-sm"
+                    className="bg-muted/10 rounded-lg p-3 backdrop-blur-sm transition-colors duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
@@ -214,14 +214,14 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleRetry(entry.id)}
-                            className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                            className="p-1.5 hover:bg-muted/20 rounded transition-colors duration-300"
                             title="Повторить"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(entry.id)}
-                            className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                            className="p-1.5 hover:bg-muted/20 rounded transition-colors duration-300"
                             title="Удалить"
                           >
                             <X className="w-3.5 h-3.5" />

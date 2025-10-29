@@ -17,11 +17,12 @@ import * as WebCheckbox from './Checkbox.web';
 // PLATFORM SELECT
 // ============================================================================
 
-const CheckboxComponents = Platform.select({
-  web: WebCheckbox,
-  native: WebCheckbox, // Placeholder to avoid bundling native deps
-  default: WebCheckbox,
-});
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Checkbox.native.tsx
+ */
+const CheckboxComponents = WebCheckbox;
 
 // ============================================================================
 // EXPORTS
@@ -33,8 +34,8 @@ export const CheckboxUtils = CheckboxComponents.CheckboxUtils;
 // Export types
 export type { CheckboxProps } from './Checkbox.web';
 
-// Export native for dynamic import
-export { default as NativeCheckbox } from './Checkbox.native';
+// Note: NativeCheckbox is NOT exported to avoid bundling react-native in web build
+// Native version is loaded dynamically when needed in React Native environment
 
 export default {
   Checkbox: UniversalCheckbox,

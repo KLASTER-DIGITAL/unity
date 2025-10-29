@@ -202,35 +202,35 @@ export function I18nE2ETest() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold mb-2">i18n System E2E Tests</h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Comprehensive testing of all i18n features
         </p>
         
         {/* Status */}
         <div className="mt-4 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Status:</span>
+            <span className="text-sm text-muted-foreground">Status:</span>
             {isLoading && <span className="text-yellow-600">Loading...</span>}
             {isLoaded && <span className="text-green-600">Loaded</span>}
             {error && <span className="text-red-600">Error: {error.message}</span>}
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Language:</span>
+            <span className="text-sm text-muted-foreground">Language:</span>
             <span className="font-semibold">{currentLanguage}</span>
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Direction:</span>
+            <span className="text-sm text-muted-foreground">Direction:</span>
             <span className="font-semibold">{t.direction}</span>
           </div>
         </div>
       </div>
 
       {/* Test Controls */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <button
           onClick={runAllTests}
           className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
@@ -239,7 +239,7 @@ export function I18nE2ETest() {
         </button>
         
         {Object.keys(testResults).length > 0 && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-4 bg-muted rounded-lg">
             <div className="flex items-center justify-between">
               <span className="font-semibold">
                 Results: {passedTests}/{totalTests} tests passed
@@ -255,7 +255,7 @@ export function I18nE2ETest() {
       </div>
 
       {/* Test Results */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">Test Results</h2>
         
         <div className="space-y-2">
@@ -285,7 +285,7 @@ export function I18nE2ETest() {
                 <X className="w-5 h-5 text-red-600" />
               )}
               {testResults[key] === undefined && (
-                <span className="text-gray-400">Not run</span>
+                <span className="text-muted-foreground">Not run</span>
               )}
             </div>
           ))}
@@ -293,7 +293,7 @@ export function I18nE2ETest() {
       </div>
 
       {/* Live Examples */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">Live Examples</h2>
         
         <div className="space-y-4">

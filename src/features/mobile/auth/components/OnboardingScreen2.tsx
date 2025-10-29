@@ -255,7 +255,7 @@ function Frame2087324618({ selectedLanguage, onNext, currentStep, totalSteps, on
 
 export function OnboardingScreen2({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen2Props) {
   return (
-    <div className="bg-white content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
+    <div className="bg-card content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide" data-name="Onboard 2">
       <Frame2087324618
         selectedLanguage={selectedLanguage}
         onNext={onNext}

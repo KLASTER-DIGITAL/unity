@@ -294,7 +294,7 @@ export function APIServicesTab() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-white rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-card rounded-lg">
               <div className="space-y-0.5">
                 <Label htmlFor="is_active">Активен</Label>
                 <p className="text-sm text-muted-foreground">

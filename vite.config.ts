@@ -1,13 +1,49 @@
 
-import { defineConfig } from 'vite';
+import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 
+/**
+ * ✅ PWA + React Native Architecture: Custom Vite Plugin
+ * Блокирует ЛЮБЫЕ импорты react-native в PWA build
+ * React Native код находится в /app/shared/ и обрабатывается Metro bundler
+ */
+function blockReactNativePlugin(): Plugin {
+  return {
+    name: 'block-react-native',
+    enforce: 'pre', // Выполняется ДО других плагинов
+    resolveId(source) {
+      // Блокируем ЛЮБЫЕ импорты react-native
+      if (
+        source === 'react-native' ||
+        source.startsWith('react-native/') ||
+        source.startsWith('@react-native/') ||
+        source.startsWith('expo-') ||
+        source.startsWith('@react-navigation/')
+      ) {
+        // Возвращаем пустой модуль вместо реального
+        return '\0virtual:react-native-stub';
+      }
+      return null;
+    },
+    load(id) {
+      // Возвращаем пустой модуль для заблокированных импортов
+      if (id === '\0virtual:react-native-stub') {
+        return 'export default {};';
+      }
+      return null;
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => ({
   base: '/',
   plugins: [
+    // ✅ КРИТИЧЕСКИ ВАЖНО: blockReactNativePlugin ДОЛЖЕН быть ПЕРВЫМ
+    // чтобы заблокировать react-native импорты ДО того как Vite попытается их парсить
+    blockReactNativePlugin(),
     react(),
     // Bundle analyzer для анализа размера (только при ANALYZE=true)
     ...(process.env.ANALYZE ? [
@@ -77,6 +113,17 @@ export default defineConfig(({ mode }) => ({
       'figma:asset/03eee47db01accd8ec132e41a8b23825a0fe0ef4.png': path.resolve(__dirname, './src/assets/03eee47db01accd8ec132e41a8b23825a0fe0ef4.webp'),
     },
   },
+  // SSR конфигурация для предотвращения парсинга react-native файлов
+  ssr: {
+    noExternal: [], // Пустой массив - не обрабатываем ничего в SSR
+    external: [
+      'react-native',
+      /^react-native/,
+      /^@react-native/,
+      /^expo-/,
+      /^@react-navigation/,
+    ],
+  },
   build: {
     target: 'esnext',
     outDir: 'build',
@@ -86,6 +133,23 @@ export default defineConfig(({ mode }) => ({
     assetsInlineLimit: 4096, // Inline assets < 4kb
     chunkSizeWarningLimit: 1000, // Предупреждение для chunks > 1MB
     rollupOptions: {
+      // Externalize React Native и Expo модули для web build
+      // Эти модули используются только в .native.ts файлах и будут tree-shaken
+      external: [
+        // React Native core
+        /^react-native/,
+        /^@react-native/,
+        // Expo modules
+        /^expo-/,
+        'expo-file-system',
+        'expo-image-manipulator',
+        'expo-av',
+        'expo-image-picker',
+        'expo-speech',
+        // React Navigation
+        /^@react-navigation/,
+        '@react-navigation/native',
+      ],
       output: {
         // Настраиваем code splitting для оптимизации производительности
         manualChunks: (id) => {
@@ -126,10 +190,9 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-lottie';
             }
 
-            // React core - критический чанк (~50KB)
-            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
-              return 'vendor-react';
-            }
+            // НЕ группируем React в manual chunk - позволяем Vite автоматически управлять
+            // чтобы избежать проблем с dedupe и multiple React copies
+            // React будет автоматически оптимизирован через optimizeDeps.include
 
             // Остальные библиотеки НЕ группируем в vendor-misc
             // чтобы избежать circular dependencies
@@ -161,6 +224,19 @@ export default defineConfig(({ mode }) => ({
     exclude: [
       // Исключаем большие библиотеки из pre-bundling
       'recharts',
+      // ✅ PWA + React Native Architecture: Исключаем ВСЕ React Native пакеты
+      // Эти пакеты используются ТОЛЬКО в /app/shared/ и НЕ должны парситься Vite
+      'react-native',
+      '@react-native/virtualized-lists',
+      '@react-native/assets-registry',
+      '@react-native/normalize-colors',
+      '@react-native/polyfills',
+      'expo-file-system',
+      'expo-image-manipulator',
+      'expo-av',
+      'expo-image-picker',
+      'expo-speech',
+      '@react-navigation/native',
     ],
     esbuildOptions: {
       // Принудительная дедупликация React
@@ -183,13 +259,15 @@ export default defineConfig(({ mode }) => ({
       allow: ['..'],
     },
     watch: {
-      // Игнорируем React Native Expo папки
+      // Игнорируем React Native Expo папки и .native.tsx файлы
       ignored: [
         '**/node_modules/**',
         '**/app/**', // React Native Expo Router (НЕ src/app!)
         '**/index.js', // React Native entry point
         '**/.expo/**',
         '**/.expo-shared/**',
+        '**/*.native.tsx', // React Native компоненты
+        '**/*.native.ts', // React Native утилиты
       ],
     },
   },

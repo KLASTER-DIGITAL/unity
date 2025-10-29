@@ -67,7 +67,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
         isSelected 
           ? 'bg-primary/10 text-primary' 
-          : 'hover:bg-gray-100 text-gray-700'
+          : 'hover:bg-muted text-foreground'
       }`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -79,7 +79,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         <div className="text-left">
           <div className="font-medium">{language.name}</div>
           {showNativeName && (
-            <div className="text-sm text-gray-500">{language.native_name}</div>
+            <div className="text-sm text-muted-foreground">{language.native_name}</div>
           )}
         </div>
       </div>
@@ -155,7 +155,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-hidden"
+                  className="bg-card rounded-2xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-hidden"
                 >
                   <h3 className="text-lg font-semibold mb-4">{t('select_language', 'Select Language')}</h3>
                   <div className="space-y-2 max-h-[60vh] overflow-y-auto">
@@ -178,7 +178,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
               >
                 {languages.map(language => 
                   renderLanguageOption(language, language.code === currentLanguage)

@@ -19,11 +19,12 @@ import * as WebDialog from './Dialog.web';
 // PLATFORM SELECT
 // ============================================================================
 
-const DialogComponents = Platform.select({
-  web: WebDialog,
-  native: WebDialog, // Placeholder to avoid bundling native deps
-  default: WebDialog,
-});
+/**
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Dialog.native.tsx
+ */
+const DialogComponents = WebDialog;
 
 // ============================================================================
 // EXPORTS

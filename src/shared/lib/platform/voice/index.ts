@@ -295,22 +295,10 @@ class WebVoiceAdapter implements VoiceAdapter {
 }
 
 // ============================================================================
-// NATIVE IMPLEMENTATION
-// ============================================================================
-
-// Import native implementation (will be tree-shaken in web builds)
-import { NativeVoiceAdapter } from './voice.native';
-
-// ============================================================================
 // EXPORT
 // ============================================================================
 
-export const voice: VoiceAdapter = Platform.select({
-  web: new WebVoiceAdapter(),
-  native: new WebVoiceAdapter(), // Placeholder to avoid bundling native deps
-  default: new WebVoiceAdapter(),
-});
-
-// Export native adapter for dynamic import
-export { NativeVoiceAdapter };
+// ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
+// React Native implementation is in /app/shared/lib/platform/voice.native.ts
+export const voice: VoiceAdapter = new WebVoiceAdapter();
 

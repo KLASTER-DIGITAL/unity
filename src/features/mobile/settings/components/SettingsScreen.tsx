@@ -12,6 +12,7 @@ import {
   DEFAULT_LANGUAGES,
   NotificationsSection,
   SecuritySection,
+  OfflineSection,
   ProfileHeader,
   AdditionalSection,
   SupportSection,
@@ -22,10 +23,12 @@ import {
   LanguageModal,
   PWAInstallModal,
   CategoriesModal,
+  OfflineSettingsModal,
   loadLanguages,
   checkBiometricAvailability,
   saveNotificationSettings,
   saveSecuritySettings,
+  saveOfflineSettings,
   handleLanguageChange as handleLanguageChangeUtil
 } from "./settings";
 import type { SettingsScreenProps, NotificationSettings } from "./settings";
@@ -60,6 +63,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const [autoBackupEnabled, setAutoBackupEnabled] = useState(profile?.backupEnabled || false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
+  // State для offline режима
+  const [offlineEnabled, setOfflineEnabled] = useState(profile?.offlineEnabled || false);
+
   // State для модальных окон (Drawer - Bottom Sheets)
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
@@ -69,6 +75,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   const [showPremium, setShowPremium] = useState(false);
   const [showPWAInstall, setShowPWAInstall] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [showOfflineSettings, setShowOfflineSettings] = useState(false);
 
   // Динамическая загрузка языков из API
   const [languages, setLanguages] = useState(DEFAULT_LANGUAGES);
@@ -136,6 +143,17 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     return () => clearTimeout(timeoutId);
   }, [biometricEnabled, autoBackupEnabled, profile?.id]);
 
+  // Автосохранение настроек offline режима (debounced)
+  useEffect(() => {
+    const userId = profile?.id;
+    if (!userId) return;
+
+    const timeoutId = setTimeout(() => {
+      saveOfflineSettings(userId, offlineEnabled);
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [offlineEnabled, profile?.id]);
+
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
@@ -192,6 +210,16 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
         isPremium={userData?.isPremium || false}
         onBiometricChange={setBiometricEnabled}
         onAutoBackupChange={setAutoBackupEnabled}
+        onPremiumRequired={() => setShowPremium(true)}
+        t={t}
+      />
+
+      {/* Offline режим */}
+      <OfflineSection
+        offlineEnabled={offlineEnabled}
+        isPremium={userData?.isPremium || false}
+        onOfflineChange={setOfflineEnabled}
+        onOfflineSettingsClick={() => setShowOfflineSettings(true)}
         onPremiumRequired={() => setShowPremium(true)}
         t={t}
       />
@@ -278,6 +306,15 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
         userId={profile?.id}
         t={t}
       />
+
+      {/* Offline Settings Modal */}
+      <AnimatePresence>
+        <OfflineSettingsModal
+          isOpen={showOfflineSettings}
+          onClose={() => setShowOfflineSettings(false)}
+          t={t}
+        />
+      </AnimatePresence>
 
       {/* Premium Modal */}
       <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />

@@ -349,12 +349,12 @@ const NativeSelect = forwardRef<any, SelectProps>(
 
 /**
  * Universal Select component
+ *
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Select.native.tsx
  */
-export const Select = Platform.select({
-  web: WebSelect,
-  native: NativeSelect,
-  default: WebSelect
-});
+export const Select = WebSelect;
 
 Select.displayName = 'Select';
 

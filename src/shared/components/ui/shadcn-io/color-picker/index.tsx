@@ -18,7 +18,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       className={cn(
-        'w-10 h-10 rounded border border-gray-300 cursor-pointer',
+        'w-10 h-10 rounded border border-border cursor-pointer',
         className
       )}
     />

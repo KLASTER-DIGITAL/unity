@@ -151,7 +151,7 @@ export function OfflineStatusBanner() {
                 {isOnline && pendingCount > 0 && !syncInProgress && (
                   <button
                     onClick={handleManualSync}
-                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                    className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 rounded-lg transition-colors duration-300 text-sm font-medium flex items-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Синхронизировать
@@ -161,7 +161,7 @@ export function OfflineStatusBanner() {
                 {variant === 'success' && (
                   <button
                     onClick={() => setShowBanner(false)}
-                    className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                    className="p-1.5 hover:bg-muted/20 rounded-lg transition-colors duration-300"
                     aria-label="Закрыть"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,9 +175,9 @@ export function OfflineStatusBanner() {
             {/* Progress bar for syncing */}
             {syncInProgress && (
               <div className="mt-2">
-                <div className="w-full bg-white/20 rounded-full h-1 overflow-hidden">
+                <div className="w-full bg-muted/20 rounded-full h-1 overflow-hidden transition-colors duration-300">
                   <motion.div
-                    className="h-full bg-white"
+                    className="h-full bg-primary transition-colors duration-300"
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
                     transition={{ duration: 2, ease: 'linear', repeat: Infinity }}

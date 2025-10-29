@@ -1,8 +1,9 @@
 import { analyzeTextWithAI, createEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
-import { saveEntryOffline } from "@/shared/lib/offline";
+import { saveEntryOffline, canUseOfflineMode, shouldShowPremiumModal } from "@/shared/lib/offline";
 import { triggerHapticFeedback } from "./PermissionUtils";
 import type { ChatMessage } from "./types";
+import type { UserDataForOfflineCheck } from "@/shared/lib/offline/helpers";
 
 interface MessageHandlerParams {
   inputText: string;
@@ -10,7 +11,9 @@ interface MessageHandlerParams {
   selectedCategory: string | null;
   userName: string;
   userId: string;
+  userData?: UserDataForOfflineCheck | null;
   setShowSuccessModal: (show: boolean) => void;
+  setShowPremiumModal?: (show: boolean) => void;
   setInputText: (text: string) => void;
   setIsProcessing: (processing: boolean) => void;
   clearMedia: () => void;
@@ -28,7 +31,9 @@ export async function handleSendMessage({
   selectedCategory,
   userName,
   userId,
+  userData,
   setShowSuccessModal,
+  setShowPremiumModal,
   setInputText,
   setIsProcessing,
   clearMedia,
@@ -83,9 +88,45 @@ export async function handleSendMessage({
 
     // Check if online
     if (!navigator.onLine) {
-      console.log("App is offline, saving entry for later sync...");
+      console.log("App is offline, checking offline mode access...");
 
-      // Save offline
+      // ✅ PREMIUM CHECK: Verify user can use offline mode
+      const offlineCheck = canUseOfflineMode(userData);
+
+      if (!offlineCheck.allowed) {
+        console.log("Offline mode access denied:", offlineCheck.reason);
+
+        // Show appropriate UI based on reason
+        if (shouldShowPremiumModal(offlineCheck)) {
+          // Show premium modal for non-premium users
+          setShowPremiumModal?.(true);
+          toast.error(offlineCheck.message || "Offline режим доступен только для Premium", {
+            description: "Обновитесь до Premium для работы без интернета",
+            duration: 5000,
+            action: {
+              label: "Узнать больше",
+              onClick: () => setShowPremiumModal?.(true),
+            },
+          });
+        } else {
+          // Show info toast for other reasons (disabled, not authenticated)
+          toast.info(offlineCheck.message || "Offline режим недоступен", {
+            description: offlineCheck.reason === 'disabled'
+              ? "Включите Offline режим в настройках"
+              : "Войдите в систему для использования offline режима",
+            duration: 4000,
+          });
+        }
+
+        // Hide success modal and stop processing
+        setShowSuccessModal(false);
+        setIsProcessing(false);
+        return;
+      }
+
+      // User has access to offline mode - save entry
+      console.log("Offline mode access granted, saving entry for later sync...");
+
       const pendingEntry = await saveEntryOffline(userId, userText, {
         sentiment: analysis.sentiment,
         category: selectedCategory || analysis.category,
@@ -97,9 +138,10 @@ export async function handleSendMessage({
       console.log("Entry saved offline:", pendingEntry);
 
       // Show offline toast
-      toast.info("Сохранено офлайн", {
+      toast.success("Сохранено offline", {
         description: "Запись будет синхронизирована когда появится интернет",
-        duration: 4000
+        duration: 4000,
+        icon: "📴",
       });
 
       // Callbacks with pending entry

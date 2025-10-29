@@ -8,22 +8,17 @@
  * @module platform/navigation
  */
 
-import { Platform } from '../index';
 import { WebNavigationAdapter } from './navigation.web';
+// ✅ PWA + React Native Architecture: ONLY import web module in PWA build
+// React Native implementation is in /app/shared/lib/platform/navigation.native.ts
 
 // Re-export types from main navigation file
 export type { NavigationAdapter, NavigationOptions } from '../navigation';
 
 /**
  * Universal navigation instance
- * Automatically selects the appropriate adapter based on platform
- * 
- * Note: NativeNavigationAdapter is not imported to avoid bundling
- * @react-navigation/native in web builds
+ * PWA build: ONLY web implementation
+ * React Native build: Uses /app/shared/lib/platform/navigation.native.ts
  */
-export const navigation = Platform.select({
-  web: new WebNavigationAdapter(),
-  native: new WebNavigationAdapter(), // Placeholder - will be replaced with NativeNavigationAdapter in RN
-  default: new WebNavigationAdapter(),
-});
+export const navigation = new WebNavigationAdapter();
 

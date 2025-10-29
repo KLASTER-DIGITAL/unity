@@ -149,20 +149,20 @@ export const SystemSettingsTab: React.FC = () => {
                   systemStatus.database === 'online'
                     ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
                     : systemStatus.database === 'checking'
-                    ? 'bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800'
+                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
                     : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
                 }`}>
                   <div className="absolute top-2 right-2">
                     <div className={`w-3 h-3 rounded-full ${
                       systemStatus.database === 'online' ? 'bg-green-500' :
-                      systemStatus.database === 'checking' ? 'bg-gray-500 animate-pulse' :
+                      systemStatus.database === 'checking' ? 'bg-muted0 animate-pulse' :
                       'bg-red-500'
                     }`} />
                   </div>
                   <div className="text-center">
                     <Database className={`w-12 h-12 mx-auto mb-2 ${
                       systemStatus.database === 'online' ? 'text-green-600 dark:text-green-500' :
-                      systemStatus.database === 'checking' ? 'text-gray-600 dark:text-gray-500' :
+                      systemStatus.database === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
                       'text-red-600 dark:text-red-500'
                     }`} />
                     <div className="font-medium mb-1">База данных</div>
@@ -177,20 +177,20 @@ export const SystemSettingsTab: React.FC = () => {
                   systemStatus.api === 'online'
                     ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800'
                     : systemStatus.api === 'checking'
-                    ? 'bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800'
+                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
                     : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
                 }`}>
                   <div className="absolute top-2 right-2">
                     <div className={`w-3 h-3 rounded-full ${
                       systemStatus.api === 'online' ? 'bg-blue-500' :
-                      systemStatus.api === 'checking' ? 'bg-gray-500 animate-pulse' :
+                      systemStatus.api === 'checking' ? 'bg-muted0 animate-pulse' :
                       'bg-red-500'
                     }`} />
                   </div>
                   <div className="text-center">
                     <Server className={`w-12 h-12 mx-auto mb-2 ${
                       systemStatus.api === 'online' ? 'text-blue-600 dark:text-blue-500' :
-                      systemStatus.api === 'checking' ? 'text-gray-600 dark:text-gray-500' :
+                      systemStatus.api === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
                       'text-red-600 dark:text-red-500'
                     }`} />
                     <div className="font-medium mb-1">API</div>
@@ -205,20 +205,20 @@ export const SystemSettingsTab: React.FC = () => {
                   systemStatus.storage === 'online'
                     ? 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800'
                     : systemStatus.storage === 'checking'
-                    ? 'bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800'
+                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
                     : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
                 }`}>
                   <div className="absolute top-2 right-2">
                     <div className={`w-3 h-3 rounded-full ${
                       systemStatus.storage === 'online' ? 'bg-purple-500' :
-                      systemStatus.storage === 'checking' ? 'bg-gray-500 animate-pulse' :
+                      systemStatus.storage === 'checking' ? 'bg-muted0 animate-pulse' :
                       'bg-red-500'
                     }`} />
                   </div>
                   <div className="text-center">
                     <HardDrive className={`w-12 h-12 mx-auto mb-2 ${
                       systemStatus.storage === 'online' ? 'text-purple-600 dark:text-purple-500' :
-                      systemStatus.storage === 'checking' ? 'text-gray-600 dark:text-gray-500' :
+                      systemStatus.storage === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
                       'text-red-600 dark:text-red-500'
                     }`} />
                     <div className="font-medium mb-1">Хранилище</div>

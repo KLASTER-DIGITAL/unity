@@ -9,14 +9,15 @@
 
 import { performanceMonitor, type PerformanceEntry } from './monitoring';
 import { addBreadcrumb, captureMessage } from '@/shared/lib/monitoring';
+import { isProd } from '@/shared/lib/env';
 
 /**
  * Initialize Sentry Performance Integration
- * 
+ *
  * Автоматически отправляет все performance metrics в Sentry
  */
 export function initSentryPerformanceIntegration(): void {
-  if (!import.meta.env.PROD) {
+  if (!isProd) {
     console.log('ℹ️ [Sentry Performance] Disabled in development');
     return;
   }
@@ -75,11 +76,11 @@ function getLogLevel(rating: 'good' | 'needs-improvement' | 'poor'): 'info' | 'w
 
 /**
  * Report performance summary to Sentry
- * 
+ *
  * Отправляет сводку всех метрик в Sentry
  */
 export function reportPerformanceSummary(): void {
-  if (!import.meta.env.PROD) return;
+  if (!isProd) return;
 
   const metrics = performanceMonitor.getMetrics();
   

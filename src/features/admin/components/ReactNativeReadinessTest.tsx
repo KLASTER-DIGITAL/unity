@@ -47,7 +47,7 @@ export function ReactNativeReadinessTest() {
       case 'ready': return 'text-green-600';
       case 'partial': return 'text-yellow-600';
       case 'not_ready': return 'text-red-600';
-      default: return 'text-gray-600';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -67,10 +67,10 @@ export function ReactNativeReadinessTest() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow">
+    <div className="p-6 bg-card rounded-lg shadow">
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">React Native Readiness Test</h2>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Проверка готовности всех platform adapters для миграции на React Native
         </p>
       </div>
@@ -97,7 +97,7 @@ export function ReactNativeReadinessTest() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold mb-1">Общий статус</h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {new Date(report.timestamp).toLocaleString('ru-RU')}
                 </p>
               </div>
@@ -112,7 +112,7 @@ export function ReactNativeReadinessTest() {
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div className="w-full bg-muted rounded-full h-4 overflow-hidden">
               <div
                 className={`h-full transition-all duration-500 ${
                   report.overallScore >= 90 ? 'bg-green-500' :
@@ -131,7 +131,7 @@ export function ReactNativeReadinessTest() {
             {report.checks.map((check, index) => (
               <div
                 key={index}
-                className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+                className="p-4 bg-muted rounded-lg border border-border hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
@@ -139,7 +139,7 @@ export function ReactNativeReadinessTest() {
                       <span className="text-xl">{getStatusEmoji(check.status)}</span>
                       <h4 className="font-semibold text-lg">{check.name}</h4>
                     </div>
-                    <p className="text-gray-600 text-sm">{check.details}</p>
+                    <p className="text-muted-foreground text-sm">{check.details}</p>
                   </div>
                   <div className="text-right ml-4">
                     <div className={`text-2xl font-bold ${getScoreColor(check.score)}`}>
@@ -152,7 +152,7 @@ export function ReactNativeReadinessTest() {
                 </div>
 
                 {/* Mini Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mt-2">
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden mt-2">
                   <div
                     className={`h-full transition-all ${
                       check.score >= 90 ? 'bg-green-500' :
@@ -174,19 +174,19 @@ export function ReactNativeReadinessTest() {
                 <div className="text-2xl font-bold text-green-600">
                   {report.checks.filter(c => c.status === 'ready').length}
                 </div>
-                <div className="text-sm text-gray-600">Готово</div>
+                <div className="text-sm text-muted-foreground">Готово</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-yellow-600">
                   {report.checks.filter(c => c.status === 'partial').length}
                 </div>
-                <div className="text-sm text-gray-600">Частично</div>
+                <div className="text-sm text-muted-foreground">Частично</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-red-600">
                   {report.checks.filter(c => c.status === 'not_ready').length}
                 </div>
-                <div className="text-sm text-gray-600">Не готово</div>
+                <div className="text-sm text-muted-foreground">Не готово</div>
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@ export function ReactNativeReadinessTest() {
               )}
               
               {report.checks.filter(c => c.status !== 'ready').map((check, index) => (
-                <li key={index} className="text-gray-700">
+                <li key={index} className="text-foreground">
                   • {check.name}: {check.details}
                 </li>
               ))}
@@ -227,7 +227,7 @@ export function ReactNativeReadinessTest() {
                 navigator.clipboard.writeText(text);
                 alert('Отчет скопирован в буфер обмена!');
               }}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 bg-muted text-white rounded-lg hover:bg-muted transition-colors"
             >
               📋 Копировать JSON
             </button>

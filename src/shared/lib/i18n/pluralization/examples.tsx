@@ -65,7 +65,7 @@ export function ExampleEntriesCount({ count }: { count: number }) {
   // - entries_many: "{{count}} записей"
   
   return (
-    <div className="text-sm text-gray-500">
+    <div className="text-sm text-muted-foreground">
       {t.plural('entries', count)}
     </div>
   );

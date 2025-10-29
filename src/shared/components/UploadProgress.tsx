@@ -14,7 +14,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg border border-gray-200 dark:border-gray-700"
+      className="bg-card dark:bg-card rounded-lg p-4 shadow-lg border border-border dark:border-border"
     >
       <div className="flex items-center gap-3">
         {/* Status Icon */}
@@ -35,10 +35,10 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+          <p className="text-sm font-medium text-foreground dark:text-white truncate">
             {fileName}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground">
             {status === 'processing' && 'Обработка...'}
             {status === 'uploading' && 'Загрузка...'}
             {status === 'success' && 'Загружено'}
@@ -48,7 +48,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
         {/* Progress */}
         {(status === 'processing' || status === 'uploading') && (
-          <div className="flex-shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <div className="flex-shrink-0 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
             {progress}%
           </div>
         )}
@@ -56,7 +56,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
       {/* Progress Bar */}
       {(status === 'processing' || status === 'uploading') && (
-        <div className="mt-2 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="mt-2 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}

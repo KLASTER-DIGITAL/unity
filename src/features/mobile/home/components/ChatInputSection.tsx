@@ -262,7 +262,11 @@ export function ChatInputSection({
       </AnimatedPresence>
 
       {/* Success Modal */}
-      <SuccessModal isOpen={showSuccessModal} userName={userName} />
+      <SuccessModal
+        isOpen={showSuccessModal}
+        userName={userName}
+        isOffline={!navigator.onLine}
+      />
     </div>
   );
 }

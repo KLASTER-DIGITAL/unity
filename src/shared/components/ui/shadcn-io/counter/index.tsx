@@ -32,7 +32,7 @@ function Counter({
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <button
           onClick={() => setNumber(number - 1)}
-          className="bg-white dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
+          className="bg-card dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
         >
           -
         </button>
@@ -45,7 +45,7 @@ function Counter({
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <button
           onClick={() => setNumber(number + 1)}
-          className="bg-white dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
+          className="bg-card dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
         >
           +
         </button>

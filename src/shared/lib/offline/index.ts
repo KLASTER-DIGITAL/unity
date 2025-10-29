@@ -6,10 +6,12 @@
  * - Background Sync API
  * - Offline Manager
  * - React Hooks
+ * - Helpers (access control, validation)
  */
 
 export * from './indexedDB';
 export * from './backgroundSync';
 export * from './offlineManager';
 export * from './useOfflineMode';
+export * from './helpers';
 

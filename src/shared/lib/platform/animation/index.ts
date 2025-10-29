@@ -32,18 +32,15 @@
  * ```
  */
 
-// ✅ FIX UNITY-V2-H: Статический импорт вместо require() для production build
+// ✅ PWA + React Native Architecture: ONLY import web module in PWA build
+// React Native files are in /app/shared/ and NOT bundled by Vite
 import * as webModule from './animation.web';
-import * as nativeModule from './animation.native';
 
-// Platform detection
-const isWeb = typeof window !== 'undefined' && !('ReactNativeWebView' in window);
-
-// Export platform-specific implementation
-export const AnimatedView = isWeb ? webModule.AnimatedView : nativeModule.AnimatedView;
-export const AnimatedPresence = isWeb ? webModule.AnimatedPresence : nativeModule.AnimatedPresence;
-export const createAnimated = isWeb ? webModule.createAnimated : nativeModule.createAnimated;
-export const motion = isWeb ? webModule.motion : nativeModule.motion;
+// Export web implementation (PWA build)
+export const AnimatedView = webModule.AnimatedView;
+export const AnimatedPresence = webModule.AnimatedPresence;
+export const createAnimated = webModule.createAnimated;
+export const motion = webModule.motion;
 
 // Export types
 export type {

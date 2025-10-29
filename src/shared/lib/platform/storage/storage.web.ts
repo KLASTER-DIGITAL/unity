@@ -1,12 +1,12 @@
 /**
  * Web Storage Adapter
- * 
+ *
  * Uses localStorage for persistent storage in web browsers
- * 
+ *
  * @module platform/storage/web
  */
 
-import type { StorageAdapter } from '../storage';
+import type { StorageAdapter } from './types';
 
 /**
  * Web storage adapter using localStorage

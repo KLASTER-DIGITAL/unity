@@ -1,29 +1,23 @@
 /**
  * Storage Platform Adapter
  *
- * Provides cross-platform storage functionality:
- * - Web: localStorage
- * - Native: AsyncStorage
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/lib/platform/storage.native.ts
  *
  * @module platform/storage
  */
 
-import { Platform } from '../index';
 import { WebStorageAdapter } from './storage.web';
+import type { StorageAdapter } from './types';
 
-// Re-export StorageAdapter interface from main storage file
-export type { StorageAdapter } from '../storage';
+// Re-export StorageAdapter interface
+export type { StorageAdapter } from './types';
 
 /**
  * Universal storage instance
- * Automatically selects the appropriate storage adapter based on platform
- *
- * Note: NativeStorageAdapter is imported dynamically to avoid bundling
- * @react-native-async-storage/async-storage in web builds
+ * PWA build: ONLY web implementation (localStorage)
+ * React Native build: Uses AsyncStorage from /app/shared/lib/platform/storage.native.ts
  */
-export const storage = Platform.select({
-  web: new WebStorageAdapter(),
-  native: new WebStorageAdapter(), // Placeholder - will be replaced with NativeStorageAdapter in RN
-  default: new WebStorageAdapter(),
-});
+export const storage: StorageAdapter = new WebStorageAdapter();
 

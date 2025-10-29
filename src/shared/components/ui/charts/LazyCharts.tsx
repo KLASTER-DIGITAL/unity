@@ -14,10 +14,10 @@ const PieChart01 = lazy(() => import("../shadcn-io/pie-chart-01").then(module =>
 
 // Chart Loading Component
 const ChartLoadingFallback = () => (
-  <div className="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+  <div className="w-full h-64 flex items-center justify-center bg-muted rounded-lg border-2 border-dashed border-border">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-      <p className="text-sm text-gray-500">Загрузка графика...</p>
+      <p className="text-sm text-muted-foreground">Загрузка графика...</p>
     </div>
   </div>
 );

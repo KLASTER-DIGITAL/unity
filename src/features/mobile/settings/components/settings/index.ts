@@ -5,6 +5,7 @@
 export { DEFAULT_AVATAR_URL, DEFAULT_LANGUAGES } from "./constants";
 export { NotificationsSection } from "./NotificationsSection";
 export { SecuritySection } from "./SecuritySection";
+export { OfflineSection } from "./OfflineSection";
 export { ProfileHeader } from "./ProfileHeader";
 export { AdditionalSection } from "./AdditionalSection";
 export { SupportSection } from "./SupportSection";
@@ -18,7 +19,8 @@ export {
   RateAppModal,
   LanguageModal,
   PWAInstallModal,
-  CategoriesModal
+  CategoriesModal,
+  OfflineSettingsModal
 } from "./modals";
 
 // Handlers
@@ -27,6 +29,7 @@ export {
   checkBiometricAvailability,
   saveNotificationSettings,
   saveSecuritySettings,
+  saveOfflineSettings,
   handleLanguageChange
 } from "./settingsHandlers";
 

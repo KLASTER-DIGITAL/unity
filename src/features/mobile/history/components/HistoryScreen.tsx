@@ -3,11 +3,11 @@ import { AnimatePresence } from "motion/react";
 import { getEntries, deleteEntry, updateEntry, type DiaryEntry } from "@/shared/lib/api";
 import { toast } from "sonner";
 import { useTranslation } from "@/shared/lib/i18n";
-import { LottiePreloaderCompact } from "@/shared/components/LottiePreloader";
 import {
   SearchBar,
   FiltersPanel,
   EntryCard,
+  EntryListSkeleton,
   EntryActionsModal,
   EditEntryModal,
   SuccessModal,
@@ -166,13 +166,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       {/* Entries List */}
       <div className="px-6 py-4">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <LottiePreloaderCompact
-              showMessage={false}
-              minDuration={1000}
-              size="md"
-            />
-          </div>
+          <EntryListSkeleton count={5} />
         ) : filteredEntries.length === 0 ? (
           <EmptyState hasFilters={!!(searchQuery || selectedCategory || selectedSentiment)} />
         ) : (

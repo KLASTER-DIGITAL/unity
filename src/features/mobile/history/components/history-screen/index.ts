@@ -5,6 +5,8 @@
 export { SearchBar } from './SearchBar';
 export { FiltersPanel } from './FiltersPanel';
 export { EntryCard } from './EntryCard';
+export { EntryCardSkeleton } from './EntryCardSkeleton';
+export { EntryListSkeleton } from './EntryListSkeleton';
 export { EntryActionsModal } from './EntryActionsModal';
 export { EditEntryModal } from './EditEntryModal';
 export { SuccessModal } from './SuccessModal';

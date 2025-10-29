@@ -255,7 +255,7 @@ export function PWASettings() {
                   className="flex-1"
                 />
                 <div
-                  className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
+                  className="w-12 h-12 rounded-lg border-2 border-border shadow-sm"
                   style={{ backgroundColor: manifest.themeColor }}
                   aria-hidden="true"
                 />
@@ -272,7 +272,7 @@ export function PWASettings() {
                   className="flex-1"
                 />
                 <div
-                  className="w-12 h-12 rounded-lg border-2 border-gray-300 shadow-sm"
+                  className="w-12 h-12 rounded-lg border-2 border-border shadow-sm"
                   style={{ backgroundColor: manifest.backgroundColor }}
                   aria-hidden="true"
                 />

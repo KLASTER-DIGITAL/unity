@@ -59,6 +59,9 @@ export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
 export { UniversalCheckbox, CheckboxUtils } from './UniversalCheckbox';
 export type { CheckboxProps as UniversalCheckboxProps } from './UniversalCheckbox';
 
+export { Pressable } from './Pressable';
+export type { PressableProps } from './Pressable';
+
 // Re-export common types for convenience
 export type {
   UniversalComponentProps,
@@ -230,18 +233,16 @@ export const UniversalUtils = {
 
 /**
  * Component factory for creating universal components
+ * PWA build: ONLY returns web component
+ * React Native build: Uses /app/shared/components/ui/universal/
  */
 export const createUniversalComponent = <T extends UniversalComponentProps>(
   name: string,
   webComponent: React.ComponentType<T>,
-  nativeComponent: React.ComponentType<T>
+  _nativeComponent?: React.ComponentType<T> // Unused in PWA build
 ) => {
-  const UniversalComponent = Platform.select({
-    web: webComponent,
-    native: nativeComponent,
-    default: webComponent
-  });
-
+  // ✅ PWA + React Native Architecture: ONLY use web component in PWA build
+  const UniversalComponent = webComponent;
   UniversalComponent.displayName = name;
   return UniversalComponent;
 };

@@ -7,14 +7,21 @@ import { LoadingScreen } from "@/shared/components/LoadingScreen";
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { prefetchOnIdle, routePrefetcher } from "@/shared/lib/performance";
 
-// Onboarding screens - критичные для первого запуска, загружаем сразу
-import { WelcomeScreen } from "@/features/mobile/auth/components/WelcomeScreen";
-import { OnboardingScreen2 } from "@/features/mobile/auth/components/OnboardingScreen2";
-import { OnboardingScreen3 } from "@/features/mobile/auth/components/OnboardingScreen3";
-import { OnboardingScreen4 } from "@/features/mobile/auth/components/OnboardingScreen4";
+// ✅ ROUTE-BASED CODE SPLITTING: Все screens загружаются lazy для уменьшения main bundle
+// Onboarding screens - lazy loading (показываются только при первом запуске)
+const importWelcomeScreen = () => import("@/features/mobile/auth/components/WelcomeScreen").then(module => ({ default: module.WelcomeScreen }));
+const importOnboardingScreen2 = () => import("@/features/mobile/auth/components/OnboardingScreen2").then(module => ({ default: module.OnboardingScreen2 }));
+const importOnboardingScreen3 = () => import("@/features/mobile/auth/components/OnboardingScreen3").then(module => ({ default: module.OnboardingScreen3 }));
+const importOnboardingScreen4 = () => import("@/features/mobile/auth/components/OnboardingScreen4").then(module => ({ default: module.OnboardingScreen4 }));
 
-// Auth screen - критичный для авторизации, загружаем сразу
-import { AuthScreen } from "@/features/mobile/auth/components/AuthScreenNew";
+const WelcomeScreen = lazy(importWelcomeScreen);
+const OnboardingScreen2 = lazy(importOnboardingScreen2);
+const OnboardingScreen3 = lazy(importOnboardingScreen3);
+const OnboardingScreen4 = lazy(importOnboardingScreen4);
+
+// Auth screen - lazy loading (показывается только при авторизации)
+const importAuthScreen = () => import("@/features/mobile/auth/components/AuthScreenNew").then(module => ({ default: module.AuthScreen }));
+const AuthScreen = lazy(importAuthScreen);
 
 // Main screens - lazy loading для оптимизации производительности
 // Import functions для prefetch
@@ -123,12 +130,14 @@ export function MobileApp({
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-          <AuthScreen
-            onAuthComplete={onAuthComplete}
-            onboardingData={onboardingData}
-            selectedLanguage={selectedLanguage}
-            initialMode={authMode}
-          />
+          <Suspense fallback={<LoadingScreen />}>
+            <AuthScreen
+              onAuthComplete={onAuthComplete}
+              onboardingData={onboardingData}
+              selectedLanguage={selectedLanguage}
+              initialMode={authMode}
+            />
+          </Suspense>
           <Toaster position="top-center" />
         </TranslationManager>
       </TranslationProvider>
@@ -142,34 +151,36 @@ export function MobileApp({
     return (
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
-          {currentStep === 1 && <WelcomeScreen onNext={onWelcomeComplete} onSkip={onWelcomeSkip} currentStep={currentStep} totalSteps={4} onStepClick={() => {}} />}
-          {currentStep === 2 && (
-            <OnboardingScreen2
-              onNext={onOnboarding2Complete}
-              selectedLanguage={selectedLanguage}
-              currentStep={currentStep - 1}
-              totalSteps={totalSteps}
-              onStepClick={() => {}}
-            />
-          )}
-          {currentStep === 3 && (
-            <OnboardingScreen3
-              onNext={onOnboarding3Complete}
-              selectedLanguage={selectedLanguage}
-              currentStep={currentStep - 1}
-              totalSteps={totalSteps}
-              onStepClick={() => {}}
-            />
-          )}
-          {currentStep === 4 && (
-            <OnboardingScreen4
-              onNext={onOnboarding4Complete}
-              selectedLanguage={selectedLanguage}
-              currentStep={currentStep - 1}
-              totalSteps={totalSteps}
-              onStepClick={() => {}}
-            />
-          )}
+          <Suspense fallback={<LoadingScreen />}>
+            {currentStep === 1 && <WelcomeScreen onNext={onWelcomeComplete} onSkip={onWelcomeSkip} currentStep={currentStep} totalSteps={4} onStepClick={() => {}} />}
+            {currentStep === 2 && (
+              <OnboardingScreen2
+                onNext={onOnboarding2Complete}
+                selectedLanguage={selectedLanguage}
+                currentStep={currentStep - 1}
+                totalSteps={totalSteps}
+                onStepClick={() => {}}
+              />
+            )}
+            {currentStep === 3 && (
+              <OnboardingScreen3
+                onNext={onOnboarding3Complete}
+                selectedLanguage={selectedLanguage}
+                currentStep={currentStep - 1}
+                totalSteps={totalSteps}
+                onStepClick={() => {}}
+              />
+            )}
+            {currentStep === 4 && (
+              <OnboardingScreen4
+                onNext={onOnboarding4Complete}
+                selectedLanguage={selectedLanguage}
+                currentStep={currentStep - 1}
+                totalSteps={totalSteps}
+                onStepClick={() => {}}
+              />
+            )}
+          </Suspense>
           <Toaster position="top-center" />
         </TranslationManager>
       </TranslationProvider>
@@ -187,7 +198,9 @@ export function MobileApp({
       <TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
         <TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
           <div className="min-h-screen bg-background backdrop-blur-sm">
-            <AuthScreen onComplete={onAuthComplete} />
+            <Suspense fallback={<LoadingScreen />}>
+              <AuthScreen onComplete={onAuthComplete} />
+            </Suspense>
             <Toaster position="top-center" />
           </div>
         </TranslationManager>

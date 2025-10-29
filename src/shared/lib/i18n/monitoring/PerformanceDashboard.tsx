@@ -64,16 +64,16 @@ export function PerformanceDashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">i18n Performance Dashboard</h1>
-            <p className="text-gray-600">Real-time monitoring of translation system</p>
+            <p className="text-muted-foreground">Real-time monitoring of translation system</p>
           </div>
           
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Status:</span>
+              <span className="text-sm text-muted-foreground">Status:</span>
               <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                 health.color === 'green' ? 'bg-green-100 text-green-800' :
                 health.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
@@ -92,7 +92,7 @@ export function PerformanceDashboard() {
             className={`px-4 py-2 rounded-lg font-semibold ${
               autoRefresh 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700'
+                : 'bg-muted text-foreground'
             }`}
           >
             {autoRefresh ? 'Auto-Refresh ON' : 'Auto-Refresh OFF'}
@@ -100,7 +100,7 @@ export function PerformanceDashboard() {
           
           <button
             onClick={updateStats}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300"
+            className="px-4 py-2 bg-muted text-foreground rounded-lg font-semibold hover:bg-muted"
           >
             Refresh Now
           </button>
@@ -125,19 +125,19 @@ export function PerformanceDashboard() {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Translation Lookups */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center gap-3 mb-2">
             <Activity className="w-5 h-5 text-blue-600" />
             <h3 className="font-semibold">Translation Lookups</h3>
           </div>
           <p className="text-3xl font-bold">{stats.translationLookups}</p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {stats.translationMisses} misses
           </p>
         </div>
 
         {/* Cache Hit Rate */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center gap-3 mb-2">
             <Zap className="w-5 h-5 text-yellow-600" />
             <h3 className="font-semibold">Cache Hit Rate</h3>
@@ -145,13 +145,13 @@ export function PerformanceDashboard() {
           <p className="text-3xl font-bold">
             {(stats.cacheHitRate * 100).toFixed(1)}%
           </p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {stats.cacheHits} hits / {stats.cacheMisses} misses
           </p>
         </div>
 
         {/* Average Lookup Time */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="w-5 h-5 text-green-600" />
             <h3 className="font-semibold">Avg Lookup Time</h3>
@@ -159,19 +159,19 @@ export function PerformanceDashboard() {
           <p className="text-3xl font-bold">
             {stats.averageLookupTime.toFixed(2)}ms
           </p>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             P95: {stats.p95.toFixed(2)}ms
           </p>
         </div>
 
         {/* Errors */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center gap-3 mb-2">
             <AlertCircle className="w-5 h-5 text-red-600" />
             <h3 className="font-semibold">Errors</h3>
           </div>
           <p className="text-3xl font-bold">{stats.errors}</p>
-          <p className="text-sm text-gray-600 mt-1 truncate">
+          <p className="text-sm text-muted-foreground mt-1 truncate">
             {stats.lastError || 'No errors'}
           </p>
         </div>
@@ -180,7 +180,7 @@ export function PerformanceDashboard() {
       {/* Detailed Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Translation Metrics */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <h2 className="text-xl font-bold mb-4">Translation Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Total Lookups" value={stats.translationLookups} />
@@ -193,7 +193,7 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Cache Metrics */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <h2 className="text-xl font-bold mb-4">Cache Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Cache Hits" value={stats.cacheHits} />
@@ -207,7 +207,7 @@ export function PerformanceDashboard() {
                 <span>Hit Rate</span>
                 <span>{(stats.cacheHitRate * 100).toFixed(1)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
                     stats.cacheHitRate >= 0.8 ? 'bg-green-600' :
@@ -222,7 +222,7 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Loading Metrics */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <h2 className="text-xl font-bold mb-4">Loading Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Language Loads" value={stats.languageLoads} />
@@ -232,7 +232,7 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Memory Metrics */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card rounded-lg shadow p-6">
           <h2 className="text-xl font-bold mb-4">Memory Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Current Usage" value={formatBytes(stats.memoryUsage)} />
@@ -242,7 +242,7 @@ export function PerformanceDashboard() {
       </div>
 
       {/* Recommendations */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">Recommendations</h2>
         <div className="space-y-2">
           {stats.cacheHitRate < 0.7 && (
@@ -280,7 +280,7 @@ export function PerformanceDashboard() {
 function MetricRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex justify-between items-center py-2 border-b last:border-b-0">
-      <span className="text-gray-600">{label}</span>
+      <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold">{value}</span>
     </div>
   );

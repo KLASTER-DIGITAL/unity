@@ -1,9 +1,11 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
+import { CloudOff, Cloud } from "lucide-react";
 
 interface SuccessModalProps {
   isOpen: boolean;
   userName?: string;
+  isOffline?: boolean;
 }
 
 /**
@@ -13,8 +15,9 @@ interface SuccessModalProps {
  * - Success icon with spring animation
  * - User name personalization
  * - AI processing message
+ * - Offline mode indicator
  */
-export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProps) {
+export function SuccessModal({ isOpen, userName = "Анна", isOffline = false }: SuccessModalProps) {
   return (
     <AnimatedPresence>
       {isOpen && (
@@ -53,8 +56,41 @@ export function SuccessModal({ isOpen, userName = "Анна" }: SuccessModalProp
               Отлично {userName}!<br />Ваша запись сохранена! 🎉
             </h3>
             <p className="text-center text-[14px]! text-muted-foreground">
-              AI обрабатывает запись и создает мотивационную карточку...
+              {isOffline
+                ? "Запись будет синхронизирована когда появится интернет"
+                : "AI обрабатывает запись и создает мотивационную карточку..."
+              }
             </p>
+
+            {/* Offline Indicator */}
+            {isOffline && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-4 flex items-center justify-center gap-2 px-3 py-2 bg-orange-500/10 rounded-lg border border-orange-500/20"
+              >
+                <CloudOff className="h-4 w-4 text-orange-600" />
+                <span className="text-[12px]! text-orange-600 font-medium">
+                  Сохранено offline
+                </span>
+              </motion.div>
+            )}
+
+            {/* Online Indicator (optional) */}
+            {!isOffline && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-4 flex items-center justify-center gap-2 px-3 py-2 bg-green-500/10 rounded-lg border border-green-500/20"
+              >
+                <Cloud className="h-4 w-4 text-green-600" />
+                <span className="text-[12px]! text-green-600 font-medium">
+                  Синхронизировано
+                </span>
+              </motion.div>
+            )}
           </motion.div>
         </>
       )}

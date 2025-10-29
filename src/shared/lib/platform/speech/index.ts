@@ -242,22 +242,10 @@ class WebSpeechAdapter implements SpeechAdapter {
 }
 
 // ============================================================================
-// NATIVE IMPLEMENTATION
-// ============================================================================
-
-// Import native implementation (will be tree-shaken in web builds)
-import { NativeSpeechAdapter } from './speech.native';
-
-// ============================================================================
 // EXPORT
 // ============================================================================
 
-export const speech: SpeechAdapter = Platform.select({
-  web: new WebSpeechAdapter(),
-  native: new WebSpeechAdapter(), // Placeholder to avoid bundling native deps
-  default: new WebSpeechAdapter(),
-});
-
-// Export native adapter for dynamic import
-export { NativeSpeechAdapter };
+// ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
+// React Native implementation is in /app/shared/lib/platform/speech.native.ts
+export const speech: SpeechAdapter = new WebSpeechAdapter();
 

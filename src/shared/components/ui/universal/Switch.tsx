@@ -314,12 +314,12 @@ const NativeSwitch = forwardRef<any, SwitchProps>(
 
 /**
  * Universal Switch component
+ *
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Switch.native.tsx
  */
-export const Switch = Platform.select({
-  web: WebSwitch,
-  native: NativeSwitch,
-  default: WebSwitch
-});
+export const Switch = WebSwitch;
 
 Switch.displayName = 'Switch';
 

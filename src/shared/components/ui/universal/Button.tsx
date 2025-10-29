@@ -143,81 +143,13 @@ const WebButton = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 /**
- * React Native button implementation (placeholder)
- */
-const NativeButton = forwardRef<any, ButtonProps>(
-  ({ 
-    children, 
-    variant = 'default', 
-    size = 'default',
-    loading = false,
-    leftIcon,
-    rightIcon,
-    fullWidth = false,
-    disabled = false,
-    onPress,
-    onClick,
-    testID,
-    accessibilityLabel,
-    style,
-    ...props 
-  }, ref) => {
-    // TODO: Implement React Native button using react-native components
-    // This is a placeholder for React Native implementation
-    
-    const handlePress = () => {
-      if (onPress) onPress();
-      if (onClick) onClick();
-    };
-
-    // For now, return a simple div that mimics button behavior
-    // In real React Native, this would use TouchableOpacity or Pressable
-    return (
-      <div
-        ref={ref}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          padding: size === 'sm' ? 8 : size === 'lg' ? 16 : 12,
-          borderRadius: 6,
-          backgroundColor: variant === 'default' ? '#007AFF' : 
-                          variant === 'destructive' ? '#FF3B30' :
-                          variant === 'outline' ? 'transparent' : '#F2F2F7',
-          color: variant === 'default' || variant === 'destructive' ? 'white' : '#000',
-          border: variant === 'outline' ? '1px solid #C7C7CC' : 'none',
-          opacity: disabled || loading ? 0.5 : 1,
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          width: fullWidth ? '100%' : 'auto',
-          ...style
-        }}
-        onClick={disabled ? undefined : handlePress}
-        data-testid={testID}
-        aria-label={accessibilityLabel}
-        {...props}
-      >
-        {loading && <div>⏳</div>}
-        {!loading && leftIcon && leftIcon}
-        {children}
-        {!loading && rightIcon && rightIcon}
-      </div>
-    );
-  }
-);
-
-/**
  * Universal Button component
- * 
- * Automatically selects the appropriate implementation based on platform
+ *
+ * ✅ PWA + React Native Architecture:
+ * - PWA build (src/): ONLY web implementation
+ * - React Native build (/app/): Uses /app/shared/components/ui/universal/Button.native.tsx
  */
-export const Button = Platform.select({
-  web: WebButton,
-  native: NativeButton,
-  default: WebButton
-});
+export const Button = WebButton;
 
 Button.displayName = 'Button';
 

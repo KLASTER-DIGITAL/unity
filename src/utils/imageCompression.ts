@@ -1,5 +1,6 @@
 import imageCompression from 'browser-image-compression';
-import { media } from '../shared/lib/platform';
+// Direct import to avoid circular dependency
+import { media } from '../shared/lib/platform/media';
 
 /**
  * 📸 PROFESSIONAL IMAGE COMPRESSION

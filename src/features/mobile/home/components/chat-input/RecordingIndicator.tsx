@@ -70,7 +70,7 @@ export function RecordingIndicator({
             <div className="flex items-center gap-2">
               <button
                 onClick={onStop}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/20 hover:bg-muted/30 rounded-full transition-colors duration-300"
                 aria-label="Остановить запись"
               >
                 <Square className="w-3.5 h-3.5 text-white" fill="currentColor" />

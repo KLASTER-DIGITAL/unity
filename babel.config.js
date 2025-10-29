@@ -13,7 +13,13 @@ module.exports = function(api) {
   
   return {
     presets: [
-      'babel-preset-expo',
+      [
+        'babel-preset-expo',
+        {
+          // Enable import.meta polyfill for React Native (Hermes)
+          unstable_transformImportMeta: true,
+        },
+      ],
     ],
     plugins: [
       // TypeScript path aliases

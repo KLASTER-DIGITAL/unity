@@ -11,6 +11,11 @@ interface PremiumModalProps {
 export function PremiumModal({ open, onClose }: PremiumModalProps) {
   const premiumFeatures = [
     {
+      title: "Offline режим",
+      description: "Работайте без интернета, автоматическая синхронизация",
+      icon: "📴"
+    },
+    {
       title: "Премиум-темы",
       description: "Закат, Океан, Лес - эксклюзивные цветовые схемы",
       icon: "🎨"

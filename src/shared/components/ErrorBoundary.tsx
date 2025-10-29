@@ -103,7 +103,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Иначе показываем дефолтный UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-muted">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -133,12 +133,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               )}
 
               {/* Component stack (только в dev режиме) */}
-              {import.meta.env.DEV && this.state.errorInfo && (
-                <details className="p-4 bg-gray-100 border border-gray-200 rounded-lg">
-                  <summary className="text-sm font-medium text-gray-900 cursor-pointer">
+              {__DEV__ && this.state.errorInfo && (
+                <details className="p-4 bg-muted border border-border rounded-lg">
+                  <summary className="text-sm font-medium text-foreground cursor-pointer">
                     Технические детали (для разработчиков)
                   </summary>
-                  <pre className="mt-2 text-xs text-gray-700 overflow-auto max-h-64">
+                  <pre className="mt-2 text-xs text-foreground overflow-auto max-h-64">
                     {this.state.errorInfo.componentStack}
                   </pre>
                 </details>
@@ -153,7 +153,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   <li>Попробуйте обновить страницу</li>
                   <li>Очистите кэш браузера</li>
                   <li>Вернитесь на главную страницу</li>
-                  {import.meta.env.DEV && (
+                  {__DEV__ && (
                     <li>Проверьте консоль браузера для деталей</li>
                   )}
                 </ul>

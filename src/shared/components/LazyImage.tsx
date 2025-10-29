@@ -89,8 +89,8 @@ export function LazyImage({
 
       {/* Error state */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          <div className="text-center text-gray-400">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted dark:bg-card">
+          <div className="text-center text-muted-foreground">
             <svg
               className="w-12 h-12 mx-auto mb-2"
               fill="none"
@@ -113,7 +113,7 @@ export function LazyImage({
       {!isLoaded && !hasError && isInView && (
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
-            className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full"
+            className="w-8 h-8 border-4 border-border border-t-blue-500 rounded-full"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
           />

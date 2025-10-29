@@ -111,7 +111,7 @@ export function PersonalizationForm({ currentTranslations, onNext: _onNext, onUp
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
           placeholder={currentTranslations.placeholder}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center text-[16px]! font-semibold! bg-white text-gray-900"
+          className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-[#756ef3] focus:outline-none transition-all duration-300 text-center text-[16px]! font-semibold! bg-card text-foreground"
           maxLength={30}
           animate={{
             scale: isInputFocused ? 1.02 : 1,

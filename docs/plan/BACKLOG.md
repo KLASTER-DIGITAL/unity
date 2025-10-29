@@ -17,15 +17,20 @@
 - ✅ ФАЗА 2: React Native готовность (6 Platform Adapters, 6 Universal Components)
 - ✅ ФАЗА 3: Тестирование (277 тестов, 100% passing)
 - ✅ ФАЗА 4: Финальная проверка (0 ошибок в консоли, финальный отчёт)
+- ✅ ФАЗА 5: PWA + React Native Architecture Separation (2025-10-29)
 
 **Ключевые метрики**:
 - Тесты: 277/277 (100% passing)
-- React Native готовность: 100%
+- React Native готовность: 95%+ (архитектура готова)
 - TypeScript errors: 19 (не критично)
-- Консоль браузера: 0 ошибок
+- Консоль браузера: 0 ошибок (только 1 ожидаемая Supabase refresh token)
 - Coverage: 85%+
+- Production build: работает ИДЕАЛЬНО (7.64s)
 
-**Документация**: `docs/FINAL_REPORT_2025-10-26.md`
+**Документация**:
+- `docs/FINAL_REPORT_2025-10-26.md`
+- `docs/architecture/ARCHITECTURE_PWA_RN.md` (NEW - 2025-10-29)
+- `docs/plan/PRIORITY_TASKS_2025-10-29.md` (NEW - 2025-10-29)
 
 ---
 
@@ -487,12 +492,41 @@
 
 ## 📊 Средний приоритет (P2)
 
+### [TASK-031] PWA + React Native Architecture Separation
+**Статус**: ✅ Завершено (2025-10-29)
+**Приоритет**: 🔴 P0 - Критический
+**Оценка**: 4-6 часов
+**Фактически**: 3 часа
+**Команда**: AI Assistant
+**Зависимости**: Нет
+**Детали**: → [ARCHITECTURE_PWA_RN.md](../architecture/ARCHITECTURE_PWA_RN.md)
+**Отчет**: → [PRIORITY_TASKS_2025-10-29.md](PRIORITY_TASKS_2025-10-29.md)
+
+**Описание**:
+Исправить критическую ошибку "Invalid Hook Call" путем создания четкой архитектуры PWA + React Native с разделением кода.
+
+**Ключевые метрики**:
+- ✅ Консоль браузера: 0 errors (только 1 ожидаемая Supabase refresh token)
+- ✅ Production build: работает ИДЕАЛЬНО (7.64s)
+- ✅ React Native готовность: 95%+
+- ✅ НЕТ circular dependencies
+
+**Прогресс**:
+- [x] Исправлено 11 Universal Components
+- [x] Исправлено 2 Platform Adapters
+- [x] Исправлен Supabase client (убран expo-constants)
+- [x] Создана документация ARCHITECTURE_PWA_RN.md
+- [x] Dev server работает БЕЗ ошибок react-native
+- [x] Production build успешен
+
+---
+
 ### [TASK-018] React Native подготовка
-**Статус**: 📅 Готово к старту
+**Статус**: 🔄 В работе (95% готово)
 **Приоритет**: 🟢 P2 - Средний
 **Оценка**: 2 недели
 **Команда**: Mobile Team
-**Зависимости**: Нет
+**Зависимости**: TASK-031 (завершена)
 **Детали**: → [REFACTORING_STRATEGY_2025-10-23.md](REFACTORING_STRATEGY_2025-10-23.md#фаза-5-react-native-подготовка-p2---2-недели)
 **Основание**: → [COMPREHENSIVE_CODEBASE_AUDIT_2025-10-23.md](../reports/COMPREHENSIVE_CODEBASE_AUDIT_2025-10-23.md)
 
@@ -500,15 +534,16 @@
 Довести React Native готовность до 100%: реализовать Native адаптеры (Storage, Media, Navigation), создать 15+ Universal Components.
 
 **Ключевые метрики**:
-- React Native готовность: 90% → 100%
-- Universal Components: 5 → 15+
+- React Native готовность: 95% → 100%
+- Universal Components: 11 → 15+
 - Test coverage: 80%+
 
 **Прогресс**:
-- [ ] Реализовать NativeStorageAdapter
-- [ ] Реализовать NativeMediaAdapter
-- [ ] Реализовать NativeNavigationAdapter
-- [ ] Создать 10+ Universal Components
+- [x] Реализовать NativeStorageAdapter (DONE)
+- [x] Реализовать NativeMediaAdapter (DONE)
+- [x] Реализовать NativeNavigationAdapter (DONE)
+- [x] Создать 11 Universal Components (DONE)
+- [ ] Создать еще 4+ Universal Components
 - [ ] Написать тесты
 
 ---
@@ -706,23 +741,23 @@
 ## 📊 Статистика
 
 ### По приоритетам
-- 🔴 P0 (Критические): 5 задач (+3 новых из аудита)
-- 🟡 P1 (Высокие): 5 задач (+3 новых из аудита)
-- 🟢 P2 (Средние): 5 задач (+1 новая из аудита)
+- 🔴 P0 (Критические): 4 задачи (1 завершена - TASK-031)
+- 🟡 P1 (Высокие): 5 задач
+- 🟢 P2 (Средние): 5 задач (1 в работе - TASK-018)
 - 🔵 P3 (Низкие): 2 задачи
 
 ### По статусам
-- ✅ Завершено: 2 задачи
-- 🔄 В работе: 0 задач
-- 📅 Готово к старту: 14 задач (+7 новых из аудита)
+- ✅ Завершено: 3 задачи (TASK-009, TASK-010, TASK-031)
+- 🔄 В работе: 1 задача (TASK-018 - 95% готово)
+- 📅 Готово к старту: 13 задач
 - 💡 Идея: 2 задачи
 
 ### По командам
-- Frontend Team: 4 задачи (+2 новых)
-- Backend Team: 3 задачи (+3 новых)
-- AI Team: 2 задачи
-- Mobile Team: 2 задачи (+1 новая)
-- Full Stack Team: 3 задачи (+1 новая)
+- Frontend Team: 4 задачи
+- Backend Team: 3 задачи
+- AI Team: 2 задачи (1 завершена - TASK-031)
+- Mobile Team: 2 задачи (1 в работе - TASK-018)
+- Full Stack Team: 3 задачи
 - Frontend + Backend Team: 1 задача
 - Backend + QA Team: 1 задача
 - Documentation Team: 2 задачи (2 завершены)

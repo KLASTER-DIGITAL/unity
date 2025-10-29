@@ -25,7 +25,6 @@
 /* Custom styles */
 @import "./components.css";
 @import "./utilities.css";
-@import "tw-animate-css";
 /*---break---
  */
 @custom-variant dark (&:is(.dark *));
