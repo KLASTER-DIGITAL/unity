@@ -2,7 +2,7 @@
 
 **Последнее обновление**: 2025-10-29
 **Анализ кодовой базы**: Автоматический (через codebase-retrieval)
-**Статус**: 9 активных рекомендаций (1 P0 + 5 P1 + 3 P2)
+**Статус**: 8 активных рекомендаций (1 P0 + 4 P1 + 3 P2)
 
 > **Цель**: Этот документ содержит топ-10 рекомендаций AI Assistant на основе анализа кодовой базы, архитектуры и best practices.
 
@@ -41,6 +41,20 @@
   - ✅ Vite Code Splitting настроен (7 vendor chunks)
   - ✅ Universal Components уменьшают Radix UI bundle
 - **Результат**: Дальнейшая оптимизация не требуется ✅
+- **Дата**: 2025-10-29
+
+### [COMPLETED] Удалить unused indexes (REC-004)
+- **Проблема**: Supabase Performance Advisors показывал 5 unused indexes
+- **Детальный анализ**: Проверены все SQL запросы через codebase-retrieval
+- **Удалено 2 индекса**:
+  - ❌ idx_profiles_offline_enabled - offline проверки на клиенте
+  - ❌ idx_media_files_user_id - покрывается composite index
+- **Оставлено 3 индекса**:
+  - ✅ idx_media_files_entry_id - используется в media-upload-api
+  - ✅ idx_push_notifications_history_sent_by - используется в push-sender
+  - ✅ idx_usage_user_id - АКТИВНО используется в PWA analytics
+- **Результат**: Удалено 40% unused indexes, оставлены критически важные ✅
+- **Миграция**: supabase/migrations/20251029_remove_unused_indexes.sql
 - **Дата**: 2025-10-29
 
 ---
@@ -167,43 +181,45 @@
 
 ---
 
-### [REC-004] Удалить unused index idx_profiles_offline_enabled
+### [COMPLETED] Удалить unused indexes (REC-004)
 **Приоритет**: 🟡 P1 - Важный
 **Категория**: Performance, Database
 **Дата обнаружения**: 2025-10-28
+**Дата завершения**: 2025-10-29
 **Влияние**: Среднее (БД производительность)
-**Оценка**: 30 минут
 
 **Проблема**:
-- Supabase Advisors (Performance) показывает 4 INFO: "Unused Index"
+- Supabase Performance Advisors показывал 5 unused indexes
 - Индексы занимают место и замедляют INSERT/UPDATE операции
-- Индексы были созданы недавно, но еще не использовались
 
-**Неиспользуемые индексы**:
-1. `idx_media_files_entry_id` на `public.media_files`
-2. `idx_media_files_user_id` на `public.media_files`
-3. `idx_push_notifications_history_sent_by` на `public.push_notifications_history`
-4. `idx_usage_user_id` на `public.usage`
+**Детальный анализ через codebase-retrieval**:
+1. **idx_profiles_offline_enabled** - ❌ УДАЛЕН
+   - Offline проверки на клиенте (OfflineSection.tsx), не в SQL
+   - Функция еще не активирована (Premium feature)
 
-**Рекомендация**:
-Подождать 1-2 недели для сбора статистики использования, затем удалить неиспользуемые:
-```sql
--- Проверить статистику использования
-SELECT schemaname, tablename, indexname, idx_scan
-FROM pg_stat_user_indexes
-WHERE indexname IN (
-  'idx_media_files_entry_id',
-  'idx_media_files_user_id',
-  'idx_push_notifications_history_sent_by',
-  'idx_usage_user_id'
-);
+2. **idx_media_files_user_id** - ❌ УДАЛЕН
+   - Покрывается composite index `idx_media_files_user_created (user_id, created_at DESC)`
+   - PostgreSQL использует composite index для `WHERE user_id = ?`
 
--- Если idx_scan = 0 после 2 недель, удалить
-DROP INDEX IF EXISTS idx_media_files_entry_id;
--- ... и т.д.
-```
+3. **idx_media_files_entry_id** - ✅ ОСТАВЛЕН
+   - Используется в media-upload-api Edge Function
+   - Нужен для JOIN (entries LEFT JOIN media_files)
+   - Нужен для DELETE CASCADE
 
-**Статус**: 📅 Мониторинг до 2025-11-11, затем удаление
+4. **idx_push_notifications_history_sent_by** - ✅ ОСТАВЛЕН
+   - Используется в push-sender Edge Function (INSERT with sent_by)
+   - Нужен для admin dashboard (filter by sender)
+
+5. **idx_usage_user_id** - ✅ ОСТАВЛЕН
+   - АКТИВНО используется в pwa-tracking.ts, push-analytics.ts
+   - Query: `SELECT * FROM usage WHERE user_id = ? AND operation_type IN (...)`
+
+**Результат**:
+- Удалено 2 индекса (40% от unused)
+- Оставлено 3 критически важных индекса
+- Миграция: `supabase/migrations/20251029_remove_unused_indexes.sql`
+
+**Статус**: ✅ COMPLETED
 
 ---
 

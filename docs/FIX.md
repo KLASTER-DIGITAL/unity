@@ -48,6 +48,19 @@
 
 ### 🗄️ База данных
 
+**Удаление Unused Indexes** (TASK-024):
+- **Проблема**: Supabase Performance Advisors показывал 5 unused indexes
+- **Детальный анализ**: Проверены все SQL запросы через codebase-retrieval
+- **Удалено 2 индекса**:
+  - `idx_profiles_offline_enabled` - offline проверки на клиенте (OfflineSection.tsx), не в SQL
+  - `idx_media_files_user_id` - покрывается composite index `idx_media_files_user_created (user_id, created_at DESC)`
+- **Оставлено 3 критически важных индекса**:
+  - `idx_media_files_entry_id` - используется в media-upload-api Edge Function для JOIN и DELETE CASCADE
+  - `idx_push_notifications_history_sent_by` - используется в push-sender Edge Function (INSERT with sent_by)
+  - `idx_usage_user_id` - АКТИВНО используется в PWA analytics (pwa-tracking.ts, push-analytics.ts)
+- **Результат**: Удалено 40% unused indexes, оставлены только необходимые ✅
+- **Файлы**: `supabase/migrations/20251029_remove_unused_indexes.sql`
+
 **Covering Indexes для Foreign Keys** (TASK-024-FIX):
 - **Проблема**: После удаления unused indexes появились 4 unindexed foreign keys (INFO level)
 - **Решение**: Создана миграция `add_covering_indexes_for_foreign_keys`
@@ -111,7 +124,18 @@
   - ✅ Vite Code Splitting настроен (7 vendor chunks)
   - ✅ Universal Components уменьшают Radix UI bundle
 - **Результат**: REC-003 отмечен как COMPLETED, дальнейшая оптимизация не требуется ✅
-- **Статус**: 9 активных рекомендаций (1 P0 + 5 P1 + 3 P2)
+
+**RECOMMENDATIONS.md - Unused Indexes Analysis** (REC-004):
+- **Детальный анализ**: Проверены все SQL запросы через codebase-retrieval
+- **Удалено 2 индекса**:
+  - idx_profiles_offline_enabled - offline проверки на клиенте (OfflineSection.tsx)
+  - idx_media_files_user_id - покрывается composite index idx_media_files_user_created
+- **Оставлено 3 критически важных индекса**:
+  - idx_media_files_entry_id - используется в media-upload-api Edge Function
+  - idx_push_notifications_history_sent_by - используется в push-sender Edge Function
+  - idx_usage_user_id - АКТИВНО используется в PWA analytics (pwa-tracking.ts)
+- **Результат**: REC-004 отмечен как COMPLETED ✅
+- **Статус**: 8 активных рекомендаций (1 P0 + 4 P1 + 3 P2)
 
 **BACKLOG.md - Удалены завершенные/ненужные задачи**:
 - Удалено TASK-019 (Leaked Password Protection) - требует ручного действия в Supabase Dashboard
@@ -215,10 +239,8 @@
 **Offline Mode - Database Migration**:
 - Создана миграция `supabase/migrations/20251028_add_offline_enabled.sql`:
   - Добавлено поле `offline_enabled BOOLEAN DEFAULT false` в таблицу profiles
-  - Создан индекс `idx_profiles_offline_enabled` для оптимизации запросов
-- Создана миграция `supabase/migrations/20251028_remove_unused_indexes.sql`:
-  - Удалены 4 неиспользуемых индекса (media_files, push_notifications_history, usage)
-  - Оставлен новый индекс idx_profiles_offline_enabled (будет использоваться после активации функции)
+  - Создан partial index `idx_profiles_offline_enabled WHERE offline_enabled = true`
+  - **ОБНОВЛЕНИЕ 2025-10-29**: Индекс удален в миграции `20251029_remove_unused_indexes.sql` (offline проверки на клиенте, не в SQL)
 
 **Offline Mode - Settings Integration**:
 - Обновлен `src/features/mobile/settings/components/SettingsScreen.tsx`:
