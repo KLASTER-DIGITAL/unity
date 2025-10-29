@@ -46,6 +46,19 @@
   - Обновлена TASK-018 (React Native подготовка) - 95% готово
   - Обновлена статистика задач
 
+### 🗄️ База данных
+
+**Covering Indexes для Foreign Keys** (TASK-024-FIX):
+- **Проблема**: После удаления unused indexes появились 4 unindexed foreign keys (INFO level)
+- **Решение**: Создана миграция `add_covering_indexes_for_foreign_keys`
+- **Индексы**:
+  - `idx_media_files_entry_id` - covering index для `media_files_entry_id_fkey`
+  - `idx_media_files_user_id` - covering index для `media_files_user_id_fkey`
+  - `idx_push_notifications_history_sent_by` - covering index для `push_notifications_history_sent_by_fkey`
+  - `idx_usage_user_id` - covering index для `usage_user_id_fkey`
+- **Результат**: Unindexed foreign keys: 4 → 0 ✅
+- **Файлы**: `supabase/migrations/20241029_add_covering_indexes_for_foreign_keys.sql`
+
 ### 🔄 Изменено
 
 **Universal Components - Удаление Platform.select()**:

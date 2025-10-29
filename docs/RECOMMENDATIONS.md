@@ -1,20 +1,28 @@
 # 🎯 AI Recommendations для UNITY-v2
 
-**Последнее обновление**: 2025-10-28
-**Анализ кодовой базы**: Автоматический (еженедельно)
-**Статус**: 10 активных рекомендаций (2 P0 + 5 P1 + 3 P2)
+**Последнее обновление**: 2025-10-29
+**Анализ кодовой базы**: Автоматический (через codebase-retrieval)
+**Статус**: 10 активных рекомендаций (1 P0 + 6 P1 + 3 P2)
 
 > **Цель**: Этот документ содержит топ-10 рекомендаций AI Assistant на основе анализа кодовой базы, архитектуры и best practices.
 
 ---
 
-## ✅ Выполнено (2025-10-28)
+## ✅ Выполнено (2025-10-29)
 
 ### [COMPLETED] Исправлен 401 error на translations-api/languages
 - **Проблема**: WelcomeScreen не мог загрузить список языков до авторизации
-- **Решение**: Edge Function теперь использует ANON_KEY fallback для публичных endpoints
-- **Статус**: ✅ Задеплоено (version 9)
-- **Дата**: 2025-10-24
+- **Решение**: Добавлен заголовок `apikey` во все публичные запросы к translations-api
+- **Файлы**: WelcomeScreen.tsx, settingsHandlers.ts, api.ts
+- **Результат**: Консоль браузера 0 ERROR ✅
+- **Дата**: 2025-10-29
+
+### [COMPLETED] Созданы covering indexes для foreign keys
+- **Проблема**: После удаления unused indexes появились 4 unindexed foreign keys (INFO level)
+- **Решение**: Создана миграция `add_covering_indexes_for_foreign_keys`
+- **Индексы**: idx_media_files_entry_id, idx_media_files_user_id, idx_push_notifications_history_sent_by, idx_usage_user_id
+- **Результат**: Unindexed foreign keys: 4 → 0 ✅
+- **Дата**: 2025-10-29
 
 ### [COMPLETED] Архивировано устаревшая документация
 - **Проблема**: Много завершенных документов не были архивированы
@@ -96,7 +104,47 @@ src/styles/
 
 ## 🟡 Важные (P1) - Рекомендуется выполнить в ближайшие 2-4 недели
 
-### [REC-003] Удалить 4 unused indexes из БД
+### [REC-003] Оптимизировать bundle size (2.01 MB → <1.5 MB)
+**Приоритет**: 🟡 P1 - Важный
+**Категория**: Performance
+**Дата обнаружения**: 2025-10-29
+**Влияние**: Среднее (скорость загрузки)
+**Оценка**: 4 часа
+
+**Проблема**:
+- JavaScript bundle: 2.01 MB (превышает рекомендуемый 1.5 MB)
+- Большие vendor библиотеки: React, Recharts, Framer Motion
+- Assets: 2.25 MB (очень большие изображения)
+
+**Рекомендация**:
+1. **Tree-shaking оптимизация**:
+   ```typescript
+   // ❌ Плохо - импорт всей библиотеки
+   import * as Icons from 'lucide-react';
+
+   // ✅ Хорошо - импорт конкретных иконок
+   import { Home, Settings, User } from 'lucide-react';
+   ```
+
+2. **Asset оптимизация**:
+   - Конвертировать PNG → WebP (экономия 60-80%)
+   - Оптимизировать размеры изображений
+   - Использовать responsive images
+
+3. **Code splitting**:
+   - Lazy load admin панели (только для super_admin)
+   - Lazy load Recharts (только для статистики)
+
+**Ожидаемый результат**:
+- Bundle size: 2.01 MB → 1.4 MB (-30%)
+- Assets: 2.25 MB → 0.9 MB (-60%)
+- Lighthouse Performance: 75 → 90+ (+20%)
+
+**Статус**: 📅 Запланировано на Sprint #15
+
+---
+
+### [REC-004] Удалить unused index idx_profiles_offline_enabled
 **Приоритет**: 🟡 P1 - Важный
 **Категория**: Performance, Database
 **Дата обнаружения**: 2025-10-28
