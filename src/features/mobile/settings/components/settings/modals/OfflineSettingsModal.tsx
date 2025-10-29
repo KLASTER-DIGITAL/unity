@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { X, CloudOff, RefreshCw, AlertTriangle, Database, Trash2 } from "lucide-react";
+import { X, CloudOff, RefreshCw, AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { SettingsRow, SettingsSection } from "../../SettingsRow";
 import { useOfflineMode } from "@/shared/lib/offline";
@@ -26,7 +26,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
   // Local state для настроек
   const [autoSync, setAutoSync] = useState(true);
   const [conflictStrategy, setConflictStrategy] = useState<ConflictStrategy>('server-wins');
-  const [cacheSizeLimit, setCacheSizeLimit] = useState(100); // MB
+  const [_cacheSizeLimit, setCacheSizeLimit] = useState(100); // MB - Reserved for future use
 
   // Load settings from localStorage
   useEffect(() => {
@@ -40,14 +40,6 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
       if (savedCacheLimit) setCacheSizeLimit(parseInt(savedCacheLimit));
     }
   }, [isOpen]);
-
-  // Save settings to localStorage
-  const saveSettings = () => {
-    localStorage.setItem('offline_auto_sync', autoSync.toString());
-    localStorage.setItem('offline_conflict_strategy', conflictStrategy);
-    localStorage.setItem('offline_cache_limit', cacheSizeLimit.toString());
-    toast.success("Настройки сохранены");
-  };
 
   const handleAutoSyncChange = (checked: boolean) => {
     setAutoSync(checked);

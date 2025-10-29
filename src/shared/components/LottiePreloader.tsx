@@ -78,7 +78,7 @@ export function LottiePreloader({
   size = 'md',
   className = '',
   onMinDurationComplete,
-  animationType = 'initial'
+  animationType: _animationType = 'initial' // Deprecated parameter, kept for backwards compatibility
 }: LottiePreloaderProps) {
   const { theme } = useTheme();
   const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
@@ -156,7 +156,7 @@ export function LottiePreloaderCompact({
   minDuration,
   onMinDurationComplete,
   className = '',
-  animationType = 'transition'
+  animationType: _animationType = 'transition' // Deprecated parameter, kept for backwards compatibility
 }: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
   minDuration?: number;
   onMinDurationComplete?: () => void;
@@ -225,7 +225,7 @@ export function LottiePreloaderCompact({
 export function LottiePreloaderInline({
   size = 'sm',
   className = '',
-  animationType = 'transition'
+  animationType: _animationType = 'transition' // Deprecated parameter, kept for backwards compatibility
 }: Pick<LottiePreloaderProps, 'size' | 'className' | 'animationType'>) {
   const { theme } = useTheme();
   const [animationData, setAnimationData] = useState<any>(null);

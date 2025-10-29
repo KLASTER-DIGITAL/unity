@@ -8,8 +8,6 @@
  * @module components/ui/universal/Dialog
  */
 
-import { Platform } from '@/shared/lib/platform';
-
 // Import implementations
 import * as WebDialog from './Dialog.web';
 // Note: NativeDialog is NOT imported to avoid bundling react-native in web build

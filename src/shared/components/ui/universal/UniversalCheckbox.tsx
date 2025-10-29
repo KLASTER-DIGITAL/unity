@@ -8,8 +8,6 @@
  * @module components/ui/universal/UniversalCheckbox
  */
 
-import { Platform } from '@/shared/lib/platform';
-
 // Import implementations
 import * as WebCheckbox from './Checkbox.web';
 

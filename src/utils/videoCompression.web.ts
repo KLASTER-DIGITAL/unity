@@ -19,7 +19,7 @@ async function loadFFmpeg(): Promise<any> {
   try {
     // Dynamically import FFmpeg to avoid bundling issues
     const { FFmpeg } = await import('@ffmpeg/ffmpeg');
-    const { fetchFile, toBlobURL } = await import('@ffmpeg/util');
+    const { toBlobURL } = await import('@ffmpeg/util');
 
     const ffmpeg = new FFmpeg();
 
@@ -57,6 +57,7 @@ export async function compressVideo(
 
   try {
     const ffmpeg = await loadFFmpeg();
+    const { fetchFile } = await import('@ffmpeg/util');
 
     // Write input file to FFmpeg virtual filesystem
     await ffmpeg.writeFile('input.mp4', await fetchFile(file));
@@ -119,6 +120,7 @@ export async function generateVideoThumbnail(file: File): Promise<File> {
 
   try {
     const ffmpeg = await loadFFmpeg();
+    const { fetchFile } = await import('@ffmpeg/util');
 
     // Write input file
     await ffmpeg.writeFile('input.mp4', await fetchFile(file));

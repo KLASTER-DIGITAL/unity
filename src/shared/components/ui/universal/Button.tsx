@@ -8,7 +8,6 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import { 
   UniversalComponentProps, 

@@ -8,8 +8,6 @@
  * @module components/ui/universal/UniversalSwitch
  */
 
-import { Platform } from '@/shared/lib/platform';
-
 // Import implementations
 import * as WebSwitch from './Switch.web';
 

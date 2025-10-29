@@ -1,4 +1,4 @@
-import { CloudOff, Settings, Crown } from "lucide-react";
+import { CloudOff, Settings } from "lucide-react";
 import { SettingsRow, SettingsSection } from "../SettingsRow";
 import { useOfflineMode } from "@/shared/lib/offline";
 

@@ -156,11 +156,10 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
         'readwrite'
       );
 
-      const promises = [
-        transaction.objectStore(STORES.PENDING_ENTRIES).clear(),
-        transaction.objectStore(STORES.CACHED_ENTRIES).clear(),
-        transaction.objectStore(STORES.SYNC_QUEUE).clear(),
-      ];
+      // Clear all stores
+      transaction.objectStore(STORES.PENDING_ENTRIES).clear();
+      transaction.objectStore(STORES.CACHED_ENTRIES).clear();
+      transaction.objectStore(STORES.SYNC_QUEUE).clear();
 
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);

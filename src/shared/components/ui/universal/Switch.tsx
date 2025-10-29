@@ -9,7 +9,6 @@
  */
 
 import React, { useState, forwardRef } from 'react';
-import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import {
   UniversalEventHandlers,
@@ -199,8 +198,10 @@ const WebSwitch = forwardRef<HTMLButtonElement, SwitchProps>(
 
 /**
  * React Native switch implementation (placeholder)
+ * @deprecated Not used in PWA build - only for React Native
  */
-const NativeSwitch = forwardRef<any, SwitchProps>(
+// @ts-expect-error - Placeholder for React Native, not used in PWA build
+const _NativeSwitch = forwardRef<any, SwitchProps>(
   ({ 
     checked,
     defaultChecked = false,

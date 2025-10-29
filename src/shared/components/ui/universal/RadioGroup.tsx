@@ -37,8 +37,6 @@
  * ```
  */
 
-import { Platform } from '@/shared/lib/platform';
-
 // Import web implementation
 import * as WebRadioGroup from './RadioGroup.web';
 

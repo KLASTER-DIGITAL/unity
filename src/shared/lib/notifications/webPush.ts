@@ -168,7 +168,7 @@ export async function subscribeToPush(userId: string): Promise<PushSubscription 
 
     // Загружаем VAPID public key
     const vapidPublicKey = await loadVapidPublicKey();
-    const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+    const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey) as BufferSource;
 
     // Создаем subscription
     const subscription = await registration.pushManager.subscribe({

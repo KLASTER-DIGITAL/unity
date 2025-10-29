@@ -8,6 +8,24 @@
 
 ## [Unreleased] - 2025-10-29
 
+### 📚 Документация
+
+**RECOMMENDATIONS.md - REC-005 COMPLETED** (sidebar.tsx разбит):
+- **Проблема**: sidebar.tsx был 726 строк в 1 файле (нарушение AI-friendly правила <300 строк)
+- **Решение**: Разбит на 5 модулей для лучшей поддержки и AI анализа (завершен ранее как TASK-025)
+- **Модули**:
+  - sidebar-context.tsx (138 строк) - Context, Provider, hook
+  - sidebar-components-base.tsx (284 строки) - Base UI components
+  - sidebar-components-group.tsx (91 строка) - Group components
+  - sidebar-components-menu.tsx (300 строк) - Menu components
+  - sidebar.tsx (58 строк) - Main export file
+- **Результат**: 726 строк → 871 строка в 5 файлах (avg 174 строки/файл) ✅
+- **Улучшения**: AI анализ 3-5 сек вместо 30-60 сек, все файлы <300 строк
+- **Статус**: REC-005 отмечен как COMPLETED в RECOMMENDATIONS.md
+- **Обновлено**:
+  - RECOMMENDATIONS.md (6 активных рекомендаций вместо 7)
+  - BACKLOG.md (TASK-026 отмечен как завершенный, 3 завершенных задачи вместо 2)
+
 ### ✨ Новые компоненты
 
 **Universal Pressable Component**:

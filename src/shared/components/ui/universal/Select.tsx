@@ -9,7 +9,6 @@
  */
 
 import React, { useState, useRef, useEffect, forwardRef } from 'react';
-import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import { ChevronDownIcon, CheckIcon } from 'lucide-react';
 import {
@@ -272,8 +271,10 @@ const WebSelect = forwardRef<HTMLDivElement, SelectProps>(
 
 /**
  * React Native select implementation (placeholder)
+ * @deprecated Not used in PWA build - only for React Native
  */
-const NativeSelect = forwardRef<any, SelectProps>(
+// @ts-expect-error - Placeholder for React Native, not used in PWA build
+const _NativeSelect = forwardRef<any, SelectProps>(
   ({ 
     options = [],
     value,

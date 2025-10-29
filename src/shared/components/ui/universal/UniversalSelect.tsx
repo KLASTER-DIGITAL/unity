@@ -8,8 +8,6 @@
  * @module components/ui/universal/UniversalSelect
  */
 
-import { Platform } from '@/shared/lib/platform';
-
 // Import implementations
 import * as WebSelect from './Select.web';
 

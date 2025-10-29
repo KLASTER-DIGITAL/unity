@@ -33,12 +33,17 @@
       "@/shared/*": [
         "./src/shared/*"
       ]
-    }
+    },
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   },
   "include": [
     "src",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "tests/setup.ts"
   ],
   "exclude": [
     "**/*examples.tsx",

@@ -9,7 +9,6 @@
  */
 
 import React, { useEffect, forwardRef } from 'react';
-import { Platform } from '../../../lib/platform';
 import { cn } from '../utils';
 import { XIcon } from 'lucide-react';
 import {

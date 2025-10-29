@@ -8,7 +8,6 @@
  * @module platform/media-picker
  */
 
-import { Platform } from '../index';
 import { WebMediaPickerAdapter } from './media-picker.web';
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native implementation is in /app/shared/lib/platform/media-picker.native.ts

@@ -302,6 +302,3 @@ export const useUniversalTheme = (colorScheme: ColorScheme = 'auto') => {
     setTheme
   };
 };
-
-// Platform detection for components
-import { Platform } from '../../../lib/platform';
