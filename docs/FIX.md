@@ -135,7 +135,16 @@
   - idx_push_notifications_history_sent_by - используется в push-sender Edge Function
   - idx_usage_user_id - АКТИВНО используется в PWA analytics (pwa-tracking.ts)
 - **Результат**: REC-004 отмечен как COMPLETED ✅
-- **Статус**: 8 активных рекомендаций (1 P0 + 4 P1 + 3 P2)
+
+**RECOMMENDATIONS.md - RLS Policies Analysis** (REC-006):
+- **Проблема**: 2 permissive SELECT policies на `admin_settings` выглядели как дубликаты
+- **Детальный анализ**: Проверены все RLS policies через SQL запросы
+- **Вывод**: Это НЕ дубликаты - правильная архитектура для РАЗНЫХ ролей!
+  - admin_settings_select_policy (authenticated): `(role = 'super_admin') OR (key = 'pwa_settings')`
+  - anon_read_pwa_settings (anon): `key = 'pwa_settings'`
+- **Проверка других таблиц**: entry_summaries, books_archive, story_snapshots, openai_usage УЖЕ имеют по 1 policy на команду
+- **Результат**: REC-006 отмечен как COMPLETED (изменения НЕ требуются) ✅
+- **Статус**: 7 активных рекомендаций (1 P0 + 3 P1 + 3 P2)
 
 **BACKLOG.md - Удалены завершенные/ненужные задачи**:
 - Удалено TASK-019 (Leaked Password Protection) - требует ручного действия в Supabase Dashboard

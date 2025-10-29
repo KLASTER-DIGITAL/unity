@@ -2,7 +2,7 @@
 
 **Последнее обновление**: 2025-10-29
 **Анализ кодовой базы**: Автоматический (через codebase-retrieval)
-**Статус**: 8 активных рекомендаций (1 P0 + 4 P1 + 3 P2)
+**Статус**: 7 активных рекомендаций (1 P0 + 3 P1 + 3 P2)
 
 > **Цель**: Этот документ содержит топ-10 рекомендаций AI Assistant на основе анализа кодовой базы, архитектуры и best practices.
 
@@ -55,6 +55,16 @@
   - ✅ idx_usage_user_id - АКТИВНО используется в PWA analytics
 - **Результат**: Удалено 40% unused indexes, оставлены критически важные ✅
 - **Миграция**: supabase/migrations/20251029_remove_unused_indexes.sql
+- **Дата**: 2025-10-29
+
+### [COMPLETED] Оптимизировать RLS policies (REC-006)
+- **Проблема**: 2 permissive SELECT policies на `admin_settings` выглядели как дубликаты
+- **Детальный анализ**: Проверены все RLS policies через SQL запросы
+- **Вывод**: Это НЕ дубликаты - правильная архитектура для РАЗНЫХ ролей!
+  - **admin_settings_select_policy** (authenticated): `(role = 'super_admin') OR (key = 'pwa_settings')`
+  - **anon_read_pwa_settings** (anon): `key = 'pwa_settings'`
+- **Проверка других таблиц**: entry_summaries, books_archive, story_snapshots, openai_usage УЖЕ имеют по 1 policy на команду (объединены в миграциях 20251021)
+- **Результат**: RLS policies УЖЕ оптимизированы, изменения НЕ требуются ✅
 - **Дата**: 2025-10-29
 
 ---
@@ -287,27 +297,6 @@ import { LazyLineChart as LineChart } from "@/shared/components/ui/charts/LazyCh
 **Статус**: 📅 Запланировано на Sprint #14
 
 ---
-
-### [REC-006] Оптимизировать RLS policies (объединить permissive)
-**Приоритет**: 🟡 P1 - Важный
-**Категория**: Database, Security
-**Дата обнаружения**: 2025-10-28
-**Влияние**: Среднее (БД производительность)
-**Оценка**: 2 часа
-
-**Проблема**:
-- Есть 2 permissive policies на `admin_settings` таблице
-- Permissive policies объединяются через OR, что может быть неоптимально
-- Лучше объединить в одну policy для ясности
-
-**Рекомендация**:
-Объединить permissive policies в одну (см. `supabase/migrations/20251021_consolidate_rls_policies.sql`)
-
-**Ожидаемый результат**:
-- Упрощение RLS политик
-- Улучшение читаемости
-
-**Статус**: 📅 Запланировано на Sprint #15
 
 ---
 

@@ -108,51 +108,7 @@
 
 ## 🟡 Высокий приоритет (P1)
 
-### [TASK-023] Объединить permissive RLS policies
-**Статус**: 📅 Готово к старту
-**Приоритет**: 🟡 P1 - Высокий
-**Оценка**: 2 часа
-**Команда**: Backend Team
-**Зависимости**: TASK-019, TASK-020
-**Основание**: → [AUDIT_REPORT_2025-10-24.md](../reports/AUDIT_REPORT_2025-10-24.md)
 
-**Описание**:
-Объединить 2 permissive policies на таблице admin_settings для оптимизации производительности.
-
-**Ключевые метрики**:
-- Supabase Performance WARN: 1 → 0 (-100%)
-- RLS policies: 2 → 1 (-50%)
-
-**Прогресс**:
-- [ ] Объединить admin_full_access_admin_settings и authenticated_read_pwa_settings
-- [ ] Тестировать доступ для super_admin и user
-- [ ] Проверить через get_advisors_supabase
-
----
-
-### [TASK-024] Удалить unused indexes
-**Статус**: 📅 Готово к старту
-**Приоритет**: 🟡 P1 - Высокий
-**Оценка**: 1 час
-**Команда**: Backend Team
-**Зависимости**: TASK-023
-**Основание**: → [AUDIT_REPORT_2025-10-24.md](../reports/AUDIT_REPORT_2025-10-24.md)
-
-**Описание**:
-Удалить 4 неиспользуемых индекса для освобождения ресурсов БД.
-
-**Ключевые метрики**:
-- Unused indexes: 4 → 0 (-100%)
-- DB storage: -5%
-
-**Прогресс**:
-- [ ] Удалить idx_media_files_entry_id
-- [ ] Удалить idx_media_files_user_id
-- [ ] Удалить idx_push_notifications_history_sent_by
-- [ ] Удалить idx_usage_user_id_v2
-- [ ] Проверить через get_advisors_supabase
-
----
 
 
 
