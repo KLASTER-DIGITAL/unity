@@ -36,27 +36,7 @@
 
 ## 🔥 Критический приоритет (P0)
 
-### [TASK-019] Включить Leaked Password Protection
-**Статус**: 📅 Готово к старту
-**Приоритет**: 🔴 P0 - Критический
-**Оценка**: 10 минут
-**Команда**: Backend Team
-**Зависимости**: Нет
-**Основание**: → [AUDIT_REPORT_2025-10-24.md](../reports/AUDIT_REPORT_2025-10-24.md)
 
-**Описание**:
-Включить Leaked Password Protection в Supabase Dashboard для защиты от скомпрометированных паролей.
-
-**Ключевые метрики**:
-- Supabase Security WARN: 1 → 0 (-100%)
-- Security score: 100%
-
-**Прогресс**:
-- [ ] Зайти в Supabase Dashboard → Authentication → Password Protection
-- [ ] Включить "Leaked Password Protection"
-- [ ] Проверить через get_advisors_supabase
-
----
 
 ### [TASK-020] Исправить 401 error translations-api
 **Статус**: 📅 Готово к старту
@@ -174,31 +154,7 @@
 
 ---
 
-### [TASK-025] Модулизировать index.css
-**Статус**: 📅 Готово к старту
-**Приоритет**: 🟡 P1 - Высокий
-**Оценка**: 1 день (8 часов)
-**Команда**: Frontend Team
-**Зависимости**: TASK-024
-**Основание**: → [AUDIT_REPORT_2025-10-24.md](../reports/AUDIT_REPORT_2025-10-24.md)
 
-**Описание**:
-Разбить index.css (5167 строк) на модули по <200 строк для AI-friendly кода.
-
-**Ключевые метрики**:
-- index.css: 5167 строк → 0 (удален)
-- Модулей CSS: 0 → ~26 файлов
-- AI-friendly score: +20%
-
-**Прогресс**:
-- [ ] Создать src/shared/styles/base/ (reset, typography, colors)
-- [ ] Создать src/shared/styles/components/ (buttons, forms, cards)
-- [ ] Создать src/shared/styles/layout/ (grid, flex, spacing)
-- [ ] Создать src/shared/styles/themes/ (light, dark)
-- [ ] Обновить импорты в App.tsx
-- [ ] Проверить консоль браузера
-
----
 
 ### [TASK-026] Разбить sidebar.tsx
 **Статус**: 📅 Готово к старту

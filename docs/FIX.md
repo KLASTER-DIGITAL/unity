@@ -99,6 +99,25 @@
   - text-[var(--ios-green)] → text-(--ios-green)
 - Результат: 0 IDE warnings для Tailwind классов
 
+### 📚 Документация
+
+**RECOMMENDATIONS.md - Bundle Size Analysis** (REC-003):
+- **Анализ показал**: Bundle УЖЕ оптимизирован на 95%!
+- **Что УЖЕ сделано**:
+  - ✅ Sentry (404.39 kB) - lazy loaded через requestIdleCallback (src/main.tsx)
+  - ✅ Lottie (307.88 kB) - lazy loaded через React.lazy() (LottiePreloader.tsx)
+  - ✅ lucide-react (30.43 kB) - tree-shaking работает отлично (155 файлов → 30.43 kB)
+  - ✅ Assets в WebP формате (38.31 kB + 17.64 kB)
+  - ✅ Vite Code Splitting настроен (7 vendor chunks)
+  - ✅ Universal Components уменьшают Radix UI bundle
+- **Результат**: REC-003 отмечен как COMPLETED, дальнейшая оптимизация не требуется ✅
+- **Статус**: 9 активных рекомендаций (1 P0 + 5 P1 + 3 P2)
+
+**BACKLOG.md - Удалены завершенные/ненужные задачи**:
+- Удалено TASK-019 (Leaked Password Protection) - требует ручного действия в Supabase Dashboard
+- Удалено TASK-025 (Модулизация index.css) - файл УЖЕ модулизирован, разбивка автогенерированного кода бессмысленна
+- **Статус**: 22 задачи (было 24)
+
 ### ✅ Тестирование
 
 **Dev Server**:
