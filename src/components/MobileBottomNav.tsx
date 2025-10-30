@@ -19,7 +19,7 @@ import { memo, useMemo } from "react";
 import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "@/shared/lib/i18n";
-import { cn } from "./ui/utils";
+import { cn } from "@/shared/components/ui/utils";
 
 interface MobileBottomNavProps {
   activeTab: string;

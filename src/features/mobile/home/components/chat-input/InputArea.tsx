@@ -15,7 +15,7 @@ interface InputAreaProps {
   uploadProgress: number;
   uploadedMedia: UploadedMedia[];
   userId: string;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   onInputChange: (value: string) => void;
   onKeyPress: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onVoiceClick: () => void;

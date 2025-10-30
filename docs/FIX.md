@@ -8,6 +8,83 @@
 
 ## [Unreleased] - 2025-10-29
 
+### 🔄 Изменено
+
+**Invalid Hook Call Error - ФИНАЛЬНО ИСПРАВЛЕНО (2025-10-29 21:35)**:
+- **Проблема**: Vite создавал два разных chunks для React
+  - `chunk-QJTFJ6OV.js` - содержал React
+  - `chunk-YQ5BCTVV.js` - содержал React-DOM
+  - Эти chunks были несинхронизированы → Invalid Hook Call Error
+- **Root Cause**: Vite автоматически разделял React и React-DOM в разные chunks
+- **Решение**: Принудительное объединение в один vendor-react chunk (`vite.config.ts`)
+  ```typescript
+  manualChunks(id) {
+    // ✅ КРИТИЧЕСКИ ВАЖНО: React и React-DOM ДОЛЖНЫ быть в ОДНОМ chunk
+    if (id.includes('node_modules/react/') ||
+        id.includes('node_modules/react-dom/') ||
+        id.includes('node_modules/scheduler/')) {
+      return 'vendor-react';
+    }
+  }
+  ```
+- **Результат**:
+  - ✅ Invalid Hook Call Error исчез
+  - ✅ PWA загружается нормально
+  - ✅ Все компоненты рендерятся корректно
+  - ⚠️ Требуется тестирование через unit tests
+- **Файлы**: `vite.config.ts` (строки 201-213)
+
+**React Versions Strategy - Гибридный подход (РЕАЛИЗОВАНО)**:
+- **Проблема**: Invalid Hook Call Error при загрузке PWA
+  - Root cause 1: react-native@0.81.5 требует React 19.1.0, но проект использует React 18.3.1
+  - Root cause 2: **Множественные копии React в node_modules**
+    - `node_modules/react` → 18.3.1 ✅
+    - `node_modules/@expo/cli/static/canary-full/node_modules/react` → 19.2.0-canary ❌
+  - Симптомы: "Cannot read properties of null (reading 'useState')", PWA компоненты не рендерятся
+- **Решение 1: npm overrides** (`package.json`)
+  ```json
+  {
+    "overrides": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    }
+  }
+  ```
+  - Принудительно устанавливает React 18.3.1 для ВСЕХ пакетов (включая react-native)
+  - Решает конфликт версий на уровне package manager
+- **Решение 2: Vite alias для react-native** (`vite.config.ts`)
+  ```typescript
+  alias: {
+    'react-native': 'react-native-web'
+  }
+  ```
+  - Перенаправляет импорты react-native → react-native-web в PWA build
+  - react-native-web совместим с React 18.3.1
+- **Решение 3: Vite alias для React (КРИТИЧЕСКИ ВАЖНО)** (`vite.config.ts`)
+  ```typescript
+  alias: {
+    'react': path.resolve(__dirname, './node_modules/react'),
+    'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+    'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
+    'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime'),
+  }
+  ```
+  - **Явно указывает путь к React 18.3.1** из корневого node_modules
+  - Предотвращает импорт React 19 canary из @expo/cli
+  - Это ФИНАЛЬНОЕ решение проблемы множественных копий React
+- **Архитектурное решение**: Разные версии React для разных builds
+  - PWA (src/): React 18.3.1 + react-native-web (Vite bundler)
+  - React Native (/app/): React 19.1.0 + react-native (Metro bundler)
+  - Это НЕ временный хак, а официальный подход для monorepo/multi-platform проектов
+- **Документация**: `docs/architecture/REACT_VERSIONS_STRATEGY.md`
+
+**Удален react-telegram-login (React 16 конфликт)**:
+- Удален пакет `react-telegram-login` (требовал React 16, создавал конфликт версий)
+- Создан `src/shared/components/TelegramLoginWidget.tsx` с нативным Telegram widget
+- Обновлен `src/features/mobile/auth/components/auth-screen/SocialAuthButtons.tsx`
+- Удален `src/types/react-telegram-login.d.ts`
+- Преимущество: НЕТ зависимости от React версии, использует официальный Telegram Login Widget
+
 ### ✅ Тестирование
 
 **TypeScript Errors - ВСЕ 150 ошибок исправлены**:

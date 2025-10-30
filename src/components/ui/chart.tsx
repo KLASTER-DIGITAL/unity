@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import { cn } from "./utils"
+import { cn } from "@/shared/components/ui/utils"
 
 export type ChartConfig = {
   [key: string]: {

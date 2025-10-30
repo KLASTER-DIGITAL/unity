@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import TelegramLoginButton from 'react-telegram-login';
+import { TelegramLoginWidget } from "@/shared/components/TelegramLoginWidget";
 import { imgApple, imgGroup659 } from "@/imports/svg-ok0q3";
 import { facebookIconSvg } from "@/imports/social-icons";
 import type { AuthTranslations } from "./translations";
@@ -67,11 +67,11 @@ export function SocialAuthButtons({
 
         {/* Telegram */}
         <div className="relative h-[58px] w-[60px]">
-          <TelegramLoginButton
+          <TelegramLoginWidget
             botName="diary_bookai_bot"
-            dataOnauth={onTelegramAuth}
+            onAuth={onTelegramAuth}
             buttonSize="large"
-            cornerRadius={8 as any}
+            cornerRadius={8}
             requestAccess="write"
             usePic={false}
             lang="ru"

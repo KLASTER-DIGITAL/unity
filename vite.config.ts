@@ -86,6 +86,19 @@ export default defineConfig(({ mode }) => ({
       'react/jsx-dev-runtime',
     ], // Дедупликация React для предотвращения ошибок
     alias: {
+      // ✅ КРИТИЧЕСКИ ВАЖНО: Принудительно использовать React 18.3.1 из корневого node_modules
+      // Проблема: @expo/cli содержит React 19.2.0-canary в node_modules/@expo/cli/static/canary-full/node_modules/react
+      // Vite может случайно импортировать canary версию вместо 18.3.1
+      // Решение: Явно указываем путь к React 18.3.1
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
+      'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime'),
+
+      // ✅ PWA + React Native Architecture: Alias react-native to react-native-web
+      // Это позволяет использовать react-native-web для PWA build
+      // вместо настоящего react-native (который требует React 19)
+      'react-native': 'react-native-web',
       '@': path.resolve(__dirname, './src'),
       '@/app': path.resolve(__dirname, './src/app'),
       '@/features': path.resolve(__dirname, './src/features'),
@@ -190,9 +203,15 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-lottie';
             }
 
-            // НЕ группируем React в manual chunk - позволяем Vite автоматически управлять
-            // чтобы избежать проблем с dedupe и multiple React copies
-            // React будет автоматически оптимизирован через optimizeDeps.include
+            // ✅ КРИТИЧЕСКИ ВАЖНО: React и React-DOM ДОЛЖНЫ быть в ОДНОМ chunk
+            // Проблема: Vite создает два разных chunks (chunk-QJTFJ6OV.js для React, chunk-YQ5BCTVV.js для React-DOM)
+            // Это вызывает Invalid Hook Call Error из-за несинхронизированных копий
+            // Решение: Принудительно объединяем React и React-DOM в один vendor-react chunk
+            if (id.includes('node_modules/react/') ||
+                id.includes('node_modules/react-dom/') ||
+                id.includes('node_modules/scheduler/')) {
+              return 'vendor-react';
+            }
 
             // Остальные библиотеки НЕ группируем в vendor-misc
             // чтобы избежать circular dependencies

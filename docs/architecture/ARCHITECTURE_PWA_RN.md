@@ -47,6 +47,76 @@
 
 ---
 
+## ⚛️ React Versions Strategy (Гибридный подход)
+
+### Ключевое архитектурное решение
+
+UNITY-v2 использует **разные версии React** для PWA и React Native builds:
+
+| Platform | React Version | Bundler | Причина |
+|----------|---------------|---------|---------|
+| **PWA** | 18.3.1 | Vite | Radix UI, стабильность, react-native-web |
+| **React Native** | 19.1.0 | Metro | Expo SDK 54, New Architecture, производительность |
+
+### Техническая реализация
+
+#### 1. npm overrides (package.json)
+
+```json
+{
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-native": "0.81.5",
+    "react-native-web": "^0.21.2"
+  },
+  "overrides": {
+    "react": "^18.3.1",      // Принудительно для PWA
+    "react-dom": "^18.3.1"
+  }
+}
+```
+
+**Как работает:**
+- Принудительно устанавливает React 18.3.1 для ВСЕХ зависимостей
+- Решает конфликт: react-native@0.81.5 требует React 19.1.0
+- Применяется ТОЛЬКО к PWA build (Vite)
+
+#### 2. Vite alias (vite.config.ts)
+
+```typescript
+export default defineConfig({
+  resolve: {
+    alias: {
+      'react-native': 'react-native-web',  // PWA использует react-native-web
+      '@': path.resolve(__dirname, './src'),
+    }
+  }
+});
+```
+
+**Как работает:**
+- Перенаправляет импорты `react-native` → `react-native-web`
+- Позволяет использовать react-native API в PWA
+- Работает ТОЛЬКО в Vite build
+
+### Почему это НЕ хак?
+
+✅ **Это архитектурное решение:**
+- npm overrides - официальная фича npm
+- Используется в production monorepo проектах
+- Позволяет независимо управлять версиями для разных builds
+
+✅ **Преимущества:**
+- PWA стабильно работает на React 18.3.1
+- React Native следует официальным требованиям Expo
+- Builds полностью независимы друг от друга
+- Постепенная миграция на React 19 возможна
+
+📚 **Детальная документация**: `docs/architecture/REACT_VERSIONS_STRATEGY.md`
+
+---
+
 ## 📁 Структура проекта
 
 ### Корневая структура
