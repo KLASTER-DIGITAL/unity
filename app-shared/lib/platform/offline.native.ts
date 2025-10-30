@@ -282,7 +282,7 @@ export class NativeMediaStorageAdapter implements MediaStorageAdapter {
 			}
 
 			return totalSize;
-		} catch (error) {
+		} catch (_error) {
 			console.log("[NativeMediaStorage] Directory does not exist yet");
 			return 0;
 		}

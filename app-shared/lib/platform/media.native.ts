@@ -17,7 +17,6 @@ import type { MediaAdapter } from "../media";
  */
 export class NativeMediaAdapter implements MediaAdapter {
 	private fileSystem: any = null;
-	private imageManipulator: any = null;
 	private av: any = null;
 	private image: any = null;
 	private initialized = false;

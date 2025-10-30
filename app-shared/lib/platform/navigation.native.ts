@@ -19,37 +19,6 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 	private navigationRef: any = null;
 	private initialized = false;
 
-	/**
-	 * Initialize React Navigation (lazy loading)
-	 * Note: This method is intentionally unused in PWA build
-	 */
-	// @ts-expect-error - init method is for future React Native implementation
-	private async init(): Promise<void> {
-		if (this.initialized) return;
-
-		try {
-			// Check if we're in a React Native environment
-			if (
-				typeof navigator !== "undefined" &&
-				navigator.product === "ReactNative"
-			) {
-				// Dynamic import to avoid bundling in web
-				const { navigationRef } = await import("@/shared/lib/navigation-ref");
-				this.navigationRef = navigationRef;
-				this.initialized = true;
-			} else {
-				throw new Error(
-					"@react-navigation/native is only available in React Native environment",
-				);
-			}
-		} catch (error) {
-			console.error("Failed to load React Navigation:", error);
-			throw new Error(
-				"@react-navigation/native is not available. Make sure @react-navigation/native is installed.",
-			);
-		}
-	}
-
 	navigate(route: string, options?: NavigationOptions): void {
 		try {
 			if (!this.initialized) {

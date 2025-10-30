@@ -64,7 +64,8 @@ export default function AchievementsScreen() {
 	// Get current user on mount
 	useEffect(() => {
 		getCurrentUser();
-	}, [getCurrentUser]);
+		// eslint-disable-next-line react-hooks/exhaustive-dependencies
+	}, []);
 
 	const getCurrentUser = async () => {
 		try {

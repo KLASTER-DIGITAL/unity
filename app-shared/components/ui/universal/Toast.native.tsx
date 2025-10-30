@@ -190,7 +190,7 @@ export const toast = {
 	/**
 	 * Custom toast
 	 */
-	custom: (component: React.ReactNode, options?: Partial<ToastProps>) => {
+	custom: (_component: React.ReactNode, options?: Partial<ToastProps>) => {
 		// react-native-toast-message doesn't support custom components easily
 		// Fallback to info toast
 		console.warn(

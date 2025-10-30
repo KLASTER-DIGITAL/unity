@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
 		gap: DesignTokens.spacing.sm,
 		paddingHorizontal: DesignTokens.spacing.lg,
 		paddingVertical: DesignTokens.spacing.md,
-		backgroundColor: DesignTokens.colors.primary + "10",
+		backgroundColor: `${DesignTokens.colors.primary}10`,
 		borderRadius: DesignTokens.borderRadius.lg,
 		position: "relative",
 	},

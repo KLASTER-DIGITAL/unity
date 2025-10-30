@@ -56,7 +56,14 @@ export function AnimatedCard({
 			...Animations.springConfig,
 			delay: totalDelay,
 		});
-	}, [delay, index, staggerDelay]);
+	}, [
+		delay,
+		index,
+		staggerDelay, // Fade in
+		opacity, // Scale in
+		scale, // Slide in
+		translateY,
+	]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: opacity.value,

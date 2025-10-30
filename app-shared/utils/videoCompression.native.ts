@@ -8,20 +8,20 @@
  * - react-native-compressor для сжатия медиа
  */
 
-export async function compressVideo(file: File): Promise<File> {
+export async function compressVideo(_file: File): Promise<File> {
 	throw new Error(
 		"Video compression is not supported in React Native. Use native libraries like react-native-compressor instead.",
 	);
 }
 
-export async function compressVideoForUpload(file: File): Promise<File> {
+export async function compressVideoForUpload(_file: File): Promise<File> {
 	throw new Error(
 		"Video compression is not supported in React Native. Use native libraries like react-native-compressor instead.",
 	);
 }
 
 export async function getVideoMetadata(
-	file: File,
+	_file: File,
 ): Promise<{ width: number; height: number; duration: number }> {
 	throw new Error(
 		"Video metadata extraction is not supported in React Native. Use expo-av instead.",

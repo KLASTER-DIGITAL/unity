@@ -109,7 +109,7 @@ function getAnimationFunction(
 	if (!transition || transition.type === "spring") {
 		const springConfig = transition as any;
 		return (toValue: any) =>
-			Reanimated!.withSpring(toValue, {
+			Reanimated?.withSpring(toValue, {
 				stiffness: springConfig?.stiffness ?? 300,
 				damping: springConfig?.damping ?? 30,
 				mass: springConfig?.mass ?? 1,
@@ -118,7 +118,7 @@ function getAnimationFunction(
 	}
 	const timingConfig = transition as any;
 	return (toValue: any) =>
-		Reanimated!.withTiming(toValue, {
+		Reanimated?.withTiming(toValue, {
 			duration: timingConfig?.duration ?? 300,
 			easing: timingConfig?.easing ?? "ease",
 		});

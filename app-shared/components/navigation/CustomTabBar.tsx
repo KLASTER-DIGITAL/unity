@@ -65,7 +65,7 @@ export function CustomTabBar({
 			showSubscription.remove();
 			hideSubscription.remove();
 		};
-	}, []);
+	}, [keyboardVisible]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		transform: [
@@ -154,7 +154,7 @@ function TabButton({
 			duration: 200,
 			easing: Easing.bezier(0.4, 0.0, 0.2, 1),
 		});
-	}, [isFocused]);
+	}, [isFocused, labelOpacity, labelWidth]);
 
 	const handlePressIn = () => {
 		scale.value = withSpring(0.95, {

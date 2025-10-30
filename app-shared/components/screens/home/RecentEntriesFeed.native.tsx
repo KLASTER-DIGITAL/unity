@@ -54,7 +54,7 @@ export function RecentEntriesFeed({
 
 	useEffect(() => {
 		loadEntries();
-	}, [userData]);
+	}, [loadEntries]);
 
 	const loadEntries = async () => {
 		try {

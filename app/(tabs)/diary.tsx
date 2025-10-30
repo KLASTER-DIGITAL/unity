@@ -52,7 +52,8 @@ export default function DiaryScreen() {
 	// Filter entries when search/filters change
 	useEffect(() => {
 		filterEntries();
-	}, [filterEntries]);
+		// eslint-disable-next-line react-hooks/exhaustive-dependencies
+	}, [entries, searchQuery, selectedCategory]);
 
 	const filterEntries = () => {
 		let filtered = [...entries];

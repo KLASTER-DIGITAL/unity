@@ -69,7 +69,7 @@ export function SkeletonCard({
 				false,
 			);
 		}
-	}, [shimmer]);
+	}, [shimmer, translateX]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		transform: [

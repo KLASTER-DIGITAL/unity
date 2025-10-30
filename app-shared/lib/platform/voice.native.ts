@@ -18,9 +18,6 @@ import type {
 
 export class NativeVoiceAdapter implements VoiceAdapter {
 	private recording: any = null;
-	// Note: recordingStatus is kept for future use in React Native implementation
-	// @ts-expect-error - recordingStatus is for future React Native implementation
-	private recordingStatus: any = null;
 	private startTime = 0;
 	private pauseTime = 0;
 	private totalPausedTime = 0;

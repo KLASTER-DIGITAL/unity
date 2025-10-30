@@ -174,7 +174,6 @@ const getSizeStyles = (size: ButtonSize): ViewStyle => {
 				height: 40,
 				padding: 0,
 			};
-		case "default":
 		default:
 			return {
 				paddingHorizontal: DesignTokens.spacing.md,
@@ -198,7 +197,6 @@ const getSizeTextStyles = (size: ButtonSize): TextStyle => {
 			return {
 				fontSize: DesignTokens.fontSize.md,
 			};
-		case "default":
 		default:
 			return {
 				fontSize: DesignTokens.fontSize.md,

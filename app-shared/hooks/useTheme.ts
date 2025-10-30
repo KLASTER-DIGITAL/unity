@@ -35,7 +35,7 @@ export function useTheme(): UseThemeResult {
 	// Load theme preference from AsyncStorage
 	useEffect(() => {
 		loadThemePreference();
-	}, []);
+	}, [loadThemePreference]);
 
 	const loadThemePreference = async () => {
 		try {

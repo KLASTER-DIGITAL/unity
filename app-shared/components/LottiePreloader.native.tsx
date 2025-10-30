@@ -65,7 +65,7 @@ export function LottiePreloader({
 }: LottiePreloaderProps) {
 	const colorScheme = useColorScheme();
 	const animationRef = useRef<LottieView>(null);
-	const [minDurationElapsed, setMinDurationElapsed] = useState(false);
+	const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
 
 	// Выбираем анимацию в зависимости от темы
 	// Темная тема → White-2.json (белая анимация видна на темном фоне)
@@ -139,7 +139,7 @@ export function LottiePreloaderCompact({
 }) {
 	const colorScheme = useColorScheme();
 	const animationRef = useRef<LottieView>(null);
-	const [minDurationElapsed, setMinDurationElapsed] = useState(false);
+	const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
 
 	// Выбираем анимацию в зависимости от темы
 	// Темная тема → White-2.json (белая анимация видна на темном фоне)

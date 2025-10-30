@@ -111,7 +111,7 @@ export const scaleOut = () => {
 /**
  * Slide In From Bottom animation
  */
-export const slideInFromBottom = (distance = 100) => {
+export const slideInFromBottom = (_distance = 100) => {
 	"worklet";
 	return withSpring(0, springConfig);
 };
