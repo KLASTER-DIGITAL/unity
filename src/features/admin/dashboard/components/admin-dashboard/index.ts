@@ -5,6 +5,9 @@
 export { DesktopSidebar } from "./DesktopSidebar";
 export { MobileSidebar } from "./MobileSidebar";
 export { OverviewTab } from "./OverviewTab";
+export { StatsCard } from "./StatsCard";
+export { QuickActions } from "./QuickActions";
+export { SystemStatus } from "./SystemStatus";
 export { loadAdminStats, isSuperAdmin } from "./utils";
 export { SUPER_ADMIN_EMAIL, INITIAL_STATS, PWA_SUB_TABS } from "./constants";
 export type {

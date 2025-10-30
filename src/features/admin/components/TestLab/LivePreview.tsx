@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { Iphone15Pro } from "@/components/ui/shadcn-io/iphone-15-pro";
-import { Android } from "@/components/ui/shadcn-io/android";
-import { Safari } from "@/components/ui/shadcn-io/safari";
-import { ChromeMobile } from "@/components/ui/shadcn-io/chrome-mobile";
-import { YandexBrowser } from "@/components/ui/shadcn-io/yandex-browser";
+import { Iphone15Pro } from "@/shared/components/ui/shadcn-io/iphone-15-pro";
+import { Android } from "@/shared/components/ui/shadcn-io/android";
+import { Safari } from "@/shared/components/ui/shadcn-io/safari";
+import { ChromeMobile } from "@/shared/components/ui/shadcn-io/chrome-mobile";
+import { YandexBrowser } from "@/shared/components/ui/shadcn-io/yandex-browser";
 import { DeviceType, DEVICES, PlatformMode } from "./types";
 
 interface LivePreviewProps {

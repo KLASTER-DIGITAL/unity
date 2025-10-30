@@ -67,7 +67,21 @@ temp/
 # Temporary files
 temp_*.js
 temp_*.txt
+test-*.txt
 pass.md
+
+# Build logs
+build.log
+build-output.log
+eas-update*.log
+
+# Archives
+*.tar.gz
+*.zip
+
+# Deployment scripts (use Supabase MCP instead)
+deploy-admin-api.sh
+deploy_edge_function.sh
 
 # React Native / Expo
 .expo/

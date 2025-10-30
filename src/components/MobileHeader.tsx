@@ -1,5 +1,5 @@
 import { Bell, Menu, Search, Calendar, MessageCircle, ChevronDown } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface MobileHeaderProps {

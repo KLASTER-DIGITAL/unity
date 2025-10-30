@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { DeviceSelector } from "./DeviceSelector";
 import { PlatformToggle } from "./PlatformToggle";
 import { LivePreview } from "./LivePreview";

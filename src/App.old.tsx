@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense, lazy, useCallback } from "react";
-import { checkSession, signOut } from "./utils/auth";
+import { checkSession, signOut } from "@/shared/lib/auth";
 import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminRoute, isTestRoute as checkIsTestRoute, isPerformanceRoute as checkIsPerformanceRoute } from "@/shared/lib/auth";
 import { ThemeProvider } from "@/shared/components/theme-provider";
 import { setUser, addBreadcrumb } from "@/shared/lib/monitoring/lazy";
