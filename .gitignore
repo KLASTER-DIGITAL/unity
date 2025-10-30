@@ -70,6 +70,10 @@ temp_*.txt
 test-*.txt
 pass.md
 
+# Temporary deployment triggers
+.vercel-redeploy
+.netlify-redeploy
+
 # Build logs
 build.log
 build-output.log
