@@ -14,18 +14,17 @@
  * - POST /push-scheduled?type=goal_reminder - Напоминание о целях
  */
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 // CORS headers
 const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Headers":
-		"authorization, x-client-info, apikey, content-type",
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Supabase Admin Client
-const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
@@ -33,12 +32,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
  */
 async function getUsersWithPushEnabled() {
 	const { data, error } = await supabaseAdmin
-		.from("push_subscriptions")
-		.select("user_id")
-		.eq("is_active", true);
+		.from('push_subscriptions')
+		.select('user_id')
+		.eq('is_active', true);
 
 	if (error) {
-		console.error("[PUSH-SCHEDULED] Failed to get users:", error);
+		console.error('[PUSH-SCHEDULED] Failed to get users:', error);
 		return [];
 	}
 
@@ -55,29 +54,29 @@ async function sendPushNotification(
 	title: string,
 	body: string,
 	icon?: string,
-	data?: Record<string, any>,
+	data?: Record<string, any>
 ) {
 	try {
 		const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${supabaseServiceKey}`,
 			},
 			body: JSON.stringify({
 				user_ids: userIds,
 				title,
 				body,
-				icon: icon || "/icon-192.png",
+				icon: icon || '/icon-192.png',
 				data: data || {},
 			}),
 		});
 
 		const result = await response.json();
-		console.log("[PUSH-SCHEDULED] Push sent:", result);
+		console.log('[PUSH-SCHEDULED] Push sent:', result);
 		return result;
 	} catch (error) {
-		console.error("[PUSH-SCHEDULED] Failed to send push:", error);
+		console.error('[PUSH-SCHEDULED] Failed to send push:', error);
 		return null;
 	}
 }
@@ -86,23 +85,23 @@ async function sendPushNotification(
  * Отправляет ежедневное напоминание в 21:00
  */
 async function sendDailyReminder() {
-	console.log("[PUSH-SCHEDULED] Sending daily reminder...");
+	console.log('[PUSH-SCHEDULED] Sending daily reminder...');
 
 	const userIds = await getUsersWithPushEnabled();
 	if (userIds.length === 0) {
-		console.log("[PUSH-SCHEDULED] No users with push enabled");
+		console.log('[PUSH-SCHEDULED] No users with push enabled');
 		return { sent: 0, total: 0 };
 	}
 
 	const result = await sendPushNotification(
 		userIds,
-		"📝 Время записать достижения!",
-		"Не забудьте записать свои достижения за сегодня",
-		"/icon-192.png",
+		'📝 Время записать достижения!',
+		'Не забудьте записать свои достижения за сегодня',
+		'/icon-192.png',
 		{
-			type: "daily_reminder",
-			url: "/?action=new",
-		},
+			type: 'daily_reminder',
+			url: '/?action=new',
+		}
 	);
 
 	return result;
@@ -112,34 +111,28 @@ async function sendDailyReminder() {
  * Отправляет еженедельную мотивационную карточку
  */
 async function sendWeeklyMotivation() {
-	console.log("[PUSH-SCHEDULED] Sending weekly motivation...");
+	console.log('[PUSH-SCHEDULED] Sending weekly motivation...');
 
 	const userIds = await getUsersWithPushEnabled();
 	if (userIds.length === 0) {
-		console.log("[PUSH-SCHEDULED] No users with push enabled");
+		console.log('[PUSH-SCHEDULED] No users with push enabled');
 		return { sent: 0, total: 0 };
 	}
 
 	// Получаем случайную мотивационную карточку
 	const { data: cards } = await supabaseAdmin
-		.from("motivation_cards")
-		.select("title, description")
+		.from('motivation_cards')
+		.select('title, description')
 		.limit(1);
 
 	const card = cards?.[0];
-	const title = card?.title || "💪 Мотивация недели";
-	const body = card?.description || "Продолжайте двигаться к своим целям!";
+	const title = card?.title || '💪 Мотивация недели';
+	const body = card?.description || 'Продолжайте двигаться к своим целям!';
 
-	const result = await sendPushNotification(
-		userIds,
-		title,
-		body,
-		"/icon-192.png",
-		{
-			type: "weekly_motivation",
-			url: "/?view=motivation",
-		},
-	);
+	const result = await sendPushNotification(userIds, title, body, '/icon-192.png', {
+		type: 'weekly_motivation',
+		url: '/?view=motivation',
+	});
 
 	return result;
 }
@@ -148,23 +141,23 @@ async function sendWeeklyMotivation() {
  * Отправляет напоминание о целях
  */
 async function sendGoalReminder() {
-	console.log("[PUSH-SCHEDULED] Sending goal reminder...");
+	console.log('[PUSH-SCHEDULED] Sending goal reminder...');
 
 	const userIds = await getUsersWithPushEnabled();
 	if (userIds.length === 0) {
-		console.log("[PUSH-SCHEDULED] No users with push enabled");
+		console.log('[PUSH-SCHEDULED] No users with push enabled');
 		return { sent: 0, total: 0 };
 	}
 
 	const result = await sendPushNotification(
 		userIds,
-		"🎯 Проверьте свои цели",
-		"Как продвигается работа над вашими целями?",
-		"/icon-192.png",
+		'🎯 Проверьте свои цели',
+		'Как продвигается работа над вашими целями?',
+		'/icon-192.png',
 		{
-			type: "goal_reminder",
-			url: "/?view=achievements",
-		},
+			type: 'goal_reminder',
+			url: '/?view=achievements',
+		}
 	);
 
 	return result;
@@ -173,39 +166,36 @@ async function sendGoalReminder() {
 // Main handler
 Deno.serve(async (req) => {
 	// Handle CORS preflight
-	if (req.method === "OPTIONS") {
-		return new Response("ok", { headers: corsHeaders });
+	if (req.method === 'OPTIONS') {
+		return new Response('ok', { headers: corsHeaders });
 	}
 
 	try {
 		// Get notification type from query params
 		const url = new URL(req.url);
-		const type = url.searchParams.get("type") || "daily_reminder";
+		const type = url.searchParams.get('type') || 'daily_reminder';
 
-		console.log("[PUSH-SCHEDULED] Processing scheduled push:", type);
+		console.log('[PUSH-SCHEDULED] Processing scheduled push:', type);
 
 		let result;
 		switch (type) {
-			case "daily_reminder":
+			case 'daily_reminder':
 				result = await sendDailyReminder();
 				break;
 
-			case "weekly_motivation":
+			case 'weekly_motivation':
 				result = await sendWeeklyMotivation();
 				break;
 
-			case "goal_reminder":
+			case 'goal_reminder':
 				result = await sendGoalReminder();
 				break;
 
 			default:
-				return new Response(
-					JSON.stringify({ error: `Unknown type: ${type}` }),
-					{
-						status: 400,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
-				);
+				return new Response(JSON.stringify({ error: `Unknown type: ${type}` }), {
+					status: 400,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				});
 		}
 
 		return new Response(
@@ -216,14 +206,14 @@ Deno.serve(async (req) => {
 			}),
 			{
 				status: 200,
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			},
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
 		);
 	} catch (error) {
-		console.error("[PUSH-SCHEDULED] Error:", error);
+		console.error('[PUSH-SCHEDULED] Error:', error);
 		return new Response(JSON.stringify({ error: error.message }), {
 			status: 500,
-			headers: { ...corsHeaders, "Content-Type": "application/json" },
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
 	}
 });

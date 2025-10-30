@@ -15,18 +15,18 @@
  * @date 2025-10-26
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AchievementHomeScreen } from "@/features/mobile/home/components/AchievementHomeScreen";
-import { ChatInputSection } from "@/features/mobile/home/components/ChatInputSection";
-import { RecentEntriesFeed } from "@/features/mobile/home/components/RecentEntriesFeed";
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AchievementHomeScreen } from '@/features/mobile/home/components/AchievementHomeScreen';
+import { ChatInputSection } from '@/features/mobile/home/components/ChatInputSection';
+import { RecentEntriesFeed } from '@/features/mobile/home/components/RecentEntriesFeed';
 
 // ============================================================================
 // MOCKS
 // ============================================================================
 
 // Mock API functions
-vi.mock("@/shared/lib/api", () => ({
+vi.mock('@/shared/lib/api', () => ({
 	getUserStats: vi.fn().mockResolvedValue({
 		totalEntries: 10,
 		currentStreak: 3,
@@ -34,53 +34,53 @@ vi.mock("@/shared/lib/api", () => ({
 	}),
 	getMotivationCards: vi.fn().mockResolvedValue([
 		{
-			id: "1",
-			title: "Test Card",
-			description: "Test Description",
-			sentiment: "positive",
+			id: '1',
+			title: 'Test Card',
+			description: 'Test Description',
+			sentiment: 'positive',
 			isMarked: false,
 		},
 	]),
 	markCardAsRead: vi.fn().mockResolvedValue(undefined),
 	getEntries: vi.fn().mockResolvedValue([
 		{
-			id: "1",
-			text: "Test Entry",
-			category: "Работа",
-			sentiment: "positive",
+			id: '1',
+			text: 'Test Entry',
+			category: 'Работа',
+			sentiment: 'positive',
 			createdAt: new Date().toISOString(),
-			userId: "test-user",
+			userId: 'test-user',
 		},
 	]),
 	createEntry: vi.fn().mockResolvedValue({
-		id: "2",
-		text: "New Entry",
-		category: "Работа",
-		sentiment: "positive",
+		id: '2',
+		text: 'New Entry',
+		category: 'Работа',
+		sentiment: 'positive',
 		createdAt: new Date().toISOString(),
 	}),
 	analyzeTextWithAI: vi.fn().mockResolvedValue({
-		sentiment: "positive",
-		category: "Работа",
-		mood: "happy",
-		tags: ["test"],
-		reply: "Great job!",
-		summary: "Test summary",
-		insight: "Test insight",
+		sentiment: 'positive',
+		category: 'Работа',
+		mood: 'happy',
+		tags: ['test'],
+		reply: 'Great job!',
+		summary: 'Test summary',
+		insight: 'Test insight',
 		isAchievement: true,
 	}),
 }));
 
 // Mock i18n
-vi.mock("@/shared/lib/i18n", () => ({
+vi.mock('@/shared/lib/i18n', () => ({
 	useTranslation: () => ({
 		t: (key: string) => key,
-		language: "ru",
+		language: 'ru',
 	}),
 }));
 
 // Mock hooks
-vi.mock("@/features/mobile/media", () => ({
+vi.mock('@/features/mobile/media', () => ({
 	useVoiceRecorder: () => ({
 		isRecording: false,
 		audioLevel: 0,
@@ -94,7 +94,7 @@ vi.mock("@/features/mobile/media", () => ({
 	PermissionGuide: () => <div>Permission Guide</div>,
 }));
 
-vi.mock("@/shared/hooks/useMediaUploader", () => ({
+vi.mock('@/shared/hooks/useMediaUploader', () => ({
 	useMediaUploader: () => ({
 		uploadedMedia: [],
 		isUploading: false,
@@ -108,7 +108,7 @@ vi.mock("@/shared/hooks/useMediaUploader", () => ({
 }));
 
 // Mock toast
-vi.mock("sonner", () => ({
+vi.mock('sonner', () => ({
 	toast: {
 		success: vi.fn(),
 		error: vi.fn(),
@@ -117,20 +117,20 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock Lottie
-vi.mock("@/shared/components/LottiePreloader", () => ({
+vi.mock('@/shared/components/LottiePreloader', () => ({
 	LottiePreloaderCompact: () => <div>Loading...</div>,
 }));
 
 // Mock embla-carousel
-vi.mock("embla-carousel-react", () => ({
+vi.mock('embla-carousel-react', () => ({
 	default: () => [vi.fn(), { scrollNext: vi.fn(), scrollPrev: vi.fn() }],
 }));
 
 // Mock offline functions
-vi.mock("@/shared/lib/offline", () => ({
+vi.mock('@/shared/lib/offline', () => ({
 	saveEntryOffline: vi.fn().mockResolvedValue({
-		id: "offline-1",
-		text: "Offline Entry",
+		id: 'offline-1',
+		text: 'Offline Entry',
 		isPending: true,
 	}),
 }));
@@ -151,51 +151,36 @@ afterEach(() => {
 // TESTS: AchievementHomeScreen (10 tests)
 // ============================================================================
 
-describe("AchievementHomeScreen", () => {
+describe('AchievementHomeScreen', () => {
 	const mockUserData = {
-		id: "test-user",
-		user: { id: "test-user" },
-		name: "Test User",
-		language: "ru",
+		id: 'test-user',
+		user: { id: 'test-user' },
+		name: 'Test User',
+		language: 'ru',
 	};
 
 	const mockDiaryData = {
-		name: "Test Diary",
-		emoji: "📔",
+		name: 'Test Diary',
+		emoji: '📔',
 	};
 
-	it("should render without crashing", () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
-		expect(screen.getByText("Loading...")).toBeInTheDocument();
+	it('should render without crashing', () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
+		expect(screen.getByText('Loading...')).toBeInTheDocument();
 	});
 
-	it("should load user stats on mount", async () => {
-		const { getUserStats } = await import("@/shared/lib/api");
+	it('should load user stats on mount', async () => {
+		const { getUserStats } = await import('@/shared/lib/api');
 
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(getUserStats).toHaveBeenCalledWith("test-user");
+			expect(getUserStats).toHaveBeenCalledWith('test-user');
 		});
 	});
 
-	it("should load motivation cards on mount", async () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+	it('should load motivation cards on mount', async () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		// Component should render and start loading
 		await waitFor(() => {
@@ -203,46 +188,31 @@ describe("AchievementHomeScreen", () => {
 		});
 	});
 
-	it("should display achievement header", async () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+	it('should display achievement header', async () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should display chat input section", async () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+	it('should display chat input section', async () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should display recent entries feed", async () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+	it('should display recent entries feed', async () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should handle new entry creation", async () => {
+	it('should handle new entry creation', async () => {
 		const onNavigateToHistory = vi.fn();
 
 		render(
@@ -250,28 +220,23 @@ describe("AchievementHomeScreen", () => {
 				diaryData={mockDiaryData}
 				onNavigateToHistory={onNavigateToHistory}
 				userData={mockUserData}
-			/>,
+			/>
 		);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should handle entry click", async () => {
-		render(
-			<AchievementHomeScreen
-				diaryData={mockDiaryData}
-				userData={mockUserData}
-			/>,
-		);
+	it('should handle entry click', async () => {
+		render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should handle navigation to history", async () => {
+	it('should handle navigation to history', async () => {
 		const onNavigateToHistory = vi.fn();
 
 		render(
@@ -279,15 +244,15 @@ describe("AchievementHomeScreen", () => {
 				diaryData={mockDiaryData}
 				onNavigateToHistory={onNavigateToHistory}
 				userData={mockUserData}
-			/>,
+			/>
 		);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 
-	it("should handle navigation to settings", async () => {
+	it('should handle navigation to settings', async () => {
 		const onNavigateToSettings = vi.fn();
 
 		render(
@@ -295,11 +260,11 @@ describe("AchievementHomeScreen", () => {
 				diaryData={mockDiaryData}
 				onNavigateToSettings={onNavigateToSettings}
 				userData={mockUserData}
-			/>,
+			/>
 		);
 
 		await waitFor(() => {
-			expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+			expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
 		});
 	});
 });
@@ -308,68 +273,65 @@ describe("AchievementHomeScreen", () => {
 // TESTS: ChatInputSection (12 tests)
 // ============================================================================
 
-describe("ChatInputSection", () => {
+describe('ChatInputSection', () => {
 	const mockProps = {
 		onMessageSent: vi.fn(),
 		onEntrySaved: vi.fn(),
-		userName: "Test User",
-		userId: "test-user",
+		userName: 'Test User',
+		userId: 'test-user',
 	};
 
-	it("should render without crashing", () => {
+	it('should render without crashing', () => {
 		render(<ChatInputSection {...mockProps} />);
-		expect(screen.getByRole("textbox")).toBeInTheDocument();
+		expect(screen.getByRole('textbox')).toBeInTheDocument();
 	});
 
-	it("should have textarea for text input", () => {
+	it('should have textarea for text input', () => {
 		render(<ChatInputSection {...mockProps} />);
-		const textarea = screen.getByRole("textbox");
+		const textarea = screen.getByRole('textbox');
 		expect(textarea).toBeInTheDocument();
 	});
 
-	it("should update input text on change", () => {
+	it('should update input text on change', () => {
 		render(<ChatInputSection {...mockProps} />);
-		const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+		const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
 
-		fireEvent.change(textarea, { target: { value: "Test message" } });
-		expect(textarea.value).toBe("Test message");
+		fireEvent.change(textarea, { target: { value: 'Test message' } });
+		expect(textarea.value).toBe('Test message');
 	});
 
-	it("should have voice recording button", () => {
+	it('should have voice recording button', () => {
 		render(<ChatInputSection {...mockProps} />);
 		// Voice button should be present
 		expect(
-			document.querySelector('[data-testid="voice-button"]') ||
-				document.querySelector("button"),
+			document.querySelector('[data-testid="voice-button"]') || document.querySelector('button')
 		).toBeInTheDocument();
 	});
 
-	it("should have media upload button", () => {
+	it('should have media upload button', () => {
 		render(<ChatInputSection {...mockProps} />);
 		// Media button should be present
 		expect(
-			document.querySelector('[data-testid="media-button"]') ||
-				document.querySelector("button"),
+			document.querySelector('[data-testid="media-button"]') || document.querySelector('button')
 		).toBeInTheDocument();
 	});
 
-	it("should have send button", () => {
+	it('should have send button', () => {
 		render(<ChatInputSection {...mockProps} />);
 		// Send button should be present
 		expect(
-			document.querySelector('[data-testid="send-button"]') ||
-				document.querySelector("button"),
+			document.querySelector('[data-testid="send-button"]') || document.querySelector('button')
 		).toBeInTheDocument();
 	});
 
-	it("should call onMessageSent when message is sent", async () => {
+	it('should call onMessageSent when message is sent', async () => {
 		render(<ChatInputSection {...mockProps} />);
-		const textarea = screen.getByRole("textbox");
+		const textarea = screen.getByRole('textbox');
 
-		fireEvent.change(textarea, { target: { value: "Test message" } });
+		fireEvent.change(textarea, { target: { value: 'Test message' } });
 
 		// Find and click send button
-		const buttons = screen.getAllByRole("button");
+		const buttons = screen.getAllByRole('button');
 		const sendButton = buttons[buttons.length - 1]; // Last button is usually send
 
 		fireEvent.click(sendButton);
@@ -380,14 +342,14 @@ describe("ChatInputSection", () => {
 		});
 	});
 
-	it("should clear input after sending message", () => {
+	it('should clear input after sending message', () => {
 		render(<ChatInputSection {...mockProps} />);
-		const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+		const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
 
-		fireEvent.change(textarea, { target: { value: "Test message" } });
-		expect(textarea.value).toBe("Test message");
+		fireEvent.change(textarea, { target: { value: 'Test message' } });
+		expect(textarea.value).toBe('Test message');
 
-		const buttons = screen.getAllByRole("button");
+		const buttons = screen.getAllByRole('button');
 		const sendButton = buttons[buttons.length - 1];
 
 		// Click send button
@@ -398,18 +360,18 @@ describe("ChatInputSection", () => {
 		expect(document.body).toBeInTheDocument();
 	});
 
-	it("should handle Enter key press", async () => {
+	it('should handle Enter key press', async () => {
 		render(<ChatInputSection {...mockProps} />);
-		const textarea = screen.getByRole("textbox");
+		const textarea = screen.getByRole('textbox');
 
-		fireEvent.change(textarea, { target: { value: "Test message" } });
+		fireEvent.change(textarea, { target: { value: 'Test message' } });
 
 		const initialValue = (textarea as HTMLTextAreaElement).value;
-		expect(initialValue).toBe("Test message");
+		expect(initialValue).toBe('Test message');
 
 		fireEvent.keyDown(textarea, {
-			key: "Enter",
-			code: "Enter",
+			key: 'Enter',
+			code: 'Enter',
 			shiftKey: false,
 		});
 
@@ -419,12 +381,12 @@ describe("ChatInputSection", () => {
 		});
 	});
 
-	it("should not send empty messages", async () => {
-		const { analyzeTextWithAI } = await import("@/shared/lib/api");
+	it('should not send empty messages', async () => {
+		const { analyzeTextWithAI } = await import('@/shared/lib/api');
 		vi.clearAllMocks();
 
 		render(<ChatInputSection {...mockProps} />);
-		const buttons = screen.getAllByRole("button");
+		const buttons = screen.getAllByRole('button');
 		const sendButton = buttons[buttons.length - 1];
 
 		fireEvent.click(sendButton);
@@ -436,13 +398,13 @@ describe("ChatInputSection", () => {
 		expect(analyzeTextWithAI).not.toHaveBeenCalled();
 	});
 
-	it("should display category selector", () => {
+	it('should display category selector', () => {
 		render(<ChatInputSection {...mockProps} />);
 		// Category selector should be present
 		expect(document.body).toBeInTheDocument();
 	});
 
-	it("should handle category selection", () => {
+	it('should handle category selection', () => {
 		render(<ChatInputSection {...mockProps} />);
 		// Category selection functionality
 		expect(document.body).toBeInTheDocument();
@@ -453,50 +415,48 @@ describe("ChatInputSection", () => {
 // TESTS: RecentEntriesFeed (8 tests)
 // ============================================================================
 
-describe("RecentEntriesFeed", () => {
+describe('RecentEntriesFeed', () => {
 	const mockUserData = {
-		id: "test-user",
-		user: { id: "test-user" },
+		id: 'test-user',
+		user: { id: 'test-user' },
 	};
 
-	it("should render without crashing", () => {
+	it('should render without crashing', () => {
 		render(<RecentEntriesFeed userData={mockUserData} />);
 		// Component renders with skeleton loader initially
 		expect(document.body).toBeInTheDocument();
 	});
 
-	it("should load entries on mount", async () => {
-		const { getEntries } = await import("@/shared/lib/api");
+	it('should load entries on mount', async () => {
+		const { getEntries } = await import('@/shared/lib/api');
 
 		render(<RecentEntriesFeed userData={mockUserData} />);
 
 		await waitFor(() => {
-			expect(getEntries).toHaveBeenCalledWith("test-user", 3);
+			expect(getEntries).toHaveBeenCalledWith('test-user', 3);
 		});
 	});
 
-	it("should display entries after loading", async () => {
+	it('should display entries after loading', async () => {
 		render(<RecentEntriesFeed userData={mockUserData} />);
 
 		await waitFor(
 			() => {
-				const entryItems = screen.queryAllByTestId("entry-item");
+				const entryItems = screen.queryAllByTestId('entry-item');
 				expect(entryItems.length).toBeGreaterThanOrEqual(0);
 			},
-			{ timeout: 3000 },
+			{ timeout: 3000 }
 		);
 	});
 
-	it("should handle entry click", async () => {
+	it('should handle entry click', async () => {
 		const onEntryClick = vi.fn();
 
-		render(
-			<RecentEntriesFeed onEntryClick={onEntryClick} userData={mockUserData} />,
-		);
+		render(<RecentEntriesFeed onEntryClick={onEntryClick} userData={mockUserData} />);
 
 		await waitFor(
 			() => {
-				const entryItems = screen.queryAllByTestId("entry-item");
+				const entryItems = screen.queryAllByTestId('entry-item');
 				if (entryItems.length > 0) {
 					fireEvent.click(entryItems[0]);
 					expect(onEntryClick).toHaveBeenCalled();
@@ -505,19 +465,14 @@ describe("RecentEntriesFeed", () => {
 					expect(true).toBe(true);
 				}
 			},
-			{ timeout: 3000 },
+			{ timeout: 3000 }
 		);
 	});
 
-	it("should handle view all click", async () => {
+	it('should handle view all click', async () => {
 		const onViewAllClick = vi.fn();
 
-		render(
-			<RecentEntriesFeed
-				onViewAllClick={onViewAllClick}
-				userData={mockUserData}
-			/>,
-		);
+		render(<RecentEntriesFeed onViewAllClick={onViewAllClick} userData={mockUserData} />);
 
 		// Component should render successfully
 		await waitFor(() => {
@@ -525,7 +480,7 @@ describe("RecentEntriesFeed", () => {
 		});
 	});
 
-	it("should display entry category", async () => {
+	it('should display entry category', async () => {
 		render(<RecentEntriesFeed userData={mockUserData} />);
 
 		await waitFor(() => {
@@ -534,7 +489,7 @@ describe("RecentEntriesFeed", () => {
 		});
 	});
 
-	it("should display entry sentiment", async () => {
+	it('should display entry sentiment', async () => {
 		render(<RecentEntriesFeed userData={mockUserData} />);
 
 		await waitFor(() => {
@@ -543,7 +498,7 @@ describe("RecentEntriesFeed", () => {
 		});
 	});
 
-	it("should format time ago correctly", async () => {
+	it('should format time ago correctly', async () => {
 		render(<RecentEntriesFeed userData={mockUserData} />);
 
 		await waitFor(() => {

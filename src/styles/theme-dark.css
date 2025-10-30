@@ -16,8 +16,7 @@
 	/* ===== iOS Typography System (same as light mode) ===== */
 	/* Font Family - San Francisco (SF Pro) */
 	--font-family-ios:
-		-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
-		Helvetica, Arial, sans-serif;
+		-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	--font-family-primary: var(--font-family-ios);
 
 	/* Font Weights */
@@ -81,9 +80,7 @@
 	--foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
 	/* Cards */
-	--card: oklch(
-		0.22 0 0
-	); /* #2b2b2b - Gray 3 для модальных окон (более светлый) */
+	--card: oklch(0.22 0 0); /* #2b2b2b - Gray 3 для модальных окон (более светлый) */
 	--card-foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
 	/* Popovers */
@@ -95,18 +92,12 @@
 	--primary-foreground: oklch(1 0 0); /* #ffffff */
 
 	/* Secondary */
-	--secondary: oklch(
-		0.18 0.005 286.75
-	); /* #1c1c1e - iOS secondarySystemBackground */
+	--secondary: oklch(0.18 0.005 286.75); /* #1c1c1e - iOS secondarySystemBackground */
 	--secondary-foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
 	/* Muted - для неактивных элементов */
-	--muted: oklch(
-		0.22 0.005 286.75
-	); /* #2c2c2e - iOS tertiarySystemBackground */
-	--muted-foreground: oklch(
-		0.92 0.005 286.75
-	); /* rgba(235,235,245,0.6) - iOS secondaryLabel */
+	--muted: oklch(0.22 0.005 286.75); /* #2c2c2e - iOS tertiarySystemBackground */
+	--muted-foreground: oklch(0.92 0.005 286.75); /* rgba(235,235,245,0.6) - iOS secondaryLabel */
 
 	/* Accent */
 	--accent: oklch(0.696 0.17 254.604); /* #0a84ff - iOS systemBlue */

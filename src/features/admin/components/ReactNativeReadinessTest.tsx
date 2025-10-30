@@ -7,11 +7,8 @@
  * @date 2025-10-24
  */
 
-import { useState } from "react";
-import {
-	checkReactNativeReadiness,
-	type ReadinessReport,
-} from "@/shared/lib/platform";
+import { useState } from 'react';
+import { checkReactNativeReadiness, type ReadinessReport } from '@/shared/lib/platform';
 
 export function ReactNativeReadinessTest() {
 	const [report, setReport] = useState<ReadinessReport | null>(null);
@@ -27,21 +24,21 @@ export function ReactNativeReadinessTest() {
 			setReport(result);
 
 			// Log to console for debugging
-			console.log("React Native Readiness Report:", result);
+			console.log('React Native Readiness Report:', result);
 
 			// Download report as JSON
 			const blob = new Blob([JSON.stringify(result, null, 2)], {
-				type: "application/json",
+				type: 'application/json',
 			});
 			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
+			const a = document.createElement('a');
 			a.href = url;
 			a.download = `react-native-readiness-${new Date().toISOString()}.json`;
 			a.click();
 			URL.revokeObjectURL(url);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Unknown error");
-			console.error("React Native Readiness Test failed:", err);
+			setError(err instanceof Error ? err.message : 'Unknown error');
+			console.error('React Native Readiness Test failed:', err);
 		} finally {
 			setLoading(false);
 		}
@@ -49,38 +46,38 @@ export function ReactNativeReadinessTest() {
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
-			case "ready":
-				return "text-green-600";
-			case "partial":
-				return "text-yellow-600";
-			case "not_ready":
-				return "text-red-600";
+			case 'ready':
+				return 'text-green-600';
+			case 'partial':
+				return 'text-yellow-600';
+			case 'not_ready':
+				return 'text-red-600';
 			default:
-				return "text-muted-foreground";
+				return 'text-muted-foreground';
 		}
 	};
 
 	const getStatusEmoji = (status: string) => {
 		switch (status) {
-			case "ready":
-				return "✅";
-			case "partial":
-				return "⚠️";
-			case "not_ready":
-				return "❌";
+			case 'ready':
+				return '✅';
+			case 'partial':
+				return '⚠️';
+			case 'not_ready':
+				return '❌';
 			default:
-				return "❓";
+				return '❓';
 		}
 	};
 
 	const getScoreColor = (score: number) => {
 		if (score >= 90) {
-			return "text-green-600";
+			return 'text-green-600';
 		}
 		if (score >= 70) {
-			return "text-yellow-600";
+			return 'text-yellow-600';
 		}
-		return "text-red-600";
+		return 'text-red-600';
 	};
 
 	return (
@@ -88,8 +85,7 @@ export function ReactNativeReadinessTest() {
 			<div className="mb-6">
 				<h2 className="mb-2 font-bold text-2xl">React Native Readiness Test</h2>
 				<p className="text-muted-foreground">
-					Проверка готовности всех platform adapters для миграции на React
-					Native
+					Проверка готовности всех platform adapters для миграции на React Native
 				</p>
 			</div>
 
@@ -98,7 +94,7 @@ export function ReactNativeReadinessTest() {
 				disabled={loading}
 				onClick={runTest}
 			>
-				{loading ? "Тестирование..." : "Запустить тест"}
+				{loading ? 'Тестирование...' : 'Запустить тест'}
 			</button>
 
 			{error && (
@@ -116,18 +112,15 @@ export function ReactNativeReadinessTest() {
 							<div>
 								<h3 className="mb-1 font-bold text-xl">Общий статус</h3>
 								<p className="text-muted-foreground text-sm">
-									{new Date(report.timestamp).toLocaleString("ru-RU")}
+									{new Date(report.timestamp).toLocaleString('ru-RU')}
 								</p>
 							</div>
 							<div className="text-right">
-								<div
-									className={`font-bold text-4xl ${getScoreColor(report.overallScore)}`}
-								>
+								<div className={`font-bold text-4xl ${getScoreColor(report.overallScore)}`}>
 									{report.overallScore}%
 								</div>
 								<div className={`text-lg ${getStatusColor(report.overall)}`}>
-									{getStatusEmoji(report.overall)}{" "}
-									{report.overall.toUpperCase()}
+									{getStatusEmoji(report.overall)} {report.overall.toUpperCase()}
 								</div>
 							</div>
 						</div>
@@ -137,10 +130,10 @@ export function ReactNativeReadinessTest() {
 							<div
 								className={`h-full transition-all duration-500 ${
 									report.overallScore >= 90
-										? "bg-green-500"
+										? 'bg-green-500'
 										: report.overallScore >= 70
-											? "bg-yellow-500"
-											: "bg-red-500"
+											? 'bg-yellow-500'
+											: 'bg-red-500'
 								}`}
 								style={{ width: `${report.overallScore}%` }}
 							/>
@@ -159,24 +152,16 @@ export function ReactNativeReadinessTest() {
 								<div className="mb-2 flex items-start justify-between">
 									<div className="flex-1">
 										<div className="mb-1 flex items-center gap-2">
-											<span className="text-xl">
-												{getStatusEmoji(check.status)}
-											</span>
+											<span className="text-xl">{getStatusEmoji(check.status)}</span>
 											<h4 className="font-semibold text-lg">{check.name}</h4>
 										</div>
-										<p className="text-muted-foreground text-sm">
-											{check.details}
-										</p>
+										<p className="text-muted-foreground text-sm">{check.details}</p>
 									</div>
 									<div className="ml-4 text-right">
-										<div
-											className={`font-bold text-2xl ${getScoreColor(check.score)}`}
-										>
+										<div className={`font-bold text-2xl ${getScoreColor(check.score)}`}>
 											{check.score}%
 										</div>
-										<div className={`text-sm ${getStatusColor(check.status)}`}>
-											{check.status}
-										</div>
+										<div className={`text-sm ${getStatusColor(check.status)}`}>{check.status}</div>
 									</div>
 								</div>
 
@@ -185,10 +170,10 @@ export function ReactNativeReadinessTest() {
 									<div
 										className={`h-full transition-all ${
 											check.score >= 90
-												? "bg-green-500"
+												? 'bg-green-500'
 												: check.score >= 70
-													? "bg-yellow-500"
-													: "bg-red-500"
+													? 'bg-yellow-500'
+													: 'bg-red-500'
 										}`}
 										style={{ width: `${check.score}%` }}
 									/>
@@ -203,19 +188,19 @@ export function ReactNativeReadinessTest() {
 						<div className="grid grid-cols-3 gap-4 text-center">
 							<div>
 								<div className="font-bold text-2xl text-green-600">
-									{report.checks.filter((c) => c.status === "ready").length}
+									{report.checks.filter((c) => c.status === 'ready').length}
 								</div>
 								<div className="text-muted-foreground text-sm">Готово</div>
 							</div>
 							<div>
 								<div className="font-bold text-2xl text-yellow-600">
-									{report.checks.filter((c) => c.status === "partial").length}
+									{report.checks.filter((c) => c.status === 'partial').length}
 								</div>
 								<div className="text-muted-foreground text-sm">Частично</div>
 							</div>
 							<div>
 								<div className="font-bold text-2xl text-red-600">
-									{report.checks.filter((c) => c.status === "not_ready").length}
+									{report.checks.filter((c) => c.status === 'not_ready').length}
 								</div>
 								<div className="text-muted-foreground text-sm">Не готово</div>
 							</div>
@@ -228,8 +213,7 @@ export function ReactNativeReadinessTest() {
 						<ul className="space-y-2 text-sm">
 							{report.overallScore >= 95 && (
 								<li className="text-green-600">
-									✅ Отличная готовность! Можно начинать миграцию на React
-									Native
+									✅ Отличная готовность! Можно начинать миграцию на React Native
 								</li>
 							)}
 							{report.overallScore >= 80 && report.overallScore < 95 && (
@@ -238,13 +222,11 @@ export function ReactNativeReadinessTest() {
 								</li>
 							)}
 							{report.overallScore < 80 && (
-								<li className="text-red-600">
-									❌ Требуется дополнительная работа перед миграцией
-								</li>
+								<li className="text-red-600">❌ Требуется дополнительная работа перед миграцией</li>
 							)}
 
 							{report.checks
-								.filter((c) => c.status !== "ready")
+								.filter((c) => c.status !== 'ready')
 								.map((check, index) => (
 									<li className="text-foreground" key={index}>
 										• {check.name}: {check.details}
@@ -260,7 +242,7 @@ export function ReactNativeReadinessTest() {
 							onClick={() => {
 								const text = JSON.stringify(report, null, 2);
 								navigator.clipboard.writeText(text);
-								alert("Отчет скопирован в буфер обмена!");
+								alert('Отчет скопирован в буфер обмена!');
 							}}
 						>
 							📋 Копировать JSON
@@ -269,8 +251,8 @@ export function ReactNativeReadinessTest() {
 						<button
 							className="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
 							onClick={() => {
-								console.log("React Native Readiness Report:", report);
-								alert("Отчет выведен в консоль браузера");
+								console.log('React Native Readiness Report:', report);
+								alert('Отчет выведен в консоль браузера');
 							}}
 						>
 							🔍 Показать в консоли

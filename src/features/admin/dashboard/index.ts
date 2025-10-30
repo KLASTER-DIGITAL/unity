@@ -7,5 +7,5 @@
  */
 
 // Components
-export { AdminDashboard } from "./components/AdminDashboard";
-export { UsersManagementTab } from "./components/UsersManagementTab";
+export { AdminDashboard } from './components/AdminDashboard';
+export { UsersManagementTab } from './components/UsersManagementTab';

@@ -1,10 +1,10 @@
-import LottieView from "lottie-react-native";
-import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import LottieView from 'lottie-react-native';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, useColorScheme, View } from 'react-native';
 // Lottie animations
-import BlackAnimation from "../assets/lottie/Black-2.json";
-import WhiteAnimation from "../assets/lottie/White-2.json";
-import { DesignTokens } from "../design-system/tokens";
+import BlackAnimation from '../assets/lottie/Black-2.json';
+import WhiteAnimation from '../assets/lottie/White-2.json';
+import { DesignTokens } from '../design-system/tokens';
 
 interface LottiePreloaderProps {
 	/**
@@ -33,7 +33,7 @@ interface LottiePreloaderProps {
 	 * lg: 192x192px
 	 * xl: 256x256px
 	 */
-	size?: "sm" | "md" | "lg" | "xl";
+	size?: 'sm' | 'md' | 'lg' | 'xl';
 
 	/**
 	 * Callback когда минимальное время истекло
@@ -57,10 +57,10 @@ interface LottiePreloaderProps {
  * ```
  */
 export function LottiePreloader({
-	message = "Загрузка...",
+	message = 'Загрузка...',
 	minDuration = 5000,
 	showMessage = true,
-	size = "md",
+	size = 'md',
 	onMinDurationComplete,
 }: LottiePreloaderProps) {
 	const colorScheme = useColorScheme();
@@ -70,8 +70,7 @@ export function LottiePreloader({
 	// Выбираем анимацию в зависимости от темы
 	// Темная тема → White-2.json (белая анимация видна на темном фоне)
 	// Светлая тема → Black-2.json (черная анимация видна на светлом фоне)
-	const animationData =
-		colorScheme === "dark" ? WhiteAnimation : BlackAnimation;
+	const animationData = colorScheme === 'dark' ? WhiteAnimation : BlackAnimation;
 
 	// Размеры анимации
 	const sizes = {
@@ -102,12 +101,7 @@ export function LottiePreloader({
 		<View style={styles.container}>
 			<View style={styles.content}>
 				{/* Lottie Animation */}
-				<View
-					style={[
-						styles.animationContainer,
-						{ width: animationSize, height: animationSize },
-					]}
-				>
+				<View style={[styles.animationContainer, { width: animationSize, height: animationSize }]}>
 					<LottieView
 						autoPlay
 						loop
@@ -128,12 +122,12 @@ export function LottiePreloader({
  * Компактный вариант прелоадера для использования внутри компонентов
  */
 export function LottiePreloaderCompact({
-	message = "Загрузка...",
-	size = "sm",
+	message = 'Загрузка...',
+	size = 'sm',
 	showMessage = false,
 	minDuration,
 	onMinDurationComplete,
-}: Omit<LottiePreloaderProps, "minDuration" | "onMinDurationComplete"> & {
+}: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
 	minDuration?: number;
 	onMinDurationComplete?: () => void;
 }) {
@@ -144,8 +138,7 @@ export function LottiePreloaderCompact({
 	// Выбираем анимацию в зависимости от темы
 	// Темная тема → White-2.json (белая анимация видна на темном фоне)
 	// Светлая тема → Black-2.json (черная анимация видна на светлом фоне)
-	const animationData =
-		colorScheme === "dark" ? WhiteAnimation : BlackAnimation;
+	const animationData = colorScheme === 'dark' ? WhiteAnimation : BlackAnimation;
 
 	// Размеры анимации (компактные)
 	const sizes = {
@@ -176,12 +169,7 @@ export function LottiePreloaderCompact({
 
 	return (
 		<View style={styles.compactContainer}>
-			<View
-				style={[
-					styles.compactAnimation,
-					{ width: animationSize, height: animationSize },
-				]}
-			>
+			<View style={[styles.compactAnimation, { width: animationSize, height: animationSize }]}>
 				<LottieView
 					autoPlay
 					loop
@@ -198,17 +186,14 @@ export function LottiePreloaderCompact({
 /**
  * Inline вариант прелоадера для использования в кнопках и других элементах
  */
-export function LottiePreloaderInline({
-	size = "sm",
-}: Pick<LottiePreloaderProps, "size">) {
+export function LottiePreloaderInline({ size = 'sm' }: Pick<LottiePreloaderProps, 'size'>) {
 	const colorScheme = useColorScheme();
 	const animationRef = useRef<LottieView>(null);
 
 	// Для inline элементов используем ту же логику (не инвертируем)
 	// Темная тема → White-2.json (белая анимация видна на темном фоне)
 	// Светлая тема → Black-2.json (черная анимация видна на светлом фоне)
-	const animationData =
-		colorScheme === "dark" ? WhiteAnimation : BlackAnimation;
+	const animationData = colorScheme === 'dark' ? WhiteAnimation : BlackAnimation;
 
 	// Размеры анимации (inline)
 	const sizes = {
@@ -226,12 +211,7 @@ export function LottiePreloaderInline({
 	}, []);
 
 	return (
-		<View
-			style={[
-				styles.inlineContainer,
-				{ width: animationSize, height: animationSize },
-			]}
-		>
+		<View style={[styles.inlineContainer, { width: animationSize, height: animationSize }]}>
 			<LottieView
 				autoPlay
 				loop
@@ -246,29 +226,29 @@ export function LottiePreloaderInline({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 		backgroundColor: DesignTokens.colors.background,
 	},
 	content: {
-		alignItems: "center",
+		alignItems: 'center',
 	},
 	animationContainer: {
 		marginBottom: DesignTokens.spacing.lg,
 	},
 	animation: {
-		width: "100%",
-		height: "100%",
+		width: '100%',
+		height: '100%',
 	},
 	message: {
 		fontSize: DesignTokens.fontSizes.bodySmall,
 		color: DesignTokens.colors.textSecondary,
-		textAlign: "center",
+		textAlign: 'center',
 	},
 	compactContainer: {
-		flexDirection: "column",
-		alignItems: "center",
-		justifyContent: "center",
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
 		gap: DesignTokens.spacing.sm,
 	},
 	compactAnimation: {
@@ -277,7 +257,7 @@ const styles = StyleSheet.create({
 	compactMessage: {
 		fontSize: DesignTokens.fontSizes.caption,
 		color: DesignTokens.colors.textSecondary,
-		textAlign: "center",
+		textAlign: 'center',
 	},
 	inlineContainer: {
 		// Size is set dynamically

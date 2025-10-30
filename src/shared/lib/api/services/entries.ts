@@ -1,16 +1,13 @@
-import { createClient } from "@/utils/supabase/client";
-import { API_URLS } from "../config/urls";
-import { getAuthHeaders } from "../core/request";
-import type { DiaryEntry } from "../types";
+import { createClient } from '@/utils/supabase/client';
+import { API_URLS } from '../config/urls';
+import { getAuthHeaders } from '../core/request';
+import type { DiaryEntry } from '../types';
 
 /**
  * Entries API request helper
  */
-async function entriesApiRequest<T = any>(
-	endpoint: string,
-	options: any = {},
-): Promise<T> {
-	const { method = "GET", body, headers: customHeaders = {} } = options;
+async function entriesApiRequest<T = any>(endpoint: string, options: any = {}): Promise<T> {
+	const { method = 'GET', body, headers: customHeaders = {} } = options;
 
 	const headers = {
 		...(await getAuthHeaders()),
@@ -22,15 +19,12 @@ async function entriesApiRequest<T = any>(
 		headers,
 	};
 
-	if (body && method !== "GET") {
+	if (body && method !== 'GET') {
 		config.body = JSON.stringify(body);
 	}
 
 	try {
-		console.log(
-			`[ENTRIES API] ${method} ${API_URLS.ENTRIES}${endpoint}`,
-			body ? { body } : "",
-		);
+		console.log(`[ENTRIES API] ${method} ${API_URLS.ENTRIES}${endpoint}`, body ? { body } : '');
 
 		const response = await fetch(`${API_URLS.ENTRIES}${endpoint}`, config);
 		const responseText = await response.text();
@@ -50,15 +44,15 @@ async function entriesApiRequest<T = any>(
 			throw new Error(errorMessage);
 		}
 
-		if (!responseText || responseText.trim() === "") {
+		if (!responseText || responseText.trim() === '') {
 			return {} as T;
 		}
 
 		try {
 			return JSON.parse(responseText);
 		} catch (_parseError) {
-			console.error("Failed to parse response as JSON:", responseText);
-			throw new Error("Invalid JSON response from server");
+			console.error('Failed to parse response as JSON:', responseText);
+			throw new Error('Invalid JSON response from server');
 		}
 	} catch (error) {
 		console.error(`ENTRIES API Request Error [${endpoint}]:`, error);
@@ -70,38 +64,36 @@ async function entriesApiRequest<T = any>(
  * Create a new diary entry
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function createEntry(
-	entry: Partial<DiaryEntry>,
-): Promise<DiaryEntry> {
-	console.log("[ENTRIES] Creating entry via direct Supabase client:", entry);
+export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntry> {
+	console.log('[ENTRIES] Creating entry via direct Supabase client:', entry);
 
 	const supabase = createClient();
 
 	const { data, error } = await supabase
-		.from("entries")
+		.from('entries')
 		.insert({
 			user_id: entry.userId,
 			text: entry.text,
-			sentiment: entry.sentiment || "neutral",
-			category: entry.category || "Другое",
-			mood: entry.mood || "нормальное",
+			sentiment: entry.sentiment || 'neutral',
+			category: entry.category || 'Другое',
+			mood: entry.mood || 'нормальное',
 			is_first_entry: (entry as any).isFirstEntry,
 			media: entry.media || null,
-			ai_reply: entry.aiReply || "",
+			ai_reply: entry.aiReply || '',
 			ai_summary: entry.aiSummary || null,
 			ai_insight: entry.aiInsight || null,
 			is_achievement: entry.isAchievement,
 			tags: entry.tags || [],
 			streak_day: entry.streakDay || 1,
-			focus_area: entry.focusArea || entry.category || "Другое",
+			focus_area: entry.focusArea || entry.category || 'Другое',
 			created_at: new Date().toISOString(),
 		})
 		.select()
 		.single();
 
 	if (error) {
-		console.error("[ENTRIES] Failed to create entry:", error);
-		throw new Error(error.message || "Failed to create entry");
+		console.error('[ENTRIES] Failed to create entry:', error);
+		throw new Error(error.message || 'Failed to create entry');
 	}
 
 	// Convert to camelCase
@@ -123,7 +115,7 @@ export async function createEntry(
 		media: data.media,
 	};
 
-	console.log("[ENTRIES] Entry created successfully:", createdEntry);
+	console.log('[ENTRIES] Entry created successfully:', createdEntry);
 	return createdEntry;
 }
 
@@ -131,24 +123,21 @@ export async function createEntry(
  * Get entries for a user
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function getEntries(
-	userId: string,
-	limit = 50,
-): Promise<DiaryEntry[]> {
-	console.log("[ENTRIES] Fetching entries for user:", userId);
+export async function getEntries(userId: string, limit = 50): Promise<DiaryEntry[]> {
+	console.log('[ENTRIES] Fetching entries for user:', userId);
 
 	const supabase = createClient();
 
 	const { data, error } = await supabase
-		.from("entries")
-		.select("*")
-		.eq("user_id", userId)
-		.order("created_at", { ascending: false })
+		.from('entries')
+		.select('*')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false })
 		.limit(limit);
 
 	if (error) {
-		console.error("[ENTRIES] Failed to fetch entries:", error);
-		throw new Error(error.message || "Failed to fetch entries");
+		console.error('[ENTRIES] Failed to fetch entries:', error);
+		throw new Error(error.message || 'Failed to fetch entries');
 	}
 
 	// Convert to camelCase
@@ -170,7 +159,7 @@ export async function getEntries(
 		media: entry.media,
 	}));
 
-	console.log("[ENTRIES] Fetched entries:", entries.length);
+	console.log('[ENTRIES] Fetched entries:', entries.length);
 	return entries;
 }
 
@@ -178,7 +167,7 @@ export async function getEntries(
  * Get a single entry by ID
  */
 export async function getEntry(entryId: string): Promise<DiaryEntry> {
-	console.log("[ENTRIES] Fetching entry:", entryId);
+	console.log('[ENTRIES] Fetching entry:', entryId);
 
 	const response = await entriesApiRequest<{
 		success: boolean;
@@ -187,11 +176,11 @@ export async function getEntry(entryId: string): Promise<DiaryEntry> {
 	}>(`/${entryId}`);
 
 	if (!response.success) {
-		console.error("[ENTRIES] Failed to fetch entry:", response);
-		throw new Error(response.error || "Failed to fetch entry");
+		console.error('[ENTRIES] Failed to fetch entry:', response);
+		throw new Error(response.error || 'Failed to fetch entry');
 	}
 
-	console.log("[ENTRIES] Entry found:", response.entry);
+	console.log('[ENTRIES] Entry found:', response.entry);
 	return response.entry;
 }
 
@@ -201,9 +190,9 @@ export async function getEntry(entryId: string): Promise<DiaryEntry> {
  */
 export async function updateEntry(
 	entryId: string,
-	updates: Partial<DiaryEntry>,
+	updates: Partial<DiaryEntry>
 ): Promise<DiaryEntry> {
-	console.log("[ENTRIES] Updating entry:", entryId, updates);
+	console.log('[ENTRIES] Updating entry:', entryId, updates);
 
 	const supabase = createClient();
 
@@ -223,15 +212,15 @@ export async function updateEntry(
 	}
 
 	const { data, error } = await supabase
-		.from("entries")
+		.from('entries')
 		.update(updateData)
-		.eq("id", entryId)
+		.eq('id', entryId)
 		.select()
 		.single();
 
 	if (error) {
-		console.error("[ENTRIES] Failed to update entry:", error);
-		throw new Error(error.message || "Failed to update entry");
+		console.error('[ENTRIES] Failed to update entry:', error);
+		throw new Error(error.message || 'Failed to update entry');
 	}
 
 	// Convert to camelCase
@@ -253,7 +242,7 @@ export async function updateEntry(
 		media: data.media,
 	};
 
-	console.log("[ENTRIES] Entry updated successfully:", updatedEntry);
+	console.log('[ENTRIES] Entry updated successfully:', updatedEntry);
 	return updatedEntry;
 }
 
@@ -261,20 +250,17 @@ export async function updateEntry(
  * Delete an entry
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function deleteEntry(
-	entryId: string,
-	_userId: string,
-): Promise<void> {
-	console.log("[ENTRIES] Deleting entry:", entryId);
+export async function deleteEntry(entryId: string, _userId: string): Promise<void> {
+	console.log('[ENTRIES] Deleting entry:', entryId);
 
 	const supabase = createClient();
 
-	const { error } = await supabase.from("entries").delete().eq("id", entryId);
+	const { error } = await supabase.from('entries').delete().eq('id', entryId);
 
 	if (error) {
-		console.error("[ENTRIES] Failed to delete entry:", error);
-		throw new Error(error.message || "Failed to delete entry");
+		console.error('[ENTRIES] Failed to delete entry:', error);
+		throw new Error(error.message || 'Failed to delete entry');
 	}
 
-	console.log("[ENTRIES] Entry deleted successfully");
+	console.log('[ENTRIES] Entry deleted successfully');
 }

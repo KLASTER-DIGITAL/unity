@@ -6,7 +6,7 @@
  * @module platform/navigation/native
  */
 
-import type { NavigationAdapter, NavigationOptions } from "../navigation";
+import type { NavigationAdapter, NavigationOptions } from '../navigation';
 
 /**
  * React Native navigation adapter using @react-navigation/native
@@ -22,12 +22,12 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 	navigate(route: string, options?: NavigationOptions): void {
 		try {
 			if (!this.initialized) {
-				console.warn("Navigation not initialized yet");
+				console.warn('Navigation not initialized yet');
 				return;
 			}
 
 			if (!this.navigationRef?.current) {
-				console.warn("Navigation ref not available");
+				console.warn('Navigation ref not available');
 				return;
 			}
 
@@ -36,19 +36,19 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 
 			this.navigationRef.current.navigate(screen, params);
 		} catch (error) {
-			console.error("Navigation error:", error);
+			console.error('Navigation error:', error);
 		}
 	}
 
 	goBack(): void {
 		try {
 			if (!this.initialized) {
-				console.warn("Navigation not initialized yet");
+				console.warn('Navigation not initialized yet');
 				return;
 			}
 
 			if (!this.navigationRef?.current) {
-				console.warn("Navigation ref not available");
+				console.warn('Navigation ref not available');
 				return;
 			}
 
@@ -56,19 +56,19 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 				this.navigationRef.current.goBack();
 			}
 		} catch (error) {
-			console.error("Go back error:", error);
+			console.error('Go back error:', error);
 		}
 	}
 
 	replace(route: string, options?: NavigationOptions): void {
 		try {
 			if (!this.initialized) {
-				console.warn("Navigation not initialized yet");
+				console.warn('Navigation not initialized yet');
 				return;
 			}
 
 			if (!this.navigationRef?.current) {
-				console.warn("Navigation ref not available");
+				console.warn('Navigation ref not available');
 				return;
 			}
 
@@ -76,23 +76,23 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 
 			// Use dispatch with replace action
 			this.navigationRef.current.dispatch({
-				type: "REPLACE",
+				type: 'REPLACE',
 				payload: { name: screen, params },
 			});
 		} catch (error) {
-			console.error("Replace navigation error:", error);
+			console.error('Replace navigation error:', error);
 		}
 	}
 
 	reset(route: string, options?: NavigationOptions): void {
 		try {
 			if (!this.initialized) {
-				console.warn("Navigation not initialized yet");
+				console.warn('Navigation not initialized yet');
 				return;
 			}
 
 			if (!this.navigationRef?.current) {
-				console.warn("Navigation ref not available");
+				console.warn('Navigation ref not available');
 				return;
 			}
 
@@ -104,25 +104,25 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 				routes: [{ name: screen, params }],
 			});
 		} catch (error) {
-			console.error("Reset navigation error:", error);
+			console.error('Reset navigation error:', error);
 		}
 	}
 
 	getCurrentRoute(): string {
 		try {
 			if (!this.initialized) {
-				return "/";
+				return '/';
 			}
 
 			if (!this.navigationRef?.current) {
-				return "/";
+				return '/';
 			}
 
 			const currentRoute = this.navigationRef.current.getCurrentRoute();
-			return currentRoute?.name || "/";
+			return currentRoute?.name || '/';
 		} catch (error) {
-			console.error("Get current route error:", error);
-			return "/";
+			console.error('Get current route error:', error);
+			return '/';
 		}
 	}
 
@@ -138,7 +138,7 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 
 			return this.navigationRef.current.canGoBack();
 		} catch (error) {
-			console.error("Can go back error:", error);
+			console.error('Can go back error:', error);
 			return false;
 		}
 	}
@@ -146,29 +146,26 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 	addListener(event: string, callback: (data?: any) => void): () => void {
 		try {
 			if (!this.initialized) {
-				console.warn("Navigation not initialized yet");
+				console.warn('Navigation not initialized yet');
 				return () => {};
 			}
 
 			if (!this.navigationRef?.current) {
-				console.warn("Navigation ref not available");
+				console.warn('Navigation ref not available');
 				return () => {};
 			}
 
 			// Map web events to React Navigation events
 			const eventMap: { [key: string]: string } = {
-				focus: "focus",
-				blur: "blur",
-				beforeRemove: "beforeRemove",
-				state: "state",
+				focus: 'focus',
+				blur: 'blur',
+				beforeRemove: 'beforeRemove',
+				state: 'state',
 			};
 
 			const nativeEvent = eventMap[event] || event;
 
-			const unsubscribe = this.navigationRef.current.addListener(
-				nativeEvent,
-				callback,
-			);
+			const unsubscribe = this.navigationRef.current.addListener(nativeEvent, callback);
 
 			return () => {
 				if (unsubscribe) {
@@ -176,7 +173,7 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 				}
 			};
 		} catch (error) {
-			console.error("Add listener error:", error);
+			console.error('Add listener error:', error);
 			return () => {};
 		}
 	}
@@ -184,15 +181,12 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 	/**
 	 * Parse route string to screen name and params
 	 */
-	private parseRoute(
-		route: string,
-		additionalParams?: any,
-	): { screen: string; params?: any } {
+	private parseRoute(route: string, additionalParams?: any): { screen: string; params?: any } {
 		// Remove leading slash
-		const cleanRoute = route.startsWith("/") ? route.slice(1) : route;
+		const cleanRoute = route.startsWith('/') ? route.slice(1) : route;
 
 		// Split by ? to separate path and query params
-		const [path, queryString] = cleanRoute.split("?");
+		const [path, queryString] = cleanRoute.split('?');
 
 		// Parse query params
 		const params: any = { ...additionalParams };
@@ -206,17 +200,17 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 
 		// Map web routes to React Navigation screen names
 		const screenMap: { [key: string]: string } = {
-			"": "Home",
-			home: "Home",
-			history: "History",
-			achievements: "Achievements",
-			reports: "Reports",
-			settings: "Settings",
-			profile: "Profile",
-			admin: "Admin",
+			'': 'Home',
+			home: 'Home',
+			history: 'History',
+			achievements: 'Achievements',
+			reports: 'Reports',
+			settings: 'Settings',
+			profile: 'Profile',
+			admin: 'Admin',
 		};
 
-		const screen = screenMap[path] || path || "Home";
+		const screen = screenMap[path] || path || 'Home';
 
 		return {
 			screen,

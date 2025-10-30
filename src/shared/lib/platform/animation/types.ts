@@ -5,7 +5,7 @@
  * Inspired by Framer Motion API but simplified for cross-platform compatibility.
  */
 
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 /**
  * Animation configuration
@@ -24,7 +24,7 @@ export type AnimationConfig = {
  * Spring animation configuration
  */
 export type SpringConfig = {
-	type: "spring";
+	type: 'spring';
 	stiffness?: number;
 	damping?: number;
 	mass?: number;
@@ -35,9 +35,9 @@ export type SpringConfig = {
  * Timing animation configuration
  */
 export type TimingConfig = {
-	type: "timing";
+	type: 'timing';
 	duration?: number;
-	easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out";
+	easing?: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
 };
 
 /**
@@ -64,7 +64,7 @@ export type AnimatedViewProps = {
  */
 export type AnimatedPresenceProps = {
 	children: ReactNode;
-	mode?: "wait" | "sync" | "popLayout";
+	mode?: 'wait' | 'sync' | 'popLayout';
 	custom?: any;
 };
 
@@ -81,27 +81,27 @@ export const AnimationPresets = {
 
 	// Slide animations
 	slideInLeft: {
-		initial: { x: "-100%", opacity: 0 },
+		initial: { x: '-100%', opacity: 0 },
 		animate: { x: 0, opacity: 1 },
-		exit: { x: "-100%", opacity: 0 },
+		exit: { x: '-100%', opacity: 0 },
 	},
 
 	slideInRight: {
-		initial: { x: "100%", opacity: 0 },
+		initial: { x: '100%', opacity: 0 },
 		animate: { x: 0, opacity: 1 },
-		exit: { x: "100%", opacity: 0 },
+		exit: { x: '100%', opacity: 0 },
 	},
 
 	slideInUp: {
-		initial: { y: "100%", opacity: 0 },
+		initial: { y: '100%', opacity: 0 },
 		animate: { y: 0, opacity: 1 },
-		exit: { y: "100%", opacity: 0 },
+		exit: { y: '100%', opacity: 0 },
 	},
 
 	slideInDown: {
-		initial: { y: "-100%", opacity: 0 },
+		initial: { y: '-100%', opacity: 0 },
 		animate: { y: 0, opacity: 1 },
-		exit: { y: "-100%", opacity: 0 },
+		exit: { y: '-100%', opacity: 0 },
 	},
 
 	// Scale animations
@@ -113,19 +113,19 @@ export const AnimationPresets = {
 
 	// Spring transitions
 	springTransition: {
-		type: "spring" as const,
+		type: 'spring' as const,
 		stiffness: 300,
 		damping: 30,
 	},
 
 	smoothTransition: {
-		type: "spring" as const,
+		type: 'spring' as const,
 		stiffness: 260,
 		damping: 20,
 	},
 
 	fastTransition: {
-		type: "spring" as const,
+		type: 'spring' as const,
 		stiffness: 400,
 		damping: 40,
 	},
@@ -137,17 +137,17 @@ export const AnimationPresets = {
 export const ScreenTransitions = {
 	// Slide from right to left (forward navigation)
 	slideLeft: {
-		initial: { x: "100%", opacity: 0 },
+		initial: { x: '100%', opacity: 0 },
 		animate: { x: 0, opacity: 1 },
-		exit: { x: "-100%", opacity: 0 },
+		exit: { x: '-100%', opacity: 0 },
 		transition: AnimationPresets.springTransition,
 	},
 
 	// Slide from left to right (backward navigation)
 	slideRight: {
-		initial: { x: "-100%", opacity: 0 },
+		initial: { x: '-100%', opacity: 0 },
 		animate: { x: 0, opacity: 1 },
-		exit: { x: "100%", opacity: 0 },
+		exit: { x: '100%', opacity: 0 },
 		transition: AnimationPresets.springTransition,
 	},
 
@@ -155,6 +155,6 @@ export const ScreenTransitions = {
 		initial: { opacity: 0 },
 		animate: { opacity: 1 },
 		exit: { opacity: 0 },
-		transition: { type: "timing" as const, duration: 300 },
+		transition: { type: 'timing' as const, duration: 300 },
 	},
 } as const;

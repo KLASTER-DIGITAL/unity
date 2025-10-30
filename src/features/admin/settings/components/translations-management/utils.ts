@@ -1,9 +1,4 @@
-import type {
-	Language,
-	MissingTranslation,
-	Translation,
-	TranslationStats,
-} from "./types";
+import type { Language, MissingTranslation, Translation, TranslationStats } from './types';
 
 /**
  * Filter translations by language and search query
@@ -11,15 +6,15 @@ import type {
 export function filterTranslations(
 	translations: Translation[],
 	selectedLanguage: string,
-	searchQuery: string,
+	searchQuery: string
 ): Translation[] {
 	return translations
 		.filter((t) => t.lang_code === selectedLanguage)
 		.filter(
 			(t) =>
-				searchQuery === "" ||
+				searchQuery === '' ||
 				t.translation_key.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				t.translation_value.toLowerCase().includes(searchQuery.toLowerCase()),
+				t.translation_value.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 }
 
@@ -29,7 +24,7 @@ export function filterTranslations(
 export function calculateStats(
 	translations: Translation[],
 	languages: Language[],
-	missingKeys: MissingTranslation[],
+	missingKeys: MissingTranslation[]
 ): TranslationStats {
 	const uniqueKeys = [...new Set(translations.map((t) => t.translation_key))];
 
@@ -39,10 +34,7 @@ export function calculateStats(
 		missingCount: missingKeys.reduce((sum, mk) => sum + mk.languages.length, 0),
 		completeness:
 			languages.length > 0
-				? Math.round(
-						(translations.length / (uniqueKeys.length * languages.length)) *
-							100,
-					)
+				? Math.round((translations.length / (uniqueKeys.length * languages.length)) * 100)
 				: 0,
 	};
 }

@@ -4,18 +4,18 @@
  * Card с анимацией появления (fade + scale)
  */
 
-import type React from "react";
-import { useEffect } from "react";
-import type { ViewProps } from "react-native";
+import type React from 'react';
+import { useEffect } from 'react';
+import type { ViewProps } from 'react-native';
 import Animated, {
 	Easing,
 	useAnimatedStyle,
 	useSharedValue,
 	withSpring,
 	withTiming,
-} from "react-native-reanimated";
-import { Animations } from "../../design-system/animations";
-import { DesignTokens } from "../../design-system/tokens";
+} from 'react-native-reanimated';
+import { Animations } from '../../design-system/animations';
+import { DesignTokens } from '../../design-system/tokens';
 
 interface AnimatedCardProps extends ViewProps {
 	children: React.ReactNode;

@@ -4,8 +4,8 @@
  * Provides utilities and components for RTL languages
  */
 
-export * from "./RTLDetector";
-export * from "./RTLProvider";
+export * from './RTLDetector';
+export * from './RTLProvider';
 
 // Import CSS
-import "./rtl.css";
+import './rtl.css';

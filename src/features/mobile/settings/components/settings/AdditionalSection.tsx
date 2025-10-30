@@ -2,9 +2,9 @@
  * SettingsScreen - Additional Section Component
  */
 
-import { Calendar, Download, Globe, Trash2, Upload } from "lucide-react";
-import { toast } from "sonner";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Calendar, Download, Globe, Trash2, Upload } from 'lucide-react';
+import { toast } from 'sonner';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type AdditionalSectionProps = {
 	currentLanguage?: string;
@@ -22,48 +22,46 @@ export function AdditionalSection({
 	t,
 }: AdditionalSectionProps) {
 	return (
-		<SettingsSection title={t.additional || "Дополнительно"}>
+		<SettingsSection title={t.additional || 'Дополнительно'}>
 			<SettingsRow
 				description={languageName}
 				icon={Globe}
 				iconBgColor="bg-[var(--ios-indigo)]/10"
 				iconColor="text-[var(--ios-indigo)]"
 				onClick={onLanguageClick}
-				title={t.language || "Язык"}
+				title={t.language || 'Язык'}
 			/>
 			<SettingsRow
-				description={
-					firstDayOfWeek === "monday" ? "Понедельник" : "Воскресенье"
-				}
+				description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
 				icon={Calendar}
 				iconBgColor="bg-[var(--ios-blue)]/10"
 				iconColor="text-[var(--ios-blue)]"
-				onClick={() => toast.info("Feature coming soon")}
-				title={t.firstDayOfWeek || "Первый день недели"}
+				onClick={() => toast.info('Feature coming soon')}
+				title={t.firstDayOfWeek || 'Первый день недели'}
 			/>
 			<SettingsRow
 				description="JSON, CSV, ZIP"
 				icon={Download}
 				iconBgColor="bg-[var(--ios-green)]/10"
 				iconColor="text-[var(--ios-green)]"
-				onClick={() => toast.info("Feature coming soon")}
-				title={t.exportData || "Экспортировать данные"}
+				onClick={() => toast.info('Feature coming soon')}
+				title={t.exportData || 'Экспортировать данные'}
 			/>
 			<SettingsRow
 				description="Восстановить из файла"
 				icon={Upload}
 				iconBgColor="bg-[var(--ios-purple)]/10"
 				iconColor="text-[var(--ios-purple)]"
-				onClick={() => toast.info("Feature coming soon")}
-				title={t.importData || "Импортировать данные"}
+				onClick={() => toast.info('Feature coming soon')}
+				title={t.importData || 'Импортировать данные'}
 			/>
 			<SettingsRow
 				description="Необратимое действие"
 				icon={Trash2}
 				iconBgColor="bg-[var(--ios-red)]/10"
 				iconColor="text-[var(--ios-red)]"
-				onClick={() => toast.error("Требуется подтверждение")}
-				title={t.deleteAllData || "Удалить все данные"}
+				onClick={() => toast.error('Требуется подтверждение')}
+				title={t.deleteAllData || 'Удалить все данные'}
 			/>
 		</SettingsSection>
 	);

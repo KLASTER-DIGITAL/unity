@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
-type ChromeMobileMode = "default" | "simple";
+type ChromeMobileMode = 'default' | 'simple';
 
 export interface ChromeMobileProps extends SVGProps<SVGSVGElement> {
 	url?: string;
@@ -17,7 +17,7 @@ export function ChromeMobile({
 	url,
 	width = 1203,
 	height = 753,
-	mode = "default",
+	mode = 'default',
 	...props
 }: ChromeMobileProps) {
 	return (
@@ -50,24 +50,9 @@ export function ChromeMobile({
 				/>
 
 				{/* Chrome menu dots (3 vertical dots) */}
-				<circle
-					className="fill-[#5F6368] dark:fill-[#9AA0A6]"
-					cx="1170"
-					cy="25"
-					r="3"
-				/>
-				<circle
-					className="fill-[#5F6368] dark:fill-[#9AA0A6]"
-					cx="1170"
-					cy="35"
-					r="3"
-				/>
-				<circle
-					className="fill-[#5F6368] dark:fill-[#9AA0A6]"
-					cx="1170"
-					cy="15"
-					r="3"
-				/>
+				<circle className="fill-[#5F6368] dark:fill-[#9AA0A6]" cx="1170" cy="25" r="3" />
+				<circle className="fill-[#5F6368] dark:fill-[#9AA0A6]" cx="1170" cy="35" r="3" />
+				<circle className="fill-[#5F6368] dark:fill-[#9AA0A6]" cx="1170" cy="15" r="3" />
 
 				{/* Address bar */}
 				<path
@@ -94,11 +79,11 @@ export function ChromeMobile({
 						x="110"
 						y="30"
 					>
-						{url || "unity-wine.vercel.app"}
+						{url || 'unity-wine.vercel.app'}
 					</text>
 				</g>
 
-				{mode === "default" ? (
+				{mode === 'default' ? (
 					<>
 						{/* Back button */}
 						<g className="mix-blend-luminosity">

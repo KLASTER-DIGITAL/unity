@@ -1,7 +1,7 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { Cloud, CloudOff } from "lucide-react";
-import { AnimatedPresence, motion } from "@/shared/lib/platform/animation";
+import { Cloud, CloudOff } from 'lucide-react';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type SuccessModalProps = {
 	isOpen: boolean;
@@ -18,11 +18,7 @@ type SuccessModalProps = {
  * - AI processing message
  * - Offline mode indicator
  */
-export function SuccessModal({
-	isOpen,
-	userName = "Анна",
-	isOffline = false,
-}: SuccessModalProps) {
+export function SuccessModal({ isOpen, userName = 'Анна', isOffline = false }: SuccessModalProps) {
 	return (
 		<AnimatedPresence>
 			{isOpen && (
@@ -41,14 +37,14 @@ export function SuccessModal({
 						className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 z-modal rounded-[24px] border border-border bg-card p-modal shadow-2xl transition-colors duration-300"
 						exit={{ opacity: 0, scale: 0.9 }}
 						initial={{ opacity: 0, scale: 0.9 }}
-						style={{ width: "300px", minHeight: "230px" }}
+						style={{ width: '300px', minHeight: '230px' }}
 					>
 						{/* Success Icon */}
 						<div className="mx-auto mb-responsive-md flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
 							<motion.div
 								animate={{ scale: 1 }}
 								initial={{ scale: 0 }}
-								transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+								transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
 							>
 								<svg
 									className="h-8 w-8 text-(--ios-green)"
@@ -73,8 +69,8 @@ export function SuccessModal({
 						</h3>
 						<p className="text-center text-[14px]! text-muted-foreground">
 							{isOffline
-								? "Запись будет синхронизирована когда появится интернет"
-								: "AI обрабатывает запись и создает мотивационную карточку..."}
+								? 'Запись будет синхронизирована когда появится интернет'
+								: 'AI обрабатывает запись и создает мотивационную карточку...'}
 						</p>
 
 						{/* Offline Indicator */}
@@ -86,9 +82,7 @@ export function SuccessModal({
 								transition={{ delay: 0.3 }}
 							>
 								<CloudOff className="h-4 w-4 text-orange-600" />
-								<span className="font-medium text-[12px]! text-orange-600">
-									Сохранено offline
-								</span>
+								<span className="font-medium text-[12px]! text-orange-600">Сохранено offline</span>
 							</motion.div>
 						)}
 
@@ -101,9 +95,7 @@ export function SuccessModal({
 								transition={{ delay: 0.3 }}
 							>
 								<Cloud className="h-4 w-4 text-green-600" />
-								<span className="font-medium text-[12px]! text-green-600">
-									Синхронизировано
-								</span>
+								<span className="font-medium text-[12px]! text-green-600">Синхронизировано</span>
 							</motion.div>
 						)}
 					</motion.div>

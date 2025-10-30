@@ -1,13 +1,13 @@
-import { Check, ChevronDown, Globe } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import type { LanguageConfig } from "./types";
-import { useTranslation } from "./useTranslation";
+import { Check, ChevronDown, Globe } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import type { LanguageConfig } from './types';
+import { useTranslation } from './useTranslation';
 
 type LanguageSelectorProps = {
-	variant?: "dropdown" | "modal" | "inline";
+	variant?: 'dropdown' | 'modal' | 'inline';
 	showFlag?: boolean;
 	showNativeName?: boolean;
 	className?: string;
@@ -15,10 +15,10 @@ type LanguageSelectorProps = {
 };
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
-	variant = "dropdown",
+	variant = 'dropdown',
 	showFlag = true,
 	showNativeName = true,
-	className = "",
+	className = '',
 	onLanguageChange,
 }) => {
 	const { currentLanguage, changeLanguage, t } = useTranslation();
@@ -34,59 +34,59 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 				// Временный список языков, пока не реализован API
 				const fallbackLanguages: LanguageConfig[] = [
 					{
-						code: "ru",
-						name: "Russian",
-						native_name: "Русский",
-						flag: "🇷🇺",
+						code: 'ru',
+						name: 'Russian',
+						native_name: 'Русский',
+						flag: '🇷🇺',
 						is_active: true,
 					},
 					{
-						code: "en",
-						name: "English",
-						native_name: "English",
-						flag: "🇺🇸",
+						code: 'en',
+						name: 'English',
+						native_name: 'English',
+						flag: '🇺🇸',
 						is_active: true,
 					},
 					{
-						code: "es",
-						name: "Spanish",
-						native_name: "Español",
-						flag: "🇪🇸",
+						code: 'es',
+						name: 'Spanish',
+						native_name: 'Español',
+						flag: '🇪🇸',
 						is_active: true,
 					},
 					{
-						code: "de",
-						name: "German",
-						native_name: "Deutsch",
-						flag: "🇩🇪",
+						code: 'de',
+						name: 'German',
+						native_name: 'Deutsch',
+						flag: '🇩🇪',
 						is_active: false,
 					},
 					{
-						code: "fr",
-						name: "French",
-						native_name: "Français",
-						flag: "🇫🇷",
+						code: 'fr',
+						name: 'French',
+						native_name: 'Français',
+						flag: '🇫🇷',
 						is_active: false,
 					},
 					{
-						code: "zh",
-						name: "Chinese",
-						native_name: "中文",
-						flag: "🇨🇳",
+						code: 'zh',
+						name: 'Chinese',
+						native_name: '中文',
+						flag: '🇨🇳',
 						is_active: false,
 					},
 					{
-						code: "ja",
-						name: "Japanese",
-						native_name: "日本語",
-						flag: "🇯🇵",
+						code: 'ja',
+						name: 'Japanese',
+						native_name: '日本語',
+						flag: '🇯🇵',
 						is_active: false,
 					},
 				];
 
 				setLanguages(fallbackLanguages);
 			} catch (error) {
-				console.error("Failed to load languages:", error);
+				console.error('Failed to load languages:', error);
 			} finally {
 				setIsLoading(false);
 			}
@@ -103,15 +103,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 		onLanguageChange?.(languageCode);
 	};
 
-	const renderLanguageOption = (
-		language: LanguageConfig,
-		isSelected: boolean,
-	) => (
+	const renderLanguageOption = (language: LanguageConfig, isSelected: boolean) => (
 		<motion.button
 			className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors ${
-				isSelected
-					? "bg-primary/10 text-primary"
-					: "text-foreground hover:bg-muted"
+				isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
 			}`}
 			key={language.code}
 			onClick={() => handleLanguageSelect(language.code)}
@@ -123,9 +118,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 				<div className="text-left">
 					<div className="font-medium">{language.name}</div>
 					{showNativeName && (
-						<div className="text-muted-foreground text-sm">
-							{language.native_name}
-						</div>
+						<div className="text-muted-foreground text-sm">{language.native_name}</div>
 					)}
 				</div>
 			</div>
@@ -133,7 +126,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 				<motion.div
 					animate={{ scale: 1 }}
 					initial={{ scale: 0 }}
-					transition={{ type: "spring", duration: 0.2 }}
+					transition={{ type: 'spring', duration: 0.2 }}
 				>
 					<Check className="text-primary" size={20} />
 				</motion.div>
@@ -141,7 +134,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 		</motion.button>
 	);
 
-	if (variant === "inline") {
+	if (variant === 'inline') {
 		return (
 			<div className={`flex flex-wrap gap-2 ${className}`}>
 				{languages.map((language) => (
@@ -151,7 +144,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 						key={language.code}
 						onClick={() => handleLanguageSelect(language.code)}
 						size="sm"
-						variant={currentLanguage === language.code ? "default" : "outline"}
+						variant={currentLanguage === language.code ? 'default' : 'outline'}
 					>
 						{showFlag && <span>{language.flag}</span>}
 						{showNativeName ? language.native_name : language.name}
@@ -173,9 +166,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 					<div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 				) : (
 					<>
-						{showFlag && currentLang && (
-							<span className="text-lg">{currentLang.flag}</span>
-						)}
+						{showFlag && currentLang && <span className="text-lg">{currentLang.flag}</span>}
 						<Globe size={16} />
 						<span>
 							{showNativeName && currentLang
@@ -183,7 +174,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 								: currentLang?.name || currentLanguage}
 						</span>
 						<ChevronDown
-							className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+							className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
 							size={16}
 						/>
 					</>
@@ -192,7 +183,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
 			<AnimatePresence>
 				{isOpen &&
-					(variant === "modal" ? (
+					(variant === 'modal' ? (
 						// Модальная версия
 						<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 							<motion.div
@@ -202,22 +193,15 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 								initial={{ opacity: 0, scale: 0.95 }}
 							>
 								<h3 className="mb-4 font-semibold text-lg">
-									{t("select_language", "Select Language")}
+									{t('select_language', 'Select Language')}
 								</h3>
 								<div className="max-h-[60vh] space-y-2 overflow-y-auto">
 									{languages.map((language) =>
-										renderLanguageOption(
-											language,
-											language.code === currentLanguage,
-										),
+										renderLanguageOption(language, language.code === currentLanguage)
 									)}
 								</div>
-								<Button
-									className="mt-4 w-full"
-									onClick={() => setIsOpen(false)}
-									variant="outline"
-								>
-									{t("cancel_button" as any, "Cancel")}
+								<Button className="mt-4 w-full" onClick={() => setIsOpen(false)} variant="outline">
+									{t('cancel_button' as any, 'Cancel')}
 								</Button>
 							</motion.div>
 						</div>
@@ -230,10 +214,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 							initial={{ opacity: 0, y: -10 }}
 						>
 							{languages.map((language) =>
-								renderLanguageOption(
-									language,
-									language.code === currentLanguage,
-								),
+								renderLanguageOption(language, language.code === currentLanguage)
 							)}
 						</motion.div>
 					))}

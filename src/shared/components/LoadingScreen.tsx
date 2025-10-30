@@ -1,4 +1,4 @@
-import { LottiePreloader } from "./LottiePreloader";
+import { LottiePreloader } from './LottiePreloader';
 
 type LoadingScreenProps = {
 	message?: string;
@@ -14,7 +14,7 @@ type LoadingScreenProps = {
 };
 
 export function LoadingScreen({
-	message: _message = "Загрузка...",
+	message: _message = 'Загрузка...',
 	minDuration = 5000,
 	onMinDurationComplete,
 }: LoadingScreenProps) {

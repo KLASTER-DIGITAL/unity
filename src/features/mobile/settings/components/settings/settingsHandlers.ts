@@ -1,6 +1,6 @@
-import { toast } from "sonner";
-import { updateUserProfile } from "@/shared/lib/api";
-import type { NotificationSettings } from "./types";
+import { toast } from 'sonner';
+import { updateUserProfile } from '@/shared/lib/api';
+import type { NotificationSettings } from './types';
 
 /**
  * Load active languages from API
@@ -11,26 +11,24 @@ export async function loadLanguages() {
 			`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`,
 			{
 				headers: {
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 					Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
 					apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
 				},
-			},
+			}
 		);
 		if (response.ok) {
 			const data = await response.json();
 			const loadedLanguages = Array.isArray(data) ? data : data.languages || [];
 			// Фильтруем только активные языки
-			const activeLanguages = loadedLanguages.filter(
-				(lang: any) => lang.is_active || lang.enabled,
-			);
+			const activeLanguages = loadedLanguages.filter((lang: any) => lang.is_active || lang.enabled);
 			if (activeLanguages.length > 0) {
-				console.log("✅ Loaded languages from API:", activeLanguages.length);
+				console.log('✅ Loaded languages from API:', activeLanguages.length);
 				return activeLanguages;
 			}
 		}
 	} catch (error) {
-		console.error("Error loading languages:", error);
+		console.error('Error loading languages:', error);
 	}
 	return null;
 }
@@ -41,8 +39,7 @@ export async function loadLanguages() {
 export async function checkBiometricAvailability(): Promise<boolean> {
 	if (window.PublicKeyCredential) {
 		try {
-			const available =
-				await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+			const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
 			return available;
 		} catch (_error) {
 			return false;
@@ -57,7 +54,7 @@ export async function checkBiometricAvailability(): Promise<boolean> {
 export async function saveNotificationSettings(
 	userId: string,
 	currentSettings: any,
-	newSettings: NotificationSettings,
+	newSettings: NotificationSettings
 ) {
 	try {
 		await updateUserProfile(userId, {
@@ -66,9 +63,9 @@ export async function saveNotificationSettings(
 				...newSettings,
 			},
 		});
-		console.log("✅ Notifications saved:", newSettings);
+		console.log('✅ Notifications saved:', newSettings);
 	} catch (error) {
-		console.error("❌ Error saving notifications:", error);
+		console.error('❌ Error saving notifications:', error);
 	}
 }
 
@@ -78,33 +75,30 @@ export async function saveNotificationSettings(
 export async function saveSecuritySettings(
 	userId: string,
 	biometricEnabled: boolean,
-	autoBackupEnabled: boolean,
+	autoBackupEnabled: boolean
 ) {
 	try {
 		await updateUserProfile(userId, {
 			biometricEnabled,
 			backupEnabled: autoBackupEnabled,
 		});
-		console.log("✅ Security settings saved");
+		console.log('✅ Security settings saved');
 	} catch (error) {
-		console.error("❌ Error saving security settings:", error);
+		console.error('❌ Error saving security settings:', error);
 	}
 }
 
 /**
  * Save offline mode setting to database
  */
-export async function saveOfflineSettings(
-	userId: string,
-	offlineEnabled: boolean,
-) {
+export async function saveOfflineSettings(userId: string, offlineEnabled: boolean) {
 	try {
 		await updateUserProfile(userId, {
 			offlineEnabled,
 		});
-		console.log("✅ Offline settings saved:", offlineEnabled);
+		console.log('✅ Offline settings saved:', offlineEnabled);
 	} catch (error) {
-		console.error("❌ Error saving offline settings:", error);
+		console.error('❌ Error saving offline settings:', error);
 	}
 }
 
@@ -150,10 +144,10 @@ export async function handleLanguageChange({
 		// Переключаем язык в i18n системе
 		await changeLanguage(languageCode);
 
-		toast.success(t("languageChanged", "Язык изменен!"));
+		toast.success(t('languageChanged', 'Язык изменен!'));
 		setShowLanguage(false);
 	} catch (error) {
-		console.error("Error changing language:", error);
-		toast.error(t("languageChangeError", "Ошибка при изменении языка"));
+		console.error('Error changing language:', error);
+		toast.error(t('languageChangeError', 'Ошибка при изменении языка'));
 	}
 }

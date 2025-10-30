@@ -2,15 +2,15 @@
  * Types for Chat Input Section
  */
 
-import type { DiaryEntry } from "@/shared/lib/api";
+import type { DiaryEntry } from '@/shared/lib/api';
 
 export type ChatMessage = {
 	id: string;
-	type: "user" | "ai";
+	type: 'user' | 'ai';
 	text: string;
 	timestamp: Date;
 	category?: string;
-	sentiment?: "positive" | "neutral" | "negative";
+	sentiment?: 'positive' | 'neutral' | 'negative';
 	entryId?: string;
 };
 

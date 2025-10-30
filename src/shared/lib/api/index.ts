@@ -14,9 +14,9 @@
 // CORE & CONFIGURATION
 // ==========================================
 
-export { API_URLS } from "./config/urls";
-export type { ApiOptions } from "./core/request";
-export { apiRequest, blobToBase64, getAuthHeaders } from "./core/request";
+export { API_URLS } from './config/urls';
+export type { ApiOptions } from './core/request';
+export { apiRequest, blobToBase64, getAuthHeaders } from './core/request';
 
 // ==========================================
 // TYPES
@@ -32,19 +32,19 @@ export type {
 	UploadMediaOptions,
 	UserProfile,
 	UserStats,
-} from "./types";
+} from './types';
 
 // ==========================================
 // SERVICES
 // ==========================================
 
 // AI Analysis API
-export { analyzeTextWithAI } from "./services/ai-analysis";
+export { analyzeTextWithAI } from './services/ai-analysis';
 export type {
 	CreateCategoryInput,
 	UpdateCategoryInput,
 	UserCategory,
-} from "./services/categories";
+} from './services/categories';
 // Categories API
 export {
 	createCategory,
@@ -52,7 +52,7 @@ export {
 	getCategoryByName,
 	getUserCategories,
 	updateCategory,
-} from "./services/categories";
+} from './services/categories';
 // Entries API
 export {
 	createEntry,
@@ -60,24 +60,24 @@ export {
 	getEntries,
 	getEntry,
 	updateEntry,
-} from "./services/entries";
+} from './services/entries';
 // Media API
 export {
 	deleteMedia,
 	getSignedUrl,
 	uploadMedia,
-} from "./services/media";
+} from './services/media';
 // Motivations API
 export {
 	getMotivationCards,
 	markCardAsRead,
-} from "./services/motivations";
+} from './services/motivations';
 // Profiles API
 export {
 	createUserProfile,
 	getUserProfile,
 	updateUserProfile,
-} from "./services/profiles";
+} from './services/profiles';
 
 // ==========================================
 // LEGACY API (from api.ts)
@@ -85,4 +85,4 @@ export {
 
 // Re-export everything from the legacy api.ts file
 // This ensures backward compatibility while we migrate
-export * from "./api";
+export * from './api';

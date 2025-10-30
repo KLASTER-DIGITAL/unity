@@ -1,24 +1,20 @@
-import { Info } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import { ComponentInspector } from "./ComponentInspector";
-import { DeviceSelector } from "./DeviceSelector";
-import { LivePreview } from "./LivePreview";
-import { PlatformToggle } from "./PlatformToggle";
-import {
-	DEFAULT_TEST_LAB_STATE,
-	type DeviceType,
-	type PlatformMode,
-} from "./types";
+import { Info } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { ComponentInspector } from './ComponentInspector';
+import { DeviceSelector } from './DeviceSelector';
+import { LivePreview } from './LivePreview';
+import { PlatformToggle } from './PlatformToggle';
+import { DEFAULT_TEST_LAB_STATE, type DeviceType, type PlatformMode } from './types';
 
-const STORAGE_KEY = "unity-admin-test-lab-state";
+const STORAGE_KEY = 'unity-admin-test-lab-state';
 
 export function TestLab() {
 	const [selectedDevice, setSelectedDevice] = useState<DeviceType>(
-		DEFAULT_TEST_LAB_STATE.selectedDevice,
+		DEFAULT_TEST_LAB_STATE.selectedDevice
 	);
 	const [platformMode, setPlatformMode] = useState<PlatformMode>(
-		DEFAULT_TEST_LAB_STATE.platformMode,
+		DEFAULT_TEST_LAB_STATE.platformMode
 	);
 	const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
@@ -28,14 +24,10 @@ export function TestLab() {
 		if (savedState) {
 			try {
 				const parsed = JSON.parse(savedState);
-				setSelectedDevice(
-					parsed.selectedDevice || DEFAULT_TEST_LAB_STATE.selectedDevice,
-				);
-				setPlatformMode(
-					parsed.platformMode || DEFAULT_TEST_LAB_STATE.platformMode,
-				);
+				setSelectedDevice(parsed.selectedDevice || DEFAULT_TEST_LAB_STATE.selectedDevice);
+				setPlatformMode(parsed.platformMode || DEFAULT_TEST_LAB_STATE.platformMode);
 			} catch (error) {
-				console.error("Failed to parse saved Test Lab state:", error);
+				console.error('Failed to parse saved Test Lab state:', error);
 			}
 		}
 	}, []);
@@ -72,7 +64,7 @@ export function TestLab() {
 					className="flex items-center gap-2 transition-colors duration-300"
 					onClick={() => setIsInspectorOpen(!isInspectorOpen)}
 					size="sm"
-					variant={isInspectorOpen ? "default" : "outline"}
+					variant={isInspectorOpen ? 'default' : 'outline'}
 				>
 					<Info className="h-4 w-4" />
 					<span>Inspector</span>
@@ -81,14 +73,8 @@ export function TestLab() {
 
 			{/* Controls */}
 			<div className="space-y-4 rounded-lg border border-border bg-card p-4 transition-colors duration-300">
-				<DeviceSelector
-					onDeviceChange={handleDeviceChange}
-					selectedDevice={selectedDevice}
-				/>
-				<PlatformToggle
-					onPlatformChange={handlePlatformChange}
-					platformMode={platformMode}
-				/>
+				<DeviceSelector onDeviceChange={handleDeviceChange} selectedDevice={selectedDevice} />
+				<PlatformToggle onPlatformChange={handlePlatformChange} platformMode={platformMode} />
 			</div>
 
 			{/* Preview Area */}

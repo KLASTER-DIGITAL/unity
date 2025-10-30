@@ -6,9 +6,9 @@
  * @module components/ui/universal/Checkbox.web
  */
 
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { CheckIcon } from "lucide-react";
-import { cn } from "../utils";
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { CheckIcon } from 'lucide-react';
+import { cn } from '../utils';
 
 // ============================================================================
 // TYPES
@@ -16,17 +16,17 @@ import { cn } from "../utils";
 
 export type CheckboxProps = {
 	/** Checked state */
-	checked?: boolean | "indeterminate";
+	checked?: boolean | 'indeterminate';
 	/** Callback when checked state changes */
-	onCheckedChange?: (checked: boolean | "indeterminate") => void;
+	onCheckedChange?: (checked: boolean | 'indeterminate') => void;
 	/** Default checked state (uncontrolled) */
-	defaultChecked?: boolean | "indeterminate";
+	defaultChecked?: boolean | 'indeterminate';
 	/** Disabled state */
 	disabled?: boolean;
 	/** Custom className */
 	className?: string;
 	/** Accessibility label */
-	"aria-label"?: string;
+	'aria-label'?: string;
 };
 
 // ============================================================================
@@ -39,15 +39,15 @@ export function Checkbox({
 	defaultChecked,
 	disabled,
 	className,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 }: CheckboxProps) {
 	return (
 		<CheckboxPrimitive.Root
 			aria-label={ariaLabel}
 			checked={checked}
 			className={cn(
-				"peer size-4 shrink-0 rounded-[4px] border bg-input-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:data-[state=checked]:bg-primary",
-				className,
+				'peer size-4 shrink-0 rounded-[4px] border bg-input-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:data-[state=checked]:bg-primary',
+				className
 			)}
 			defaultChecked={defaultChecked}
 			disabled={disabled}
@@ -72,7 +72,7 @@ export const CheckboxUtils = {
 		const errors: string[] = [];
 
 		if (props.checked !== undefined && props.defaultChecked !== undefined) {
-			errors.push("Checkbox cannot have both checked and defaultChecked");
+			errors.push('Checkbox cannot have both checked and defaultChecked');
 		}
 
 		return {

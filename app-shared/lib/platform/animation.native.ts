@@ -7,13 +7,13 @@
  * react-native-reanimated in web builds.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import type {
 	AnimatedPresenceProps,
 	AnimatedViewProps,
 	AnimationConfig,
 	TransitionConfig,
-} from "./types";
+} from './types';
 
 // Type definitions for Reanimated (will be imported dynamically)
 type ReanimatedModule = {
@@ -39,24 +39,19 @@ async function initReanimated(): Promise<void> {
 
 	try {
 		// Check if we're in a React Native environment
-		if (
-			typeof navigator !== "undefined" &&
-			navigator.product === "ReactNative"
-		) {
+		if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
 			// Dynamic import to avoid bundling in web
 			// Use string interpolation to prevent Vite from trying to resolve the import
-			const moduleName = "react-native-reanimated";
+			const moduleName = 'react-native-reanimated';
 			Reanimated = await import(/* @vite-ignore */ moduleName);
 			initialized = true;
 		} else {
-			throw new Error(
-				"react-native-reanimated is only available in React Native environment",
-			);
+			throw new Error('react-native-reanimated is only available in React Native environment');
 		}
 	} catch (error) {
-		console.error("Failed to load react-native-reanimated:", error);
+		console.error('Failed to load react-native-reanimated:', error);
 		throw new Error(
-			"react-native-reanimated is not available. Make sure react-native-reanimated is installed.",
+			'react-native-reanimated is not available. Make sure react-native-reanimated is installed.'
 		);
 	}
 }
@@ -81,14 +76,12 @@ function convertToReanimatedStyle(config: AnimationConfig | undefined): any {
 		style.transform = style.transform || [];
 
 		if (config.x !== undefined) {
-			const xValue =
-				typeof config.x === "string" ? Number.parseFloat(config.x) : config.x;
+			const xValue = typeof config.x === 'string' ? Number.parseFloat(config.x) : config.x;
 			style.transform.push({ translateX: xValue });
 		}
 
 		if (config.y !== undefined) {
-			const yValue =
-				typeof config.y === "string" ? Number.parseFloat(config.y) : config.y;
+			const yValue = typeof config.y === 'string' ? Number.parseFloat(config.y) : config.y;
 			style.transform.push({ translateY: yValue });
 		}
 	}
@@ -99,14 +92,12 @@ function convertToReanimatedStyle(config: AnimationConfig | undefined): any {
 /**
  * Get animation function based on transition config
  */
-function getAnimationFunction(
-	transition?: TransitionConfig,
-): (toValue: any, config?: any) => any {
+function getAnimationFunction(transition?: TransitionConfig): (toValue: any, config?: any) => any {
 	if (!Reanimated) {
-		throw new Error("Reanimated not initialized");
+		throw new Error('Reanimated not initialized');
 	}
 
-	if (!transition || transition.type === "spring") {
+	if (!transition || transition.type === 'spring') {
 		const springConfig = transition as any;
 		return (toValue: any) =>
 			Reanimated?.withSpring(toValue, {
@@ -120,7 +111,7 @@ function getAnimationFunction(
 	return (toValue: any) =>
 		Reanimated?.withTiming(toValue, {
 			duration: timingConfig?.duration ?? 300,
-			easing: timingConfig?.easing ?? "ease",
+			easing: timingConfig?.easing ?? 'ease',
 		});
 }
 
@@ -147,7 +138,7 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
 
 	if (!(isReady && Reanimated)) {
 		// Fallback: render without animation
-		return React.createElement("div", { style }, children);
+		return React.createElement('div', { style }, children);
 	}
 
 	const AnimatedViewComponent = Reanimated.default.View;
@@ -189,7 +180,7 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
 		{
 			style: [initialStyle, style, animatedStyle],
 		},
-		children,
+		children
 	);
 };
 
@@ -216,9 +207,7 @@ export const AnimatedPresence: React.FC<AnimatedPresenceProps> = ({
  */
 export const createAnimated = (component: any) => {
 	if (!Reanimated) {
-		console.warn(
-			"createAnimated.native: Reanimated not initialized. Using fallback.",
-		);
+		console.warn('createAnimated.native: Reanimated not initialized. Using fallback.');
 		return component;
 	}
 

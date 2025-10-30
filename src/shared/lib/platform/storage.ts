@@ -8,10 +8,10 @@
  * @date 2025-01-18
  */
 
-import { storage as platformStorage } from "./storage/index";
+import { storage as platformStorage } from './storage/index';
 
 // Re-export types
-export type { StorageAdapter } from "./storage/types";
+export type { StorageAdapter } from './storage/types';
 
 /**
  * Universal storage instance
@@ -31,7 +31,7 @@ export const StorageUtils = {
 			const jsonString = JSON.stringify(value);
 			await storage.setItem(key, jsonString);
 		} catch (error) {
-			console.error("Failed to store JSON:", error);
+			console.error('Failed to store JSON:', error);
 			throw error;
 		}
 	},
@@ -48,7 +48,7 @@ export const StorageUtils = {
 
 			return JSON.parse(jsonString) as T;
 		} catch (error) {
-			console.error("Failed to retrieve JSON:", error);
+			console.error('Failed to retrieve JSON:', error);
 			return null;
 		}
 	},
@@ -68,7 +68,7 @@ export const StorageUtils = {
 		if (value === null) {
 			return null;
 		}
-		return value === "true";
+		return value === 'true';
 	},
 
 	/**
@@ -97,23 +97,23 @@ export const StorageUtils = {
  */
 export const StorageKeys = {
 	// User preferences
-	LANGUAGE: "unity_language",
-	THEME: "unity_theme",
-	NOTIFICATIONS_ENABLED: "unity_notifications_enabled",
+	LANGUAGE: 'unity_language',
+	THEME: 'unity_theme',
+	NOTIFICATIONS_ENABLED: 'unity_notifications_enabled',
 
 	// App state
-	ONBOARDING_COMPLETED: "unity_onboarding_completed",
-	LAST_SYNC: "unity_last_sync",
-	OFFLINE_ENTRIES: "unity_offline_entries",
+	ONBOARDING_COMPLETED: 'unity_onboarding_completed',
+	LAST_SYNC: 'unity_last_sync',
+	OFFLINE_ENTRIES: 'unity_offline_entries',
 
 	// Cache
-	TRANSLATIONS_CACHE: "unity_translations_cache",
-	USER_PROFILE_CACHE: "unity_user_profile_cache",
+	TRANSLATIONS_CACHE: 'unity_translations_cache',
+	USER_PROFILE_CACHE: 'unity_user_profile_cache',
 
 	// PWA
-	PWA_INSTALL_PROMPTED: "unity_pwa_install_prompted",
-	PWA_INSTALLED: "unity_pwa_installed",
+	PWA_INSTALL_PROMPTED: 'unity_pwa_install_prompted',
+	PWA_INSTALLED: 'unity_pwa_installed',
 
 	// Performance
-	PERFORMANCE_METRICS: "unity_performance_metrics",
+	PERFORMANCE_METRICS: 'unity_performance_metrics',
 } as const;

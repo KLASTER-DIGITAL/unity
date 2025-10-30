@@ -1,6 +1,6 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
-type YandexBrowserMode = "default" | "simple";
+type YandexBrowserMode = 'default' | 'simple';
 
 export interface YandexBrowserProps extends SVGProps<SVGSVGElement> {
 	url?: string;
@@ -17,7 +17,7 @@ export function YandexBrowser({
 	url,
 	width = 1203,
 	height = 753,
-	mode = "default",
+	mode = 'default',
 	...props
 }: YandexBrowserProps) {
 	return (
@@ -120,11 +120,11 @@ export function YandexBrowser({
 						x="110"
 						y="30"
 					>
-						{url || "unity-wine.vercel.app"}
+						{url || 'unity-wine.vercel.app'}
 					</text>
 				</g>
 
-				{mode === "default" ? (
+				{mode === 'default' ? (
 					<>
 						{/* Back button */}
 						<g className="mix-blend-luminosity">

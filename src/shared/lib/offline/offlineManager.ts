@@ -8,11 +8,8 @@
  * @date 2025-10-24
  */
 
-import {
-	isBackgroundSyncSupported,
-	syncPendingEntries,
-} from "./backgroundSync";
-import { getAllItems, type PendingEntry, STORES } from "./indexedDB";
+import { isBackgroundSyncSupported, syncPendingEntries } from './backgroundSync';
+import { getAllItems, type PendingEntry, STORES } from './indexedDB';
 
 export type OfflineStatus = {
 	isOnline: boolean;
@@ -22,7 +19,7 @@ export type OfflineStatus = {
 };
 
 export type ConflictResolution = {
-	strategy: "server-wins" | "client-wins" | "merge" | "manual";
+	strategy: 'server-wins' | 'client-wins' | 'merge' | 'manual';
 	serverData?: any;
 	clientData?: any;
 	mergedData?: any;
@@ -32,12 +29,7 @@ type OfflineListener = (status: OfflineStatus) => void;
 type SyncListener = (event: SyncEvent) => void;
 
 export type SyncEvent = {
-	type:
-		| "sync-start"
-		| "sync-complete"
-		| "sync-error"
-		| "entry-synced"
-		| "entry-failed";
+	type: 'sync-start' | 'sync-complete' | 'sync-error' | 'entry-synced' | 'entry-failed';
 	data?: any;
 	error?: string;
 };
@@ -60,12 +52,12 @@ class OfflineManager {
 	 */
 	private async init() {
 		// Listen to online/offline events
-		window.addEventListener("online", this.handleOnline);
-		window.addEventListener("offline", this.handleOffline);
+		window.addEventListener('online', this.handleOnline);
+		window.addEventListener('offline', this.handleOffline);
 
 		// Listen to Service Worker messages
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.addEventListener("message", this.handleSWMessage);
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.addEventListener('message', this.handleSWMessage);
 		}
 
 		// Update pending count
@@ -74,7 +66,7 @@ class OfflineManager {
 		// Start periodic sync check (every 30 seconds)
 		this.startPeriodicSync();
 
-		console.log("[OfflineManager] Initialized", {
+		console.log('[OfflineManager] Initialized', {
 			isOnline: this.isOnline,
 			pendingCount: this.pendingCount,
 			backgroundSyncSupported: isBackgroundSyncSupported(),
@@ -85,7 +77,7 @@ class OfflineManager {
 	 * Handle online event
 	 */
 	private readonly handleOnline = async () => {
-		console.log("[OfflineManager] Connection restored");
+		console.log('[OfflineManager] Connection restored');
 		this.isOnline = true;
 		this.lastOnline = new Date();
 		this.notifyListeners();
@@ -98,7 +90,7 @@ class OfflineManager {
 	 * Handle offline event
 	 */
 	private readonly handleOffline = () => {
-		console.log("[OfflineManager] Connection lost");
+		console.log('[OfflineManager] Connection lost');
 		this.isOnline = false;
 		this.notifyListeners();
 	};
@@ -110,26 +102,26 @@ class OfflineManager {
 		const { type, data } = event.data || {};
 
 		switch (type) {
-			case "ENTRY_SYNCED":
-				console.log("[OfflineManager] Entry synced:", data);
+			case 'ENTRY_SYNCED':
+				console.log('[OfflineManager] Entry synced:', data);
 				await this.updatePendingCount();
-				this.notifySyncListeners({ type: "entry-synced", data });
+				this.notifySyncListeners({ type: 'entry-synced', data });
 				break;
 
-			case "ENTRY_SYNC_FAILED":
-				console.log("[OfflineManager] Entry sync failed:", data);
+			case 'ENTRY_SYNC_FAILED':
+				console.log('[OfflineManager] Entry sync failed:', data);
 				this.notifySyncListeners({
-					type: "entry-failed",
+					type: 'entry-failed',
 					data,
 					error: data.error,
 				});
 				break;
 
-			case "BACKGROUND_SYNC_COMPLETE":
-				console.log("[OfflineManager] Background sync complete:", data);
+			case 'BACKGROUND_SYNC_COMPLETE':
+				console.log('[OfflineManager] Background sync complete:', data);
 				this.syncInProgress = false;
 				await this.updatePendingCount();
-				this.notifySyncListeners({ type: "sync-complete", data });
+				this.notifySyncListeners({ type: 'sync-complete', data });
 				this.notifyListeners();
 				break;
 		}
@@ -142,9 +134,9 @@ class OfflineManager {
 		try {
 			const entries = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
 			this.pendingCount = entries.length;
-			console.log("[OfflineManager] Pending count updated:", this.pendingCount);
+			console.log('[OfflineManager] Pending count updated:', this.pendingCount);
 		} catch (error) {
-			console.error("[OfflineManager] Failed to update pending count:", error);
+			console.error('[OfflineManager] Failed to update pending count:', error);
 		}
 	}
 
@@ -160,7 +152,7 @@ class OfflineManager {
 		// Check every 30 seconds
 		this.syncInterval = window.setInterval(async () => {
 			if (this.isOnline && this.pendingCount > 0 && !this.syncInProgress) {
-				console.log("[OfflineManager] Periodic sync check triggered");
+				console.log('[OfflineManager] Periodic sync check triggered');
 				await this.sync();
 			}
 		}, 30_000);
@@ -181,35 +173,35 @@ class OfflineManager {
 	 */
 	public async sync(): Promise<void> {
 		if (!this.isOnline) {
-			console.warn("[OfflineManager] Cannot sync while offline");
+			console.warn('[OfflineManager] Cannot sync while offline');
 			return;
 		}
 
 		if (this.syncInProgress) {
-			console.warn("[OfflineManager] Sync already in progress");
+			console.warn('[OfflineManager] Sync already in progress');
 			return;
 		}
 
 		if (this.pendingCount === 0) {
-			console.log("[OfflineManager] No pending entries to sync");
+			console.log('[OfflineManager] No pending entries to sync');
 			return;
 		}
 
 		try {
 			this.syncInProgress = true;
-			this.notifySyncListeners({ type: "sync-start" });
+			this.notifySyncListeners({ type: 'sync-start' });
 			this.notifyListeners();
 
-			console.log("[OfflineManager] Starting sync...");
+			console.log('[OfflineManager] Starting sync...');
 			await syncPendingEntries();
 
 			// Update count after sync
 			await this.updatePendingCount();
 		} catch (error) {
-			console.error("[OfflineManager] Sync failed:", error);
+			console.error('[OfflineManager] Sync failed:', error);
 			this.notifySyncListeners({
-				type: "sync-error",
-				error: error instanceof Error ? error.message : "Unknown error",
+				type: 'sync-error',
+				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 		} finally {
 			this.syncInProgress = false;
@@ -269,22 +261,22 @@ class OfflineManager {
 	public resolveConflict(
 		serverData: any,
 		clientData: any,
-		strategy: ConflictResolution["strategy"] = "server-wins",
+		strategy: ConflictResolution['strategy'] = 'server-wins'
 	): any {
-		console.log("[OfflineManager] Resolving conflict:", {
+		console.log('[OfflineManager] Resolving conflict:', {
 			strategy,
 			serverData,
 			clientData,
 		});
 
 		switch (strategy) {
-			case "server-wins":
+			case 'server-wins':
 				return serverData;
 
-			case "client-wins":
+			case 'client-wins':
 				return clientData;
 
-			case "merge":
+			case 'merge':
 				// Simple merge: client data overwrites server data
 				return {
 					...serverData,
@@ -294,7 +286,7 @@ class OfflineManager {
 					updated_at: new Date().toISOString(),
 				};
 
-			case "manual":
+			case 'manual':
 				// Return both for manual resolution
 				return {
 					conflict: true,
@@ -303,9 +295,7 @@ class OfflineManager {
 				};
 
 			default:
-				console.warn(
-					"[OfflineManager] Unknown conflict strategy, using server-wins",
-				);
+				console.warn('[OfflineManager] Unknown conflict strategy, using server-wins');
 				return serverData;
 		}
 	}
@@ -314,14 +304,12 @@ class OfflineManager {
 	 * Clear all offline data
 	 */
 	public async clearOfflineData(): Promise<void> {
-		console.log("[OfflineManager] Clearing all offline data...");
+		console.log('[OfflineManager] Clearing all offline data...');
 
 		try {
 			// Clear IndexedDB
 			const entries = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
-			console.log(
-				`[OfflineManager] Found ${entries.length} pending entries to clear`,
-			);
+			console.log(`[OfflineManager] Found ${entries.length} pending entries to clear`);
 
 			// Note: Actual deletion would require deleteItem for each entry
 			// For now, just log the count
@@ -329,9 +317,9 @@ class OfflineManager {
 			await this.updatePendingCount();
 			this.notifyListeners();
 
-			console.log("[OfflineManager] Offline data cleared");
+			console.log('[OfflineManager] Offline data cleared');
 		} catch (error) {
-			console.error("[OfflineManager] Failed to clear offline data:", error);
+			console.error('[OfflineManager] Failed to clear offline data:', error);
 			throw error;
 		}
 	}
@@ -340,17 +328,14 @@ class OfflineManager {
 	 * Cleanup and destroy
 	 */
 	public destroy() {
-		console.log("[OfflineManager] Destroying...");
+		console.log('[OfflineManager] Destroying...');
 
 		// Remove event listeners
-		window.removeEventListener("online", this.handleOnline);
-		window.removeEventListener("offline", this.handleOffline);
+		window.removeEventListener('online', this.handleOnline);
+		window.removeEventListener('offline', this.handleOffline);
 
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.removeEventListener(
-				"message",
-				this.handleSWMessage,
-			);
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.removeEventListener('message', this.handleSWMessage);
 		}
 
 		// Stop periodic sync
@@ -360,7 +345,7 @@ class OfflineManager {
 		this.listeners.clear();
 		this.syncListeners.clear();
 
-		console.log("[OfflineManager] Destroyed");
+		console.log('[OfflineManager] Destroyed');
 	}
 }
 

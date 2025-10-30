@@ -1,28 +1,28 @@
-import { Activity, HardDrive, Wifi, Zap } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { Activity, HardDrive, Wifi, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 type PerformanceMetrics = {
 	fps: number;
 	memory: number; // MB
 	loadTime: number; // ms
-	networkSpeed: "slow" | "medium" | "fast";
+	networkSpeed: 'slow' | 'medium' | 'fast';
 };
 
 type PerformanceMonitorProps = {
 	enabled?: boolean;
-	position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+	position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 };
 
 export function PerformanceMonitor({
 	enabled = false,
-	position = "top-right",
+	position = 'top-right',
 }: PerformanceMonitorProps) {
 	const [metrics, setMetrics] = useState<PerformanceMetrics>({
 		fps: 60,
 		memory: 0,
 		loadTime: 0,
-		networkSpeed: "fast",
+		networkSpeed: 'fast',
 	});
 
 	useEffect(() => {
@@ -55,10 +55,8 @@ export function PerformanceMonitor({
 
 		// Memory usage (if available)
 		const measureMemory = () => {
-			if ("memory" in performance) {
-				const memory = Math.round(
-					(performance as any).memory.usedJSHeapSize / 1024 / 1024,
-				);
+			if ('memory' in performance) {
+				const memory = Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024);
 				setMetrics((prev) => ({ ...prev, memory }));
 			}
 		};
@@ -74,11 +72,7 @@ export function PerformanceMonitor({
 		if (connection) {
 			const effectiveType = connection.effectiveType;
 			const networkSpeed =
-				effectiveType === "4g"
-					? "fast"
-					: effectiveType === "3g"
-						? "medium"
-						: "slow";
+				effectiveType === '4g' ? 'fast' : effectiveType === '3g' ? 'medium' : 'slow';
 			setMetrics((prev) => ({ ...prev, networkSpeed }));
 		}
 
@@ -93,40 +87,40 @@ export function PerformanceMonitor({
 	}
 
 	const positionClasses = {
-		"top-left": "top-4 left-4",
-		"top-right": "top-4 right-4",
-		"bottom-left": "bottom-4 left-4",
-		"bottom-right": "bottom-4 right-4",
+		'top-left': 'top-4 left-4',
+		'top-right': 'top-4 right-4',
+		'bottom-left': 'bottom-4 left-4',
+		'bottom-right': 'bottom-4 right-4',
 	};
 
 	const getFPSColor = (fps: number) => {
 		if (fps >= 55) {
-			return "text-green-500";
+			return 'text-green-500';
 		}
 		if (fps >= 30) {
-			return "text-yellow-500";
+			return 'text-yellow-500';
 		}
-		return "text-red-500";
+		return 'text-red-500';
 	};
 
 	const getMemoryColor = (memory: number) => {
 		if (memory < 50) {
-			return "text-green-500";
+			return 'text-green-500';
 		}
 		if (memory < 100) {
-			return "text-yellow-500";
+			return 'text-yellow-500';
 		}
-		return "text-red-500";
+		return 'text-red-500';
 	};
 
 	const getNetworkColor = (speed: string) => {
-		if (speed === "fast") {
-			return "text-green-500";
+		if (speed === 'fast') {
+			return 'text-green-500';
 		}
-		if (speed === "medium") {
-			return "text-yellow-500";
+		if (speed === 'medium') {
+			return 'text-yellow-500';
 		}
-		return "text-red-500";
+		return 'text-red-500';
 	};
 
 	return (
@@ -144,9 +138,7 @@ export function PerformanceMonitor({
 							<Activity className="h-3.5 w-3.5" />
 							<span>FPS</span>
 						</div>
-						<span className={`font-bold ${getFPSColor(metrics.fps)}`}>
-							{metrics.fps}
-						</span>
+						<span className={`font-bold ${getFPSColor(metrics.fps)}`}>{metrics.fps}</span>
 					</div>
 
 					{/* Memory */}
@@ -168,9 +160,7 @@ export function PerformanceMonitor({
 							<Zap className="h-3.5 w-3.5" />
 							<span>Load</span>
 						</div>
-						<span className="font-bold text-blue-400">
-							{(metrics.loadTime / 1000).toFixed(2)}s
-						</span>
+						<span className="font-bold text-blue-400">{(metrics.loadTime / 1000).toFixed(2)}s</span>
 					</div>
 
 					{/* Network */}
@@ -179,9 +169,7 @@ export function PerformanceMonitor({
 							<Wifi className="h-3.5 w-3.5" />
 							<span>Network</span>
 						</div>
-						<span
-							className={`font-bold ${getNetworkColor(metrics.networkSpeed)}`}
-						>
+						<span className={`font-bold ${getNetworkColor(metrics.networkSpeed)}`}>
 							{metrics.networkSpeed}
 						</span>
 					</div>

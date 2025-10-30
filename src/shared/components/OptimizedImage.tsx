@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from 'react';
 
 type OptimizedImageProps = {
 	src: string;
@@ -6,7 +6,7 @@ type OptimizedImageProps = {
 	className?: string;
 	width?: number;
 	height?: number;
-	loading?: "lazy" | "eager";
+	loading?: 'lazy' | 'eager';
 	priority?: boolean;
 	sizes?: string;
 	blurDataURL?: string; // Base64 blur placeholder
@@ -31,10 +31,10 @@ type OptimizedImageProps = {
 export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	src,
 	alt,
-	className = "",
+	className = '',
 	width,
 	height,
-	loading = "lazy",
+	loading = 'lazy',
 	priority = false,
 	sizes,
 	blurDataURL,
@@ -48,7 +48,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	// Генерируем WebP версию пути
 	const getWebPSrc = useCallback((originalSrc: string): string => {
 		// Заменяем расширение на .webp
-		return originalSrc.replace(/\.(png|jpe?g)$/i, ".webp");
+		return originalSrc.replace(/\.(png|jpe?g)$/i, '.webp');
 	}, []);
 
 	// Обработчик ошибки загрузки WebP
@@ -74,11 +74,10 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	// const shouldUseWebP = !webpError && !imageError;
 
 	// Определяем loading стратегию
-	const loadingStrategy = priority ? "eager" : loading;
+	const loadingStrategy = priority ? 'eager' : loading;
 
 	// Если браузер не поддерживает <picture>, используем обычный <img>
-	const supportsWebP =
-		typeof window !== "undefined" && window.HTMLPictureElement !== undefined;
+	const supportsWebP = typeof window !== 'undefined' && window.HTMLPictureElement !== undefined;
 
 	if (!supportsWebP || webpError) {
 		return (
@@ -91,8 +90,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 						className="absolute inset-0 h-full w-full object-cover blur-sm"
 						src={blurDataURL}
 						style={{
-							filter: "blur(20px)",
-							transform: "scale(1.1)",
+							filter: 'blur(20px)',
+							transform: 'scale(1.1)',
 						}}
 					/>
 				)}
@@ -100,7 +99,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 				{/* Actual image */}
 				<img
 					alt={alt}
-					className={`${blurDataURL ? "relative z-10" : ""}`}
+					className={`${blurDataURL ? 'relative z-10' : ''}`}
 					height={height}
 					loading={loadingStrategy}
 					onError={handleImageError}
@@ -108,10 +107,10 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 					sizes={sizes}
 					src={src}
 					style={{
-						maxWidth: "100%",
-						height: "auto",
+						maxWidth: '100%',
+						height: 'auto',
 						opacity: blurDataURL && !isLoaded ? 0 : 1,
-						transition: "opacity 0.3s ease-in-out",
+						transition: 'opacity 0.3s ease-in-out',
 					}}
 					width={width}
 				/>
@@ -129,14 +128,14 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 					className="absolute inset-0 h-full w-full object-cover blur-sm"
 					src={blurDataURL}
 					style={{
-						filter: "blur(20px)",
-						transform: "scale(1.1)",
+						filter: 'blur(20px)',
+						transform: 'scale(1.1)',
 					}}
 				/>
 			)}
 
 			{/* Picture element with WebP support */}
-			<picture className={blurDataURL ? "relative z-10" : ""}>
+			<picture className={blurDataURL ? 'relative z-10' : ''}>
 				{/* WebP версия для современных браузеров */}
 				<source sizes={sizes} srcSet={webpSrc} type="image/webp" />
 
@@ -150,10 +149,10 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 					sizes={sizes}
 					src={src}
 					style={{
-						maxWidth: "100%",
-						height: "auto",
+						maxWidth: '100%',
+						height: 'auto',
 						opacity: blurDataURL && !isLoaded ? 0 : 1,
-						transition: "opacity 0.3s ease-in-out",
+						transition: 'opacity 0.3s ease-in-out',
 					}}
 					width={width}
 				/>
@@ -178,9 +177,9 @@ export const LazyOptimizedImage: React.FC<OptimizedImageProps> = (props) => (
  * Версия OptimizedImage для критических изображений
  * (above the fold), которые должны загружаться немедленно.
  */
-export const PriorityOptimizedImage: React.FC<OptimizedImageProps> = (
-	props,
-) => <OptimizedImage {...props} loading="eager" priority={true} />;
+export const PriorityOptimizedImage: React.FC<OptimizedImageProps> = (props) => (
+	<OptimizedImage {...props} loading="eager" priority={true} />
+);
 
 /**
  * ResponsiveOptimizedImage Component
@@ -188,8 +187,7 @@ export const PriorityOptimizedImage: React.FC<OptimizedImageProps> = (
  * Версия OptimizedImage с предустановленными responsive размерами
  * для мобильных устройств.
  */
-interface ResponsiveOptimizedImageProps
-	extends Omit<OptimizedImageProps, "sizes"> {
+interface ResponsiveOptimizedImageProps extends Omit<OptimizedImageProps, 'sizes'> {
 	breakpoints?: {
 		mobile?: string;
 		tablet?: string;
@@ -197,13 +195,11 @@ interface ResponsiveOptimizedImageProps
 	};
 }
 
-export const ResponsiveOptimizedImage: React.FC<
-	ResponsiveOptimizedImageProps
-> = ({
+export const ResponsiveOptimizedImage: React.FC<ResponsiveOptimizedImageProps> = ({
 	breakpoints = {
-		mobile: "100vw",
-		tablet: "50vw",
-		desktop: "33vw",
+		mobile: '100vw',
+		tablet: '50vw',
+		desktop: '33vw',
 	},
 	...props
 }) => {
@@ -212,7 +208,7 @@ export const ResponsiveOptimizedImage: React.FC<
     (max-width: 1024px) ${breakpoints.tablet},
     ${breakpoints.desktop}
   `
-		.replace(/\s+/g, " ")
+		.replace(/\s+/g, ' ')
 		.trim();
 
 	return <OptimizedImage {...props} sizes={sizes} />;
@@ -223,7 +219,7 @@ export const ResponsiveOptimizedImage: React.FC<
  */
 export const checkWebPSupport = (): Promise<boolean> =>
 	new Promise((resolve) => {
-		if (typeof window === "undefined") {
+		if (typeof window === 'undefined') {
 			resolve(false);
 			return;
 		}
@@ -233,7 +229,7 @@ export const checkWebPSupport = (): Promise<boolean> =>
 			resolve(webP.height === 2);
 		};
 		webP.src =
-			"data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA";
+			'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
 	});
 
 /**

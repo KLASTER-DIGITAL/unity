@@ -9,7 +9,7 @@ export {
 	// UsageChart, // Not implemented yet
 	preloadCharts,
 	useChartPreload,
-} from "../charts/LazyCharts";
+} from '../charts/LazyCharts';
 
 // UI Components (анимации и сложные интерактивные элементы)
 export {
@@ -31,12 +31,12 @@ export {
 	Tabs,
 	Terminal,
 	useComponentPreload,
-} from "./LazyComponents";
+} from './LazyComponents';
 
 // Utility функции для preloading
 export const preloadAll = {
 	charts: async () => {
-		const { preloadCharts } = await import("../charts/LazyCharts");
+		const { preloadCharts } = await import('../charts/LazyCharts');
 		await Promise.all([
 			preloadCharts.barChart(),
 			preloadCharts.lineChart(),
@@ -46,7 +46,7 @@ export const preloadAll = {
 	},
 
 	components: async () => {
-		const { preloadComponents } = await import("./LazyComponents");
+		const { preloadComponents } = await import('./LazyComponents');
 		await Promise.all([
 			preloadComponents.card3d(),
 			preloadComponents.animatedModal(),

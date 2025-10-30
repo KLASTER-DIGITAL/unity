@@ -4,9 +4,9 @@
  * Uses Framer Motion for React Web (PWA).
  */
 
-import { AnimatePresence as FramerAnimatePresence, motion } from "motion/react";
-import React from "react";
-import type { AnimatedPresenceProps, AnimatedViewProps } from "./types";
+import { AnimatePresence as FramerAnimatePresence, motion } from 'motion/react';
+import React from 'react';
+import type { AnimatedPresenceProps, AnimatedViewProps } from './types';
 
 /**
  * Animated View component for Web (Framer Motion)
@@ -32,7 +32,7 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
 			style,
 			onAnimationComplete,
 		},
-		children,
+		children
 	);
 
 /**
@@ -40,7 +40,7 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
  */
 export const AnimatedPresence: React.FC<AnimatedPresenceProps> = ({
 	children,
-	mode = "wait",
+	mode = 'wait',
 	custom,
 }) =>
 	React.createElement(
@@ -49,7 +49,7 @@ export const AnimatedPresence: React.FC<AnimatedPresenceProps> = ({
 			mode,
 			custom,
 		},
-		children,
+		children
 	);
 
 /**

@@ -15,8 +15,8 @@ export type CacheInfo = {
  * Get all caches and their info
  */
 export async function getAllCaches(): Promise<CacheInfo[]> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return [];
 	}
 
@@ -46,7 +46,7 @@ export async function getAllCaches(): Promise<CacheInfo[]> {
 
 		return cacheInfos;
 	} catch (error) {
-		console.error("[CacheManager] Failed to get caches:", error);
+		console.error('[CacheManager] Failed to get caches:', error);
 		return [];
 	}
 }
@@ -55,8 +55,8 @@ export async function getAllCaches(): Promise<CacheInfo[]> {
  * Clear a specific cache by name
  */
 export async function clearCache(cacheName: string): Promise<boolean> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return false;
 	}
 
@@ -65,10 +65,7 @@ export async function clearCache(cacheName: string): Promise<boolean> {
 		console.log(`[CacheManager] Cache "${cacheName}" deleted:`, deleted);
 		return deleted;
 	} catch (error) {
-		console.error(
-			`[CacheManager] Failed to delete cache "${cacheName}":`,
-			error,
-		);
+		console.error(`[CacheManager] Failed to delete cache "${cacheName}":`, error);
 		return false;
 	}
 }
@@ -77,8 +74,8 @@ export async function clearCache(cacheName: string): Promise<boolean> {
  * Clear all caches
  */
 export async function clearAllCaches(): Promise<number> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return 0;
 	}
 
@@ -96,7 +93,7 @@ export async function clearAllCaches(): Promise<number> {
 		console.log(`[CacheManager] Deleted ${deletedCount} caches`);
 		return deletedCount;
 	} catch (error) {
-		console.error("[CacheManager] Failed to clear all caches:", error);
+		console.error('[CacheManager] Failed to clear all caches:', error);
 		return 0;
 	}
 }
@@ -105,17 +102,17 @@ export async function clearAllCaches(): Promise<number> {
  * Invalidate API cache (force refresh on next request)
  */
 export async function invalidateAPICache(): Promise<boolean> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return false;
 	}
 
 	try {
-		const deleted = await caches.delete("achievement-diary-api-v1");
-		console.log("[CacheManager] API cache invalidated:", deleted);
+		const deleted = await caches.delete('achievement-diary-api-v1');
+		console.log('[CacheManager] API cache invalidated:', deleted);
 		return deleted;
 	} catch (error) {
-		console.error("[CacheManager] Failed to invalidate API cache:", error);
+		console.error('[CacheManager] Failed to invalidate API cache:', error);
 		return false;
 	}
 }
@@ -124,8 +121,8 @@ export async function invalidateAPICache(): Promise<boolean> {
  * Invalidate specific URL from cache
  */
 export async function invalidateURL(url: string): Promise<boolean> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return false;
 	}
 
@@ -154,11 +151,11 @@ export async function invalidateURL(url: string): Promise<boolean> {
  */
 export function formatCacheSize(bytes: number): string {
 	if (bytes === 0) {
-		return "0 B";
+		return '0 B';
 	}
 
 	const k = 1024;
-	const sizes = ["B", "KB", "MB", "GB"];
+	const sizes = ['B', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 
 	return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
@@ -176,7 +173,7 @@ export async function getTotalCacheSize(): Promise<number> {
  * Check if a URL is cached
  */
 export async function isURLCached(url: string): Promise<boolean> {
-	if (!("caches" in window)) {
+	if (!('caches' in window)) {
 		return false;
 	}
 
@@ -193,7 +190,7 @@ export async function isURLCached(url: string): Promise<boolean> {
 
 		return false;
 	} catch (error) {
-		console.error("[CacheManager] Failed to check if URL is cached:", error);
+		console.error('[CacheManager] Failed to check if URL is cached:', error);
 		return false;
 	}
 }
@@ -203,10 +200,10 @@ export async function isURLCached(url: string): Promise<boolean> {
  */
 export async function preloadURLs(
 	urls: string[],
-	cacheName = "achievement-diary-static-v1",
+	cacheName = 'achievement-diary-static-v1'
 ): Promise<number> {
-	if (!("caches" in window)) {
-		console.warn("[CacheManager] Cache API not supported");
+	if (!('caches' in window)) {
+		console.warn('[CacheManager] Cache API not supported');
 		return 0;
 	}
 
@@ -229,7 +226,7 @@ export async function preloadURLs(
 		console.log(`[CacheManager] Preloaded ${cachedCount}/${urls.length} URLs`);
 		return cachedCount;
 	} catch (error) {
-		console.error("[CacheManager] Failed to preload URLs:", error);
+		console.error('[CacheManager] Failed to preload URLs:', error);
 		return 0;
 	}
 }

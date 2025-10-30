@@ -8,7 +8,7 @@
  * - Экспорт в CSV/JSON
  */
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
@@ -81,20 +81,20 @@ export type AdvancedPWAStats = {
  */
 export async function getCohortRetention(
 	startDate: string,
-	endDate: string,
+	endDate: string
 ): Promise<CohortData[]> {
 	try {
 		// Получаем всех пользователей с их первым визитом
 		const { data: users, error } = await supabase
-			.from("usage")
-			.select("user_id, created_at")
-			.eq("operation_type", "pwa_install_accepted")
-			.gte("created_at", startDate)
-			.lte("created_at", endDate)
-			.order("created_at", { ascending: true });
+			.from('usage')
+			.select('user_id, created_at')
+			.eq('operation_type', 'pwa_install_accepted')
+			.gte('created_at', startDate)
+			.lte('created_at', endDate)
+			.order('created_at', { ascending: true });
 
 		if (error || !users) {
-			console.error("[Advanced Analytics] Failed to get cohort data:", error);
+			console.error('[Advanced Analytics] Failed to get cohort data:', error);
 			return [];
 		}
 
@@ -113,10 +113,7 @@ export async function getCohortRetention(
 		const cohortData: CohortData[] = [];
 
 		for (const [cohort, userIds] of cohorts.entries()) {
-			const retention = await calculateCohortRetention(
-				cohort,
-				Array.from(userIds),
-			);
+			const retention = await calculateCohortRetention(cohort, Array.from(userIds));
 			cohortData.push({
 				cohort,
 				week0: 100,
@@ -130,10 +127,7 @@ export async function getCohortRetention(
 
 		return cohortData.sort((a, b) => a.cohort.localeCompare(b.cohort));
 	} catch (error) {
-		console.error(
-			"[Advanced Analytics] Error getting cohort retention:",
-			error,
-		);
+		console.error('[Advanced Analytics] Error getting cohort retention:', error);
 		return [];
 	}
 }
@@ -143,7 +137,7 @@ export async function getCohortRetention(
  */
 async function calculateCohortRetention(
 	cohortStart: string,
-	userIds: string[],
+	userIds: string[]
 ): Promise<{ week1: number; week2: number; week3: number; week4: number }> {
 	const cohortDate = new Date(cohortStart);
 
@@ -158,18 +152,16 @@ async function calculateCohortRetention(
 		weekEnd.setDate(weekEnd.getDate() + 7);
 
 		const { data, error } = await supabase
-			.from("usage")
-			.select("user_id")
-			.in("user_id", userIds)
-			.eq("operation_type", "pwa_standalone_usage")
-			.gte("created_at", weekStart.toISOString())
-			.lt("created_at", weekEnd.toISOString());
+			.from('usage')
+			.select('user_id')
+			.in('user_id', userIds)
+			.eq('operation_type', 'pwa_standalone_usage')
+			.gte('created_at', weekStart.toISOString())
+			.lt('created_at', weekEnd.toISOString());
 
 		if (!error && data) {
 			const activeUsers = new Set(data.map((d) => d.user_id)).size;
-			retention[`week${week}`] = Math.round(
-				(activeUsers / userIds.length) * 100,
-			);
+			retention[`week${week}`] = Math.round((activeUsers / userIds.length) * 100);
 		} else {
 			retention[`week${week}`] = 0;
 		}
@@ -185,64 +177,56 @@ export async function getFunnelAnalysis(): Promise<FunnelData[]> {
 	try {
 		// Получаем количество пользователей на каждом этапе
 		const { data, error } = await supabase
-			.from("usage")
-			.select("operation_type, user_id")
-			.in("operation_type", [
-				"pwa_install_prompt_shown",
-				"pwa_install_accepted",
-				"pwa_standalone_usage",
+			.from('usage')
+			.select('operation_type, user_id')
+			.in('operation_type', [
+				'pwa_install_prompt_shown',
+				'pwa_install_accepted',
+				'pwa_standalone_usage',
 			]);
 
 		if (error || !data) {
-			console.error("[Advanced Analytics] Failed to get funnel data:", error);
+			console.error('[Advanced Analytics] Failed to get funnel data:', error);
 			return [];
 		}
 
 		// Подсчитываем уникальных пользователей на каждом этапе
 		const promptShown = new Set(
-			data
-				.filter((d) => d.operation_type === "pwa_install_prompt_shown")
-				.map((d) => d.user_id),
+			data.filter((d) => d.operation_type === 'pwa_install_prompt_shown').map((d) => d.user_id)
 		).size;
 
 		const installed = new Set(
-			data
-				.filter((d) => d.operation_type === "pwa_install_accepted")
-				.map((d) => d.user_id),
+			data.filter((d) => d.operation_type === 'pwa_install_accepted').map((d) => d.user_id)
 		).size;
 
 		const activeUsers = new Set(
-			data
-				.filter((d) => d.operation_type === "pwa_standalone_usage")
-				.map((d) => d.user_id),
+			data.filter((d) => d.operation_type === 'pwa_standalone_usage').map((d) => d.user_id)
 		).size;
 
 		const funnel: FunnelData[] = [
 			{
-				stage: "Показ Install Prompt",
+				stage: 'Показ Install Prompt',
 				users: promptShown,
 				percentage: 100,
 				dropoff: 0,
 			},
 			{
-				stage: "Установка PWA",
+				stage: 'Установка PWA',
 				users: installed,
-				percentage:
-					promptShown > 0 ? Math.round((installed / promptShown) * 100) : 0,
+				percentage: promptShown > 0 ? Math.round((installed / promptShown) * 100) : 0,
 				dropoff: promptShown - installed,
 			},
 			{
-				stage: "Активное использование",
+				stage: 'Активное использование',
 				users: activeUsers,
-				percentage:
-					installed > 0 ? Math.round((activeUsers / installed) * 100) : 0,
+				percentage: installed > 0 ? Math.round((activeUsers / installed) * 100) : 0,
 				dropoff: installed - activeUsers,
 			},
 		];
 
 		return funnel;
 	} catch (error) {
-		console.error("[Advanced Analytics] Error getting funnel analysis:", error);
+		console.error('[Advanced Analytics] Error getting funnel analysis:', error);
 		return [];
 	}
 }
@@ -252,26 +236,19 @@ export async function getFunnelAnalysis(): Promise<FunnelData[]> {
  */
 export async function getTimeSeriesData(
 	startDate: string,
-	endDate: string,
+	endDate: string
 ): Promise<TimeSeriesData[]> {
 	try {
 		const { data, error } = await supabase
-			.from("usage")
-			.select("operation_type, created_at")
-			.in("operation_type", [
-				"pwa_install_accepted",
-				"pwa_uninstall",
-				"pwa_standalone_usage",
-			])
-			.gte("created_at", startDate)
-			.lte("created_at", endDate)
-			.order("created_at", { ascending: true });
+			.from('usage')
+			.select('operation_type, created_at')
+			.in('operation_type', ['pwa_install_accepted', 'pwa_uninstall', 'pwa_standalone_usage'])
+			.gte('created_at', startDate)
+			.lte('created_at', endDate)
+			.order('created_at', { ascending: true });
 
 		if (error || !data) {
-			console.error(
-				"[Advanced Analytics] Failed to get time series data:",
-				error,
-			);
+			console.error('[Advanced Analytics] Failed to get time series data:', error);
 			return [];
 		}
 
@@ -279,7 +256,7 @@ export async function getTimeSeriesData(
 		const dailyData = new Map<string, TimeSeriesData>();
 
 		data.forEach((event) => {
-			const date = event.created_at.split("T")[0];
+			const date = event.created_at.split('T')[0];
 
 			if (!dailyData.has(date)) {
 				dailyData.set(date, {
@@ -293,23 +270,18 @@ export async function getTimeSeriesData(
 
 			const dayData = dailyData.get(date)!;
 
-			if (event.operation_type === "pwa_install_accepted") {
+			if (event.operation_type === 'pwa_install_accepted') {
 				dayData.installs++;
-			} else if (event.operation_type === "pwa_uninstall") {
+			} else if (event.operation_type === 'pwa_uninstall') {
 				dayData.uninstalls++;
-			} else if (event.operation_type === "pwa_standalone_usage") {
+			} else if (event.operation_type === 'pwa_standalone_usage') {
 				dayData.standaloneUsage++;
 			}
 		});
 
-		return Array.from(dailyData.values()).sort((a, b) =>
-			a.date.localeCompare(b.date),
-		);
+		return Array.from(dailyData.values()).sort((a, b) => a.date.localeCompare(b.date));
 	} catch (error) {
-		console.error(
-			"[Advanced Analytics] Error getting time series data:",
-			error,
-		);
+		console.error('[Advanced Analytics] Error getting time series data:', error);
 		return [];
 	}
 }
@@ -331,14 +303,13 @@ export function exportToCSV(data: any[], filename: string): void {
 	}
 
 	const headers = Object.keys(data[0]);
-	const csv = [
-		headers.join(","),
-		...data.map((row) => headers.map((h) => row[h]).join(",")),
-	].join("\n");
+	const csv = [headers.join(','), ...data.map((row) => headers.map((h) => row[h]).join(','))].join(
+		'\n'
+	);
 
-	const blob = new Blob([csv], { type: "text/csv" });
+	const blob = new Blob([csv], { type: 'text/csv' });
 	const url = URL.createObjectURL(blob);
-	const a = document.createElement("a");
+	const a = document.createElement('a');
 	a.href = url;
 	a.download = filename;
 	a.click();
@@ -350,9 +321,9 @@ export function exportToCSV(data: any[], filename: string): void {
  */
 export function exportToJSON(data: any, filename: string): void {
 	const json = JSON.stringify(data, null, 2);
-	const blob = new Blob([json], { type: "application/json" });
+	const blob = new Blob([json], { type: 'application/json' });
 	const url = URL.createObjectURL(blob);
-	const a = document.createElement("a");
+	const a = document.createElement('a');
 	a.href = url;
 	a.download = filename;
 	a.click();
@@ -367,5 +338,5 @@ function getWeekStart(date: Date): string {
 	const day = d.getDay();
 	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Понедельник
 	d.setDate(diff);
-	return d.toISOString().split("T")[0];
+	return d.toISOString().split('T')[0];
 }

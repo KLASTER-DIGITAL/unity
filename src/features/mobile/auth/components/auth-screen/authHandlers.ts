@@ -1,13 +1,13 @@
-import { toast } from "sonner";
-import { getUserProfile } from "@/shared/lib/api";
+import { toast } from 'sonner';
+import { getUserProfile } from '@/shared/lib/api';
 import {
 	signInWithEmail,
 	signInWithFacebook,
 	signInWithGoogle,
 	signUpWithEmail,
-} from "@/utils/auth";
-import type { createClient } from "@/utils/supabase/client";
-import type { UserData } from "./types";
+} from '@/utils/auth';
+import type { createClient } from '@/utils/supabase/client';
+import type { UserData } from './types';
 
 type TelegramAuthParams = {
 	response: any;
@@ -29,41 +29,41 @@ export async function handleTelegramAuth({
 }: TelegramAuthParams) {
 	setIsTelegramLoading(true);
 	try {
-		console.log("Telegram auth data received:", response);
+		console.log('Telegram auth data received:', response);
 
 		const response_data = await fetch(
-			"https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/telegram-auth",
+			'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/telegram-auth',
 			{
-				method: "POST",
+				method: 'POST',
 				headers: {
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 					Authorization:
-						"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88",
+						'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88',
 					apikey:
-						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88",
+						'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88',
 				},
 				body: JSON.stringify({
 					telegramData: response,
-					action: "auth",
+					action: 'auth',
 				}),
-			},
+			}
 		);
 
 		if (response_data.ok) {
 			const data = await response_data.json();
-			console.log("Telegram auth response:", data);
+			console.log('Telegram auth response:', data);
 
 			if (data.session) {
 				await supabase.auth.setSession(data.session);
 			}
 
-			toast.success("Авторизация через Telegram успешна! 👋");
+			toast.success('Авторизация через Telegram успешна! 👋');
 
 			// Проверяем существующую сессию после авторизации
 			const sessionResult = await supabase.auth.getSession();
 			if (sessionResult.data.session) {
 				// Сессия установлена, обновляем состояние приложения напрямую
-				console.log("Session established, updating app state...");
+				console.log('Session established, updating app state...');
 
 				// Загружаем профиль пользователя
 				try {
@@ -72,18 +72,18 @@ export async function handleTelegramAuth({
 					const userData: UserData = {
 						id: data.user.id,
 						email: data.user.email,
-						name: `${response.first_name} ${response.last_name || ""}`.trim(),
+						name: `${response.first_name} ${response.last_name || ''}`.trim(),
 						diaryData: {
-							name: profile?.diaryName || "Мой дневник",
-							emoji: profile?.diaryEmoji || "🏆",
+							name: profile?.diaryName || 'Мой дневник',
+							emoji: profile?.diaryEmoji || '🏆',
 						},
-						diaryName: profile?.diaryName || "Мой дневник",
-						diaryEmoji: profile?.diaryEmoji || "🏆",
+						diaryName: profile?.diaryName || 'Мой дневник',
+						diaryEmoji: profile?.diaryEmoji || '🏆',
 						language: profile?.language || selectedLanguage,
 						notificationSettings: profile?.notificationSettings || {
-							selectedTime: "none",
-							morningTime: "08:00",
-							eveningTime: "21:00",
+							selectedTime: 'none',
+							morningTime: '08:00',
+							eveningTime: '21:00',
 							permissionGranted: false,
 						},
 						onboardingCompleted: profile?.onboardingCompleted ?? false,
@@ -98,23 +98,23 @@ export async function handleTelegramAuth({
 					// Вызываем handleComplete с данными пользователя
 					handleComplete?.(userData);
 				} catch (profileError) {
-					console.error("Error loading profile:", profileError);
+					console.error('Error loading profile:', profileError);
 					// Создаем базовые данные пользователя даже если не удалось загрузить профиль
 					const userData: UserData = {
 						id: data.user.id,
 						email: data.user.email,
-						name: `${response.first_name} ${response.last_name || ""}`.trim(),
+						name: `${response.first_name} ${response.last_name || ''}`.trim(),
 						diaryData: {
-							name: "Мой дневник",
-							emoji: "🏆",
+							name: 'Мой дневник',
+							emoji: '🏆',
 						},
-						diaryName: "Мой дневник",
-						diaryEmoji: "🏆",
+						diaryName: 'Мой дневник',
+						diaryEmoji: '🏆',
 						language: selectedLanguage,
 						notificationSettings: {
-							selectedTime: "none",
-							morningTime: "08:00",
-							eveningTime: "21:00",
+							selectedTime: 'none',
+							morningTime: '08:00',
+							eveningTime: '21:00',
 							permissionGranted: false,
 						},
 						onboardingCompleted: false,
@@ -134,18 +134,18 @@ export async function handleTelegramAuth({
 			const userData: UserData = {
 				id: data.user.id,
 				email: data.user.email,
-				name: `${response.first_name} ${response.last_name || ""}`.trim(),
+				name: `${response.first_name} ${response.last_name || ''}`.trim(),
 				diaryData: {
-					name: "Мой дневник",
-					emoji: "🏆",
+					name: 'Мой дневник',
+					emoji: '🏆',
 				},
-				diaryName: "Мой дневник",
-				diaryEmoji: "🏆",
+				diaryName: 'Мой дневник',
+				diaryEmoji: '🏆',
 				language: selectedLanguage,
 				notificationSettings: {
-					selectedTime: "none",
-					morningTime: "08:00",
-					eveningTime: "21:00",
+					selectedTime: 'none',
+					morningTime: '08:00',
+					eveningTime: '21:00',
 					permissionGranted: false,
 				},
 				onboardingCompleted: false,
@@ -160,13 +160,11 @@ export async function handleTelegramAuth({
 			handleComplete?.(userData);
 		} else {
 			const errorData = await response_data.json();
-			throw new Error(
-				errorData.error || "Failed to process Telegram authentication",
-			);
+			throw new Error(errorData.error || 'Failed to process Telegram authentication');
 		}
 	} catch (error: any) {
-		console.error("Telegram auth error:", error);
-		toast.error("Ошибка авторизации через Telegram", {
+		console.error('Telegram auth error:', error);
+		toast.error('Ошибка авторизации через Telegram', {
 			description: error.message,
 		});
 	} finally {
@@ -210,39 +208,39 @@ export async function handleEmailAuth({
 				// Теперь App.tsx автоматически редиректит super_admin на /?view=admin
 				// через checkAccessAndRedirect() в useEffect
 
-				toast.success("Добро пожаловать! 👋");
+				toast.success('Добро пожаловать! 👋');
 				handleComplete?.({
 					id: result.user.id,
 					email: result.user.email,
-					name: result.profile.name || "Пользователь",
+					name: result.profile.name || 'Пользователь',
 					role: result.profile.role,
 					diaryData: {
-						name: result.profile.diaryName || "Мой дневник",
-						emoji: result.profile.diaryEmoji || "🏆",
+						name: result.profile.diaryName || 'Мой дневник',
+						emoji: result.profile.diaryEmoji || '🏆',
 					},
-					diaryName: result.profile.diaryName || "Мой дневник",
-					diaryEmoji: result.profile.diaryEmoji || "🏆",
-					language: result.profile.language || "ru",
+					diaryName: result.profile.diaryName || 'Мой дневник',
+					diaryEmoji: result.profile.diaryEmoji || '🏆',
+					language: result.profile.language || 'ru',
 					notificationSettings: result.profile.notificationSettings || {
-						selectedTime: "none",
-						morningTime: "09:00",
-						eveningTime: "21:00",
+						selectedTime: 'none',
+						morningTime: '09:00',
+						eveningTime: '21:00',
 						permissionGranted: false,
 					},
 					onboardingCompleted: result.profile.onboardingCompleted ?? false,
 					createdAt: result.profile.createdAt || new Date().toISOString(),
 				});
 			} else {
-				toast.error("Ошибка входа", {
-					description: result.error || "Проверьте email и пароль",
+				toast.error('Ошибка входа', {
+					description: result.error || 'Проверьте email и пароль',
 				});
 			}
 		} else {
 			// Регистрация
 			const result = await signUpWithEmail(email, password, {
-				name: name || "Пользователь",
-				diaryName: onboardingData?.diaryName || "Мой дневник",
-				diaryEmoji: onboardingData?.diaryEmoji || "🏆",
+				name: name || 'Пользователь',
+				diaryName: onboardingData?.diaryName || 'Мой дневник',
+				diaryEmoji: onboardingData?.diaryEmoji || '🏆',
 				language: onboardingData?.language || selectedLanguage,
 				notificationSettings: onboardingData?.notificationSettings,
 				firstEntry: onboardingData?.firstEntry,
@@ -252,35 +250,35 @@ export async function handleEmailAuth({
 				const userData: UserData = {
 					id: result.user.id,
 					email: result.user.email,
-					name: result.profile.name || "Пользователь",
+					name: result.profile.name || 'Пользователь',
 					diaryData: {
-						name: result.profile.diaryName || "Мой дневник",
-						emoji: result.profile.diaryEmoji || "🏆",
+						name: result.profile.diaryName || 'Мой дневник',
+						emoji: result.profile.diaryEmoji || '🏆',
 					},
-					diaryName: result.profile.diaryName || "Мой дневник",
-					diaryEmoji: result.profile.diaryEmoji || "🏆",
-					language: result.profile.language || "ru",
+					diaryName: result.profile.diaryName || 'Мой дневник',
+					diaryEmoji: result.profile.diaryEmoji || '🏆',
+					language: result.profile.language || 'ru',
 					notificationSettings: result.profile.notificationSettings || {
-						selectedTime: "none",
-						morningTime: "09:00",
-						eveningTime: "21:00",
+						selectedTime: 'none',
+						morningTime: '09:00',
+						eveningTime: '21:00',
 						permissionGranted: false,
 					},
 					onboardingCompleted: result.profile.onboardingCompleted ?? false,
 					createdAt: result.profile.createdAt || new Date().toISOString(),
 				};
 
-				toast.success("Аккаунт создан! 🎉");
+				toast.success('Аккаунт создан! 🎉');
 				handleComplete?.(userData);
 			} else {
-				toast.error("Ошибка регистрации", {
-					description: result.error || "Попробуйте другой email",
+				toast.error('Ошибка регистрации', {
+					description: result.error || 'Попробуйте другой email',
 				});
 			}
 		}
 	} catch (error: any) {
-		console.error("Auth error:", error);
-		toast.error("Произошла ошибка", {
+		console.error('Auth error:', error);
+		toast.error('Произошла ошибка', {
 			description: error.message,
 		});
 	} finally {
@@ -296,33 +294,30 @@ type SocialAuthParams = {
 /**
  * Handle social authentication (Google, Facebook, Telegram)
  */
-export async function handleSocialAuth({
-	provider,
-	setIsLoading,
-}: SocialAuthParams) {
+export async function handleSocialAuth({ provider, setIsLoading }: SocialAuthParams) {
 	setIsLoading(true);
 
 	try {
 		let result;
 
 		switch (provider) {
-			case "google":
+			case 'google':
 				result = await signInWithGoogle();
-				toast.success("Авторизация через Google...");
+				toast.success('Авторизация через Google...');
 				break;
-			case "facebook":
+			case 'facebook':
 				result = await signInWithFacebook();
-				toast.success("Авторизация через Facebook...");
+				toast.success('Авторизация через Facebook...');
 				break;
-			case "telegram":
+			case 'telegram':
 				// Telegram авторизация обрабатывается через Telegram Login Widget
 				// который вызывает глобальный обработчик onTelegramAuth
-				toast.success("Авторизация через Telegram...");
+				toast.success('Авторизация через Telegram...');
 				break;
 		}
 
 		if (result && !result.success && result.error) {
-			toast.error("Ошибка авторизации", {
+			toast.error('Ошибка авторизации', {
 				description: result.error,
 			});
 			setIsLoading(false);
@@ -330,7 +325,7 @@ export async function handleSocialAuth({
 		// OAuth редирект произойдет автоматически
 	} catch (error: any) {
 		console.error(`${provider} auth error:`, error);
-		toast.error("Произошла ошибка", {
+		toast.error('Произошла ошибка', {
 			description: error.message,
 		});
 		setIsLoading(false);

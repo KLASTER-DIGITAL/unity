@@ -1,6 +1,6 @@
-import { CheckCircle2 } from "lucide-react";
-import { motion } from "motion/react";
-import { Confetti } from "@/shared/components/Confetti";
+import { CheckCircle2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Confetti } from '@/shared/components/Confetti';
 
 type SuccessModalProps = {
 	isOpen: boolean;
@@ -34,13 +34,11 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 					<motion.div
 						animate={{ scale: 1 }}
 						initial={{ scale: 0 }}
-						transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+						transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
 					>
 						<CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
 					</motion.div>
-					<p className="!text-[#002055] dark:!text-[#1a1a1a] text-[16px]!">
-						{message}
-					</p>
+					<p className="!text-[#002055] dark:!text-[#1a1a1a] text-[16px]!">{message}</p>
 				</motion.div>
 			</motion.div>
 		</>

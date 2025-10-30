@@ -6,7 +6,7 @@
  * @module platform/media/web
  */
 
-import type { MediaAdapter } from "../media";
+import type { MediaAdapter } from '../media';
 
 /**
  * Web media adapter using browser APIs
@@ -21,7 +21,7 @@ export class WebMediaAdapter implements MediaAdapter {
 			};
 
 			reader.onerror = () => {
-				reject(new Error("Failed to read file as data URL"));
+				reject(new Error('Failed to read file as data URL'));
 			};
 
 			reader.readAsDataURL(file);
@@ -37,7 +37,7 @@ export class WebMediaAdapter implements MediaAdapter {
 			};
 
 			reader.onerror = () => {
-				reject(new Error("Failed to read file as array buffer"));
+				reject(new Error('Failed to read file as array buffer'));
 			};
 
 			reader.readAsArrayBuffer(file);
@@ -53,7 +53,7 @@ export class WebMediaAdapter implements MediaAdapter {
 			};
 
 			reader.onerror = () => {
-				reject(new Error("Failed to read file as text"));
+				reject(new Error('Failed to read file as text'));
 			};
 
 			reader.readAsText(file);
@@ -68,9 +68,7 @@ export class WebMediaAdapter implements MediaAdapter {
 		URL.revokeObjectURL(url);
 	}
 
-	async getImageDimensions(
-		file: File,
-	): Promise<{ width: number; height: number }> {
+	async getImageDimensions(file: File): Promise<{ width: number; height: number }> {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
@@ -82,14 +80,14 @@ export class WebMediaAdapter implements MediaAdapter {
 				};
 
 				img.onerror = () => {
-					reject(new Error("Failed to load image"));
+					reject(new Error('Failed to load image'));
 				};
 
 				img.src = e.target?.result as string;
 			};
 
 			reader.onerror = () => {
-				reject(new Error("Failed to read image file"));
+				reject(new Error('Failed to read image file'));
 			};
 
 			reader.readAsDataURL(file);
@@ -102,8 +100,8 @@ export class WebMediaAdapter implements MediaAdapter {
 		height: number;
 	}> {
 		return new Promise((resolve, reject) => {
-			const video = document.createElement("video");
-			video.preload = "metadata";
+			const video = document.createElement('video');
+			video.preload = 'metadata';
 
 			video.onloadedmetadata = () => {
 				URL.revokeObjectURL(video.src);
@@ -115,7 +113,7 @@ export class WebMediaAdapter implements MediaAdapter {
 			};
 
 			video.onerror = () => {
-				reject(new Error("Failed to load video metadata"));
+				reject(new Error('Failed to load video metadata'));
 			};
 
 			video.src = URL.createObjectURL(file);
@@ -123,7 +121,7 @@ export class WebMediaAdapter implements MediaAdapter {
 	}
 
 	createCanvas(width: number, height: number): HTMLCanvasElement {
-		const canvas = document.createElement("canvas");
+		const canvas = document.createElement('canvas');
 		canvas.width = width;
 		canvas.height = height;
 		return canvas;
@@ -134,6 +132,6 @@ export class WebMediaAdapter implements MediaAdapter {
 	}
 
 	createVideo(): HTMLVideoElement {
-		return document.createElement("video");
+		return document.createElement('video');
 	}
 }

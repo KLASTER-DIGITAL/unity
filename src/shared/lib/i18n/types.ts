@@ -1,6 +1,6 @@
 // TypeScript типы для i18n системы
 
-export type Language = "ru" | "en" | "es" | "de" | "fr" | "zh" | "ja";
+export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja';
 
 export type LanguageConfig = {
 	code: string;
@@ -85,12 +85,12 @@ export type TranslationAnalytics = {
 	loadTimes: Array<{
 		language: string;
 		duration: number;
-		source: "cache" | "api" | "fallback";
+		source: 'cache' | 'api' | 'fallback';
 	}>;
 };
 
 export type TranslationError = {
-	type: "api" | "cache" | "parsing" | "network";
+	type: 'api' | 'cache' | 'parsing' | 'network';
 	language: string;
 	key?: string;
 	context: string;

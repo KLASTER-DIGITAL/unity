@@ -8,7 +8,7 @@
  * @date 2025-01-18
  */
 
-import { navigation as platformNavigation } from "./navigation/index";
+import { navigation as platformNavigation } from './navigation/index';
 
 /**
  * Navigation route parameters
@@ -89,23 +89,23 @@ export const navigation: NavigationAdapter = platformNavigation;
  */
 const ROUTES = {
 	// Auth routes
-	WELCOME: "/",
-	ONBOARDING: "/onboarding",
-	AUTH: "/auth",
+	WELCOME: '/',
+	ONBOARDING: '/onboarding',
+	AUTH: '/auth',
 
 	// Main app routes
-	HOME: "/home",
-	HISTORY: "/history",
-	ACHIEVEMENTS: "/achievements",
-	REPORTS: "/reports",
-	SETTINGS: "/settings",
+	HOME: '/home',
+	HISTORY: '/history',
+	ACHIEVEMENTS: '/achievements',
+	REPORTS: '/reports',
+	SETTINGS: '/settings',
 
 	// Admin routes
-	ADMIN_LOGIN: "/admin",
-	ADMIN_DASHBOARD: "/admin/dashboard",
+	ADMIN_LOGIN: '/admin',
+	ADMIN_DASHBOARD: '/admin/dashboard',
 
 	// Utility routes
-	NOT_FOUND: "/404",
+	NOT_FOUND: '/404',
 } as const;
 
 type RouteKey = keyof typeof ROUTES;
@@ -132,9 +132,7 @@ export const NavigationUtils = {
 		const currentRoute = navigation.getCurrentRoute();
 
 		// Handle exact match and path prefix match
-		return (
-			currentRoute === routePath || currentRoute.startsWith(`${routePath}/`)
-		);
+		return currentRoute === routePath || currentRoute.startsWith(`${routePath}/`);
 	},
 
 	/**
@@ -155,7 +153,7 @@ export const NavigationUtils = {
 	 * Parse route parameters from current URL
 	 */
 	getRouteParams(): RouteParams {
-		if (typeof window === "undefined") {
+		if (typeof window === 'undefined') {
 			return {};
 		}
 
@@ -164,9 +162,9 @@ export const NavigationUtils = {
 
 		searchParams.forEach((value, key) => {
 			// Try to parse as number or boolean
-			if (value === "true") {
+			if (value === 'true') {
 				params[key] = true;
-			} else if (value === "false") {
+			} else if (value === 'false') {
 				params[key] = false;
 			} else if (!Number.isNaN(Number(value))) {
 				params[key] = Number(value);

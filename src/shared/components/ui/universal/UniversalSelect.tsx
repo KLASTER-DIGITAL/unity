@@ -9,7 +9,7 @@
  */
 
 // Import implementations
-import * as WebSelect from "./Select.web";
+import * as WebSelect from './Select.web';
 
 // ============================================================================
 // PLATFORM SELECT
@@ -30,7 +30,7 @@ export const UniversalSelect = SelectComponents.Select;
 export const SelectUtils = SelectComponents.SelectUtils;
 
 // Export types
-export type { SelectOption, SelectProps } from "./Select.web";
+export type { SelectOption, SelectProps } from './Select.web';
 
 // Note: NativeSelect is NOT exported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed in React Native environment

@@ -1,27 +1,27 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense } from 'react';
 
 // Lazy load chart components для оптимизации производительности
 // Эти компоненты используют recharts - тяжелую библиотеку для графиков
 
 // Bar Chart Components
 const BarChart01 = lazy(() =>
-	import("../shadcn-io/bar-chart-01").then((module) => ({
+	import('../shadcn-io/bar-chart-01').then((module) => ({
 		default: module.ChartBarInteractive,
-	})),
+	}))
 );
 
 // Line Chart Components
 const LineChart01 = lazy(() =>
-	import("../shadcn-io/line-chart-01").then((module) => ({
+	import('../shadcn-io/line-chart-01').then((module) => ({
 		default: module.ChartLineInteractive,
-	})),
+	}))
 );
 
 // Pie Chart Components
 const PieChart01 = lazy(() =>
-	import("../shadcn-io/pie-chart-01").then((module) => ({
+	import('../shadcn-io/pie-chart-01').then((module) => ({
 		default: module.ChartPieSimple,
-	})),
+	}))
 );
 
 // Chart Loading Component
@@ -63,9 +63,9 @@ export const LazyPieChart = (props: any) => (
 
 // Preload функции для критических графиков
 export const preloadCharts = {
-	barChart: () => import("../shadcn-io/bar-chart-01"),
-	lineChart: () => import("../shadcn-io/line-chart-01"),
-	pieChart: () => import("../shadcn-io/pie-chart-01"),
+	barChart: () => import('../shadcn-io/bar-chart-01'),
+	lineChart: () => import('../shadcn-io/line-chart-01'),
+	pieChart: () => import('../shadcn-io/pie-chart-01'),
 };
 
 // Hook для preloading графиков при hover

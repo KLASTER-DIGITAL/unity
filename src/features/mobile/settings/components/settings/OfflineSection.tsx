@@ -1,6 +1,6 @@
-import { CloudOff, Settings } from "lucide-react";
-import { useOfflineMode } from "@/shared/lib/offline";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { CloudOff, Settings } from 'lucide-react';
+import { useOfflineMode } from '@/shared/lib/offline';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type OfflineSectionProps = {
 	offlineEnabled: boolean;
@@ -53,10 +53,10 @@ export function OfflineSection({
 	// Формируем description с учетом pending syncs
 	const getDescription = () => {
 		if (!isPremium) {
-			return "Требуется премиум";
+			return 'Требуется премиум';
 		}
 		if (!offlineEnabled) {
-			return "Премиум функция";
+			return 'Премиум функция';
 		}
 		if (syncInProgress) {
 			return `Синхронизация ${pendingCount} записей...`;
@@ -64,11 +64,11 @@ export function OfflineSection({
 		if (pendingCount > 0) {
 			return `${pendingCount} записей ожидают синхронизации`;
 		}
-		return "Работает в фоновом режиме";
+		return 'Работает в фоновом режиме';
 	};
 
 	return (
-		<SettingsSection title={t.offlineMode || "Offline режим"}>
+		<SettingsSection title={t.offlineMode || 'Offline режим'}>
 			<SettingsRow
 				description={getDescription()}
 				disabled={!isPremium}
@@ -79,7 +79,7 @@ export function OfflineSection({
 				onSwitchChange={handleOfflineChange}
 				rightElement="switch"
 				switchChecked={offlineEnabled}
-				title={t.enableOfflineMode || "Включить offline режим"}
+				title={t.enableOfflineMode || 'Включить offline режим'}
 			/>
 
 			{/* Offline Settings - только для премиум пользователей */}
@@ -90,7 +90,7 @@ export function OfflineSection({
 					iconBgColor="bg-[var(--ios-blue)]/10"
 					iconColor="text-[var(--ios-blue)]"
 					onClick={handleSettingsClick}
-					title={t.offlineSettings || "Настройки offline"}
+					title={t.offlineSettings || 'Настройки offline'}
 				/>
 			)}
 		</SettingsSection>

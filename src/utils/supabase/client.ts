@@ -1,5 +1,5 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { env } from "@/shared/lib/platform/env";
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { env } from '@/shared/lib/platform/env';
 
 /**
  * ✅ PWA + React Native Architecture:
@@ -15,9 +15,9 @@ const publicAnonKey = env.SUPABASE_ANON_KEY;
 
 // Validate credentials
 if (!supabaseUrl || !publicAnonKey) {
-	console.error("❌ Supabase credentials validation failed!");
-	console.error("SUPABASE_URL:", supabaseUrl);
-	console.error("SUPABASE_ANON_KEY:", publicAnonKey ? "present" : "missing");
+	console.error('❌ Supabase credentials validation failed!');
+	console.error('SUPABASE_URL:', supabaseUrl);
+	console.error('SUPABASE_ANON_KEY:', publicAnonKey ? 'present' : 'missing');
 }
 
 // Создаем singleton instance Supabase клиента для фронтенда
@@ -28,31 +28,26 @@ export const supabase = createSupabaseClient(supabaseUrl, publicAnonKey, {
 		autoRefreshToken: true,
 		detectSessionInUrl: true,
 		storage: window.localStorage,
-		storageKey: "supabase.auth.token",
+		storageKey: 'supabase.auth.token',
 	},
 });
 
 // Handle auth state changes and errors
 supabase.auth.onAuthStateChange((event, session) => {
-	console.log(
-		"[Supabase Auth] Event:",
-		event,
-		"Session:",
-		session ? "present" : "null",
-	);
+	console.log('[Supabase Auth] Event:', event, 'Session:', session ? 'present' : 'null');
 
 	// Handle token refresh errors
-	if (event === "TOKEN_REFRESHED") {
-		console.log("[Supabase Auth] ✅ Token refreshed successfully");
+	if (event === 'TOKEN_REFRESHED') {
+		console.log('[Supabase Auth] ✅ Token refreshed successfully');
 	}
 
-	if (event === "SIGNED_OUT") {
-		console.log("[Supabase Auth] 🚪 User signed out");
+	if (event === 'SIGNED_OUT') {
+		console.log('[Supabase Auth] 🚪 User signed out');
 		// Clear any cached data if needed
 	}
 
-	if (event === "USER_UPDATED") {
-		console.log("[Supabase Auth] 🔄 User updated");
+	if (event === 'USER_UPDATED') {
+		console.log('[Supabase Auth] 🔄 User updated');
 	}
 });
 

@@ -7,24 +7,19 @@ import {
 	Search,
 	Settings,
 	Smartphone,
-} from "lucide-react";
-import type React from "react";
-import { useState } from "react";
-import { AISettingsTab } from "@/components/screens/admin/settings/AISettingsTab";
-import { APIServicesTab } from "@/components/screens/admin/settings/APIServicesTab";
-import { GeneralSettingsTab } from "@/components/screens/admin/settings/GeneralSettingsTab";
-import { SystemSettingsTab } from "@/components/screens/admin/settings/SystemSettingsTab";
-import { TelegramSettingsTab } from "@/components/screens/admin/settings/TelegramSettingsTab";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import { LanguagesAndTranslationsTab } from "./LanguagesAndTranslationsTab";
-import { MobileConfigTab } from "./mobile-config";
+} from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { AISettingsTab } from '@/components/screens/admin/settings/AISettingsTab';
+import { APIServicesTab } from '@/components/screens/admin/settings/APIServicesTab';
+import { GeneralSettingsTab } from '@/components/screens/admin/settings/GeneralSettingsTab';
+import { SystemSettingsTab } from '@/components/screens/admin/settings/SystemSettingsTab';
+import { TelegramSettingsTab } from '@/components/screens/admin/settings/TelegramSettingsTab';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { LanguagesAndTranslationsTab } from './LanguagesAndTranslationsTab';
+import { MobileConfigTab } from './mobile-config';
 
 type SettingsTabProps = {
 	className?: string;
@@ -37,8 +32,8 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 	activeSubTab,
 	onSubTabChange,
 }) => {
-	const [activeTab, setActiveTab] = useState(activeSubTab || "openai-api");
-	const [searchQuery, setSearchQuery] = useState("");
+	const [activeTab, setActiveTab] = useState(activeSubTab || 'openai-api');
+	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedLanguageForTranslations] = useState<string | undefined>();
 
 	const handleTabChange = (value: string) => {
@@ -48,53 +43,53 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 
 	const tabs = [
 		{
-			value: "api-services",
-			label: "API Services",
+			value: 'api-services',
+			label: 'API Services',
 			icon: Key,
-			description: "Управление API сервисами",
+			description: 'Управление API сервисами',
 		},
 		{
-			value: "ai",
-			label: "AI",
+			value: 'ai',
+			label: 'AI',
 			icon: Brain,
-			description: "Настройки AI моделей",
+			description: 'Настройки AI моделей',
 		},
 		{
-			value: "telegram",
-			label: "Telegram",
+			value: 'telegram',
+			label: 'Telegram',
 			icon: MessageCircle,
-			description: "Интеграция с Telegram",
+			description: 'Интеграция с Telegram',
 		},
 		{
-			value: "languages-translations",
-			label: "Языки и переводы",
+			value: 'languages-translations',
+			label: 'Языки и переводы',
 			icon: Languages,
-			description: "Управление языками и переводами",
+			description: 'Управление языками и переводами',
 		},
 		{
-			value: "mobile",
-			label: "Mobile",
+			value: 'mobile',
+			label: 'Mobile',
 			icon: Smartphone,
-			description: "Настройки React Native приложения",
+			description: 'Настройки React Native приложения',
 		},
 		{
-			value: "general",
-			label: "Общие",
+			value: 'general',
+			label: 'Общие',
 			icon: Settings,
-			description: "Общие настройки",
+			description: 'Общие настройки',
 		},
 		{
-			value: "system",
-			label: "Система",
+			value: 'system',
+			label: 'Система',
 			icon: Monitor,
-			description: "Системные настройки",
+			description: 'Системные настройки',
 		},
 	];
 
 	const filteredTabs = tabs.filter(
 		(tab) =>
 			tab.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			tab.description.toLowerCase().includes(searchQuery.toLowerCase()),
+			tab.description.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	return (
@@ -102,12 +97,8 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 			<div className="mx-auto max-w-[1400px] p-6 pb-4 lg:p-8">
 				{/* Заголовок страницы */}
 				<header className="mb-8">
-					<h1 className="mb-2 font-bold text-3xl text-foreground">
-						Настройки системы
-					</h1>
-					<p className="text-base text-muted-foreground">
-						Управление всеми аспектами системы
-					</p>
+					<h1 className="mb-2 font-bold text-3xl text-foreground">Настройки системы</h1>
+					<p className="text-base text-muted-foreground">Управление всеми аспектами системы</p>
 				</header>
 
 				{/* Поиск по настройкам */}
@@ -124,11 +115,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 				</div>
 
 				{/* Навигация по вкладкам */}
-				<Tabs
-					className="w-full"
-					onValueChange={handleTabChange}
-					value={activeTab}
-				>
+				<Tabs className="w-full" onValueChange={handleTabChange} value={activeTab}>
 					<TabsList className="mb-8 inline-flex h-auto w-full flex-wrap items-center justify-start gap-2 rounded-lg bg-muted p-1">
 						{tabs.map((tab) => {
 							const Icon = tab.icon;
@@ -153,7 +140,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 								<p className="mb-4 text-lg text-muted-foreground">
 									Нет настроек, соответствующих "{searchQuery}"
 								</p>
-								<Button onClick={() => setSearchQuery("")} variant="outline">
+								<Button onClick={() => setSearchQuery('')} variant="outline">
 									Очистить поиск
 								</Button>
 							</div>
@@ -172,9 +159,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 								</TabsContent>
 
 								<TabsContent className="mt-0" value="languages-translations">
-									<LanguagesAndTranslationsTab
-										initialLanguage={selectedLanguageForTranslations}
-									/>
+									<LanguagesAndTranslationsTab initialLanguage={selectedLanguageForTranslations} />
 								</TabsContent>
 
 								<TabsContent className="mt-0" value="mobile">

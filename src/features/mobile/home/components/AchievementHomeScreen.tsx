@@ -1,24 +1,20 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { type DiaryEntry, getUserStats } from "@/shared/lib/api";
-import { AchievementHeader } from "./AchievementHeader";
-import { ChatInputSection } from "./ChatInputSection";
-import { EntryDetailModal } from "./EntryDetailModal";
-import { RecentEntriesFeed } from "./RecentEntriesFeed";
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { type DiaryEntry, getUserStats } from '@/shared/lib/api';
+import { AchievementHeader } from './AchievementHeader';
+import { ChatInputSection } from './ChatInputSection';
+import { EntryDetailModal } from './EntryDetailModal';
+import { RecentEntriesFeed } from './RecentEntriesFeed';
 
 // Lazy load MotivationCardsSection for better LCP
 const MotivationCardsSection = lazy(() =>
-	import("./MotivationCardsSection").then((module) => ({
+	import('./MotivationCardsSection').then((module) => ({
 		default: module.MotivationCardsSection,
-	})),
+	}))
 );
 
 // Import types
-import type {
-	AchievementCard,
-	AchievementHomeScreenProps,
-	DiaryData,
-} from "./achievement";
+import type { AchievementCard, AchievementHomeScreenProps, DiaryData } from './achievement';
 
 // Re-export types for backward compatibility
 export type { DiaryData, AchievementHomeScreenProps, AchievementCard };
@@ -31,7 +27,7 @@ export type { DiaryData, AchievementHomeScreenProps, AchievementCard };
 
 // Основной компонент
 export function AchievementHomeScreen({
-	diaryData: _diaryData = { name: "Мой дневник", emoji: "🏆" },
+	diaryData: _diaryData = { name: 'Мой дневник', emoji: '🏆' },
 	userData,
 	onNavigateToHistory,
 	onNavigateToSettings,
@@ -42,23 +38,24 @@ export function AchievementHomeScreen({
 	const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
 
 	// Загрузка статистики при монтировании
+	// biome-ignore lint/correctness/useExhaustiveDependencies: loadStats is stable
 	useEffect(() => {
 		loadStats();
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
 	const loadStats = async () => {
 		try {
 			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || "anonymous";
+			const userId = userData?.user?.id || userData?.id || 'anonymous';
 
 			// Загружаем только статистику
 			const stats = await getUserStats(userId);
-			console.log("User stats:", stats);
+			console.log('User stats:', stats);
 
 			// Обновляем streak
 			setCurrentStreak(stats.currentStreak);
 		} catch (error) {
-			console.error("Error loading stats:", error);
+			console.error('Error loading stats:', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -66,16 +63,16 @@ export function AchievementHomeScreen({
 
 	// Обработчик создания новой записи
 	const handleNewEntry = (_entry: DiaryEntry) => {
-		console.log("New entry created:", _entry);
+		console.log('New entry created:', _entry);
 
 		// Перезагружаем статистику
-		const userId = userData?.user?.id || userData?.id || "anonymous";
+		const userId = userData?.user?.id || userData?.id || 'anonymous';
 		getUserStats(userId)
 			.then((stats) => {
 				setCurrentStreak(stats.currentStreak);
 			})
 			.catch((err) => {
-				console.error("Error updating stats:", err);
+				console.error('Error updating stats:', err);
 			});
 
 		// Trigger feed refresh
@@ -83,7 +80,7 @@ export function AchievementHomeScreen({
 	};
 
 	// Получаем имя пользователя из userData.profile.name или userData.name или используем дефолтное
-	const userName = userData?.profile?.name || userData?.name || "Пользователь";
+	const userName = userData?.profile?.name || userData?.name || 'Пользователь';
 	const userEmail = userData?.profile?.email || userData?.email;
 	const avatarUrl = userData?.profile?.avatar || userData?.avatar;
 
@@ -149,9 +146,9 @@ export function AchievementHomeScreen({
 					<ChatInputSection
 						onEntrySaved={handleNewEntry}
 						onMessageSent={(message) => {
-							console.log("New achievement message:", message);
+							console.log('New achievement message:', message);
 						}} // ✅ FIXED: Try user.id first
-						userId={userData?.user?.id || userData?.id || "anonymous"}
+						userId={userData?.user?.id || userData?.id || 'anonymous'}
 						userName={userName}
 					/>
 				</div>
@@ -161,12 +158,12 @@ export function AchievementHomeScreen({
 			{!isLoading && (
 				<RecentEntriesFeed
 					key={feedRefreshKey} // ✅ NEW: Force refresh when key changes
-					language={userData?.language || "ru"}
+					language={userData?.language || 'ru'}
 					onEntryClick={(entry) => {
 						setSelectedEntry(entry);
 					}}
 					onViewAllClick={() => {
-						console.log("Navigate to History");
+						console.log('Navigate to History');
 						onNavigateToHistory?.();
 					}}
 					userData={userData}

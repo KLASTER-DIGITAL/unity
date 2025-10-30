@@ -1,44 +1,38 @@
-"use client";
+'use client';
 
-import { PanelLeftIcon } from "lucide-react";
-import type React from "react";
-import { Button } from "./button";
-import { Input } from "./input";
-import { Separator } from "./separator";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-} from "./sheet";
-import { SIDEBAR_WIDTH_MOBILE, useSidebar } from "./sidebar-context";
-import { cn } from "./utils";
+import { PanelLeftIcon } from 'lucide-react';
+import type React from 'react';
+import { Button } from './button';
+import { Input } from './input';
+import { Separator } from './separator';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './sheet';
+import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './sidebar-context';
+import { cn } from './utils';
 
 /**
  * Main Sidebar component
  * Handles responsive behavior (mobile sheet vs desktop sidebar)
  */
 export function Sidebar({
-	side = "left",
-	variant = "sidebar",
-	collapsible = "offcanvas",
+	side = 'left',
+	variant = 'sidebar',
+	collapsible = 'offcanvas',
 	className,
 	children,
 	...props
-}: React.ComponentProps<"div"> & {
-	side?: "left" | "right";
-	variant?: "sidebar" | "floating" | "inset";
-	collapsible?: "offcanvas" | "icon" | "none";
+}: React.ComponentProps<'div'> & {
+	side?: 'left' | 'right';
+	variant?: 'sidebar' | 'floating' | 'inset';
+	collapsible?: 'offcanvas' | 'icon' | 'none';
 }) {
 	const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
-	if (collapsible === "none") {
+	if (collapsible === 'none') {
 		return (
 			<div
 				className={cn(
-					"flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
-					className,
+					'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
+					className
 				)}
 				data-slot="sidebar"
 				{...props}
@@ -59,7 +53,7 @@ export function Sidebar({
 					side={side}
 					style={
 						{
-							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+							'--sidebar-width': SIDEBAR_WIDTH_MOBILE,
 						} as React.CSSProperties
 					}
 				>
@@ -76,7 +70,7 @@ export function Sidebar({
 	return (
 		<div
 			className="group peer hidden text-sidebar-foreground md:block"
-			data-collapsible={state === "collapsed" ? collapsible : ""}
+			data-collapsible={state === 'collapsed' ? collapsible : ''}
 			data-side={side}
 			data-slot="sidebar"
 			data-state={state}
@@ -85,26 +79,26 @@ export function Sidebar({
 			{/* This is what handles the sidebar gap on desktop */}
 			<div
 				className={cn(
-					"relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-					"group-data-[collapsible=offcanvas]:w-0",
-					"group-data-[side=right]:rotate-180",
-					variant === "floating" || variant === "inset"
-						? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+					'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
+					'group-data-[collapsible=offcanvas]:w-0',
+					'group-data-[side=right]:rotate-180',
+					variant === 'floating' || variant === 'inset'
+						? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
+						: 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)'
 				)}
 				data-slot="sidebar-gap"
 			/>
 			<div
 				className={cn(
-					"fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
-					side === "left"
-						? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-						: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+					'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
+					side === 'left'
+						? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
+						: 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
 					// Adjust the padding for floating and inset variants.
-					variant === "floating" || variant === "inset"
-						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
-					className,
+					variant === 'floating' || variant === 'inset'
+						? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
+						: 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
+					className
 				)}
 				data-slot="sidebar-container"
 				{...props}
@@ -134,7 +128,7 @@ export function SidebarTrigger({
 
 	return (
 		<Button
-			className={cn("size-7", className)}
+			className={cn('size-7', className)}
 			data-sidebar="trigger"
 			data-slot="sidebar-trigger"
 			onClick={(event) => {
@@ -155,23 +149,20 @@ export function SidebarTrigger({
  * Sidebar rail
  * Draggable edge for resizing sidebar
  */
-export function SidebarRail({
-	className,
-	...props
-}: React.ComponentProps<"button">) {
+export function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 	const { toggleSidebar } = useSidebar();
 
 	return (
 		<button
 			aria-label="Toggle Sidebar"
 			className={cn(
-				"-translate-x-1/2 group-data-[side=left]:-right-4 absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=right]:left-0 sm:flex",
-				"in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
-				"[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
-				"group-data-[collapsible=offcanvas]:translate-x-0 hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:after:left-full",
-				"[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
-				"[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
-				className,
+				'-translate-x-1/2 group-data-[side=left]:-right-4 absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=right]:left-0 sm:flex',
+				'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
+				'[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
+				'group-data-[collapsible=offcanvas]:translate-x-0 hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:after:left-full',
+				'[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',
+				'[[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
+				className
 			)}
 			data-sidebar="rail"
 			data-slot="sidebar-rail"
@@ -187,16 +178,13 @@ export function SidebarRail({
  * Sidebar inset
  * Main content area next to sidebar
  */
-export function SidebarInset({
-	className,
-	...props
-}: React.ComponentProps<"main">) {
+export function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
 	return (
 		<main
 			className={cn(
-				"relative flex w-full flex-1 flex-col bg-background",
-				"md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm",
-				className,
+				'relative flex w-full flex-1 flex-col bg-background',
+				'md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm',
+				className
 			)}
 			data-slot="sidebar-inset"
 			{...props}
@@ -208,13 +196,10 @@ export function SidebarInset({
  * Sidebar input
  * Search or filter input within sidebar
  */
-export function SidebarInput({
-	className,
-	...props
-}: React.ComponentProps<typeof Input>) {
+export function SidebarInput({ className, ...props }: React.ComponentProps<typeof Input>) {
 	return (
 		<Input
-			className={cn("h-8 w-full bg-background shadow-none", className)}
+			className={cn('h-8 w-full bg-background shadow-none', className)}
 			data-sidebar="input"
 			data-slot="sidebar-input"
 			{...props}
@@ -226,13 +211,10 @@ export function SidebarInput({
  * Sidebar header
  * Top section of sidebar (logo, title, etc.)
  */
-export function SidebarHeader({
-	className,
-	...props
-}: React.ComponentProps<"div">) {
+export function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
-			className={cn("flex flex-col gap-2 p-2", className)}
+			className={cn('flex flex-col gap-2 p-2', className)}
 			data-sidebar="header"
 			data-slot="sidebar-header"
 			{...props}
@@ -244,13 +226,10 @@ export function SidebarHeader({
  * Sidebar footer
  * Bottom section of sidebar (user profile, settings, etc.)
  */
-export function SidebarFooter({
-	className,
-	...props
-}: React.ComponentProps<"div">) {
+export function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
-			className={cn("flex flex-col gap-2 p-2", className)}
+			className={cn('flex flex-col gap-2 p-2', className)}
 			data-sidebar="footer"
 			data-slot="sidebar-footer"
 			{...props}
@@ -262,13 +241,10 @@ export function SidebarFooter({
  * Sidebar separator
  * Visual divider between sections
  */
-export function SidebarSeparator({
-	className,
-	...props
-}: React.ComponentProps<typeof Separator>) {
+export function SidebarSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
 	return (
 		<Separator
-			className={cn("mx-2 w-auto bg-sidebar-border", className)}
+			className={cn('mx-2 w-auto bg-sidebar-border', className)}
 			data-sidebar="separator"
 			data-slot="sidebar-separator"
 			{...props}
@@ -280,15 +256,12 @@ export function SidebarSeparator({
  * Sidebar content
  * Scrollable content area
  */
-export function SidebarContent({
-	className,
-	...props
-}: React.ComponentProps<"div">) {
+export function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
 			className={cn(
-				"flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
-				className,
+				'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+				className
 			)}
 			data-sidebar="content"
 			data-slot="sidebar-content"

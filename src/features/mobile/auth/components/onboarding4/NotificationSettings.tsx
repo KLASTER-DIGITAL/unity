@@ -1,17 +1,17 @@
-import { Bell } from "lucide-react";
-import { motion } from "motion/react";
-import { NotificationOption } from "./NotificationOption";
+import { Bell } from 'lucide-react';
+import { motion } from 'motion/react';
+import { NotificationOption } from './NotificationOption';
 
 type NotificationSettingsProps = {
-	selectedTime: "none" | "morning" | "evening" | "both";
+	selectedTime: 'none' | 'morning' | 'evening' | 'both';
 	morningTime: string;
 	eveningTime: string;
 	reminderTitle: string;
 	morningLabel: string;
 	eveningLabel: string;
 	bothLabel: string;
-	onSelect: (type: "none" | "morning" | "evening" | "both") => void;
-	onTimeClick: (type: "morning" | "evening") => void;
+	onSelect: (type: 'none' | 'morning' | 'evening' | 'both') => void;
+	onTimeClick: (type: 'morning' | 'evening') => void;
 };
 
 /**
@@ -38,38 +38,36 @@ export function NotificationSettings({
 		>
 			<div className="flex items-center space-x-2">
 				<Bell className="h-4 w-4 text-[#756ef3]" />
-				<h3 className="!text-[#756ef3] font-semibold! text-[14px]!">
-					{reminderTitle}
-				</h3>
+				<h3 className="!text-[#756ef3] font-semibold! text-[14px]!">{reminderTitle}</h3>
 			</div>
 
 			<div className="space-y-2">
 				<NotificationOption
 					eveningTime={eveningTime}
-					isSelected={selectedTime === "morning"}
+					isSelected={selectedTime === 'morning'}
 					label={morningLabel}
 					morningTime={morningTime}
-					onSelect={() => onSelect("morning")}
+					onSelect={() => onSelect('morning')}
 					onTimeClick={onTimeClick}
 					type="morning"
 				/>
 
 				<NotificationOption
 					eveningTime={eveningTime}
-					isSelected={selectedTime === "evening"}
+					isSelected={selectedTime === 'evening'}
 					label={eveningLabel}
 					morningTime={morningTime}
-					onSelect={() => onSelect("evening")}
+					onSelect={() => onSelect('evening')}
 					onTimeClick={onTimeClick}
 					type="evening"
 				/>
 
 				<NotificationOption
 					eveningTime={eveningTime}
-					isSelected={selectedTime === "both"}
+					isSelected={selectedTime === 'both'}
 					label={bothLabel}
 					morningTime={morningTime}
-					onSelect={() => onSelect("both")}
+					onSelect={() => onSelect('both')}
 					type="both"
 				/>
 			</div>

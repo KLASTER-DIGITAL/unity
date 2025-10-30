@@ -2,8 +2,8 @@
  * SettingsScreen - Language Selection Modal Component
  */
 
-import { X } from "lucide-react";
-import { motion } from "motion/react";
+import { X } from 'lucide-react';
+import { motion } from 'motion/react';
 
 type Language = {
 	code: string;
@@ -50,9 +50,7 @@ export function LanguageModal({
 				initial={{ opacity: 0, y: 100 }}
 			>
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="text-foreground text-title-3">
-						{t.language || "Выбрать язык"}
-					</h3>
+					<h3 className="text-foreground text-title-3">{t.language || 'Выбрать язык'}</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
@@ -70,8 +68,8 @@ export function LanguageModal({
 						<button
 							className={`flex w-full items-center justify-between rounded-xl p-4 transition-all ${
 								currentLanguage === language.code
-									? "border-2 border-primary bg-primary/10"
-									: "border border-border bg-card hover:bg-accent/5"
+									? 'border-2 border-primary bg-primary/10'
+									: 'border border-border bg-card hover:bg-accent/5'
 							}`}
 							key={language.code}
 							onClick={() => onLanguageChange(language.code)}
@@ -79,12 +77,8 @@ export function LanguageModal({
 							<div className="flex items-center gap-3">
 								<span className="text-2xl">{language.flag}</span>
 								<div className="text-left">
-									<p className="font-medium text-foreground">
-										{language.native_name}
-									</p>
-									<p className="text-muted-foreground text-sm">
-										{language.name}
-									</p>
+									<p className="font-medium text-foreground">{language.native_name}</p>
+									<p className="text-muted-foreground text-sm">{language.name}</p>
 								</div>
 							</div>
 							{currentLanguage === language.code && (

@@ -6,7 +6,7 @@
  * @module platform/storage/web
  */
 
-import type { StorageAdapter } from "./types";
+import type { StorageAdapter } from './types';
 
 /**
  * Web storage adapter using localStorage
@@ -14,17 +14,17 @@ import type { StorageAdapter } from "./types";
 export class WebStorageAdapter implements StorageAdapter {
 	private isAvailable(): boolean {
 		try {
-			if (typeof localStorage === "undefined") {
+			if (typeof localStorage === 'undefined') {
 				return false;
 			}
 
 			// Test localStorage availability
-			const testKey = "__storage_test__";
-			localStorage.setItem(testKey, "test");
+			const testKey = '__storage_test__';
+			localStorage.setItem(testKey, 'test');
 			localStorage.removeItem(testKey);
 			return true;
 		} catch (error) {
-			console.warn("localStorage not available:", error);
+			console.warn('localStorage not available:', error);
 			return false;
 		}
 	}
@@ -36,7 +36,7 @@ export class WebStorageAdapter implements StorageAdapter {
 			}
 			return localStorage.getItem(key);
 		} catch (error) {
-			console.error("Storage getItem error:", error);
+			console.error('Storage getItem error:', error);
 			return null;
 		}
 	}
@@ -44,11 +44,11 @@ export class WebStorageAdapter implements StorageAdapter {
 	async setItem(key: string, value: string): Promise<void> {
 		try {
 			if (!this.isAvailable()) {
-				throw new Error("localStorage is not available");
+				throw new Error('localStorage is not available');
 			}
 			localStorage.setItem(key, value);
 		} catch (error) {
-			console.error("Storage setItem error:", error);
+			console.error('Storage setItem error:', error);
 			throw error;
 		}
 	}
@@ -60,7 +60,7 @@ export class WebStorageAdapter implements StorageAdapter {
 			}
 			localStorage.removeItem(key);
 		} catch (error) {
-			console.error("Storage removeItem error:", error);
+			console.error('Storage removeItem error:', error);
 			throw error;
 		}
 	}
@@ -72,7 +72,7 @@ export class WebStorageAdapter implements StorageAdapter {
 			}
 			localStorage.clear();
 		} catch (error) {
-			console.error("Storage clear error:", error);
+			console.error('Storage clear error:', error);
 			throw error;
 		}
 	}
@@ -84,7 +84,7 @@ export class WebStorageAdapter implements StorageAdapter {
 			}
 			return Object.keys(localStorage);
 		} catch (error) {
-			console.error("Storage getAllKeys error:", error);
+			console.error('Storage getAllKeys error:', error);
 			return [];
 		}
 	}
@@ -97,7 +97,7 @@ export class WebStorageAdapter implements StorageAdapter {
 
 			return keys.map((key) => [key, localStorage.getItem(key)]);
 		} catch (error) {
-			console.error("Storage multiGet error:", error);
+			console.error('Storage multiGet error:', error);
 			return keys.map((key) => [key, null]);
 		}
 	}
@@ -105,14 +105,14 @@ export class WebStorageAdapter implements StorageAdapter {
 	async multiSet(keyValuePairs: [string, string][]): Promise<void> {
 		try {
 			if (!this.isAvailable()) {
-				throw new Error("localStorage is not available");
+				throw new Error('localStorage is not available');
 			}
 
 			keyValuePairs.forEach(([key, value]) => {
 				localStorage.setItem(key, value);
 			});
 		} catch (error) {
-			console.error("Storage multiSet error:", error);
+			console.error('Storage multiSet error:', error);
 			throw error;
 		}
 	}
@@ -127,7 +127,7 @@ export class WebStorageAdapter implements StorageAdapter {
 				localStorage.removeItem(key);
 			});
 		} catch (error) {
-			console.error("Storage multiRemove error:", error);
+			console.error('Storage multiRemove error:', error);
 			throw error;
 		}
 	}

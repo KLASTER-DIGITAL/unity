@@ -7,9 +7,9 @@
  * @date 2025-10-24
  */
 
-import { isProd } from "@/shared/lib/env";
-import { addBreadcrumb, captureMessage } from "@/shared/lib/monitoring";
-import { type PerformanceEntry, performanceMonitor } from "./monitoring";
+import { isProd } from '@/shared/lib/env';
+import { addBreadcrumb, captureMessage } from '@/shared/lib/monitoring';
+import { type PerformanceEntry, performanceMonitor } from './monitoring';
 
 /**
  * Initialize Sentry Performance Integration
@@ -18,7 +18,7 @@ import { type PerformanceEntry, performanceMonitor } from "./monitoring";
  */
 export function initSentryPerformanceIntegration(): void {
 	if (!isProd) {
-		console.log("ℹ️ [Sentry Performance] Disabled in development");
+		console.log('ℹ️ [Sentry Performance] Disabled in development');
 		return;
 	}
 
@@ -26,7 +26,7 @@ export function initSentryPerformanceIntegration(): void {
 	performanceMonitor.addListener((metric: PerformanceEntry) => {
 		// Add breadcrumb for all metrics
 		addBreadcrumb({
-			category: "performance",
+			category: 'performance',
 			message: `${metric.name.toUpperCase()}: ${metric.value.toFixed(2)}ms`,
 			level: getLogLevel(metric.rating),
 			data: {
@@ -38,11 +38,11 @@ export function initSentryPerformanceIntegration(): void {
 		});
 
 		// Capture message for poor performance
-		if (metric.rating === "poor") {
+		if (metric.rating === 'poor') {
 			captureMessage(
 				`Poor ${metric.name.toUpperCase()} performance: ${metric.value.toFixed(2)}ms`,
 				{
-					level: "warning",
+					level: 'warning',
 					tags: {
 						metric: metric.name,
 						rating: metric.rating,
@@ -55,27 +55,25 @@ export function initSentryPerformanceIntegration(): void {
 							timestamp: metric.timestamp,
 						},
 					},
-				},
+				}
 			);
 		}
 	});
 
-	console.log("✅ [Sentry Performance] Integration initialized");
+	console.log('✅ [Sentry Performance] Integration initialized');
 }
 
 /**
  * Get Sentry log level from performance rating
  */
-function getLogLevel(
-	rating: "good" | "needs-improvement" | "poor",
-): "info" | "warning" | "error" {
+function getLogLevel(rating: 'good' | 'needs-improvement' | 'poor'): 'info' | 'warning' | 'error' {
 	switch (rating) {
-		case "good":
-			return "info";
-		case "needs-improvement":
-			return "warning";
-		case "poor":
-			return "error";
+		case 'good':
+			return 'info';
+		case 'needs-improvement':
+			return 'warning';
+		case 'poor':
+			return 'error';
 	}
 }
 
@@ -93,29 +91,23 @@ export function reportPerformanceSummary(): void {
 
 	// Calculate overall score
 	const scores = {
-		lcp: metrics.lcp ? getScore("lcp", metrics.lcp) : null,
-		fid: metrics.fid ? getScore("fid", metrics.fid) : null,
-		cls: metrics.cls ? getScore("cls", metrics.cls) : null,
-		fcp: metrics.fcp ? getScore("fcp", metrics.fcp) : null,
-		ttfb: metrics.ttfb ? getScore("ttfb", metrics.ttfb) : null,
-		inp: metrics.inp ? getScore("inp", metrics.inp) : null,
+		lcp: metrics.lcp ? getScore('lcp', metrics.lcp) : null,
+		fid: metrics.fid ? getScore('fid', metrics.fid) : null,
+		cls: metrics.cls ? getScore('cls', metrics.cls) : null,
+		fcp: metrics.fcp ? getScore('fcp', metrics.fcp) : null,
+		ttfb: metrics.ttfb ? getScore('ttfb', metrics.ttfb) : null,
+		inp: metrics.inp ? getScore('inp', metrics.inp) : null,
 	};
 
-	const validScores = Object.values(scores).filter(
-		(s) => s !== null,
-	) as number[];
+	const validScores = Object.values(scores).filter((s) => s !== null) as number[];
 	const overallScore =
 		validScores.length > 0
-			? Math.round(
-					validScores.reduce((sum, score) => sum + score, 0) /
-						validScores.length,
-				)
+			? Math.round(validScores.reduce((sum, score) => sum + score, 0) / validScores.length)
 			: 0;
 
 	// Send summary to Sentry
-	captureMessage("Performance Summary", {
-		level:
-			overallScore >= 80 ? "info" : overallScore >= 50 ? "warning" : "error",
+	captureMessage('Performance Summary', {
+		level: overallScore >= 80 ? 'info' : overallScore >= 50 ? 'warning' : 'error',
 		tags: {
 			overallScore: overallScore.toString(),
 		},

@@ -20,7 +20,7 @@ export type VoiceRecordingOptions = {
 	/** Enable automatic gain control (default: true) */
 	autoGainControl?: boolean;
 	/** Audio quality: 'low' | 'medium' | 'high' (default: 'medium') */
-	quality?: "low" | "medium" | "high";
+	quality?: 'low' | 'medium' | 'high';
 };
 
 export type VoiceRecordingResult = {
@@ -86,13 +86,13 @@ class WebVoiceAdapter implements VoiceAdapter {
 	private paused = false;
 
 	isSupported(): boolean {
-		if (typeof window === "undefined") {
+		if (typeof window === 'undefined') {
 			return false;
 		}
 		return !!(
 			navigator.mediaDevices &&
-			typeof navigator.mediaDevices.getUserMedia === "function" &&
-			typeof MediaRecorder !== "undefined"
+			typeof navigator.mediaDevices.getUserMedia === 'function' &&
+			typeof MediaRecorder !== 'undefined'
 		);
 	}
 
@@ -106,25 +106,21 @@ class WebVoiceAdapter implements VoiceAdapter {
 			stream.getTracks().forEach((track) => track.stop());
 			return true;
 		} catch (error) {
-			console.error("Permission denied:", error);
+			console.error('Permission denied:', error);
 			return false;
 		}
 	}
 
 	async startRecording(options: VoiceRecordingOptions = {}): Promise<void> {
 		if (!this.isSupported()) {
-			throw new Error("Voice recording is not supported");
+			throw new Error('Voice recording is not supported');
 		}
 
 		if (this.recording) {
-			throw new Error("Already recording");
+			throw new Error('Already recording');
 		}
 
-		const {
-			echoCancellation = true,
-			noiseSuppression = true,
-			autoGainControl = true,
-		} = options;
+		const { echoCancellation = true, noiseSuppression = true, autoGainControl = true } = options;
 
 		try {
 			// Request microphone access
@@ -137,9 +133,7 @@ class WebVoiceAdapter implements VoiceAdapter {
 			});
 
 			// Create AudioContext for audio level analysis
-			this.audioContext = new (
-				window.AudioContext || (window as any).webkitAudioContext
-			)();
+			this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 			this.analyser = this.audioContext.createAnalyser();
 			const source = this.audioContext.createMediaStreamSource(this.stream);
 			source.connect(this.analyser);
@@ -148,9 +142,7 @@ class WebVoiceAdapter implements VoiceAdapter {
 			this.analyzeAudio();
 
 			// Create MediaRecorder
-			const mimeType = MediaRecorder.isTypeSupported("audio/webm")
-				? "audio/webm"
-				: "audio/mp4";
+			const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
 
 			this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
 			this.audioChunks = [];
@@ -170,23 +162,14 @@ class WebVoiceAdapter implements VoiceAdapter {
 			this.cleanup();
 
 			// Handle specific errors
-			if (
-				error.name === "NotAllowedError" ||
-				error.name === "PermissionDeniedError"
-			) {
-				throw new Error("Microphone access denied");
+			if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+				throw new Error('Microphone access denied');
 			}
-			if (
-				error.name === "NotFoundError" ||
-				error.name === "DevicesNotFoundError"
-			) {
-				throw new Error("Microphone not found");
+			if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+				throw new Error('Microphone not found');
 			}
-			if (
-				error.name === "NotReadableError" ||
-				error.name === "TrackStartError"
-			) {
-				throw new Error("Microphone is being used by another application");
+			if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+				throw new Error('Microphone is being used by another application');
 			}
 			throw new Error(`Failed to start recording: ${error.message}`);
 		}
@@ -201,11 +184,11 @@ class WebVoiceAdapter implements VoiceAdapter {
 
 			this.mediaRecorder.onstop = () => {
 				const audioBlob = new Blob(this.audioChunks, {
-					type: this.mediaRecorder?.mimeType || "audio/webm",
+					type: this.mediaRecorder?.mimeType || 'audio/webm',
 				});
 
 				const duration = this.getDuration();
-				const mimeType = this.mediaRecorder?.mimeType || "audio/webm";
+				const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
 
 				this.cleanup();
 

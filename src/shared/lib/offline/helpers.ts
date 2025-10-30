@@ -12,7 +12,7 @@
  */
 export type OfflineModeAccessCheck = {
 	allowed: boolean;
-	reason?: "premium_required" | "disabled" | "not_authenticated";
+	reason?: 'premium_required' | 'disabled' | 'not_authenticated';
 	message?: string;
 };
 
@@ -59,29 +59,28 @@ export type UserDataForOfflineCheck = {
  * ```
  */
 export function canUseOfflineMode(
-	userData: UserDataForOfflineCheck | null | undefined,
+	userData: UserDataForOfflineCheck | null | undefined
 ): OfflineModeAccessCheck {
 	// Check 1: User must be authenticated
 	if (!userData) {
 		return {
 			allowed: false,
-			reason: "not_authenticated",
-			message: "Войдите в систему для использования offline режима",
+			reason: 'not_authenticated',
+			message: 'Войдите в систему для использования offline режима',
 		};
 	}
 
 	// Extract isPremium and offlineEnabled from userData
 	// Support both userData.profile.isPremium and userData.isPremium
 	const isPremium = userData.profile?.isPremium ?? userData.isPremium ?? false;
-	const offlineEnabled =
-		userData.profile?.offlineEnabled ?? userData.offlineEnabled ?? false;
+	const offlineEnabled = userData.profile?.offlineEnabled ?? userData.offlineEnabled ?? false;
 
 	// Check 2: User must have Premium subscription
 	if (!isPremium) {
 		return {
 			allowed: false,
-			reason: "premium_required",
-			message: "Offline режим доступен только для Premium подписчиков",
+			reason: 'premium_required',
+			message: 'Offline режим доступен только для Premium подписчиков',
 		};
 	}
 
@@ -89,8 +88,8 @@ export function canUseOfflineMode(
 	if (!offlineEnabled) {
 		return {
 			allowed: false,
-			reason: "disabled",
-			message: "Включите Offline режим в настройках",
+			reason: 'disabled',
+			message: 'Включите Offline режим в настройках',
 		};
 	}
 
@@ -106,14 +105,12 @@ export function canUseOfflineMode(
  * @param check - Access check result
  * @returns User-friendly message
  */
-export function getOfflineModeAccessMessage(
-	check: OfflineModeAccessCheck,
-): string {
+export function getOfflineModeAccessMessage(check: OfflineModeAccessCheck): string {
 	if (check.allowed) {
-		return "Offline режим активен";
+		return 'Offline режим активен';
 	}
 
-	return check.message || "Offline режим недоступен";
+	return check.message || 'Offline режим недоступен';
 }
 
 /**
@@ -123,5 +120,5 @@ export function getOfflineModeAccessMessage(
  * @returns True if should show premium modal
  */
 export function shouldShowPremiumModal(check: OfflineModeAccessCheck): boolean {
-	return !check.allowed && check.reason === "premium_required";
+	return !check.allowed && check.reason === 'premium_required';
 }

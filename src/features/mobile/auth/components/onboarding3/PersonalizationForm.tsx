@@ -1,7 +1,7 @@
-import { motion } from "motion/react";
-import { useState } from "react";
-import { emojiOptions } from "./constants";
-import type { PersonalizationFormProps } from "./types";
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { emojiOptions } from './constants';
+import type { PersonalizationFormProps } from './types';
 
 /**
  * Personalization Form Component
@@ -12,8 +12,8 @@ export function PersonalizationForm({
 	onNext: _onNext,
 	onUpdate,
 }: PersonalizationFormProps) {
-	const [diaryName, setDiaryName] = useState("");
-	const [selectedEmoji, setSelectedEmoji] = useState("🏆");
+	const [diaryName, setDiaryName] = useState('');
+	const [selectedEmoji, setSelectedEmoji] = useState('🏆');
 	const [isInputFocused, setIsInputFocused] = useState(false);
 
 	const handlePresetClick = (preset: string) => {
@@ -45,8 +45,8 @@ export function PersonalizationForm({
 			data-name="PersonalizationForm"
 			initial={{ opacity: 0, y: 30 }}
 			style={{
-				left: "50%",
-				top: "min(180px, calc(50vh - 150px))",
+				left: '50%',
+				top: 'min(180px, calc(50vh - 150px))',
 			}}
 			transition={{ delay: 0.4, duration: 0.7 }}
 		>
@@ -90,8 +90,8 @@ export function PersonalizationForm({
 						animate={{ opacity: 1, y: 0 }}
 						className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl transition-all duration-300 ${
 							selectedEmoji === emoji
-								? "scale-110 border-[#756ef3] bg-[#756ef3]/10"
-								: "border-border hover:border-[#756ef3]/50"
+								? 'scale-110 border-[#756ef3] bg-[#756ef3]/10'
+								: 'border-border hover:border-[#756ef3]/50'
 						}`}
 						initial={{ opacity: 0, y: 20 }}
 						key={emoji}
@@ -116,8 +116,8 @@ export function PersonalizationForm({
 					animate={{
 						scale: isInputFocused ? 1.02 : 1,
 						boxShadow: isInputFocused
-							? "0 4px 20px rgba(117, 110, 243, 0.2)"
-							: "0 2px 8px rgba(0, 0, 0, 0.1)",
+							? '0 4px 20px rgba(117, 110, 243, 0.2)'
+							: '0 2px 8px rgba(0, 0, 0, 0.1)',
 					}}
 					className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-center font-semibold! text-[16px]! text-foreground transition-all duration-300 focus:border-[#756ef3] focus:outline-none"
 					maxLength={30}
@@ -162,8 +162,8 @@ export function PersonalizationForm({
 						animate={{ opacity: 1, x: 0 }}
 						className={`rounded-lg border-2 px-4 py-3 text-center font-semibold! text-[14px]! transition-all duration-300 ${
 							diaryName === preset
-								? "border-primary bg-primary/10 text-primary"
-								: "border-border hover:border-primary hover:bg-primary/5"
+								? 'border-primary bg-primary/10 text-primary'
+								: 'border-border hover:border-primary hover:bg-primary/5'
 						}`}
 						initial={{ opacity: 0, x: -20 }}
 						key={preset}
@@ -171,7 +171,7 @@ export function PersonalizationForm({
 						transition={{ delay: 1 + index * 0.1, duration: 0.3 }}
 						whileHover={{
 							scale: 1.02,
-							boxShadow: "0 4px 12px rgba(117, 110, 243, 0.15)",
+							boxShadow: '0 4px 12px rgba(117, 110, 243, 0.15)',
 						}}
 						whileTap={{ scale: 0.98 }}
 					>
@@ -194,7 +194,7 @@ export function PersonalizationForm({
 				}}
 				className="flex items-center justify-center gap-2"
 				initial={{ opacity: 0, scale: 0.8 }}
-				transition={{ duration: 0.3, type: "spring" }}
+				transition={{ duration: 0.3, type: 'spring' }}
 			>
 				<motion.div
 					animate={{
@@ -202,7 +202,7 @@ export function PersonalizationForm({
 						opacity: diaryName.trim() ? 1 : 0,
 					}}
 					className="h-3 w-3 rounded-full bg-green-500"
-					transition={{ duration: 0.4, ease: "easeOut" }}
+					transition={{ duration: 0.4, ease: 'easeOut' }}
 				/>
 				<motion.span
 					animate={{

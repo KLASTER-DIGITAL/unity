@@ -4,9 +4,9 @@
  * Uses Radix UI for React Web (PWA)
  */
 
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
-import { CircleIcon } from "lucide-react";
-import { cn } from "../utils";
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { CircleIcon } from 'lucide-react';
+import { cn } from '../utils';
 
 export type RadioGroupOption = {
 	value: string;
@@ -22,7 +22,7 @@ export type RadioGroupProps = {
 	options: RadioGroupOption[];
 	disabled?: boolean;
 	className?: string;
-	orientation?: "horizontal" | "vertical";
+	orientation?: 'horizontal' | 'vertical';
 	name?: string;
 	required?: boolean;
 };
@@ -37,16 +37,16 @@ export function RadioGroup({
 	options,
 	disabled = false,
 	className,
-	orientation = "vertical",
+	orientation = 'vertical',
 	name,
 	required = false,
 }: RadioGroupProps) {
 	return (
 		<RadioGroupPrimitive.Root
 			className={cn(
-				"grid gap-3",
-				orientation === "horizontal" && "auto-cols-fr grid-flow-col",
-				className,
+				'grid gap-3',
+				orientation === 'horizontal' && 'auto-cols-fr grid-flow-col',
+				className
 			)}
 			defaultValue={defaultValue}
 			disabled={disabled}
@@ -60,12 +60,12 @@ export function RadioGroup({
 				<div className="flex items-center space-x-2" key={option.value}>
 					<RadioGroupPrimitive.Item
 						className={cn(
-							"border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50",
-							"aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-							"aria-invalid:border-destructive dark:bg-input/30",
-							"aspect-square size-4 shrink-0 rounded-full border shadow-xs",
-							"outline-none transition-[color,box-shadow] focus-visible:ring-[3px]",
-							"disabled:cursor-not-allowed disabled:opacity-50",
+							'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50',
+							'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40',
+							'aria-invalid:border-destructive dark:bg-input/30',
+							'aspect-square size-4 shrink-0 rounded-full border shadow-xs',
+							'outline-none transition-[color,box-shadow] focus-visible:ring-[3px]',
+							'disabled:cursor-not-allowed disabled:opacity-50'
 						)}
 						disabled={option.disabled || disabled}
 						id={`radio-${option.value}`}
@@ -78,9 +78,9 @@ export function RadioGroup({
 
 					<label
 						className={cn(
-							"cursor-pointer font-medium text-sm leading-none",
-							"peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-							(option.disabled || disabled) && "cursor-not-allowed opacity-70",
+							'cursor-pointer font-medium text-sm leading-none',
+							'peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+							(option.disabled || disabled) && 'cursor-not-allowed opacity-70'
 						)}
 						htmlFor={`radio-${option.value}`}
 					>
@@ -108,19 +108,19 @@ export const RadioGroupUtils = {
 		const errors: string[] = [];
 
 		if (!props.options || props.options.length === 0) {
-			errors.push("RadioGroup must have at least one option");
+			errors.push('RadioGroup must have at least one option');
 		}
 
 		if (props.options) {
 			const values = props.options.map((opt) => opt.value);
 			const uniqueValues = new Set(values);
 			if (values.length !== uniqueValues.size) {
-				errors.push("RadioGroup options must have unique values");
+				errors.push('RadioGroup options must have unique values');
 			}
 		}
 
 		if (props.value && props.defaultValue) {
-			errors.push("RadioGroup cannot have both value and defaultValue");
+			errors.push('RadioGroup cannot have both value and defaultValue');
 		}
 
 		return {

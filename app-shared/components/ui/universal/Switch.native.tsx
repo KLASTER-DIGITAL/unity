@@ -6,9 +6,9 @@
  * @module components/ui/universal/Switch.native
  */
 
-import { useState } from "react";
-import { Switch as RNSwitch } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { useState } from 'react';
+import { Switch as RNSwitch } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
@@ -26,7 +26,7 @@ export interface SwitchProps {
 	/** Custom className (ignored in native) */
 	className?: string;
 	/** Accessibility label */
-	"aria-label"?: string;
+	'aria-label'?: string;
 	/** Test ID */
 	testID?: string;
 }
@@ -40,7 +40,7 @@ export function Switch({
 	onCheckedChange,
 	defaultChecked = false,
 	disabled,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 	testID,
 }: SwitchProps) {
 	const [internalChecked, setInternalChecked] = useState(defaultChecked);
@@ -84,7 +84,7 @@ export const SwitchUtils = {
 		const errors: string[] = [];
 
 		if (props.checked !== undefined && props.defaultChecked !== undefined) {
-			errors.push("Switch cannot have both checked and defaultChecked");
+			errors.push('Switch cannot have both checked and defaultChecked');
 		}
 
 		return {
@@ -98,7 +98,7 @@ export const SwitchUtils = {
 // EXPORTS
 // ============================================================================
 
-Switch.displayName = "Switch";
+Switch.displayName = 'Switch';
 
 export default {
 	Switch,

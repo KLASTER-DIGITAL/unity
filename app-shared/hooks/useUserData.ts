@@ -5,8 +5,8 @@
  * Адаптировано из PWA версии для React Native
  */
 
-import { useCallback, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase/client";
+import { useCallback, useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase/client';
 
 export interface UserProfile {
 	id: string;
@@ -61,21 +61,21 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 
 			// Fetch profile
 			const { data: profileData, error: profileError } = await supabase
-				.from("profiles")
-				.select("*")
-				.eq("id", userId)
+				.from('profiles')
+				.select('*')
+				.eq('id', userId)
 				.single();
 
 			// If profile doesn't exist, create default profile
-			if (profileError && profileError.code === "PGRST116") {
-				console.log("[useUserData] Profile not found, using default");
+			if (profileError && profileError.code === 'PGRST116') {
+				console.log('[useUserData] Profile not found, using default');
 				const defaultProfile: UserProfile = {
 					id: userId,
-					name: "Test User",
-					email: "test@example.com",
-					avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png",
-					diaryName: "Мой дневник",
-					diaryEmoji: "🏆",
+					name: 'Test User',
+					email: 'test@example.com',
+					avatar: 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png',
+					diaryName: 'Мой дневник',
+					diaryEmoji: '🏆',
 					createdAt: new Date().toISOString(),
 				};
 				setProfile(defaultProfile);
@@ -88,8 +88,8 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 					name: profileData.name,
 					email: profileData.email,
 					avatar: profileData.avatar,
-					diaryName: profileData.diary_name || "Мой дневник",
-					diaryEmoji: profileData.diary_emoji || "🏆",
+					diaryName: profileData.diary_name || 'Мой дневник',
+					diaryEmoji: profileData.diary_emoji || '🏆',
 					createdAt: profileData.created_at,
 				};
 				setProfile(userProfile);
@@ -97,9 +97,9 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 
 			// Fetch stats (calculate from entries)
 			const { data: entriesData, error: entriesError } = await supabase
-				.from("entries")
-				.select("*")
-				.eq("user_id", userId);
+				.from('entries')
+				.select('*')
+				.eq('user_id', userId);
 
 			if (entriesError) {
 				throw entriesError;
@@ -107,8 +107,7 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 
 			// Calculate stats
 			const totalEntries = entriesData?.length || 0;
-			const totalAchievements =
-				entriesData?.filter((e: any) => e.is_achievement).length || 0;
+			const totalAchievements = entriesData?.filter((e: any) => e.is_achievement).length || 0;
 
 			// Calculate streak (simplified)
 			const currentStreak = calculateStreak(entriesData || []);
@@ -131,7 +130,7 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 
 			setStats(userStats);
 		} catch (err) {
-			console.error("[useUserData] Error fetching user data:", err);
+			console.error('[useUserData] Error fetching user data:', err);
 			setError(err as Error);
 		} finally {
 			setIsLoading(false);
@@ -150,17 +149,17 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 		const channel = supabase
 			.channel(`profile:${userId}`)
 			.on(
-				"postgres_changes",
+				'postgres_changes',
 				{
-					event: "*",
-					schema: "public",
-					table: "profiles",
+					event: '*',
+					schema: 'public',
+					table: 'profiles',
 					filter: `id=eq.${userId}`,
 				},
 				(payload) => {
-					console.log("[useUserData] Profile updated:", payload);
+					console.log('[useUserData] Profile updated:', payload);
 					fetchUserData();
-				},
+				}
 			)
 			.subscribe();
 
@@ -173,19 +172,19 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 	const updateProfile = useCallback(
 		async (updates: Partial<UserProfile>): Promise<void> => {
 			if (!userId) {
-				throw new Error("User ID is required");
+				throw new Error('User ID is required');
 			}
 
 			try {
 				const { error: updateError } = await supabase
-					.from("profiles")
+					.from('profiles')
 					.update({
 						name: updates.name,
 						avatar: updates.avatar,
 						diary_name: updates.diaryName,
 						diary_emoji: updates.diaryEmoji,
 					})
-					.eq("id", userId);
+					.eq('id', userId);
 
 				if (updateError) {
 					throw updateError;
@@ -194,11 +193,11 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 				// Update local state
 				setProfile((prev) => (prev ? { ...prev, ...updates } : null));
 			} catch (err) {
-				console.error("[useUserData] Error updating profile:", err);
+				console.error('[useUserData] Error updating profile:', err);
 				throw err;
 			}
 		},
-		[userId],
+		[userId]
 	);
 
 	return {
@@ -220,8 +219,7 @@ function calculateStreak(entries: any[]): number {
 
 	// Sort entries by date (newest first)
 	const sortedEntries = [...entries].sort(
-		(a, b) =>
-			new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+		(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
 	);
 
 	let streak = 0;
@@ -233,7 +231,7 @@ function calculateStreak(entries: any[]): number {
 		entryDate.setHours(0, 0, 0, 0);
 
 		const daysDiff = Math.floor(
-			(currentDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24),
+			(currentDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
 		);
 
 		if (daysDiff === streak) {

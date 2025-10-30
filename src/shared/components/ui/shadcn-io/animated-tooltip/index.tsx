@@ -1,14 +1,8 @@
-"use client";
+'use client';
 
-import {
-	AnimatePresence,
-	motion,
-	useMotionValue,
-	useSpring,
-	useTransform,
-} from "framer-motion";
-import type React from "react";
-import { useRef, useState } from "react";
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import type React from 'react';
+import { useRef, useState } from 'react';
 
 export type AnimatedTooltipItem = {
 	id: number;
@@ -23,24 +17,14 @@ export type AnimatedTooltipProps = {
 	children: React.ReactNode;
 };
 
-export const AnimatedTooltip = ({
-	items,
-	content,
-	children,
-}: AnimatedTooltipProps) => {
+export const AnimatedTooltip = ({ items, content, children }: AnimatedTooltipProps) => {
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const springConfig = { stiffness: 100, damping: 15 };
 	const x = useMotionValue(0);
 	const animationFrameRef = useRef<number | null>(null);
 
-	const rotate = useSpring(
-		useTransform(x, [-100, 100], [-45, 45]),
-		springConfig,
-	);
-	const translateX = useSpring(
-		useTransform(x, [-100, 100], [-50, 50]),
-		springConfig,
-	);
+	const rotate = useSpring(useTransform(x, [-100, 100], [-45, 45]), springConfig);
+	const translateX = useSpring(useTransform(x, [-100, 100], [-50, 50]), springConfig);
 
 	const handleMouseMove = (event: any) => {
 		if (animationFrameRef.current) {
@@ -72,7 +56,7 @@ export const AnimatedTooltip = ({
 										y: 0,
 										scale: 1,
 										transition: {
-											type: "spring",
+											type: 'spring',
 											stiffness: 260,
 											damping: 10,
 										},
@@ -83,14 +67,12 @@ export const AnimatedTooltip = ({
 									style={{
 										translateX,
 										rotate,
-										whiteSpace: "nowrap",
+										whiteSpace: 'nowrap',
 									}}
 								>
 									<div className="-bottom-px absolute inset-x-10 z-30 h-px w-[20%] bg-linear-to-r from-transparent via-emerald-500 to-transparent" />
 									<div className="-bottom-px absolute left-10 z-30 h-px w-[40%] bg-linear-to-r from-transparent via-sky-500 to-transparent" />
-									<div className="relative z-30 font-bold text-base text-white">
-										{item.name}
-									</div>
+									<div className="relative z-30 font-bold text-base text-white">{item.name}</div>
 									<div className="text-white text-xs">{item.designation}</div>
 								</motion.div>
 							)}
@@ -121,7 +103,7 @@ export const AnimatedTooltip = ({
 							y: 0,
 							scale: 1,
 							transition: {
-								type: "spring",
+								type: 'spring',
 								stiffness: 260,
 								damping: 10,
 							},

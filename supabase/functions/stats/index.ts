@@ -3,16 +3,15 @@
 // Architecture: Pure Deno.serve() (no Hono framework)
 // Status: v2 - Production ready
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-console.log("[STATS v2] 🚀 Starting stats microservice...");
+console.log('[STATS v2] 🚀 Starting stats microservice...');
 
 // CORS headers
 const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-	"Access-Control-Allow-Headers":
-		"Content-Type, Authorization, apikey, x-client-info",
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+	'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
 };
 
 // Calculate streak from entries
@@ -22,8 +21,7 @@ function calculateStreak(entries: any[]) {
 	}
 
 	const sorted = [...entries].sort(
-		(a, b) =>
-			new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+		(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
 	);
 
 	let currentStreak = 0;
@@ -34,9 +32,7 @@ function calculateStreak(entries: any[]) {
 	const lastEntryDate = new Date(sorted[0].created_at);
 	lastEntryDate.setHours(0, 0, 0, 0);
 
-	const daysDiff = Math.floor(
-		(today.getTime() - lastEntryDate.getTime()) / (1000 * 60 * 60 * 24),
-	);
+	const daysDiff = Math.floor((today.getTime() - lastEntryDate.getTime()) / (1000 * 60 * 60 * 24));
 
 	if (daysDiff <= 1) {
 		currentStreak = 1;
@@ -46,9 +42,7 @@ function calculateStreak(entries: any[]) {
 			const currentDate = new Date(sorted[i].created_at);
 			currentDate.setHours(0, 0, 0, 0);
 
-			const diff = Math.floor(
-				(lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24),
-			);
+			const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
 
 			if (diff === 1) {
 				currentStreak++;
@@ -69,9 +63,7 @@ function calculateStreak(entries: any[]) {
 		const currentDate = new Date(sorted[i].created_at);
 		currentDate.setHours(0, 0, 0, 0);
 
-		const diff = Math.floor(
-			(lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24),
-		);
+		const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
 
 		if (diff === 1) {
 			tempStreak++;
@@ -93,7 +85,7 @@ function calculateMoodDistribution(entries: any[]) {
 	const moodCounts: Record<string, number> = {};
 
 	entries.forEach((entry) => {
-		const mood = entry.mood || "хорошее";
+		const mood = entry.mood || 'хорошее';
 		moodCounts[mood] = (moodCounts[mood] || 0) + 1;
 	});
 
@@ -113,7 +105,7 @@ function calculateTopCategories(entries: any[]) {
 	const categoryCounts: Record<string, number> = {};
 
 	entries.forEach((entry) => {
-		const category = entry.category || "Другое";
+		const category = entry.category || 'Другое';
 		categoryCounts[category] = (categoryCounts[category] || 0) + 1;
 	});
 
@@ -121,7 +113,7 @@ function calculateTopCategories(entries: any[]) {
 		.map(([name, count]) => ({
 			name,
 			count,
-			trend: "+0",
+			trend: '+0',
 		}))
 		.sort((a, b) => b.count - a.count)
 		.slice(0, 5);
@@ -134,8 +126,8 @@ Deno.serve(async (req) => {
 	console.log(`[STATS v2] ${req.method} ${path}`);
 
 	// Handle CORS preflight
-	if (req.method === "OPTIONS") {
-		console.log("[STATS v2] ✅ OPTIONS handled");
+	if (req.method === 'OPTIONS') {
+		console.log('[STATS v2] ✅ OPTIONS handled');
 		return new Response(null, {
 			status: 204,
 			headers: corsHeaders,
@@ -144,20 +136,16 @@ Deno.serve(async (req) => {
 
 	try {
 		// Initialize Supabase client
-		const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-		const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+		const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 		const supabase = createClient(supabaseUrl, supabaseKey);
 
 		// Parse path: /stats/user/{userId} or /{userId}
-		const pathParts = path.split("/").filter((p) => p);
+		const pathParts = path.split('/').filter((p) => p);
 		let userId: string | null = null;
 
 		// Support both /stats/user/{userId} and /{userId}
-		if (
-			pathParts.length >= 2 &&
-			pathParts[0] === "stats" &&
-			pathParts[1] === "user"
-		) {
+		if (pathParts.length >= 2 && pathParts[0] === 'stats' && pathParts[1] === 'user') {
 			userId = pathParts[2];
 		} else if (pathParts.length === 1) {
 			userId = pathParts[0];
@@ -166,12 +154,12 @@ Deno.serve(async (req) => {
 		if (!userId) {
 			return new Response(
 				JSON.stringify({
-					error: "User ID is required. Use /stats/user/{userId}",
+					error: 'User ID is required. Use /stats/user/{userId}',
 				}),
 				{
 					status: 400,
-					headers: { ...corsHeaders, "Content-Type": "application/json" },
-				},
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
 			);
 		}
 
@@ -179,20 +167,17 @@ Deno.serve(async (req) => {
 
 		// Get all entries for the user
 		const { data: entries, error: entriesError } = await supabase
-			.from("entries")
-			.select("*")
-			.eq("user_id", userId)
-			.order("created_at", { ascending: false });
+			.from('entries')
+			.select('*')
+			.eq('user_id', userId)
+			.order('created_at', { ascending: false });
 
 		if (entriesError) {
-			console.error("[STATS v2] Error getting entries:", entriesError);
-			return new Response(
-				JSON.stringify({ success: false, error: entriesError.message }),
-				{
-					status: 500,
-					headers: { ...corsHeaders, "Content-Type": "application/json" },
-				},
-			);
+			console.error('[STATS v2] Error getting entries:', entriesError);
+			return new Response(JSON.stringify({ success: false, error: entriesError.message }), {
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
 		}
 
 		console.log(`[STATS v2] Found ${entries?.length || 0} entries`);
@@ -210,8 +195,7 @@ Deno.serve(async (req) => {
 		// Entries this week
 		const oneWeekAgo = new Date();
 		oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-		const thisWeekEntries =
-			entries?.filter((e) => new Date(e.created_at) > oneWeekAgo).length || 0;
+		const thisWeekEntries = entries?.filter((e) => new Date(e.created_at) > oneWeekAgo).length || 0;
 
 		const stats = {
 			totalEntries: entries?.length || 0,
@@ -221,14 +205,13 @@ Deno.serve(async (req) => {
 			nextLevelProgress,
 			moodDistribution,
 			topCategories,
-			lastEntryDate:
-				entries && entries.length > 0 ? entries[0].created_at : null,
+			lastEntryDate: entries && entries.length > 0 ? entries[0].created_at : null,
 			thisWeekEntries,
 			categoryCounts: {},
 			sentimentCounts: {},
 		};
 
-		console.log("[STATS v2] ✅ Stats calculated:", {
+		console.log('[STATS v2] ✅ Stats calculated:', {
 			totalEntries: stats.totalEntries,
 			currentStreak: stats.currentStreak,
 			level: stats.level,
@@ -238,27 +221,27 @@ Deno.serve(async (req) => {
 			JSON.stringify({
 				success: true,
 				stats,
-				version: "v2",
+				version: 'v2',
 			}),
 			{
 				status: 200,
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			},
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
 		);
 	} catch (error) {
-		console.error("[STATS v2] ❌ Error:", error);
+		console.error('[STATS v2] ❌ Error:', error);
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: error.message || "Internal server error",
-				version: "v2",
+				error: error.message || 'Internal server error',
+				version: 'v2',
 			}),
 			{
 				status: 500,
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			},
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
 		);
 	}
 });
 
-console.log("[STATS v2] ✅ Microservice started");
+console.log('[STATS v2] ✅ Microservice started');

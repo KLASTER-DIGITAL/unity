@@ -9,72 +9,60 @@ import {
 	Star,
 	Target,
 	TrendingUp,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/shared/components/ui/card";
-import { Progress } from "@/shared/components/ui/progress";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import { type DiaryEntry, getEntries } from "@/shared/lib/api";
-import {
-	calculateUserStats,
-	type UserStats,
-} from "@/shared/lib/api/statsCalculator";
-import { useTranslation } from "@/shared/lib/i18n";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Progress } from '@/shared/components/ui/progress';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { type DiaryEntry, getEntries } from '@/shared/lib/api';
+import { calculateUserStats, type UserStats } from '@/shared/lib/api/statsCalculator';
+import { useTranslation } from '@/shared/lib/i18n';
 
 export function ReportsScreen({ userData }: { userData?: any }) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = useState("month");
+	const [selectedPeriod, setSelectedPeriod] = useState('month');
 	const [isLoading, setIsLoading] = useState(true);
 	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: loadData is stable
 	useEffect(() => {
 		loadData();
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
 	const loadData = async () => {
 		try {
 			setIsLoading(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
-			const userId = userData?.user?.id || userData?.id || "anonymous";
-			console.log("[REPORTS] Loading data for user:", userId);
+			const userId = userData?.user?.id || userData?.id || 'anonymous';
+			console.log('[REPORTS] Loading data for user:', userId);
 			const entriesData = await getEntries(userId, 100);
 
-			console.log("Loaded entries for reports:", entriesData);
+			console.log('Loaded entries for reports:', entriesData);
 			setEntries(entriesData);
 
 			// Вычислить статистику
 			const calculatedStats = calculateUserStats(entriesData);
 			setStats(calculatedStats);
 
-			console.log("Calculated stats:", calculatedStats);
+			console.log('Calculated stats:', calculatedStats);
 		} catch (error) {
-			console.error("Error loading data:", error);
-			toast.error("Не удалось загрузить данные");
+			console.error('Error loading data:', error);
+			toast.error('Не удалось загрузить данные');
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	// Получить текущий месяц и год
-	const currentPeriod = new Date().toLocaleDateString("ru-RU", {
-		year: "numeric",
-		month: "long",
+	const currentPeriod = new Date().toLocaleDateString('ru-RU', {
+		year: 'numeric',
+		month: 'long',
 	});
 
 	const monthlyReport = stats
@@ -82,7 +70,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				period: currentPeriod,
 				totalEntries: stats.totalEntries,
 				streakDays: stats.currentStreak,
-				topMood: stats.moodDistribution[0]?.mood || "😊",
+				topMood: stats.moodDistribution[0]?.mood || '😊',
 				keyAchievements: stats.keyAchievements,
 				moodDistribution: stats.moodDistribution,
 				topCategories: stats.topCategories,
@@ -92,7 +80,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				period: currentPeriod,
 				totalEntries: 0,
 				streakDays: 0,
-				topMood: "😊",
+				topMood: '😊',
 				keyAchievements: [],
 				moodDistribution: [],
 				topCategories: [],
@@ -100,9 +88,9 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 			};
 
 	const aiQuotes = [
-		"Твой путь к цели в 10км начался с первого шага. И ты его сделал! 🏃‍♂️",
-		"Каждая прочитанная книга - это новый мир, который ты открыл для себя 📚",
-		"Твоя благодарность семье показывает, что ты ценишь близких людей ❤️",
+		'Твой путь к цели в 10км начался с первого шага. И ты его сделал! 🏃‍♂️',
+		'Каждая прочитанная книга - это новый мир, который ты открыл для себя 📚',
+		'Твоя благодарность семье показывает, что ты ценишь близких людей ❤️',
 	];
 
 	// Weekly stats (currently unused but kept for future use)
@@ -182,31 +170,29 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<Brain className="h-6 w-6" strokeWidth={2} />
 					</div>
 					<div>
-						<h2 className="text-xl">{t("ai_reviews", "AI Обзоры")}</h2>
+						<h2 className="text-xl">{t('ai_reviews', 'AI Обзоры')}</h2>
 						<p className="text-muted-foreground opacity-90">
-							{t("analysis_achievements", "Анализ твоих достижений")}
+							{t('analysis_achievements', 'Анализ твоих достижений')}
 						</p>
 					</div>
 				</div>
 
 				<div className="scrollbar-hide flex gap-2 overflow-x-auto">
-					{["week", "month", "quarter"].map((period) => (
+					{['week', 'month', 'quarter'].map((period) => (
 						<Button
 							className={
-								selectedPeriod === period
-									? ""
-									: "border-card/30 text-white hover:bg-card/10"
+								selectedPeriod === period ? '' : 'border-card/30 text-white hover:bg-card/10'
 							}
 							key={period}
 							onClick={() => setSelectedPeriod(period)}
 							size="sm"
-							variant={selectedPeriod === period ? "secondary" : "outline"}
+							variant={selectedPeriod === period ? 'secondary' : 'outline'}
 						>
-							{period === "week"
-								? t("week", "Неделя")
-								: period === "month"
-									? t("month", "Месяц")
-									: t("quarter", "Квартал")}
+							{period === 'week'
+								? t('week', 'Неделя')
+								: period === 'month'
+									? t('month', 'Месяц')
+									: t('quarter', 'Квартал')}
 						</Button>
 					))}
 				</div>
@@ -219,15 +205,10 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<div className="flex items-center justify-between">
 							<div>
 								<CardTitle className="flex items-center gap-2">
-									<Sparkles
-										className="h-5 w-5 text-[var(--action-ai)]"
-										strokeWidth={2}
-									/>
+									<Sparkles className="h-5 w-5 text-[var(--action-ai)]" strokeWidth={2} />
 									Отчет за {monthlyReport.period}
 								</CardTitle>
-								<p className="text-muted-foreground text-sm">
-									Персональный анализ от AI
-								</p>
+								<p className="text-muted-foreground text-sm">Персональный анализ от AI</p>
 							</div>
 							<Badge className="bg-[var(--ios-bg-secondary)] text-[var(--ios-purple)]">
 								<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
@@ -241,35 +222,27 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 								<div className="mb-1 text-2xl text-[var(--ios-purple)]">
 									{monthlyReport.totalEntries}
 								</div>
-								<div className="text-muted-foreground text-sm">
-									{t("entries_count", "Записей")}
-								</div>
+								<div className="text-muted-foreground text-sm">{t('entries_count', 'Записей')}</div>
 							</div>
 							<div className="text-center">
 								<div className="mb-1 text-2xl text-[var(--ios-green)]">
 									{monthlyReport.streakDays}
 								</div>
-								<div className="text-muted-foreground text-sm">
-									Активных дней
-								</div>
+								<div className="text-muted-foreground text-sm">Активных дней</div>
 							</div>
 						</div>
 
 						<div className="space-y-4">
 							<Button
 								className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
-								onClick={() =>
-									toast.info("Эта функция доступна в премиум версии")
-								}
+								onClick={() => toast.info('Эта функция доступна в премиум версии')}
 							>
 								<Download className="mr-2 h-5 w-5" strokeWidth={2} />
 								Скачать PDF отчет
 							</Button>
 							<Button
 								className="w-full"
-								onClick={() =>
-									toast.info("Эта функция доступна в премиум версии")
-								}
+								onClick={() => toast.info('Эта функция доступна в премиум версии')}
 								variant="outline"
 							>
 								<Share2 className="mr-2 h-5 w-5" strokeWidth={2} />
@@ -284,7 +257,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 			<div className="px-4">
 				<Tabs data-testid="stats-tab" defaultValue="mood">
 					<TabsList className="grid w-full grid-cols-3">
-						<TabsTrigger value="mood">{t("mood", "Настроение")}</TabsTrigger>
+						<TabsTrigger value="mood">{t('mood', 'Настроение')}</TabsTrigger>
 						<TabsTrigger value="categories">Категории</TabsTrigger>
 						<TabsTrigger value="insights">Инсайты</TabsTrigger>
 					</TabsList>
@@ -300,10 +273,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							<CardContent>
 								<div className="space-y-4">
 									{monthlyReport.moodDistribution.map((item, index) => (
-										<div
-											className="flex items-center gap-3"
-											key={`${item.label}-${index}`}
-										>
+										<div className="flex items-center gap-3" key={`${item.label}-${index}`}>
 											<div className="text-2xl">{item.mood}</div>
 											<div className="flex-1">
 												<div className="mb-1 flex justify-between">
@@ -314,19 +284,16 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 												</div>
 												<Progress className="h-2" value={item.percentage} />
 											</div>
-											<div className="text-muted-foreground text-sm">
-												{item.percentage}%
-											</div>
+											<div className="text-muted-foreground text-sm">{item.percentage}%</div>
 										</div>
 									))}
 								</div>
 
 								<div className="mt-6 rounded-lg bg-pink-50 p-4">
 									<p className="text-pink-800 text-sm">
-										<strong>Вывод AI:</strong> В этом месяце преобладали
-										позитивные эмоции. Особенно заметен рост записей с восторгом
-										- это говорит о том, что ты активнее достигаешь своих целей!
-										🎉
+										<strong>Вывод AI:</strong> В этом месяце преобладали позитивные эмоции. Особенно
+										заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь
+										своих целей! 🎉
 									</p>
 								</div>
 							</CardContent>
@@ -337,45 +304,34 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<Card>
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
-									<BarChart3
-										className="h-5 w-5 text-blue-500"
-										strokeWidth={2}
-									/>
+									<BarChart3 className="h-5 w-5 text-blue-500" strokeWidth={2} />
 									Категории активности
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
 								<div className="space-y-4">
 									{monthlyReport.topCategories.map((category, index) => (
-										<div
-											className="flex items-center justify-between"
-											key={category.name}
-										>
+										<div className="flex items-center justify-between" key={category.name}>
 											<div className="flex items-center gap-3">
 												<div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
 													<span className="text-sm">{index + 1}</span>
 												</div>
 												<div>
 													<h4>{category.name}</h4>
-													<p className="text-muted-foreground text-sm">
-														{category.count} записей
-													</p>
+													<p className="text-muted-foreground text-sm">{category.count} записей</p>
 												</div>
 											</div>
 											<Badge
 												variant={
-													category.trend.startsWith("+")
-														? "default"
-														: category.trend.startsWith("-")
-															? "destructive"
-															: "secondary"
+													category.trend.startsWith('+')
+														? 'default'
+														: category.trend.startsWith('-')
+															? 'destructive'
+															: 'secondary'
 												}
 											>
-												{category.trend.startsWith("+") && (
-													<TrendingUp
-														className="mr-1 h-3 w-3"
-														strokeWidth={2}
-													/>
+												{category.trend.startsWith('+') && (
+													<TrendingUp className="mr-1 h-3 w-3" strokeWidth={2} />
 												)}
 												{category.trend}
 											</Badge>
@@ -385,9 +341,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
 								<div className="mt-6 rounded-lg bg-blue-50 p-4">
 									<p className="text-blue-800 text-sm">
-										<strong>Наблюдение AI:</strong> Твой фокус на спорте
-										значительно усилился. Это отличная тенденция для здоровья и
-										дисциплины! 💪
+										<strong>Наблюдение AI:</strong> Твой фокус на спорте значительно усилился. Это
+										отличная тенденция для здоровья и дисциплины! 💪
 									</p>
 								</div>
 							</CardContent>
@@ -399,10 +354,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Brain
-											className="h-5 w-5 text-[var(--ios-purple)]"
-											strokeWidth={2}
-										/>
+										<Brain className="h-5 w-5 text-[var(--ios-purple)]" strokeWidth={2} />
 										Персональные инсайты
 									</CardTitle>
 								</CardHeader>
@@ -427,10 +379,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Sparkles
-											className="h-5 w-5 text-yellow-500"
-											strokeWidth={2}
-										/>
+										<Sparkles className="h-5 w-5 text-yellow-500" strokeWidth={2} />
 										AI цитаты месяца
 									</CardTitle>
 								</CardHeader>
@@ -441,9 +390,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 												className="rounded-lg border-yellow-400 border-l-4 bg-linear-to-r from-yellow-50 to-orange-50 p-4"
 												key={index}
 											>
-												<p className="text-foreground text-sm italic">
-													"{quote}"
-												</p>
+												<p className="text-foreground text-sm italic">"{quote}"</p>
 											</div>
 										))}
 									</div>
@@ -453,35 +400,26 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Target
-											className="h-5 w-5 text-[var(--ios-green)]"
-											strokeWidth={2}
-										/>
+										<Target className="h-5 w-5 text-[var(--ios-green)]" strokeWidth={2} />
 										Рекомендации на следующий месяц
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
 									<div className="space-y-3">
 										<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-											<h4 className="mb-1 text-[var(--ios-green)]">
-												Продолжай бегать
-											</h4>
+											<h4 className="mb-1 text-[var(--ios-green)]">Продолжай бегать</h4>
 											<p className="text-muted-foreground text-sm">
 												Ты на правильном пути к цели в 10км!
 											</p>
 										</div>
 										<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-											<h4 className="mb-1 text-[var(--ios-blue)]">
-												Больше записей о работе
-											</h4>
+											<h4 className="mb-1 text-[var(--ios-blue)]">Больше записей о работе</h4>
 											<p className="text-muted-foreground text-sm">
 												Попробуй фиксировать небольшие рабочие победы
 											</p>
 										</div>
 										<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-											<h4 className="mb-1 text-[var(--ios-purple)]">
-												Новая категория
-											</h4>
+											<h4 className="mb-1 text-[var(--ios-purple)]">Новая категория</h4>
 											<p className="text-muted-foreground text-sm">
 												Как насчет добавить записи о творчестве?
 											</p>

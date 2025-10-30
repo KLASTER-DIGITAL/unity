@@ -1,32 +1,19 @@
-import {
-	Image,
-	Languages,
-	Lock,
-	RefreshCw,
-	Save,
-	Smartphone,
-	Users,
-} from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import { toast } from "@/shared/components/ui/universal/Toast";
-import { supabase } from "@/utils/supabase/client";
-import { AuthSettings } from "./AuthSettings";
-import { GeneralSettings } from "./GeneralSettings";
-import { LanguageSettings } from "./LanguageSettings";
-import { OnboardingSettings } from "./OnboardingSettings";
-import { SplashScreenSettings } from "./SplashScreenSettings";
-import type { MobileSettings } from "./types";
+import { Image, Languages, Lock, RefreshCw, Save, Smartphone, Users } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { toast } from '@/shared/components/ui/universal/Toast';
+import { supabase } from '@/utils/supabase/client';
+import { AuthSettings } from './AuthSettings';
+import { GeneralSettings } from './GeneralSettings';
+import { LanguageSettings } from './LanguageSettings';
+import { OnboardingSettings } from './OnboardingSettings';
+import { SplashScreenSettings } from './SplashScreenSettings';
+import type { MobileSettings } from './types';
 
 export const MobileConfigTab: React.FC = () => {
-	const [activeTab, setActiveTab] = useState("general");
+	const [activeTab, setActiveTab] = useState('general');
 	const [settings, setSettings] = useState<MobileSettings | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
@@ -35,19 +22,16 @@ export const MobileConfigTab: React.FC = () => {
 	const loadSettings = async () => {
 		try {
 			setLoading(true);
-			const { data, error } = await supabase
-				.from("mobile_settings")
-				.select("*")
-				.single();
+			const { data, error } = await supabase.from('mobile_settings').select('*').single();
 
 			if (error) {
 				throw error;
 			}
 			setSettings(data);
 		} catch (error) {
-			console.error("Error loading mobile settings:", error);
-			toast.error("Ошибка загрузки", {
-				description: "Не удалось загрузить настройки мобильного приложения",
+			console.error('Error loading mobile settings:', error);
+			toast.error('Ошибка загрузки', {
+				description: 'Не удалось загрузить настройки мобильного приложения',
 			});
 		} finally {
 			setLoading(false);
@@ -67,39 +51,36 @@ export const MobileConfigTab: React.FC = () => {
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				throw new Error("Unauthorized");
+				throw new Error('Unauthorized');
 			}
 
 			const response = await fetch(
 				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mobile-config-api`,
 				{
-					method: "PUT",
+					method: 'PUT',
 					headers: {
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 						Authorization: `Bearer ${session.access_token}`,
 					},
 					body: JSON.stringify(settings),
-				},
+				}
 			);
 
 			const result = await response.json();
 
 			if (!result.success) {
-				throw new Error(result.error || "Failed to save settings");
+				throw new Error(result.error || 'Failed to save settings');
 			}
 
-			toast.success("Настройки сохранены", {
+			toast.success('Настройки сохранены', {
 				description: `Версия: ${result.config.version}`,
 			});
 
 			setSettings(result.config);
 		} catch (error) {
-			console.error("Error saving mobile settings:", error);
-			toast.error("Ошибка сохранения", {
-				description:
-					error instanceof Error
-						? error.message
-						: "Не удалось сохранить настройки",
+			console.error('Error saving mobile settings:', error);
+			toast.error('Ошибка сохранения', {
+				description: error instanceof Error ? error.message : 'Не удалось сохранить настройки',
 			});
 		} finally {
 			setSaving(false);
@@ -111,11 +92,11 @@ export const MobileConfigTab: React.FC = () => {
 	}, [loadSettings]);
 
 	const tabs = [
-		{ value: "general", label: "Общие", icon: Smartphone },
-		{ value: "splash", label: "Splash Screen", icon: Image },
-		{ value: "onboarding", label: "Онбординг", icon: Users },
-		{ value: "auth", label: "Авторизация", icon: Lock },
-		{ value: "languages", label: "Языки", icon: Languages },
+		{ value: 'general', label: 'Общие', icon: Smartphone },
+		{ value: 'splash', label: 'Splash Screen', icon: Image },
+		{ value: 'onboarding', label: 'Онбординг', icon: Users },
+		{ value: 'auth', label: 'Авторизация', icon: Lock },
+		{ value: 'languages', label: 'Языки', icon: Languages },
 	];
 
 	if (loading) {
@@ -149,19 +130,13 @@ export const MobileConfigTab: React.FC = () => {
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<Button
-						disabled={loading || saving}
-						onClick={loadSettings}
-						variant="outline"
-					>
-						<RefreshCw
-							className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
-						/>
+					<Button disabled={loading || saving} onClick={loadSettings} variant="outline">
+						<RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
 						Обновить
 					</Button>
 					<Button disabled={saving} onClick={saveSettings}>
 						<Save className="mr-2 h-4 w-4" />
-						{saving ? "Сохранение..." : "Сохранить"}
+						{saving ? 'Сохранение...' : 'Сохранить'}
 					</Button>
 				</div>
 			</div>
@@ -185,24 +160,15 @@ export const MobileConfigTab: React.FC = () => {
 				</TabsList>
 
 				<TabsContent className="mt-6" value="general">
-					<GeneralSettings
-						onChange={(s) => setSettings(s)}
-						settings={settings}
-					/>
+					<GeneralSettings onChange={(s) => setSettings(s)} settings={settings} />
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="splash">
-					<SplashScreenSettings
-						onChange={(s) => setSettings(s)}
-						settings={settings}
-					/>
+					<SplashScreenSettings onChange={(s) => setSettings(s)} settings={settings} />
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="onboarding">
-					<OnboardingSettings
-						onChange={(s) => setSettings(s)}
-						settings={settings}
-					/>
+					<OnboardingSettings onChange={(s) => setSettings(s)} settings={settings} />
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="auth">
@@ -210,10 +176,7 @@ export const MobileConfigTab: React.FC = () => {
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="languages">
-					<LanguageSettings
-						onChange={(s) => setSettings(s)}
-						settings={settings}
-					/>
+					<LanguageSettings onChange={(s) => setSettings(s)} settings={settings} />
 				</TabsContent>
 			</Tabs>
 		</div>

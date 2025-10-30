@@ -2,11 +2,11 @@
  * SettingsScreen - Rate App Modal Component
  */
 
-import { Star, X } from "lucide-react";
-import { motion } from "motion/react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { Star, X } from 'lucide-react';
+import { motion } from 'motion/react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
+import { Textarea } from '@/shared/components/ui/textarea';
 
 type RateAppModalProps = {
 	isOpen: boolean;
@@ -19,7 +19,7 @@ export function RateAppModal({ isOpen, onClose }: RateAppModalProps) {
 	}
 
 	const handleSubmit = () => {
-		toast.success("Спасибо за вашу оценку! ⭐");
+		toast.success('Спасибо за вашу оценку! ⭐');
 		onClose();
 	};
 
@@ -56,23 +56,15 @@ export function RateAppModal({ isOpen, onClose }: RateAppModalProps) {
 				<div className="space-y-6">
 					{/* Star Rating */}
 					<div className="space-y-3">
-						<label className="font-medium text-footnote text-foreground">
-							Ваша оценка
-						</label>
+						<label className="font-medium text-footnote text-foreground">Ваша оценка</label>
 						<div className="flex justify-center gap-responsive-sm py-4">
 							{[1, 2, 3, 4, 5].map((star) => (
-								<button
-									className="transition-transform hover:scale-110"
-									key={star}
-									type="button"
-								>
+								<button className="transition-transform hover:scale-110" key={star} type="button">
 									<Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
 								</button>
 							))}
 						</div>
-						<p className="text-center text-footnote text-muted-foreground">
-							Отлично! 🎉
-						</p>
+						<p className="text-center text-footnote text-muted-foreground">Отлично! 🎉</p>
 					</div>
 
 					{/* Comment */}

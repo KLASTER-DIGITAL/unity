@@ -7,7 +7,7 @@
  * @module lib/navigation-ref
  */
 
-import { createRef } from "react";
+import { createRef } from 'react';
 
 /**
  * Navigation container ref
@@ -29,7 +29,7 @@ export function navigate(name: string, params?: any): void {
 	if (navigationRef.current) {
 		navigationRef.current.navigate(name, params);
 	} else {
-		console.warn("Navigation ref is not ready");
+		console.warn('Navigation ref is not ready');
 	}
 }
 
@@ -40,7 +40,7 @@ export function goBack(): void {
 	if (navigationRef.current?.canGoBack()) {
 		navigationRef.current.goBack();
 	} else {
-		console.warn("Cannot go back");
+		console.warn('Cannot go back');
 	}
 }
 
@@ -51,6 +51,6 @@ export function reset(state: any): void {
 	if (navigationRef.current) {
 		navigationRef.current.reset(state);
 	} else {
-		console.warn("Navigation ref is not ready");
+		console.warn('Navigation ref is not ready');
 	}
 }

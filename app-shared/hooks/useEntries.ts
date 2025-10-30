@@ -5,14 +5,14 @@
  * Адаптировано из PWA версии для React Native
  */
 
-import { useCallback, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase/client";
+import { useCallback, useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase/client';
 
 export interface DiaryEntry {
 	id: string;
 	userId: string;
 	text: string;
-	sentiment: "positive" | "neutral" | "negative";
+	sentiment: 'positive' | 'neutral' | 'negative';
 	category: string;
 	mood: string;
 	isFirstEntry: boolean;
@@ -35,10 +35,7 @@ interface UseEntriesResult {
 	error: Error | null;
 	refetch: () => Promise<void>;
 	createEntry: (entry: Partial<DiaryEntry>) => Promise<DiaryEntry>;
-	updateEntry: (
-		id: string,
-		updates: Partial<DiaryEntry>,
-	) => Promise<DiaryEntry>;
+	updateEntry: (id: string, updates: Partial<DiaryEntry>) => Promise<DiaryEntry>;
 	deleteEntry: (id: string) => Promise<void>;
 }
 
@@ -63,10 +60,10 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 			setError(null);
 
 			const { data, error: fetchError } = await supabase
-				.from("entries")
-				.select("*")
-				.eq("user_id", userId)
-				.order("created_at", { ascending: false });
+				.from('entries')
+				.select('*')
+				.eq('user_id', userId)
+				.order('created_at', { ascending: false });
 
 			if (fetchError) {
 				throw fetchError;
@@ -96,7 +93,7 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 
 			setEntries(formattedEntries);
 		} catch (err) {
-			console.error("[useEntries] Error fetching entries:", err);
+			console.error('[useEntries] Error fetching entries:', err);
 			setError(err as Error);
 		} finally {
 			setIsLoading(false);
@@ -115,17 +112,17 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 		const channel = supabase
 			.channel(`entries:${userId}`)
 			.on(
-				"postgres_changes",
+				'postgres_changes',
 				{
-					event: "*",
-					schema: "public",
-					table: "entries",
+					event: '*',
+					schema: 'public',
+					table: 'entries',
 					filter: `user_id=eq.${userId}`,
 				},
 				(payload) => {
-					console.log("[useEntries] Real-time update:", payload);
+					console.log('[useEntries] Real-time update:', payload);
 					fetchEntries();
-				},
+				}
 			)
 			.subscribe();
 
@@ -138,27 +135,27 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 	const createEntry = useCallback(
 		async (entry: Partial<DiaryEntry>): Promise<DiaryEntry> => {
 			if (!userId) {
-				throw new Error("User ID is required");
+				throw new Error('User ID is required');
 			}
 
 			try {
 				const { data, error: insertError } = await supabase
-					.from("entries")
+					.from('entries')
 					.insert({
 						user_id: userId,
 						text: entry.text,
-						sentiment: entry.sentiment || "neutral",
-						category: entry.category || "Другое",
-						mood: entry.mood || "нормальное",
+						sentiment: entry.sentiment || 'neutral',
+						category: entry.category || 'Другое',
+						mood: entry.mood || 'нормальное',
 						is_first_entry: entry.isFirstEntry,
 						media: entry.media || null,
-						ai_reply: entry.aiReply || "",
+						ai_reply: entry.aiReply || '',
 						ai_summary: entry.aiSummary || null,
 						ai_insight: entry.aiInsight || null,
 						is_achievement: entry.isAchievement,
 						tags: entry.tags || [],
 						streak_day: entry.streakDay || 1,
-						focus_area: entry.focusArea || entry.category || "Другое",
+						focus_area: entry.focusArea || entry.category || 'Другое',
 						created_at: new Date().toISOString(),
 					})
 					.select()
@@ -193,11 +190,11 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 				setEntries((prev) => [newEntry, ...prev]);
 				return newEntry;
 			} catch (err) {
-				console.error("[useEntries] Error creating entry:", err);
+				console.error('[useEntries] Error creating entry:', err);
 				throw err;
 			}
 		},
-		[userId],
+		[userId]
 	);
 
 	// Update entry
@@ -205,7 +202,7 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 		async (id: string, updates: Partial<DiaryEntry>): Promise<DiaryEntry> => {
 			try {
 				const { data, error: updateError } = await supabase
-					.from("entries")
+					.from('entries')
 					.update({
 						text: updates.text,
 						sentiment: updates.sentiment,
@@ -217,7 +214,7 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 						tags: updates.tags,
 						focus_area: updates.focusArea,
 					})
-					.eq("id", id)
+					.eq('id', id)
 					.select()
 					.single();
 
@@ -250,20 +247,17 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 				setEntries((prev) => prev.map((e) => (e.id === id ? updatedEntry : e)));
 				return updatedEntry;
 			} catch (err) {
-				console.error("[useEntries] Error updating entry:", err);
+				console.error('[useEntries] Error updating entry:', err);
 				throw err;
 			}
 		},
-		[],
+		[]
 	);
 
 	// Delete entry
 	const deleteEntry = useCallback(async (id: string): Promise<void> => {
 		try {
-			const { error: deleteError } = await supabase
-				.from("entries")
-				.delete()
-				.eq("id", id);
+			const { error: deleteError } = await supabase.from('entries').delete().eq('id', id);
 
 			if (deleteError) {
 				throw deleteError;
@@ -271,7 +265,7 @@ export function useEntries(userId: string | undefined): UseEntriesResult {
 
 			setEntries((prev) => prev.filter((e) => e.id !== id));
 		} catch (err) {
-			console.error("[useEntries] Error deleting entry:", err);
+			console.error('[useEntries] Error deleting entry:', err);
 			throw err;
 		}
 	}, []);

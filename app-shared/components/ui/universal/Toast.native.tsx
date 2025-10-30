@@ -6,8 +6,8 @@
  * @module components/ui/universal/Toast.native
  */
 
-import type React from "react";
-import RNToast from "react-native-toast-message";
+import type React from 'react';
+import RNToast from 'react-native-toast-message';
 
 // ============================================================================
 // TYPES
@@ -34,16 +34,16 @@ export interface ToastProps {
 export interface ToasterProps {
 	/** Toast position */
 	position?:
-		| "top"
-		| "bottom"
-		| "top-center"
-		| "top-left"
-		| "top-right"
-		| "bottom-center"
-		| "bottom-left"
-		| "bottom-right";
+		| 'top'
+		| 'bottom'
+		| 'top-center'
+		| 'top-left'
+		| 'top-right'
+		| 'bottom-center'
+		| 'bottom-left'
+		| 'bottom-right';
 	/** Theme */
-	theme?: "light" | "dark" | "system";
+	theme?: 'light' | 'dark' | 'system';
 	/** Rich colors */
 	richColors?: boolean;
 	/** Expand toasts */
@@ -64,7 +64,7 @@ export const toast = {
 	 */
 	success: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "success",
+			type: 'success',
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 4000,
@@ -77,7 +77,7 @@ export const toast = {
 	 */
 	error: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "error",
+			type: 'error',
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 4000,
@@ -90,7 +90,7 @@ export const toast = {
 	 */
 	warning: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "info", // react-native-toast-message doesn't have warning type
+			type: 'info', // react-native-toast-message doesn't have warning type
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 4000,
@@ -103,7 +103,7 @@ export const toast = {
 	 */
 	info: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "info",
+			type: 'info',
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 4000,
@@ -116,7 +116,7 @@ export const toast = {
 	 */
 	message: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "success", // Use success as default
+			type: 'success', // Use success as default
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 4000,
@@ -129,7 +129,7 @@ export const toast = {
 	 */
 	loading: (title: string, options?: Partial<ToastProps>) => {
 		RNToast.show({
-			type: "info",
+			type: 'info',
 			text1: title,
 			text2: options?.description,
 			visibilityTime: options?.duration ?? 0, // Don't auto-hide loading
@@ -147,7 +147,7 @@ export const toast = {
 			success: string | ((data: T) => string);
 			error: string | ((error: any) => string);
 		},
-		options?: Partial<ToastProps>,
+		options?: Partial<ToastProps>
 	): Promise<T> => {
 		// Show loading toast
 		toast.loading(messages.loading, options);
@@ -157,18 +157,14 @@ export const toast = {
 
 			// Show success toast
 			const successMessage =
-				typeof messages.success === "function"
-					? messages.success(data)
-					: messages.success;
+				typeof messages.success === 'function' ? messages.success(data) : messages.success;
 			toast.success(successMessage, options);
 
 			return data;
 		} catch (error) {
 			// Show error toast
 			const errorMessage =
-				typeof messages.error === "function"
-					? messages.error(error)
-					: messages.error;
+				typeof messages.error === 'function' ? messages.error(error) : messages.error;
 			toast.error(errorMessage, options);
 
 			throw error;
@@ -193,10 +189,8 @@ export const toast = {
 	custom: (_component: React.ReactNode, options?: Partial<ToastProps>) => {
 		// react-native-toast-message doesn't support custom components easily
 		// Fallback to info toast
-		console.warn(
-			"Custom toast not fully supported in React Native, using info toast",
-		);
-		toast.info("Custom toast", options);
+		console.warn('Custom toast not fully supported in React Native, using info toast');
+		toast.info('Custom toast', options);
 	},
 };
 
@@ -204,9 +198,9 @@ export const toast = {
 // TOASTER COMPONENT
 // ============================================================================
 
-export function Toaster({ position = "top" }: ToasterProps = {}) {
+export function Toaster({ position = 'top' }: ToasterProps = {}) {
 	// Map position to react-native-toast-message position
-	const rnPosition = position.includes("top") ? "top" : "bottom";
+	const rnPosition = position.includes('top') ? 'top' : 'bottom';
 
 	return (
 		<RNToast
@@ -220,7 +214,7 @@ export function Toaster({ position = "top" }: ToasterProps = {}) {
 // EXPORTS
 // ============================================================================
 
-Toaster.displayName = "Toaster";
+Toaster.displayName = 'Toaster';
 
 export default {
 	toast,

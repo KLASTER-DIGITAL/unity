@@ -74,7 +74,7 @@ class PerformanceMonitorClass {
 		}
 
 		this.addMetric({
-			name: "translation_lookup",
+			name: 'translation_lookup',
 			value: duration,
 			timestamp: Date.now(),
 			metadata: { key, found },
@@ -92,7 +92,7 @@ class PerformanceMonitorClass {
 		}
 
 		this.addMetric({
-			name: "cache_access",
+			name: 'cache_access',
 			value: duration,
 			timestamp: Date.now(),
 			metadata: { hit },
@@ -102,11 +102,7 @@ class PerformanceMonitorClass {
 	/**
 	 * Record a language load
 	 */
-	recordLanguageLoad(
-		language: string,
-		duration: number,
-		success: boolean,
-	): void {
+	recordLanguageLoad(language: string, duration: number, success: boolean): void {
 		this.languageLoads++;
 
 		this.loadTimes.push(duration);
@@ -115,7 +111,7 @@ class PerformanceMonitorClass {
 		}
 
 		this.addMetric({
-			name: "language_load",
+			name: 'language_load',
 			value: duration,
 			timestamp: Date.now(),
 			metadata: { language, success },
@@ -130,13 +126,13 @@ class PerformanceMonitorClass {
 		this.lastError = error.message;
 
 		this.addMetric({
-			name: "error",
+			name: 'error',
 			value: 1,
 			timestamp: Date.now(),
 			metadata: { message: error.message, context },
 		});
 
-		console.error("📊 i18n Performance Error:", error, context);
+		console.error('📊 i18n Performance Error:', error, context);
 	}
 
 	/**
@@ -144,7 +140,7 @@ class PerformanceMonitorClass {
 	 */
 	recordMemory(bytes: number): void {
 		this.addMetric({
-			name: "memory_usage",
+			name: 'memory_usage',
 			value: bytes,
 			timestamp: Date.now(),
 		});
@@ -168,9 +164,8 @@ class PerformanceMonitorClass {
 		const p99 = this.calculatePercentile(sortedLookupTimes, 99);
 
 		// Estimate memory usage
-		const memoryMetrics = this.metrics.filter((m) => m.name === "memory_usage");
-		const latestMemory =
-			memoryMetrics.length > 0 ? (memoryMetrics.at(-1)?.value ?? 0) : 0;
+		const memoryMetrics = this.metrics.filter((m) => m.name === 'memory_usage');
+		const latestMemory = memoryMetrics.length > 0 ? (memoryMetrics.at(-1)?.value ?? 0) : 0;
 
 		return {
 			translationLookups: this.translationLookups,
@@ -237,7 +232,7 @@ class PerformanceMonitorClass {
 		this.lookupTimes = [];
 		this.loadTimes = [];
 
-		console.log("📊 Performance metrics cleared");
+		console.log('📊 Performance metrics cleared');
 	}
 
 	/**
@@ -250,7 +245,7 @@ class PerformanceMonitorClass {
 				metrics: this.metrics,
 			},
 			null,
-			2,
+			2
 		);
 	}
 
@@ -289,7 +284,7 @@ Memory Metrics:
 
 Error Metrics:
 - Total Errors: ${stats.errors}
-- Last Error: ${stats.lastError || "None"}
+- Last Error: ${stats.lastError || 'None'}
     `.trim();
 	}
 
@@ -312,10 +307,7 @@ Error Metrics:
 		return sum / values.length;
 	}
 
-	private calculatePercentile(
-		sortedValues: number[],
-		percentile: number,
-	): number {
+	private calculatePercentile(sortedValues: number[], percentile: number): number {
 		if (sortedValues.length === 0) {
 			return 0;
 		}
@@ -332,10 +324,10 @@ Error Metrics:
 
 	private formatBytes(bytes: number): string {
 		if (bytes === 0) {
-			return "0 Bytes";
+			return '0 Bytes';
 		}
 		const k = 1024;
-		const sizes = ["Bytes", "KB", "MB", "GB"];
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
 		return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 	}

@@ -1,8 +1,8 @@
-import { Check, ChevronDown } from "lucide-react";
-import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { Check, ChevronDown } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 // Import hero image directly for Vite to process
-import heroImageSrc from "@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp";
+import heroImageSrc from '@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp';
 import {
 	imgEllipse11,
 	imgEllipse12,
@@ -23,13 +23,13 @@ import {
 	imgEllipse34,
 	imgEllipse35,
 	imgEllipse36,
-} from "@/imports/svg-lqmvp";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
-import { Button } from "@/shared/components/ui/button";
+} from '@/imports/svg-lqmvp';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { PriorityOptimizedImage } from '@/shared/components/OptimizedImage';
+import { Button } from '@/shared/components/ui/button';
 // Новая i18n система
-import { useTranslation } from "@/shared/lib/i18n";
-import { getBlurPlaceholder } from "@/shared/lib/image";
+import { useTranslation } from '@/shared/lib/i18n';
+import { getBlurPlaceholder } from '@/shared/lib/image';
 
 type WelcomeScreenProps = {
 	onNext: (language: string) => void;
@@ -52,59 +52,59 @@ type Language = {
 // Fallback языки на случай, если API недоступен
 const fallbackLanguages: Language[] = [
 	{
-		id: "1",
-		code: "ru",
-		name: "Russian",
-		native_name: "Русский",
-		flag: "🇷🇺",
+		id: '1',
+		code: 'ru',
+		name: 'Russian',
+		native_name: 'Русский',
+		flag: '🇷🇺',
 		is_active: true,
 	},
 	{
-		id: "2",
-		code: "en",
-		name: "English",
-		native_name: "English",
-		flag: "🇬🇧",
+		id: '2',
+		code: 'en',
+		name: 'English',
+		native_name: 'English',
+		flag: '🇬🇧',
 		is_active: true,
 	},
 	{
-		id: "3",
-		code: "es",
-		name: "Spanish",
-		native_name: "Español",
-		flag: "🇪🇸",
+		id: '3',
+		code: 'es',
+		name: 'Spanish',
+		native_name: 'Español',
+		flag: '🇪🇸',
 		is_active: true,
 	},
 	{
-		id: "4",
-		code: "de",
-		name: "German",
-		native_name: "Deutsch",
-		flag: "🇩🇪",
+		id: '4',
+		code: 'de',
+		name: 'German',
+		native_name: 'Deutsch',
+		flag: '🇩🇪',
 		is_active: true,
 	},
 	{
-		id: "5",
-		code: "fr",
-		name: "French",
-		native_name: "Français",
-		flag: "🇫🇷",
+		id: '5',
+		code: 'fr',
+		name: 'French',
+		native_name: 'Français',
+		flag: '🇫🇷',
 		is_active: true,
 	},
 	{
-		id: "6",
-		code: "zh",
-		name: "Chinese",
-		native_name: "中文",
-		flag: "🇨🇳",
+		id: '6',
+		code: 'zh',
+		name: 'Chinese',
+		native_name: '中文',
+		flag: '🇨🇳',
 		is_active: true,
 	},
 	{
-		id: "7",
-		code: "ja",
-		name: "Japanese",
-		native_name: "日本語",
-		flag: "🇯🇵",
+		id: '7',
+		code: 'ja',
+		name: 'Japanese',
+		native_name: '日本語',
+		flag: '🇯🇵',
 		is_active: true,
 	},
 ];
@@ -116,15 +116,8 @@ export function WelcomeScreen({
 	totalSteps: _totalSteps,
 	onStepClick: _onStepClick,
 }: WelcomeScreenProps) {
-	const {
-		t,
-		changeLanguage,
-		currentLanguage: i18nLanguage,
-		isLoaded,
-	} = useTranslation();
-	const [selectedLanguage, setSelectedLanguage] = useState(
-		i18nLanguage || "ru",
-	);
+	const { t, changeLanguage, currentLanguage: i18nLanguage, isLoaded } = useTranslation();
+	const [selectedLanguage, setSelectedLanguage] = useState(i18nLanguage || 'ru');
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
 	const [_isLoadingLanguages, setIsLoadingLanguages] = useState(true);
@@ -137,32 +130,28 @@ export function WelcomeScreen({
 					`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`,
 					{
 						headers: {
-							"Content-Type": "application/json",
+							'Content-Type': 'application/json',
 							Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
 							apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
 						},
-					},
+					}
 				);
 				if (response.ok) {
 					const data = await response.json();
 					// translations-api возвращает массив напрямую
-					const loadedLanguages = Array.isArray(data)
-						? data
-						: data.languages || fallbackLanguages;
+					const loadedLanguages = Array.isArray(data) ? data : data.languages || fallbackLanguages;
 					// Фильтруем только активные языки
 					const activeLanguages = loadedLanguages.filter(
-						(lang: Language) => lang.is_active || lang.enabled,
+						(lang: Language) => lang.is_active || lang.enabled
 					);
-					setLanguages(
-						activeLanguages.length > 0 ? activeLanguages : fallbackLanguages,
-					);
-					console.log("✅ Loaded languages from API:", activeLanguages.length);
+					setLanguages(activeLanguages.length > 0 ? activeLanguages : fallbackLanguages);
+					console.log('✅ Loaded languages from API:', activeLanguages.length);
 				} else {
-					console.error("Failed to load languages:", response.status);
+					console.error('Failed to load languages:', response.status);
 					setLanguages(fallbackLanguages);
 				}
 			} catch (error) {
-				console.error("Error loading languages:", error);
+				console.error('Error loading languages:', error);
 				setLanguages(fallbackLanguages);
 			} finally {
 				setIsLoadingLanguages(false);
@@ -172,8 +161,7 @@ export function WelcomeScreen({
 		loadLanguages();
 	}, []);
 
-	const selectedLang =
-		languages.find((lang) => lang.code === selectedLanguage) || languages[0];
+	const selectedLang = languages.find((lang) => lang.code === selectedLanguage) || languages[0];
 
 	// Синхронизируем выбранный язык с i18n системой
 	useEffect(() => {
@@ -186,12 +174,7 @@ export function WelcomeScreen({
 	if (!isLoaded) {
 		return (
 			<div className="mx-auto h-screen w-full max-w-md bg-card">
-				<LottiePreloader
-					animationType="initial"
-					minDuration={5000}
-					showMessage={false}
-					size="sm"
-				/>
+				<LottiePreloader animationType="initial" minDuration={5000} showMessage={false} size="sm" />
 			</div>
 		);
 	}
@@ -204,15 +187,12 @@ export function WelcomeScreen({
 			transition={{ duration: 0.5 }}
 		>
 			{/* Top Section - Purple Background with Image + Language Selector */}
-			<div
-				className="relative shrink-0 overflow-hidden"
-				style={{ height: "min(50vh, 400px)" }}
-			>
+			<div className="relative shrink-0 overflow-hidden" style={{ height: 'min(50vh, 400px)' }}>
 				{/* Generated Image Background - адаптивная с WebP оптимизацией */}
 				<div className="absolute inset-0">
 					<PriorityOptimizedImage
 						alt="Welcome background"
-						blurDataURL={getBlurPlaceholder("hero")}
+						blurDataURL={getBlurPlaceholder('hero')}
 						className="h-full w-full object-cover"
 						priority={true}
 						src={heroImageSrc}
@@ -223,129 +203,73 @@ export function WelcomeScreen({
 				<div className="pointer-events-none absolute inset-0 hidden sm:block">
 					<div className="absolute top-[-87px] left-[-150px] size-[282px]">
 						<div className="absolute inset-[-10.284%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse12}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse12} />
 						</div>
 					</div>
 					<div className="absolute top-[-145px] left-[94px] size-[340px]">
 						<div className="absolute inset-[-8.529%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse11}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse11} />
 						</div>
 					</div>
 
 					<div className="absolute top-[35px] left-[201px] size-[46px]">
 						<div className="absolute inset-[-43.478%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse23}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse23} />
 						</div>
 					</div>
 					<div className="absolute top-[31px] left-[150px] size-[46px]">
 						<div className="absolute inset-[-43.478%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse23}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse23} />
 						</div>
 					</div>
 					<div className="absolute top-[-29px] left-[98px] size-28">
 						<div className="absolute inset-[-31.25%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse27}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse27} />
 						</div>
 					</div>
 					<div className="absolute top-[-27px] left-[81px] size-28">
 						<div className="absolute inset-[-107.143%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse36}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse36} />
 						</div>
 					</div>
 					<div className="absolute top-[25px] left-[215px] size-[78px]">
 						<div className="absolute inset-[-153.846%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse32}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse32} />
 						</div>
 					</div>
 					<div className="absolute top-[18px] left-[169px] size-[78px]">
 						<div className="absolute inset-[-175.641%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse33}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse33} />
 						</div>
 					</div>
 					<div className="absolute top-[19px] left-[290px] size-[78px]">
 						<div className="absolute inset-[-25.641%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse34}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse34} />
 						</div>
 					</div>
 					<div className="absolute top-[-55px] left-[-63px] size-[183px]">
 						<div className="absolute inset-[-15.847%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse29}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse29} />
 						</div>
 					</div>
 					<div className="absolute top-[31px] left-[-23px] size-[46px]">
 						<div className="absolute inset-[-63.044%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse30}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse30} />
 						</div>
 					</div>
 					<div className="absolute top-[35px] left-[267px] size-[46px]">
 						<div className="absolute inset-[-43.478%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse24}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse24} />
 						</div>
 					</div>
 					<div className="absolute top-[37px] left-[319px] size-[46px]">
 						<div className="absolute inset-[-63.044%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse25}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse25} />
 						</div>
 					</div>
 					<div className="absolute top-[-29px] left-[74px] size-28">
 						<div className="absolute inset-[-125%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse35}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse35} />
 						</div>
 					</div>
 				</div>
@@ -355,7 +279,7 @@ export function WelcomeScreen({
 					animate={{ y: 0, opacity: 1 }}
 					className="relative z-20 flex justify-center pt-safe"
 					initial={{ y: -20, opacity: 0 }}
-					style={{ paddingTop: "max(env(safe-area-inset-top), 24px)" }}
+					style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)' }}
 					transition={{ delay: 0.3, duration: 0.6 }}
 				>
 					<div className="relative mt-4">
@@ -364,8 +288,8 @@ export function WelcomeScreen({
 							onClick={() => setShowDropdown(!showDropdown)}
 							style={{
 								fontFamily: "'Inter', var(--font-family-primary)",
-								fontSize: "12px",
-								fontWeight: "400",
+								fontSize: '12px',
+								fontWeight: '400',
 							}}
 						>
 							<div className="flex items-center gap-2">
@@ -387,7 +311,7 @@ export function WelcomeScreen({
 			<div
 				className="relative flex flex-1 flex-col overflow-hidden rounded-t-[30px] bg-linear-to-b from-[#ffffff] to-[#f8f6ff]"
 				style={{
-					marginTop: "-30px", // Перекрытие для плавного перехода
+					marginTop: '-30px', // Перекрытие для плавного перехода
 					zIndex: 10,
 				}}
 			>
@@ -395,74 +319,42 @@ export function WelcomeScreen({
 				<div className="pointer-events-none absolute top-0 right-0 left-0 hidden h-10 sm:block">
 					<div className="absolute top-0 left-2.5 size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-[2px] left-[62px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-[-4px] left-[120px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-[-8px] left-[178px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-0 left-[227px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-0 left-[293px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse20}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse20} />
 						</div>
 					</div>
 					<div className="absolute top-[-4px] left-[332px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse15}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse15} />
 						</div>
 					</div>
 					<div className="absolute top-[2px] left-[345px] size-[46px]">
 						<div className="absolute inset-[-58.696%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse21}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse21} />
 						</div>
 					</div>
 				</div>
@@ -471,29 +363,17 @@ export function WelcomeScreen({
 				<div className="pointer-events-none absolute inset-0 hidden sm:block">
 					<div className="absolute top-[20px] left-[99px] size-[97px]">
 						<div className="absolute inset-[-27.835%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse22}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse22} />
 						</div>
 					</div>
 					<div className="absolute top-0 left-[94px] size-[340px]">
 						<div className="absolute inset-[-18.235%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse13}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse13} />
 						</div>
 					</div>
 					<div className="absolute top-[10px] left-[-144px] size-[340px]">
 						<div className="absolute inset-[-18.235%]">
-							<img
-								alt=""
-								className="block size-full max-w-none"
-								src={imgEllipse14}
-							/>
+							<img alt="" className="block size-full max-w-none" src={imgEllipse14} />
 						</div>
 					</div>
 				</div>
@@ -505,14 +385,14 @@ export function WelcomeScreen({
 						animate={{ scale: 1, opacity: 1 }}
 						className="mb-4 text-center"
 						initial={{ scale: 0, opacity: 0 }}
-						transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
+						transition={{ delay: 0.5, duration: 0.8, type: 'spring' }}
 					>
 						<h1
 							className="mb-0 text-[#756ef3]"
 							style={{
 								fontFamily: "'Poller One', serif",
-								fontSize: "clamp(36px, 10vw, 46px)",
-								lineHeight: "1.1",
+								fontSize: 'clamp(36px, 10vw, 46px)',
+								lineHeight: '1.1',
 							}}
 						>
 							UNITY
@@ -533,14 +413,14 @@ export function WelcomeScreen({
 							initial={{ opacity: 0 }}
 							style={{
 								fontFamily: "'Open Sans', var(--font-family-primary)",
-								fontWeight: "700",
-								fontSize: "clamp(28px, 8vw, 37px)",
-								lineHeight: "1.2",
-								letterSpacing: "-0.8px",
+								fontWeight: '700',
+								fontSize: 'clamp(28px, 8vw, 37px)',
+								lineHeight: '1.2',
+								letterSpacing: '-0.8px',
 							}}
 							transition={{ duration: 0.3 }}
 						>
-							{t("welcomeTitle", "Создавай дневник побед")}
+							{t('welcomeTitle', 'Создавай дневник побед')}
 						</motion.h2>
 
 						<motion.p
@@ -549,14 +429,14 @@ export function WelcomeScreen({
 							initial={{ opacity: 0 }}
 							style={{
 								fontFamily: "'Open Sans', var(--font-family-primary)",
-								fontWeight: "700",
-								fontSize: "14px",
-								lineHeight: "1.7",
-								opacity: "0.6",
+								fontWeight: '700',
+								fontSize: '14px',
+								lineHeight: '1.7',
+								opacity: '0.6',
 							}}
 							transition={{ duration: 0.3, delay: 0.1 }}
 						>
-							{t("subtitle", "История ваших побед — день за днём")}
+							{t('subtitle', 'История ваших побед — день за днём')}
 						</motion.p>
 					</motion.div>
 				</div>
@@ -567,7 +447,7 @@ export function WelcomeScreen({
 					className="relative z-10 w-full px-6"
 					initial={{ y: 50, opacity: 0 }}
 					style={{
-						paddingBottom: "max(env(safe-area-inset-bottom, 48px), 64px)",
+						paddingBottom: 'max(env(safe-area-inset-bottom, 48px), 64px)',
 					}}
 					transition={{ delay: 0.9, duration: 0.6 }}
 				>
@@ -581,12 +461,12 @@ export function WelcomeScreen({
 								onClick={onSkip}
 								style={{
 									fontFamily: "'Inter', var(--font-family-primary)",
-									fontWeight: "500",
-									fontSize: "15px",
+									fontWeight: '500',
+									fontSize: '15px',
 								}}
 								transition={{ delay: 1.1, duration: 0.6 }}
 							>
-								{t("alreadyHaveAccount", "У меня уже есть аккаунт")}
+								{t('alreadyHaveAccount', 'У меня уже есть аккаунт')}
 							</motion.button>
 						)}
 
@@ -596,10 +476,9 @@ export function WelcomeScreen({
 							<div
 								className="absolute inset-0 rounded-[15px] opacity-60"
 								style={{
-									background:
-										"linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)",
-									filter: "blur(16px)",
-									transform: "translateY(4px)",
+									background: 'linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)',
+									filter: 'blur(16px)',
+									transform: 'translateY(4px)',
 								}}
 							/>
 
@@ -608,12 +487,11 @@ export function WelcomeScreen({
 								className="relative h-[60px] w-full rounded-[15px] border-0 text-white shadow-none transition-transform duration-200 hover:scale-[1.02]"
 								onClick={() => onNext(selectedLanguage)}
 								style={{
-									background:
-										"linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)",
+									background: 'linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)',
 									fontFamily: "'Inter', var(--font-family-primary)",
-									fontWeight: "600",
-									fontSize: "20px",
-									lineHeight: "24px",
+									fontWeight: '600',
+									fontSize: '20px',
+									lineHeight: '24px',
 								}}
 							>
 								<motion.span
@@ -622,7 +500,7 @@ export function WelcomeScreen({
 									key={selectedLanguage}
 									transition={{ duration: 0.3 }}
 								>
-									{t("startButton", "Начать")}
+									{t('startButton', 'Начать')}
 								</motion.span>
 							</Button>
 						</div>
@@ -643,7 +521,7 @@ export function WelcomeScreen({
 						exit={{ opacity: 0, scale: 0.95, y: 20 }}
 						initial={{ opacity: 0, scale: 0.95, y: 20 }}
 						onClick={(e) => e.stopPropagation()}
-						transition={{ duration: 0.3, type: "spring", damping: 25 }}
+						transition={{ duration: 0.3, type: 'spring', damping: 25 }}
 					>
 						{/* Language List */}
 						<div className="max-h-[65vh] overflow-y-auto">
@@ -659,22 +537,16 @@ export function WelcomeScreen({
 									}}
 									style={{
 										fontFamily: "'Inter', var(--font-family-primary)",
-										fontSize: "12px",
-										fontWeight: "400",
+										fontSize: '12px',
+										fontWeight: '400',
 									}}
 								>
 									<div className="flex items-center gap-2">
 										<span>{language.flag}</span>
-										<span className="text-[#6b6b6b]">
-											{language.native_name}
-										</span>
+										<span className="text-[#6b6b6b]">{language.native_name}</span>
 									</div>
 									{selectedLanguage === language.code && (
-										<Check
-											className="text-[#8B78FF]"
-											size={16}
-											strokeWidth={2}
-										/>
+										<Check className="text-[#8B78FF]" size={16} strokeWidth={2} />
 									)}
 								</button>
 							))}

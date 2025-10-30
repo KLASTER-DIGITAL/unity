@@ -9,14 +9,15 @@
  * @date 2025-10-29
  */
 
-import type React from "react";
-import { Pressable as RNPressable, StyleSheet, View } from "react-native";
+import type React from 'react';
+import { Pressable as RNPressable, StyleSheet, View } from 'react-native';
 
 // import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 interface PressableProps {
 	children: React.ReactNode;
 	className?: string;
+	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 	disabled?: boolean;
 	pressScale?: number;
@@ -27,7 +28,7 @@ interface PressableProps {
 	onPressOut?: () => void;
 	testID?: string;
 	accessibilityLabel?: string;
-	role?: "button" | "link" | "none";
+	role?: 'button' | 'link' | 'none';
 }
 
 /**
@@ -38,17 +39,17 @@ interface PressableProps {
  */
 export const Pressable: React.FC<PressableProps> = ({
 	children,
-	style,
-	disabled = false,
-	pressScale = 0.95,
-	hapticFeedback = false,
+	_style,
+	_disabled = false,
+	_pressScale = 0.95,
+	_hapticFeedback = false,
 	onPress,
-	onLongPress,
-	onPressIn,
-	onPressOut,
-	testID,
-	accessibilityLabel,
-	role = "button",
+	_onLongPress,
+	_onPressIn,
+	_onPressOut,
+	_testID,
+	_accessibilityLabel,
+	_role = 'button',
 }) => {
 	// TODO: Implement Reanimated scale animation
 	// const scale = useSharedValue(1);

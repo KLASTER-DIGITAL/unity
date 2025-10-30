@@ -7,7 +7,7 @@
  * @date 2025-10-21
  */
 
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react';
 
 /**
  * Инициализация Sentry
@@ -24,9 +24,7 @@ export function initSentry() {
 		const dsn = import.meta.env.VITE_SENTRY_DSN;
 
 		if (!dsn) {
-			console.warn(
-				"⚠️ [Sentry] VITE_SENTRY_DSN не установлен. Sentry не будет работать.",
-			);
+			console.warn('⚠️ [Sentry] VITE_SENTRY_DSN не установлен. Sentry не будет работать.');
 			return;
 		}
 
@@ -75,21 +73,21 @@ export function initSentry() {
 			environment: import.meta.env.MODE,
 
 			// Release tracking
-			release: `unity-v2@${import.meta.env.VITE_APP_VERSION || "unknown"}`,
+			release: `unity-v2@${import.meta.env.VITE_APP_VERSION || 'unknown'}`,
 
 			// Фильтрация ошибок
 			beforeSend(event, hint) {
 				// Игнорируем ошибки от расширений браузера
 				if (
 					event.exception?.values?.[0]?.stacktrace?.frames?.some((frame) =>
-						frame.filename?.includes("chrome-extension://"),
+						frame.filename?.includes('chrome-extension://')
 					)
 				) {
 					return null;
 				}
 
 				// Игнорируем ошибки сети (они не критичны)
-				if (event.exception?.values?.[0]?.type === "NetworkError") {
+				if (event.exception?.values?.[0]?.type === 'NetworkError') {
 					return null;
 				}
 
@@ -110,29 +108,29 @@ export function initSentry() {
 			// Игнорируем определенные ошибки
 			ignoreErrors: [
 				// Ошибки от расширений браузера
-				"top.GLOBALS",
-				"originalCreateNotification",
-				"canvas.contentDocument",
-				"MyApp_RemoveAllHighlights",
-				"atomicFindClose",
+				'top.GLOBALS',
+				'originalCreateNotification',
+				'canvas.contentDocument',
+				'MyApp_RemoveAllHighlights',
+				'atomicFindClose',
 
 				// Ошибки сети
-				"NetworkError",
-				"Failed to fetch",
-				"Load failed",
+				'NetworkError',
+				'Failed to fetch',
+				'Load failed',
 
 				// Ошибки от рекламных блокировщиков
-				"adsbygoogle",
+				'adsbygoogle',
 
 				// Случайные ошибки браузера
-				"ResizeObserver loop limit exceeded",
-				"ResizeObserver loop completed with undelivered notifications",
+				'ResizeObserver loop limit exceeded',
+				'ResizeObserver loop completed with undelivered notifications',
 			],
 		});
 
-		console.log("✅ [Sentry] Инициализирован для production");
+		console.log('✅ [Sentry] Инициализирован для production');
 	} else {
-		console.log("ℹ️ [Sentry] Отключен в development режиме");
+		console.log('ℹ️ [Sentry] Отключен в development режиме');
 	}
 }
 
@@ -150,7 +148,7 @@ export function captureException(error: Error, context?: any) {
 	if (import.meta.env.PROD) {
 		Sentry.captureException(error, context);
 	} else {
-		console.error("🔴 [Sentry Dev]", error, context);
+		console.error('🔴 [Sentry Dev]', error, context);
 	}
 }
 
@@ -167,7 +165,7 @@ export function captureMessage(message: string, context?: any) {
 	if (import.meta.env.PROD) {
 		Sentry.captureMessage(message, context);
 	} else {
-		console.log("ℹ️ [Sentry Dev]", message, context);
+		console.log('ℹ️ [Sentry Dev]', message, context);
 	}
 }
 
@@ -270,7 +268,7 @@ export function startSpan(name: string, op: string) {
 export async function withSpan<T>(
 	name: string,
 	op: string,
-	callback: () => Promise<T>,
+	callback: () => Promise<T>
 ): Promise<T> {
 	if (import.meta.env.PROD) {
 		return Sentry.startSpan({ name, op }, async () => await callback());
@@ -305,7 +303,7 @@ export const withProfiler = Sentry.withProfiler;
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function showFeedbackWidget(_openForm = false) {
-	console.warn("⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK");
+	console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
 	// if (import.meta.env.PROD) {
 	//   const feedback = Sentry.getFeedback();
 	//   if (feedback) {
@@ -329,7 +327,7 @@ export function showFeedbackWidget(_openForm = false) {
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function hideFeedbackWidget() {
-	console.warn("⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK");
+	console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
 	// if (import.meta.env.PROD) {
 	//   const feedback = Sentry.getFeedback();
 	//   if (feedback) {

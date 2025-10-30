@@ -8,10 +8,10 @@
  * @date 2025-01-18
  */
 
-import type React from "react";
-import { useState } from "react";
-import { cn } from "../utils";
-import type { FormFieldProps, UniversalEventHandlers } from "./types";
+import type React from 'react';
+import { useState } from 'react';
+import { cn } from '../utils';
+import type { FormFieldProps, UniversalEventHandlers } from './types';
 
 /**
  * Switch component props
@@ -30,12 +30,12 @@ export interface SwitchProps extends FormFieldProps, UniversalEventHandlers {
 	/**
 	 * Switch size
 	 */
-	size?: "sm" | "md" | "lg";
+	size?: 'sm' | 'md' | 'lg';
 
 	/**
 	 * Switch color
 	 */
-	color?: "primary" | "secondary" | "success" | "warning" | "error";
+	color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error';
 
 	/**
 	 * Show labels
@@ -74,11 +74,11 @@ export interface SwitchProps extends FormFieldProps, UniversalEventHandlers {
 const WebSwitch = ({
 	checked,
 	defaultChecked = false,
-	size = "md",
-	color = "primary",
+	size = 'md',
+	color = 'primary',
 	showLabels = false,
-	onLabel = "On",
-	offLabel = "Off",
+	onLabel = 'On',
+	offLabel = 'Off',
 	disabled = false,
 	className,
 	onCheckedChange,
@@ -112,29 +112,29 @@ const WebSwitch = ({
 	// Size styles
 	const sizeStyles = {
 		sm: {
-			switch: "h-4 w-7",
-			thumb: "h-3 w-3 data-[state=checked]:translate-x-3",
-			text: "text-xs",
+			switch: 'h-4 w-7',
+			thumb: 'h-3 w-3 data-[state=checked]:translate-x-3',
+			text: 'text-xs',
 		},
 		md: {
-			switch: "h-5 w-9",
-			thumb: "h-4 w-4 data-[state=checked]:translate-x-4",
-			text: "text-sm",
+			switch: 'h-5 w-9',
+			thumb: 'h-4 w-4 data-[state=checked]:translate-x-4',
+			text: 'text-sm',
 		},
 		lg: {
-			switch: "h-6 w-11",
-			thumb: "h-5 w-5 data-[state=checked]:translate-x-5",
-			text: "text-base",
+			switch: 'h-6 w-11',
+			thumb: 'h-5 w-5 data-[state=checked]:translate-x-5',
+			text: 'text-base',
 		},
 	};
 
 	// Color styles
 	const colorStyles = {
-		primary: "data-[state=checked]:bg-primary",
-		secondary: "data-[state=checked]:bg-secondary",
-		success: "data-[state=checked]:bg-green-500",
-		warning: "data-[state=checked]:bg-yellow-500",
-		error: "data-[state=checked]:bg-red-500",
+		primary: 'data-[state=checked]:bg-primary',
+		secondary: 'data-[state=checked]:bg-secondary',
+		success: 'data-[state=checked]:bg-green-500',
+		warning: 'data-[state=checked]:bg-yellow-500',
+		error: 'data-[state=checked]:bg-red-500',
 	};
 
 	const currentSize = sizeStyles[size];
@@ -143,24 +143,22 @@ const WebSwitch = ({
 	return (
 		<div className="flex items-center gap-2">
 			{showLabels && !isChecked && (
-				<span className={cn("text-muted-foreground", currentSize.text)}>
-					{offLabel}
-				</span>
+				<span className={cn('text-muted-foreground', currentSize.text)}>{offLabel}</span>
 			)}
 
 			<button
 				aria-checked={isChecked}
 				aria-label={accessibilityLabel}
 				className={cn(
-					"peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
-					"transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-					"disabled:cursor-not-allowed disabled:opacity-50",
-					"data-[state=unchecked]:bg-input",
+					'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
+					'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+					'disabled:cursor-not-allowed disabled:opacity-50',
+					'data-[state=unchecked]:bg-input',
 					currentSize.switch,
 					currentColor,
-					className,
+					className
 				)}
-				data-state={isChecked ? "checked" : "unchecked"}
+				data-state={isChecked ? 'checked' : 'unchecked'}
 				data-testid={testID}
 				disabled={disabled}
 				onClick={handleChange}
@@ -171,29 +169,23 @@ const WebSwitch = ({
 			>
 				<span
 					className={cn(
-						"pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform",
-						"data-[state=unchecked]:translate-x-0",
-						currentSize.thumb,
+						'pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform',
+						'data-[state=unchecked]:translate-x-0',
+						currentSize.thumb
 					)}
-					data-state={isChecked ? "checked" : "unchecked"}
+					data-state={isChecked ? 'checked' : 'unchecked'}
 				>
 					{isChecked && checkedIcon && (
-						<span className="flex h-full w-full items-center justify-center">
-							{checkedIcon}
-						</span>
+						<span className="flex h-full w-full items-center justify-center">{checkedIcon}</span>
 					)}
 					{!isChecked && uncheckedIcon && (
-						<span className="flex h-full w-full items-center justify-center">
-							{uncheckedIcon}
-						</span>
+						<span className="flex h-full w-full items-center justify-center">{uncheckedIcon}</span>
 					)}
 				</span>
 			</button>
 
 			{showLabels && isChecked && (
-				<span className={cn("text-foreground", currentSize.text)}>
-					{onLabel}
-				</span>
+				<span className={cn('text-foreground', currentSize.text)}>{onLabel}</span>
 			)}
 		</div>
 	);
@@ -207,11 +199,11 @@ const WebSwitch = ({
 const _NativeSwitch = ({
 	checked,
 	defaultChecked = false,
-	size = "md",
-	color = "primary",
+	size = 'md',
+	color = 'primary',
 	showLabels = false,
-	onLabel = "On",
-	offLabel = "Off",
+	onLabel = 'On',
+	offLabel = 'Off',
 	disabled = false,
 	onCheckedChange,
 	onChange,
@@ -251,11 +243,11 @@ const _NativeSwitch = ({
 
 	// Color values
 	const colorValues = {
-		primary: "#007AFF",
-		secondary: "#8E8E93",
-		success: "#34C759",
-		warning: "#FF9500",
-		error: "#FF3B30",
+		primary: '#007AFF',
+		secondary: '#8E8E93',
+		success: '#34C759',
+		warning: '#FF9500',
+		error: '#FF3B30',
 	};
 
 	const dimensions = sizeDimensions[size];
@@ -267,15 +259,15 @@ const _NativeSwitch = ({
 			data-testid={testID}
 			ref={ref}
 			style={{
-				flexDirection: "row",
-				alignItems: "center",
+				flexDirection: 'row',
+				alignItems: 'center',
 				gap: 8,
 				...style,
 			}}
 			{...props}
 		>
 			{showLabels && !isChecked && (
-				<span style={{ color: "#8E8E93", fontSize: 14 }}>{offLabel}</span>
+				<span style={{ color: '#8E8E93', fontSize: 14 }}>{offLabel}</span>
 			)}
 
 			<div
@@ -285,11 +277,11 @@ const _NativeSwitch = ({
 					width: dimensions.width,
 					height: dimensions.height,
 					borderRadius: dimensions.height / 2,
-					backgroundColor: isChecked ? activeColor : "#E5E5EA",
-					position: "relative",
-					cursor: disabled ? "not-allowed" : "pointer",
+					backgroundColor: isChecked ? activeColor : '#E5E5EA',
+					position: 'relative',
+					cursor: disabled ? 'not-allowed' : 'pointer',
 					opacity: disabled ? 0.5 : 1,
-					transition: "background-color 0.2s ease",
+					transition: 'background-color 0.2s ease',
 				}}
 				tabIndex={disabled ? -1 : 0}
 			>
@@ -298,23 +290,21 @@ const _NativeSwitch = ({
 						width: dimensions.thumbSize,
 						height: dimensions.thumbSize,
 						borderRadius: dimensions.thumbSize / 2,
-						backgroundColor: "white",
-						position: "absolute",
+						backgroundColor: 'white',
+						position: 'absolute',
 						top: (dimensions.height - dimensions.thumbSize) / 2,
 						left: isChecked
 							? dimensions.width -
 								dimensions.thumbSize -
 								(dimensions.height - dimensions.thumbSize) / 2
 							: (dimensions.height - dimensions.thumbSize) / 2,
-						transition: "left 0.2s ease",
-						boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+						transition: 'left 0.2s ease',
+						boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
 					}}
 				/>
 			</div>
 
-			{showLabels && isChecked && (
-				<span style={{ color: "#000", fontSize: 14 }}>{onLabel}</span>
-			)}
+			{showLabels && isChecked && <span style={{ color: '#000', fontSize: 14 }}>{onLabel}</span>}
 		</div>
 	);
 };
@@ -328,7 +318,7 @@ const _NativeSwitch = ({
  */
 export const Switch = WebSwitch as typeof WebSwitch & { displayName: string };
 
-Switch.displayName = "Switch";
+Switch.displayName = 'Switch';
 
 /**
  * Switch utilities
@@ -339,11 +329,11 @@ export const SwitchUtils = {
 	 */
 	getColorValue: (color: string) => {
 		const colors = {
-			primary: "#007AFF",
-			secondary: "#8E8E93",
-			success: "#34C759",
-			warning: "#FF9500",
-			error: "#FF3B30",
+			primary: '#007AFF',
+			secondary: '#8E8E93',
+			success: '#34C759',
+			warning: '#FF9500',
+			error: '#FF3B30',
 		};
 		return colors[color as keyof typeof colors] || colors.primary;
 	},
@@ -366,15 +356,13 @@ export const SwitchUtils = {
 	validateProps: (props: SwitchProps) => {
 		const errors: string[] = [];
 
-		if (props.size && !["sm", "md", "lg"].includes(props.size)) {
+		if (props.size && !['sm', 'md', 'lg'].includes(props.size)) {
 			errors.push(`Invalid size: ${props.size}`);
 		}
 
 		if (
 			props.color &&
-			!["primary", "secondary", "success", "warning", "error"].includes(
-				props.color,
-			)
+			!['primary', 'secondary', 'success', 'warning', 'error'].includes(props.color)
 		) {
 			errors.push(`Invalid color: ${props.color}`);
 		}

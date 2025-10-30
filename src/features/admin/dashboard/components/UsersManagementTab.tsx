@@ -1,29 +1,22 @@
-import {
-	Ban,
-	CheckCircle,
-	Mail,
-	MoreVertical,
-	RefreshCw,
-	Search,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Ban, CheckCircle, Mail, MoreVertical, RefreshCw, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
+} from '@/shared/components/ui/card';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { Input } from "@/shared/components/ui/input";
+} from '@/shared/components/ui/dropdown-menu';
+import { Input } from '@/shared/components/ui/input';
 import {
 	Table,
 	TableBody,
@@ -31,22 +24,20 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/shared/components/ui/table";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/table';
+import { createClient } from '@/utils/supabase/client';
 
 export function UsersManagementTab() {
 	const [users, setUsers] = useState<any[]>([]);
-	const [searchQuery, setSearchQuery] = useState("");
-	const [filterStatus, setFilterStatus] = useState<
-		"all" | "active" | "premium" | "blocked"
-	>("all");
+	const [searchQuery, setSearchQuery] = useState('');
+	const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'premium' | 'blocked'>('all');
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 
 	useEffect(() => {
 		loadUsers();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadUsers is stable
 	}, []);
 
 	const loadUsers = async () => {
@@ -60,22 +51,22 @@ export function UsersManagementTab() {
 			} = await supabase.auth.getSession();
 
 			if (!session?.access_token) {
-				throw new Error("No session");
+				throw new Error('No session');
 			}
 
 			// Загружаем реальных пользователей (admin-users-api microservice)
 			const response = await fetch(
-				"https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-users-api",
+				'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-users-api',
 				{
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
-				},
+				}
 			);
 
 			if (!response.ok) {
-				throw new Error("Failed to load users");
+				throw new Error('Failed to load users');
 			}
 
 			const result = await response.json();
@@ -85,7 +76,7 @@ export function UsersManagementTab() {
 				id: user.id,
 				name: user.name,
 				email: user.email,
-				status: user.isPremium ? "premium" : "active",
+				status: user.isPremium ? 'premium' : 'active',
 				registeredAt: user.createdAt,
 				lastActive: user.lastActivity,
 				entriesCount: user.entriesCount,
@@ -97,30 +88,25 @@ export function UsersManagementTab() {
 
 			console.log(`Loaded ${formattedUsers.length} users`);
 		} catch (error) {
-			console.error("Error loading users:", error);
-			toast.error("Ошибка загрузки пользователей");
+			console.error('Error loading users:', error);
+			toast.error('Ошибка загрузки пользователей');
 			setUsers([]);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleTogglePremium = async (
-		_userId: string,
-		currentStatus: string,
-	) => {
+	const handleTogglePremium = async (_userId: string, currentStatus: string) => {
 		try {
-			const newIsPremium = currentStatus !== "premium";
+			const newIsPremium = currentStatus !== 'premium';
 			// await updateUserSubscription(userId, newIsPremium);
 			// Заглушка - будет заменено на работу с Edge Function
 
-			toast.success(
-				`Подписка ${newIsPremium ? "активирована" : "деактивирована"}`,
-			);
+			toast.success(`Подписка ${newIsPremium ? 'активирована' : 'деактивирована'}`);
 			loadUsers(); // Перезагружаем список
 		} catch (error) {
-			console.error("Error updating subscription:", error);
-			toast.error("Ошибка обновления подписки");
+			console.error('Error updating subscription:', error);
+			toast.error('Ошибка обновления подписки');
 		}
 	};
 
@@ -128,29 +114,21 @@ export function UsersManagementTab() {
 		const matchesSearch =
 			user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			user.email.toLowerCase().includes(searchQuery.toLowerCase());
-		const matchesFilter =
-			filterStatus === "all" || user.status === filterStatus;
+		const matchesFilter = filterStatus === 'all' || user.status === filterStatus;
 		return matchesSearch && matchesFilter;
 	});
 
 	const getStatusBadge = (status: string) => {
 		switch (status) {
-			case "premium":
+			case 'premium':
+				return <Badge className="border-accent bg-accent/10 text-accent">Premium</Badge>;
+			case 'active':
 				return (
-					<Badge className="border-accent bg-accent/10 text-accent">
-						Premium
-					</Badge>
-				);
-			case "active":
-				return (
-					<Badge
-						className="border-green-500/20 bg-green-500/10 text-green-600"
-						variant="outline"
-					>
+					<Badge className="border-green-500/20 bg-green-500/10 text-green-600" variant="outline">
 						Активный
 					</Badge>
 				);
-			case "blocked":
+			case 'blocked':
 				return <Badge variant="destructive">Заблокирован</Badge>;
 			default:
 				return <Badge variant="outline">Неактивный</Badge>;
@@ -164,9 +142,7 @@ export function UsersManagementTab() {
 					<div className="flex items-center justify-between">
 						<div>
 							<CardTitle>Управление пользователями</CardTitle>
-							<CardDescription>
-								Просмотр и управление аккаунтами пользователей
-							</CardDescription>
+							<CardDescription>Просмотр и управление аккаунтами пользователей</CardDescription>
 						</div>
 						<Button
 							className="gap-2"
@@ -175,9 +151,7 @@ export function UsersManagementTab() {
 							size="sm"
 							variant="outline"
 						>
-							<RefreshCw
-								className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-							/>
+							<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
 							Обновить
 						</Button>
 					</div>
@@ -198,22 +172,22 @@ export function UsersManagementTab() {
 						<div className="flex gap-2">
 							<Button
 								className="text-[13px]!"
-								onClick={() => setFilterStatus("all")}
-								variant={filterStatus === "all" ? "default" : "outline"}
+								onClick={() => setFilterStatus('all')}
+								variant={filterStatus === 'all' ? 'default' : 'outline'}
 							>
 								Все
 							</Button>
 							<Button
 								className="text-[13px]!"
-								onClick={() => setFilterStatus("active")}
-								variant={filterStatus === "active" ? "default" : "outline"}
+								onClick={() => setFilterStatus('active')}
+								variant={filterStatus === 'active' ? 'default' : 'outline'}
 							>
 								Активные
 							</Button>
 							<Button
 								className="text-[13px]!"
-								onClick={() => setFilterStatus("premium")}
-								variant={filterStatus === "premium" ? "default" : "outline"}
+								onClick={() => setFilterStatus('premium')}
+								variant={filterStatus === 'premium' ? 'default' : 'outline'}
 							>
 								Premium
 							</Button>
@@ -249,19 +223,12 @@ export function UsersManagementTab() {
 										<TableCell>{getStatusBadge(user.status)}</TableCell>
 										<TableCell className="text-[13px]!">
 											{user.registeredAt
-												? new Date(user.registeredAt).toLocaleDateString(
-														"ru-RU",
-													)
-												: "-"}
+												? new Date(user.registeredAt).toLocaleDateString('ru-RU')
+												: '-'}
 										</TableCell>
-										<TableCell className="text-[13px]!">
-											{user.entriesCount}
-										</TableCell>
+										<TableCell className="text-[13px]!">{user.entriesCount}</TableCell>
 										<TableCell>
-											<Badge
-												className="bg-accent/10 text-accent"
-												variant="outline"
-											>
+											<Badge className="bg-accent/10 text-accent" variant="outline">
 												🔥 {user.streak}
 											</Badge>
 										</TableCell>
@@ -278,14 +245,10 @@ export function UsersManagementTab() {
 														Отправить email
 													</DropdownMenuItem>
 													<DropdownMenuItem
-														onClick={() =>
-															handleTogglePremium(user.id, user.status)
-														}
+														onClick={() => handleTogglePremium(user.id, user.status)}
 													>
 														<CheckCircle className="mr-2 h-4 w-4" />
-														{user.status === "premium"
-															? "Отменить Premium"
-															: "Выдать Premium"}
+														{user.status === 'premium' ? 'Отменить Premium' : 'Выдать Premium'}
 													</DropdownMenuItem>
 													<DropdownMenuItem className="text-destructive">
 														<Ban className="mr-2 h-4 w-4" />
@@ -330,9 +293,7 @@ export function UsersManagementTab() {
 								</Button>
 								<Button
 									disabled={currentPage === totalPages}
-									onClick={() =>
-										setCurrentPage((p) => Math.min(totalPages, p + 1))
-									}
+									onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
 									size="sm"
 									variant="outline"
 								>

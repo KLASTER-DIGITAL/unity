@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
 export interface Iphone15ProProps extends SVGProps<SVGSVGElement> {
 	width?: number;
@@ -114,14 +114,7 @@ export function Iphone15Pro({
 			/>
 			<defs>
 				<clipPath id="roundedCorners">
-					<rect
-						height="843.5"
-						rx="55.75"
-						ry="55.75"
-						width="389.5"
-						x="21.25"
-						y="19.25"
-					/>
+					<rect height="843.5" rx="55.75" ry="55.75" width="389.5" x="21.25" y="19.25" />
 				</clipPath>
 			</defs>
 		</svg>

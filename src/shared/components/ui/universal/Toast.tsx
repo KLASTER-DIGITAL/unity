@@ -40,7 +40,7 @@
 
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native files are in /app/shared/ and NOT bundled by Vite
-import * as WebToast from "./Toast.web";
+import * as WebToast from './Toast.web';
 
 /**
  * Universal toast API
@@ -56,8 +56,8 @@ export const toast = WebToast.toast;
  */
 export const Toaster = WebToast.Toaster;
 
-export type { ToasterProps } from "./Toast.web";
+export type { ToasterProps } from './Toast.web';
 /**
  * Re-export types
  */
-export type { ToastProps } from "./types";
+export type { ToastProps } from './types';

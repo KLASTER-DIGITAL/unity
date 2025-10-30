@@ -1,23 +1,19 @@
-import { AlertCircle, Camera, Mic, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AlertCircle, Camera, Mic, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
 type PermissionGuideProps = {
-	type: "microphone" | "camera";
+	type: 'microphone' | 'camera';
 	isOpen: boolean;
 	onClose: () => void;
 };
 
-export function PermissionGuide({
-	type,
-	isOpen,
-	onClose,
-}: PermissionGuideProps) {
-	const isMicrophone = type === "microphone";
+export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps) {
+	const isMicrophone = type === 'microphone';
 	const Icon = isMicrophone ? Mic : Camera;
-	const title = isMicrophone ? "Доступ к микрофону" : "Доступ к камере";
+	const title = isMicrophone ? 'Доступ к микрофону' : 'Доступ к камере';
 	const description = isMicrophone
-		? "Для записи голосовых сообщений необходимо разрешить доступ к микрофону"
-		: "Для загрузки фото и видео необходимо разрешить доступ к камере";
+		? 'Для записи голосовых сообщений необходимо разрешить доступ к микрофону'
+		: 'Для загрузки фото и видео необходимо разрешить доступ к камере';
 
 	if (!isOpen) {
 		return null;
@@ -56,31 +52,24 @@ export function PermissionGuide({
 					<h3 className="mb-2 text-center">{title}</h3>
 
 					{/* Description */}
-					<p className="mb-6 text-center text-muted-foreground">
-						{description}
-					</p>
+					<p className="mb-6 text-center text-muted-foreground">{description}</p>
 
 					{/* Instructions */}
 					<div className="mb-6 space-y-4">
 						<div className="flex items-start gap-3">
 							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
-								<span className="font-semibold! text-[13px]! text-accent">
-									1
-								</span>
+								<span className="font-semibold! text-[13px]! text-accent">1</span>
 							</div>
 							<div className="flex-1">
 								<p className="font-normal! text-[14px]! text-foreground">
-									Найдите иконку {isMicrophone ? "🎤" : "📷"} в адресной строке
-									браузера
+									Найдите иконку {isMicrophone ? '🎤' : '📷'} в адресной строке браузера
 								</p>
 							</div>
 						</div>
 
 						<div className="flex items-start gap-3">
 							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
-								<span className="font-semibold! text-[13px]! text-accent">
-									2
-								</span>
+								<span className="font-semibold! text-[13px]! text-accent">2</span>
 							</div>
 							<div className="flex-1">
 								<p className="font-normal! text-[14px]! text-foreground">
@@ -91,9 +80,7 @@ export function PermissionGuide({
 
 						<div className="flex items-start gap-3">
 							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
-								<span className="font-semibold! text-[13px]! text-accent">
-									3
-								</span>
+								<span className="font-semibold! text-[13px]! text-accent">3</span>
 							</div>
 							<div className="flex-1">
 								<p className="font-normal! text-[14px]! text-foreground">
@@ -105,12 +92,10 @@ export function PermissionGuide({
 
 					{/* Browser-specific hints */}
 					<div className="mb-4 rounded-[12px] bg-muted p-4">
-						<p className="mb-2 font-semibold! text-[12px]! text-foreground">
-							💡 Подсказка:
-						</p>
+						<p className="mb-2 font-semibold! text-[12px]! text-foreground">💡 Подсказка:</p>
 						<p className="font-normal! text-[12px]! text-muted-foreground">
-							В Chrome и Safari иконка разрешений находится слева от адреса
-							сайта. В Firefox - справа от адресной строки.
+							В Chrome и Safari иконка разрешений находится слева от адреса сайта. В Firefox -
+							справа от адресной строки.
 						</p>
 					</div>
 
@@ -119,9 +104,8 @@ export function PermissionGuide({
 						<div className="flex items-start gap-2">
 							<AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
 							<p className="font-normal! text-[13px]! text-accent">
-								Ваши данные в безопасности. Мы используем{" "}
-								{isMicrophone ? "микрофон" : "камеру"} только для указанных
-								функций и не храним записи на серверах.
+								Ваши данные в безопасности. Мы используем {isMicrophone ? 'микрофон' : 'камеру'}{' '}
+								только для указанных функций и не храним записи на серверах.
 							</p>
 						</div>
 					</div>

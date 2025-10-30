@@ -15,8 +15,8 @@ export type MobileSettings = {
 	splash_image_url?: string;
 	splash_bg_color: string;
 	splash_duration_ms: number;
-	splash_animation: "fade" | "zoom" | "slide" | "none";
-	splash_next_screen: "onboarding" | "login" | "home";
+	splash_animation: 'fade' | 'zoom' | 'slide' | 'none';
+	splash_next_screen: 'onboarding' | 'login' | 'home';
 	onboarding_enabled: boolean;
 	onboarding_screens: any[];
 	onboarding_skip_enabled: boolean;

@@ -3,7 +3,7 @@
  * Dynamic imports with preloading and error handling
  */
 
-import { type ComponentType, lazy } from "react";
+import { type ComponentType, lazy } from 'react';
 
 interface LazyLoadOptions {
 	/**
@@ -29,7 +29,7 @@ interface LazyLoadOptions {
  */
 export function lazyWithRetry<T extends ComponentType<any>>(
 	importFunc: () => Promise<{ default: T }>,
-	_options: LazyLoadOptions = {},
+	_options: LazyLoadOptions = {}
 ): React.LazyExoticComponent<T> {
 	const { delay = 0, retry = 3 } = _options;
 
@@ -46,14 +46,12 @@ export function lazyWithRetry<T extends ComponentType<any>>(
 					resolve(module);
 				} catch (error) {
 					if (attemptsLeft <= 0) {
-						console.error("Failed to load component after retries:", error);
+						console.error('Failed to load component after retries:', error);
 						reject(error);
 						return;
 					}
 
-					console.warn(
-						`Import failed, retrying... (${attemptsLeft} attempts left)`,
-					);
+					console.warn(`Import failed, retrying... (${attemptsLeft} attempts left)`);
 
 					// Exponential backoff
 					const backoffDelay = (retry - attemptsLeft + 1) * 1000;
@@ -72,14 +70,14 @@ export function lazyWithRetry<T extends ComponentType<any>>(
  * Preload a lazy component
  */
 export function preloadComponent<T extends ComponentType<any>>(
-	LazyComponent: React.LazyExoticComponent<T>,
+	LazyComponent: React.LazyExoticComponent<T>
 ): void {
 	// @ts-expect-error - accessing internal _ctor
 	const componentPromise = LazyComponent._ctor?.();
 
 	if (componentPromise) {
 		componentPromise.catch((error: Error) => {
-			console.error("Failed to preload component:", error);
+			console.error('Failed to preload component:', error);
 		});
 	}
 }
@@ -88,7 +86,7 @@ export function preloadComponent<T extends ComponentType<any>>(
  * Lazy load with automatic preloading on hover/focus
  */
 export function lazyWithPreload<T extends ComponentType<any>>(
-	importFunc: () => Promise<{ default: T }>,
+	importFunc: () => Promise<{ default: T }>
 	// // options: LazyLoadOptions = {}
 ): {
 	Component: React.LazyExoticComponent<T>;
@@ -98,7 +96,7 @@ export function lazyWithPreload<T extends ComponentType<any>>(
 
 	const preload = () => {
 		if (!preloadPromise) {
-			console.log("🚀 Preloading component...");
+			console.log('🚀 Preloading component...');
 			preloadPromise = importFunc();
 		}
 		return preloadPromise;
@@ -120,61 +118,34 @@ export function lazyWithPreload<T extends ComponentType<any>>(
 export const routes = {
 	// Mobile routes
 	home: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/home/components/AchievementHomeScreen"),
-		),
-	history: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/history/components/HistoryScreen"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/home/components/AchievementHomeScreen')),
+	history: () => lazyWithRetry(() => import('@/features/mobile/history/components/HistoryScreen')),
 	achievements: () =>
-		lazyWithRetry(
-			() =>
-				import("@/features/mobile/achievements/components/AchievementsScreen"),
-		),
-	reports: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/reports/components/ReportsScreen"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/achievements/components/AchievementsScreen')),
+	reports: () => lazyWithRetry(() => import('@/features/mobile/reports/components/ReportsScreen')),
 	settings: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/settings/components/SettingsScreen"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/settings/components/SettingsScreen')),
 
 	// Admin routes
 	adminDashboard: () =>
-		lazyWithRetry(
-			() => import("@/features/admin/dashboard/components/AdminDashboard"),
-		),
+		lazyWithRetry(() => import('@/features/admin/dashboard/components/AdminDashboard')),
 
 	// Auth routes
-	welcome: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/auth/components/WelcomeScreen"),
-		),
-	auth: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/auth/components/AuthScreenNew"),
-		),
+	welcome: () => lazyWithRetry(() => import('@/features/mobile/auth/components/WelcomeScreen')),
+	auth: () => lazyWithRetry(() => import('@/features/mobile/auth/components/AuthScreenNew')),
 	onboarding2: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/auth/components/OnboardingScreen2"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/auth/components/OnboardingScreen2')),
 	onboarding3: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/auth/components/OnboardingScreen3"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/auth/components/OnboardingScreen3')),
 	onboarding4: () =>
-		lazyWithRetry(
-			() => import("@/features/mobile/auth/components/OnboardingScreen4"),
-		),
+		lazyWithRetry(() => import('@/features/mobile/auth/components/OnboardingScreen4')),
 };
 
 /**
  * Preload critical routes
  */
 export function preloadCriticalRoutes() {
-	console.log("🚀 Preloading critical routes...");
+	console.log('🚀 Preloading critical routes...');
 
 	// Preload home screen (most likely next screen after auth)
 	const HomeScreen = routes.home();
@@ -188,10 +159,7 @@ export function preloadCriticalRoutes() {
 /**
  * Preload route on link hover
  */
-export function createPreloadLink(
-	routeName: keyof typeof routes,
-	onMouseEnter?: () => void,
-) {
+export function createPreloadLink(routeName: keyof typeof routes, onMouseEnter?: () => void) {
 	return {
 		onMouseEnter: () => {
 			const LazyComponent = routes[routeName]() as any;
@@ -210,22 +178,16 @@ export function createPreloadLink(
  */
 export function logBundleSize(componentName: string, startTime: number) {
 	const loadTime = performance.now() - startTime;
-	console.log(
-		`📦 [BUNDLE] ${componentName} loaded in ${loadTime.toFixed(2)}ms`,
-	);
+	console.log(`📦 [BUNDLE] ${componentName} loaded in ${loadTime.toFixed(2)}ms`);
 
 	// Log performance entry if available
-	const entries = performance.getEntriesByType("resource");
-	const componentEntry = entries.find((entry) =>
-		entry.name.includes(componentName.toLowerCase()),
-	);
+	const entries = performance.getEntriesByType('resource');
+	const componentEntry = entries.find((entry) => entry.name.includes(componentName.toLowerCase()));
 
 	if (componentEntry) {
 		const size = (componentEntry as any).transferSize;
 		if (size) {
-			console.log(
-				`📦 [BUNDLE] ${componentName} size: ${(size / 1024).toFixed(2)}KB`,
-			);
+			console.log(`📦 [BUNDLE] ${componentName} size: ${(size / 1024).toFixed(2)}KB`);
 		}
 	}
 }

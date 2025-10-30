@@ -1,6 +1,6 @@
-import { toast } from "sonner";
-import { createClient } from "@/utils/supabase/client";
-import type { Language, MissingTranslation, Translation } from "./types";
+import { toast } from 'sonner';
+import { createClient } from '@/utils/supabase/client';
+import type { Language, MissingTranslation, Translation } from './types';
 
 const supabase = createClient();
 
@@ -13,7 +13,7 @@ export async function loadTranslations(): Promise<Translation[]> {
 			data: { session },
 		} = await supabase.auth.getSession();
 		if (!session) {
-			toast.error("Ошибка авторизации");
+			toast.error('Ошибка авторизации');
 			return [];
 		}
 
@@ -22,9 +22,9 @@ export async function loadTranslations(): Promise<Translation[]> {
 			{
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
-			},
+			}
 		);
 
 		if (response.ok) {
@@ -32,11 +32,11 @@ export async function loadTranslations(): Promise<Translation[]> {
 			return data.translations || [];
 		}
 		const error = await response.json();
-		toast.error(error.error || "Ошибка загрузки переводов");
+		toast.error(error.error || 'Ошибка загрузки переводов');
 		return [];
 	} catch (error) {
-		console.error("Error loading translations:", error);
-		toast.error("Ошибка соединения с сервером");
+		console.error('Error loading translations:', error);
+		toast.error('Ошибка соединения с сервером');
 		return [];
 	}
 }
@@ -58,9 +58,9 @@ export async function loadLanguages(): Promise<Language[]> {
 			{
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
-			},
+			}
 		);
 
 		if (response.ok) {
@@ -69,7 +69,7 @@ export async function loadLanguages(): Promise<Language[]> {
 		}
 		return [];
 	} catch (error) {
-		console.error("Error loading languages:", error);
+		console.error('Error loading languages:', error);
 		return [];
 	}
 }
@@ -91,9 +91,9 @@ export async function loadMissingKeys(): Promise<MissingTranslation[]> {
 			{
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
-			},
+			}
 		);
 
 		if (response.ok) {
@@ -102,7 +102,7 @@ export async function loadMissingKeys(): Promise<MissingTranslation[]> {
 		}
 		return [];
 	} catch (error) {
-		console.error("Error loading missing keys:", error);
+		console.error('Error loading missing keys:', error);
 		return [];
 	}
 }
@@ -113,10 +113,10 @@ export async function loadMissingKeys(): Promise<MissingTranslation[]> {
 export async function saveTranslation(
 	translationKey: string,
 	langCode: string,
-	translationValue: string,
+	translationValue: string
 ): Promise<boolean> {
 	if (!(translationKey && translationValue.trim())) {
-		toast.error("Введите текст перевода");
+		toast.error('Введите текст перевода');
 		return false;
 	}
 
@@ -125,36 +125,36 @@ export async function saveTranslation(
 			data: { session },
 		} = await supabase.auth.getSession();
 		if (!session) {
-			toast.error("Ошибка авторизации");
+			toast.error('Ошибка авторизации');
 			return false;
 		}
 
 		const response = await fetch(
 			`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-management`,
 			{
-				method: "POST",
+				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
 					translation_key: translationKey,
 					lang_code: langCode,
 					translation_value: translationValue,
 				}),
-			},
+			}
 		);
 
 		if (response.ok) {
-			toast.success("Перевод сохранен! 🌍");
+			toast.success('Перевод сохранен! 🌍');
 			return true;
 		}
 		const error = await response.json();
-		toast.error(error.error || "Ошибка сохранения");
+		toast.error(error.error || 'Ошибка сохранения');
 		return false;
 	} catch (error) {
-		console.error("Error saving translation:", error);
-		toast.error("Ошибка соединения с сервером");
+		console.error('Error saving translation:', error);
+		toast.error('Ошибка соединения с сервером');
 		return false;
 	}
 }
@@ -164,10 +164,10 @@ export async function saveTranslation(
  */
 export async function autoTranslate(
 	sourceLanguage: string,
-	targetLanguages: string[],
+	targetLanguages: string[]
 ): Promise<{ success: boolean; message?: string; totalCost?: number }> {
 	if (!sourceLanguage || targetLanguages.length === 0) {
-		toast.error("Выберите исходный язык и целевые языки");
+		toast.error('Выберите исходный язык и целевые языки');
 		return { success: false };
 	}
 
@@ -176,25 +176,25 @@ export async function autoTranslate(
 			data: { session },
 		} = await supabase.auth.getSession();
 		if (!session) {
-			toast.error("Ошибка авторизации");
+			toast.error('Ошибка авторизации');
 			return { success: false };
 		}
 
-		toast.info("Запуск автоперевода... ⏳");
+		toast.info('Запуск автоперевода... ⏳');
 
 		const response = await fetch(
 			`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auto-translate`,
 			{
-				method: "POST",
+				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
 					sourceLanguage,
 					targetLanguages,
 				}),
-			},
+			}
 		);
 
 		if (response.ok) {
@@ -206,11 +206,11 @@ export async function autoTranslate(
 			};
 		}
 		const error = await response.json();
-		toast.error(error.error || "Ошибка автоперевода");
+		toast.error(error.error || 'Ошибка автоперевода');
 		return { success: false };
 	} catch (error) {
-		console.error("Error auto-translating:", error);
-		toast.error("Ошибка соединения с сервером");
+		console.error('Error auto-translating:', error);
+		toast.error('Ошибка соединения с сервером');
 		return { success: false };
 	}
 }

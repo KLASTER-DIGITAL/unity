@@ -1,11 +1,6 @@
-import { Brain, DollarSign, TrendingUp, Zap } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/shared/components/ui/card";
-import type { AIStats } from "./types";
+import { Brain, DollarSign, TrendingUp, Zap } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import type { AIStats } from './types';
 
 /**
  * Stats Cards Component
@@ -27,9 +22,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-between">
-						<div className="font-bold! text-[28px]! text-foreground">
-							{stats.totalRequests}
-						</div>
+						<div className="font-bold! text-[28px]! text-foreground">{stats.totalRequests}</div>
 						<div className="flex h-10 w-10 items-center justify-center rounded-(--radius) bg-accent/10">
 							<Zap className="h-5 w-5 text-accent" />
 						</div>

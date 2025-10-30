@@ -1,8 +1,8 @@
-import { motion } from "motion/react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
-import type { ArrowRight1Props, NextButtonProps } from "./types";
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { imgArrowRight, imgRectangle5904 } from '@/imports/svg-6xkhk';
+import type { ArrowRight1Props, NextButtonProps } from './types';
 
 /**
  * Arrow Right Icon Component
@@ -23,13 +23,13 @@ function ArrowRight() {
 function ArrowRight1({ onClick, disabled }: ArrowRight1Props) {
 	return (
 		<button
-			className={`absolute z-10 size-6 cursor-pointer border-0 bg-transparent ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+			className={`absolute z-10 size-6 cursor-pointer border-0 bg-transparent ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 			data-name="Arrow - Right"
 			disabled={disabled}
 			onClick={onClick}
 			style={{
-				bottom: "min(69px, 15vh)",
-				right: "min(46px, 12vw)",
+				bottom: 'min(69px, 15vh)',
+				right: 'min(46px, 12vw)',
 			}}
 		>
 			<div className="pointer-events-none absolute inset-[23.75%_17.71%_26.04%_19.79%] flex items-center justify-center">
@@ -45,11 +45,7 @@ function ArrowRight1({ onClick, disabled }: ArrowRight1Props) {
  * Next Button Component
  * Shows shake animation and toast when clicked while disabled
  */
-export function NextButton({
-	onNext,
-	disabled,
-	validationMessage,
-}: NextButtonProps) {
+export function NextButton({ onNext, disabled, validationMessage }: NextButtonProps) {
 	const [shake, setShake] = useState(false);
 
 	const handleClick = () => {
@@ -62,7 +58,7 @@ export function NextButton({
 			if (validationMessage) {
 				toast.error(validationMessage, {
 					duration: 3000,
-					position: "top-center",
+					position: 'top-center',
 				});
 			}
 			return;
@@ -81,13 +77,13 @@ export function NextButton({
 			data-name="Next Button"
 			initial={{ opacity: 0, scale: 0.8, x: 50 }}
 			style={{
-				bottom: "max(-2px, calc(0px - 2vh))",
-				right: "max(-1px, calc(0px - 1vw))",
+				bottom: 'max(-2px, calc(0px - 2vh))',
+				right: 'max(-1px, calc(0px - 1vw))',
 			}}
 			transition={{
 				delay: shake ? 0 : 0.6,
 				duration: shake ? 0.5 : 0.6,
-				type: shake ? "tween" : "spring",
+				type: shake ? 'tween' : 'spring',
 			}}
 			whileHover={{
 				scale: disabled ? 1 : 1.05,
@@ -96,11 +92,11 @@ export function NextButton({
 			whileTap={{ scale: disabled ? 1 : 0.95 }}
 		>
 			<button
-				className={`absolute h-[191px] w-[129px] max-w-[30vw] border-0 bg-transparent ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+				className={`absolute h-[191px] w-[129px] max-w-[30vw] border-0 bg-transparent ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
 				onClick={handleClick}
 				style={{
-					bottom: "max(-2px, calc(0px - 2vh))",
-					right: "max(-1px, calc(0px - 1vw))",
+					bottom: 'max(-2px, calc(0px - 2vh))',
+					right: 'max(-1px, calc(0px - 1vw))',
 				}}
 			>
 				<div className="pointer-events-none absolute top-0 right-0 bottom-0 left-[7.57%]">

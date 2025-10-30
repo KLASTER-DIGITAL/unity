@@ -1,9 +1,9 @@
-import { cn } from "@/shared/components/ui/utils";
+import { cn } from '@/shared/components/ui/utils';
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
-			className={cn("animate-pulse rounded-md bg-accent", className)}
+			className={cn('animate-pulse rounded-md bg-accent', className)}
 			data-slot="skeleton"
 			{...props}
 		/>

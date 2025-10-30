@@ -14,13 +14,13 @@ export type PendingEntry = {
 	id: string;
 	userId: string;
 	text: string;
-	sentiment?: "positive" | "neutral" | "negative";
+	sentiment?: 'positive' | 'neutral' | 'negative';
 	category?: string;
 	mood?: string;
 	media?: any[];
 	tags?: string[];
 	createdAt: string;
-	syncStatus: "pending" | "syncing" | "failed";
+	syncStatus: 'pending' | 'syncing' | 'failed';
 	retryCount: number;
 	lastError?: string;
 };
@@ -41,7 +41,7 @@ export type CachedEntry = {
  */
 export type SyncQueueItem = {
 	id: string;
-	type: "create" | "update" | "delete";
+	type: 'create' | 'update' | 'delete';
 	resource: string;
 	data: any;
 	createdAt: string;
@@ -117,7 +117,7 @@ export type MediaStorageAdapter = {
 	 */
 	saveMedia(
 		userId: string,
-		file: File | { uri: string; type: string; name: string },
+		file: File | { uri: string; type: string; name: string }
 	): Promise<string>;
 
 	/**

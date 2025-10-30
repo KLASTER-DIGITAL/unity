@@ -1,6 +1,6 @@
-import { Smartphone } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { Smartphone } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 /**
  * Компонент показывает статус PWA:
@@ -14,19 +14,17 @@ export function PWAStatus() {
 	useEffect(() => {
 		// Проверяем, запущено ли приложение в standalone режиме
 		const standalone =
-			window.matchMedia("(display-mode: standalone)").matches ||
+			window.matchMedia('(display-mode: standalone)').matches ||
 			(window.navigator as any).standalone === true;
 
 		setIsStandalone(standalone);
 
 		// Показываем уведомление только при первом запуске в standalone
 		if (standalone) {
-			const standaloneShown = sessionStorage.getItem(
-				"standaloneNotificationShown",
-			);
+			const standaloneShown = sessionStorage.getItem('standaloneNotificationShown');
 			if (!standaloneShown) {
 				setShowInstalled(true);
-				sessionStorage.setItem("standaloneNotificationShown", "true");
+				sessionStorage.setItem('standaloneNotificationShown', 'true');
 
 				// Автоматически скрываем через 3 секунды
 				setTimeout(() => {
@@ -36,9 +34,9 @@ export function PWAStatus() {
 		}
 
 		// Слушаем обновления Service Worker
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.addEventListener("controllerchange", () => {
-				console.log("Service Worker updated");
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.addEventListener('controllerchange', () => {
+				console.log('Service Worker updated');
 				// Можно показать уведомление об обновлении
 			});
 		}
@@ -58,9 +56,7 @@ export function PWAStatus() {
 							<Smartphone className="h-5 w-5" />
 						</div>
 						<div className="flex-1">
-							<p className="font-semibold! text-[14px]!">
-								Приложение установлено!
-							</p>
+							<p className="font-semibold! text-[14px]!">Приложение установлено!</p>
 							<p className="font-normal! text-[12px]! opacity-90">
 								Теперь вы можете использовать его оффлайн
 							</p>

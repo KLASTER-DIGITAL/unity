@@ -1,11 +1,11 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { Image as ImageIcon, Mic, Send } from "lucide-react";
-import { MediaPreview } from "@/features/mobile/media";
-import { DragDropZone } from "@/shared/components/DragDropZone";
-import { useCategoriesForUI } from "@/shared/hooks/useCategories";
-import type { UploadedMedia } from "@/shared/hooks/useMediaUploader";
-import { motion } from "@/shared/lib/platform/animation";
+import { Image as ImageIcon, Mic, Send } from 'lucide-react';
+import { MediaPreview } from '@/features/mobile/media';
+import { DragDropZone } from '@/shared/components/DragDropZone';
+import { useCategoriesForUI } from '@/shared/hooks/useCategories';
+import type { UploadedMedia } from '@/shared/hooks/useMediaUploader';
+import { motion } from '@/shared/lib/platform/animation';
 
 type InputAreaProps = {
 	inputText: string;
@@ -59,7 +59,7 @@ export function InputArea({
 		<div className="relative">
 			{/* Main Input Container with Drag & Drop */}
 			<DragDropZone
-				disabled={isUploading || !userId || userId === "anonymous"}
+				disabled={isUploading || !userId || userId === 'anonymous'}
 				onFilesSelected={onFilesDropped}
 			>
 				<div className="relative rounded-[16px] border border-border/20 bg-muted/10 backdrop-blur-md transition-colors duration-300">
@@ -68,11 +68,11 @@ export function InputArea({
 						<button
 							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
 								isRecording
-									? "bg-red-500"
+									? 'bg-red-500'
 									: isTranscribing
-										? "bg-blue-500"
-										: "hover:bg-muted active:scale-95"
-							} ${isTranscribing ? "opacity-50" : ""}`}
+										? 'bg-blue-500'
+										: 'hover:bg-muted active:scale-95'
+							} ${isTranscribing ? 'opacity-50' : ''}`}
 							disabled={isTranscribing}
 							onClick={onVoiceClick}
 						>
@@ -83,14 +83,14 @@ export function InputArea({
 									transition={{
 										repeat: Number.POSITIVE_INFINITY,
 										duration: 1,
-										ease: "linear",
+										ease: 'linear',
 									}}
 								/>
 							) : (
 								<Mic
 									className="h-4 w-4"
 									style={{
-										color: isRecording ? "white" : "var(--icon-primary)",
+										color: isRecording ? 'white' : 'var(--icon-primary)',
 									}}
 								/>
 							)}
@@ -106,7 +106,7 @@ export function InputArea({
 								ref={textareaRef}
 								rows={1}
 								style={{
-									fontFamily: "Inter, sans-serif",
+									fontFamily: 'Inter, sans-serif',
 								}}
 								value={inputText}
 							/>
@@ -115,9 +115,7 @@ export function InputArea({
 						{/* Media Upload Button */}
 						<button
 							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
-								isUploading
-									? "cursor-not-allowed opacity-50"
-									: "hover:bg-muted active:scale-95"
+								isUploading ? 'cursor-not-allowed opacity-50' : 'hover:bg-muted active:scale-95'
 							}`}
 							disabled={isUploading}
 							onClick={onMediaUpload}
@@ -129,7 +127,7 @@ export function InputArea({
 									transition={{
 										repeat: Number.POSITIVE_INFINITY,
 										duration: 1,
-										ease: "linear",
+										ease: 'linear',
 									}}
 								/>
 							) : (
@@ -141,8 +139,8 @@ export function InputArea({
 						<button
 							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
 								inputText.trim() || uploadedMedia.length > 0
-									? "hover:bg-muted active:scale-95"
-									: "cursor-not-allowed opacity-40"
+									? 'hover:bg-muted active:scale-95'
+									: 'cursor-not-allowed opacity-40'
 							}`}
 							disabled={!inputText.trim() && uploadedMedia.length === 0}
 							onClick={onSendMessage}
@@ -183,8 +181,8 @@ export function InputArea({
 						<button
 							className={`flex shrink-0 items-center gap-1.5 rounded-[10px] border px-3 py-1.5 transition-all ${
 								selectedCategory === category.id
-									? "border-accent bg-accent/10"
-									: "border-border bg-transparent hover:bg-accent/5 active:scale-95"
+									? 'border-accent bg-accent/10'
+									: 'border-border bg-transparent hover:bg-accent/5 active:scale-95'
 							}`}
 							key={category.id}
 							onClick={() => onCategoryToggle(category.id)}

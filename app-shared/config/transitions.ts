@@ -5,17 +5,17 @@
  * Максимально близко к PWA версии (Framer Motion)
  */
 
-import type { StackNavigationOptions } from "@react-navigation/stack";
+import type { StackNavigationOptions } from '@react-navigation/stack';
 
 /**
  * Slide from right transition (iOS default)
  * Используется для forward navigation
  */
 export const slideFromRight: StackNavigationOptions = {
-	animation: "slide_from_right",
+	animation: 'slide_from_right',
 	animationDuration: 300,
 	gestureEnabled: true,
-	gestureDirection: "horizontal",
+	gestureDirection: 'horizontal',
 	customAnimationOnGesture: true,
 	fullScreenGestureEnabled: true,
 };
@@ -25,10 +25,10 @@ export const slideFromRight: StackNavigationOptions = {
  * Используется для backward navigation
  */
 export const slideFromLeft: StackNavigationOptions = {
-	animation: "slide_from_left",
+	animation: 'slide_from_left',
 	animationDuration: 300,
 	gestureEnabled: true,
-	gestureDirection: "horizontal",
+	gestureDirection: 'horizontal',
 	customAnimationOnGesture: true,
 	fullScreenGestureEnabled: true,
 };
@@ -38,7 +38,7 @@ export const slideFromLeft: StackNavigationOptions = {
  * Используется для модальных окон и overlay screens
  */
 export const fade: StackNavigationOptions = {
-	animation: "fade",
+	animation: 'fade',
 	animationDuration: 200,
 	gestureEnabled: false,
 };
@@ -48,10 +48,10 @@ export const fade: StackNavigationOptions = {
  * Используется для модальных окон
  */
 export const slideFromBottom: StackNavigationOptions = {
-	animation: "slide_from_bottom",
+	animation: 'slide_from_bottom',
 	animationDuration: 300,
 	gestureEnabled: true,
-	gestureDirection: "vertical",
+	gestureDirection: 'vertical',
 	customAnimationOnGesture: true,
 };
 
@@ -70,5 +70,5 @@ export const defaultTransition: StackNavigationOptions = slideFromRight;
  */
 export const tabTransition = {
 	duration: 300,
-	easing: "ease-in-out" as const,
+	easing: 'ease-in-out' as const,
 };

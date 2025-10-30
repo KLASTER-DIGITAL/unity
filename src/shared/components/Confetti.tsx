@@ -8,8 +8,8 @@
  * @date 2025-10-22
  */
 
-import confetti from "canvas-confetti";
-import { useEffect } from "react";
+import confetti from 'canvas-confetti';
+import { useEffect } from 'react';
 
 type ConfettiProps = {
 	/**
@@ -69,7 +69,7 @@ export function Confetti({
 	particleCount = 100,
 	spread = 90,
 	origin = { x: 0.5, y: 0.5 },
-	colors = ["#8B78FF", "#5451D6", "#756ef3", "#00d4ff", "#00ff88"],
+	colors = ['#8B78FF', '#5451D6', '#756ef3', '#00d4ff', '#00ff88'],
 }: ConfettiProps) {
 	useEffect(() => {
 		if (!trigger) {
@@ -125,7 +125,7 @@ export function useConfetti() {
 			particleCount: 100,
 			spread: 90,
 			origin: { x: 0.5, y: 0.5 },
-			colors: ["#8B78FF", "#5451D6", "#756ef3", "#00d4ff", "#00ff88"],
+			colors: ['#8B78FF', '#5451D6', '#756ef3', '#00d4ff', '#00ff88'],
 			...options,
 		};
 

@@ -1,29 +1,21 @@
-"use client";
+'use client';
 
-import {
-	AlertCircle,
-	Brain,
-	CheckCircle,
-	DollarSign,
-	Save,
-	Settings2,
-	Zap,
-} from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { AlertCircle, Brain, CheckCircle, DollarSign, Save, Settings2, Zap } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
 import {
 	Table,
 	TableBody,
@@ -31,9 +23,9 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/shared/components/ui/table";
-import { Select } from "@/shared/components/ui/universal/Select";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/table';
+import { Select } from '@/shared/components/ui/universal/Select';
+import { createClient } from '@/utils/supabase/client';
 
 interface AIModelConfig {
 	operation_type: string;
@@ -51,47 +43,47 @@ interface AIBudgetConfig {
 
 const OPERATION_TYPES = [
 	{
-		value: "ai_card",
-		label: "Мотивационные карточки",
-		description: "Генерация AI карточек",
+		value: 'ai_card',
+		label: 'Мотивационные карточки',
+		description: 'Генерация AI карточек',
 	},
 	{
-		value: "ai_summary",
-		label: "Недельные отчеты",
-		description: "PDF книги достижений",
+		value: 'ai_summary',
+		label: 'Недельные отчеты',
+		description: 'PDF книги достижений',
 	},
 	{
-		value: "emotion_analysis",
-		label: "Анализ эмоций",
-		description: "Анализ настроения",
+		value: 'emotion_analysis',
+		label: 'Анализ эмоций',
+		description: 'Анализ настроения',
 	},
 	{
-		value: "voice_to_text",
-		label: "Распознавание речи",
-		description: "Whisper API",
+		value: 'voice_to_text',
+		label: 'Распознавание речи',
+		description: 'Whisper API',
 	},
-	{ value: "ai_coach", label: "AI Coach", description: "Диалоговый ассистент" },
+	{ value: 'ai_coach', label: 'AI Coach', description: 'Диалоговый ассистент' },
 ];
 
 const AI_MODELS = [
-	{ value: "gpt-4", label: "GPT-4", cost: "$0.03/1K", recommended: false },
-	{ value: "gpt-4o", label: "GPT-4o", cost: "$0.005/1K", recommended: true },
+	{ value: 'gpt-4', label: 'GPT-4', cost: '$0.03/1K', recommended: false },
+	{ value: 'gpt-4o', label: 'GPT-4o', cost: '$0.005/1K', recommended: true },
 	{
-		value: "gpt-4o-mini",
-		label: "GPT-4o-mini",
-		cost: "$0.0006/1K",
+		value: 'gpt-4o-mini',
+		label: 'GPT-4o-mini',
+		cost: '$0.0006/1K',
 		recommended: true,
 	},
 	{
-		value: "gpt-3.5-turbo",
-		label: "GPT-3.5 Turbo",
-		cost: "$0.0015/1K",
+		value: 'gpt-3.5-turbo',
+		label: 'GPT-3.5 Turbo',
+		cost: '$0.0015/1K',
 		recommended: false,
 	},
 	{
-		value: "whisper-1",
-		label: "Whisper-1",
-		cost: "$0.006/min",
+		value: 'whisper-1',
+		label: 'Whisper-1',
+		cost: '$0.006/min',
 		recommended: true,
 	},
 ];
@@ -101,32 +93,32 @@ export const AISettingsTab: React.FC = () => {
 	const [isSaving, setIsSaving] = useState(false);
 	const [modelConfigs, setModelConfigs] = useState<AIModelConfig[]>([
 		{
-			operation_type: "ai_card",
-			model: "gpt-4o-mini",
+			operation_type: 'ai_card',
+			model: 'gpt-4o-mini',
 			max_tokens: 500,
 			temperature: 0.7,
 		},
 		{
-			operation_type: "ai_summary",
-			model: "gpt-4o",
+			operation_type: 'ai_summary',
+			model: 'gpt-4o',
 			max_tokens: 2000,
 			temperature: 0.7,
 		},
 		{
-			operation_type: "emotion_analysis",
-			model: "gpt-4o-mini",
+			operation_type: 'emotion_analysis',
+			model: 'gpt-4o-mini',
 			max_tokens: 300,
 			temperature: 0.5,
 		},
 		{
-			operation_type: "voice_to_text",
-			model: "whisper-1",
+			operation_type: 'voice_to_text',
+			model: 'whisper-1',
 			max_tokens: 0,
 			temperature: 0,
 		},
 		{
-			operation_type: "ai_coach",
-			model: "gpt-4o",
+			operation_type: 'ai_coach',
+			model: 'gpt-4o',
 			max_tokens: 1000,
 			temperature: 0.8,
 		},
@@ -140,7 +132,7 @@ export const AISettingsTab: React.FC = () => {
 
 	useEffect(() => {
 		loadAISettings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadAISettings is stable
 	}, []);
 
 	const loadAISettings = async () => {
@@ -152,24 +144,24 @@ export const AISettingsTab: React.FC = () => {
 			} = await supabase.auth.getSession();
 
 			if (!session?.access_token) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
 			// Load AI model configs from admin_settings
 			const { data: settings, error } = await supabase
-				.from("admin_settings")
-				.select("key, value")
-				.in("key", ["ai_model_configs", "ai_budget_config"]);
+				.from('admin_settings')
+				.select('key, value')
+				.in('key', ['ai_model_configs', 'ai_budget_config']);
 
 			if (error) throw error;
 
 			if (settings) {
 				settings.forEach((setting) => {
-					if (setting.key === "ai_model_configs" && setting.value) {
+					if (setting.key === 'ai_model_configs' && setting.value) {
 						setModelConfigs(JSON.parse(setting.value));
 					}
-					if (setting.key === "ai_budget_config" && setting.value) {
+					if (setting.key === 'ai_budget_config' && setting.value) {
 						setBudgetConfig(JSON.parse(setting.value));
 					}
 				});
@@ -181,21 +173,18 @@ export const AISettingsTab: React.FC = () => {
 			startOfMonth.setHours(0, 0, 0, 0);
 
 			const { data: usageData } = await supabase
-				.from("openai_usage")
-				.select("estimated_cost")
-				.gte("created_at", startOfMonth.toISOString());
+				.from('openai_usage')
+				.select('estimated_cost')
+				.gte('created_at', startOfMonth.toISOString());
 
 			if (usageData) {
-				const currentSpend = usageData.reduce(
-					(sum, log) => sum + (log.estimated_cost || 0),
-					0,
-				);
+				const currentSpend = usageData.reduce((sum, log) => sum + (log.estimated_cost || 0), 0);
 				setBudgetConfig((prev) => ({ ...prev, current_spend: currentSpend }));
 			}
 
-			toast.success("Настройки AI загружены");
+			toast.success('Настройки AI загружены');
 		} catch (error: any) {
-			console.error("Error loading AI settings:", error);
+			console.error('Error loading AI settings:', error);
 			toast.error(`Ошибка загрузки: ${error.message}`);
 		} finally {
 			setIsLoading(false);
@@ -211,57 +200,46 @@ export const AISettingsTab: React.FC = () => {
 			} = await supabase.auth.getSession();
 
 			if (!session?.access_token) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
 			// Save model configs
-			const { error: configError } = await supabase
-				.from("admin_settings")
-				.upsert({
-					key: "ai_model_configs",
-					value: JSON.stringify(modelConfigs),
-					updated_at: new Date().toISOString(),
-				});
+			const { error: configError } = await supabase.from('admin_settings').upsert({
+				key: 'ai_model_configs',
+				value: JSON.stringify(modelConfigs),
+				updated_at: new Date().toISOString(),
+			});
 
 			if (configError) throw configError;
 
 			// Save budget config
-			const { error: budgetError } = await supabase
-				.from("admin_settings")
-				.upsert({
-					key: "ai_budget_config",
-					value: JSON.stringify(budgetConfig),
-					updated_at: new Date().toISOString(),
-				});
+			const { error: budgetError } = await supabase.from('admin_settings').upsert({
+				key: 'ai_budget_config',
+				value: JSON.stringify(budgetConfig),
+				updated_at: new Date().toISOString(),
+			});
 
 			if (budgetError) throw budgetError;
 
-			toast.success("Настройки AI успешно сохранены! 🧠");
+			toast.success('Настройки AI успешно сохранены! 🧠');
 		} catch (error: any) {
-			console.error("Error saving AI settings:", error);
+			console.error('Error saving AI settings:', error);
 			toast.error(`Ошибка сохранения: ${error.message}`);
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
-	const updateModelConfig = (
-		operationType: string,
-		field: keyof AIModelConfig,
-		value: any,
-	) => {
+	const updateModelConfig = (operationType: string, field: keyof AIModelConfig, value: any) => {
 		setModelConfigs((prev) =>
 			prev.map((config) =>
-				config.operation_type === operationType
-					? { ...config, [field]: value }
-					: config,
-			),
+				config.operation_type === operationType ? { ...config, [field]: value } : config
+			)
 		);
 	};
 
-	const budgetPercentage =
-		(budgetConfig.current_spend / budgetConfig.monthly_budget) * 100;
+	const budgetPercentage = (budgetConfig.current_spend / budgetConfig.monthly_budget) * 100;
 	const isOverBudget = budgetPercentage >= budgetConfig.alert_threshold;
 
 	return (
@@ -277,13 +255,9 @@ export const AISettingsTab: React.FC = () => {
 						Управление моделями, лимитами и бюджетом AI
 					</p>
 				</div>
-				<Button
-					className="gap-2"
-					disabled={isSaving}
-					onClick={handleSaveSettings}
-				>
+				<Button className="gap-2" disabled={isSaving} onClick={handleSaveSettings}>
 					<Save className="h-4 w-4" />
-					{isSaving ? "Сохранение..." : "Сохранить настройки"}
+					{isSaving ? 'Сохранение...' : 'Сохранить настройки'}
 				</Button>
 			</div>
 
@@ -300,10 +274,7 @@ export const AISettingsTab: React.FC = () => {
 								Месячный лимит и текущие расходы
 							</CardDescription>
 						</div>
-						<Badge
-							className="text-[13px]!"
-							variant={isOverBudget ? "destructive" : "outline"}
-						>
+						<Badge className="text-[13px]!" variant={isOverBudget ? 'destructive' : 'outline'}>
 							{budgetPercentage.toFixed(1)}% использовано
 						</Badge>
 					</div>
@@ -356,20 +327,13 @@ export const AISettingsTab: React.FC = () => {
 					<div className="space-y-2">
 						<div className="flex items-center justify-between text-[13px]!">
 							<span className="text-muted-foreground">Использовано</span>
-							<span
-								className={
-									isOverBudget
-										? "font-semibold! text-red-500"
-										: "text-foreground"
-								}
-							>
-								${budgetConfig.current_spend.toFixed(2)} / $
-								{budgetConfig.monthly_budget.toFixed(2)}
+							<span className={isOverBudget ? 'font-semibold! text-red-500' : 'text-foreground'}>
+								${budgetConfig.current_spend.toFixed(2)} / ${budgetConfig.monthly_budget.toFixed(2)}
 							</span>
 						</div>
 						<div className="h-2 w-full overflow-hidden rounded-full bg-muted">
 							<div
-								className={`h-full transition-all ${isOverBudget ? "bg-red-500" : "bg-green-500"}`}
+								className={`h-full transition-all ${isOverBudget ? 'bg-red-500' : 'bg-green-500'}`}
 								style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
 							/>
 						</div>
@@ -380,9 +344,7 @@ export const AISettingsTab: React.FC = () => {
 						<div className="flex items-center gap-3">
 							<Settings2 className="h-5 w-5 text-accent" />
 							<div>
-								<p className="font-medium! text-[15px]! text-foreground">
-									Тестовый режим
-								</p>
+								<p className="font-medium! text-[15px]! text-foreground">Тестовый режим</p>
 								<p className="text-[13px]! text-muted-foreground">
 									Использование sandbox-ключа без реальных затрат
 								</p>
@@ -400,12 +362,9 @@ export const AISettingsTab: React.FC = () => {
 						<div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3">
 							<AlertCircle className="mt-0.5 h-5 w-5 text-red-500" />
 							<div>
-								<p className="font-medium! text-[15px]! text-red-600">
-									Превышен порог бюджета!
-								</p>
+								<p className="font-medium! text-[15px]! text-red-600">Превышен порог бюджета!</p>
 								<p className="text-[13px]! text-red-600/80">
-									Текущие расходы превысили {budgetConfig.alert_threshold}% от
-									месячного бюджета.
+									Текущие расходы превысили {budgetConfig.alert_threshold}% от месячного бюджета.
 								</p>
 							</div>
 						</div>
@@ -443,14 +402,10 @@ export const AISettingsTab: React.FC = () => {
 								</TableHeader>
 								<TableBody>
 									{OPERATION_TYPES.map((opType) => {
-										const config = modelConfigs.find(
-											(c) => c.operation_type === opType.value,
-										);
+										const config = modelConfigs.find((c) => c.operation_type === opType.value);
 										if (!config) return null;
 
-										const selectedModel = AI_MODELS.find(
-											(m) => m.value === config.model,
-										);
+										const selectedModel = AI_MODELS.find((m) => m.value === config.model);
 
 										return (
 											<TableRow key={opType.value}>
@@ -468,16 +423,14 @@ export const AISettingsTab: React.FC = () => {
 													<Select
 														className="w-[180px]"
 														onValueChange={(value) =>
-															updateModelConfig(opType.value, "model", value)
+															updateModelConfig(opType.value, 'model', value)
 														}
 														options={AI_MODELS.map((model) => ({
 															value: model.value,
 															label: model.label,
 														}))}
 														renderOption={(option) => {
-															const model = AI_MODELS.find(
-																(m) => m.value === option.value,
-															);
+															const model = AI_MODELS.find((m) => m.value === option.value);
 															return (
 																<div className="flex items-center gap-2">
 																	{option.label}
@@ -498,12 +451,12 @@ export const AISettingsTab: React.FC = () => {
 												<TableCell>
 													<Input
 														className="w-[100px]"
-														disabled={config.model === "whisper-1"}
+														disabled={config.model === 'whisper-1'}
 														onChange={(e) =>
 															updateModelConfig(
 																opType.value,
-																"max_tokens",
-																Number.parseInt(e.target.value, 10),
+																'max_tokens',
+																Number.parseInt(e.target.value, 10)
 															)
 														}
 														type="number"
@@ -513,14 +466,14 @@ export const AISettingsTab: React.FC = () => {
 												<TableCell>
 													<Input
 														className="w-[80px]"
-														disabled={config.model === "whisper-1"}
+														disabled={config.model === 'whisper-1'}
 														max="2"
 														min="0"
 														onChange={(e) =>
 															updateModelConfig(
 																opType.value,
-																"temperature",
-																Number.parseFloat(e.target.value),
+																'temperature',
+																Number.parseFloat(e.target.value)
 															)
 														}
 														step="0.1"
@@ -529,11 +482,8 @@ export const AISettingsTab: React.FC = () => {
 													/>
 												</TableCell>
 												<TableCell>
-													<Badge
-														className="bg-accent/10 text-accent"
-														variant="outline"
-													>
-														{selectedModel?.cost || "N/A"}
+													<Badge className="bg-accent/10 text-accent" variant="outline">
+														{selectedModel?.cost || 'N/A'}
 													</Badge>
 												</TableCell>
 											</TableRow>
@@ -564,8 +514,8 @@ export const AISettingsTab: React.FC = () => {
 								Используйте GPT-4o-mini для массовых операций
 							</p>
 							<p className="text-[13px]! text-muted-foreground">
-								Для мотивационных карточек и анализа эмоций GPT-4o-mini
-								обеспечивает отличное качество при стоимости в 8 раз ниже GPT-4o
+								Для мотивационных карточек и анализа эмоций GPT-4o-mini обеспечивает отличное
+								качество при стоимости в 8 раз ниже GPT-4o
 							</p>
 						</div>
 					</div>
@@ -575,12 +525,10 @@ export const AISettingsTab: React.FC = () => {
 							<span className="text-[15px]!">📊</span>
 						</div>
 						<div>
-							<p className="font-medium! text-[15px]! text-foreground">
-								Оптимизируйте max_tokens
-							</p>
+							<p className="font-medium! text-[15px]! text-foreground">Оптимизируйте max_tokens</p>
 							<p className="text-[13px]! text-muted-foreground">
-								Установите разумные лимиты токенов для каждой операции. Для
-								карточек достаточно 500 токенов, для отчетов - 2000
+								Установите разумные лимиты токенов для каждой операции. Для карточек достаточно 500
+								токенов, для отчетов - 2000
 							</p>
 						</div>
 					</div>
@@ -594,8 +542,7 @@ export const AISettingsTab: React.FC = () => {
 								Настройте temperature правильно
 							</p>
 							<p className="text-[13px]! text-muted-foreground">
-								Для аналитики используйте 0.5-0.7, для креативных задач (AI
-								Coach) - 0.8-1.0
+								Для аналитики используйте 0.5-0.7, для креативных задач (AI Coach) - 0.8-1.0
 							</p>
 						</div>
 					</div>

@@ -11,7 +11,7 @@
  * - Custom precision
  */
 
-export type NumberFormatStyle = "decimal" | "currency" | "percent" | "unit";
+export type NumberFormatStyle = 'decimal' | 'currency' | 'percent' | 'unit';
 
 export type NumberFormatOptions = {
 	style?: NumberFormatStyle;
@@ -19,9 +19,9 @@ export type NumberFormatOptions = {
 	minimumFractionDigits?: number;
 	maximumFractionDigits?: number;
 	useGrouping?: boolean;
-	notation?: "standard" | "scientific" | "engineering" | "compact";
-	compactDisplay?: "short" | "long";
-	signDisplay?: "auto" | "never" | "always" | "exceptZero";
+	notation?: 'standard' | 'scientific' | 'engineering' | 'compact';
+	compactDisplay?: 'short' | 'long';
+	signDisplay?: 'auto' | 'never' | 'always' | 'exceptZero';
 };
 
 /**
@@ -30,17 +30,17 @@ export type NumberFormatOptions = {
 export function formatNumber(
 	value: number,
 	locale: string,
-	options: NumberFormatOptions = {},
+	options: NumberFormatOptions = {}
 ): string {
-	if (typeof value !== "number" || Number.isNaN(value)) {
-		console.error("Invalid number:", value);
+	if (typeof value !== 'number' || Number.isNaN(value)) {
+		console.error('Invalid number:', value);
 		return String(value);
 	}
 
 	try {
 		return new Intl.NumberFormat(locale, options).format(value);
 	} catch (error) {
-		console.error("Number formatting error:", error);
+		console.error('Number formatting error:', error);
 		return value.toString();
 	}
 }
@@ -51,12 +51,12 @@ export function formatNumber(
 export function formatCurrency(
 	value: number,
 	locale: string,
-	currency = "USD",
-	options: Omit<NumberFormatOptions, "style" | "currency"> = {},
+	currency = 'USD',
+	options: Omit<NumberFormatOptions, 'style' | 'currency'> = {}
 ): string {
 	return formatNumber(value, locale, {
 		...options,
-		style: "currency",
+		style: 'currency',
 		currency,
 	});
 }
@@ -67,11 +67,11 @@ export function formatCurrency(
 export function formatPercent(
 	value: number,
 	locale: string,
-	options: Omit<NumberFormatOptions, "style"> = {},
+	options: Omit<NumberFormatOptions, 'style'> = {}
 ): string {
 	return formatNumber(value, locale, {
 		...options,
-		style: "percent",
+		style: 'percent',
 	});
 }
 
@@ -81,25 +81,21 @@ export function formatPercent(
 export function formatCompact(
 	value: number,
 	locale: string,
-	options: Omit<NumberFormatOptions, "notation"> = {},
+	options: Omit<NumberFormatOptions, 'notation'> = {}
 ): string {
 	return formatNumber(value, locale, {
 		...options,
-		notation: "compact",
-		compactDisplay: "short",
+		notation: 'compact',
+		compactDisplay: 'short',
 	});
 }
 
 /**
  * Format number with custom precision
  */
-export function formatDecimal(
-	value: number,
-	locale: string,
-	decimals = 2,
-): string {
+export function formatDecimal(value: number, locale: string, decimals = 2): string {
 	return formatNumber(value, locale, {
-		style: "decimal",
+		style: 'decimal',
 		minimumFractionDigits: decimals,
 		maximumFractionDigits: decimals,
 	});
@@ -108,17 +104,13 @@ export function formatDecimal(
 /**
  * Format file size (bytes to KB, MB, GB)
  */
-export function formatFileSize(
-	bytes: number,
-	locale: string,
-	decimals = 2,
-): string {
+export function formatFileSize(bytes: number, locale: string, decimals = 2): string {
 	if (bytes === 0) {
-		return "0 Bytes";
+		return '0 Bytes';
 	}
 
 	const k = 1024;
-	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 
 	const value = bytes / k ** i;
@@ -133,7 +125,7 @@ export function formatFileSize(
 export function formatDuration(
 	seconds: number,
 	_locale: string,
-	style: "short" | "long" = "short",
+	style: 'short' | 'long' = 'short'
 ): string {
 	const hours = Math.floor(seconds / 3600);
 	const minutes = Math.floor((seconds % 3600) / 60);
@@ -142,16 +134,16 @@ export function formatDuration(
 	const parts: string[] = [];
 
 	if (hours > 0) {
-		parts.push(style === "short" ? `${hours}h` : `${hours} hours`);
+		parts.push(style === 'short' ? `${hours}h` : `${hours} hours`);
 	}
 	if (minutes > 0) {
-		parts.push(style === "short" ? `${minutes}m` : `${minutes} minutes`);
+		parts.push(style === 'short' ? `${minutes}m` : `${minutes} minutes`);
 	}
 	if (secs > 0 || parts.length === 0) {
-		parts.push(style === "short" ? `${secs}s` : `${secs} seconds`);
+		parts.push(style === 'short' ? `${secs}s` : `${secs} seconds`);
 	}
 
-	return parts.join(" ");
+	return parts.join(' ');
 }
 
 /**
@@ -161,7 +153,7 @@ export function formatNumberRange(
 	start: number,
 	end: number,
 	locale: string,
-	options: NumberFormatOptions = {},
+	options: NumberFormatOptions = {}
 ): string {
 	try {
 		// @ts-expect-error - formatRange is not in all TypeScript versions
@@ -175,7 +167,7 @@ export function formatNumberRange(
 		const formattedEnd = formatNumber(end, locale, options);
 		return `${formattedStart} - ${formattedEnd}`;
 	} catch (error) {
-		console.error("Number range formatting error:", error);
+		console.error('Number range formatting error:', error);
 		return `${start} - ${end}`;
 	}
 }
@@ -185,7 +177,7 @@ export function formatNumberRange(
  */
 export function formatOrdinal(value: number, locale: string): string {
 	// English ordinals
-	if (locale.startsWith("en")) {
+	if (locale.startsWith('en')) {
 		const j = value % 10;
 		const k = value % 100;
 
@@ -202,22 +194,22 @@ export function formatOrdinal(value: number, locale: string): string {
 	}
 
 	// Russian ordinals
-	if (locale.startsWith("ru")) {
+	if (locale.startsWith('ru')) {
 		return `${value}-й`;
 	}
 
 	// Spanish ordinals
-	if (locale.startsWith("es")) {
+	if (locale.startsWith('es')) {
 		return `${value}º`;
 	}
 
 	// German ordinals
-	if (locale.startsWith("de")) {
+	if (locale.startsWith('de')) {
 		return `${value}.`;
 	}
 
 	// French ordinals
-	if (locale.startsWith("fr")) {
+	if (locale.startsWith('fr')) {
 		return value === 1 ? `${value}er` : `${value}e`;
 	}
 
@@ -230,19 +222,18 @@ export function formatOrdinal(value: number, locale: string): string {
  */
 export const NUMBER_FORMATS = {
 	// Decimal formats
-	decimal: (value: number, locale: string) =>
-		formatNumber(value, locale, { style: "decimal" }),
+	decimal: (value: number, locale: string) => formatNumber(value, locale, { style: 'decimal' }),
 
 	decimal2: (value: number, locale: string) => formatDecimal(value, locale, 2),
 
 	decimal0: (value: number, locale: string) => formatDecimal(value, locale, 0),
 
 	// Currency formats
-	usd: (value: number, locale: string) => formatCurrency(value, locale, "USD"),
+	usd: (value: number, locale: string) => formatCurrency(value, locale, 'USD'),
 
-	eur: (value: number, locale: string) => formatCurrency(value, locale, "EUR"),
+	eur: (value: number, locale: string) => formatCurrency(value, locale, 'EUR'),
 
-	rub: (value: number, locale: string) => formatCurrency(value, locale, "RUB"),
+	rub: (value: number, locale: string) => formatCurrency(value, locale, 'RUB'),
 
 	// Percentage formats
 	percent: (value: number, locale: string) => formatPercent(value, locale),
@@ -258,19 +249,17 @@ export const NUMBER_FORMATS = {
 
 	compactLong: (value: number, locale: string) =>
 		formatNumber(value, locale, {
-			notation: "compact",
-			compactDisplay: "long",
+			notation: 'compact',
+			compactDisplay: 'long',
 		}),
 
 	// File size
 	fileSize: (value: number, locale: string) => formatFileSize(value, locale),
 
 	// Duration
-	duration: (value: number, locale: string) =>
-		formatDuration(value, locale, "short"),
+	duration: (value: number, locale: string) => formatDuration(value, locale, 'short'),
 
-	durationLong: (value: number, locale: string) =>
-		formatDuration(value, locale, "long"),
+	durationLong: (value: number, locale: string) => formatDuration(value, locale, 'long'),
 
 	// Ordinal
 	ordinal: (value: number, locale: string) => formatOrdinal(value, locale),
@@ -283,18 +272,17 @@ export function parseNumber(value: string, locale: string): number | null {
 	try {
 		// Remove grouping separators and replace decimal separator
 		const parts = new Intl.NumberFormat(locale).formatToParts(12_345.6);
-		const groupSeparator = parts.find((p) => p.type === "group")?.value || ",";
-		const decimalSeparator =
-			parts.find((p) => p.type === "decimal")?.value || ".";
+		const groupSeparator = parts.find((p) => p.type === 'group')?.value || ',';
+		const decimalSeparator = parts.find((p) => p.type === 'decimal')?.value || '.';
 
 		const normalized = value
-			.replace(new RegExp(`\\${groupSeparator}`, "g"), "")
-			.replace(decimalSeparator, ".");
+			.replace(new RegExp(`\\${groupSeparator}`, 'g'), '')
+			.replace(decimalSeparator, '.');
 
 		const parsed = Number.parseFloat(normalized);
 		return Number.isNaN(parsed) ? null : parsed;
 	} catch (error) {
-		console.error("Number parsing error:", error);
+		console.error('Number parsing error:', error);
 		return null;
 	}
 }
@@ -309,11 +297,11 @@ export function getNumberSeparators(locale: string): {
 	try {
 		const parts = new Intl.NumberFormat(locale).formatToParts(12_345.6);
 		return {
-			decimal: parts.find((p) => p.type === "decimal")?.value || ".",
-			group: parts.find((p) => p.type === "group")?.value || ",",
+			decimal: parts.find((p) => p.type === 'decimal')?.value || '.',
+			group: parts.find((p) => p.type === 'group')?.value || ',',
 		};
 	} catch (error) {
-		console.error("Get separators error:", error);
-		return { decimal: ".", group: "," };
+		console.error('Get separators error:', error);
+		return { decimal: '.', group: ',' };
 	}
 }

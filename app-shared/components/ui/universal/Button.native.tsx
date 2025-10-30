@@ -6,7 +6,7 @@
  * @module components/ui/universal/Button.native
  */
 
-import type React from "react";
+import type React from 'react';
 import {
 	ActivityIndicator,
 	Pressable,
@@ -15,21 +15,15 @@ import {
 	type TextStyle,
 	View,
 	type ViewStyle,
-} from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+} from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type ButtonVariant =
-	| "default"
-	| "destructive"
-	| "outline"
-	| "secondary"
-	| "ghost"
-	| "link";
-export type ButtonSize = "default" | "sm" | "lg" | "icon";
+export type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
 export interface ButtonProps {
 	/** Button children */
@@ -66,59 +60,48 @@ export interface ButtonProps {
 // STYLES
 // ============================================================================
 
-const getVariantStyles = (
-	variant: ButtonVariant,
-	pressed: boolean,
-): ViewStyle => {
+const getVariantStyles = (variant: ButtonVariant, pressed: boolean): ViewStyle => {
 	const baseStyle: ViewStyle = {
 		borderRadius: DesignTokens.borderRadius.md,
 		borderWidth: 1,
 	};
 
 	switch (variant) {
-		case "default":
+		case 'default':
 			return {
 				...baseStyle,
-				backgroundColor: pressed
-					? DesignTokens.colors.primaryDark
-					: DesignTokens.colors.primary,
-				borderColor: "transparent",
+				backgroundColor: pressed ? DesignTokens.colors.primaryDark : DesignTokens.colors.primary,
+				borderColor: 'transparent',
 			};
-		case "destructive":
+		case 'destructive':
 			return {
 				...baseStyle,
-				backgroundColor: pressed ? "#c41e3a" : DesignTokens.colors.error,
-				borderColor: "transparent",
+				backgroundColor: pressed ? '#c41e3a' : DesignTokens.colors.error,
+				borderColor: 'transparent',
 			};
-		case "outline":
+		case 'outline':
 			return {
 				...baseStyle,
-				backgroundColor: pressed
-					? DesignTokens.colors.surfaceHover
-					: "transparent",
+				backgroundColor: pressed ? DesignTokens.colors.surfaceHover : 'transparent',
 				borderColor: DesignTokens.colors.border,
 			};
-		case "secondary":
+		case 'secondary':
 			return {
 				...baseStyle,
-				backgroundColor: pressed
-					? DesignTokens.colors.surfaceHover
-					: DesignTokens.colors.surface,
-				borderColor: "transparent",
+				backgroundColor: pressed ? DesignTokens.colors.surfaceHover : DesignTokens.colors.surface,
+				borderColor: 'transparent',
 			};
-		case "ghost":
+		case 'ghost':
 			return {
 				...baseStyle,
-				backgroundColor: pressed
-					? DesignTokens.colors.surfaceHover
-					: "transparent",
-				borderColor: "transparent",
+				backgroundColor: pressed ? DesignTokens.colors.surfaceHover : 'transparent',
+				borderColor: 'transparent',
 			};
-		case "link":
+		case 'link':
 			return {
 				...baseStyle,
-				backgroundColor: "transparent",
-				borderColor: "transparent",
+				backgroundColor: 'transparent',
+				borderColor: 'transparent',
 				borderWidth: 0,
 			};
 		default:
@@ -128,24 +111,24 @@ const getVariantStyles = (
 
 const getVariantTextStyles = (variant: ButtonVariant): TextStyle => {
 	switch (variant) {
-		case "default":
-		case "destructive":
+		case 'default':
+		case 'destructive':
 			return {
-				color: "#FFFFFF",
+				color: '#FFFFFF',
 			};
-		case "outline":
-		case "ghost":
-			return {
-				color: DesignTokens.colors.text,
-			};
-		case "secondary":
+		case 'outline':
+		case 'ghost':
 			return {
 				color: DesignTokens.colors.text,
 			};
-		case "link":
+		case 'secondary':
+			return {
+				color: DesignTokens.colors.text,
+			};
+		case 'link':
 			return {
 				color: DesignTokens.colors.primary,
-				textDecorationLine: "underline",
+				textDecorationLine: 'underline',
 			};
 		default:
 			return {
@@ -156,19 +139,19 @@ const getVariantTextStyles = (variant: ButtonVariant): TextStyle => {
 
 const getSizeStyles = (size: ButtonSize): ViewStyle => {
 	switch (size) {
-		case "sm":
+		case 'sm':
 			return {
 				paddingHorizontal: DesignTokens.spacing.sm,
 				paddingVertical: DesignTokens.spacing.xs,
 				minHeight: 32,
 			};
-		case "lg":
+		case 'lg':
 			return {
 				paddingHorizontal: DesignTokens.spacing.lg,
 				paddingVertical: DesignTokens.spacing.md,
 				minHeight: 48,
 			};
-		case "icon":
+		case 'icon':
 			return {
 				width: 40,
 				height: 40,
@@ -185,15 +168,15 @@ const getSizeStyles = (size: ButtonSize): ViewStyle => {
 
 const getSizeTextStyles = (size: ButtonSize): TextStyle => {
 	switch (size) {
-		case "sm":
+		case 'sm':
 			return {
 				fontSize: DesignTokens.fontSize.sm,
 			};
-		case "lg":
+		case 'lg':
 			return {
 				fontSize: DesignTokens.fontSize.lg,
 			};
-		case "icon":
+		case 'icon':
 			return {
 				fontSize: DesignTokens.fontSize.md,
 			};
@@ -210,8 +193,8 @@ const getSizeTextStyles = (size: ButtonSize): TextStyle => {
 
 export function Button({
 	children,
-	variant = "default",
-	size = "default",
+	variant = 'default',
+	size = 'default',
 	loading = false,
 	leftIcon,
 	rightIcon,
@@ -249,8 +232,8 @@ export function Button({
 				{loading && (
 					<ActivityIndicator
 						color={
-							variant === "default" || variant === "destructive"
-								? "#FFFFFF"
+							variant === 'default' || variant === 'destructive'
+								? '#FFFFFF'
 								: DesignTokens.colors.primary
 						}
 						size="small"
@@ -258,7 +241,7 @@ export function Button({
 					/>
 				)}
 				{!loading && leftIcon && <View style={styles.icon}>{leftIcon}</View>}
-				{typeof children === "string" ? (
+				{typeof children === 'string' ? (
 					<Text
 						style={[
 							styles.text,
@@ -285,29 +268,29 @@ export function Button({
 
 const styles = StyleSheet.create({
 	base: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	content: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
 		gap: DesignTokens.spacing.xs,
 	},
 	text: {
 		fontWeight: DesignTokens.fontWeight.medium,
-		textAlign: "center",
+		textAlign: 'center',
 	},
 	icon: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	loader: {
 		marginRight: DesignTokens.spacing.xs,
 	},
 	fullWidth: {
-		width: "100%",
+		width: '100%',
 	},
 	disabled: {
 		opacity: 0.5,
@@ -329,7 +312,7 @@ export const ButtonUtils = {
 		const errors: string[] = [];
 
 		if (props.loading && (props.leftIcon || props.rightIcon)) {
-			errors.push("Button cannot have icons when loading");
+			errors.push('Button cannot have icons when loading');
 		}
 
 		return {
@@ -343,6 +326,6 @@ export const ButtonUtils = {
 // EXPORTS
 // ============================================================================
 
-Button.displayName = "Button";
+Button.displayName = 'Button';
 
 export default Button;

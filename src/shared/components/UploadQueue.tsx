@@ -1,7 +1,7 @@
-import { Pause, Trash2, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import type { UploadStatus } from "../hooks/useMediaUploader";
-import { UploadProgress } from "./UploadProgress";
+import { Pause, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type { UploadStatus } from '../hooks/useMediaUploader';
+import { UploadProgress } from './UploadProgress';
 
 interface QueueItem extends UploadStatus {
 	id: string;
@@ -27,12 +27,10 @@ export function UploadQueue({
 		return null;
 	}
 
-	const completedCount = queue.filter(
-		(item) => item.status === "success",
-	).length;
-	const errorCount = queue.filter((item) => item.status === "error").length;
+	const completedCount = queue.filter((item) => item.status === 'success').length;
+	const errorCount = queue.filter((item) => item.status === 'error').length;
 	const activeCount = queue.filter(
-		(item) => item.status === "processing" || item.status === "uploading",
+		(item) => item.status === 'processing' || item.status === 'uploading'
 	).length;
 
 	return (
@@ -84,7 +82,7 @@ export function UploadQueue({
 					<AnimatePresence mode="popLayout">
 						{queue.map((item) => (
 							<motion.div
-								animate={{ opacity: 1, height: "auto" }}
+								animate={{ opacity: 1, height: 'auto' }}
 								className="border-gray-100 border-b last:border-b-0 dark:border-border"
 								exit={{ opacity: 0, height: 0 }}
 								initial={{ opacity: 0, height: 0 }}
@@ -106,17 +104,15 @@ export function UploadQueue({
 										{/* Action buttons */}
 										<div className="flex items-center gap-1">
 											{/* Pause/Resume button */}
-											{(item.status === "processing" ||
-												item.status === "uploading") &&
-												onPause && (
-													<button
-														aria-label="Pause"
-														className="rounded p-1.5 transition-colors hover:bg-muted dark:hover:bg-muted"
-														onClick={() => onPause(item.id)}
-													>
-														<Pause className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
-													</button>
-												)}
+											{(item.status === 'processing' || item.status === 'uploading') && onPause && (
+												<button
+													aria-label="Pause"
+													className="rounded p-1.5 transition-colors hover:bg-muted dark:hover:bg-muted"
+													onClick={() => onPause(item.id)}
+												>
+													<Pause className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
+												</button>
+											)}
 
 											{/* Cancel/Remove button */}
 											{onCancel && (
@@ -125,8 +121,7 @@ export function UploadQueue({
 													className="rounded p-1.5 transition-colors hover:bg-red-100 dark:hover:bg-red-900/20"
 													onClick={() => onCancel(item.id)}
 												>
-													{item.status === "success" ||
-													item.status === "error" ? (
+													{item.status === 'success' || item.status === 'error' ? (
 														<X className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
 													) : (
 														<Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />

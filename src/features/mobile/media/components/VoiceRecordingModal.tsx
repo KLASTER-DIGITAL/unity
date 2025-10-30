@@ -13,9 +13,9 @@
  * @date 2025-10-19
  */
 
-import { Mic } from "lucide-react";
-import { motion } from "motion/react";
-import { BottomSheet } from "@/shared/components/ui/BottomSheet";
+import { Mic } from 'lucide-react';
+import { motion } from 'motion/react';
+import { BottomSheet } from '@/shared/components/ui/BottomSheet';
 
 type VoiceRecordingModalProps = {
 	isRecording: boolean;
@@ -76,11 +76,9 @@ export function VoiceRecordingModal({
 
 				{/* Recording Status */}
 				<div className="mb-8 text-center">
-					<h3 className="mb-3 font-semibold text-foreground text-xl">
-						Идёт запись...
-					</h3>
+					<h3 className="mb-3 font-semibold text-foreground text-xl">Идёт запись...</h3>
 					<p className="font-bold text-4xl text-red-500 tabular-nums">
-						{minutes}:{seconds.toString().padStart(2, "0")}
+						{minutes}:{seconds.toString().padStart(2, '0')}
 					</p>
 				</div>
 

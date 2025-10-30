@@ -3,29 +3,24 @@
  * Manages user categories (default + custom)
  */
 
-import { Tag } from "lucide-react";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Tag } from 'lucide-react';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type CategoriesSectionProps = {
 	onCategoriesClick: () => void;
 	t: any;
 };
 
-export function CategoriesSection({
-	onCategoriesClick,
-	t,
-}: CategoriesSectionProps) {
+export function CategoriesSection({ onCategoriesClick, t }: CategoriesSectionProps) {
 	return (
-		<SettingsSection title={t.personalization || "Персонализация"}>
+		<SettingsSection title={t.personalization || 'Персонализация'}>
 			<SettingsRow
-				description={
-					t.categoriesDescription || "Управление категориями записей"
-				}
+				description={t.categoriesDescription || 'Управление категориями записей'}
 				icon={Tag}
 				iconBgColor="bg-[var(--ios-orange)]/10"
 				iconColor="text-[var(--ios-orange)]"
 				onClick={onCategoriesClick}
-				title={t.categories || "Мои категории"}
+				title={t.categories || 'Мои категории'}
 			/>
 		</SettingsSection>
 	);

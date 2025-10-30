@@ -5,7 +5,7 @@
  * Разбито из App.tsx для соблюдения AI-friendly правила (<250 строк)
  */
 
-import { useState } from "react";
+import { useState } from 'react';
 
 // Onboarding data interface
 export type OnboardingData = {
@@ -13,7 +13,7 @@ export type OnboardingData = {
 	diaryName: string;
 	diaryEmoji: string;
 	notificationSettings: {
-		selectedTime: "none" | "morning" | "evening" | "both";
+		selectedTime: 'none' | 'morning' | 'evening' | 'both';
 		morningTime: string;
 		eveningTime: string;
 		permissionGranted: boolean;
@@ -28,7 +28,7 @@ export function useAppState() {
 	// Onboarding state
 	const [currentStep, setCurrentStep] = useState(1);
 	const [onboardingComplete, setOnboardingComplete] = useState(false);
-	const [selectedLanguage, setSelectedLanguage] = useState("ru");
+	const [selectedLanguage, setSelectedLanguage] = useState('ru');
 
 	// User state
 	const [userData, setUserData] = useState<any>(null);
@@ -43,7 +43,7 @@ export function useAppState() {
 	// Auth state
 	const [showAdminAuth, setShowAdminAuth] = useState(false);
 	const [showAuth, setShowAuth] = useState(false);
-	const [authMode, setAuthMode] = useState<"login" | "register">("register");
+	const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
 
 	// PWA state
 	const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -55,16 +55,16 @@ export function useAppState() {
 
 	// Onboarding data state
 	const [onboardingData, setOnboardingData] = useState<OnboardingData>({
-		language: "ru",
-		diaryName: "Мой дневник",
-		diaryEmoji: "🏆",
+		language: 'ru',
+		diaryName: 'Мой дневник',
+		diaryEmoji: '🏆',
 		notificationSettings: {
-			selectedTime: "none",
-			morningTime: "08:00",
-			eveningTime: "21:00",
+			selectedTime: 'none',
+			morningTime: '08:00',
+			eveningTime: '21:00',
 			permissionGranted: false,
 		},
-		firstEntry: "",
+		firstEntry: '',
 	});
 
 	return {

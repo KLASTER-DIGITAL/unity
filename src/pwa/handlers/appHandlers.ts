@@ -5,13 +5,10 @@
  * Разбито из App.tsx для соблюдения AI-friendly правила (<250 строк)
  */
 
-import {
-	trackInstallAccepted,
-	trackInstallDismissed,
-} from "@/shared/lib/analytics/pwa-tracking";
-import { setUser } from "@/shared/lib/monitoring/lazy";
-import { signOut } from "@/utils/auth";
-import type { OnboardingData } from "../hooks/useAppState";
+import { trackInstallAccepted, trackInstallDismissed } from '@/shared/lib/analytics/pwa-tracking';
+import { setUser } from '@/shared/lib/monitoring/lazy';
+import { signOut } from '@/utils/auth';
+import type { OnboardingData } from '../hooks/useAppState';
 
 type AppHandlersProps = {
 	userData: any;
@@ -23,11 +20,9 @@ type AppHandlersProps = {
 	setOnboardingComplete: (complete: boolean) => void;
 	setCurrentStep: (step: number) => void;
 	setSelectedLanguage: (lang: string) => void;
-	setOnboardingData: (
-		data: OnboardingData | ((prev: OnboardingData) => OnboardingData),
-	) => void;
+	setOnboardingData: (data: OnboardingData | ((prev: OnboardingData) => OnboardingData)) => void;
 	setShowAuth: (show: boolean) => void;
-	setAuthMode: (mode: "login" | "register") => void;
+	setAuthMode: (mode: 'login' | 'register') => void;
 	setShowInstallPrompt: (show: boolean) => void;
 	setDeferredPrompt: (prompt: any) => void;
 	setShowAdminAuth: (show: boolean) => void;
@@ -58,10 +53,10 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик установки PWA
 	 */
 	const handleInstall = async () => {
-		console.log("[PWA] Install button clicked");
+		console.log('[PWA] Install button clicked');
 
 		if (!deferredPrompt) {
-			console.log("[PWA] No deferred prompt available");
+			console.log('[PWA] No deferred prompt available');
 			return;
 		}
 
@@ -85,7 +80,7 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 */
 	const handleInstallClose = async () => {
 		// Track закрытие install prompt
-		trackInstallDismissed(userData?.id || null, "user_closed");
+		trackInstallDismissed(userData?.id || null, 'user_closed');
 		setShowInstallPrompt(false);
 	};
 
@@ -102,7 +97,7 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик пропуска Welcome Screen (переход к логину)
 	 */
 	const handleWelcomeSkip = () => {
-		setAuthMode("login"); // Пользователь хочет войти
+		setAuthMode('login'); // Пользователь хочет войти
 		setShowAuth(true);
 	};
 
@@ -151,7 +146,7 @@ export function createAppHandlers(props: AppHandlersProps) {
 			username: user.profile?.name || user.email,
 		});
 
-		console.log("✅ [App.tsx] Auth complete, user:", user.email);
+		console.log('✅ [App.tsx] Auth complete, user:', user.email);
 
 		// Если пользователь прошел онбординг (есть firstEntry), создаем первую запись
 		// Это будет обработано в MobileApp через onAuthComplete
@@ -162,20 +157,16 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик выхода из PWA кабинета
 	 */
 	const handleLogout = async () => {
-		console.log(
-			"🚪 [App.tsx] PWA user full logout - clearing session for welcome screen",
-		);
+		console.log('🚪 [App.tsx] PWA user full logout - clearing session for welcome screen');
 
 		try {
 			await signOut();
 			setUserData(null);
 			setOnboardingComplete(false);
 			setCurrentStep(1);
-			console.log(
-				"✅ [App.tsx] PWA logout successful - redirecting to welcome",
-			);
+			console.log('✅ [App.tsx] PWA logout successful - redirecting to welcome');
 		} catch (error) {
-			console.error("❌ [App.tsx] PWA logout error:", error);
+			console.error('❌ [App.tsx] PWA logout error:', error);
 		}
 	};
 
@@ -183,15 +174,15 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик выхода из админ-панели
 	 */
 	const handleAdminLogout = async () => {
-		console.log("🔐 [App.tsx] Admin logout - clearing session for security");
+		console.log('🔐 [App.tsx] Admin logout - clearing session for security');
 
 		try {
 			await signOut();
 			setUserData(null);
 			setShowAdminAuth(true);
-			console.log("✅ [App.tsx] Admin logout successful");
+			console.log('✅ [App.tsx] Admin logout successful');
 		} catch (error) {
-			console.error("❌ [App.tsx] Admin logout error:", error);
+			console.error('❌ [App.tsx] Admin logout error:', error);
 		}
 	};
 
@@ -199,12 +190,7 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик завершения авторизации админа
 	 */
 	const handleAdminAuthComplete = (adminUser: any) => {
-		console.log(
-			"🔐 [App.tsx] Admin auth complete:",
-			adminUser.email,
-			"role:",
-			adminUser.role,
-		);
+		console.log('🔐 [App.tsx] Admin auth complete:', adminUser.email, 'role:', adminUser.role);
 
 		// Set user in Sentry for error tracking
 		setUser({
@@ -222,10 +208,7 @@ export function createAppHandlers(props: AppHandlersProps) {
 	 * Обработчик обновления профиля
 	 */
 	const handleProfileUpdate = (updatedProfile: any) => {
-		console.log(
-			"🔄 [App.tsx] Updating userData with new profile:",
-			updatedProfile,
-		);
+		console.log('🔄 [App.tsx] Updating userData with new profile:', updatedProfile);
 		setUserData((prev: any) => ({
 			...prev,
 			...updatedProfile,

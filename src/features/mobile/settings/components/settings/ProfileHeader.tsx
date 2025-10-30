@@ -1,10 +1,6 @@
-import { Edit2 } from "lucide-react";
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/shared/components/ui/avatar";
-import { DEFAULT_AVATAR_URL } from "./constants";
+import { Edit2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { DEFAULT_AVATAR_URL } from './constants';
 
 type ProfileHeaderProps = {
 	profile: any;
@@ -24,10 +20,7 @@ export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
 			<div className="flex flex-col items-center">
 				<div className="relative">
 					<Avatar className="h-24 w-24 ring-4 ring-primary/10">
-						<AvatarImage
-							alt={profile?.name}
-							src={profile?.avatar || DEFAULT_AVATAR_URL}
-						/>
+						<AvatarImage alt={profile?.name} src={profile?.avatar || DEFAULT_AVATAR_URL} />
 						<AvatarFallback className="bg-muted">
 							<img
 								alt="Default avatar"
@@ -48,7 +41,7 @@ export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
 				{/* User Info - Name and Email */}
 				<div className="mt-4 text-center">
 					<h1 className="mb-1 font-semibold text-foreground text-lg">
-						{profile?.name || "Мой аккаунт"}
+						{profile?.name || 'Мой аккаунт'}
 					</h1>
 					<p className="text-muted-foreground text-sm">{profile?.email}</p>
 				</div>

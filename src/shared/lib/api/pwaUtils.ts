@@ -4,18 +4,18 @@
  * Platform-agnostic PWA utilities using Storage Adapter
  */
 
-import { storage } from "@/shared/lib/platform/storage";
+import { storage } from '@/shared/lib/platform/storage';
 
 export interface PWAInstallPromptEvent extends Event {
 	prompt: () => Promise<void>;
-	userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+	userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
 /**
  * Проверяет, поддерживает ли браузер PWA установку
  */
 export function isPWASupported(): boolean {
-	return "serviceWorker" in navigator && "PushManager" in window;
+	return 'serviceWorker' in navigator && 'PushManager' in window;
 }
 
 /**
@@ -23,7 +23,7 @@ export function isPWASupported(): boolean {
  */
 export function isPWAInstalled(): boolean {
 	// Проверка для браузеров с поддержкой display-mode
-	if (window.matchMedia("(display-mode: standalone)").matches) {
+	if (window.matchMedia('(display-mode: standalone)').matches) {
 		return true;
 	}
 
@@ -33,7 +33,7 @@ export function isPWAInstalled(): boolean {
 	}
 
 	// Проверка параметра URL (если приложение открыто из PWA)
-	if (document.referrer.startsWith("android-app://")) {
+	if (document.referrer.startsWith('android-app://')) {
 		return true;
 	}
 
@@ -44,31 +44,31 @@ export function isPWAInstalled(): boolean {
  * Проверяет, показывалось ли уже приглашение установки
  */
 export async function wasInstallPromptShown(): Promise<boolean> {
-	const value = await storage.getItem("installPromptShown");
-	return value === "true";
+	const value = await storage.getItem('installPromptShown');
+	return value === 'true';
 }
 
 /**
  * Помечает что приглашение установки было показано
  */
 export async function markInstallPromptAsShown(): Promise<void> {
-	await storage.setItem("installPromptShown", "true");
+	await storage.setItem('installPromptShown', 'true');
 }
 
 /**
  * Проверяет, включена ли PWA в админ-панели
  */
 export async function isPWAEnabled(): Promise<boolean> {
-	const pwaEnabled = await storage.getItem("pwa-enabled");
+	const pwaEnabled = await storage.getItem('pwa-enabled');
 	// По умолчанию true, если ключ не установлен
-	return pwaEnabled !== "false";
+	return pwaEnabled !== 'false';
 }
 
 /**
  * Включает/выключает PWA
  */
 export async function setPWAEnabled(enabled: boolean): Promise<void> {
-	await storage.setItem("pwa-enabled", enabled ? "true" : "false");
+	await storage.setItem('pwa-enabled', enabled ? 'true' : 'false');
 }
 
 /**
@@ -96,7 +96,7 @@ export function getInstallInstructions(): {
 	// iOS Safari
 	if (isIOSSafari()) {
 		return {
-			platform: "iOS Safari",
+			platform: 'iOS Safari',
 			steps: [
 				'Нажмите кнопку "Поделиться" внизу экрана',
 				'Прокрутите вниз и нажмите "На экран Домой"',
@@ -108,11 +108,11 @@ export function getInstallInstructions(): {
 	// Android Chrome
 	if (/Chrome/.test(ua) && /Android/.test(ua)) {
 		return {
-			platform: "Android Chrome",
+			platform: 'Android Chrome',
 			steps: [
-				"Нажмите меню (три точки) в правом верхнем углу",
+				'Нажмите меню (три точки) в правом верхнем углу',
 				'Выберите "Установить приложение" или "Добавить на главный экран"',
-				"Подтвердите установку",
+				'Подтвердите установку',
 			],
 		};
 	}
@@ -120,11 +120,11 @@ export function getInstallInstructions(): {
 	// Desktop Chrome/Edge
 	if (/Chrome|Edg/.test(ua) && !/Mobile/.test(ua)) {
 		return {
-			platform: "Desktop (Chrome/Edge)",
+			platform: 'Desktop (Chrome/Edge)',
 			steps: [
-				"Нажмите иконку установки в адресной строке",
+				'Нажмите иконку установки в адресной строке',
 				'Или откройте меню → "Установить приложение"',
-				"Подтвердите установку",
+				'Подтвердите установку',
 			],
 		};
 	}
@@ -132,22 +132,22 @@ export function getInstallInstructions(): {
 	// Firefox Android
 	if (/Firefox/.test(ua) && /Android/.test(ua)) {
 		return {
-			platform: "Android Firefox",
+			platform: 'Android Firefox',
 			steps: [
-				"Нажмите меню (три точки) в правом верхнем углу",
+				'Нажмите меню (три точки) в правом верхнем углу',
 				'Выберите "Установить"',
-				"Подтвердите установку",
+				'Подтвердите установку',
 			],
 		};
 	}
 
 	// Другие браузеры
 	return {
-		platform: "Другой браузер",
+		platform: 'Другой браузер',
 		steps: [
-			"Откройте меню браузера",
+			'Откройте меню браузера',
 			'Найдите опцию "Добавить на главный экран" или "Установить"',
-			"Следуйте инструкциям браузера",
+			'Следуйте инструкциям браузера',
 		],
 	};
 }
@@ -156,37 +156,35 @@ export function getInstallInstructions(): {
  * Логирует детальную информацию о PWA для отладки
  */
 export async function logPWADebugInfo(): Promise<void> {
-	console.group("🔍 PWA Debug Information");
+	console.group('🔍 PWA Debug Information');
 
-	console.log("PWA Support:", {
-		serviceWorker: "serviceWorker" in navigator,
-		pushManager: "PushManager" in window,
-		beforeInstallPrompt: "onbeforeinstallprompt" in window,
-		notification: "Notification" in window,
+	console.log('PWA Support:', {
+		serviceWorker: 'serviceWorker' in navigator,
+		pushManager: 'PushManager' in window,
+		beforeInstallPrompt: 'onbeforeinstallprompt' in window,
+		notification: 'Notification' in window,
 	});
 
-	console.log("Installation Status:", {
+	console.log('Installation Status:', {
 		isPWAInstalled: isPWAInstalled(),
-		displayMode: window.matchMedia("(display-mode: standalone)").matches
-			? "standalone"
-			: "browser",
+		displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser',
 		standalone: (window.navigator as any).standalone,
 		wasPromptShown: await wasInstallPromptShown(),
 	});
 
-	console.log("PWA Settings:", {
+	console.log('PWA Settings:', {
 		isPWAEnabled: await isPWAEnabled(),
-		pwaEnabledValue: await storage.getItem("pwa-enabled"),
+		pwaEnabledValue: await storage.getItem('pwa-enabled'),
 	});
 
-	console.log("Browser Info:", {
+	console.log('Browser Info:', {
 		userAgent: navigator.userAgent,
 		isIOSSafari: isIOSSafari(),
 		navigatorPlatform: navigator.platform,
 		...getInstallInstructions(),
 	});
 
-	console.log("Service Worker:", {
+	console.log('Service Worker:', {
 		controller: navigator.serviceWorker?.controller,
 		ready: navigator.serviceWorker?.ready,
 	});

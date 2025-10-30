@@ -9,10 +9,10 @@
  * Format date to YYYY-MM-DD
  */
 export function formatDate(date: Date | string): string {
-	const d = typeof date === "string" ? new Date(date) : date;
+	const d = typeof date === 'string' ? new Date(date) : date;
 	const year = d.getFullYear();
-	const month = String(d.getMonth() + 1).padStart(2, "0");
-	const day = String(d.getDate()).padStart(2, "0");
+	const month = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
 	return `${year}-${month}-${day}`;
 }
 
@@ -20,10 +20,10 @@ export function formatDate(date: Date | string): string {
  * Format date to DD.MM.YYYY
  */
 export function formatDateRu(date: Date | string): string {
-	const d = typeof date === "string" ? new Date(date) : date;
+	const d = typeof date === 'string' ? new Date(date) : date;
 	const year = d.getFullYear();
-	const month = String(d.getMonth() + 1).padStart(2, "0");
-	const day = String(d.getDate()).padStart(2, "0");
+	const month = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
 	return `${day}.${month}.${year}`;
 }
 
@@ -31,17 +31,17 @@ export function formatDateRu(date: Date | string): string {
  * Format time to HH:MM
  */
 export function formatTime(date: Date | string): string {
-	const d = typeof date === "string" ? new Date(date) : date;
-	const hours = String(d.getHours()).padStart(2, "0");
-	const minutes = String(d.getMinutes()).padStart(2, "0");
+	const d = typeof date === 'string' ? new Date(date) : date;
+	const hours = String(d.getHours()).padStart(2, '0');
+	const minutes = String(d.getMinutes()).padStart(2, '0');
 	return `${hours}:${minutes}`;
 }
 
 /**
  * Get relative time (e.g., "2 hours ago")
  */
-export function getRelativeTime(date: Date | string, locale = "ru"): string {
-	const d = typeof date === "string" ? new Date(date) : date;
+export function getRelativeTime(date: Date | string, locale = 'ru'): string {
+	const d = typeof date === 'string' ? new Date(date) : date;
 	const now = new Date();
 	const diffMs = now.getTime() - d.getTime();
 	const diffSec = Math.floor(diffMs / 1000);
@@ -49,14 +49,14 @@ export function getRelativeTime(date: Date | string, locale = "ru"): string {
 	const diffHour = Math.floor(diffMin / 60);
 	const diffDay = Math.floor(diffHour / 24);
 
-	if (locale === "ru") {
-		if (diffSec < 60) return "только что";
+	if (locale === 'ru') {
+		if (diffSec < 60) return 'только что';
 		if (diffMin < 60) return `${diffMin} мин назад`;
 		if (diffHour < 24) return `${diffHour} ч назад`;
 		if (diffDay < 7) return `${diffDay} дн назад`;
 		return formatDateRu(d);
 	}
-	if (diffSec < 60) return "just now";
+	if (diffSec < 60) return 'just now';
 	if (diffMin < 60) return `${diffMin} min ago`;
 	if (diffHour < 24) return `${diffHour} h ago`;
 	if (diffDay < 7) return `${diffDay} d ago`;
@@ -67,7 +67,7 @@ export function getRelativeTime(date: Date | string, locale = "ru"): string {
  * Check if date is today
  */
 export function isToday(date: Date | string): boolean {
-	const d = typeof date === "string" ? new Date(date) : date;
+	const d = typeof date === 'string' ? new Date(date) : date;
 	const today = new Date();
 	return formatDate(d) === formatDate(today);
 }
@@ -76,7 +76,7 @@ export function isToday(date: Date | string): boolean {
  * Check if date is yesterday
  */
 export function isYesterday(date: Date | string): boolean {
-	const d = typeof date === "string" ? new Date(date) : date;
+	const d = typeof date === 'string' ? new Date(date) : date;
 	const yesterday = new Date();
 	yesterday.setDate(yesterday.getDate() - 1);
 	return formatDate(d) === formatDate(yesterday);

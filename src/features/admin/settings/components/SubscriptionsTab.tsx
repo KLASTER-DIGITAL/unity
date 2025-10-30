@@ -1,13 +1,13 @@
-import { DollarSign, TrendingUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Badge } from "@/shared/components/ui/badge";
+import { DollarSign, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
+} from '@/shared/components/ui/card';
 import {
 	Table,
 	TableBody,
@@ -15,7 +15,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/shared/components/ui/table";
+} from '@/shared/components/ui/table';
 
 export function SubscriptionsTab() {
 	const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -28,7 +28,7 @@ export function SubscriptionsTab() {
 
 	useEffect(() => {
 		loadSubscriptions();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadSubscriptions is stable
 	}, []);
 
 	const loadSubscriptions = async () => {
@@ -36,49 +36,41 @@ export function SubscriptionsTab() {
 			// TODO: Загрузка подписок с сервера
 			setSubscriptions([
 				{
-					id: "1",
-					userName: "Алексей Иванов",
-					userEmail: "alexey@example.com",
-					plan: "premium_monthly",
-					status: "active",
-					startDate: "2024-02-01",
-					nextBillingDate: "2024-04-01",
+					id: '1',
+					userName: 'Алексей Иванов',
+					userEmail: 'alexey@example.com',
+					plan: 'premium_monthly',
+					status: 'active',
+					startDate: '2024-02-01',
+					nextBillingDate: '2024-04-01',
 					amount: 399,
 				},
 				{
-					id: "2",
-					userName: "Мария Петрова",
-					userEmail: "maria@example.com",
-					plan: "premium_yearly",
-					status: "active",
-					startDate: "2024-01-15",
-					nextBillingDate: "2025-01-15",
+					id: '2',
+					userName: 'Мария Петрова',
+					userEmail: 'maria@example.com',
+					plan: 'premium_yearly',
+					status: 'active',
+					startDate: '2024-01-15',
+					nextBillingDate: '2025-01-15',
 					amount: 3990,
 				},
 			]);
 		} catch (error) {
-			console.error("Error loading subscriptions:", error);
+			console.error('Error loading subscriptions:', error);
 		}
 	};
 
 	const getPlanBadge = (plan: string) => {
-		if (plan === "premium_yearly") {
-			return (
-				<Badge className="border-accent bg-accent/10 text-accent">
-					Годовая
-				</Badge>
-			);
+		if (plan === 'premium_yearly') {
+			return <Badge className="border-accent bg-accent/10 text-accent">Годовая</Badge>;
 		}
 		return <Badge variant="outline">Месячная</Badge>;
 	};
 
 	const getStatusBadge = (status: string) => {
-		if (status === "active") {
-			return (
-				<Badge className="border-green-500/20 bg-green-500/10 text-green-600">
-					Активна
-				</Badge>
-			);
+		if (status === 'active') {
+			return <Badge className="border-green-500/20 bg-green-500/10 text-green-600">Активна</Badge>;
 		}
 		return (
 			<Badge className="bg-muted" variant="outline">
@@ -141,9 +133,7 @@ export function SubscriptionsTab() {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-semibold! text-[28px]! text-foreground">
-							{stats.churnRate}%
-						</div>
+						<div className="font-semibold! text-[28px]! text-foreground">{stats.churnRate}%</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -151,12 +141,8 @@ export function SubscriptionsTab() {
 			{/* Subscriptions Table */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="font-semibold! text-[20px]!">
-						Активные подписки
-					</CardTitle>
-					<CardDescription>
-						Управление премиум-подписками пользователей
-					</CardDescription>
+					<CardTitle className="font-semibold! text-[20px]!">Активные подписки</CardTitle>
+					<CardDescription>Управление премиум-подписками пользователей</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="overflow-hidden rounded-lg border">
@@ -186,12 +172,8 @@ export function SubscriptionsTab() {
 										</TableCell>
 										<TableCell>{getPlanBadge(sub.plan)}</TableCell>
 										<TableCell>{getStatusBadge(sub.status)}</TableCell>
-										<TableCell className="text-[13px]!">
-											{sub.startDate}
-										</TableCell>
-										<TableCell className="text-[13px]!">
-											{sub.nextBillingDate}
-										</TableCell>
+										<TableCell className="text-[13px]!">{sub.startDate}</TableCell>
+										<TableCell className="text-[13px]!">{sub.nextBillingDate}</TableCell>
 										<TableCell className="text-right font-semibold! text-[14px]!">
 											{sub.amount} ₽
 										</TableCell>

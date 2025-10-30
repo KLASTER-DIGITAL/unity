@@ -4,14 +4,14 @@
  * Uses expo-localization for device language detection
  */
 
-import * as Localization from "expo-localization";
+import * as Localization from 'expo-localization';
 import {
 	type I18nPlatformAdapter,
 	type LocaleInfo,
 	RTL_LANGUAGES,
 	SUPPORTED_LANGUAGES,
 	type SupportedLanguage,
-} from "../../../../src/shared/lib/platform/i18n/types";
+} from '../../../../src/shared/lib/platform/i18n/types';
 
 class I18nNativeAdapter implements I18nPlatformAdapter {
 	/**
@@ -23,11 +23,11 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 			const deviceLocale = Localization.locale;
 
 			if (!deviceLocale) {
-				return "en";
+				return 'en';
 			}
 
 			// Extract language code (e.g., 'en-US' -> 'en')
-			const languageCode = deviceLocale.split("-")[0].toLowerCase();
+			const languageCode = deviceLocale.split('-')[0].toLowerCase();
 
 			// Check if supported
 			if (this.isLanguageSupported(languageCode)) {
@@ -35,10 +35,10 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 			}
 
 			// Fallback to English
-			return "en";
+			return 'en';
 		} catch (error) {
-			console.error("[i18n Native] Error getting device language:", error);
-			return "en";
+			console.error('[i18n Native] Error getting device language:', error);
+			return 'en';
 		}
 	}
 
@@ -51,23 +51,21 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 			const locales = Localization.locales;
 
 			if (!locales || locales.length === 0) {
-				return ["en"];
+				return ['en'];
 			}
 
 			return locales
 				.map((locale) => {
 					// Extract language code from locale object
 					const languageCode = locale.languageCode?.toLowerCase();
-					return (
-						languageCode || locale.languageTag?.split("-")[0].toLowerCase()
-					);
+					return languageCode || locale.languageTag?.split('-')[0].toLowerCase();
 				})
 				.filter((lang): lang is string => !!lang)
 				.filter((lang, index, self) => self.indexOf(lang) === index) // Remove duplicates
 				.filter((lang) => this.isLanguageSupported(lang));
 		} catch (error) {
-			console.error("[i18n Native] Error getting preferred languages:", error);
-			return ["en"];
+			console.error('[i18n Native] Error getting preferred languages:', error);
+			return ['en'];
 		}
 	}
 
@@ -83,8 +81,8 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 	 */
 	getLocaleInfo(): LocaleInfo {
 		try {
-			const deviceLocale = Localization.locale || "en-US";
-			const [language, region] = deviceLocale.split("-");
+			const deviceLocale = Localization.locale || 'en-US';
+			const [language, region] = deviceLocale.split('-');
 			const languageCode = language.toLowerCase();
 
 			return {
@@ -93,14 +91,14 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 				locale: deviceLocale,
 				direction: this.getTextDirection(languageCode),
 				currency: Localization.currency || this.getCurrencyForRegion(region),
-				timezone: Localization.timezone || "UTC",
+				timezone: Localization.timezone || 'UTC',
 			};
 		} catch (error) {
-			console.error("[i18n Native] Error getting locale info:", error);
+			console.error('[i18n Native] Error getting locale info:', error);
 			return {
-				language: "en",
-				locale: "en-US",
-				direction: "ltr",
+				language: 'en',
+				locale: 'en-US',
+				direction: 'ltr',
 			};
 		}
 	}
@@ -108,8 +106,8 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 	/**
 	 * Get text direction for language
 	 */
-	private getTextDirection(language: string): "ltr" | "rtl" {
-		return RTL_LANGUAGES.includes(language as any) ? "rtl" : "ltr";
+	private getTextDirection(language: string): 'ltr' | 'rtl' {
+		return RTL_LANGUAGES.includes(language as any) ? 'rtl' : 'ltr';
 	}
 
 	/**
@@ -119,62 +117,62 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 		if (!region) return;
 
 		const currencyMap: Record<string, string> = {
-			US: "USD",
-			RU: "RUB",
-			EU: "EUR",
-			GB: "GBP",
-			JP: "JPY",
-			CN: "CNY",
-			IN: "INR",
-			BR: "BRL",
-			CA: "CAD",
-			AU: "AUD",
-			MX: "MXN",
-			KR: "KRW",
-			TR: "TRY",
-			SA: "SAR",
-			AE: "AED",
-			CH: "CHF",
-			SE: "SEK",
-			NO: "NOK",
-			DK: "DKK",
-			PL: "PLN",
-			CZ: "CZK",
-			HU: "HUF",
-			RO: "RON",
-			BG: "BGN",
-			HR: "HRK",
-			RS: "RSD",
-			UA: "UAH",
-			BY: "BYN",
-			KZ: "KZT",
-			UZ: "UZS",
-			GE: "GEL",
-			AM: "AMD",
-			AZ: "AZN",
-			TJ: "TJS",
-			KG: "KGS",
-			TM: "TMT",
-			MD: "MDL",
-			LT: "EUR",
-			LV: "EUR",
-			EE: "EUR",
-			FI: "EUR",
-			AT: "EUR",
-			BE: "EUR",
-			NL: "EUR",
-			DE: "EUR",
-			FR: "EUR",
-			IT: "EUR",
-			ES: "EUR",
-			PT: "EUR",
-			GR: "EUR",
-			IE: "EUR",
-			LU: "EUR",
-			MT: "EUR",
-			CY: "EUR",
-			SK: "EUR",
-			SI: "EUR",
+			US: 'USD',
+			RU: 'RUB',
+			EU: 'EUR',
+			GB: 'GBP',
+			JP: 'JPY',
+			CN: 'CNY',
+			IN: 'INR',
+			BR: 'BRL',
+			CA: 'CAD',
+			AU: 'AUD',
+			MX: 'MXN',
+			KR: 'KRW',
+			TR: 'TRY',
+			SA: 'SAR',
+			AE: 'AED',
+			CH: 'CHF',
+			SE: 'SEK',
+			NO: 'NOK',
+			DK: 'DKK',
+			PL: 'PLN',
+			CZ: 'CZK',
+			HU: 'HUF',
+			RO: 'RON',
+			BG: 'BGN',
+			HR: 'HRK',
+			RS: 'RSD',
+			UA: 'UAH',
+			BY: 'BYN',
+			KZ: 'KZT',
+			UZ: 'UZS',
+			GE: 'GEL',
+			AM: 'AMD',
+			AZ: 'AZN',
+			TJ: 'TJS',
+			KG: 'KGS',
+			TM: 'TMT',
+			MD: 'MDL',
+			LT: 'EUR',
+			LV: 'EUR',
+			EE: 'EUR',
+			FI: 'EUR',
+			AT: 'EUR',
+			BE: 'EUR',
+			NL: 'EUR',
+			DE: 'EUR',
+			FR: 'EUR',
+			IT: 'EUR',
+			ES: 'EUR',
+			PT: 'EUR',
+			GR: 'EUR',
+			IE: 'EUR',
+			LU: 'EUR',
+			MT: 'EUR',
+			CY: 'EUR',
+			SK: 'EUR',
+			SI: 'EUR',
 		};
 
 		return currencyMap[region.toUpperCase()];

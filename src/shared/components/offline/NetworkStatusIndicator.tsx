@@ -13,8 +13,8 @@
  * @date 2025-10-28
  */
 
-import { memo } from "react";
-import { useOfflineMode } from "@/shared/lib/offline";
+import { memo } from 'react';
+import { useOfflineMode } from '@/shared/lib/offline';
 
 /**
  * Network Status Indicator Component
@@ -33,23 +33,23 @@ export const NetworkStatusIndicator = memo(function NetworkStatusIndicator() {
 	// Determine status color based on online state and sync progress
 	const getStatusColor = (): string => {
 		if (!isOnline) {
-			return "bg-red-500"; // 🔴 Offline
+			return 'bg-red-500'; // 🔴 Offline
 		}
 		if (syncInProgress) {
-			return "bg-yellow-500"; // 🟡 Syncing
+			return 'bg-yellow-500'; // 🟡 Syncing
 		}
-		return "bg-green-500"; // 🟢 Online
+		return 'bg-green-500'; // 🟢 Online
 	};
 
 	// Determine status label for accessibility
 	const getStatusLabel = (): string => {
 		if (!isOnline) {
-			return "Offline";
+			return 'Offline';
 		}
 		if (syncInProgress) {
-			return "Синхронизация";
+			return 'Синхронизация';
 		}
-		return "Online";
+		return 'Online';
 	};
 
 	const statusColor = getStatusColor();

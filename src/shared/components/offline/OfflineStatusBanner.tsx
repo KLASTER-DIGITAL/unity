@@ -8,32 +8,18 @@
  * @date 2025-10-24
  */
 
-import {
-	AlertCircle,
-	CheckCircle,
-	CloudOff,
-	RefreshCw,
-	WifiOff,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { useOfflineMode } from "@/shared/lib/offline";
+import { AlertCircle, CheckCircle, CloudOff, RefreshCw, WifiOff } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { useOfflineMode } from '@/shared/lib/offline';
 
 export function OfflineStatusBanner() {
-	const {
-		isOnline,
-		lastOnline,
-		pendingCount,
-		syncInProgress,
-		sync,
-		lastSyncEvent,
-	} = useOfflineMode();
+	const { isOnline, lastOnline, pendingCount, syncInProgress, sync, lastSyncEvent } =
+		useOfflineMode();
 
 	const [showBanner, setShowBanner] = useState(false);
-	const [message, setMessage] = useState("");
-	const [variant, setVariant] = useState<
-		"offline" | "syncing" | "success" | "error"
-	>("offline");
+	const [message, setMessage] = useState('');
+	const [variant, setVariant] = useState<'offline' | 'syncing' | 'success' | 'error'>('offline');
 
 	useEffect(() => {
 		// Show banner when offline or when there are pending syncs
@@ -41,23 +27,23 @@ export function OfflineStatusBanner() {
 
 		// Update message and variant
 		if (!isOnline) {
-			setVariant("offline");
-			setMessage("Нет подключения к интернету");
+			setVariant('offline');
+			setMessage('Нет подключения к интернету');
 		} else if (syncInProgress) {
-			setVariant("syncing");
+			setVariant('syncing');
 			setMessage(`Синхронизация ${pendingCount} записей...`);
 		} else if (pendingCount > 0) {
-			setVariant("error");
+			setVariant('error');
 			setMessage(`${pendingCount} записей ожидают синхронизации`);
 		} else {
-			setVariant("success");
-			setMessage("Все синхронизировано");
+			setVariant('success');
+			setMessage('Все синхронизировано');
 		}
 	}, [isOnline, pendingCount, syncInProgress]);
 
 	// Auto-hide success message after 3 seconds
 	useEffect(() => {
-		if (variant === "success" && pendingCount === 0) {
+		if (variant === 'success' && pendingCount === 0) {
 			const timer = setTimeout(() => {
 				setShowBanner(false);
 			}, 3000);
@@ -67,37 +53,37 @@ export function OfflineStatusBanner() {
 
 	// Show temporary success message when sync completes
 	useEffect(() => {
-		if (lastSyncEvent?.type === "sync-complete") {
+		if (lastSyncEvent?.type === 'sync-complete') {
 			setShowBanner(true);
-			setVariant("success");
-			setMessage("Синхронизация завершена");
+			setVariant('success');
+			setMessage('Синхронизация завершена');
 		}
 	}, [lastSyncEvent]);
 
 	const getVariantStyles = () => {
 		switch (variant) {
-			case "offline":
-				return "bg-linear-to-r from-gray-600 to-gray-700";
-			case "syncing":
-				return "bg-linear-to-r from-blue-500 to-blue-600";
-			case "success":
-				return "bg-linear-to-r from-green-500 to-green-600";
-			case "error":
-				return "bg-linear-to-r from-orange-500 to-orange-600";
+			case 'offline':
+				return 'bg-linear-to-r from-gray-600 to-gray-700';
+			case 'syncing':
+				return 'bg-linear-to-r from-blue-500 to-blue-600';
+			case 'success':
+				return 'bg-linear-to-r from-green-500 to-green-600';
+			case 'error':
+				return 'bg-linear-to-r from-orange-500 to-orange-600';
 			default:
-				return "bg-linear-to-r from-gray-600 to-gray-700";
+				return 'bg-linear-to-r from-gray-600 to-gray-700';
 		}
 	};
 
 	const getIcon = () => {
 		switch (variant) {
-			case "offline":
+			case 'offline':
 				return <WifiOff className="h-5 w-5" />;
-			case "syncing":
+			case 'syncing':
 				return <RefreshCw className="h-5 w-5 animate-spin" />;
-			case "success":
+			case 'success':
 				return <CheckCircle className="h-5 w-5" />;
-			case "error":
+			case 'error':
 				return <AlertCircle className="h-5 w-5" />;
 			default:
 				return <CloudOff className="h-5 w-5" />;
@@ -113,7 +99,7 @@ export function OfflineStatusBanner() {
 
 	const formatLastOnline = () => {
 		if (!lastOnline) {
-			return "Никогда";
+			return 'Никогда';
 		}
 
 		const now = new Date();
@@ -131,7 +117,7 @@ export function OfflineStatusBanner() {
 		if (minutes > 0) {
 			return `${minutes}м назад`;
 		}
-		return "Только что";
+		return 'Только что';
 	};
 
 	return (
@@ -142,7 +128,7 @@ export function OfflineStatusBanner() {
 					className={`fixed top-0 right-0 left-0 z-50 ${getVariantStyles()} text-white shadow-lg`}
 					exit={{ opacity: 0, y: -50 }}
 					initial={{ opacity: 0, y: -50 }}
-					transition={{ duration: 0.3, ease: "easeOut" }}
+					transition={{ duration: 0.3, ease: 'easeOut' }}
 				>
 					<div className="mx-auto max-w-7xl px-4 py-3">
 						<div className="flex items-center justify-between gap-4">
@@ -172,18 +158,13 @@ export function OfflineStatusBanner() {
 									</button>
 								)}
 
-								{variant === "success" && (
+								{variant === 'success' && (
 									<button
 										aria-label="Закрыть"
 										className="rounded-lg p-1.5 transition-colors duration-300 hover:bg-muted/20"
 										onClick={() => setShowBanner(false)}
 									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
+										<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
 												d="M6 18L18 6M6 6l12 12"
 												strokeLinecap="round"
@@ -201,12 +182,12 @@ export function OfflineStatusBanner() {
 							<div className="mt-2">
 								<div className="h-1 w-full overflow-hidden rounded-full bg-muted/20 transition-colors duration-300">
 									<motion.div
-										animate={{ width: "100%" }}
+										animate={{ width: '100%' }}
 										className="h-full bg-primary transition-colors duration-300"
-										initial={{ width: "0%" }}
+										initial={{ width: '0%' }}
 										transition={{
 											duration: 2,
-											ease: "linear",
+											ease: 'linear',
 											repeat: Number.POSITIVE_INFINITY,
 										}}
 									/>

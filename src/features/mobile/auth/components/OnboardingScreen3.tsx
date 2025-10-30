@@ -1,13 +1,8 @@
-import { motion } from "motion/react";
-import { useState } from "react";
-import type { OnboardingScreen3Props } from "./onboarding3";
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import type { OnboardingScreen3Props } from './onboarding3';
 // Import modular components
-import {
-	NextButton,
-	PersonalizationForm,
-	Sliedbar,
-	translations,
-} from "./onboarding3";
+import { NextButton, PersonalizationForm, Sliedbar, translations } from './onboarding3';
 
 // Re-export types for backward compatibility
 export type { OnboardingScreen3Props };
@@ -24,10 +19,9 @@ function Frame2087324619({
 	onStepClick,
 }: OnboardingScreen3Props) {
 	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] ||
-		translations.ru;
+		translations[selectedLanguage as keyof typeof translations] || translations.ru;
 	const [isFormComplete, setIsFormComplete] = useState(false);
-	const [formData, setFormData] = useState({ name: "", emoji: "🏆" });
+	const [formData, setFormData] = useState({ name: '', emoji: '🏆' });
 
 	const handlePersonalizationNext = (name: string, emoji: string) => {
 		setFormData({ name, emoji });
@@ -52,18 +46,11 @@ function Frame2087324619({
 				onNext={handlePersonalizationNext}
 				onUpdate={handleFormUpdate}
 			/>
-			<Sliedbar
-				currentStep={currentStep}
-				onStepClick={onStepClick}
-				totalSteps={totalSteps}
-			/>
+			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton
 				disabled={!isFormComplete}
 				onNext={() =>
-					handlePersonalizationNext(
-						formData.name || currentTranslations.presets[0],
-						formData.emoji,
-					)
+					handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)
 				}
 				validationMessage={currentTranslations.validationError}
 			/>
@@ -97,7 +84,7 @@ export function OnboardingScreen3({
 				transition={{
 					duration: 8,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "linear",
+					ease: 'linear',
 				}}
 			/>
 
@@ -111,7 +98,7 @@ export function OnboardingScreen3({
 				transition={{
 					duration: 6,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "easeInOut",
+					ease: 'easeInOut',
 				}}
 			/>
 
@@ -124,7 +111,7 @@ export function OnboardingScreen3({
 				transition={{
 					duration: 4,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "easeInOut",
+					ease: 'easeInOut',
 				}}
 			/>
 

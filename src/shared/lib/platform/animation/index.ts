@@ -34,7 +34,7 @@
 
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native files are in /app/shared/ and NOT bundled by Vite
-import * as webModule from "./animation.web";
+import * as webModule from './animation.web';
 
 // Export web implementation (PWA build)
 export const AnimatedView = webModule.AnimatedView;
@@ -43,7 +43,7 @@ export const createAnimated = webModule.createAnimated;
 export const motion = webModule.motion;
 
 // Export convenience hooks
-export { useAnimationState, useMotionValue, useTransform } from "./hooks";
+export { useAnimationState, useMotionValue, useTransform } from './hooks';
 // Export types
 export type {
 	AnimatedPresenceProps,
@@ -52,6 +52,6 @@ export type {
 	SpringConfig,
 	TimingConfig,
 	TransitionConfig,
-} from "./types";
+} from './types';
 // Export presets
-export { AnimationPresets, ScreenTransitions } from "./types";
+export { AnimationPresets, ScreenTransitions } from './types';

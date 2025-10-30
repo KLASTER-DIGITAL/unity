@@ -7,19 +7,19 @@
  * @date 2025-01-18
  */
 
-import React from "react";
+import React from 'react';
 
 // Types and interfaces
-import type { ColorScheme, UniversalComponentProps } from "./types";
+import type { ColorScheme, UniversalComponentProps } from './types';
 
-export * from "./types";
+export * from './types';
 
 // Core components
-import { ButtonUtils } from "./Button";
-import { ModalUtils } from "./Modal";
+import { ButtonUtils } from './Button';
+import { ModalUtils } from './Modal';
 
-export type { ButtonProps } from "./Button";
-export { Button, ButtonUtils } from "./Button";
+export type { ButtonProps } from './Button';
+export { Button, ButtonUtils } from './Button';
 export type {
 	DialogContentProps,
 	DialogDescriptionProps,
@@ -27,7 +27,7 @@ export type {
 	DialogHeaderProps,
 	DialogProps,
 	DialogTitleProps,
-} from "./Dialog";
+} from './Dialog';
 export {
 	Dialog,
 	DialogClose,
@@ -39,15 +39,15 @@ export {
 	DialogPortal,
 	DialogTitle,
 	DialogTrigger,
-} from "./Dialog";
-export type { ExtendedModalProps as ModalProps } from "./Modal";
-export { Modal, ModalUtils } from "./Modal";
-export type { PressableProps } from "./Pressable";
-export { Pressable } from "./Pressable";
-export type { RadioGroupOption, RadioGroupProps } from "./RadioGroup";
-export { RadioGroup, RadioGroupUtils } from "./RadioGroup";
-export type { ToasterProps } from "./Toast";
-export { Toaster, toast } from "./Toast";
+} from './Dialog';
+export type { ExtendedModalProps as ModalProps } from './Modal';
+export { Modal, ModalUtils } from './Modal';
+export type { PressableProps } from './Pressable';
+export { Pressable } from './Pressable';
+export type { RadioGroupOption, RadioGroupProps } from './RadioGroup';
+export { RadioGroup, RadioGroupUtils } from './RadioGroup';
+export type { ToasterProps } from './Toast';
+export { Toaster, toast } from './Toast';
 // Re-export common types for convenience
 export type {
 	AnimationPreset,
@@ -64,17 +64,17 @@ export type {
 	UniversalEventHandlers,
 	UniversalLayoutProps,
 	ValidationResult,
-} from "./types";
-export type { CheckboxProps as UniversalCheckboxProps } from "./UniversalCheckbox";
+} from './types';
+export type { CheckboxProps as UniversalCheckboxProps } from './UniversalCheckbox';
 
-export { CheckboxUtils, UniversalCheckbox } from "./UniversalCheckbox";
+export { CheckboxUtils, UniversalCheckbox } from './UniversalCheckbox';
 export type {
 	SelectOption,
 	SelectProps as UniversalSelectProps,
-} from "./UniversalSelect";
-export { SelectUtils, UniversalSelect } from "./UniversalSelect";
-export type { SwitchProps as UniversalSwitchProps } from "./UniversalSwitch";
-export { SwitchUtils, UniversalSwitch } from "./UniversalSwitch";
+} from './UniversalSelect';
+export { SelectUtils, UniversalSelect } from './UniversalSelect';
+export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
+export { SwitchUtils, UniversalSwitch } from './UniversalSwitch';
 
 /**
  * Universal component utilities
@@ -85,9 +85,9 @@ export const UniversalUtils = {
 	 */
 	validateAllProps: (componentType: string, props: any) => {
 		switch (componentType) {
-			case "Button":
+			case 'Button':
 				return ButtonUtils.validateProps(props);
-			case "Modal":
+			case 'Modal':
 				return ModalUtils.validateProps(props);
 			default:
 				return { valid: true, errors: [] };
@@ -97,20 +97,20 @@ export const UniversalUtils = {
 	/**
 	 * Get component theme styles
 	 */
-	getThemeStyles: (theme: "light" | "dark" = "light") => {
+	getThemeStyles: (theme: 'light' | 'dark' = 'light') => {
 		const lightTheme = {
 			colors: {
-				primary: "#007AFF",
-				secondary: "#8E8E93",
-				background: "#FFFFFF",
-				surface: "#F2F2F7",
-				text: "#000000",
-				textSecondary: "#8E8E93",
-				border: "#C7C7CC",
-				error: "#FF3B30",
-				warning: "#FF9500",
-				success: "#34C759",
-				info: "#007AFF",
+				primary: '#007AFF',
+				secondary: '#8E8E93',
+				background: '#FFFFFF',
+				surface: '#F2F2F7',
+				text: '#000000',
+				textSecondary: '#8E8E93',
+				border: '#C7C7CC',
+				error: '#FF3B30',
+				warning: '#FF9500',
+				success: '#34C759',
+				info: '#007AFF',
 			},
 			spacing: {
 				xs: 4,
@@ -133,15 +133,15 @@ export const UniversalUtils = {
 				xl: 20,
 			},
 			fontWeight: {
-				normal: "400",
-				medium: "500",
-				semibold: "600",
-				bold: "700",
+				normal: '400',
+				medium: '500',
+				semibold: '600',
+				bold: '700',
 			},
 			shadows: {
-				sm: "0 1px 2px rgba(0, 0, 0, 0.05)",
-				md: "0 4px 6px rgba(0, 0, 0, 0.1)",
-				lg: "0 10px 15px rgba(0, 0, 0, 0.1)",
+				sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+				md: '0 4px 6px rgba(0, 0, 0, 0.1)',
+				lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
 			},
 		};
 
@@ -149,29 +149,25 @@ export const UniversalUtils = {
 			...lightTheme,
 			colors: {
 				...lightTheme.colors,
-				primary: "#0A84FF",
-				background: "#000000",
-				surface: "#1C1C1E",
-				text: "#FFFFFF",
-				textSecondary: "#8E8E93",
-				border: "#38383A",
+				primary: '#0A84FF',
+				background: '#000000',
+				surface: '#1C1C1E',
+				text: '#FFFFFF',
+				textSecondary: '#8E8E93',
+				border: '#38383A',
 			},
 		};
 
-		return theme === "dark" ? darkTheme : lightTheme;
+		return theme === 'dark' ? darkTheme : lightTheme;
 	},
 
 	/**
 	 * Create responsive styles
 	 */
-	createResponsiveStyles: (styles: {
-		mobile?: any;
-		tablet?: any;
-		desktop?: any;
-	}) => ({
-		"@media (max-width: 768px)": styles.mobile || {},
-		"@media (min-width: 769px) and (max-width: 1024px)": styles.tablet || {},
-		"@media (min-width: 1025px)": styles.desktop || {},
+	createResponsiveStyles: (styles: { mobile?: any; tablet?: any; desktop?: any }) => ({
+		'@media (max-width: 768px)': styles.mobile || {},
+		'@media (min-width: 769px) and (max-width: 1024px)': styles.tablet || {},
+		'@media (min-width: 1025px)': styles.desktop || {},
 	}),
 
 	/**
@@ -180,29 +176,28 @@ export const UniversalUtils = {
 	convertToNativeStyles: (webStyles: any) => {
 		// Basic conversion mapping
 		const conversion: Record<string, string> = {
-			"background-color": "backgroundColor",
-			"border-color": "borderColor",
-			"border-width": "borderWidth",
-			"border-radius": "borderRadius",
-			"font-size": "fontSize",
-			"font-weight": "fontWeight",
-			"text-align": "textAlign",
-			"padding-top": "paddingTop",
-			"padding-bottom": "paddingBottom",
-			"padding-left": "paddingLeft",
-			"padding-right": "paddingRight",
-			"margin-top": "marginTop",
-			"margin-bottom": "marginBottom",
-			"margin-left": "marginLeft",
-			"margin-right": "marginRight",
+			'background-color': 'backgroundColor',
+			'border-color': 'borderColor',
+			'border-width': 'borderWidth',
+			'border-radius': 'borderRadius',
+			'font-size': 'fontSize',
+			'font-weight': 'fontWeight',
+			'text-align': 'textAlign',
+			'padding-top': 'paddingTop',
+			'padding-bottom': 'paddingBottom',
+			'padding-left': 'paddingLeft',
+			'padding-right': 'paddingRight',
+			'margin-top': 'marginTop',
+			'margin-bottom': 'marginBottom',
+			'margin-left': 'marginLeft',
+			'margin-right': 'marginRight',
 		};
 
 		const nativeStyles: any = {};
 
 		Object.entries(webStyles).forEach(([key, value]) => {
 			const nativeKey =
-				conversion[key] ||
-				key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+				conversion[key] || key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 			nativeStyles[nativeKey] = value;
 		});
 
@@ -212,12 +207,7 @@ export const UniversalUtils = {
 	/**
 	 * Generate accessibility props
 	 */
-	generateA11yProps: (props: {
-		label?: string;
-		hint?: string;
-		role?: string;
-		state?: string;
-	}) => ({
+	generateA11yProps: (props: { label?: string; hint?: string; role?: string; state?: string }) => ({
 		accessibilityLabel: props.label,
 		accessibilityHint: props.hint,
 		accessibilityRole: props.role,
@@ -233,7 +223,7 @@ export const UniversalUtils = {
 export const createUniversalComponent = <T extends UniversalComponentProps>(
 	name: string,
 	webComponent: React.ComponentType<T>,
-	_nativeComponent?: React.ComponentType<T>, // Unused in PWA build
+	_nativeComponent?: React.ComponentType<T> // Unused in PWA build
 ) => {
 	// ✅ PWA + React Native Architecture: ONLY use web component in PWA build
 	const UniversalComponent = webComponent;
@@ -246,17 +236,9 @@ export const createUniversalComponent = <T extends UniversalComponentProps>(
  */
 export const withUniversalProps =
 	<T extends object>(Component: React.ComponentType<T>) =>
-	({
-		ref,
-		...props
-	}: T & UniversalComponentProps & { ref?: React.RefObject<any | null> }) => {
-		const {
-			testID,
-			accessibilityLabel,
-			accessibilityHint,
-			accessibilityRole,
-			...restProps
-		} = props;
+	({ ref, ...props }: T & UniversalComponentProps & { ref?: React.RefObject<any | null> }) => {
+		const { testID, accessibilityLabel, accessibilityHint, accessibilityRole, ...restProps } =
+			props;
 
 		const a11yProps = UniversalUtils.generateA11yProps({
 			label: accessibilityLabel,
@@ -264,34 +246,27 @@ export const withUniversalProps =
 			role: accessibilityRole,
 		});
 
-		return (
-			<Component
-				data-testid={testID}
-				ref={ref}
-				{...a11yProps}
-				{...(restProps as T)}
-			/>
-		);
+		return <Component data-testid={testID} ref={ref} {...a11yProps} {...(restProps as T)} />;
 	};
 
 /**
  * Hook for using universal theme
  */
-export const useUniversalTheme = (colorScheme: ColorScheme = "auto") => {
-	const [theme, setTheme] = React.useState<"light" | "dark">("light");
+export const useUniversalTheme = (colorScheme: ColorScheme = 'auto') => {
+	const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
 
 	React.useEffect(() => {
-		if (colorScheme === "auto") {
+		if (colorScheme === 'auto') {
 			// Auto-detect system theme
-			const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-			setTheme(mediaQuery.matches ? "dark" : "light");
+			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+			setTheme(mediaQuery.matches ? 'dark' : 'light');
 
 			const handleChange = (e: MediaQueryListEvent) => {
-				setTheme(e.matches ? "dark" : "light");
+				setTheme(e.matches ? 'dark' : 'light');
 			};
 
-			mediaQuery.addEventListener("change", handleChange);
-			return () => mediaQuery.removeEventListener("change", handleChange);
+			mediaQuery.addEventListener('change', handleChange);
+			return () => mediaQuery.removeEventListener('change', handleChange);
 		}
 		setTheme(colorScheme);
 	}, [colorScheme]);

@@ -1,9 +1,9 @@
-import useEmblaCarousel from "embla-carousel-react";
-import { ArrowRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { Badge } from "@/shared/components/ui/badge";
-import { type DiaryEntry, getEntries } from "@/shared/lib/api";
-import type { Language } from "@/shared/lib/i18n";
+import useEmblaCarousel from 'embla-carousel-react';
+import { ArrowRight } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Badge } from '@/shared/components/ui/badge';
+import { type DiaryEntry, getEntries } from '@/shared/lib/api';
+import type { Language } from '@/shared/lib/i18n';
 
 type RecentEntriesFeedProps = {
 	userData?: any;
@@ -14,15 +14,15 @@ type RecentEntriesFeedProps = {
 
 export function RecentEntriesFeed({
 	userData,
-	language: _language = "ru",
+	language: _language = 'ru',
 	onEntryClick,
 	onViewAllClick,
 }: RecentEntriesFeedProps) {
 	const [entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [emblaRef] = useEmblaCarousel({
-		align: "start",
-		containScroll: "trimSnaps",
+		align: 'start',
+		containScroll: 'trimSnaps',
 		dragFree: true,
 	});
 
@@ -30,11 +30,11 @@ export function RecentEntriesFeed({
 	const loadRecentEntries = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || "anonymous"; // ✅ FIXED: Try user.id first
+			const userId = userData?.user?.id || userData?.id || 'anonymous'; // ✅ FIXED: Try user.id first
 			const allEntries = await getEntries(userId, 3); // Загружаем только последние 3
 			setEntries(allEntries);
 		} catch (error) {
-			console.error("Error loading recent entries:", error);
+			console.error('Error loading recent entries:', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -53,7 +53,7 @@ export function RecentEntriesFeed({
 		const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
 		if (diffInMinutes < 1) {
-			return "Только что";
+			return 'Только что';
 		}
 		if (diffInMinutes < 60) {
 			return `${diffInMinutes} мин назад`;
@@ -62,47 +62,47 @@ export function RecentEntriesFeed({
 			return `${diffInHours} ч назад`;
 		}
 		if (diffInDays === 0) {
-			return "Сегодня";
+			return 'Сегодня';
 		}
 		if (diffInDays === 1) {
-			return "Вчера";
+			return 'Вчера';
 		}
 		if (diffInDays < 7) {
 			return `${diffInDays} дн назад`;
 		}
 
-		return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+		return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 	};
 
 	const getCategoryEmoji = (category: string): string => {
 		const emojiMap: Record<string, string> = {
-			Работа: "💼",
-			Спорт: "⚽",
-			Здоровье: "🏃",
-			Семья: "👨‍👩‍👧",
-			Друзья: "👥",
-			Путешествия: "✈️",
-			Хобби: "🎨",
-			Чтение: "📚",
-			Обучение: "📖",
-			"Личное развитие": "🌱",
-			Финансы: "💰",
-			Творчество: "🎭",
-			Другое: "📝",
+			Работа: '💼',
+			Спорт: '⚽',
+			Здоровье: '🏃',
+			Семья: '👨‍👩‍👧',
+			Друзья: '👥',
+			Путешествия: '✈️',
+			Хобби: '🎨',
+			Чтение: '📚',
+			Обучение: '📖',
+			'Личное развитие': '🌱',
+			Финансы: '💰',
+			Творчество: '🎭',
+			Другое: '📝',
 		};
-		return emojiMap[category] || "📝";
+		return emojiMap[category] || '📝';
 	};
 
 	const getSentimentColor = (sentiment: string): string => {
 		switch (sentiment) {
-			case "positive":
-				return "bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20";
-			case "neutral":
-				return "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20";
-			case "negative":
-				return "bg-[var(--ios-red)]/10 text-[var(--ios-red)] border-[var(--ios-red)]/20";
+			case 'positive':
+				return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20';
+			case 'neutral':
+				return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20';
+			case 'negative':
+				return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)] border-[var(--ios-red)]/20';
 			default:
-				return "bg-muted text-foreground border-border";
+				return 'bg-muted text-foreground border-border';
 		}
 	};
 
@@ -110,9 +110,7 @@ export function RecentEntriesFeed({
 		return (
 			<div className="mt-6 mb-6 px-4">
 				<div className="mb-4 flex items-center justify-between">
-					<h2 className="font-bold text-foreground text-xl">
-						Лента последних записей
-					</h2>
+					<h2 className="font-bold text-foreground text-xl">Лента последних записей</h2>
 				</div>
 				<div className="space-y-3">
 					{[1, 2, 3].map((i) => (
@@ -139,9 +137,7 @@ export function RecentEntriesFeed({
 		<div className="mt-6 mb-6">
 			{/* Заголовок */}
 			<div className="mb-4 flex items-center justify-between px-4">
-				<h2 className="font-semibold! text-[20px]! text-foreground">
-					Лента последних записей
-				</h2>
+				<h2 className="font-semibold! text-[20px]! text-foreground">Лента последних записей</h2>
 				<button
 					aria-label="Смотреть все"
 					className="flex h-8 w-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
@@ -176,7 +172,7 @@ export function RecentEntriesFeed({
 
 							{/* Заголовок */}
 							<h3 className="mb-1 line-clamp-1 font-semibold! text-[13px]! text-white">
-								{entry.text.split("\n")[0].substring(0, 30)}
+								{entry.text.split('\n')[0].substring(0, 30)}
 							</h3>
 
 							{/* Превью текста - ФИКСИРОВАННАЯ высота 60px, текст обрезается */}
@@ -198,9 +194,7 @@ export function RecentEntriesFeed({
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
 							<ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
 						</div>
-						<p className="text-center font-medium! text-[13px]! text-accent">
-							Смотреть все
-						</p>
+						<p className="text-center font-medium! text-[13px]! text-accent">Смотреть все</p>
 					</div>
 				</div>
 			</div>

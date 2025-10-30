@@ -1,14 +1,7 @@
-"use client";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
-import { cn } from "../../utils";
+'use client';
+import { AnimatePresence, motion } from 'framer-motion';
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { cn } from '../../utils';
 
 // import { useOnClickOutside } from "../../../hooks/use-on-click-outside";
 
@@ -22,17 +15,13 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
 	const [open, setOpen] = useState(false);
 
-	return (
-		<ModalContext.Provider value={{ open, setOpen }}>
-			{children}
-		</ModalContext.Provider>
-	);
+	return <ModalContext.Provider value={{ open, setOpen }}>{children}</ModalContext.Provider>;
 };
 
 export const useModal = () => {
 	const context = useContext(ModalContext);
 	if (!context) {
-		throw new Error("useModal must be used within a ModalProvider");
+		throw new Error('useModal must be used within a ModalProvider');
 	}
 	return context;
 };
@@ -52,8 +41,8 @@ export const ModalTrigger = ({
 	return (
 		<button
 			className={cn(
-				"relative overflow-hidden rounded-md px-4 py-2 text-center text-black dark:text-white",
-				className,
+				'relative overflow-hidden rounded-md px-4 py-2 text-center text-black dark:text-white',
+				className
 			)}
 			onClick={() => setOpen(true)}
 		>
@@ -62,20 +51,14 @@ export const ModalTrigger = ({
 	);
 };
 
-export const ModalBody = ({
-	children,
-	className,
-}: {
-	children: ReactNode;
-	className?: string;
-}) => {
+export const ModalBody = ({ children, className }: { children: ReactNode; className?: string }) => {
 	const { open } = useModal();
 
 	useEffect(() => {
 		if (open) {
-			document.body.style.overflow = "hidden";
+			document.body.style.overflow = 'hidden';
 		} else {
-			document.body.style.overflow = "auto";
+			document.body.style.overflow = 'auto';
 		}
 	}, [open]);
 
@@ -89,12 +72,12 @@ export const ModalBody = ({
 				<motion.div
 					animate={{
 						opacity: 1,
-						backdropFilter: "blur(10px)",
+						backdropFilter: 'blur(10px)',
 					}}
 					className="fixed inset-0 z-50 flex h-full w-full items-center justify-center [perspective:800px] [transform-style:preserve-3d]"
 					exit={{
 						opacity: 0,
-						backdropFilter: "blur(0px)",
+						backdropFilter: 'blur(0px)',
 					}}
 					initial={{
 						opacity: 0,
@@ -110,8 +93,8 @@ export const ModalBody = ({
 							y: 0,
 						}}
 						className={cn(
-							"relative z-50 flex max-h-[90%] min-h-[50%] flex-1 flex-col overflow-hidden border border-transparent bg-card md:max-w-[40%] md:rounded-2xl dark:border-neutral-800 dark:bg-neutral-950",
-							className,
+							'relative z-50 flex max-h-[90%] min-h-[50%] flex-1 flex-col overflow-hidden border border-transparent bg-card md:max-w-[40%] md:rounded-2xl dark:border-neutral-800 dark:bg-neutral-950',
+							className
 						)}
 						exit={{
 							opacity: 0,
@@ -126,7 +109,7 @@ export const ModalBody = ({
 						}}
 						ref={modalRef}
 						transition={{
-							type: "spring",
+							type: 'spring',
 							stiffness: 260,
 							damping: 15,
 						}}
@@ -146,11 +129,7 @@ export const ModalContent = ({
 }: {
 	children: ReactNode;
 	className?: string;
-}) => (
-	<div className={cn("flex flex-1 flex-col p-8 md:p-10", className)}>
-		{children}
-	</div>
-);
+}) => <div className={cn('flex flex-1 flex-col p-8 md:p-10', className)}>{children}</div>;
 
 export const ModalFooter = ({
 	children,
@@ -159,12 +138,7 @@ export const ModalFooter = ({
 	children: ReactNode;
 	className?: string;
 }) => (
-	<div
-		className={cn(
-			"flex justify-end bg-muted p-4 dark:bg-neutral-900",
-			className,
-		)}
-	>
+	<div className={cn('flex justify-end bg-muted p-4 dark:bg-neutral-900', className)}>
 		{children}
 	</div>
 );
@@ -173,12 +147,12 @@ const Overlay = ({ className }: { className?: string }) => (
 	<motion.div
 		animate={{
 			opacity: 1,
-			backdropFilter: "blur(10px)",
+			backdropFilter: 'blur(10px)',
 		}}
 		className={`fixed inset-0 z-50 h-full w-full bg-black bg-opacity-50 ${className}`}
 		exit={{
 			opacity: 0,
-			backdropFilter: "blur(0px)",
+			backdropFilter: 'blur(0px)',
 		}}
 		initial={{
 			opacity: 0,
@@ -189,10 +163,7 @@ const Overlay = ({ className }: { className?: string }) => (
 const CloseIcon = () => {
 	const { setOpen } = useModal();
 	return (
-		<button
-			className="group absolute top-4 right-4"
-			onClick={() => setOpen(false)}
-		>
+		<button className="group absolute top-4 right-4" onClick={() => setOpen(false)}>
 			<svg
 				className="h-4 w-4 text-black transition duration-200 group-hover:rotate-3 group-hover:scale-125 dark:text-white"
 				fill="none"

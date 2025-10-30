@@ -2,10 +2,10 @@
  * SettingsScreen - Support Section Component
  */
 
-import { Bug, HelpCircle, MessageCircle, Smartphone, Star } from "lucide-react";
-import { toast } from "sonner";
-import { showFeedbackWidget } from "@/shared/lib/monitoring/sentry";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Bug, HelpCircle, MessageCircle, Smartphone, Star } from 'lucide-react';
+import { toast } from 'sonner';
+import { showFeedbackWidget } from '@/shared/lib/monitoring/sentry';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type SupportSectionProps = {
 	onSupportClick: () => void;
@@ -23,14 +23,14 @@ export function SupportSection({
 	t,
 }: SupportSectionProps) {
 	return (
-		<SettingsSection title={t.support || "Поддержка"}>
+		<SettingsSection title={t.support || 'Поддержка'}>
 			<SettingsRow
 				description="Напишите нам"
 				icon={MessageCircle}
 				iconBgColor="bg-[var(--ios-blue)]/10"
 				iconColor="text-[var(--ios-blue)]"
 				onClick={onSupportClick}
-				title={t.contactSupport || "Связаться с поддержкой"}
+				title={t.contactSupport || 'Связаться с поддержкой'}
 			/>
 			<SettingsRow
 				description="Поделитесь отзывом"
@@ -38,7 +38,7 @@ export function SupportSection({
 				iconBgColor="bg-[var(--ios-yellow)]/10"
 				iconColor="text-[var(--ios-yellow)]"
 				onClick={onRateAppClick}
-				title={t.rateApp || "Оценить приложение"}
+				title={t.rateApp || 'Оценить приложение'}
 			/>
 			<SettingsRow
 				description="Помогите улучшить приложение"
@@ -50,8 +50,8 @@ export function SupportSection({
 						// Открываем форму сразу в раскрытом состоянии
 						showFeedbackWidget(true);
 					} catch (error) {
-						console.error("Failed to show feedback widget:", error);
-						toast.error("Не удалось открыть форму обратной связи");
+						console.error('Failed to show feedback widget:', error);
+						toast.error('Не удалось открыть форму обратной связи');
 					}
 				}}
 				title="Сообщить об ошибке"
@@ -62,7 +62,7 @@ export function SupportSection({
 				iconBgColor="bg-[var(--ios-green)]/10"
 				iconColor="text-[var(--ios-green)]"
 				onClick={onFAQClick}
-				title={t.faq || "FAQ"}
+				title={t.faq || 'FAQ'}
 			/>
 			<SettingsRow
 				description="PWA на главный экран"
@@ -70,7 +70,7 @@ export function SupportSection({
 				iconBgColor="bg-[var(--ios-purple)]/10"
 				iconColor="text-[var(--ios-purple)]"
 				onClick={onPWAInstallClick}
-				title={t.installPWA || "Установить приложение"}
+				title={t.installPWA || 'Установить приложение'}
 			/>
 		</SettingsSection>
 	);

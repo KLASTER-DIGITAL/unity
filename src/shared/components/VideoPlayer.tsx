@@ -1,6 +1,6 @@
-import { X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 
 type VideoPlayerProps = {
 	videoUrl: string;
@@ -9,28 +9,23 @@ type VideoPlayerProps = {
 	onClose: () => void;
 };
 
-export function VideoPlayer({
-	videoUrl,
-	fileName,
-	isOpen,
-	onClose,
-}: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, fileName, isOpen, onClose }: VideoPlayerProps) {
 	// Close on Escape key
 	useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
+			if (e.key === 'Escape') {
 				onClose();
 			}
 		};
 
 		if (isOpen) {
-			document.addEventListener("keydown", handleEscape);
-			document.body.style.overflow = "hidden";
+			document.addEventListener('keydown', handleEscape);
+			document.body.style.overflow = 'hidden';
 		}
 
 		return () => {
-			document.removeEventListener("keydown", handleEscape);
-			document.body.style.overflow = "";
+			document.removeEventListener('keydown', handleEscape);
+			document.body.style.overflow = '';
 		};
 	}, [isOpen, onClose]);
 

@@ -1,11 +1,6 @@
-import { Activity } from "lucide-react";
-import { Badge } from "@/shared/components/ui/badge";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/shared/components/ui/card";
+import { Activity } from 'lucide-react';
+import { Badge } from '@/shared/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
 /**
  * System Status Component
@@ -50,9 +45,7 @@ export function SystemStatus() {
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="h-2 w-2 rounded-full bg-green-500" />
-							<span className="text-[15px]! text-foreground">
-								Service Worker
-							</span>
+							<span className="text-[15px]! text-foreground">Service Worker</span>
 						</div>
 						<Badge
 							className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"
@@ -64,9 +57,7 @@ export function SystemStatus() {
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="h-2 w-2 rounded-full bg-green-500" />
-							<span className="text-[15px]! text-foreground">
-								Push-уведомления
-							</span>
+							<span className="text-[15px]! text-foreground">Push-уведомления</span>
 						</div>
 						<Badge
 							className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"

@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 
 type LazyImageProps = {
 	src: string;
@@ -14,7 +14,7 @@ type LazyImageProps = {
 export function LazyImage({
 	src,
 	alt,
-	className = "",
+	className = '',
 	placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3C/svg%3E',
 	threshold = 0.1,
 	onLoad,
@@ -42,8 +42,8 @@ export function LazyImage({
 			},
 			{
 				threshold,
-				rootMargin: "50px", // Start loading 50px before entering viewport
-			},
+				rootMargin: '50px', // Start loading 50px before entering viewport
+			}
 		);
 
 		observer.observe(imgRef.current);
@@ -79,7 +79,7 @@ export function LazyImage({
 				alt={alt}
 				animate={{ opacity: isLoaded ? 1 : 0 }}
 				className={`h-full w-full object-cover transition-opacity duration-300 ${
-					isLoaded ? "opacity-100" : "opacity-0"
+					isLoaded ? 'opacity-100' : 'opacity-0'
 				}`}
 				initial={{ opacity: 0 }}
 				onError={handleError}
@@ -120,7 +120,7 @@ export function LazyImage({
 						transition={{
 							repeat: Number.POSITIVE_INFINITY,
 							duration: 1,
-							ease: "linear",
+							ease: 'linear',
 						}}
 					/>
 				</div>

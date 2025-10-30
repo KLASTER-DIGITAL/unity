@@ -29,12 +29,7 @@
 	/* iOS UIKit Dynamic Colors для темного режима */
 
 	--icon-primary: #ffffff; /* Основные иконки - белый */
-	--icon-secondary: rgba(
-		235,
-		235,
-		245,
-		0.6
-	); /* Второстепенные - светло-серый 60% */
+	--icon-secondary: rgba(235, 235, 245, 0.6); /* Второстепенные - светло-серый 60% */
 	--icon-tertiary: rgba(235, 235, 245, 0.3); /* Неактивные - светло-серый 30% */
 	--icon-accent: #0a84ff; /* Акцентные - bright iOS blue */
 }

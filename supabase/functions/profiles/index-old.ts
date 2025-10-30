@@ -1,8 +1,7 @@
 const _corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Headers":
-		"authorization, x-client-info, apikey, content-type",
-	"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 };
 
 // ======================
@@ -10,43 +9,40 @@ const _corsHeaders = {
 // ======================
 
 // Health check (MUST be before dynamic routes)
-app.get("/health", (c) =>
+app.get('/health', (c) =>
 	c.json({
 		success: true,
-		status: "ok",
-		service: "profiles",
+		status: 'ok',
+		service: 'profiles',
 		timestamp: new Date().toISOString(),
-	}),
+	})
 );
 
 // Create user profile
-app.post("/create", async (c) => {
+app.post('/create', async (c) => {
 	try {
 		const profileData = await c.req.json();
 
-		console.log("[PROFILES] Creating profile:", profileData);
+		console.log('[PROFILES] Creating profile:', profileData);
 
 		if (!(profileData.id && profileData.email)) {
-			return c.json(
-				{ success: false, error: "id and email are required" },
-				400,
-			);
+			return c.json({ success: false, error: 'id and email are required' }, 400);
 		}
 
 		// Save to Supabase database
 		const { data, error } = await supabase
-			.from("profiles")
+			.from('profiles')
 			.insert({
 				id: profileData.id,
-				name: profileData.name || "Пользователь",
+				name: profileData.name || 'Пользователь',
 				email: profileData.email,
-				language: profileData.language || "ru",
-				diary_name: profileData.diaryName || "Мой дневник",
-				diary_emoji: profileData.diaryEmoji || "📝",
+				language: profileData.language || 'ru',
+				diary_name: profileData.diaryName || 'Мой дневник',
+				diary_emoji: profileData.diaryEmoji || '📝',
 				notification_settings: profileData.notificationSettings || {
-					selectedTime: "none",
-					morningTime: "08:00",
-					eveningTime: "21:00",
+					selectedTime: 'none',
+					morningTime: '08:00',
+					eveningTime: '21:00',
 					permissionGranted: false,
 				},
 				onboarding_completed: profileData.onboardingCompleted,
@@ -57,7 +53,7 @@ app.post("/create", async (c) => {
 			.single();
 
 		if (error) {
-			console.error("[PROFILES] Error creating profile in Supabase:", error);
+			console.error('[PROFILES] Error creating profile in Supabase:', error);
 			return c.json({ success: false, error: error.message }, 500);
 		}
 
@@ -76,35 +72,31 @@ app.post("/create", async (c) => {
 			updatedAt: data.updated_at,
 		};
 
-		console.log("[PROFILES] Profile created successfully:", profile);
+		console.log('[PROFILES] Profile created successfully:', profile);
 
 		return c.json({ success: true, profile });
 	} catch (error) {
-		console.error("[PROFILES] Error creating profile:", error);
+		console.error('[PROFILES] Error creating profile:', error);
 		return c.json({ success: false, error: error.message }, 500);
 	}
 });
 
 // Get user profile by ID
-app.get("/:id", async (c) => {
+app.get('/:id', async (c) => {
 	try {
-		const userId = c.req.param("id");
+		const userId = c.req.param('id');
 
 		console.log(`[PROFILES] Fetching profile for user: ${userId}`);
 
-		const { data, error } = await supabase
-			.from("profiles")
-			.select("*")
-			.eq("id", userId)
-			.single();
+		const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
 		if (error) {
-			console.error("[PROFILES] Error fetching profile:", error);
+			console.error('[PROFILES] Error fetching profile:', error);
 			return c.json({ success: false, error: error.message }, 500);
 		}
 
 		if (!data) {
-			return c.json({ success: false, error: "Profile not found" }, 404);
+			return c.json({ success: false, error: 'Profile not found' }, 404);
 		}
 
 		// Convert to camelCase for frontend
@@ -132,15 +124,15 @@ app.get("/:id", async (c) => {
 
 		return c.json({ success: true, profile });
 	} catch (error) {
-		console.error("[PROFILES] Error fetching profile:", error);
+		console.error('[PROFILES] Error fetching profile:', error);
 		return c.json({ success: false, error: error.message }, 500);
 	}
 });
 
 // Update user profile
-app.put("/:id", async (c) => {
+app.put('/:id', async (c) => {
 	try {
-		const userId = c.req.param("id");
+		const userId = c.req.param('id');
 		const updates = await c.req.json();
 
 		console.log(`[PROFILES] Updating profile for user: ${userId}`, updates);
@@ -154,36 +146,30 @@ app.put("/:id", async (c) => {
 		if (updates.email !== undefined) dbUpdates.email = updates.email;
 		if (updates.avatar !== undefined) dbUpdates.avatar = updates.avatar; // Profile photo URL
 		if (updates.language !== undefined) dbUpdates.language = updates.language;
-		if (updates.diaryName !== undefined)
-			dbUpdates.diary_name = updates.diaryName;
-		if (updates.diaryEmoji !== undefined)
-			dbUpdates.diary_emoji = updates.diaryEmoji;
+		if (updates.diaryName !== undefined) dbUpdates.diary_name = updates.diaryName;
+		if (updates.diaryEmoji !== undefined) dbUpdates.diary_emoji = updates.diaryEmoji;
 		if (updates.notificationSettings !== undefined)
 			dbUpdates.notification_settings = updates.notificationSettings;
 		if (updates.onboardingCompleted !== undefined)
 			dbUpdates.onboarding_completed = updates.onboardingCompleted;
 		// New fields from migration 20251018
 		if (updates.theme !== undefined) dbUpdates.theme = updates.theme;
-		if (updates.isPremium !== undefined)
-			dbUpdates.is_premium = updates.isPremium;
+		if (updates.isPremium !== undefined) dbUpdates.is_premium = updates.isPremium;
 		if (updates.biometricEnabled !== undefined)
 			dbUpdates.biometric_enabled = updates.biometricEnabled;
-		if (updates.backupEnabled !== undefined)
-			dbUpdates.backup_enabled = updates.backupEnabled;
-		if (updates.firstDayOfWeek !== undefined)
-			dbUpdates.first_day_of_week = updates.firstDayOfWeek;
-		if (updates.privacySettings !== undefined)
-			dbUpdates.privacy_settings = updates.privacySettings;
+		if (updates.backupEnabled !== undefined) dbUpdates.backup_enabled = updates.backupEnabled;
+		if (updates.firstDayOfWeek !== undefined) dbUpdates.first_day_of_week = updates.firstDayOfWeek;
+		if (updates.privacySettings !== undefined) dbUpdates.privacy_settings = updates.privacySettings;
 
 		const { data, error } = await supabase
-			.from("profiles")
+			.from('profiles')
 			.update(dbUpdates)
-			.eq("id", userId)
+			.eq('id', userId)
 			.select()
 			.single();
 
 		if (error) {
-			console.error("[PROFILES] Error updating profile:", error);
+			console.error('[PROFILES] Error updating profile:', error);
 			return c.json({ success: false, error: error.message }, 500);
 		}
 
@@ -209,11 +195,11 @@ app.put("/:id", async (c) => {
 			privacySettings: data.privacy_settings,
 		};
 
-		console.log("[PROFILES] Profile updated successfully:", profile);
+		console.log('[PROFILES] Profile updated successfully:', profile);
 
 		return c.json({ success: true, profile });
 	} catch (error) {
-		console.error("[PROFILES] Error updating profile:", error);
+		console.error('[PROFILES] Error updating profile:', error);
 		return c.json({ success: false, error: error.message }, 500);
 	}
 });

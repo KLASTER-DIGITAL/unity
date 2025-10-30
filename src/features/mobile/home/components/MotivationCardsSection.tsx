@@ -10,62 +10,53 @@
  * - Cards load after critical content is visible
  */
 
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { getMotivationCards, markCardAsRead } from "@/shared/lib/api";
-import type { Language } from "@/shared/lib/i18n";
-import { AnimatedPresence } from "@/shared/lib/platform/animation";
-import type { AchievementCard } from "./achievement";
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
+import type { Language } from '@/shared/lib/i18n';
+import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import type { AchievementCard } from './achievement';
 // Import modular components
-import { getDefaultMotivations, SwipeCard } from "./achievement";
+import { getDefaultMotivations, SwipeCard } from './achievement';
 
 type MotivationCardsSectionProps = {
 	userData: any;
 	onCardSwipe?: () => void;
 };
 
-export function MotivationCardsSection({
-	userData,
-	onCardSwipe,
-}: MotivationCardsSectionProps) {
+export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCardsSectionProps) {
 	const [cards, setCards] = useState<AchievementCard[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [showUndo, setShowUndo] = useState(false);
-	const [lastRemovedCard, setLastRemovedCard] =
-		useState<AchievementCard | null>(null);
+	const [lastRemovedCard, setLastRemovedCard] = useState<AchievementCard | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [showAllRead, setShowAllRead] = useState(false);
 
 	// Load motivation cards on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: loadMotivationCards is stable
 	useEffect(() => {
 		loadMotivationCards();
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
 	const loadMotivationCards = async () => {
 		try {
 			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || "anonymous";
+			const userId = userData?.user?.id || userData?.id || 'anonymous';
 
 			const motivationCards = await getMotivationCards(userId);
-			console.log(
-				"[MotivationCardsSection] Loaded motivation cards:",
-				motivationCards,
-			);
+			console.log('[MotivationCardsSection] Loaded motivation cards:', motivationCards);
 
 			setCards(motivationCards);
 			setCurrentIndex(0);
 		} catch (error) {
-			console.error(
-				"[MotivationCardsSection] Error loading motivation cards:",
-				error,
-			);
-			toast.error("Не удалось загрузить карточки", {
-				description: "Проверьте подключение к интернету",
+			console.error('[MotivationCardsSection] Error loading motivation cards:', error);
+			toast.error('Не удалось загрузить карточки', {
+				description: 'Проверьте подключение к интернету',
 			});
 
 			// Fallback to default motivations
-			const userLanguage = (userData?.language || "ru") as Language;
+			const userLanguage = (userData?.language || 'ru') as Language;
 			const defaultCards = getDefaultMotivations(userLanguage);
 			setCards(defaultCards);
 		} finally {
@@ -73,17 +64,17 @@ export function MotivationCardsSection({
 		}
 	};
 
-	const handleSwipe = async (direction: "left" | "right") => {
+	const handleSwipe = async (direction: 'left' | 'right') => {
 		const currentCard = cards[currentIndex];
 
-		if (direction === "right") {
+		if (direction === 'right') {
 			// Mark as read
 			try {
-				const userId = userData?.user?.id || userData?.id || "anonymous";
+				const userId = userData?.user?.id || userData?.id || 'anonymous';
 				await markCardAsRead(userId, currentCard.id);
 				console.log(`Card ${currentCard.id} marked as read`);
 			} catch (error) {
-				console.error("Error marking card as read:", error);
+				console.error('Error marking card as read:', error);
 			}
 		}
 
@@ -130,9 +121,7 @@ export function MotivationCardsSection({
 				<div className="relative mb-responsive-md flex min-h-[280px] w-full items-center justify-center">
 					<div className="text-center">
 						<div className="inline-block h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-						<p className="mt-4 text-muted-foreground text-sm">
-							Загрузка карточек...
-						</p>
+						<p className="mt-4 text-muted-foreground text-sm">Загрузка карточек...</p>
 					</div>
 				</div>
 			</div>
@@ -147,9 +136,7 @@ export function MotivationCardsSection({
 					<div className="rounded-[36px] border border-border bg-card p-8 text-center">
 						<div className="mb-4 text-6xl">🎉</div>
 						<h3 className="mb-2 font-semibold text-xl">Все прочитано!</h3>
-						<p className="text-muted-foreground">
-							Новые карточки появятся завтра
-						</p>
+						<p className="text-muted-foreground">Новые карточки появятся завтра</p>
 					</div>
 				</div>
 			</div>

@@ -4,15 +4,11 @@
  * Pressable с анимацией нажатия (scale down)
  */
 
-import * as Haptics from "expo-haptics";
-import type React from "react";
-import { Pressable, type PressableProps } from "react-native";
-import Animated, {
-	useAnimatedStyle,
-	useSharedValue,
-	withSpring,
-} from "react-native-reanimated";
-import { Animations } from "../../design-system/animations";
+import * as Haptics from 'expo-haptics';
+import type React from 'react';
+import { Pressable, type PressableProps } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Animations } from '../../design-system/animations';
 
 const AnimatedPressableComponent = Animated.createAnimatedComponent(Pressable);
 
@@ -20,14 +16,14 @@ interface AnimatedPressableProps extends PressableProps {
 	children: React.ReactNode;
 	scaleValue?: number;
 	enableHaptics?: boolean;
-	hapticStyle?: "light" | "medium" | "heavy";
+	hapticStyle?: 'light' | 'medium' | 'heavy';
 }
 
 export function AnimatedPressable({
 	children,
 	scaleValue = 0.95,
 	enableHaptics = true,
-	hapticStyle = "light",
+	hapticStyle = 'light',
 	onPressIn,
 	onPressOut,
 	onPress,
@@ -39,6 +35,7 @@ export function AnimatedPressable({
 		transform: [{ scale: scale.value }],
 	}));
 
+	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePressIn = (event: any) => {
 		scale.value = withSpring(scaleValue, Animations.stiffSpringConfig);
 
@@ -54,11 +51,13 @@ export function AnimatedPressable({
 		onPressIn?.(event);
 	};
 
+	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePressOut = (event: any) => {
 		scale.value = withSpring(1, Animations.springConfig);
 		onPressOut?.(event);
 	};
 
+	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePress = (event: any) => {
 		onPress?.(event);
 	};

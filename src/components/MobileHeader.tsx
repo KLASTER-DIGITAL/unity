@@ -1,13 +1,6 @@
-import {
-	Bell,
-	Calendar,
-	ChevronDown,
-	Menu,
-	MessageCircle,
-	Search,
-} from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Bell, Calendar, ChevronDown, Menu, MessageCircle, Search } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface MobileHeaderProps {
 	title: string;
@@ -25,7 +18,7 @@ export function MobileHeader({
 	showMenu = true,
 	showNotifications = true,
 	showSearch = true,
-	userName = "Пользователь",
+	userName = 'Пользователь',
 	onMenuClick,
 	onNotificationClick,
 	onSearchClick: _onSearchClick,
@@ -35,12 +28,7 @@ export function MobileHeader({
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					{showMenu && (
-						<Button
-							className="p-2"
-							onClick={onMenuClick}
-							size="sm"
-							variant="ghost"
-						>
+						<Button className="p-2" onClick={onMenuClick} size="sm" variant="ghost">
 							<Menu className="h-5 w-5 text-[#787486]" />
 						</Button>
 					)}

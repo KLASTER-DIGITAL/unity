@@ -9,7 +9,7 @@
  */
 
 // Import implementations
-import * as WebDialog from "./Dialog.web";
+import * as WebDialog from './Dialog.web';
 
 // Note: NativeDialog is NOT imported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed
@@ -48,7 +48,7 @@ export type {
 	DialogHeaderProps,
 	DialogProps,
 	DialogTitleProps,
-} from "./Dialog.web";
+} from './Dialog.web';
 
 export default {
 	Dialog,

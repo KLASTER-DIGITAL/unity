@@ -6,9 +6,9 @@
  * @module components/ui/universal/Select.web
  */
 
-import * as SelectPrimitive from "@radix-ui/react-select";
-import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import { cn } from "../utils";
+import * as SelectPrimitive from '@radix-ui/react-select';
+import { CheckIcon, ChevronDownIcon } from 'lucide-react';
+import { cn } from '../utils';
 
 // ============================================================================
 // TYPES
@@ -39,7 +39,7 @@ export type SelectProps = {
 	/** Custom className */
 	className?: string;
 	/** Size variant */
-	size?: "sm" | "default";
+	size?: 'sm' | 'default';
 };
 
 // ============================================================================
@@ -50,11 +50,11 @@ export function Select({
 	value,
 	onValueChange,
 	defaultValue,
-	placeholder = "Select an option",
+	placeholder = 'Select an option',
 	options,
 	disabled,
 	className,
-	size = "default",
+	size = 'default',
 }: SelectProps) {
 	return (
 		<SelectPrimitive.Root
@@ -66,9 +66,9 @@ export function Select({
 			<SelectPrimitive.Trigger
 				className={cn(
 					"flex w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-input-background px-3 py-2 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 [&_svg:not([class*='text-'])]:text-muted-foreground",
-					size === "default" && "h-9",
-					size === "sm" && "h-8",
-					className,
+					size === 'default' && 'h-9',
+					size === 'sm' && 'h-8',
+					className
 				)}
 			>
 				<SelectPrimitive.Value placeholder={placeholder} />
@@ -80,7 +80,7 @@ export function Select({
 			<SelectPrimitive.Portal>
 				<SelectPrimitive.Content
 					className={cn(
-						"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md transition-colors duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in",
+						'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md transition-colors duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in'
 					)}
 					position="popper"
 					sideOffset={4}
@@ -89,7 +89,7 @@ export function Select({
 						{options.map((option) => (
 							<SelectPrimitive.Item
 								className={cn(
-									"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors duration-200 focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+									'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors duration-200 focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50'
 								)}
 								disabled={option.disabled}
 								key={option.value}
@@ -100,9 +100,7 @@ export function Select({
 										<CheckIcon className="h-4 w-4" />
 									</SelectPrimitive.ItemIndicator>
 								</span>
-								<SelectPrimitive.ItemText>
-									{option.label}
-								</SelectPrimitive.ItemText>
+								<SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
 							</SelectPrimitive.Item>
 						))}
 					</SelectPrimitive.Viewport>
@@ -124,19 +122,19 @@ export const SelectUtils = {
 		const errors: string[] = [];
 
 		if (!props.options || props.options.length === 0) {
-			errors.push("Select must have at least one option");
+			errors.push('Select must have at least one option');
 		}
 
 		if (props.options) {
 			const values = props.options.map((opt) => opt.value);
 			const uniqueValues = new Set(values);
 			if (values.length !== uniqueValues.size) {
-				errors.push("Select options must have unique values");
+				errors.push('Select options must have unique values');
 			}
 		}
 
 		if (props.value && props.defaultValue) {
-			errors.push("Select cannot have both value and defaultValue");
+			errors.push('Select cannot have both value and defaultValue');
 		}
 
 		return {

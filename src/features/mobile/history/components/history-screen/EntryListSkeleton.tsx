@@ -1,4 +1,4 @@
-import { EntryCardSkeleton } from "./EntryCardSkeleton";
+import { EntryCardSkeleton } from './EntryCardSkeleton';
 
 type EntryListSkeletonProps = {
 	/**

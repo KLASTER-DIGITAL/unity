@@ -4,24 +4,24 @@
  * TRULY shared code - NO platform-specific imports
  */
 
-export const APP_NAME = "UNITY";
-export const APP_VERSION = "2.0.0";
-export const APP_DESCRIPTION = "Дневник достижений и саморазвития";
+export const APP_NAME = 'UNITY';
+export const APP_VERSION = '2.0.0';
+export const APP_DESCRIPTION = 'Дневник достижений и саморазвития';
 
 export const SUPPORTED_LANGUAGES = [
-	{ code: "ru", name: "Русский", flag: "🇷🇺" },
-	{ code: "en", name: "English", flag: "🇬🇧" },
-	{ code: "es", name: "Español", flag: "🇪🇸" },
-	{ code: "de", name: "Deutsch", flag: "🇩🇪" },
-	{ code: "fr", name: "Français", flag: "🇫🇷" },
-	{ code: "zh", name: "中文", flag: "🇨🇳" },
-	{ code: "ja", name: "日本語", flag: "🇯🇵" },
+	{ code: 'ru', name: 'Русский', flag: '🇷🇺' },
+	{ code: 'en', name: 'English', flag: '🇬🇧' },
+	{ code: 'es', name: 'Español', flag: '🇪🇸' },
+	{ code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+	{ code: 'fr', name: 'Français', flag: '🇫🇷' },
+	{ code: 'zh', name: '中文', flag: '🇨🇳' },
+	{ code: 'ja', name: '日本語', flag: '🇯🇵' },
 ] as const;
 
-export const DEFAULT_LANGUAGE = "ru";
+export const DEFAULT_LANGUAGE = 'ru';
 
-export const THEME_OPTIONS = ["light", "dark", "system"] as const;
-export const DEFAULT_THEME = "light";
+export const THEME_OPTIONS = ['light', 'dark', 'system'] as const;
+export const DEFAULT_THEME = 'light';
 
 export const MOOD_SCALE = {
 	MIN: 1,

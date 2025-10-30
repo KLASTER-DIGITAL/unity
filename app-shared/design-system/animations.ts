@@ -4,8 +4,8 @@
  * Reanimated 3 анимации для плавных переходов и жестов
  */
 
-import { Easing, withSpring, withTiming } from "react-native-reanimated";
-import { DesignTokens } from "./tokens";
+import { Easing, withSpring, withTiming } from 'react-native-reanimated';
+import { DesignTokens } from './tokens';
 
 // ============================================================================
 // SPRING ANIMATIONS (iOS-style)
@@ -74,7 +74,7 @@ export const slowTimingConfig = {
  * Fade In animation
  */
 export const fadeIn = (duration = DesignTokens.animationDuration.normal) => {
-	"worklet";
+	'worklet';
 	return withTiming(1, {
 		duration,
 		easing: Easing.bezier(0.4, 0.0, 0.2, 1),
@@ -85,7 +85,7 @@ export const fadeIn = (duration = DesignTokens.animationDuration.normal) => {
  * Fade Out animation
  */
 export const fadeOut = (duration = DesignTokens.animationDuration.normal) => {
-	"worklet";
+	'worklet';
 	return withTiming(0, {
 		duration,
 		easing: Easing.bezier(0.4, 0.0, 0.2, 1),
@@ -96,7 +96,7 @@ export const fadeOut = (duration = DesignTokens.animationDuration.normal) => {
  * Scale In animation (spring)
  */
 export const scaleIn = () => {
-	"worklet";
+	'worklet';
 	return withSpring(1, springConfig);
 };
 
@@ -104,7 +104,7 @@ export const scaleIn = () => {
  * Scale Out animation (spring)
  */
 export const scaleOut = () => {
-	"worklet";
+	'worklet';
 	return withSpring(0, springConfig);
 };
 
@@ -112,7 +112,7 @@ export const scaleOut = () => {
  * Slide In From Bottom animation
  */
 export const slideInFromBottom = (_distance = 100) => {
-	"worklet";
+	'worklet';
 	return withSpring(0, springConfig);
 };
 
@@ -120,7 +120,7 @@ export const slideInFromBottom = (_distance = 100) => {
  * Slide Out To Bottom animation
  */
 export const slideOutToBottom = (distance = 100) => {
-	"worklet";
+	'worklet';
 	return withSpring(distance, springConfig);
 };
 
@@ -128,7 +128,7 @@ export const slideOutToBottom = (distance = 100) => {
  * Bounce animation
  */
 export const bounce = () => {
-	"worklet";
+	'worklet';
 	return withSpring(1, bouncySpringConfig);
 };
 
@@ -140,7 +140,7 @@ export const bounce = () => {
  * Press animation (scale down)
  */
 export const pressAnimation = (pressed: boolean) => {
-	"worklet";
+	'worklet';
 	return withSpring(pressed ? 0.95 : 1, stiffSpringConfig);
 };
 
@@ -148,7 +148,7 @@ export const pressAnimation = (pressed: boolean) => {
  * Swipe animation
  */
 export const swipeAnimation = (value: number) => {
-	"worklet";
+	'worklet';
 	return withSpring(value, springConfig);
 };
 
@@ -160,7 +160,7 @@ export const swipeAnimation = (value: number) => {
  * Card entrance animation (fade + scale)
  */
 export const cardEntranceAnimation = (delay = 0) => {
-	"worklet";
+	'worklet';
 	return {
 		opacity: withTiming(1, {
 			duration: DesignTokens.animationDuration.normal,
@@ -181,7 +181,7 @@ export const cardEntranceAnimation = (delay = 0) => {
  * Card exit animation (fade + scale)
  */
 export const cardExitAnimation = () => {
-	"worklet";
+	'worklet';
 	return {
 		opacity: withTiming(0, {
 			duration: DesignTokens.animationDuration.fast,
@@ -203,7 +203,7 @@ export const cardExitAnimation = () => {
  * Staggered list item animation
  */
 export const staggeredListAnimation = (index: number, delay = 50) => {
-	"worklet";
+	'worklet';
 	return {
 		opacity: withTiming(1, {
 			duration: DesignTokens.animationDuration.normal,
@@ -228,7 +228,7 @@ export const staggeredListAnimation = (index: number, delay = 50) => {
  * Modal entrance animation (slide from bottom)
  */
 export const modalEntranceAnimation = () => {
-	"worklet";
+	'worklet';
 	return {
 		opacity: withTiming(1, {
 			duration: DesignTokens.animationDuration.normal,
@@ -246,7 +246,7 @@ export const modalEntranceAnimation = () => {
  * Modal exit animation (slide to bottom)
  */
 export const modalExitAnimation = () => {
-	"worklet";
+	'worklet';
 	return {
 		opacity: withTiming(0, {
 			duration: DesignTokens.animationDuration.fast,
@@ -268,7 +268,7 @@ export const modalExitAnimation = () => {
  * Skeleton shimmer animation
  */
 export const shimmerAnimation = () => {
-	"worklet";
+	'worklet';
 	return withTiming(1, {
 		duration: 1500,
 		easing: Easing.bezier(0.4, 0.0, 0.6, 1),

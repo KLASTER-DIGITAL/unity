@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { Loader2, RotateCcw, Save, Settings } from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Loader2, RotateCcw, Save, Settings } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { createClient } from '@/utils/supabase/client';
 
 export const GeneralSettingsTab: React.FC = () => {
 	const [settings, setSettings] = useState({
-		appName: "",
-		appDescription: "",
-		supportEmail: "",
+		appName: '',
+		appDescription: '',
+		supportEmail: '',
 		maxEntriesPerDay: 10,
 		enableAnalytics: true,
 		enableErrorReporting: true,
@@ -36,7 +36,7 @@ export const GeneralSettingsTab: React.FC = () => {
 
 	useEffect(() => {
 		loadSettings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadSettings is stable
 	}, []);
 
 	const loadSettings = async () => {
@@ -45,16 +45,16 @@ export const GeneralSettingsTab: React.FC = () => {
 			const supabase = createClient();
 
 			const { data, error } = await supabase
-				.from("admin_settings")
-				.select("key, value")
-				.in("key", [
-					"app_name",
-					"app_description",
-					"support_email",
-					"max_entries_per_day",
-					"enable_analytics",
-					"enable_error_reporting",
-					"maintenance_mode",
+				.from('admin_settings')
+				.select('key, value')
+				.in('key', [
+					'app_name',
+					'app_description',
+					'support_email',
+					'max_entries_per_day',
+					'enable_analytics',
+					'enable_error_reporting',
+					'maintenance_mode',
 				]);
 
 			if (error) throw error;
@@ -65,24 +65,21 @@ export const GeneralSettingsTab: React.FC = () => {
 						acc[item.key] = item.value;
 						return acc;
 					},
-					{} as Record<string, string>,
+					{} as Record<string, string>
 				) || {};
 
 			setSettings({
-				appName: settingsMap.app_name || "",
-				appDescription: settingsMap.app_description || "",
-				supportEmail: settingsMap.support_email || "",
-				maxEntriesPerDay: Number.parseInt(
-					settingsMap.max_entries_per_day || "10",
-					10,
-				),
-				enableAnalytics: settingsMap.enable_analytics === "true",
-				enableErrorReporting: settingsMap.enable_error_reporting === "true",
-				maintenanceMode: settingsMap.maintenance_mode === "true",
+				appName: settingsMap.app_name || '',
+				appDescription: settingsMap.app_description || '',
+				supportEmail: settingsMap.support_email || '',
+				maxEntriesPerDay: Number.parseInt(settingsMap.max_entries_per_day || '10', 10),
+				enableAnalytics: settingsMap.enable_analytics === 'true',
+				enableErrorReporting: settingsMap.enable_error_reporting === 'true',
+				maintenanceMode: settingsMap.maintenance_mode === 'true',
 			});
 		} catch (error) {
-			console.error("Error loading settings:", error);
-			toast.error("Ошибка загрузки настроек");
+			console.error('Error loading settings:', error);
+			toast.error('Ошибка загрузки настроек');
 		} finally {
 			setIsLoading(false);
 		}
@@ -94,34 +91,34 @@ export const GeneralSettingsTab: React.FC = () => {
 			const supabase = createClient();
 
 			const updates = [
-				{ key: "app_name", value: settings.appName },
-				{ key: "app_description", value: settings.appDescription },
-				{ key: "support_email", value: settings.supportEmail },
+				{ key: 'app_name', value: settings.appName },
+				{ key: 'app_description', value: settings.appDescription },
+				{ key: 'support_email', value: settings.supportEmail },
 				{
-					key: "max_entries_per_day",
+					key: 'max_entries_per_day',
 					value: settings.maxEntriesPerDay.toString(),
 				},
-				{ key: "enable_analytics", value: settings.enableAnalytics.toString() },
+				{ key: 'enable_analytics', value: settings.enableAnalytics.toString() },
 				{
-					key: "enable_error_reporting",
+					key: 'enable_error_reporting',
 					value: settings.enableErrorReporting.toString(),
 				},
-				{ key: "maintenance_mode", value: settings.maintenanceMode.toString() },
+				{ key: 'maintenance_mode', value: settings.maintenanceMode.toString() },
 			];
 
 			for (const update of updates) {
 				const { error } = await supabase
-					.from("admin_settings")
+					.from('admin_settings')
 					.update({ value: update.value, updated_at: new Date().toISOString() })
-					.eq("key", update.key);
+					.eq('key', update.key);
 
 				if (error) throw error;
 			}
 
-			toast.success("Настройки успешно сохранены! ✅");
+			toast.success('Настройки успешно сохранены! ✅');
 		} catch (error) {
-			console.error("Error saving settings:", error);
-			toast.error("Ошибка сохранения настроек");
+			console.error('Error saving settings:', error);
+			toast.error('Ошибка сохранения настроек');
 		} finally {
 			setIsSaving(false);
 		}
@@ -131,10 +128,10 @@ export const GeneralSettingsTab: React.FC = () => {
 		setIsResetting(true);
 		try {
 			await loadSettings();
-			toast.success("Настройки перезагружены! 🔄");
+			toast.success('Настройки перезагружены! 🔄');
 		} catch (error) {
-			console.error("Error resetting settings:", error);
-			toast.error("Ошибка при перезагрузке настроек");
+			console.error('Error resetting settings:', error);
+			toast.error('Ошибка при перезагрузке настроек');
 		} finally {
 			setIsResetting(false);
 		}
@@ -156,16 +153,10 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Settings className="h-6 w-6" />
 						Общие настройки
 					</h2>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Основные параметры приложения
-					</p>
+					<p className="mt-1 text-muted-foreground text-sm">Основные параметры приложения</p>
 				</div>
 				<div className="flex gap-2">
-					<Button
-						disabled={isResetting || isSaving}
-						onClick={handleReset}
-						variant="outline"
-					>
+					<Button disabled={isResetting || isSaving} onClick={handleReset} variant="outline">
 						{isResetting ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -204,9 +195,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Label htmlFor="appName">Название приложения</Label>
 						<Input
 							id="appName"
-							onChange={(e) =>
-								setSettings({ ...settings, appName: e.target.value })
-							}
+							onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
 							placeholder="UNITY Diary"
 							value={settings.appName}
 						/>
@@ -216,9 +205,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Label htmlFor="appDescription">Описание приложения</Label>
 						<Textarea
 							id="appDescription"
-							onChange={(e) =>
-								setSettings({ ...settings, appDescription: e.target.value })
-							}
+							onChange={(e) => setSettings({ ...settings, appDescription: e.target.value })}
 							placeholder="Персональный дневник достижений"
 							rows={3}
 							value={settings.appDescription}
@@ -229,9 +216,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Label htmlFor="supportEmail">Email поддержки</Label>
 						<Input
 							id="supportEmail"
-							onChange={(e) =>
-								setSettings({ ...settings, supportEmail: e.target.value })
-							}
+							onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
 							placeholder="support@example.com"
 							type="email"
 							value={settings.supportEmail}
@@ -254,8 +239,7 @@ export const GeneralSettingsTab: React.FC = () => {
 							value={settings.maxEntriesPerDay}
 						/>
 						<p className="text-muted-foreground text-xs">
-							Ограничение количества записей, которые пользователь может создать
-							за день
+							Ограничение количества записей, которые пользователь может создать за день
 						</p>
 					</div>
 				</CardContent>
@@ -264,9 +248,7 @@ export const GeneralSettingsTab: React.FC = () => {
 			<Card>
 				<CardHeader>
 					<CardTitle>Функции</CardTitle>
-					<CardDescription>
-						Включение/отключение функций приложения
-					</CardDescription>
+					<CardDescription>Включение/отключение функций приложения</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="flex items-center justify-between rounded-lg bg-muted p-4">
@@ -279,9 +261,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Switch
 							checked={settings.enableAnalytics}
 							id="enableAnalytics"
-							onCheckedChange={(checked) =>
-								setSettings({ ...settings, enableAnalytics: checked })
-							}
+							onCheckedChange={(checked) => setSettings({ ...settings, enableAnalytics: checked })}
 						/>
 					</div>
 
@@ -305,9 +285,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<div className="flex-1 space-y-0.5">
 							<div className="flex items-center gap-2">
 								<Label htmlFor="maintenanceMode">Режим обслуживания</Label>
-								{settings.maintenanceMode && (
-									<Badge variant="destructive">Активен</Badge>
-								)}
+								{settings.maintenanceMode && <Badge variant="destructive">Активен</Badge>}
 							</div>
 							<p className="text-muted-foreground text-sm">
 								Временно отключить доступ к приложению для обслуживания
@@ -316,9 +294,7 @@ export const GeneralSettingsTab: React.FC = () => {
 						<Switch
 							checked={settings.maintenanceMode}
 							id="maintenanceMode"
-							onCheckedChange={(checked) =>
-								setSettings({ ...settings, maintenanceMode: checked })
-							}
+							onCheckedChange={(checked) => setSettings({ ...settings, maintenanceMode: checked })}
 						/>
 					</div>
 				</CardContent>

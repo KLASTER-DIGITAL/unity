@@ -1,9 +1,9 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { X } from "lucide-react";
-import { MediaPreview } from "@/features/mobile/media";
-import type { DiaryEntry } from "@/shared/lib/api";
-import { AnimatedPresence, motion } from "@/shared/lib/platform/animation";
+import { X } from 'lucide-react';
+import { MediaPreview } from '@/features/mobile/media';
+import type { DiaryEntry } from '@/shared/lib/api';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type EntryDetailModalProps = {
 	entry: DiaryEntry | null;
@@ -11,50 +11,46 @@ type EntryDetailModalProps = {
 	onClose: () => void;
 };
 
-export function EntryDetailModal({
-	entry,
-	isOpen,
-	onClose,
-}: EntryDetailModalProps) {
+export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalProps) {
 	if (!entry) {
 		return null;
 	}
 
 	const formatDate = (dateString: string): string => {
 		const date = new Date(dateString);
-		return date.toLocaleDateString("ru-RU", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
+		return date.toLocaleDateString('ru-RU', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
 		});
 	};
 
 	const getSentimentColor = (sentiment: string): string => {
 		switch (sentiment) {
-			case "positive":
-				return "bg-[var(--ios-green)]/10 text-[var(--ios-green)]";
-			case "neutral":
-				return "bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]";
-			case "negative":
-				return "bg-[var(--ios-red)]/10 text-[var(--ios-red)]";
+			case 'positive':
+				return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]';
+			case 'neutral':
+				return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]';
+			case 'negative':
+				return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)]';
 			default:
-				return "bg-muted text-foreground";
+				return 'bg-muted text-foreground';
 		}
 	};
 
 	const getSentimentLabel = (sentiment: string): string => {
 		switch (sentiment) {
-			case "positive":
-				return "😊 Позитив";
-			case "neutral":
-				return "😐 Нейтрал";
-			case "negative":
-				return "😔 Грусть";
+			case 'positive':
+				return '😊 Позитив';
+			case 'neutral':
+				return '😐 Нейтрал';
+			case 'negative':
+				return '😔 Грусть';
 			default:
-				return "Неизвестно";
+				return 'Неизвестно';
 		}
 	};
 
@@ -78,13 +74,11 @@ export function EntryDetailModal({
 						data-testid="entry-details"
 						exit={{ opacity: 0, y: 100 }}
 						initial={{ opacity: 0, y: 100 }}
-						transition={{ type: "spring", stiffness: 300, damping: 30 }}
+						transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 					>
 						{/* Header */}
 						<div className="mb-6 flex items-center justify-between">
-							<h2 className="font-semibold! text-[20px]! text-foreground">
-								Запись
-							</h2>
+							<h2 className="font-semibold! text-[20px]! text-foreground">Запись</h2>
 							<button
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
@@ -95,9 +89,7 @@ export function EntryDetailModal({
 
 						{/* Date */}
 						<div className="mb-4">
-							<p className="text-[13px]! text-muted-foreground">
-								{formatDate(entry.createdAt)}
-							</p>
+							<p className="text-[13px]! text-muted-foreground">{formatDate(entry.createdAt)}</p>
 						</div>
 
 						{/* Category & Sentiment */}
@@ -124,7 +116,7 @@ export function EntryDetailModal({
 						{/* Title */}
 						{entry.text && (
 							<h3 className="mb-3 font-semibold! text-[18px]! text-foreground">
-								{entry.text.split("\n")[0]}
+								{entry.text.split('\n')[0]}
 							</h3>
 						)}
 

@@ -1,26 +1,23 @@
-import type React from "react";
+import type React from 'react';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Label } from "@/shared/components/ui/label";
+} from '@/shared/components/ui/card';
+import { Label } from '@/shared/components/ui/label';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/shared/components/ui/select";
-import { Switch } from "@/shared/components/ui/switch";
-import type { MobileSettingsProps } from "./types";
+} from '@/shared/components/ui/select';
+import { Switch } from '@/shared/components/ui/switch';
+import type { MobileSettingsProps } from './types';
 
-export const LanguageSettings: React.FC<MobileSettingsProps> = ({
-	settings,
-	onChange,
-}) => {
+export const LanguageSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
 	const handleConfigChange = (field: string, value: any) => {
 		onChange({
 			...settings,
@@ -32,13 +29,13 @@ export const LanguageSettings: React.FC<MobileSettingsProps> = ({
 	};
 
 	const languages = [
-		{ code: "ru", name: "Русский" },
-		{ code: "en", name: "English" },
-		{ code: "es", name: "Español" },
-		{ code: "de", name: "Deutsch" },
-		{ code: "fr", name: "Français" },
-		{ code: "zh", name: "中文" },
-		{ code: "ja", name: "日本語" },
+		{ code: 'ru', name: 'Русский' },
+		{ code: 'en', name: 'English' },
+		{ code: 'es', name: 'Español' },
+		{ code: 'de', name: 'Deutsch' },
+		{ code: 'fr', name: 'Français' },
+		{ code: 'zh', name: '中文' },
+		{ code: 'ja', name: '日本語' },
 	];
 
 	return (
@@ -46,15 +43,13 @@ export const LanguageSettings: React.FC<MobileSettingsProps> = ({
 			<Card>
 				<CardHeader>
 					<CardTitle>Настройки языков</CardTitle>
-					<CardDescription>
-						Управление мультиязычностью приложения
-					</CardDescription>
+					<CardDescription>Управление мультиязычностью приложения</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
 						<Label>Язык по умолчанию</Label>
 						<Select
-							onValueChange={(value) => handleConfigChange("default", value)}
+							onValueChange={(value) => handleConfigChange('default', value)}
 							value={settings.languages_config.default}
 						>
 							<SelectTrigger>
@@ -79,9 +74,7 @@ export const LanguageSettings: React.FC<MobileSettingsProps> = ({
 						</div>
 						<Switch
 							checked={settings.languages_config.autoDetect}
-							onCheckedChange={(checked) =>
-								handleConfigChange("autoDetect", checked)
-							}
+							onCheckedChange={(checked) => handleConfigChange('autoDetect', checked)}
 						/>
 					</div>
 
@@ -94,9 +87,7 @@ export const LanguageSettings: React.FC<MobileSettingsProps> = ({
 						</div>
 						<Switch
 							checked={settings.languages_config.offlineCache}
-							onCheckedChange={(checked) =>
-								handleConfigChange("offlineCache", checked)
-							}
+							onCheckedChange={(checked) => handleConfigChange('offlineCache', checked)}
 						/>
 					</div>
 
@@ -106,10 +97,7 @@ export const LanguageSettings: React.FC<MobileSettingsProps> = ({
 							{settings.languages_config.available.map((code) => {
 								const lang = languages.find((l) => l.code === code);
 								return (
-									<span
-										className="rounded-full border bg-background px-3 py-1 text-sm"
-										key={code}
-									>
+									<span className="rounded-full border bg-background px-3 py-1 text-sm" key={code}>
 										{lang?.name || code}
 									</span>
 								);

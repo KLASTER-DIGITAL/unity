@@ -16,8 +16,7 @@
 	/* ===== iOS Typography System ===== */
 	/* Font Family - San Francisco (SF Pro) */
 	--font-family-ios:
-		-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
-		Helvetica, Arial, sans-serif;
+		-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	--font-family-primary: var(--font-family-ios); /* Backward compatibility */
 
 	/* Font Weights */
@@ -84,9 +83,7 @@
 	--foreground: oklch(0 0 0); /* #000000 - iOS label */
 
 	/* Cards */
-	--card: oklch(
-		0.98 0 0
-	); /* #fafafa - Gray 2 для модальных окон (светлая тема) */
+	--card: oklch(0.98 0 0); /* #fafafa - Gray 2 для модальных окон (светлая тема) */
 	--card-foreground: oklch(0 0 0); /* #000000 - iOS label */
 
 	/* Popovers */
@@ -106,9 +103,7 @@
 
 	/* Muted - для неактивных элементов */
 	--muted: oklch(0.975 0 0); /* #f2f2f7 */
-	--muted-foreground: oklch(
-		0.45 0.015 286.75
-	); /* rgba(60,60,67,0.6) - iOS secondaryLabel */
+	--muted-foreground: oklch(0.45 0.015 286.75); /* rgba(60,60,67,0.6) - iOS secondaryLabel */
 
 	/* Accent */
 	--accent: oklch(0.568 0.207 254.604); /* #007aff - iOS systemBlue */

@@ -8,7 +8,7 @@
  * @module platform/media-picker
  */
 
-import { WebMediaPickerAdapter } from "./media-picker.web";
+import { WebMediaPickerAdapter } from './media-picker.web';
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native implementation is in /app/shared/lib/platform/media-picker.native.ts
 
@@ -20,7 +20,7 @@ export type MediaFile = {
 	/** File URI (web: blob URL, native: file:// or content://) */
 	uri: string;
 	/** Media type */
-	type: "image" | "video";
+	type: 'image' | 'video';
 	/** File name (optional) */
 	name?: string;
 	/** File size in bytes (optional) */
@@ -56,7 +56,7 @@ export type CameraOptions = {
 	/** Aspect ratio for editing (native only) */
 	aspect?: [number, number];
 	/** Camera type (front/back, native only) */
-	cameraType?: "front" | "back";
+	cameraType?: 'front' | 'back';
 };
 
 export type MediaPickerAdapter = {

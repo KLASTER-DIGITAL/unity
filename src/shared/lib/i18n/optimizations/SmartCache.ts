@@ -8,8 +8,8 @@
  * - Memory-efficient storage
  */
 
-import type { LanguageCode, Translations } from "../types/TranslationKeys";
-import { OptimizedStorage } from "./Compression";
+import type { LanguageCode, Translations } from '../types/TranslationKeys';
+import { OptimizedStorage } from './Compression';
 
 type CacheEntry = {
 	language: LanguageCode;
@@ -46,9 +46,7 @@ export class SmartCache {
 			SmartCache.hits++;
 			entry.accessCount++;
 			entry.lastAccess = Date.now();
-			console.log(
-				`✅ SmartCache: Hit for ${language} (${entry.accessCount} accesses)`,
-			);
+			console.log(`✅ SmartCache: Hit for ${language} (${entry.accessCount} accesses)`);
 			return entry.translations;
 		}
 
@@ -71,7 +69,7 @@ export class SmartCache {
 	static async set(
 		language: LanguageCode,
 		translations: Translations,
-		priority = 1,
+		priority = 1
 	): Promise<void> {
 		const size = JSON.stringify(translations).length;
 
@@ -92,9 +90,7 @@ export class SmartCache {
 		// Save to persistent storage
 		await OptimizedStorage.save(language, translations);
 
-		console.log(
-			`💾 SmartCache: Cached ${language} (${size} bytes, priority: ${priority})`,
-		);
+		console.log(`💾 SmartCache: Cached ${language} (${size} bytes, priority: ${priority})`);
 	}
 
 	/**
@@ -114,7 +110,7 @@ export class SmartCache {
 		SmartCache.hits = 0;
 		SmartCache.misses = 0;
 		SmartCache.evictions = 0;
-		console.log("🗑️ SmartCache: Cleared all cache");
+		console.log('🗑️ SmartCache: Cleared all cache');
 	}
 
 	/**
@@ -123,7 +119,7 @@ export class SmartCache {
 	static getStats(): CacheStats {
 		const totalSize = Array.from(SmartCache.cache.values()).reduce(
 			(sum, entry) => sum + entry.size,
-			0,
+			0
 		);
 
 		const total = SmartCache.hits + SmartCache.misses;
@@ -141,16 +137,14 @@ export class SmartCache {
 	 * Get detailed cache info
 	 */
 	static getInfo() {
-		const entries = Array.from(SmartCache.cache.entries()).map(
-			([lang, entry]) => ({
-				language: lang,
-				priority: entry.priority,
-				accessCount: entry.accessCount,
-				lastAccess: new Date(entry.lastAccess).toISOString(),
-				size: entry.size,
-				keysCount: Object.keys(entry.translations).length,
-			}),
-		);
+		const entries = Array.from(SmartCache.cache.entries()).map(([lang, entry]) => ({
+			language: lang,
+			priority: entry.priority,
+			accessCount: entry.accessCount,
+			lastAccess: new Date(entry.lastAccess).toISOString(),
+			size: entry.size,
+			keysCount: Object.keys(entry.translations).length,
+		}));
 
 		return {
 			entries,
@@ -176,7 +170,7 @@ export class SmartCache {
 			}
 		}
 
-		console.log("✅ SmartCache: Prefetch completed");
+		console.log('✅ SmartCache: Prefetch completed');
 	}
 
 	/**
@@ -191,7 +185,7 @@ export class SmartCache {
 		}
 
 		console.log(
-			`⚙️ SmartCache: Configured (maxEntries: ${SmartCache.maxEntries}, maxSize: ${SmartCache.maxSize})`,
+			`⚙️ SmartCache: Configured (maxEntries: ${SmartCache.maxEntries}, maxSize: ${SmartCache.maxSize})`
 		);
 	}
 
@@ -200,7 +194,7 @@ export class SmartCache {
 	private static async ensureSpace(requiredSize: number): Promise<void> {
 		const currentSize = Array.from(SmartCache.cache.values()).reduce(
 			(sum, entry) => sum + entry.size,
-			0,
+			0
 		);
 
 		// Check if we need to evict by count
@@ -234,16 +228,14 @@ export class SmartCache {
 			const [lang] = lruEntry;
 			SmartCache.cache.delete(lang);
 			SmartCache.evictions++;
-			console.log(
-				`🗑️ SmartCache: Evicted ${lang} (LRU, score: ${lruScore.toFixed(2)})`,
-			);
+			console.log(`🗑️ SmartCache: Evicted ${lang} (LRU, score: ${lruScore.toFixed(2)})`);
 		}
 	}
 
 	private static async evictBySize(requiredSize: number): Promise<void> {
 		const currentSize = Array.from(SmartCache.cache.values()).reduce(
 			(sum, entry) => sum + entry.size,
-			0,
+			0
 		);
 
 		let freedSize = 0;
@@ -285,18 +277,16 @@ export class CacheWarmer {
 	 */
 	static async warm(languages: LanguageCode[]): Promise<void> {
 		if (CacheWarmer.warmed) {
-			console.log("⏸️ CacheWarmer: Already warmed");
+			console.log('⏸️ CacheWarmer: Already warmed');
 			return;
 		}
 
-		console.log(
-			`🔥 CacheWarmer: Warming cache with ${languages.length} languages`,
-		);
+		console.log(`🔥 CacheWarmer: Warming cache with ${languages.length} languages`);
 
 		await SmartCache.prefetch(languages);
 
 		CacheWarmer.warmed = true;
-		console.log("✅ CacheWarmer: Cache warmed");
+		console.log('✅ CacheWarmer: Cache warmed');
 	}
 
 	/**

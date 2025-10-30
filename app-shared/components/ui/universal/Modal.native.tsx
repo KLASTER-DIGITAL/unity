@@ -6,7 +6,7 @@
  * @module components/ui/universal/Modal.native
  */
 
-import type React from "react";
+import type React from 'react';
 import {
 	Dimensions,
 	Pressable,
@@ -16,14 +16,14 @@ import {
 	Text,
 	View,
 	type ViewStyle,
-} from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+} from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface ModalProps {
 	/** Modal open state */
@@ -64,31 +64,31 @@ export interface ModalProps {
 // HELPERS
 // ============================================================================
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const getSizeStyles = (size: ModalSize): ViewStyle => {
 	switch (size) {
-		case "sm":
+		case 'sm':
 			return {
 				width: Math.min(SCREEN_WIDTH * 0.8, 400),
 				maxHeight: SCREEN_HEIGHT * 0.5,
 			};
-		case "md":
+		case 'md':
 			return {
 				width: Math.min(SCREEN_WIDTH * 0.9, 500),
 				maxHeight: SCREEN_HEIGHT * 0.7,
 			};
-		case "lg":
+		case 'lg':
 			return {
 				width: Math.min(SCREEN_WIDTH * 0.95, 700),
 				maxHeight: SCREEN_HEIGHT * 0.8,
 			};
-		case "xl":
+		case 'xl':
 			return {
 				width: Math.min(SCREEN_WIDTH * 0.95, 900),
 				maxHeight: SCREEN_HEIGHT * 0.9,
 			};
-		case "full":
+		case 'full':
 			return {
 				width: SCREEN_WIDTH,
 				height: SCREEN_HEIGHT,
@@ -111,7 +111,7 @@ export function Modal({
 	onOpenChange,
 	title,
 	description,
-	size = "md",
+	size = 'md',
 	closable = true,
 	backdrop = true,
 	closeOnBackdrop = true,
@@ -165,9 +165,7 @@ export function Modal({
 								{header || (
 									<>
 										{title && <Text style={styles.title}>{title}</Text>}
-										{description && (
-											<Text style={styles.description}>{description}</Text>
-										)}
+										{description && <Text style={styles.description}>{description}</Text>}
 									</>
 								)}
 							</View>
@@ -208,17 +206,17 @@ export function Modal({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	backdrop: {
 		...StyleSheet.absoluteFillObject,
-		backgroundColor: "rgba(0, 0, 0, 0.5)",
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
 	},
 	modal: {
 		backgroundColor: DesignTokens.colors.background,
 		borderRadius: DesignTokens.borderRadius.lg,
-		shadowColor: "#000",
+		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
 			height: 2,
@@ -226,12 +224,12 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
 		elevation: 5,
-		overflow: "hidden",
+		overflow: 'hidden',
 	},
 	header: {
-		flexDirection: "row",
-		alignItems: "flex-start",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		justifyContent: 'space-between',
 		padding: DesignTokens.spacing.lg,
 		borderBottomWidth: 1,
 		borderBottomColor: DesignTokens.colors.border,
@@ -282,7 +280,7 @@ export const ModalUtils = {
 		const errors: string[] = [];
 
 		if (!props.closable && props.closeOnBackdrop) {
-			errors.push("Modal cannot close on backdrop if not closable");
+			errors.push('Modal cannot close on backdrop if not closable');
 		}
 
 		return {
@@ -296,6 +294,6 @@ export const ModalUtils = {
 // EXPORTS
 // ============================================================================
 
-Modal.displayName = "Modal";
+Modal.displayName = 'Modal';
 
 export default Modal;

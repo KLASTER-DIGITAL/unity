@@ -17,7 +17,7 @@
  * @module sidebar
  */
 
-"use client";
+'use client';
 
 // Base Components
 export {
@@ -30,14 +30,14 @@ export {
 	SidebarRail,
 	SidebarSeparator,
 	SidebarTrigger,
-} from "./sidebar-components-base";
+} from './sidebar-components-base';
 // Group Components
 export {
 	SidebarGroup,
 	SidebarGroupAction,
 	SidebarGroupContent,
 	SidebarGroupLabel,
-} from "./sidebar-components-group";
+} from './sidebar-components-group';
 // Menu Components
 export {
 	SidebarMenu,
@@ -50,6 +50,6 @@ export {
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
 	sidebarMenuButtonVariants,
-} from "./sidebar-components-menu";
+} from './sidebar-components-menu';
 // Context and Provider
-export { SidebarProvider, useSidebar } from "./sidebar-context";
+export { SidebarProvider, useSidebar } from './sidebar-context';

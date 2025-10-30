@@ -7,5 +7,5 @@
  */
 
 // Components
-export { SettingsTab } from "./components/SettingsTab";
-export { SubscriptionsTab } from "./components/SubscriptionsTab";
+export { SettingsTab } from './components/SettingsTab';
+export { SubscriptionsTab } from './components/SubscriptionsTab';

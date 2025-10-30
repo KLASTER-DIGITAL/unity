@@ -6,9 +6,9 @@
  * @module components/ui/universal/Checkbox.native
  */
 
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
@@ -26,7 +26,7 @@ export interface CheckboxProps {
 	/** Custom className (ignored in native) */
 	className?: string;
 	/** Accessibility label */
-	"aria-label"?: string;
+	'aria-label'?: string;
 	/** Test ID */
 	testID?: string;
 	/** Label text */
@@ -42,7 +42,7 @@ export function Checkbox({
 	onCheckedChange,
 	defaultChecked = false,
 	disabled,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 	testID,
 	label,
 }: CheckboxProps) {
@@ -65,10 +65,7 @@ export function Checkbox({
 			accessibilityState={{ checked: currentChecked, disabled }}
 			disabled={disabled}
 			onPress={handlePress}
-			style={({ pressed }) => [
-				styles.container,
-				pressed && !disabled && styles.pressed,
-			]}
+			style={({ pressed }) => [styles.container, pressed && !disabled && styles.pressed]}
 			testID={testID}
 		>
 			<View
@@ -80,11 +77,7 @@ export function Checkbox({
 			>
 				{currentChecked && <Text style={styles.checkmark}>✓</Text>}
 			</View>
-			{label && (
-				<Text style={[styles.label, disabled && styles.labelDisabled]}>
-					{label}
-				</Text>
-			)}
+			{label && <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>}
 		</Pressable>
 	);
 }
@@ -95,8 +88,8 @@ export function Checkbox({
 
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 	},
 	pressed: {
@@ -109,8 +102,8 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: DesignTokens.colors.border,
 		backgroundColor: DesignTokens.colors.background,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	checkboxChecked: {
 		backgroundColor: DesignTokens.colors.primary,
@@ -120,9 +113,9 @@ const styles = StyleSheet.create({
 		opacity: 0.5,
 	},
 	checkmark: {
-		color: "#FFFFFF",
+		color: '#FFFFFF',
 		fontSize: 14,
-		fontWeight: "bold",
+		fontWeight: 'bold',
 	},
 	label: {
 		fontSize: DesignTokens.fontSize.md,
@@ -145,7 +138,7 @@ export const CheckboxUtils = {
 		const errors: string[] = [];
 
 		if (props.checked !== undefined && props.defaultChecked !== undefined) {
-			errors.push("Checkbox cannot have both checked and defaultChecked");
+			errors.push('Checkbox cannot have both checked and defaultChecked');
 		}
 
 		return {
@@ -159,7 +152,7 @@ export const CheckboxUtils = {
 // EXPORTS
 // ============================================================================
 
-Checkbox.displayName = "Checkbox";
+Checkbox.displayName = 'Checkbox';
 
 export default {
 	Checkbox,

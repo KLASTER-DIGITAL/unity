@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef } from 'react';
 
 type CompressionOptions = {
 	maxWidth?: number;
@@ -90,11 +90,11 @@ export function useImageCompressionWorker() {
 			// Note: Web Workers with imports don't work in all environments
 			// Fallback to main thread if worker creation fails
 			try {
-				const blob = new Blob([workerCode], { type: "application/javascript" });
+				const blob = new Blob([workerCode], { type: 'application/javascript' });
 				const workerUrl = URL.createObjectURL(blob);
-				workerRef.current = new Worker(workerUrl, { type: "module" });
+				workerRef.current = new Worker(workerUrl, { type: 'module' });
 			} catch (error) {
-				console.warn("Failed to create worker, will use main thread:", error);
+				console.warn('Failed to create worker, will use main thread:', error);
 				return null;
 			}
 		}
@@ -106,20 +106,14 @@ export function useImageCompressionWorker() {
 		async (
 			file: File,
 			options?: CompressionOptions,
-			onProgress?: (progress: number) => void,
+			onProgress?: (progress: number) => void
 		): Promise<CompressionResult> => {
 			const worker = getWorker();
 
 			// Fallback to main thread if worker not available
 			if (!worker) {
-				const { compressImage: mainThreadCompress } = await import(
-					"../../utils/imageCompression"
-				);
-				const compressed = await mainThreadCompress(
-					file,
-					options?.maxWidth,
-					options?.quality,
-				);
+				const { compressImage: mainThreadCompress } = await import('../../utils/imageCompression');
+				const compressed = await mainThreadCompress(file, options?.maxWidth, options?.quality);
 
 				return {
 					file: compressed,
@@ -133,27 +127,27 @@ export function useImageCompressionWorker() {
 				const handleMessage = (e: MessageEvent) => {
 					const { type, data, error, progress } = e.data;
 
-					if (type === "progress" && onProgress) {
+					if (type === 'progress' && onProgress) {
 						onProgress(progress);
-					} else if (type === "success") {
-						worker.removeEventListener("message", handleMessage);
+					} else if (type === 'success') {
+						worker.removeEventListener('message', handleMessage);
 						resolve({
 							file: data,
 							originalSize: file.size,
 							compressedSize: data.size,
 							reduction: ((file.size - data.size) / file.size) * 100,
 						});
-					} else if (type === "error") {
-						worker.removeEventListener("message", handleMessage);
+					} else if (type === 'error') {
+						worker.removeEventListener('message', handleMessage);
 						reject(new Error(error));
 					}
 				};
 
-				worker.addEventListener("message", handleMessage);
-				worker.postMessage({ type: "compress", file, options });
+				worker.addEventListener('message', handleMessage);
+				worker.postMessage({ type: 'compress', file, options });
 			});
 		},
-		[getWorker],
+		[getWorker]
 	);
 
 	const generateThumbnail = useCallback(
@@ -163,7 +157,7 @@ export function useImageCompressionWorker() {
 			// Fallback to main thread
 			if (!worker) {
 				const { generateThumbnail: mainThreadThumbnail } = await import(
-					"../../utils/imageCompression"
+					'../../utils/imageCompression'
 				);
 				return mainThreadThumbnail(file);
 			}
@@ -172,20 +166,20 @@ export function useImageCompressionWorker() {
 				const handleMessage = (e: MessageEvent) => {
 					const { type, data, error } = e.data;
 
-					if (type === "success") {
-						worker.removeEventListener("message", handleMessage);
+					if (type === 'success') {
+						worker.removeEventListener('message', handleMessage);
 						resolve(data);
-					} else if (type === "error") {
-						worker.removeEventListener("message", handleMessage);
+					} else if (type === 'error') {
+						worker.removeEventListener('message', handleMessage);
 						reject(new Error(error));
 					}
 				};
 
-				worker.addEventListener("message", handleMessage);
-				worker.postMessage({ type: "thumbnail", file });
+				worker.addEventListener('message', handleMessage);
+				worker.postMessage({ type: 'thumbnail', file });
 			});
 		},
-		[getWorker],
+		[getWorker]
 	);
 
 	const getImageDimensions = useCallback(
@@ -195,7 +189,7 @@ export function useImageCompressionWorker() {
 			// Fallback to main thread
 			if (!worker) {
 				const { getImageDimensions: mainThreadDimensions } = await import(
-					"../../utils/imageCompression"
+					'../../utils/imageCompression'
 				);
 				return mainThreadDimensions(file);
 			}
@@ -204,20 +198,20 @@ export function useImageCompressionWorker() {
 				const handleMessage = (e: MessageEvent) => {
 					const { type, data, error } = e.data;
 
-					if (type === "success") {
-						worker.removeEventListener("message", handleMessage);
+					if (type === 'success') {
+						worker.removeEventListener('message', handleMessage);
 						resolve(data);
-					} else if (type === "error") {
-						worker.removeEventListener("message", handleMessage);
+					} else if (type === 'error') {
+						worker.removeEventListener('message', handleMessage);
 						reject(new Error(error));
 					}
 				};
 
-				worker.addEventListener("message", handleMessage);
-				worker.postMessage({ type: "dimensions", file });
+				worker.addEventListener('message', handleMessage);
+				worker.postMessage({ type: 'dimensions', file });
 			});
 		},
-		[getWorker],
+		[getWorker]
 	);
 
 	// Cleanup worker on unmount

@@ -15,17 +15,17 @@
  * @module i18n
  */
 
-import { useEffect, useState } from "react";
-import { fallbackTranslations } from "../i18n/fallback";
-import type { Language, Translations } from "./i18n-types";
+import { useEffect, useState } from 'react';
+import { fallbackTranslations } from '../i18n/fallback';
+import type { Language, Translations } from './i18n-types';
 
 // Re-export types for convenience
-export type { Language, Translations } from "./i18n-types";
+export type { Language, Translations } from './i18n-types';
 
 // Хук для получения переводов
-export function useTranslations(language: Language = "ru"): Translations {
+export function useTranslations(language: Language = 'ru'): Translations {
 	const [translations, setTranslations] = useState<Translations>(
-		fallbackTranslations[language] as Translations,
+		fallbackTranslations[language] as Translations
 	);
 	const [_isLoading, setIsLoading] = useState(true);
 
@@ -39,7 +39,7 @@ export function useTranslations(language: Language = "ru"): Translations {
 				// Используем fallback переводы пока не реализован Edge Function
 				setTranslations(fallbackTranslations[language] as Translations);
 			} catch (error) {
-				console.error("Error loading translations:", error);
+				console.error('Error loading translations:', error);
 				// Используем fallback переводы в случае ошибки
 				setTranslations(fallbackTranslations[language] as Translations);
 			} finally {
@@ -54,28 +54,25 @@ export function useTranslations(language: Language = "ru"): Translations {
 }
 
 // Функция для получения перевода категории
-export function getCategoryTranslation(
-	category: string,
-	language: Language = "ru",
-): string {
+export function getCategoryTranslation(category: string, language: Language = 'ru'): string {
 	const translations = fallbackTranslations[language] as Translations;
 
 	switch (category) {
-		case "family":
+		case 'family':
 			return translations.family;
-		case "work":
+		case 'work':
 			return translations.work;
-		case "finance":
+		case 'finance':
 			return translations.finance;
-		case "gratitude":
+		case 'gratitude':
 			return translations.gratitude;
-		case "health":
+		case 'health':
 			return translations.health;
-		case "personalDevelopment":
+		case 'personalDevelopment':
 			return translations.personalDevelopment;
-		case "creativity":
+		case 'creativity':
 			return translations.creativity;
-		case "relationships":
+		case 'relationships':
 			return translations.relationships;
 		default:
 			return category;

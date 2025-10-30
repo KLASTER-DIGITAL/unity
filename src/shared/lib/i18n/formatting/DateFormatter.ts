@@ -10,7 +10,7 @@
  * - Timezone support
  */
 
-export type DateFormatStyle = "short" | "medium" | "long" | "full";
+export type DateFormatStyle = 'short' | 'medium' | 'long' | 'full';
 
 export type DateFormatOptions = {
 	style?: DateFormatStyle;
@@ -19,8 +19,8 @@ export type DateFormatOptions = {
 };
 
 export type RelativeTimeOptions = {
-	style?: "long" | "short" | "narrow";
-	numeric?: "always" | "auto";
+	style?: 'long' | 'short' | 'narrow';
+	numeric?: 'always' | 'auto';
 };
 
 /**
@@ -29,17 +29,14 @@ export type RelativeTimeOptions = {
 export function formatDate(
 	date: Date | string | number,
 	locale: string,
-	options: DateFormatOptions = {},
+	options: DateFormatOptions = {}
 ): string {
-	const { style = "medium", includeTime = false, timezone } = options;
+	const { style = 'medium', includeTime = false, timezone } = options;
 
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	if (Number.isNaN(dateObj.getTime())) {
-		console.error("Invalid date:", date);
+		console.error('Invalid date:', date);
 		return String(date);
 	}
 
@@ -55,7 +52,7 @@ export function formatDate(
 	try {
 		return new Intl.DateTimeFormat(locale, formatOptions).format(dateObj);
 	} catch (error) {
-		console.error("Date formatting error:", error);
+		console.error('Date formatting error:', error);
 		return dateObj.toLocaleDateString();
 	}
 }
@@ -72,17 +69,14 @@ export function formatDate(
 export function formatRelativeTime(
 	date: Date | string | number,
 	locale: string,
-	options: RelativeTimeOptions = {},
+	options: RelativeTimeOptions = {}
 ): string {
-	const { style = "long", numeric = "auto" } = options;
+	const { style = 'long', numeric = 'auto' } = options;
 
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	if (Number.isNaN(dateObj.getTime())) {
-		console.error("Invalid date:", date);
+		console.error('Invalid date:', date);
 		return String(date);
 	}
 
@@ -100,27 +94,27 @@ export function formatRelativeTime(
 		const rtf = new Intl.RelativeTimeFormat(locale, { numeric, style });
 
 		if (Math.abs(diffSeconds) < 60) {
-			return rtf.format(-diffSeconds, "second");
+			return rtf.format(-diffSeconds, 'second');
 		}
 		if (Math.abs(diffMinutes) < 60) {
-			return rtf.format(-diffMinutes, "minute");
+			return rtf.format(-diffMinutes, 'minute');
 		}
 		if (Math.abs(diffHours) < 24) {
-			return rtf.format(-diffHours, "hour");
+			return rtf.format(-diffHours, 'hour');
 		}
 		if (Math.abs(diffDays) < 7) {
-			return rtf.format(-diffDays, "day");
+			return rtf.format(-diffDays, 'day');
 		}
 		if (Math.abs(diffWeeks) < 4) {
-			return rtf.format(-diffWeeks, "week");
+			return rtf.format(-diffWeeks, 'week');
 		}
 		if (Math.abs(diffMonths) < 12) {
-			return rtf.format(-diffMonths, "month");
+			return rtf.format(-diffMonths, 'month');
 		}
-		return rtf.format(-diffYears, "year");
+		return rtf.format(-diffYears, 'year');
 	} catch (error) {
-		console.error("Relative time formatting error:", error);
-		return formatDate(dateObj, locale, { style: "short" });
+		console.error('Relative time formatting error:', error);
+		return formatDate(dateObj, locale, { style: 'short' });
 	}
 }
 
@@ -130,24 +124,19 @@ export function formatRelativeTime(
 export function formatTime(
 	date: Date | string | number,
 	locale: string,
-	style: DateFormatStyle = "short",
+	style: DateFormatStyle = 'short'
 ): string {
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	if (Number.isNaN(dateObj.getTime())) {
-		console.error("Invalid date:", date);
+		console.error('Invalid date:', date);
 		return String(date);
 	}
 
 	try {
-		return new Intl.DateTimeFormat(locale, { timeStyle: style }).format(
-			dateObj,
-		);
+		return new Intl.DateTimeFormat(locale, { timeStyle: style }).format(dateObj);
 	} catch (error) {
-		console.error("Time formatting error:", error);
+		console.error('Time formatting error:', error);
 		return dateObj.toLocaleTimeString();
 	}
 }
@@ -158,22 +147,19 @@ export function formatTime(
 export function formatDateCustom(
 	date: Date | string | number,
 	locale: string,
-	options: Intl.DateTimeFormatOptions,
+	options: Intl.DateTimeFormatOptions
 ): string {
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	if (Number.isNaN(dateObj.getTime())) {
-		console.error("Invalid date:", date);
+		console.error('Invalid date:', date);
 		return String(date);
 	}
 
 	try {
 		return new Intl.DateTimeFormat(locale, options).format(dateObj);
 	} catch (error) {
-		console.error("Custom date formatting error:", error);
+		console.error('Custom date formatting error:', error);
 		return dateObj.toLocaleDateString();
 	}
 }
@@ -183,28 +169,25 @@ export function formatDateCustom(
  */
 export function getDateParts(
 	date: Date | string | number,
-	locale: string,
+	locale: string
 ): Intl.DateTimeFormatPart[] {
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	if (Number.isNaN(dateObj.getTime())) {
-		console.error("Invalid date:", date);
+		console.error('Invalid date:', date);
 		return [];
 	}
 
 	try {
 		return new Intl.DateTimeFormat(locale, {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "numeric",
-			minute: "numeric",
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric',
 		}).formatToParts(dateObj);
 	} catch (error) {
-		console.error("Date parts error:", error);
+		console.error('Date parts error:', error);
 		return [];
 	}
 }
@@ -215,61 +198,57 @@ export function getDateParts(
 export const DATE_FORMATS = {
 	// Short formats
 	shortDate: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "short" }),
+		formatDate(date, locale, { style: 'short' }),
 
 	shortDateTime: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "short", includeTime: true }),
+		formatDate(date, locale, { style: 'short', includeTime: true }),
 
 	// Medium formats
 	mediumDate: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "medium" }),
+		formatDate(date, locale, { style: 'medium' }),
 
 	mediumDateTime: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "medium", includeTime: true }),
+		formatDate(date, locale, { style: 'medium', includeTime: true }),
 
 	// Long formats
 	longDate: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "long" }),
+		formatDate(date, locale, { style: 'long' }),
 
 	longDateTime: (date: Date | string | number, locale: string) =>
-		formatDate(date, locale, { style: "long", includeTime: true }),
+		formatDate(date, locale, { style: 'long', includeTime: true }),
 
 	// Time only
-	time: (date: Date | string | number, locale: string) =>
-		formatTime(date, locale, "short"),
+	time: (date: Date | string | number, locale: string) => formatTime(date, locale, 'short'),
 
 	timeWithSeconds: (date: Date | string | number, locale: string) =>
-		formatTime(date, locale, "medium"),
+		formatTime(date, locale, 'medium'),
 
 	// Relative time
 	timeAgo: (date: Date | string | number, locale: string) =>
-		formatRelativeTime(date, locale, { style: "long", numeric: "auto" }),
+		formatRelativeTime(date, locale, { style: 'long', numeric: 'auto' }),
 
 	timeAgoShort: (date: Date | string | number, locale: string) =>
-		formatRelativeTime(date, locale, { style: "short", numeric: "auto" }),
+		formatRelativeTime(date, locale, { style: 'short', numeric: 'auto' }),
 
 	// Custom formats
 	monthYear: (date: Date | string | number, locale: string) =>
-		formatDateCustom(date, locale, { year: "numeric", month: "long" }),
+		formatDateCustom(date, locale, { year: 'numeric', month: 'long' }),
 
 	dayMonth: (date: Date | string | number, locale: string) =>
-		formatDateCustom(date, locale, { day: "numeric", month: "long" }),
+		formatDateCustom(date, locale, { day: 'numeric', month: 'long' }),
 
 	weekday: (date: Date | string | number, locale: string) =>
-		formatDateCustom(date, locale, { weekday: "long" }),
+		formatDateCustom(date, locale, { weekday: 'long' }),
 
 	weekdayShort: (date: Date | string | number, locale: string) =>
-		formatDateCustom(date, locale, { weekday: "short" }),
+		formatDateCustom(date, locale, { weekday: 'short' }),
 };
 
 /**
  * Check if date is today
  */
 export function isToday(date: Date | string | number): boolean {
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	const today = new Date();
 	return (
@@ -283,10 +262,7 @@ export function isToday(date: Date | string | number): boolean {
  * Check if date is yesterday
  */
 export function isYesterday(date: Date | string | number): boolean {
-	const dateObj =
-		typeof date === "string" || typeof date === "number"
-			? new Date(date)
-			: date;
+	const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
 
 	const yesterday = new Date();
 	yesterday.setDate(yesterday.getDate() - 1);

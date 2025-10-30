@@ -8,12 +8,8 @@
  * @date 2025-10-24
  */
 
-import { useCallback, useEffect, useState } from "react";
-import {
-	type OfflineStatus,
-	offlineManager,
-	type SyncEvent,
-} from "./offlineManager";
+import { useCallback, useEffect, useState } from 'react';
+import { type OfflineStatus, offlineManager, type SyncEvent } from './offlineManager';
 
 export type UseOfflineModeReturn = {
 	// Status
@@ -34,9 +30,7 @@ export type UseOfflineModeReturn = {
  * Hook for managing offline mode
  */
 export function useOfflineMode(): UseOfflineModeReturn {
-	const [status, setStatus] = useState<OfflineStatus>(
-		offlineManager.getStatus(),
-	);
+	const [status, setStatus] = useState<OfflineStatus>(offlineManager.getStatus());
 	const [lastSyncEvent, setLastSyncEvent] = useState<SyncEvent | null>(null);
 
 	useEffect(() => {

@@ -1,7 +1,7 @@
-import { AlertTriangle, Home, RefreshCw } from "lucide-react";
-import type React from "react";
-import { Component, type ReactNode } from "react";
-import { Button } from "@/shared/components/ui/button";
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import type React from 'react';
+import { Component, type ReactNode } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
@@ -9,8 +9,8 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { captureException } from "@/shared/lib/monitoring";
+} from '@/shared/components/ui/card';
+import { captureException } from '@/shared/lib/monitoring';
 
 type ErrorBoundaryProps = {
 	children: ReactNode;
@@ -38,10 +38,7 @@ type ErrorBoundaryState = {
  *   <YourComponent />
  * </ErrorBoundary>
  */
-export class ErrorBoundary extends Component<
-	ErrorBoundaryProps,
-	ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = {
@@ -61,8 +58,8 @@ export class ErrorBoundary extends Component<
 
 	componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
 		// Логируем ошибку
-		console.error("🔴 [ErrorBoundary] Caught error:", error);
-		console.error("🔴 [ErrorBoundary] Error info:", errorInfo);
+		console.error('🔴 [ErrorBoundary] Caught error:', error);
+		console.error('🔴 [ErrorBoundary] Error info:', errorInfo);
 
 		// Сохраняем информацию об ошибке в состояние
 		this.setState({
@@ -78,7 +75,7 @@ export class ErrorBoundary extends Component<
 				},
 			},
 			tags: {
-				errorBoundary: "ErrorBoundary",
+				errorBoundary: 'ErrorBoundary',
 			},
 		});
 	}
@@ -102,7 +99,7 @@ export class ErrorBoundary extends Component<
 	};
 
 	handleGoHome = () => {
-		window.location.href = "/";
+		window.location.href = '/';
 	};
 
 	render() {
@@ -122,9 +119,7 @@ export class ErrorBoundary extends Component<
 									<AlertTriangle className="h-6 w-6 text-red-600" />
 								</div>
 								<div>
-									<CardTitle className="text-2xl">
-										Что-то пошло не так
-									</CardTitle>
+									<CardTitle className="text-2xl">Что-то пошло не так</CardTitle>
 									<CardDescription className="mt-1">
 										Произошла ошибка при отображении этой страницы
 									</CardDescription>
@@ -136,12 +131,8 @@ export class ErrorBoundary extends Component<
 							{/* Сообщение об ошибке */}
 							{this.state.error && (
 								<div className="rounded-lg border border-red-200 bg-red-50 p-4">
-									<p className="mb-1 font-medium text-red-900 text-sm">
-										Ошибка:
-									</p>
-									<p className="font-mono text-red-700 text-sm">
-										{this.state.error.message}
-									</p>
+									<p className="mb-1 font-medium text-red-900 text-sm">Ошибка:</p>
+									<p className="font-mono text-red-700 text-sm">{this.state.error.message}</p>
 								</div>
 							)}
 
@@ -159,9 +150,7 @@ export class ErrorBoundary extends Component<
 
 							{/* Рекомендации */}
 							<div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-								<p className="mb-2 font-medium text-blue-900 text-sm">
-									Что можно сделать:
-								</p>
+								<p className="mb-2 font-medium text-blue-900 text-sm">Что можно сделать:</p>
 								<ul className="list-inside list-disc space-y-1 text-blue-700 text-sm">
 									<li>Попробуйте обновить страницу</li>
 									<li>Очистите кэш браузера</li>
@@ -172,30 +161,18 @@ export class ErrorBoundary extends Component<
 						</CardContent>
 
 						<CardFooter className="flex gap-3">
-							<Button
-								className="flex-1"
-								onClick={this.handleReset}
-								variant="outline"
-							>
+							<Button className="flex-1" onClick={this.handleReset} variant="outline">
 								<RefreshCw className="mr-2 h-4 w-4" />
 								Попробовать снова
 							</Button>
 
-							<Button
-								className="flex-1"
-								onClick={this.handleReload}
-								variant="outline"
-							>
+							<Button className="flex-1" onClick={this.handleReload} variant="outline">
 								<RefreshCw className="mr-2 h-4 w-4" />
 								Обновить страницу
 							</Button>
 
 							{this.props.showHomeButton && (
-								<Button
-									className="flex-1"
-									onClick={this.handleGoHome}
-									variant="default"
-								>
+								<Button className="flex-1" onClick={this.handleGoHome} variant="default">
 									<Home className="mr-2 h-4 w-4" />
 									На главную
 								</Button>
@@ -213,10 +190,7 @@ export class ErrorBoundary extends Component<
 /**
  * Компактный ErrorBoundary для использования внутри других компонентов
  */
-export class CompactErrorBoundary extends Component<
-	ErrorBoundaryProps,
-	ErrorBoundaryState
-> {
+export class CompactErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = {
@@ -231,8 +205,8 @@ export class CompactErrorBoundary extends Component<
 	}
 
 	componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-		console.error("🔴 [CompactErrorBoundary] Caught error:", error);
-		console.error("🔴 [CompactErrorBoundary] Error info:", errorInfo);
+		console.error('🔴 [CompactErrorBoundary] Caught error:', error);
+		console.error('🔴 [CompactErrorBoundary] Error info:', errorInfo);
 		this.setState({ error, errorInfo });
 
 		// Отправляем в Sentry
@@ -243,7 +217,7 @@ export class CompactErrorBoundary extends Component<
 				},
 			},
 			tags: {
-				errorBoundary: "CompactErrorBoundary",
+				errorBoundary: 'CompactErrorBoundary',
 			},
 		});
 	}
@@ -266,20 +240,11 @@ export class CompactErrorBoundary extends Component<
 					<div className="flex items-start gap-3">
 						<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
 						<div className="min-w-0 flex-1">
-							<p className="font-medium text-red-900 text-sm">
-								Ошибка отображения
-							</p>
+							<p className="font-medium text-red-900 text-sm">Ошибка отображения</p>
 							{this.state.error && (
-								<p className="mt-1 font-mono text-red-700 text-xs">
-									{this.state.error.message}
-								</p>
+								<p className="mt-1 font-mono text-red-700 text-xs">{this.state.error.message}</p>
 							)}
-							<Button
-								className="mt-2"
-								onClick={this.handleReset}
-								size="sm"
-								variant="outline"
-							>
+							<Button className="mt-2" onClick={this.handleReset} size="sm" variant="outline">
 								<RefreshCw className="mr-1 h-3 w-3" />
 								Попробовать снова
 							</Button>

@@ -1,6 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { useRef, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { useRef, useState } from 'react';
 import {
 	Animated,
 	KeyboardAvoidingView,
@@ -10,11 +10,12 @@ import {
 	Text,
 	TextInput,
 	View,
-} from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+} from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 interface ChatInputSectionProps {
 	onMessageSent?: (message: string) => void;
+	// biome-ignore lint/suspicious/noExplicitAny: Entry type varies
 	onEntrySaved?: (entry: any) => void;
 	userName?: string;
 	userId?: string;
@@ -23,10 +24,10 @@ interface ChatInputSectionProps {
 export function ChatInputSection({
 	onMessageSent,
 	onEntrySaved,
-	userName = "Анна",
-	userId = "anonymous",
+	userName = 'Анна',
+	userId = 'anonymous',
 }: ChatInputSectionProps) {
-	const [inputText, setInputText] = useState("");
+	const [inputText, setInputText] = useState('');
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [showAiHint, setShowAiHint] = useState(true);
 	const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -51,7 +52,7 @@ export function ChatInputSection({
 			}
 
 			// TODO: Implement actual API call
-			console.log("Sending message:", inputText);
+			console.log('Sending message:', inputText);
 
 			// Simulate API call
 			await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -63,9 +64,9 @@ export function ChatInputSection({
 				timestamp: new Date().toISOString(),
 			});
 
-			setInputText("");
+			setInputText('');
 		} catch (error) {
-			console.error("Error sending message:", error);
+			console.error('Error sending message:', error);
 		} finally {
 			setIsProcessing(false);
 		}
@@ -73,18 +74,14 @@ export function ChatInputSection({
 
 	return (
 		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 			style={styles.container}
 		>
 			{/* AI Hint Section */}
 			{showAiHint && (
 				<Animated.View style={[styles.aiHintContainer, { opacity: fadeAnim }]}>
 					<View style={styles.aiHintBadge}>
-						<Ionicons
-							color={DesignTokens.colors.primary}
-							name="sparkles"
-							size={14}
-						/>
+						<Ionicons color={DesignTokens.colors.primary} name="sparkles" size={14} />
 						<Text style={styles.aiHintBadgeText}>AI</Text>
 					</View>
 					<Text style={styles.aiHintText}>
@@ -119,17 +116,9 @@ export function ChatInputSection({
 						]}
 					>
 						{isProcessing ? (
-							<Ionicons
-								color={DesignTokens.colors.background}
-								name="hourglass-outline"
-								size={20}
-							/>
+							<Ionicons color={DesignTokens.colors.background} name="hourglass-outline" size={20} />
 						) : (
-							<Ionicons
-								color={DesignTokens.colors.background}
-								name="send"
-								size={20}
-							/>
+							<Ionicons color={DesignTokens.colors.background} name="send" size={20} />
 						)}
 					</Pressable>
 				</View>
@@ -149,8 +138,8 @@ const styles = StyleSheet.create({
 		paddingVertical: DesignTokens.spacing.lg,
 	},
 	aiHintContainer: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 		paddingHorizontal: DesignTokens.spacing.lg,
 		paddingVertical: DesignTokens.spacing.md,
@@ -159,8 +148,8 @@ const styles = StyleSheet.create({
 		marginBottom: DesignTokens.spacing.md,
 	},
 	aiHintBadge: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.xs,
 		paddingHorizontal: DesignTokens.spacing.sm,
 		paddingVertical: DesignTokens.spacing.xs,
@@ -182,12 +171,12 @@ const styles = StyleSheet.create({
 		gap: DesignTokens.spacing.sm,
 	},
 	inputWrapper: {
-		flexDirection: "row",
-		alignItems: "flex-end",
+		flexDirection: 'row',
+		alignItems: 'flex-end',
 		gap: DesignTokens.spacing.md,
 		padding: DesignTokens.spacing.lg,
 		backgroundColor: DesignTokens.colors.gray50,
-		borderRadius: DesignTokens.borderRadius["2xl"],
+		borderRadius: DesignTokens.borderRadius['2xl'],
 		borderWidth: 1,
 		borderColor: DesignTokens.colors.border,
 	},
@@ -204,8 +193,8 @@ const styles = StyleSheet.create({
 		height: DesignTokens.touchTargets.minimum,
 		borderRadius: DesignTokens.borderRadius.full,
 		backgroundColor: DesignTokens.colors.primary,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		...DesignTokens.shadows.sm,
 	},
 	sendButtonDisabled: {
@@ -215,8 +204,8 @@ const styles = StyleSheet.create({
 		opacity: 0.8,
 	},
 	footer: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
 		paddingHorizontal: DesignTokens.spacing.lg,
 	},
 	charCounter: {

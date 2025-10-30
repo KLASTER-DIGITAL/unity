@@ -12,24 +12,19 @@
  * @date 2025-10-19
  */
 
-import { Camera, Loader2, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/shared/components/ui/avatar";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { updateUserProfile, uploadMedia } from "@/shared/lib/api";
-import { compressImage } from "@/utils/imageCompression";
-import { createClient } from "@/utils/supabase/client";
+import { Camera, Loader2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { updateUserProfile, uploadMedia } from '@/shared/lib/api';
+import { compressImage } from '@/utils/imageCompression';
+import { createClient } from '@/utils/supabase/client';
 
 // Дефолтное фото для аватара
-const DEFAULT_AVATAR_URL =
-	"https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png";
+const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 type ProfileEditModalProps = {
 	isOpen: boolean;
@@ -49,9 +44,9 @@ export function ProfileEditModal({
 	profile,
 	onProfileUpdated,
 }: ProfileEditModalProps) {
-	const [name, setName] = useState(profile?.name || "");
-	const [email, setEmail] = useState(profile?.email || "");
-	const [avatarUrl, setAvatarUrl] = useState(profile?.avatar || "");
+	const [name, setName] = useState(profile?.name || '');
+	const [email, setEmail] = useState(profile?.email || '');
+	const [avatarUrl, setAvatarUrl] = useState(profile?.avatar || '');
 	const [avatarFile, setAvatarFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -65,17 +60,17 @@ export function ProfileEditModal({
 		}
 
 		// Validate file type
-		if (!file.type.startsWith("image/")) {
-			toast.error("Неверный формат файла", {
-				description: "Пожалуйста, выберите изображение",
+		if (!file.type.startsWith('image/')) {
+			toast.error('Неверный формат файла', {
+				description: 'Пожалуйста, выберите изображение',
 			});
 			return;
 		}
 
 		// Validate file size (max 15MB - современные телефоны делают большие фото)
 		if (file.size > 15 * 1024 * 1024) {
-			toast.error("Файл слишком большой", {
-				description: "Максимальный размер: 15 МБ",
+			toast.error('Файл слишком большой', {
+				description: 'Максимальный размер: 15 МБ',
 			});
 			return;
 		}
@@ -84,32 +79,30 @@ export function ProfileEditModal({
 			setIsUploading(true);
 
 			console.log(
-				`📸 [AVATAR] Original file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+				`📸 [AVATAR] Original file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`
 			);
 
 			// Compress image with aggressive settings for large files
 			const compressedFile = await compressImage(
 				file,
 				512, // maxWidth
-				file.size > 5 * 1024 * 1024 ? 0.7 : 0.8, // quality - lower for large files
+				file.size > 5 * 1024 * 1024 ? 0.7 : 0.8 // quality - lower for large files
 			);
 
-			console.log(
-				`📸 [AVATAR] Compressed: ${(compressedFile.size / 1024).toFixed(2)}KB`,
-			);
+			console.log(`📸 [AVATAR] Compressed: ${(compressedFile.size / 1024).toFixed(2)}KB`);
 
 			// Create preview URL
 			const previewUrl = URL.createObjectURL(compressedFile);
 			setAvatarUrl(previewUrl);
 			setAvatarFile(compressedFile);
 
-			toast.success("Фото выбрано", {
+			toast.success('Фото выбрано', {
 				description: 'Нажмите "Сохранить" для применения изменений',
 			});
 		} catch (error) {
-			console.error("Error processing avatar:", error);
-			toast.error("Ошибка обработки фото", {
-				description: "Попробуйте другое изображение",
+			console.error('Error processing avatar:', error);
+			toast.error('Ошибка обработки фото', {
+				description: 'Попробуйте другое изображение',
 			});
 		} finally {
 			setIsUploading(false);
@@ -119,22 +112,22 @@ export function ProfileEditModal({
 	// Handle save
 	const handleSave = async () => {
 		if (!profile?.id) {
-			toast.error("Ошибка", { description: "ID пользователя не найден" });
+			toast.error('Ошибка', { description: 'ID пользователя не найден' });
 			return;
 		}
 
 		// Validate name
 		if (!name.trim()) {
-			toast.error("Введите имя", {
-				description: "Имя не может быть пустым",
+			toast.error('Введите имя', {
+				description: 'Имя не может быть пустым',
 			});
 			return;
 		}
 
 		// Validate email
-		if (!(email.trim() && email.includes("@"))) {
-			toast.error("Неверный email", {
-				description: "Введите корректный email адрес",
+		if (!(email.trim() && email.includes('@'))) {
+			toast.error('Неверный email', {
+				description: 'Введите корректный email адрес',
 			});
 			return;
 		}
@@ -147,25 +140,23 @@ export function ProfileEditModal({
 			// Upload avatar if changed
 			if (avatarFile) {
 				try {
-					console.log("📸 [PROFILE] Uploading avatar...");
+					console.log('📸 [PROFILE] Uploading avatar...');
 					const mediaFile = await uploadMedia(avatarFile, profile.id);
-					console.log("📸 [PROFILE] Upload response:", mediaFile);
+					console.log('📸 [PROFILE] Upload response:', mediaFile);
 
 					if (mediaFile?.url) {
 						uploadedAvatarUrl = mediaFile.url;
-						console.log("📸 [PROFILE] Avatar URL set:", uploadedAvatarUrl);
+						console.log('📸 [PROFILE] Avatar URL set:', uploadedAvatarUrl);
 					} else {
-						console.warn("📸 [PROFILE] No URL in response:", mediaFile);
-						toast.error("Ошибка загрузки фото", {
-							description:
-								"Не удалось получить URL фото. Профиль будет сохранен без нового фото",
+						console.warn('📸 [PROFILE] No URL in response:', mediaFile);
+						toast.error('Ошибка загрузки фото', {
+							description: 'Не удалось получить URL фото. Профиль будет сохранен без нового фото',
 						});
 					}
 				} catch (uploadError: any) {
-					console.error("📸 [PROFILE] Avatar upload error:", uploadError);
-					toast.error("Ошибка загрузки фото", {
-						description:
-							uploadError.message || "Профиль будет сохранен без нового фото",
+					console.error('📸 [PROFILE] Avatar upload error:', uploadError);
+					toast.error('Ошибка загрузки фото', {
+						description: uploadError.message || 'Профиль будет сохранен без нового фото',
 					});
 				}
 			}
@@ -183,13 +174,13 @@ export function ProfileEditModal({
 						throw emailError;
 					}
 
-					toast.info("Подтвердите новый email", {
-						description: "Мы отправили письмо для подтверждения на новый адрес",
+					toast.info('Подтвердите новый email', {
+						description: 'Мы отправили письмо для подтверждения на новый адрес',
 					});
 				} catch (emailError) {
-					console.error("Email update error:", emailError);
-					toast.error("Ошибка смены email", {
-						description: "Не удалось изменить email. Попробуйте позже",
+					console.error('Email update error:', emailError);
+					toast.error('Ошибка смены email', {
+						description: 'Не удалось изменить email. Попробуйте позже',
 					});
 					// Don't return - continue with profile update
 				}
@@ -202,10 +193,10 @@ export function ProfileEditModal({
 				email: email.trim(), // Update email in profiles table
 			});
 
-			toast.success("Профиль обновлен", {
+			toast.success('Профиль обновлен', {
 				description: emailChanged
-					? "Изменения сохранены. Проверьте email для подтверждения"
-					: "Изменения успешно сохранены",
+					? 'Изменения сохранены. Проверьте email для подтверждения'
+					: 'Изменения успешно сохранены',
 			});
 
 			// Notify parent component
@@ -215,9 +206,9 @@ export function ProfileEditModal({
 
 			onClose();
 		} catch (error) {
-			console.error("Error saving profile:", error);
-			toast.error("Ошибка сохранения", {
-				description: "Попробуйте еще раз",
+			console.error('Error saving profile:', error);
+			toast.error('Ошибка сохранения', {
+				description: 'Попробуйте еще раз',
 			});
 		} finally {
 			setIsSaving(false);
@@ -227,7 +218,7 @@ export function ProfileEditModal({
 	// Handle remove avatar
 	const handleRemoveAvatar = async () => {
 		if (!profile?.id) {
-			toast.error("Ошибка", { description: "ID пользователя не найден" });
+			toast.error('Ошибка', { description: 'ID пользователя не найден' });
 			return;
 		}
 
@@ -236,13 +227,13 @@ export function ProfileEditModal({
 
 			// Update profile in database with empty avatar
 			const updatedProfile = await updateUserProfile(profile.id, {
-				avatar: "", // Remove avatar
+				avatar: '', // Remove avatar
 			});
 
-			console.log("✅ Avatar removed from database:", updatedProfile);
+			console.log('✅ Avatar removed from database:', updatedProfile);
 
 			// Update local state immediately
-			setAvatarUrl("");
+			setAvatarUrl('');
 			setAvatarFile(null);
 
 			// Notify parent component for real-time update
@@ -250,13 +241,13 @@ export function ProfileEditModal({
 				onProfileUpdated(updatedProfile);
 			}
 
-			toast.success("Фото удалено", {
-				description: "Изменения сохранены",
+			toast.success('Фото удалено', {
+				description: 'Изменения сохранены',
 			});
 		} catch (error) {
-			console.error("Error removing avatar:", error);
-			toast.error("Ошибка удаления фото", {
-				description: "Попробуйте еще раз",
+			console.error('Error removing avatar:', error);
+			toast.error('Ошибка удаления фото', {
+				description: 'Попробуйте еще раз',
 			});
 		} finally {
 			setIsSaving(false);
@@ -266,9 +257,9 @@ export function ProfileEditModal({
 	// Handle cancel
 	const handleCancel = () => {
 		// Reset to original values
-		setName(profile?.name || "");
-		setEmail(profile?.email || "");
-		setAvatarUrl(profile?.avatar || "");
+		setName(profile?.name || '');
+		setEmail(profile?.email || '');
+		setAvatarUrl(profile?.avatar || '');
 		setAvatarFile(null);
 		onClose();
 	};
@@ -295,9 +286,7 @@ export function ProfileEditModal({
 					>
 						{/* Header */}
 						<div className="mb-6 flex items-center justify-between">
-							<h2 className="text-foreground text-title-3">
-								Редактировать профиль
-							</h2>
+							<h2 className="text-foreground text-title-3">Редактировать профиль</h2>
 							<button
 								className="rounded-full p-1 transition-colors hover:bg-accent/10 disabled:opacity-50"
 								disabled={isSaving}
@@ -348,20 +337,12 @@ export function ProfileEditModal({
 										{/* Hover overlay - clickable to upload */}
 										<div
 											className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-											onClick={() =>
-												!isUploading && fileInputRef.current?.click()
-											}
+											onClick={() => !isUploading && fileInputRef.current?.click()}
 										>
 											{isUploading ? (
-												<Loader2
-													className="h-8 w-8 animate-spin text-white"
-													strokeWidth={2}
-												/>
+												<Loader2 className="h-8 w-8 animate-spin text-white" strokeWidth={2} />
 											) : (
-												<Camera
-													className="h-8 w-8 text-white"
-													strokeWidth={2}
-												/>
+												<Camera className="h-8 w-8 text-white" strokeWidth={2} />
 											)}
 										</div>
 									</div>
@@ -369,9 +350,7 @@ export function ProfileEditModal({
 
 								<div className="space-y-1 text-center">
 									<p className="font-medium text-foreground text-sm">
-										{avatarUrl
-											? "Изменить фото профиля"
-											: "Добавить фото профиля"}
+										{avatarUrl ? 'Изменить фото профиля' : 'Добавить фото профиля'}
 									</p>
 									<p className="font-normal text-muted-foreground text-xs">
 										JPG, PNG или GIF • Макс. 15 МБ
@@ -383,9 +362,7 @@ export function ProfileEditModal({
 							<div className="space-y-4">
 								{/* Name Input */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">
-										Имя
-									</label>
+									<label className="font-semibold text-foreground text-sm">Имя</label>
 									<Input
 										disabled={isSaving}
 										maxLength={50}
@@ -394,16 +371,12 @@ export function ProfileEditModal({
 										type="text"
 										value={name}
 									/>
-									<p className="text-muted-foreground text-xs">
-										{name.length}/50 символов
-									</p>
+									<p className="text-muted-foreground text-xs">{name.length}/50 символов</p>
 								</div>
 
 								{/* Email (Editable) */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">
-										Email
-									</label>
+									<label className="font-semibold text-foreground text-sm">Email</label>
 									<Input
 										disabled={isSaving}
 										maxLength={100}
@@ -414,8 +387,8 @@ export function ProfileEditModal({
 									/>
 									<p className="text-muted-foreground text-xs">
 										{email !== profile?.email
-											? "После смены email потребуется подтверждение"
-											: "Введите новый email для изменения"}
+											? 'После смены email потребуется подтверждение'
+											: 'Введите новый email для изменения'}
 									</p>
 								</div>
 							</div>
@@ -436,7 +409,7 @@ export function ProfileEditModal({
 								disabled={isSaving || isUploading || !name.trim()}
 								onClick={handleSave}
 							>
-								{isSaving ? "Сохранение..." : "Сохранить"}
+								{isSaving ? 'Сохранение...' : 'Сохранить'}
 							</Button>
 						</div>
 

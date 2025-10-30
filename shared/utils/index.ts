@@ -4,5 +4,5 @@
  * TRULY shared code - NO platform-specific imports
  */
 
-export * from "./date";
-export * from "./text";
+export * from './date';
+export * from './text';

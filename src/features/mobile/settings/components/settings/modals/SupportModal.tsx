@@ -2,12 +2,12 @@
  * SettingsScreen - Support Modal Component
  */
 
-import { X } from "lucide-react";
-import { motion } from "motion/react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { X } from 'lucide-react';
+import { motion } from 'motion/react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
 
 type SupportModalProps = {
 	isOpen: boolean;
@@ -16,18 +16,13 @@ type SupportModalProps = {
 	t: any;
 };
 
-export function SupportModal({
-	isOpen,
-	onClose,
-	userEmail,
-	t,
-}: SupportModalProps) {
+export function SupportModal({ isOpen, onClose, userEmail, t }: SupportModalProps) {
 	if (!isOpen) {
 		return null;
 	}
 
 	const handleSubmit = () => {
-		toast.success("Сообщение отправлено! Мы ответим в течение 24 часов.");
+		toast.success('Сообщение отправлено! Мы ответим в течение 24 часов.');
 		onClose();
 	};
 
@@ -49,7 +44,7 @@ export function SupportModal({
 			>
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">
-						{t.contactSupport || "Связаться с поддержкой"}
+						{t.contactSupport || 'Связаться с поддержкой'}
 					</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
@@ -65,15 +60,8 @@ export function SupportModal({
 
 				<div className="space-y-4">
 					<div>
-						<label className="mb-1 block font-medium text-footnote text-foreground">
-							Email
-						</label>
-						<Input
-							className="bg-muted"
-							disabled
-							type="email"
-							value={userEmail || ""}
-						/>
+						<label className="mb-1 block font-medium text-footnote text-foreground">Email</label>
+						<Input className="bg-muted" disabled type="email" value={userEmail || ''} />
 					</div>
 					<div>
 						<label className="mb-1 block font-medium text-footnote text-foreground">
@@ -85,10 +73,7 @@ export function SupportModal({
 						<label className="mb-1 block font-medium text-footnote text-foreground">
 							Сообщение
 						</label>
-						<Textarea
-							placeholder="Опишите вашу проблему или вопрос..."
-							rows={6}
-						/>
+						<Textarea placeholder="Опишите вашу проблему или вопрос..." rows={6} />
 					</div>
 					<Button className="w-full" onClick={handleSubmit}>
 						Отправить

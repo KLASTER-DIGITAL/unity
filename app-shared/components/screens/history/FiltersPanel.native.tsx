@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 interface FiltersPanelProps {
 	showFilters: boolean;
@@ -35,16 +35,10 @@ export function FiltersPanel({
 				>
 					<Pressable
 						onPress={() => onCategoryChange(null)}
-						style={[
-							styles.filterButton,
-							!selectedCategory && styles.filterButtonActive,
-						]}
+						style={[styles.filterButton, !selectedCategory && styles.filterButtonActive]}
 					>
 						<Text
-							style={[
-								styles.filterButtonText,
-								!selectedCategory && styles.filterButtonTextActive,
-							]}
+							style={[styles.filterButtonText, !selectedCategory && styles.filterButtonTextActive]}
 						>
 							Все
 						</Text>
@@ -54,10 +48,7 @@ export function FiltersPanel({
 						<Pressable
 							key={cat}
 							onPress={() => onCategoryChange(cat)}
-							style={[
-								styles.filterButton,
-								selectedCategory === cat && styles.filterButtonActive,
-							]}
+							style={[styles.filterButton, selectedCategory === cat && styles.filterButtonActive]}
 						>
 							<Text
 								style={[
@@ -78,33 +69,26 @@ export function FiltersPanel({
 				<View style={styles.filterRow}>
 					<Pressable
 						onPress={() => onSentimentChange(null)}
-						style={[
-							styles.filterButton,
-							!selectedSentiment && styles.filterButtonActive,
-						]}
+						style={[styles.filterButton, !selectedSentiment && styles.filterButtonActive]}
 					>
 						<Text
-							style={[
-								styles.filterButtonText,
-								!selectedSentiment && styles.filterButtonTextActive,
-							]}
+							style={[styles.filterButtonText, !selectedSentiment && styles.filterButtonTextActive]}
 						>
 							Все
 						</Text>
 					</Pressable>
 
 					<Pressable
-						onPress={() => onSentimentChange("positive")}
+						onPress={() => onSentimentChange('positive')}
 						style={[
 							styles.filterButton,
-							selectedSentiment === "positive" && styles.filterButtonPositive,
+							selectedSentiment === 'positive' && styles.filterButtonPositive,
 						]}
 					>
 						<Text
 							style={[
 								styles.filterButtonText,
-								selectedSentiment === "positive" &&
-									styles.filterButtonTextActive,
+								selectedSentiment === 'positive' && styles.filterButtonTextActive,
 							]}
 						>
 							😊 Позитив
@@ -112,17 +96,16 @@ export function FiltersPanel({
 					</Pressable>
 
 					<Pressable
-						onPress={() => onSentimentChange("neutral")}
+						onPress={() => onSentimentChange('neutral')}
 						style={[
 							styles.filterButton,
-							selectedSentiment === "neutral" && styles.filterButtonNeutral,
+							selectedSentiment === 'neutral' && styles.filterButtonNeutral,
 						]}
 					>
 						<Text
 							style={[
 								styles.filterButtonText,
-								selectedSentiment === "neutral" &&
-									styles.filterButtonTextActive,
+								selectedSentiment === 'neutral' && styles.filterButtonTextActive,
 							]}
 						>
 							😐 Нейтрал
@@ -130,17 +113,16 @@ export function FiltersPanel({
 					</Pressable>
 
 					<Pressable
-						onPress={() => onSentimentChange("negative")}
+						onPress={() => onSentimentChange('negative')}
 						style={[
 							styles.filterButton,
-							selectedSentiment === "negative" && styles.filterButtonNegative,
+							selectedSentiment === 'negative' && styles.filterButtonNegative,
 						]}
 					>
 						<Text
 							style={[
 								styles.filterButtonText,
-								selectedSentiment === "negative" &&
-									styles.filterButtonTextActive,
+								selectedSentiment === 'negative' && styles.filterButtonTextActive,
 							]}
 						>
 							😔 Грусть
@@ -154,9 +136,9 @@ export function FiltersPanel({
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: '#FFFFFF',
 		borderBottomWidth: 1,
-		borderBottomColor: "#E5E7EB",
+		borderBottomColor: '#E5E7EB',
 		paddingHorizontal: 24,
 		paddingVertical: 16,
 	},
@@ -165,39 +147,39 @@ const styles = StyleSheet.create({
 	},
 	sectionTitle: {
 		fontSize: 13,
-		fontWeight: "500",
-		color: "#6B7280",
+		fontWeight: '500',
+		color: '#6B7280',
 		marginBottom: 8,
 	},
 	filterRow: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		gap: 8,
-		flexWrap: "wrap",
+		flexWrap: 'wrap',
 	},
 	filterButton: {
 		paddingHorizontal: 12,
 		paddingVertical: 8,
-		backgroundColor: "#F3F4F6",
+		backgroundColor: '#F3F4F6',
 		borderRadius: 8,
 	},
 	filterButtonActive: {
-		backgroundColor: "#3B82F6",
+		backgroundColor: '#3B82F6',
 	},
 	filterButtonPositive: {
-		backgroundColor: "#10B981",
+		backgroundColor: '#10B981',
 	},
 	filterButtonNeutral: {
-		backgroundColor: "#6B7280",
+		backgroundColor: '#6B7280',
 	},
 	filterButtonNegative: {
-		backgroundColor: "#EF4444",
+		backgroundColor: '#EF4444',
 	},
 	filterButtonText: {
 		fontSize: 13,
-		color: "#111827",
+		color: '#111827',
 	},
 	filterButtonTextActive: {
-		color: "#FFFFFF",
-		fontWeight: "500",
+		color: '#FFFFFF',
+		fontWeight: '500',
 	},
 });

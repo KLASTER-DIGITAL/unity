@@ -3,11 +3,11 @@
  * Offloads image compression to a separate thread for better performance
  */
 
-import imageCompression from "browser-image-compression";
+import imageCompression from 'browser-image-compression';
 
 // Message types
 interface CompressMessage {
-	type: "compress" | "thumbnail" | "dimensions";
+	type: 'compress' | 'thumbnail' | 'dimensions';
 	file: File;
 	options?: {
 		maxWidth?: number;
@@ -17,7 +17,7 @@ interface CompressMessage {
 }
 
 interface CompressResponse {
-	type: "success" | "error" | "progress";
+	type: 'success' | 'error' | 'progress';
 	data?: File | { width: number; height: number };
 	error?: string;
 	progress?: number;
@@ -29,46 +29,46 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
 
 	try {
 		switch (type) {
-			case "compress": {
+			case 'compress': {
 				const compressedFile = await imageCompression(file, {
 					maxSizeMB: 0.5,
 					maxWidthOrHeight: options?.maxWidth || 1920,
 					useWebWorker: false, // Already in worker
-					fileType: "image/jpeg",
+					fileType: 'image/jpeg',
 					initialQuality: options?.quality || 0.8,
 					alwaysKeepResolution: false,
 					onProgress: (progress) => {
 						self.postMessage({
-							type: "progress",
+							type: 'progress',
 							progress,
 						} as CompressResponse);
 					},
 				});
 
 				self.postMessage({
-					type: "success",
+					type: 'success',
 					data: compressedFile,
 				} as CompressResponse);
 				break;
 			}
 
-			case "thumbnail": {
+			case 'thumbnail': {
 				const thumbnail = await imageCompression(file, {
 					maxSizeMB: 0.05,
 					maxWidthOrHeight: 200,
 					useWebWorker: false,
 					initialQuality: 0.7,
-					fileType: "image/jpeg",
+					fileType: 'image/jpeg',
 				});
 
 				self.postMessage({
-					type: "success",
+					type: 'success',
 					data: thumbnail,
 				} as CompressResponse);
 				break;
 			}
 
-			case "dimensions": {
+			case 'dimensions': {
 				const dimensions = await new Promise<{ width: number; height: number }>(
 					(resolve, reject) => {
 						const reader = new FileReader();
@@ -82,11 +82,11 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
 						};
 						reader.onerror = reject;
 						reader.readAsDataURL(file);
-					},
+					}
 				);
 
 				self.postMessage({
-					type: "success",
+					type: 'success',
 					data: dimensions,
 				} as CompressResponse);
 				break;
@@ -97,8 +97,8 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
 		}
 	} catch (error) {
 		self.postMessage({
-			type: "error",
-			error: error instanceof Error ? error.message : "Unknown error",
+			type: 'error',
+			error: error instanceof Error ? error.message : 'Unknown error',
 		} as CompressResponse);
 	}
 };

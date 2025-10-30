@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { voice } from "../lib/platform/voice";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { voice } from '../lib/platform/voice';
 
 type VoiceRecorderHook = {
 	isRecording: boolean;
@@ -41,7 +41,7 @@ export function useVoiceRecorder(): VoiceRecorderHook {
 	// Начать запись
 	const startRecording = useCallback(async () => {
 		if (!isSupported) {
-			throw new Error("Запись голоса не поддерживается в вашем браузере");
+			throw new Error('Запись голоса не поддерживается в вашем браузере');
 		}
 
 		try {
@@ -64,9 +64,9 @@ export function useVoiceRecorder(): VoiceRecorderHook {
 				setAudioLevel(voice.getAudioLevel());
 			}, 50);
 
-			console.log("Recording started");
+			console.log('Recording started');
 		} catch (error: any) {
-			console.error("Error starting recording:", error);
+			console.error('Error starting recording:', error);
 			throw error;
 		}
 	}, [isSupported]);
@@ -90,10 +90,10 @@ export function useVoiceRecorder(): VoiceRecorderHook {
 				return result.data;
 			}
 			// TODO: Convert native URI to Blob when implementing native
-			console.warn("Native audio URI not converted to Blob yet");
+			console.warn('Native audio URI not converted to Blob yet');
 			return null;
 		} catch (error) {
-			console.error("Error stopping recording:", error);
+			console.error('Error stopping recording:', error);
 			cleanup();
 			return null;
 		}
@@ -113,7 +113,7 @@ export function useVoiceRecorder(): VoiceRecorderHook {
 			}
 			cleanup();
 		},
-		[isRecording, cleanup],
+		[isRecording, cleanup]
 	);
 
 	return {

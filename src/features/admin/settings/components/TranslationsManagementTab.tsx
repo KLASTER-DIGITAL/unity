@@ -1,19 +1,14 @@
-import {
-	AlertCircle,
-	Languages as LanguagesIcon,
-	Loader2,
-	Sparkles,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { AlertCircle, Languages as LanguagesIcon, Loader2, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import type {
 	Language,
 	MissingTranslation,
 	Translation,
 	TranslationsManagementTabProps,
-} from "./translations-management";
+} from './translations-management';
 // Import modular components and utilities
 import {
 	AutoTranslateTab,
@@ -27,7 +22,7 @@ import {
 	StatsCards,
 	saveTranslation,
 	TranslationsTab,
-} from "./translations-management";
+} from './translations-management';
 
 // Re-export types for backward compatibility
 export type { TranslationsManagementTabProps };
@@ -38,16 +33,15 @@ export function TranslationsManagementTab({
 	const [translations, setTranslations] = useState<Translation[]>([]);
 	const [languages, setLanguages] = useState<Language[]>([]);
 	const [missingKeys, setMissingKeys] = useState<MissingTranslation[]>([]);
-	const [selectedLanguage, setSelectedLanguage] = useState<string>(
-		initialLanguage || "ru",
-	);
-	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedLanguage, setSelectedLanguage] = useState<string>(initialLanguage || 'ru');
+	const [searchQuery, setSearchQuery] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [activeTab, setActiveTab] = useState("translations");
+	const [activeTab, setActiveTab] = useState('translations');
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: loadData is stable
 	useEffect(() => {
 		loadData();
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []);
 
 	// Update selected language when initialLanguage prop changes
 	useEffect(() => {
@@ -59,12 +53,11 @@ export function TranslationsManagementTab({
 	const loadData = async () => {
 		setIsLoading(true);
 		try {
-			const [translationsData, languagesData, missingKeysData] =
-				await Promise.all([
-					loadTranslations(),
-					loadLanguages(),
-					loadMissingKeys(),
-				]);
+			const [translationsData, languagesData, missingKeysData] = await Promise.all([
+				loadTranslations(),
+				loadLanguages(),
+				loadMissingKeys(),
+			]);
 			setTranslations(translationsData);
 			setLanguages(languagesData);
 			setMissingKeys(missingKeysData);
@@ -81,10 +74,7 @@ export function TranslationsManagementTab({
 		}
 	};
 
-	const handleAutoTranslate = async (
-		sourceLanguage: string,
-		targetLanguages: string[],
-	) => {
+	const handleAutoTranslate = async (sourceLanguage: string, targetLanguages: string[]) => {
 		const result = await autoTranslate(sourceLanguage, targetLanguages);
 		if (result.success) {
 			await loadData();
@@ -96,11 +86,7 @@ export function TranslationsManagementTab({
 		}
 	};
 
-	const filteredTranslations = filterTranslations(
-		translations,
-		selectedLanguage,
-		searchQuery,
-	);
+	const filteredTranslations = filterTranslations(translations, selectedLanguage, searchQuery);
 	const uniqueKeys = [...new Set(translations.map((t) => t.translation_key))];
 	const translationStats = calculateStats(translations, languages, missingKeys);
 
@@ -109,9 +95,7 @@ export function TranslationsManagementTab({
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="font-semibold text-2xl text-foreground">
-						Управление переводами
-					</h2>
+					<h2 className="font-semibold text-2xl text-foreground">Управление переводами</h2>
 					<p className="mt-1 text-muted-foreground text-sm">
 						Редактирование и управление переводами приложения
 					</p>
@@ -160,10 +144,7 @@ export function TranslationsManagementTab({
 
 				<MissingTab languages={languages} missingKeys={missingKeys} />
 
-				<AutoTranslateTab
-					languages={languages}
-					onAutoTranslate={handleAutoTranslate}
-				/>
+				<AutoTranslateTab languages={languages} onAutoTranslate={handleAutoTranslate} />
 			</Tabs>
 		</div>
 	);

@@ -1,14 +1,14 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
 	Easing,
 	useAnimatedStyle,
 	useSharedValue,
 	withRepeat,
 	withTiming,
-} from "react-native-reanimated";
-import { DesignTokens } from "../../design-system/tokens";
+} from 'react-native-reanimated';
+import { DesignTokens } from '../../design-system/tokens';
 
 interface SkeletonCardProps {
 	/**
@@ -38,6 +38,7 @@ interface SkeletonCardProps {
 	/**
 	 * Дополнительные стили
 	 */
+	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 }
 
@@ -50,7 +51,7 @@ interface SkeletonCardProps {
  * - iOS-style дизайн
  */
 export function SkeletonCard({
-	width = "100%",
+	width = '100%',
 	height = 120,
 	borderRadius = DesignTokens.borderRadius.lg,
 	shimmer = true,
@@ -66,7 +67,7 @@ export function SkeletonCard({
 					easing: Easing.linear,
 				}),
 				-1,
-				false,
+				false
 			);
 		}
 	}, [shimmer, translateX]);
@@ -95,9 +96,9 @@ export function SkeletonCard({
 				<Animated.View style={[styles.shimmerContainer, animatedStyle]}>
 					<LinearGradient
 						colors={[
-							"rgba(255, 255, 255, 0)",
-							"rgba(255, 255, 255, 0.3)",
-							"rgba(255, 255, 255, 0)",
+							'rgba(255, 255, 255, 0)',
+							'rgba(255, 255, 255, 0.3)',
+							'rgba(255, 255, 255, 0)',
 						]}
 						end={{ x: 1, y: 0 }}
 						start={{ x: 0, y: 0 }}
@@ -115,7 +116,7 @@ export function SkeletonCard({
  * Skeleton loader для текста
  */
 export function SkeletonText({
-	width = "100%",
+	width = '100%',
 	height = 16,
 	borderRadius = DesignTokens.borderRadius.sm,
 	shimmer = true,
@@ -144,6 +145,7 @@ export function SkeletonCircle({
 }: {
 	size?: number;
 	shimmer?: boolean;
+	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 }) {
 	return (
@@ -186,16 +188,8 @@ export function SkeletonEntryCard() {
 
 			{/* Footer */}
 			<View style={styles.entryFooter}>
-				<SkeletonText
-					borderRadius={DesignTokens.borderRadius.full}
-					height={24}
-					width={80}
-				/>
-				<SkeletonText
-					borderRadius={DesignTokens.borderRadius.full}
-					height={24}
-					width={60}
-				/>
+				<SkeletonText borderRadius={DesignTokens.borderRadius.full} height={24} width={80} />
+				<SkeletonText borderRadius={DesignTokens.borderRadius.full} height={24} width={60} />
 			</View>
 		</View>
 	);
@@ -242,10 +236,10 @@ export function SkeletonMilestoneCard() {
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: DesignTokens.colors.gray100,
-		overflow: "hidden",
+		overflow: 'hidden',
 	},
 	shimmerContainer: {
-		position: "absolute",
+		position: 'absolute',
 		top: 0,
 		left: 0,
 		right: 0,
@@ -264,14 +258,14 @@ const styles = StyleSheet.create({
 		marginBottom: DesignTokens.spacing.md,
 	},
 	entryHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "flex-start",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'flex-start',
 		marginBottom: DesignTokens.spacing.md,
 	},
 	entryHeaderLeft: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.md,
 	},
 	entryHeaderText: {
@@ -281,14 +275,14 @@ const styles = StyleSheet.create({
 		marginBottom: DesignTokens.spacing.md,
 	},
 	entryFooter: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		gap: DesignTokens.spacing.sm,
 	},
 	achievementCard: {
 		backgroundColor: DesignTokens.colors.card,
 		borderRadius: DesignTokens.borderRadius.lg,
 		padding: DesignTokens.spacing.lg,
-		alignItems: "center",
+		alignItems: 'center',
 		borderWidth: 1,
 		borderColor: DesignTokens.colors.border,
 	},
@@ -301,8 +295,8 @@ const styles = StyleSheet.create({
 		marginBottom: DesignTokens.spacing.md,
 	},
 	milestoneHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 	},
 });

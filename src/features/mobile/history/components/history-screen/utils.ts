@@ -1,4 +1,4 @@
-import type { DiaryEntry } from "@/shared/lib/api";
+import type { DiaryEntry } from '@/shared/lib/api';
 
 /**
  * Filter entries by search query, category, and sentiment
@@ -7,7 +7,7 @@ export function filterEntries(
 	entries: DiaryEntry[],
 	searchQuery: string,
 	selectedCategory: string | null,
-	selectedSentiment: string | null,
+	selectedSentiment: string | null
 ): DiaryEntry[] {
 	let filtered = [...entries];
 
@@ -17,9 +17,7 @@ export function filterEntries(
 			(entry) =>
 				entry.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				entry.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				(entry.tags || []).some((tag) =>
-					tag.toLowerCase().includes(searchQuery.toLowerCase()),
-				),
+				(entry.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 		);
 	}
 
@@ -30,9 +28,7 @@ export function filterEntries(
 
 	// Фильтр по sentiment
 	if (selectedSentiment) {
-		filtered = filtered.filter(
-			(entry) => entry.sentiment === selectedSentiment,
-		);
+		filtered = filtered.filter((entry) => entry.sentiment === selectedSentiment);
 	}
 
 	return filtered;
@@ -42,10 +38,10 @@ export function filterEntries(
  * Format entry date
  */
 export function formatEntryDate(date: Date): string {
-	return new Intl.DateTimeFormat("ru", {
-		day: "numeric",
-		month: "long",
-		hour: "2-digit",
-		minute: "2-digit",
+	return new Intl.DateTimeFormat('ru', {
+		day: 'numeric',
+		month: 'long',
+		hour: '2-digit',
+		minute: '2-digit',
 	}).format(date);
 }

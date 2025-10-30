@@ -1,8 +1,8 @@
-import { LogOut, Shield, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/shared/components/ui/button";
-import { useTranslation } from "@/shared/lib/i18n";
-import type { MobileSidebarProps } from "./types";
+import { LogOut, Shield, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from '@/shared/lib/i18n';
+import type { MobileSidebarProps } from './types';
 
 /**
  * Mobile Sidebar Component
@@ -36,7 +36,7 @@ export function MobileSidebar({
 						className="fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto border-border border-r bg-card lg:hidden"
 						exit={{ x: -280 }}
 						initial={{ x: -280 }}
-						transition={{ type: "spring", damping: 30, stiffness: 300 }}
+						transition={{ type: 'spring', damping: 30, stiffness: 300 }}
 					>
 						<div className="flex h-16 items-center justify-between border-border border-b bg-accent px-6">
 							<div className="flex items-center gap-3">
@@ -46,7 +46,7 @@ export function MobileSidebar({
 								<div>
 									<h1 className="text-[17px]! text-white">Admin</h1>
 									<p className="font-normal! text-[13px]! text-white/80">
-										{t("admin_panel", "Панель управления")}
+										{t('admin_panel', 'Панель управления')}
 									</p>
 								</div>
 							</div>
@@ -63,8 +63,8 @@ export function MobileSidebar({
 									<motion.button
 										className={`relative flex w-full items-center gap-3 rounded-(--radius) px-3 py-2.5 text-[15px]! transition-all ${
 											isActive
-												? "bg-accent text-accent-foreground shadow-lg"
-												: "text-foreground hover:bg-muted"
+												? 'bg-accent text-accent-foreground shadow-lg'
+												: 'text-foreground hover:bg-muted'
 										}
                     `}
 										key={item.id}
@@ -72,7 +72,7 @@ export function MobileSidebar({
 											onTabChange(item.id);
 											onClose();
 										}}
-										transition={{ type: "spring", stiffness: 400, damping: 17 }}
+										transition={{ type: 'spring', stiffness: 400, damping: 17 }}
 										whileHover={{ scale: 1.02 }}
 										whileTap={{ scale: 0.98 }}
 									>
@@ -97,12 +97,8 @@ export function MobileSidebar({
 									{userData?.email?.[0].toUpperCase()}
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="truncate text-[14px]! text-foreground">
-										{userData?.email}
-									</p>
-									<p className="font-normal! text-[12px]! text-muted-foreground">
-										Супер-админ
-									</p>
+									<p className="truncate text-[14px]! text-foreground">{userData?.email}</p>
+									<p className="font-normal! text-[12px]! text-muted-foreground">Супер-админ</p>
 								</div>
 							</div>
 							<Button

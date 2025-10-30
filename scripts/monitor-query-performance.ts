@@ -13,9 +13,8 @@
  */
 
 // Конфигурация
-const SUPABASE_URL =
-	process.env.VITE_SUPABASE_URL || "https://ecuwuzqlwdkkdncampnc.supabase.co";
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Пороги для алертов
 const THRESHOLDS = {
@@ -27,12 +26,12 @@ const THRESHOLDS = {
 
 // Цвета для консоли
 const colors = {
-	reset: "\x1b[0m",
-	red: "\x1b[31m",
-	green: "\x1b[32m",
-	yellow: "\x1b[33m",
-	blue: "\x1b[34m",
-	cyan: "\x1b[36m",
+	reset: '\x1b[0m',
+	red: '\x1b[31m',
+	green: '\x1b[32m',
+	yellow: '\x1b[33m',
+	blue: '\x1b[34m',
+	cyan: '\x1b[36m',
 };
 
 interface QueryStats {
@@ -55,9 +54,7 @@ interface PerformanceReport {
  * Получает статистику производительности запросов из Supabase
  */
 async function getQueryPerformance(): Promise<PerformanceReport> {
-	console.log(
-		`${colors.cyan}🔍 Получение статистики Query Performance...${colors.reset}\n`,
-	);
+	console.log(`${colors.cyan}🔍 Получение статистики Query Performance...${colors.reset}\n`);
 
 	// В реальности эти данные нужно получать через Supabase Management API
 	// Для демонстрации используем mock данные из скриншота
@@ -67,35 +64,35 @@ async function getQueryPerformance(): Promise<PerformanceReport> {
 		avgRowsPerCall: 3.1,
 		queries: [
 			{
-				query: "SELECT name FROM pg_timezone_names",
+				query: 'SELECT name FROM pg_timezone_names',
 				timeConsumed: 48.5,
 				count: 194,
 				maxTime: 912,
 				meanTime: 180,
 			},
 			{
-				query: "WITH -- Recursively get the base types...",
+				query: 'WITH -- Recursively get the base types...',
 				timeConsumed: 8.9,
 				count: 194,
 				maxTime: 150,
 				meanTime: 33,
 			},
 			{
-				query: "with tables as (SELECT c.oid :: int8...)",
+				query: 'with tables as (SELECT c.oid :: int8...)',
 				timeConsumed: 6.7,
 				count: 25,
 				maxTime: 339,
 				meanTime: 195,
 			},
 			{
-				query: "SELECT e.name, n.nspname AS schema...",
+				query: 'SELECT e.name, n.nspname AS schema...',
 				timeConsumed: 5.9,
 				count: 38,
 				maxTime: 756,
 				meanTime: 112,
 			},
 			{
-				query: "CREATE OR REPLACE FUNCTION pg_temp.count_e...",
+				query: 'CREATE OR REPLACE FUNCTION pg_temp.count_e...',
 				timeConsumed: 5.0,
 				count: 98,
 				maxTime: 130,
@@ -121,7 +118,7 @@ function analyzePerformance(report: PerformanceReport): void {
 		console.log(`${colors.red}${alert}${colors.reset}`);
 	} else {
 		console.log(
-			`${colors.green}✅ Cache Hit Rate: ${report.cacheHitRate}% (отлично!)${colors.reset}`,
+			`${colors.green}✅ Cache Hit Rate: ${report.cacheHitRate}% (отлично!)${colors.reset}`
 		);
 	}
 
@@ -135,27 +132,19 @@ function analyzePerformance(report: PerformanceReport): void {
 	}
 
 	// Проверка критичных запросов
-	console.log(
-		`\n${colors.cyan}🔍 Топ-5 самых медленных запросов:${colors.reset}\n`,
-	);
+	console.log(`\n${colors.cyan}🔍 Топ-5 самых медленных запросов:${colors.reset}\n`);
 
 	report.queries.forEach((q, index) => {
 		const isCritical = q.timeConsumed > THRESHOLDS.CRITICAL_TIME_CONSUMED;
 		const isSlow = q.maxTime > THRESHOLDS.SLOW_QUERY_TIME;
 
-		const color = isCritical
-			? colors.red
-			: isSlow
-				? colors.yellow
-				: colors.green;
-		const status = isCritical ? "🚨 КРИТИЧНО" : isSlow ? "⚠️ МЕДЛЕННО" : "✅ OK";
+		const color = isCritical ? colors.red : isSlow ? colors.yellow : colors.green;
+		const status = isCritical ? '🚨 КРИТИЧНО' : isSlow ? '⚠️ МЕДЛЕННО' : '✅ OK';
 
 		console.log(`${color}${index + 1}. ${status}${colors.reset}`);
 		console.log(`   Query: ${q.query.substring(0, 60)}...`);
 		console.log(`   Time consumed: ${q.timeConsumed}%`);
-		console.log(
-			`   Count: ${q.count} | Max: ${q.maxTime}ms | Mean: ${q.meanTime}ms\n`,
-		);
+		console.log(`   Count: ${q.count} | Max: ${q.maxTime}ms | Mean: ${q.meanTime}ms\n`);
 
 		if (isCritical) {
 			const alert = `🚨 Критичный запрос потребляет ${q.timeConsumed}% времени БД: ${q.query.substring(0, 50)}...`;
@@ -170,7 +159,7 @@ function analyzePerformance(report: PerformanceReport): void {
 		console.log(`${colors.yellow}${alert}${colors.reset}`);
 	} else {
 		console.log(
-			`${colors.green}✅ Avg Rows Per Call: ${report.avgRowsPerCall} (эффективно!)${colors.reset}`,
+			`${colors.green}✅ Avg Rows Per Call: ${report.avgRowsPerCall} (эффективно!)${colors.reset}`
 		);
 	}
 }
@@ -179,44 +168,40 @@ function analyzePerformance(report: PerformanceReport): void {
  * Генерирует рекомендации по оптимизации
  */
 function generateRecommendations(report: PerformanceReport): void {
-	console.log(
-		`\n${colors.blue}💡 Рекомендации по оптимизации:${colors.reset}\n`,
-	);
+	console.log(`\n${colors.blue}💡 Рекомендации по оптимизации:${colors.reset}\n`);
 
 	const recommendations: string[] = [];
 
 	// Рекомендации для pg_timezone_names
-	const timezoneQuery = report.queries.find((q) =>
-		q.query.includes("pg_timezone_names"),
-	);
+	const timezoneQuery = report.queries.find((q) => q.query.includes('pg_timezone_names'));
 	if (timezoneQuery && timezoneQuery.timeConsumed > 10) {
 		recommendations.push(
-			"1. 🕐 pg_timezone_names (48.5% времени):",
-			"   - Это системный запрос Supabase Studio (админ-панель)",
-			"   - НЕ влияет на production пользователей",
-			"   - Идет только когда вы открываете Dashboard",
-			"   - Действие: Игнорировать или закрывать Dashboard после работы\n",
+			'1. 🕐 pg_timezone_names (48.5% времени):',
+			'   - Это системный запрос Supabase Studio (админ-панель)',
+			'   - НЕ влияет на production пользователей',
+			'   - Идет только когда вы открываете Dashboard',
+			'   - Действие: Игнорировать или закрывать Dashboard после работы\n'
 		);
 	}
 
 	// Рекомендации для рекурсивных CTE
-	const cteQuery = report.queries.find((q) => q.query.includes("Recursively"));
+	const cteQuery = report.queries.find((q) => q.query.includes('Recursively'));
 	if (cteQuery && cteQuery.timeConsumed > 5) {
 		recommendations.push(
-			"2. 🔄 Рекурсивные CTE запросы (8.9% времени):",
-			"   - Это запросы для получения метаданных PostgreSQL",
-			"   - Также идут от Supabase Studio",
-			"   - Действие: Игнорировать\n",
+			'2. 🔄 Рекурсивные CTE запросы (8.9% времени):',
+			'   - Это запросы для получения метаданных PostgreSQL',
+			'   - Также идут от Supabase Studio',
+			'   - Действие: Игнорировать\n'
 		);
 	}
 
 	// Общие рекомендации
 	recommendations.push(
-		"3. ✅ Общие рекомендации:",
+		'3. ✅ Общие рекомендации:',
 		`   - Cache Hit Rate ${report.cacheHitRate}% - отлично!`,
 		`   - Avg Rows Per Call ${report.avgRowsPerCall} - эффективно!`,
-		"   - Продолжайте мониторить еженедельно",
-		"   - Настройте алерты на критичные запросы\n",
+		'   - Продолжайте мониторить еженедельно',
+		'   - Настройте алерты на критичные запросы\n'
 	);
 
 	recommendations.forEach((r) => console.log(r));
@@ -226,11 +211,11 @@ function generateRecommendations(report: PerformanceReport): void {
  * Сохраняет отчет в файл
  */
 function saveReport(report: PerformanceReport): void {
-	const fs = require("fs");
-	const path = require("path");
+	const fs = require('fs');
+	const path = require('path');
 
-	const timestamp = new Date().toISOString().split("T")[0];
-	const reportDir = path.join(process.cwd(), "docs/reports");
+	const timestamp = new Date().toISOString().split('T')[0];
+	const reportDir = path.join(process.cwd(), 'docs/reports');
 	const reportPath = path.join(reportDir, `query-performance-${timestamp}.md`);
 
 	// Создать директорию если не существует
@@ -257,13 +242,13 @@ ${report.queries
 - **Count:** ${q.count}
 - **Max time:** ${q.maxTime}ms
 - **Mean time:** ${q.meanTime}ms
-`,
+`
 	)
-	.join("\n")}
+	.join('\n')}
 
 ## ⚠️ Алерты
 
-${report.alerts.length > 0 ? report.alerts.map((a) => `- ${a}`).join("\n") : "Нет алертов"}
+${report.alerts.length > 0 ? report.alerts.map((a) => `- ${a}`).join('\n') : 'Нет алертов'}
 
 ## 💡 Рекомендации
 
@@ -277,10 +262,8 @@ ${report.alerts.length > 0 ? report.alerts.map((a) => `- ${a}`).join("\n") : "Н
 *Сгенерировано автоматически: ${new Date().toISOString()}*
 `;
 
-	fs.writeFileSync(reportPath, content, "utf8");
-	console.log(
-		`\n${colors.green}✅ Отчет сохранен: ${reportPath}${colors.reset}`,
-	);
+	fs.writeFileSync(reportPath, content, 'utf8');
+	console.log(`\n${colors.green}✅ Отчет сохранен: ${reportPath}${colors.reset}`);
 	console.log(`${colors.cyan}📄 Просмотр: cat ${reportPath}${colors.reset}\n`);
 }
 
@@ -311,16 +294,12 @@ ${colors.reset}\n`);
 
 		// Вывести итоги
 		console.log(
-			`${colors.blue}═══════════════════════════════════════════════════════════${colors.reset}\n`,
+			`${colors.blue}═══════════════════════════════════════════════════════════${colors.reset}\n`
 		);
 
 		if (report.alerts.length > 0) {
-			console.log(
-				`${colors.yellow}⚠️ Обнаружено ${report.alerts.length} алертов${colors.reset}`,
-			);
-			console.log(
-				`${colors.yellow}📧 Рекомендуется проверить отчет${colors.reset}\n`,
-			);
+			console.log(`${colors.yellow}⚠️ Обнаружено ${report.alerts.length} алертов${colors.reset}`);
+			console.log(`${colors.yellow}📧 Рекомендуется проверить отчет${colors.reset}\n`);
 			process.exit(1); // Exit code 1 для GitHub Actions
 		} else {
 			console.log(`${colors.green}✅ Все метрики в норме!${colors.reset}\n`);

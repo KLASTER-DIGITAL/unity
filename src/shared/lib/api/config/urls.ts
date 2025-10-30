@@ -1,4 +1,4 @@
-import { projectId } from "../supabase/info";
+import { projectId } from '../supabase/info';
 
 /**
  * Microservices base URLs configuration
@@ -40,4 +40,4 @@ export const API_URLS = {
  * Legacy API URL (deprecated, kept for backward compatibility)
  * @deprecated Use specific microservice URLs instead
  */
-export const LEGACY_API_URL = "";
+export const LEGACY_API_URL = '';

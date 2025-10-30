@@ -14,9 +14,9 @@
  * @date 2025-10-28
  */
 
-import { CheckCircle } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { CheckCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 
 type SyncCompletionModalProps = {
 	isOpen: boolean;
@@ -43,11 +43,7 @@ type SyncCompletionModalProps = {
  * />
  * ```
  */
-export function SyncCompletionModal({
-	isOpen,
-	syncedCount,
-	onClose,
-}: SyncCompletionModalProps) {
+export function SyncCompletionModal({ isOpen, syncedCount, onClose }: SyncCompletionModalProps) {
 	// Auto-close after 2 seconds
 	useEffect(() => {
 		if (isOpen) {
@@ -76,7 +72,7 @@ export function SyncCompletionModal({
 						exit={{ scale: 0.9, opacity: 0 }}
 						initial={{ scale: 0.9, opacity: 0 }}
 						onClick={(e) => e.stopPropagation()}
-						transition={{ duration: 0.2, ease: "easeOut" }}
+						transition={{ duration: 0.2, ease: 'easeOut' }}
 					>
 						<div className="flex flex-col items-center gap-4 text-center">
 							{/* Success icon with animation */}
@@ -86,15 +82,12 @@ export function SyncCompletionModal({
 								initial={{ scale: 0 }}
 								transition={{
 									delay: 0.1,
-									type: "spring",
+									type: 'spring',
 									stiffness: 200,
 									damping: 15,
 								}}
 							>
-								<CheckCircle
-									className="h-10 w-10 text-white"
-									strokeWidth={2.5}
-								/>
+								<CheckCircle className="h-10 w-10 text-white" strokeWidth={2.5} />
 							</motion.div>
 
 							{/* Title */}
@@ -115,7 +108,7 @@ export function SyncCompletionModal({
 								transition={{ delay: 0.3 }}
 							>
 								{syncedCount === 1
-									? "1 запись успешно синхронизирована"
+									? '1 запись успешно синхронизирована'
 									: `${syncedCount} записей успешно синхронизировано`}
 							</motion.p>
 						</div>

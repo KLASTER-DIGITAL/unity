@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import type { AuthTranslations } from "./translations";
+import { motion } from 'motion/react';
+import type { AuthTranslations } from './translations';
 
 type AuthToggleProps = {
 	isLogin: boolean;

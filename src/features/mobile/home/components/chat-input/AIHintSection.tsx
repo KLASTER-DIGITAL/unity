@@ -1,7 +1,7 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { Sparkles, X } from "lucide-react";
-import { AnimatedPresence, motion } from "@/shared/lib/platform/animation";
+import { Sparkles, X } from 'lucide-react';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type AIHintSectionProps = {
 	showHint: boolean;
@@ -13,11 +13,7 @@ type AIHintSectionProps = {
  * AI Hint Section Component
  * Displays AI suggestions with glassmorphism design
  */
-export function AIHintSection({
-	showHint,
-	messagesCount,
-	onClose,
-}: AIHintSectionProps) {
+export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectionProps) {
 	return (
 		<AnimatedPresence>
 			{messagesCount === 0 && showHint && (
@@ -41,12 +37,10 @@ export function AIHintSection({
 						<div className="flex items-start gap-responsive-sm pr-8">
 							<Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
 							<div>
-								<h4 className="mb-1 font-semibold! text-[13px]! text-foreground">
-									AI подскажет
-								</h4>
+								<h4 className="mb-1 font-semibold! text-[13px]! text-foreground">AI подскажет</h4>
 								<p className="font-normal! text-[11px]! text-muted-foreground leading-[16px]">
-									Опиши своё достижение, и я помогу структурировать запись,
-									выбрать категорию и отметить прогресс
+									Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и
+									отметить прогресс
 								</p>
 							</div>
 						</div>

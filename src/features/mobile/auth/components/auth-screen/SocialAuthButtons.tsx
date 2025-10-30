@@ -1,8 +1,8 @@
-import { motion } from "motion/react";
-import { facebookIconSvg } from "@/imports/social-icons";
-import { imgApple, imgGroup659 } from "@/imports/svg-ok0q3";
-import { TelegramLoginWidget } from "@/shared/components/TelegramLoginWidget";
-import type { AuthTranslations } from "./translations";
+import { motion } from 'motion/react';
+import { facebookIconSvg } from '@/imports/social-icons';
+import { imgApple, imgGroup659 } from '@/imports/svg-ok0q3';
+import { TelegramLoginWidget } from '@/shared/components/TelegramLoginWidget';
+import type { AuthTranslations } from './translations';
 
 type SocialAuthButtonsProps = {
 	isLogin: boolean;
@@ -39,42 +39,30 @@ export function SocialAuthButtons({
 				<button
 					className="h-[58px] w-[60px] transition-opacity hover:opacity-80 disabled:opacity-50"
 					disabled={isLoading}
-					onClick={() => onSocialAuth("apple")}
+					onClick={() => onSocialAuth('apple')}
 					type="button"
 				>
-					<img
-						alt="Apple"
-						className="block h-full w-full object-cover"
-						src={imgApple}
-					/>
+					<img alt="Apple" className="block h-full w-full object-cover" src={imgApple} />
 				</button>
 
 				{/* Google */}
 				<button
 					className="relative h-[58px] w-[60px] rounded-(--radius) border border-border bg-card transition-all duration-200 hover:border-primary disabled:opacity-50"
 					disabled={isLoading}
-					onClick={() => onSocialAuth("google")}
+					onClick={() => onSocialAuth('google')}
 					type="button"
 				>
-					<img
-						alt="Google"
-						className="absolute inset-0 m-auto h-6 w-6"
-						src={imgGroup659}
-					/>
+					<img alt="Google" className="absolute inset-0 m-auto h-6 w-6" src={imgGroup659} />
 				</button>
 
 				{/* Facebook */}
 				<button
 					className="h-[58px] w-[60px] transition-opacity hover:opacity-80 disabled:opacity-50"
 					disabled={isLoading}
-					onClick={() => onSocialAuth("facebook")}
+					onClick={() => onSocialAuth('facebook')}
 					type="button"
 				>
-					<img
-						alt="Facebook"
-						className="block h-full w-full object-cover"
-						src={facebookIconSvg}
-					/>
+					<img alt="Facebook" className="block h-full w-full object-cover" src={facebookIconSvg} />
 				</button>
 
 				{/* Telegram */}

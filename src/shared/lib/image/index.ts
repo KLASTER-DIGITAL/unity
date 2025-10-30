@@ -9,4 +9,4 @@ export {
 	generateGradientBlurPlaceholder,
 	generateSimpleBlurPlaceholder,
 	getBlurPlaceholder,
-} from "./generateBlurPlaceholder";
+} from './generateBlurPlaceholder';

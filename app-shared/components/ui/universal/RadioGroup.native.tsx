@@ -6,9 +6,9 @@
  * @module components/ui/universal/RadioGroup.native
  */
 
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
@@ -34,13 +34,13 @@ export interface RadioGroupProps {
 	/** Custom className (ignored in native) */
 	className?: string;
 	/** Accessibility label */
-	"aria-label"?: string;
+	'aria-label'?: string;
 	/** Test ID */
 	testID?: string;
 	/** Label text */
 	label?: string;
 	/** Layout direction */
-	direction?: "vertical" | "horizontal";
+	direction?: 'vertical' | 'horizontal';
 }
 
 // ============================================================================
@@ -53,12 +53,12 @@ export function RadioGroup({
 	defaultValue,
 	disabled,
 	options,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 	testID,
 	label,
-	direction = "vertical",
+	direction = 'vertical',
 }: RadioGroupProps) {
-	const [internalValue, setInternalValue] = useState(defaultValue || "");
+	const [internalValue, setInternalValue] = useState(defaultValue || '');
 	const isControlled = value !== undefined;
 	const currentValue = isControlled ? value : internalValue;
 
@@ -77,7 +77,7 @@ export function RadioGroup({
 				accessibilityRole="radiogroup"
 				style={[
 					styles.optionsContainer,
-					direction === "horizontal" && styles.optionsContainerHorizontal,
+					direction === 'horizontal' && styles.optionsContainerHorizontal,
 				]}
 			>
 				{options.map((option) => {
@@ -106,12 +106,7 @@ export function RadioGroup({
 							>
 								{isSelected && <View style={styles.radioInner} />}
 							</View>
-							<Text
-								style={[
-									styles.optionLabel,
-									isDisabled && styles.optionLabelDisabled,
-								]}
-							>
+							<Text style={[styles.optionLabel, isDisabled && styles.optionLabelDisabled]}>
 								{option.label}
 							</Text>
 						</Pressable>
@@ -128,7 +123,7 @@ export function RadioGroup({
 
 const styles = StyleSheet.create({
 	container: {
-		width: "100%",
+		width: '100%',
 	},
 	groupLabel: {
 		fontSize: DesignTokens.fontSize.sm,
@@ -140,12 +135,12 @@ const styles = StyleSheet.create({
 		gap: DesignTokens.spacing.sm,
 	},
 	optionsContainerHorizontal: {
-		flexDirection: "row",
-		flexWrap: "wrap",
+		flexDirection: 'row',
+		flexWrap: 'wrap',
 	},
 	option: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 		paddingVertical: DesignTokens.spacing.xs,
 	},
@@ -159,8 +154,8 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: DesignTokens.colors.border,
 		backgroundColor: DesignTokens.colors.background,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	radioSelected: {
 		borderColor: DesignTokens.colors.primary,
@@ -195,11 +190,11 @@ export const RadioGroupUtils = {
 		const errors: string[] = [];
 
 		if (props.value !== undefined && props.defaultValue !== undefined) {
-			errors.push("RadioGroup cannot have both value and defaultValue");
+			errors.push('RadioGroup cannot have both value and defaultValue');
 		}
 
 		if (!props.options || props.options.length === 0) {
-			errors.push("RadioGroup must have at least one option");
+			errors.push('RadioGroup must have at least one option');
 		}
 
 		return {
@@ -213,7 +208,7 @@ export const RadioGroupUtils = {
 // EXPORTS
 // ============================================================================
 
-RadioGroup.displayName = "RadioGroup";
+RadioGroup.displayName = 'RadioGroup';
 
 export default {
 	RadioGroup,

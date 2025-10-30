@@ -8,7 +8,7 @@
  * @date 2025-01-18
  */
 
-export type PlatformType = "web" | "native";
+export type PlatformType = 'web' | 'native';
 
 export type PlatformSpecific<T> = {
 	web?: T;
@@ -25,34 +25,31 @@ export const Platform = {
 	 */
 	get OS(): PlatformType {
 		// Check if we're in a browser environment
-		if (typeof window !== "undefined" && typeof document !== "undefined") {
-			return "web";
+		if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+			return 'web';
 		}
 
 		// Check for React Native environment
-		if (
-			typeof navigator !== "undefined" &&
-			navigator.product === "ReactNative"
-		) {
-			return "native";
+		if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+			return 'native';
 		}
 
 		// Default to web for SSR/Node environments
-		return "web";
+		return 'web';
 	},
 
 	/**
 	 * Check if running on web platform
 	 */
 	get isWeb(): boolean {
-		return this.OS === "web";
+		return this.OS === 'web';
 	},
 
 	/**
 	 * Check if running on native platform (React Native)
 	 */
 	get isNative(): boolean {
-		return this.OS === "native";
+		return this.OS === 'native';
 	},
 
 	/**
@@ -60,9 +57,9 @@ export const Platform = {
 	 */
 	get hasDOMAPI(): boolean {
 		return (
-			typeof window !== "undefined" &&
-			typeof document !== "undefined" &&
-			typeof localStorage !== "undefined"
+			typeof window !== 'undefined' &&
+			typeof document !== 'undefined' &&
+			typeof localStorage !== 'undefined'
 		);
 	},
 
@@ -70,9 +67,7 @@ export const Platform = {
 	 * Check if running in browser
 	 */
 	get isBrowser(): boolean {
-		return (
-			typeof window !== "undefined" && typeof window.location !== "undefined"
-		);
+		return typeof window !== 'undefined' && typeof window.location !== 'undefined';
 	},
 
 	/**
@@ -84,9 +79,7 @@ export const Platform = {
 		}
 
 		// Check if running in standalone mode
-		const isStandalone = window.matchMedia(
-			"(display-mode: standalone)",
-		).matches;
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
 		// Check if launched from home screen (iOS)
 		const isIOSStandalone = (window.navigator as any).standalone === true;
@@ -124,7 +117,7 @@ export const Platform = {
 
 		throw new Error(
 			`No implementation found for platform "${this.OS}". ` +
-				`Available: ${Object.keys(specifics).join(", ")}`,
+				`Available: ${Object.keys(specifics).join(', ')}`
 		);
 	},
 
@@ -144,7 +137,7 @@ export const Platform = {
 	 */
 	execute(specifics: PlatformSpecific<() => void>): void {
 		const fn = this.select(specifics);
-		if (typeof fn === "function") {
+		if (typeof fn === 'function') {
 			fn();
 		}
 	},
@@ -176,25 +169,25 @@ export const PlatformConstants = {
 	MAX_FILE_SIZE: Platform.value(
 		50 * 1024 * 1024, // 50MB for web
 		20 * 1024 * 1024, // 20MB for native
-		10 * 1024 * 1024, // 10MB default
+		10 * 1024 * 1024 // 10MB default
 	),
 
 	/**
 	 * Supported image formats
 	 */
 	SUPPORTED_IMAGE_FORMATS: Platform.value(
-		["image/jpeg", "image/png", "image/webp", "image/gif"], // Web
-		["image/jpeg", "image/png"], // Native
-		["image/jpeg", "image/png"], // Default
+		['image/jpeg', 'image/png', 'image/webp', 'image/gif'], // Web
+		['image/jpeg', 'image/png'], // Native
+		['image/jpeg', 'image/png'] // Default
 	),
 
 	/**
 	 * Supported video formats
 	 */
 	SUPPORTED_VIDEO_FORMATS: Platform.value(
-		["video/mp4", "video/webm", "video/ogg"], // Web
-		["video/mp4"], // Native
-		["video/mp4"], // Default
+		['video/mp4', 'video/webm', 'video/ogg'], // Web
+		['video/mp4'], // Native
+		['video/mp4'] // Default
 	),
 
 	/**
@@ -203,7 +196,7 @@ export const PlatformConstants = {
 	ANIMATION_DURATION: Platform.value(
 		300, // Web
 		250, // Native (slightly faster for better feel)
-		300, // Default
+		300 // Default
 	),
 
 	/**
@@ -212,7 +205,7 @@ export const PlatformConstants = {
 	TOUCH_FEEDBACK_DELAY: Platform.value(
 		0, // Web (no delay)
 		50, // Native (haptic feedback)
-		0, // Default
+		0 // Default
 	),
 };
 
@@ -227,7 +220,7 @@ export const PlatformFeatures = {
 		return Platform.value(
 			false, // Web (not widely supported)
 			true, // Native (React Native has haptic feedback)
-			false, // Default
+			false // Default
 		);
 	},
 
@@ -236,7 +229,7 @@ export const PlatformFeatures = {
 	 */
 	get hasCamera(): boolean {
 		if (Platform.isWeb) {
-			return navigator.mediaDevices && "getUserMedia" in navigator.mediaDevices;
+			return navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices;
 		}
 
 		if (Platform.isNative) {
@@ -250,7 +243,7 @@ export const PlatformFeatures = {
 	 * Check if geolocation is available
 	 */
 	get hasGeolocation(): boolean {
-		return "geolocation" in navigator;
+		return 'geolocation' in navigator;
 	},
 
 	/**
@@ -258,7 +251,7 @@ export const PlatformFeatures = {
 	 */
 	get hasPushNotifications(): boolean {
 		if (Platform.isWeb) {
-			return "serviceWorker" in navigator && "PushManager" in window;
+			return 'serviceWorker' in navigator && 'PushManager' in window;
 		}
 
 		if (Platform.isNative) {
@@ -273,7 +266,7 @@ export const PlatformFeatures = {
 	 */
 	get hasOfflineStorage(): boolean {
 		if (Platform.isWeb) {
-			return "localStorage" in window && "indexedDB" in window;
+			return 'localStorage' in window && 'indexedDB' in window;
 		}
 
 		if (Platform.isNative) {
@@ -292,14 +285,14 @@ export const PlatformDev = {
 	 * Log platform information
 	 */
 	logPlatformInfo(): void {
-		console.group("🔍 Platform Detection");
-		console.log("Platform:", Platform.OS);
-		console.log("Is Web:", Platform.isWeb);
-		console.log("Is Native:", Platform.isNative);
-		console.log("Has DOM API:", Platform.hasDOMAPI);
-		console.log("Is Browser:", Platform.isBrowser);
-		console.log("Is PWA:", Platform.isPWA);
-		console.log("Features:", {
+		console.group('🔍 Platform Detection');
+		console.log('Platform:', Platform.OS);
+		console.log('Is Web:', Platform.isWeb);
+		console.log('Is Native:', Platform.isNative);
+		console.log('Has DOM API:', Platform.hasDOMAPI);
+		console.log('Is Browser:', Platform.isBrowser);
+		console.log('Is PWA:', Platform.isPWA);
+		console.log('Features:', {
 			camera: PlatformFeatures.hasCamera,
 			haptic: PlatformFeatures.hasHapticFeedback,
 			geolocation: PlatformFeatures.hasGeolocation,
@@ -311,6 +304,6 @@ export const PlatformDev = {
 };
 
 // Auto-log platform info in development
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
 	PlatformDev.logPlatformInfo();
 }

@@ -1,16 +1,16 @@
-import { Brain, Download, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { SimpleChart } from "@/shared/components/SimpleChart";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Brain, Download, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { SimpleChart } from '@/shared/components/SimpleChart';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
+} from '@/shared/components/ui/card';
 import {
 	Table,
 	TableBody,
@@ -18,16 +18,16 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/shared/components/ui/table";
-import { Select } from "@/shared/components/ui/universal/Select.web";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/table';
+import { Select } from '@/shared/components/ui/universal/Select.web';
+import { createClient } from '@/utils/supabase/client';
 import type {
 	AIRecommendation,
 	AIStats,
 	AIUsageLog,
 	CostForecast,
 	PeriodType,
-} from "./ai-analytics";
+} from './ai-analytics';
 // Import modular components
 import {
 	calculateForecast,
@@ -36,7 +36,7 @@ import {
 	generateRecommendations,
 	RecommendationsCard,
 	StatsCards,
-} from "./ai-analytics";
+} from './ai-analytics';
 
 // Re-export types for backward compatibility
 export type { AIUsageLog, AIStats, AIRecommendation, CostForecast };
@@ -54,15 +54,13 @@ export function AIAnalyticsTab() {
 		modelBreakdown: [],
 		dailyUsage: [],
 	});
-	const [period, setPeriod] = useState<PeriodType>("30d");
-	const [recommendations, setRecommendations] = useState<AIRecommendation[]>(
-		[],
-	);
+	const [period, setPeriod] = useState<PeriodType>('30d');
+	const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
 	const [forecast, setForecast] = useState<CostForecast | null>(null);
 
 	useEffect(() => {
 		loadAIAnalytics();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadAIAnalytics is stable
 	}, []);
 
 	const loadAIAnalytics = async () => {
@@ -72,19 +70,19 @@ export function AIAnalyticsTab() {
 
 			// Calculate date range
 			let startDate = new Date();
-			if (period === "7d") {
+			if (period === '7d') {
 				startDate.setDate(startDate.getDate() - 7);
-			} else if (period === "30d") {
+			} else if (period === '30d') {
 				startDate.setDate(startDate.getDate() - 30);
-			} else if (period === "90d") {
+			} else if (period === '90d') {
 				startDate.setDate(startDate.getDate() - 90);
 			} else {
-				startDate = new Date("2020-01-01"); // All time
+				startDate = new Date('2020-01-01'); // All time
 			}
 
 			// Fetch AI usage logs with user info
 			const { data: logsData, error: logsError } = await supabase
-				.from("openai_usage")
+				.from('openai_usage')
 				.select(`
           *,
           profiles!user_id (
@@ -92,8 +90,8 @@ export function AIAnalyticsTab() {
             email
           )
         `)
-				.gte("created_at", startDate.toISOString())
-				.order("created_at", { ascending: false })
+				.gte('created_at', startDate.toISOString())
+				.order('created_at', { ascending: false })
 				.limit(100);
 
 			if (logsError) {
@@ -103,24 +101,17 @@ export function AIAnalyticsTab() {
 			// Process logs
 			const processedLogs: AIUsageLog[] = (logsData || []).map((log: any) => ({
 				...log,
-				user_name: log.profiles?.name || "Unknown",
-				user_email: log.profiles?.email || "unknown@example.com",
+				user_name: log.profiles?.name || 'Unknown',
+				user_email: log.profiles?.email || 'unknown@example.com',
 			}));
 
 			setLogs(processedLogs);
 
 			// Calculate statistics
 			const totalRequests = processedLogs.length;
-			const totalTokens = processedLogs.reduce(
-				(sum, log) => sum + (log.total_tokens || 0),
-				0,
-			);
-			const totalCost = processedLogs.reduce(
-				(sum, log) => sum + (log.estimated_cost || 0),
-				0,
-			);
-			const avgCostPerRequest =
-				totalRequests > 0 ? totalCost / totalRequests : 0;
+			const totalTokens = processedLogs.reduce((sum, log) => sum + (log.total_tokens || 0), 0);
+			const totalCost = processedLogs.reduce((sum, log) => sum + (log.estimated_cost || 0), 0);
+			const avgCostPerRequest = totalRequests > 0 ? totalCost / totalRequests : 0;
 
 			// Top users
 			const userMap = new Map<
@@ -130,7 +121,7 @@ export function AIAnalyticsTab() {
 			processedLogs.forEach((log) => {
 				const existing = userMap.get(log.user_id) || {
 					user_id: log.user_id,
-					user_name: log.user_name || "Unknown",
+					user_name: log.user_name || 'Unknown',
 					requests: 0,
 					cost: 0,
 				};
@@ -143,10 +134,7 @@ export function AIAnalyticsTab() {
 				.slice(0, 5);
 
 			// Operation breakdown
-			const operationMap = new Map<
-				string,
-				{ operation: string; requests: number; cost: number }
-			>();
+			const operationMap = new Map<string, { operation: string; requests: number; cost: number }>();
 			processedLogs.forEach((log) => {
 				const existing = operationMap.get(log.operation_type) || {
 					operation: log.operation_type,
@@ -160,10 +148,7 @@ export function AIAnalyticsTab() {
 			const operationBreakdown = Array.from(operationMap.values());
 
 			// Model breakdown
-			const modelMap = new Map<
-				string,
-				{ model: string; requests: number; cost: number }
-			>();
+			const modelMap = new Map<string, { model: string; requests: number; cost: number }>();
 			processedLogs.forEach((log) => {
 				const existing = modelMap.get(log.model) || {
 					model: log.model,
@@ -182,7 +167,7 @@ export function AIAnalyticsTab() {
 				{ date: string; requests: number; cost: number; tokens: number }
 			>();
 			processedLogs.forEach((log) => {
-				const date = new Date(log.created_at).toLocaleDateString("ru-RU");
+				const date = new Date(log.created_at).toLocaleDateString('ru-RU');
 				const existing = dailyMap.get(date) || {
 					date,
 					requests: 0,
@@ -219,9 +204,9 @@ export function AIAnalyticsTab() {
 			const forecastData = calculateForecast(dailyUsage);
 			setForecast(forecastData);
 
-			toast.success("AI аналитика загружена");
+			toast.success('AI аналитика загружена');
 		} catch (error: any) {
-			console.error("Error loading AI analytics:", error);
+			console.error('Error loading AI analytics:', error);
 			toast.error(`Ошибка загрузки: ${error.message}`);
 		} finally {
 			setIsLoading(false);
@@ -250,10 +235,10 @@ export function AIAnalyticsTab() {
 						className="w-[140px]"
 						onValueChange={(value: any) => setPeriod(value)}
 						options={[
-							{ value: "7d", label: "7 дней" },
-							{ value: "30d", label: "30 дней" },
-							{ value: "90d", label: "90 дней" },
-							{ value: "all", label: "Все время" },
+							{ value: '7d', label: '7 дней' },
+							{ value: '30d', label: '30 дней' },
+							{ value: '90d', label: '90 дней' },
+							{ value: 'all', label: 'Все время' },
 						]}
 						value={period}
 					/>
@@ -274,9 +259,7 @@ export function AIAnalyticsTab() {
 						size="sm"
 						variant="outline"
 					>
-						<RefreshCw
-							className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-						/>
+						<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
 						Обновить
 					</Button>
 				</div>
@@ -296,9 +279,7 @@ export function AIAnalyticsTab() {
 				{/* Daily Usage Chart */}
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-[17px]!">
-							Использование по дням
-						</CardTitle>
+						<CardTitle className="text-[17px]!">Использование по дням</CardTitle>
 						<CardDescription className="font-normal! text-[13px]!">
 							Запросы и стоимость за последние 14 дней
 						</CardDescription>
@@ -317,9 +298,7 @@ export function AIAnalyticsTab() {
 				{/* Model Breakdown Pie Chart */}
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-[17px]!">
-							Распределение по моделям
-						</CardTitle>
+						<CardTitle className="text-[17px]!">Распределение по моделям</CardTitle>
 						<CardDescription className="font-normal! text-[13px]!">
 							Использование разных моделей OpenAI
 						</CardDescription>
@@ -341,9 +320,7 @@ export function AIAnalyticsTab() {
 				{/* Operation Breakdown Bar Chart */}
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-[17px]!">
-							Распределение по операциям
-						</CardTitle>
+						<CardTitle className="text-[17px]!">Распределение по операциям</CardTitle>
 						<CardDescription className="font-normal! text-[13px]!">
 							Типы AI операций и их стоимость
 						</CardDescription>
@@ -370,9 +347,7 @@ export function AIAnalyticsTab() {
 					<CardContent>
 						<div className="space-y-3">
 							{stats.topUsers.length === 0 ? (
-								<p className="py-8 text-center text-[13px]! text-muted-foreground">
-									Нет данных
-								</p>
+								<p className="py-8 text-center text-[13px]! text-muted-foreground">Нет данных</p>
 							) : (
 								stats.topUsers.map((user, index) => (
 									<div
@@ -422,9 +397,7 @@ export function AIAnalyticsTab() {
 					) : logs.length === 0 ? (
 						<div className="py-12 text-center">
 							<Brain className="mx-auto mb-3 h-12 w-12 text-muted-foreground opacity-50" />
-							<p className="text-[15px]! text-muted-foreground">
-								Нет данных за выбранный период
-							</p>
+							<p className="text-[15px]! text-muted-foreground">Нет данных за выбранный период</p>
 						</div>
 					) : (
 						<div className="overflow-x-auto">
@@ -435,38 +408,29 @@ export function AIAnalyticsTab() {
 										<TableHead className="text-[13px]!">Пользователь</TableHead>
 										<TableHead className="text-[13px]!">Операция</TableHead>
 										<TableHead className="text-[13px]!">Модель</TableHead>
-										<TableHead className="text-right text-[13px]!">
-											Токены
-										</TableHead>
-										<TableHead className="text-right text-[13px]!">
-											Стоимость
-										</TableHead>
+										<TableHead className="text-right text-[13px]!">Токены</TableHead>
+										<TableHead className="text-right text-[13px]!">Стоимость</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{logs.map((log) => (
 										<TableRow key={log.id}>
 											<TableCell className="text-[13px]!">
-												{new Date(log.created_at).toLocaleString("ru-RU", {
-													day: "2-digit",
-													month: "2-digit",
-													hour: "2-digit",
-													minute: "2-digit",
+												{new Date(log.created_at).toLocaleString('ru-RU', {
+													day: '2-digit',
+													month: '2-digit',
+													hour: '2-digit',
+													minute: '2-digit',
 												})}
 											</TableCell>
 											<TableCell className="text-[13px]!">
 												<div>
 													<p className="font-medium!">{log.user_name}</p>
-													<p className="text-[11px]! text-muted-foreground">
-														{log.user_email}
-													</p>
+													<p className="text-[11px]! text-muted-foreground">{log.user_email}</p>
 												</div>
 											</TableCell>
 											<TableCell className="text-[13px]!">
-												<Badge
-													className="bg-accent/10 text-accent"
-													variant="outline"
-												>
+												<Badge className="bg-accent/10 text-accent" variant="outline">
 													{log.operation_type}
 												</Badge>
 											</TableCell>

@@ -42,7 +42,7 @@ export type AIStats = {
 };
 
 export type AIRecommendation = {
-	type: "warning" | "info" | "success";
+	type: 'warning' | 'info' | 'success';
 	title: string;
 	description: string;
 	impact?: string;
@@ -51,8 +51,8 @@ export type AIRecommendation = {
 export type CostForecast = {
 	nextMonth: number;
 	nextQuarter: number;
-	trend: "increasing" | "decreasing" | "stable";
+	trend: 'increasing' | 'decreasing' | 'stable';
 	percentageChange: number;
 };
 
-export type PeriodType = "7d" | "30d" | "90d" | "all";
+export type PeriodType = '7d' | '30d' | '90d' | 'all';

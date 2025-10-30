@@ -32,9 +32,7 @@ export async function uploadFileInChunks({
 	const totalChunks = Math.ceil(file.size / chunkSize);
 
 	console.log(`📤 [CHUNK] Starting chunked upload: ${file.name}`);
-	console.log(
-		`📤 [CHUNK] File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
-	);
+	console.log(`📤 [CHUNK] File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
 	console.log(`📤 [CHUNK] Chunk size: ${(chunkSize / 1024).toFixed(0)}KB`);
 	console.log(`📤 [CHUNK] Total chunks: ${totalChunks}`);
 
@@ -46,20 +44,20 @@ export async function uploadFileInChunks({
 			const chunk = file.slice(start, end);
 
 			console.log(
-				`📤 [CHUNK] Uploading chunk ${chunkIndex + 1}/${totalChunks} (${(chunk.size / 1024).toFixed(0)}KB)`,
+				`📤 [CHUNK] Uploading chunk ${chunkIndex + 1}/${totalChunks} (${(chunk.size / 1024).toFixed(0)}KB)`
 			);
 
 			// Create FormData for chunk
 			const formData = new FormData();
-			formData.append("chunk", chunk);
-			formData.append("chunkIndex", chunkIndex.toString());
-			formData.append("totalChunks", totalChunks.toString());
-			formData.append("fileName", file.name);
-			formData.append("fileSize", file.size.toString());
+			formData.append('chunk', chunk);
+			formData.append('chunkIndex', chunkIndex.toString());
+			formData.append('totalChunks', totalChunks.toString());
+			formData.append('fileName', file.name);
+			formData.append('fileSize', file.size.toString());
 
 			// Upload chunk
 			const response = await fetch(url, {
-				method: "POST",
+				method: 'POST',
 				headers: {
 					...headers,
 					// Don't set Content-Type - let browser set it with boundary
@@ -68,9 +66,7 @@ export async function uploadFileInChunks({
 			});
 
 			if (!response.ok) {
-				throw new Error(
-					`Chunk ${chunkIndex + 1} upload failed: ${response.status}`,
-				);
+				throw new Error(`Chunk ${chunkIndex + 1} upload failed: ${response.status}`);
 			}
 
 			// Update progress
@@ -79,21 +75,21 @@ export async function uploadFileInChunks({
 			onChunkComplete?.(chunkIndex, totalChunks);
 
 			console.log(
-				`📤 [CHUNK] ✅ Chunk ${chunkIndex + 1}/${totalChunks} uploaded (${progress.toFixed(0)}%)`,
+				`📤 [CHUNK] ✅ Chunk ${chunkIndex + 1}/${totalChunks} uploaded (${progress.toFixed(0)}%)`
 			);
 		}
 
-		console.log("📤 [CHUNK] 🎉 All chunks uploaded successfully");
+		console.log('📤 [CHUNK] 🎉 All chunks uploaded successfully');
 
 		return {
 			success: true,
 			url,
 		};
 	} catch (error) {
-		console.error("📤 [CHUNK] ❌ Upload failed:", error);
+		console.error('📤 [CHUNK] ❌ Upload failed:', error);
 		return {
 			success: false,
-			error: error instanceof Error ? error.message : "Unknown error",
+			error: error instanceof Error ? error.message : 'Unknown error',
 		};
 	}
 }
@@ -117,7 +113,7 @@ export async function smartUpload({
 	// Use chunked upload for large files
 	if (file.size > threshold) {
 		console.log(
-			`📤 [SMART] File is large (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload`,
+			`📤 [SMART] File is large (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload`
 		);
 		return uploadFileInChunks({
 			file,
@@ -129,15 +125,15 @@ export async function smartUpload({
 
 	// Use regular upload for small files
 	console.log(
-		`📤 [SMART] File is small (${(file.size / 1024 / 1024).toFixed(2)}MB), using regular upload`,
+		`📤 [SMART] File is small (${(file.size / 1024 / 1024).toFixed(2)}MB), using regular upload`
 	);
 
 	try {
 		const formData = new FormData();
-		formData.append("file", file);
+		formData.append('file', file);
 
 		const response = await fetch(url, {
-			method: "POST",
+			method: 'POST',
 			headers,
 			body: formData,
 		});
@@ -155,7 +151,7 @@ export async function smartUpload({
 	} catch (error) {
 		return {
 			success: false,
-			error: error instanceof Error ? error.message : "Unknown error",
+			error: error instanceof Error ? error.message : 'Unknown error',
 		};
 	}
 }
@@ -181,9 +177,7 @@ export async function resumeUpload({
 	const totalChunks = Math.ceil(file.size / chunkSize);
 
 	console.log(`📤 [RESUME] Resuming upload: ${file.name}`);
-	console.log(
-		`📤 [RESUME] Already uploaded: ${uploadedChunks.length}/${totalChunks} chunks`,
-	);
+	console.log(`📤 [RESUME] Already uploaded: ${uploadedChunks.length}/${totalChunks} chunks`);
 
 	try {
 		// Upload only missing chunks
@@ -191,7 +185,7 @@ export async function resumeUpload({
 			// Skip already uploaded chunks
 			if (uploadedChunks.includes(chunkIndex)) {
 				console.log(
-					`📤 [RESUME] Skipping chunk ${chunkIndex + 1}/${totalChunks} (already uploaded)`,
+					`📤 [RESUME] Skipping chunk ${chunkIndex + 1}/${totalChunks} (already uploaded)`
 				);
 				continue;
 			}
@@ -200,45 +194,40 @@ export async function resumeUpload({
 			const end = Math.min(start + chunkSize, file.size);
 			const chunk = file.slice(start, end);
 
-			console.log(
-				`📤 [RESUME] Uploading chunk ${chunkIndex + 1}/${totalChunks}`,
-			);
+			console.log(`📤 [RESUME] Uploading chunk ${chunkIndex + 1}/${totalChunks}`);
 
 			const formData = new FormData();
-			formData.append("chunk", chunk);
-			formData.append("chunkIndex", chunkIndex.toString());
-			formData.append("totalChunks", totalChunks.toString());
-			formData.append("fileName", file.name);
-			formData.append("fileSize", file.size.toString());
+			formData.append('chunk', chunk);
+			formData.append('chunkIndex', chunkIndex.toString());
+			formData.append('totalChunks', totalChunks.toString());
+			formData.append('fileName', file.name);
+			formData.append('fileSize', file.size.toString());
 
 			const response = await fetch(url, {
-				method: "POST",
+				method: 'POST',
 				headers,
 				body: formData,
 			});
 
 			if (!response.ok) {
-				throw new Error(
-					`Chunk ${chunkIndex + 1} upload failed: ${response.status}`,
-				);
+				throw new Error(`Chunk ${chunkIndex + 1} upload failed: ${response.status}`);
 			}
 
-			const progress =
-				((uploadedChunks.length + chunkIndex + 1) / totalChunks) * 100;
+			const progress = ((uploadedChunks.length + chunkIndex + 1) / totalChunks) * 100;
 			onProgress?.(progress);
 		}
 
-		console.log("📤 [RESUME] 🎉 Upload resumed and completed");
+		console.log('📤 [RESUME] 🎉 Upload resumed and completed');
 
 		return {
 			success: true,
 			url,
 		};
 	} catch (error) {
-		console.error("📤 [RESUME] ❌ Resume failed:", error);
+		console.error('📤 [RESUME] ❌ Resume failed:', error);
 		return {
 			success: false,
-			error: error instanceof Error ? error.message : "Unknown error",
+			error: error instanceof Error ? error.message : 'Unknown error',
 		};
 	}
 }

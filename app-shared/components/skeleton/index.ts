@@ -5,4 +5,4 @@ export {
 	SkeletonEntryCard,
 	SkeletonMilestoneCard,
 	SkeletonText,
-} from "./SkeletonCard";
+} from './SkeletonCard';

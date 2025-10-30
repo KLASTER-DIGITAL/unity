@@ -1,9 +1,9 @@
-import { MoreVertical, Sparkles } from "lucide-react";
-import { motion } from "motion/react";
-import { MediaPreview } from "@/features/mobile/media";
-import type { DiaryEntry } from "@/shared/lib/api";
-import { CATEGORY_ICONS, SENTIMENT_COLORS } from "./constants";
-import { formatEntryDate } from "./utils";
+import { MoreVertical, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import { MediaPreview } from '@/features/mobile/media';
+import type { DiaryEntry } from '@/shared/lib/api';
+import { CATEGORY_ICONS, SENTIMENT_COLORS } from './constants';
+import { formatEntryDate } from './utils';
 
 type EntryCardProps = {
 	entry: DiaryEntry;
@@ -29,7 +29,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 
 		// Try case-insensitive match for default categories
 		const matchedKey = Object.keys(CATEGORY_ICONS).find(
-			(key) => key.toLowerCase() === category.toLowerCase(),
+			(key) => key.toLowerCase() === category.toLowerCase()
 		);
 
 		if (matchedKey && CATEGORY_ICONS[matchedKey]) {
@@ -70,10 +70,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 					className="rounded-[6px] p-1 transition-colors hover:bg-accent/10"
 					onClick={() => onOpenActions(entry)}
 				>
-					<MoreVertical
-						className="h-5 w-5 text-muted-foreground"
-						strokeWidth={2}
-					/>
+					<MoreVertical className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
 				</button>
 			</div>
 
@@ -82,7 +79,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 				<div className="mb-3">
 					<MediaPreview
 						editable={false}
-						layout={entry.media.length > 1 ? "row" : "grid"}
+						layout={entry.media.length > 1 ? 'row' : 'grid'}
 						media={entry.media}
 					/>
 				</div>
@@ -96,11 +93,11 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 				<span
 					className={`rounded-[6px] border px-2 py-1 font-medium! text-[11px]! ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}
 				>
-					{entry.sentiment === "positive"
-						? "😊 Позитив"
-						: entry.sentiment === "neutral"
-							? "😐 Нейтрал"
-							: "😔 Грусть"}
+					{entry.sentiment === 'positive'
+						? '😊 Позитив'
+						: entry.sentiment === 'neutral'
+							? '😐 Нейтрал'
+							: '😔 Грусть'}
 				</span>
 				{(entry.tags || []).map((tag) => (
 					<span

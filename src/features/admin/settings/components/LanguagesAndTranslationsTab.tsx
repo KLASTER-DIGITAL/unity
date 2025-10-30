@@ -1,14 +1,9 @@
-import { BarChart3, FileText, Languages } from "lucide-react";
-import { useState } from "react";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import { LanguagesManagementContent } from "./languages/LanguagesManagementContent";
-import { TranslationsManagementContent } from "./languages/TranslationsManagementContent";
-import { TranslationsStatisticsContent } from "./languages/TranslationsStatisticsContent";
+import { BarChart3, FileText, Languages } from 'lucide-react';
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { LanguagesManagementContent } from './languages/LanguagesManagementContent';
+import { TranslationsManagementContent } from './languages/TranslationsManagementContent';
+import { TranslationsStatisticsContent } from './languages/TranslationsStatisticsContent';
 
 type LanguagesAndTranslationsTabProps = {
 	initialLanguage?: string;
@@ -17,13 +12,14 @@ type LanguagesAndTranslationsTabProps = {
 export function LanguagesAndTranslationsTab({
 	initialLanguage,
 }: LanguagesAndTranslationsTabProps = {}) {
-	const [activeTab, setActiveTab] = useState("languages");
-	const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] =
-		useState<string>(initialLanguage || "ru");
+	const [activeTab, setActiveTab] = useState('languages');
+	const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] = useState<string>(
+		initialLanguage || 'ru'
+	);
 
 	const handleNavigateToTranslations = (languageCode: string) => {
 		setSelectedLanguageForTranslations(languageCode);
-		setActiveTab("translations");
+		setActiveTab('translations');
 	};
 
 	return (
@@ -57,15 +53,11 @@ export function LanguagesAndTranslationsTab({
 				</TabsList>
 
 				<TabsContent className="mt-6" value="languages">
-					<LanguagesManagementContent
-						onNavigateToTranslations={handleNavigateToTranslations}
-					/>
+					<LanguagesManagementContent onNavigateToTranslations={handleNavigateToTranslations} />
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="translations">
-					<TranslationsManagementContent
-						initialLanguage={selectedLanguageForTranslations}
-					/>
+					<TranslationsManagementContent initialLanguage={selectedLanguageForTranslations} />
 				</TabsContent>
 
 				<TabsContent className="mt-6" value="statistics">

@@ -8,13 +8,13 @@
  * - Automatic cleanup of unused translations
  */
 
-import { I18nAPI } from "../api";
-import { TranslationCacheManager } from "../cache";
-import type { LanguageCode, Translations } from "../types/TranslationKeys";
+import { I18nAPI } from '../api';
+import { TranslationCacheManager } from '../cache';
+import type { LanguageCode, Translations } from '../types/TranslationKeys';
 
 type LoadingTask = {
 	language: LanguageCode;
-	priority: "high" | "medium" | "low";
+	priority: 'high' | 'medium' | 'low';
 	timestamp: number;
 	promise?: Promise<Translations>;
 };
@@ -30,7 +30,7 @@ export class LazyLoader {
 	 */
 	static async load(
 		language: LanguageCode,
-		priority: "high" | "medium" | "low" = "high",
+		priority: 'high' | 'medium' | 'low' = 'high'
 	): Promise<Translations> {
 		// Check if already loaded
 		if (LazyLoader.loadedLanguages.has(language)) {
@@ -67,9 +67,7 @@ export class LazyLoader {
 			// Cleanup old languages if needed
 			await LazyLoader.cleanupOldLanguages();
 
-			console.log(
-				`✅ LazyLoader: Loaded ${language} (${Object.keys(translations).length} keys)`,
-			);
+			console.log(`✅ LazyLoader: Loaded ${language} (${Object.keys(translations).length} keys)`);
 			return translations;
 		} catch (error) {
 			LazyLoader.loadingQueue.delete(language);
@@ -83,7 +81,7 @@ export class LazyLoader {
 	 */
 	static async prefetch(languages: LanguageCode[]): Promise<void> {
 		if (!LazyLoader.prefetchEnabled) {
-			console.log("⏸️ LazyLoader: Prefetch disabled");
+			console.log('⏸️ LazyLoader: Prefetch disabled');
 			return;
 		}
 
@@ -93,14 +91,14 @@ export class LazyLoader {
 		const promises = languages
 			.filter((lang) => !LazyLoader.loadedLanguages.has(lang))
 			.map((lang) =>
-				LazyLoader.load(lang, "low").catch((error) => {
+				LazyLoader.load(lang, 'low').catch((error) => {
 					console.warn(`⚠️ LazyLoader: Prefetch failed for ${lang}:`, error);
 					return null;
-				}),
+				})
 			);
 
 		await Promise.allSettled(promises);
-		console.log("✅ LazyLoader: Prefetch completed");
+		console.log('✅ LazyLoader: Prefetch completed');
 	}
 
 	/**
@@ -122,13 +120,11 @@ export class LazyLoader {
 	static getStats() {
 		return {
 			loadedLanguages: Array.from(LazyLoader.loadedLanguages),
-			loadingQueue: Array.from(LazyLoader.loadingQueue.values()).map(
-				(task) => ({
-					language: task.language,
-					priority: task.priority,
-					age: Date.now() - task.timestamp,
-				}),
-			),
+			loadingQueue: Array.from(LazyLoader.loadingQueue.values()).map((task) => ({
+				language: task.language,
+				priority: task.priority,
+				age: Date.now() - task.timestamp,
+			})),
 			prefetchEnabled: LazyLoader.prefetchEnabled,
 			maxCachedLanguages: LazyLoader.maxCachedLanguages,
 		};
@@ -139,7 +135,7 @@ export class LazyLoader {
 	 */
 	static setPrefetchEnabled(enabled: boolean): void {
 		LazyLoader.prefetchEnabled = enabled;
-		console.log(`LazyLoader: Prefetch ${enabled ? "enabled" : "disabled"}`);
+		console.log(`LazyLoader: Prefetch ${enabled ? 'enabled' : 'disabled'}`);
 	}
 
 	/**
@@ -154,16 +150,14 @@ export class LazyLoader {
 	 * Clear all loaded languages
 	 */
 	static clear(): void {
-		console.log("🗑️ LazyLoader: Clearing all loaded languages");
+		console.log('🗑️ LazyLoader: Clearing all loaded languages');
 		LazyLoader.loadedLanguages.clear();
 		LazyLoader.loadingQueue.clear();
 	}
 
 	// Private methods
 
-	private static async loadTranslations(
-		language: LanguageCode,
-	): Promise<Translations> {
+	private static async loadTranslations(language: LanguageCode): Promise<Translations> {
 		// Try cache first
 		const cached = await TranslationCacheManager.getCache(language);
 		if (cached && !LazyLoader.isCacheStale(cached)) {
@@ -189,7 +183,7 @@ export class LazyLoader {
 		}
 
 		console.log(
-			`🧹 LazyLoader: Cleaning up old languages (${LazyLoader.loadedLanguages.size}/${LazyLoader.maxCachedLanguages})`,
+			`🧹 LazyLoader: Cleaning up old languages (${LazyLoader.loadedLanguages.size}/${LazyLoader.maxCachedLanguages})`
 		);
 
 		// Get languages sorted by last access time
@@ -197,14 +191,14 @@ export class LazyLoader {
 			Array.from(LazyLoader.loadedLanguages).map(async (lang) => ({
 				language: lang,
 				lastAccess: await LazyLoader.getLastAccessTime(lang),
-			})),
+			}))
 		);
 		languagesByAccess.sort((a, b) => a.lastAccess - b.lastAccess);
 
 		// Remove oldest languages
 		const toRemove = languagesByAccess.slice(
 			0,
-			LazyLoader.loadedLanguages.size - LazyLoader.maxCachedLanguages,
+			LazyLoader.loadedLanguages.size - LazyLoader.maxCachedLanguages
 		);
 
 		for (const { language } of toRemove) {
@@ -212,9 +206,7 @@ export class LazyLoader {
 		}
 	}
 
-	private static async getLastAccessTime(
-		language: LanguageCode,
-	): Promise<number> {
+	private static async getLastAccessTime(language: LanguageCode): Promise<number> {
 		// Get from cache metadata
 		const cached = await TranslationCacheManager.getCache(language);
 		return cached?.timestamp || 0;

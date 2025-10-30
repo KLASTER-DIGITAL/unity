@@ -1,12 +1,8 @@
-import { Heart } from "lucide-react";
-import { useRef } from "react";
+import { Heart } from 'lucide-react';
+import { useRef } from 'react';
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
-import {
-	motion,
-	useMotionValue,
-	useTransform,
-} from "@/shared/lib/platform/animation";
-import type { SwipeCardProps } from "./types";
+import { motion, useMotionValue, useTransform } from '@/shared/lib/platform/animation';
+import type { SwipeCardProps } from './types';
 
 /**
  * Swipe Card Component
@@ -27,11 +23,7 @@ export function SwipeCard({
 	const x = useMotionValue(0);
 	const y = useMotionValue(0);
 	const rotate = useTransform(x, [-300, 0, 300], [-25, 0, 25]);
-	const opacity = useTransform(
-		x,
-		[-200, -100, 0, 100, 200],
-		[0.5, 1, 1, 1, 0.5],
-	);
+	const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
 
 	// Overlay для визуального feedback при свайпе (только лайк)
 	const likeOpacity = useTransform(x, [0, 100], [0, 1]);
@@ -96,7 +88,7 @@ export function SwipeCard({
 				navigator.vibrate(50);
 			}
 
-			onSwipe(offset > 0 ? "right" : "left");
+			onSwipe(offset > 0 ? 'right' : 'left');
 		} else {
 			// Возвращаем карточку на место
 			x.set(0);
@@ -112,9 +104,9 @@ export function SwipeCard({
 				rotate: stackStyle.rotate,
 				opacity: stackStyle.opacity,
 				filter: `blur(${stackStyle.blur}px)`,
-				transition: { duration: 0.3, ease: "easeOut" },
+				transition: { duration: 0.3, ease: 'easeOut' },
 			}}
-			className={`${index === 0 ? "relative" : "absolute"} w-full cursor-grab active:cursor-grabbing`}
+			className={`${index === 0 ? 'relative' : 'absolute'} w-full cursor-grab active:cursor-grabbing`}
 			drag={isTop}
 			dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
 			dragElastic={0.7}
@@ -122,7 +114,7 @@ export function SwipeCard({
 				x: x.get() > 0 ? 400 : -400,
 				opacity: 0,
 				rotate: x.get() > 0 ? 30 : -30,
-				transition: { duration: 0.3, ease: "easeIn" },
+				transition: { duration: 0.3, ease: 'easeIn' },
 			}}
 			initial={{
 				scale: stackStyle.scale,
@@ -136,23 +128,16 @@ export function SwipeCard({
 				x: isTop ? x : 0,
 				y: isTop ? y : stackStyle.y,
 				rotate: isTop ? rotate : stackStyle.rotate,
-				scale: isTop
-					? opacity.get() > 0.8
-						? stackStyle.scale
-						: scaleTransform
-					: stackStyle.scale,
+				scale: isTop ? (opacity.get() > 0.8 ? stackStyle.scale : scaleTransform) : stackStyle.scale,
 				zIndex: stackStyle.zIndex,
 			}}
-			whileTap={{ cursor: "grabbing", scale: isTop ? 1.02 : stackStyle.scale }}
+			whileTap={{ cursor: 'grabbing', scale: isTop ? 1.02 : stackStyle.scale }}
 		>
 			<div
 				className={`bg-linear-to-br ${card.gradient} relative overflow-hidden rounded-[36px]`}
 				style={{
-					boxShadow:
-						index === 0
-							? "0 20px 60px rgba(0,0,0,0.3)"
-							: "0 10px 30px rgba(0,0,0,0.2)",
-					backgroundColor: "#FE7669", // Непрозрачный фон под градиентом
+					boxShadow: index === 0 ? '0 20px 60px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.2)',
+					backgroundColor: '#FE7669', // Непрозрачный фон под градиентом
 				}}
 			>
 				{/* Like overlay - показывается при свайпе вправо */}
@@ -183,9 +168,7 @@ export function SwipeCard({
 
 					{/* Description */}
 					<motion.div className="mb-0">
-						<p className="text-callout text-white leading-[22px] opacity-95">
-							{card.description}
-						</p>
+						<p className="text-callout text-white leading-[22px] opacity-95">{card.description}</p>
 					</motion.div>
 				</div>
 			</div>

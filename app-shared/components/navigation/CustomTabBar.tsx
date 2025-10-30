@@ -14,47 +14,36 @@
  * @date 2025-10-30
  */
 
-import { Ionicons } from "@expo/vector-icons";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import * as Haptics from "expo-haptics";
-import { useEffect } from "react";
-import {
-	Keyboard,
-	Platform,
-	Pressable,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import * as Haptics from 'expo-haptics';
+import { useEffect } from 'react';
+import { Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
 	Easing,
 	useAnimatedStyle,
 	useSharedValue,
 	withSpring,
 	withTiming,
-} from "react-native-reanimated";
-import { useTheme } from "../../contexts/ThemeContext";
-import { DesignTokens } from "../../design-system/tokens";
+} from 'react-native-reanimated';
+import { useTheme } from '../../contexts/ThemeContext';
+import { DesignTokens } from '../../design-system/tokens';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function CustomTabBar({
-	state,
-	descriptors,
-	navigation,
-}: BottomTabBarProps) {
+export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 	const { colors } = useTheme();
 	const keyboardVisible = useSharedValue(0);
 
 	useEffect(() => {
-		const showSubscription = Keyboard.addListener("keyboardWillShow", () => {
+		const showSubscription = Keyboard.addListener('keyboardWillShow', () => {
 			keyboardVisible.value = withTiming(1, {
 				duration: 250,
 				easing: Easing.bezier(0.4, 0.0, 0.2, 1),
 			});
 		});
 
-		const hideSubscription = Keyboard.addListener("keyboardWillHide", () => {
+		const hideSubscription = Keyboard.addListener('keyboardWillHide', () => {
 			keyboardVisible.value = withTiming(0, {
 				duration: 250,
 				easing: Easing.bezier(0.4, 0.0, 0.2, 1),
@@ -98,7 +87,7 @@ export function CustomTabBar({
 
 					const onPress = () => {
 						const event = navigation.emit({
-							type: "tabPress",
+							type: 'tabPress',
 							target: route.key,
 							canPreventDefault: true,
 						});
@@ -131,16 +120,11 @@ interface TabButtonProps {
 	iconName: keyof typeof Ionicons.glyphMap;
 	isFocused: boolean;
 	onPress: () => void;
+	// biome-ignore lint/suspicious/noExplicitAny: Theme colors type
 	colors: any;
 }
 
-function TabButton({
-	label,
-	iconName,
-	isFocused,
-	onPress,
-	colors,
-}: TabButtonProps) {
+function TabButton({ label, iconName, isFocused, onPress, colors }: TabButtonProps) {
 	const scale = useSharedValue(1);
 	const labelWidth = useSharedValue(isFocused ? 1 : 0);
 	const labelOpacity = useSharedValue(isFocused ? 1 : 0);
@@ -206,10 +190,7 @@ function TabButton({
 			{/* Label - only show for active tab */}
 			{isFocused && (
 				<Animated.View style={[styles.labelContainer, animatedLabelStyle]}>
-					<Text
-						numberOfLines={1}
-						style={[styles.label, { color: colors.primary }]}
-					>
+					<Text numberOfLines={1} style={[styles.label, { color: colors.primary }]}>
 						{label}
 					</Text>
 				</Animated.View>
@@ -218,10 +199,7 @@ function TabButton({
 	);
 }
 
-function getIconName(
-	routeName: string,
-	isFocused: boolean,
-): keyof typeof Ionicons.glyphMap {
+function getIconName(routeName: string, isFocused: boolean): keyof typeof Ionicons.glyphMap {
 	const iconMap: Record<
 		string,
 		{
@@ -229,34 +207,33 @@ function getIconName(
 			inactive: keyof typeof Ionicons.glyphMap;
 		}
 	> = {
-		index: { active: "home", inactive: "home-outline" },
-		diary: { active: "book", inactive: "book-outline" },
-		achievements: { active: "trophy", inactive: "trophy-outline" },
-		settings: { active: "settings", inactive: "settings-outline" },
+		index: { active: 'home', inactive: 'home-outline' },
+		diary: { active: 'book', inactive: 'book-outline' },
+		achievements: { active: 'trophy', inactive: 'trophy-outline' },
+		settings: { active: 'settings', inactive: 'settings-outline' },
 	};
 
 	const icons = iconMap[routeName] || {
-		active: "ellipse",
-		inactive: "ellipse-outline",
+		active: 'ellipse',
+		inactive: 'ellipse-outline',
 	};
 	return isFocused ? icons.active : icons.inactive;
 }
 
 const styles = StyleSheet.create({
 	container: {
-		position: "absolute",
+		position: 'absolute',
 		bottom: 0,
 		left: 0,
 		right: 0,
 		paddingHorizontal: DesignTokens.spacing.lg,
-		paddingBottom:
-			Platform.OS === "ios" ? DesignTokens.spacing.xl : DesignTokens.spacing.md,
+		paddingBottom: Platform.OS === 'ios' ? DesignTokens.spacing.xl : DesignTokens.spacing.md,
 		zIndex: 100,
 	},
 	tabBar: {
-		flexDirection: "row",
-		justifyContent: "space-around",
-		alignItems: "center",
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		alignItems: 'center',
 		borderRadius: DesignTokens.borderRadius.xl,
 		paddingHorizontal: DesignTokens.spacing.sm,
 		paddingVertical: DesignTokens.spacing.md,
@@ -266,9 +243,9 @@ const styles = StyleSheet.create({
 		// backdropFilter: 'blur(20px)',
 	},
 	tabButton: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
 		minWidth: DesignTokens.touchTargets.minimum,
 		minHeight: DesignTokens.touchTargets.minimum,
 		borderRadius: DesignTokens.borderRadius.full,
@@ -280,11 +257,11 @@ const styles = StyleSheet.create({
 		flexShrink: 0,
 	},
 	labelContainer: {
-		overflow: "hidden",
+		overflow: 'hidden',
 	},
 	label: {
 		fontSize: 11,
-		fontWeight: "500",
-		textAlign: "center",
+		fontWeight: '500',
+		textAlign: 'center',
 	},
 });

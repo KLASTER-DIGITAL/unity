@@ -8,7 +8,7 @@
  */
 
 // Supported languages
-export type Language = "ru" | "en" | "es" | "de" | "fr" | "zh" | "ja";
+export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja';
 
 // Translation keys interface
 export type Translations = {

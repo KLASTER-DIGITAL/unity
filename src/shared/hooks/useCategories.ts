@@ -3,7 +3,7 @@
  * Manages user categories (default + custom)
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 import {
 	type CreateCategoryInput,
 	createCategory,
@@ -12,7 +12,7 @@ import {
 	type UpdateCategoryInput,
 	type UserCategory,
 	updateCategory,
-} from "@/shared/lib/api";
+} from '@/shared/lib/api';
 
 type UseCategoriesResult = {
 	categories: UserCategory[];
@@ -20,10 +20,7 @@ type UseCategoriesResult = {
 	error: Error | null;
 	refetch: () => Promise<void>;
 	addCategory: (input: CreateCategoryInput) => Promise<UserCategory>;
-	editCategory: (
-		id: string,
-		input: UpdateCategoryInput,
-	) => Promise<UserCategory>;
+	editCategory: (id: string, input: UpdateCategoryInput) => Promise<UserCategory>;
 	removeCategory: (id: string) => Promise<void>;
 };
 
@@ -49,7 +46,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 			const data = await getUserCategories(userId);
 			setCategories(data);
 		} catch (err) {
-			console.error("[useCategories] Error fetching categories:", err);
+			console.error('[useCategories] Error fetching categories:', err);
 			setError(err as Error);
 		} finally {
 			setIsLoading(false);
@@ -65,7 +62,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 	const addCategory = useCallback(
 		async (input: CreateCategoryInput): Promise<UserCategory> => {
 			if (!userId) {
-				throw new Error("User ID is required");
+				throw new Error('User ID is required');
 			}
 
 			try {
@@ -73,11 +70,11 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 				setCategories((prev) => [...prev, newCategory]);
 				return newCategory;
 			} catch (err) {
-				console.error("[useCategories] Error adding category:", err);
+				console.error('[useCategories] Error adding category:', err);
 				throw err;
 			}
 		},
-		[userId],
+		[userId]
 	);
 
 	// Edit category
@@ -85,16 +82,14 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 		async (id: string, input: UpdateCategoryInput): Promise<UserCategory> => {
 			try {
 				const updatedCategory = await updateCategory(id, input);
-				setCategories((prev) =>
-					prev.map((cat) => (cat.id === id ? updatedCategory : cat)),
-				);
+				setCategories((prev) => prev.map((cat) => (cat.id === id ? updatedCategory : cat)));
 				return updatedCategory;
 			} catch (err) {
-				console.error("[useCategories] Error editing category:", err);
+				console.error('[useCategories] Error editing category:', err);
 				throw err;
 			}
 		},
-		[],
+		[]
 	);
 
 	// Remove category
@@ -103,7 +98,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 			await deleteCategory(id);
 			setCategories((prev) => prev.filter((cat) => cat.id !== id));
 		} catch (err) {
-			console.error("[useCategories] Error removing category:", err);
+			console.error('[useCategories] Error removing category:', err);
 			throw err;
 		}
 	}, []);

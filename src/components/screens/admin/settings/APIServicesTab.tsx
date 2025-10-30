@@ -10,23 +10,23 @@ import {
 	Trash2,
 	X,
 	XCircle,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { createClient } from '@/utils/supabase/client';
 
 interface APIService {
 	id: string;
@@ -51,17 +51,17 @@ export function APIServicesTab() {
 
 	// Form state
 	const [formData, setFormData] = useState({
-		name: "",
-		display_name: "",
-		description: "",
-		api_key: "",
-		api_url: "",
+		name: '',
+		display_name: '',
+		description: '',
+		api_key: '',
+		api_url: '',
 		is_active: true,
 	});
 
 	useEffect(() => {
 		loadServices();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadServices is stable
 	}, []);
 
 	const loadServices = async () => {
@@ -70,15 +70,15 @@ export function APIServicesTab() {
 			const supabase = createClient();
 
 			const { data, error } = await supabase
-				.from("api_services")
-				.select("*")
-				.order("created_at", { ascending: false });
+				.from('api_services')
+				.select('*')
+				.order('created_at', { ascending: false });
 
 			if (error) throw error;
 			setServices(data || []);
 		} catch (error) {
-			console.error("Error loading services:", error);
-			toast.error("Ошибка загрузки сервисов");
+			console.error('Error loading services:', error);
+			toast.error('Ошибка загрузки сервисов');
 		} finally {
 			setIsLoading(false);
 		}
@@ -88,11 +88,11 @@ export function APIServicesTab() {
 		setIsCreating(true);
 		setEditingService(null);
 		setFormData({
-			name: "",
-			display_name: "",
-			description: "",
-			api_key: "",
-			api_url: "",
+			name: '',
+			display_name: '',
+			description: '',
+			api_key: '',
+			api_url: '',
 			is_active: true,
 		});
 	};
@@ -103,9 +103,9 @@ export function APIServicesTab() {
 		setFormData({
 			name: service.name,
 			display_name: service.display_name,
-			description: service.description || "",
-			api_key: service.api_key || "",
-			api_url: service.api_url || "",
+			description: service.description || '',
+			api_key: service.api_key || '',
+			api_url: service.api_url || '',
 			is_active: service.is_active,
 		});
 	};
@@ -114,18 +114,18 @@ export function APIServicesTab() {
 		setIsCreating(false);
 		setEditingService(null);
 		setFormData({
-			name: "",
-			display_name: "",
-			description: "",
-			api_key: "",
-			api_url: "",
+			name: '',
+			display_name: '',
+			description: '',
+			api_key: '',
+			api_url: '',
 			is_active: true,
 		});
 	};
 
 	const handleSave = async () => {
 		if (!(formData.name && formData.display_name)) {
-			toast.error("Заполните обязательные поля");
+			toast.error('Заполните обязательные поля');
 			return;
 		}
 
@@ -136,7 +136,7 @@ export function APIServicesTab() {
 			if (editingService) {
 				// Update existing service
 				const { error } = await supabase
-					.from("api_services")
+					.from('api_services')
 					.update({
 						display_name: formData.display_name,
 						description: formData.description || null,
@@ -144,13 +144,13 @@ export function APIServicesTab() {
 						api_url: formData.api_url || null,
 						is_active: formData.is_active,
 					})
-					.eq("id", editingService.id);
+					.eq('id', editingService.id);
 
 				if (error) throw error;
-				toast.success("Сервис успешно обновлен!");
+				toast.success('Сервис успешно обновлен!');
 			} else {
 				// Create new service
-				const { error } = await supabase.from("api_services").insert({
+				const { error } = await supabase.from('api_services').insert({
 					name: formData.name,
 					display_name: formData.display_name,
 					description: formData.description || null,
@@ -160,14 +160,14 @@ export function APIServicesTab() {
 				});
 
 				if (error) throw error;
-				toast.success("Сервис успешно создан!");
+				toast.success('Сервис успешно создан!');
 			}
 
 			handleCancel();
 			loadServices();
 		} catch (error: any) {
-			console.error("Error saving service:", error);
-			toast.error(error.message || "Ошибка сохранения сервиса");
+			console.error('Error saving service:', error);
+			toast.error(error.message || 'Ошибка сохранения сервиса');
 		} finally {
 			setIsSaving(false);
 		}
@@ -178,17 +178,14 @@ export function APIServicesTab() {
 
 		try {
 			const supabase = createClient();
-			const { error } = await supabase
-				.from("api_services")
-				.delete()
-				.eq("id", service.id);
+			const { error } = await supabase.from('api_services').delete().eq('id', service.id);
 
 			if (error) throw error;
-			toast.success("Сервис успешно удален!");
+			toast.success('Сервис успешно удален!');
 			loadServices();
 		} catch (error: any) {
-			console.error("Error deleting service:", error);
-			toast.error(error.message || "Ошибка удаления сервиса");
+			console.error('Error deleting service:', error);
+			toast.error(error.message || 'Ошибка удаления сервиса');
 		}
 	};
 
@@ -196,18 +193,16 @@ export function APIServicesTab() {
 		try {
 			const supabase = createClient();
 			const { error } = await supabase
-				.from("api_services")
+				.from('api_services')
 				.update({ is_active: !service.is_active })
-				.eq("id", service.id);
+				.eq('id', service.id);
 
 			if (error) throw error;
-			toast.success(
-				`Сервис ${!service.is_active ? "активирован" : "деактивирован"}!`,
-			);
+			toast.success(`Сервис ${!service.is_active ? 'активирован' : 'деактивирован'}!`);
 			loadServices();
 		} catch (error: any) {
-			console.error("Error toggling service:", error);
-			toast.error(error.message || "Ошибка изменения статуса");
+			console.error('Error toggling service:', error);
+			toast.error(error.message || 'Ошибка изменения статуса');
 		}
 	};
 
@@ -224,10 +219,7 @@ export function APIServicesTab() {
 						Управление внешними API сервисами и интеграциями
 					</p>
 				</div>
-				<Button
-					disabled={isCreating || editingService !== null}
-					onClick={handleCreate}
-				>
+				<Button disabled={isCreating || editingService !== null} onClick={handleCreate}>
 					<Plus className="mr-2 h-4 w-4" />
 					Добавить сервис
 				</Button>
@@ -238,17 +230,11 @@ export function APIServicesTab() {
 				<Card className="border-blue-200 bg-blue-50/50">
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
-							{editingService ? (
-								<Edit className="h-5 w-5" />
-							) : (
-								<Plus className="h-5 w-5" />
-							)}
-							{editingService ? "Редактировать сервис" : "Создать новый сервис"}
+							{editingService ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+							{editingService ? 'Редактировать сервис' : 'Создать новый сервис'}
 						</CardTitle>
 						<CardDescription>
-							{editingService
-								? "Обновите данные API сервиса"
-								: "Добавьте новый API сервис"}
+							{editingService ? 'Обновите данные API сервиса' : 'Добавьте новый API сервис'}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
@@ -258,9 +244,7 @@ export function APIServicesTab() {
 								<Input
 									disabled={!!editingService}
 									id="name"
-									onChange={(e) =>
-										setFormData({ ...formData, name: e.target.value })
-									}
+									onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 									placeholder="openai"
 									value={formData.name}
 								/>
@@ -272,9 +256,7 @@ export function APIServicesTab() {
 								<Label htmlFor="display_name">Отображаемое имя *</Label>
 								<Input
 									id="display_name"
-									onChange={(e) =>
-										setFormData({ ...formData, display_name: e.target.value })
-									}
+									onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
 									placeholder="OpenAI API"
 									value={formData.display_name}
 								/>
@@ -285,9 +267,7 @@ export function APIServicesTab() {
 							<Label htmlFor="description">Описание</Label>
 							<Textarea
 								id="description"
-								onChange={(e) =>
-									setFormData({ ...formData, description: e.target.value })
-								}
+								onChange={(e) => setFormData({ ...formData, description: e.target.value })}
 								placeholder="Описание сервиса..."
 								rows={2}
 								value={formData.description}
@@ -299,9 +279,7 @@ export function APIServicesTab() {
 								<Label htmlFor="api_url">API URL</Label>
 								<Input
 									id="api_url"
-									onChange={(e) =>
-										setFormData({ ...formData, api_url: e.target.value })
-									}
+									onChange={(e) => setFormData({ ...formData, api_url: e.target.value })}
 									placeholder="https://api.example.com/v1"
 									value={formData.api_url}
 								/>
@@ -310,9 +288,7 @@ export function APIServicesTab() {
 								<Label htmlFor="api_key">API Key</Label>
 								<Input
 									id="api_key"
-									onChange={(e) =>
-										setFormData({ ...formData, api_key: e.target.value })
-									}
+									onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
 									placeholder="sk-..."
 									type="password"
 									value={formData.api_key}
@@ -330,18 +306,12 @@ export function APIServicesTab() {
 							<Switch
 								checked={formData.is_active}
 								id="is_active"
-								onCheckedChange={(checked) =>
-									setFormData({ ...formData, is_active: checked })
-								}
+								onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
 							/>
 						</div>
 
 						<div className="flex justify-end gap-2">
-							<Button
-								disabled={isSaving}
-								onClick={handleCancel}
-								variant="outline"
-							>
+							<Button disabled={isSaving} onClick={handleCancel} variant="outline">
 								<X className="mr-2 h-4 w-4" />
 								Отмена
 							</Button>
@@ -386,12 +356,8 @@ export function APIServicesTab() {
 								<div className="flex items-start justify-between">
 									<div className="flex-1">
 										<div className="mb-2 flex items-center gap-3">
-											<h3 className="font-semibold text-lg">
-												{service.display_name}
-											</h3>
-											<Badge
-												variant={service.is_active ? "default" : "secondary"}
-											>
+											<h3 className="font-semibold text-lg">{service.display_name}</h3>
+											<Badge variant={service.is_active ? 'default' : 'secondary'}>
 												{service.is_active ? (
 													<>
 														<CheckCircle className="mr-1 h-3 w-3" />
@@ -407,9 +373,7 @@ export function APIServicesTab() {
 											<Badge variant="outline">{service.name}</Badge>
 										</div>
 										{service.description && (
-											<p className="mb-3 text-muted-foreground text-sm">
-												{service.description}
-											</p>
+											<p className="mb-3 text-muted-foreground text-sm">{service.description}</p>
 										)}
 										<div className="flex gap-4 text-muted-foreground text-sm">
 											{service.api_url && (
@@ -427,25 +391,13 @@ export function APIServicesTab() {
 										</div>
 									</div>
 									<div className="flex gap-2">
-										<Button
-											onClick={() => handleToggleActive(service)}
-											size="sm"
-											variant="outline"
-										>
-											{service.is_active ? "Деактивировать" : "Активировать"}
+										<Button onClick={() => handleToggleActive(service)} size="sm" variant="outline">
+											{service.is_active ? 'Деактивировать' : 'Активировать'}
 										</Button>
-										<Button
-											onClick={() => handleEdit(service)}
-											size="sm"
-											variant="outline"
-										>
+										<Button onClick={() => handleEdit(service)} size="sm" variant="outline">
 											<Edit className="h-4 w-4" />
 										</Button>
-										<Button
-											onClick={() => handleDelete(service)}
-											size="sm"
-											variant="outline"
-										>
+										<Button onClick={() => handleDelete(service)} size="sm" variant="outline">
 											<Trash2 className="h-4 w-4" />
 										</Button>
 									</div>

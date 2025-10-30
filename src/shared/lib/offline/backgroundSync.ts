@@ -5,7 +5,7 @@
  * Uses IndexedDB for storage and Service Worker Background Sync API.
  */
 
-import { createEntry } from "@/shared/lib/api";
+import { createEntry } from '@/shared/lib/api';
 import {
 	addItem,
 	deleteItem,
@@ -14,16 +14,16 @@ import {
 	type PendingEntry,
 	STORES,
 	updateItem,
-} from "./indexedDB";
+} from './indexedDB';
 
-const SYNC_TAG = "sync-entries";
+const SYNC_TAG = 'sync-entries';
 const MAX_RETRY_COUNT = 3;
 
 /**
  * Check if Background Sync is supported
  */
 export function isBackgroundSyncSupported(): boolean {
-	return "serviceWorker" in navigator && "SyncManager" in window;
+	return 'serviceWorker' in navigator && 'SyncManager' in window;
 }
 
 /**
@@ -33,12 +33,12 @@ export async function saveEntryOffline(
 	userId: string,
 	text: string,
 	options: {
-		sentiment?: "positive" | "neutral" | "negative";
+		sentiment?: 'positive' | 'neutral' | 'negative';
 		category?: string;
 		mood?: string;
 		media?: any[];
 		tags?: string[];
-	} = {},
+	} = {}
 ): Promise<PendingEntry> {
 	const pendingEntry: PendingEntry = {
 		id: crypto.randomUUID(),
@@ -50,11 +50,11 @@ export async function saveEntryOffline(
 		media: options.media,
 		tags: options.tags,
 		createdAt: new Date().toISOString(),
-		syncStatus: "pending",
+		syncStatus: 'pending',
 		retryCount: 0,
 	};
 
-	console.log("[BackgroundSync] Saving entry offline:", pendingEntry);
+	console.log('[BackgroundSync] Saving entry offline:', pendingEntry);
 
 	// Save to IndexedDB
 	await addItem(STORES.PENDING_ENTRIES, pendingEntry);
@@ -64,16 +64,14 @@ export async function saveEntryOffline(
 		try {
 			const registration = await navigator.serviceWorker.ready;
 			await (registration as any).sync.register(SYNC_TAG);
-			console.log("[BackgroundSync] Sync registered successfully");
+			console.log('[BackgroundSync] Sync registered successfully');
 		} catch (error) {
-			console.error("[BackgroundSync] Failed to register sync:", error);
+			console.error('[BackgroundSync] Failed to register sync:', error);
 			// Fallback: try to sync immediately
 			await syncPendingEntries();
 		}
 	} else {
-		console.warn(
-			"[BackgroundSync] Background Sync not supported, will sync manually",
-		);
+		console.warn('[BackgroundSync] Background Sync not supported, will sync manually');
 		// Fallback: try to sync immediately
 		await syncPendingEntries();
 	}
@@ -89,38 +87,30 @@ export async function syncPendingEntries(): Promise<{
 	failed: number;
 	pending: number;
 }> {
-	console.log("[BackgroundSync] Starting sync of pending entries...");
+	console.log('[BackgroundSync] Starting sync of pending entries...');
 
-	const pendingEntries = await getAllItems<PendingEntry>(
-		STORES.PENDING_ENTRIES,
-	);
-	console.log(
-		`[BackgroundSync] Found ${pendingEntries.length} pending entries`,
-	);
+	const pendingEntries = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
+	console.log(`[BackgroundSync] Found ${pendingEntries.length} pending entries`);
 
 	let synced = 0;
 	let failed = 0;
 
 	for (const entry of pendingEntries) {
 		// Skip if already syncing or exceeded retry limit
-		if (entry.syncStatus === "syncing") {
-			console.log(
-				`[BackgroundSync] Entry ${entry.id} is already syncing, skipping`,
-			);
+		if (entry.syncStatus === 'syncing') {
+			console.log(`[BackgroundSync] Entry ${entry.id} is already syncing, skipping`);
 			continue;
 		}
 
 		if (entry.retryCount >= MAX_RETRY_COUNT) {
-			console.log(
-				`[BackgroundSync] Entry ${entry.id} exceeded retry limit, marking as failed`,
-			);
+			console.log(`[BackgroundSync] Entry ${entry.id} exceeded retry limit, marking as failed`);
 			failed++;
 			continue;
 		}
 
 		try {
 			// Mark as syncing
-			entry.syncStatus = "syncing";
+			entry.syncStatus = 'syncing';
 			await updateItem(STORES.PENDING_ENTRIES, entry);
 
 			console.log(`[BackgroundSync] Syncing entry ${entry.id}...`);
@@ -136,42 +126,35 @@ export async function syncPendingEntries(): Promise<{
 				tags: entry.tags,
 			});
 
-			console.log(
-				`[BackgroundSync] Entry ${entry.id} synced successfully:`,
-				savedEntry,
-			);
+			console.log(`[BackgroundSync] Entry ${entry.id} synced successfully:`, savedEntry);
 
 			// Delete from pending entries
 			await deleteItem(STORES.PENDING_ENTRIES, entry.id);
 			synced++;
 
 			// Notify app about successful sync
-			if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+			if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
 				navigator.serviceWorker.controller.postMessage({
-					type: "ENTRY_SYNCED",
+					type: 'ENTRY_SYNCED',
 					entryId: entry.id,
 					savedEntry,
 				});
 			}
 		} catch (error) {
-			console.error(
-				`[BackgroundSync] Failed to sync entry ${entry.id}:`,
-				error,
-			);
+			console.error(`[BackgroundSync] Failed to sync entry ${entry.id}:`, error);
 
 			// Update retry count and error
-			entry.syncStatus = "failed";
+			entry.syncStatus = 'failed';
 			entry.retryCount++;
-			entry.lastError =
-				error instanceof Error ? error.message : "Unknown error";
+			entry.lastError = error instanceof Error ? error.message : 'Unknown error';
 			await updateItem(STORES.PENDING_ENTRIES, entry);
 
 			failed++;
 
 			// Notify app about failed sync
-			if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+			if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
 				navigator.serviceWorker.controller.postMessage({
-					type: "ENTRY_SYNC_FAILED",
+					type: 'ENTRY_SYNC_FAILED',
 					entryId: entry.id,
 					error: entry.lastError,
 				});
@@ -183,7 +166,7 @@ export async function syncPendingEntries(): Promise<{
 	const pending = remaining.length;
 
 	console.log(
-		`[BackgroundSync] Sync complete: ${synced} synced, ${failed} failed, ${pending} pending`,
+		`[BackgroundSync] Sync complete: ${synced} synced, ${failed} failed, ${pending} pending`
 	);
 
 	return { synced, failed, pending };
@@ -192,9 +175,7 @@ export async function syncPendingEntries(): Promise<{
 /**
  * Get all pending entries for a user
  */
-export async function getPendingEntries(
-	userId: string,
-): Promise<PendingEntry[]> {
+export async function getPendingEntries(userId: string): Promise<PendingEntry[]> {
 	const allPending = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
 	return allPending.filter((entry) => entry.userId === userId);
 }
@@ -217,12 +198,12 @@ export async function retryFailedEntry(entryId: string): Promise<void> {
 		throw new Error(`Entry ${entryId} not found`);
 	}
 
-	if (entry.syncStatus !== "failed") {
+	if (entry.syncStatus !== 'failed') {
 		throw new Error(`Entry ${entryId} is not in failed state`);
 	}
 
 	// Reset retry count and status
-	entry.syncStatus = "pending";
+	entry.syncStatus = 'pending';
 	entry.retryCount = 0;
 	entry.lastError = undefined;
 	await updateItem(STORES.PENDING_ENTRIES, entry);
@@ -252,11 +233,11 @@ export async function deleteFailedEntry(entryId: string): Promise<void> {
  * Call this on app startup
  */
 export async function initBackgroundSync(): Promise<void> {
-	console.log("[BackgroundSync] Initializing...");
+	console.log('[BackgroundSync] Initializing...');
 
 	// Check if online
 	if (!navigator.onLine) {
-		console.log("[BackgroundSync] App is offline, will sync when online");
+		console.log('[BackgroundSync] App is offline, will sync when online');
 		return;
 	}
 
@@ -264,27 +245,27 @@ export async function initBackgroundSync(): Promise<void> {
 	try {
 		await syncPendingEntries();
 	} catch (error) {
-		console.error("[BackgroundSync] Failed to sync on init:", error);
+		console.error('[BackgroundSync] Failed to sync on init:', error);
 	}
 
 	// Listen for online event
-	window.addEventListener("online", async () => {
-		console.log("[BackgroundSync] App is online, syncing pending entries...");
+	window.addEventListener('online', async () => {
+		console.log('[BackgroundSync] App is online, syncing pending entries...');
 		try {
 			await syncPendingEntries();
 		} catch (error) {
-			console.error("[BackgroundSync] Failed to sync on online event:", error);
+			console.error('[BackgroundSync] Failed to sync on online event:', error);
 		}
 	});
 
 	// Listen for messages from Service Worker
-	if ("serviceWorker" in navigator) {
-		navigator.serviceWorker.addEventListener("message", (event) => {
-			if (event.data.type === "BACKGROUND_SYNC_COMPLETE") {
-				console.log("[BackgroundSync] Background sync completed:", event.data);
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.addEventListener('message', (event) => {
+			if (event.data.type === 'BACKGROUND_SYNC_COMPLETE') {
+				console.log('[BackgroundSync] Background sync completed:', event.data);
 			}
 		});
 	}
 
-	console.log("[BackgroundSync] Initialized successfully");
+	console.log('[BackgroundSync] Initialized successfully');
 }

@@ -1,44 +1,36 @@
-import { lazy, Suspense } from "react";
-import { createAppHandlers } from "@/pwa/handlers/appHandlers";
-import { useAppInitialization } from "@/pwa/hooks/useAppInitialization";
+import { lazy, Suspense } from 'react';
+import { createAppHandlers } from '@/pwa/handlers/appHandlers';
+import { useAppInitialization } from '@/pwa/hooks/useAppInitialization';
 // PWA hooks and handlers (renamed from @/app/ to @/pwa/ to avoid conflict with React Native /app/)
-import { useAppState } from "@/pwa/hooks/useAppState";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { ThemeProvider } from "@/shared/components/theme-provider";
-import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
+import { useAppState } from '@/pwa/hooks/useAppState';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { ThemeProvider } from '@/shared/components/theme-provider';
+import { PerformanceDashboard } from '@/shared/lib/i18n/monitoring/PerformanceDashboard';
 
 // Lazy load PWA-level components for code splitting
 const MobileApp = lazy(() =>
-	import("@/pwa/mobile").then((module) => ({ default: module.MobileApp })),
+	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
 );
-const AdminApp = lazy(() =>
-	import("@/pwa/admin").then((module) => ({ default: module.AdminApp })),
-);
+const AdminApp = lazy(() => import('@/pwa/admin').then((module) => ({ default: module.AdminApp })));
 
 // PWA Components - Lazy loaded для улучшения производительности
-const PWAHead = lazy(() => import("@/shared/components/pwa/PWAHead"));
-const PWASplash = lazy(() => import("@/shared/components/pwa/PWASplash"));
-const PWAStatus = lazy(() => import("@/shared/components/pwa/PWAStatus"));
-const PWAUpdatePrompt = lazy(
-	() => import("@/shared/components/pwa/PWAUpdatePrompt"),
-);
-const InstallPrompt = lazy(
-	() => import("@/shared/components/pwa/InstallPrompt"),
-);
+const PWAHead = lazy(() => import('@/shared/components/pwa/PWAHead'));
+const PWASplash = lazy(() => import('@/shared/components/pwa/PWASplash'));
+const PWAStatus = lazy(() => import('@/shared/components/pwa/PWAStatus'));
+const PWAUpdatePrompt = lazy(() => import('@/shared/components/pwa/PWAUpdatePrompt'));
+const InstallPrompt = lazy(() => import('@/shared/components/pwa/InstallPrompt'));
 
 // Offline Components
-const OfflineSyncIndicator = lazy(
-	() => import("@/shared/components/offline/OfflineSyncIndicator"),
-);
+const OfflineSyncIndicator = lazy(() => import('@/shared/components/offline/OfflineSyncIndicator'));
 const OfflineModeBadge = lazy(() =>
-	import("@/shared/components/offline/OfflineModeBadge").then((m) => ({
+	import('@/shared/components/offline/OfflineModeBadge').then((m) => ({
 		default: m.OfflineModeBadge,
-	})),
+	}))
 );
 const SyncCompletionModal = lazy(() =>
-	import("@/shared/components/offline/SyncCompletionModal").then((m) => ({
+	import('@/shared/components/offline/SyncCompletionModal').then((m) => ({
 		default: m.SyncCompletionModal,
-	})),
+	}))
 );
 
 export default function App() {
@@ -107,7 +99,7 @@ export default function App() {
 				<AdminApp
 					onAuthComplete={handlers.handleAdminAuthComplete}
 					onBack={() => {
-						window.location.href = "/";
+						window.location.href = '/';
 					}}
 					onLogout={handlers.handleAdminLogout}
 					showAdminAuth={state.showAdminAuth}
@@ -123,9 +115,7 @@ export default function App() {
 			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
 				<div className="p-8">
 					<h1 className="font-bold text-2xl">Test Route Disabled</h1>
-					<p className="mt-4">
-						I18nE2ETest component has been moved to .example.tsx file
-					</p>
+					<p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
 				</div>
 			</ThemeProvider>
 		);
@@ -158,68 +148,61 @@ export default function App() {
 	}
 
 	return (
-		<>
-			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
-				{/* PWA Components - Lazy loaded с Suspense для производительности */}
-				<Suspense fallback={null}>
-					{/* PWA Head - динамические meta tags */}
-					<PWAHead />
+		<ThemeProvider defaultTheme="light" storageKey="unity-theme">
+			{/* PWA Components - Lazy loaded с Suspense для производительности */}
+			<Suspense fallback={null}>
+				{/* PWA Head - динамические meta tags */}
+				<PWAHead />
 
-					{/* PWA Splash Screen - показывается при первом запуске в standalone */}
-					<PWASplash />
+				{/* PWA Splash Screen - показывается при первом запуске в standalone */}
+				<PWASplash />
 
-					{/* PWA Status - уведомление об успешной установке */}
-					<PWAStatus />
+				{/* PWA Status - уведомление об успешной установке */}
+				<PWAStatus />
 
-					{/* PWA Update Prompt - обновление Service Worker (только для залогиненных пользователей) */}
-					{state.userData && <PWAUpdatePrompt />}
+				{/* PWA Update Prompt - обновление Service Worker (только для залогиненных пользователей) */}
+				{state.userData && <PWAUpdatePrompt />}
 
-					{/* Install Prompt - настраиваемый через админ-панель */}
-					{state.showInstallPrompt && (
-						<InstallPrompt
-							onClose={handlers.handleInstallClose}
-							onInstall={handlers.handleInstall}
-						/>
-					)}
+				{/* Install Prompt - настраиваемый через админ-панель */}
+				{state.showInstallPrompt && (
+					<InstallPrompt onClose={handlers.handleInstallClose} onInstall={handlers.handleInstall} />
+				)}
 
-					{/* Offline Sync Indicator - показывает pending syncs */}
-					{state.userData?.user?.id && !state.isAdminRoute && (
-						<OfflineSyncIndicator userId={state.userData.user.id} />
-					)}
+				{/* Offline Sync Indicator - показывает pending syncs */}
+				{state.userData?.user?.id && !state.isAdminRoute && (
+					<OfflineSyncIndicator userId={state.userData.user.id} />
+				)}
 
-					{/* Offline Mode Badge - показывает offline статус и pending count */}
-					{state.userData?.user?.id && !state.isAdminRoute && (
-						<OfflineModeBadge />
-					)}
+				{/* Offline Mode Badge - показывает offline статус и pending count */}
+				{state.userData?.user?.id && !state.isAdminRoute && <OfflineModeBadge />}
 
-					{/* Sync Completion Modal - показывается после успешной синхронизации */}
-					{state.userData?.user?.id && !state.isAdminRoute && (
-						<SyncCompletionModal
-							isOpen={state.showSyncComplete}
-							onClose={() => state.setShowSyncComplete(false)}
-							syncedCount={state.syncedCount}
-						/>
-					)}
-				</Suspense>
+				{/* Sync Completion Modal - показывается после успешной синхронизации */}
+				{state.userData?.user?.id && !state.isAdminRoute && (
+					<SyncCompletionModal
+						isOpen={state.showSyncComplete}
+						onClose={() => state.setShowSyncComplete(false)}
+						syncedCount={state.syncedCount}
+					/>
+				)}
+			</Suspense>
 
-				<MobileApp
-					authMode={state.authMode}
-					currentStep={state.currentStep}
-					onAuthComplete={handlers.handleAuthComplete}
-					onboardingComplete={state.onboardingComplete}
-					onboardingData={state.onboardingData}
-					onLogout={handlers.handleLogout}
-					onOnboarding2Complete={handlers.handleOnboarding2Complete}
-					onOnboarding3Complete={handlers.handleOnboarding3Complete}
-					onOnboarding4Complete={handlers.handleOnboarding4Complete}
-					onProfileUpdate={handlers.handleProfileUpdate}
-					onWelcomeComplete={handlers.handleWelcomeComplete}
-					onWelcomeSkip={handlers.handleWelcomeSkip}
-					selectedLanguage={state.selectedLanguage}
-					showAuth={state.showAuth}
-					userData={state.userData}
-				/>
-			</ThemeProvider>
-		</>
+			<MobileApp
+				authMode={state.authMode}
+				currentStep={state.currentStep}
+				onAuthComplete={handlers.handleAuthComplete}
+				onboardingComplete={state.onboardingComplete}
+				onboardingData={state.onboardingData}
+				onLogout={handlers.handleLogout}
+				onOnboarding2Complete={handlers.handleOnboarding2Complete}
+				onOnboarding3Complete={handlers.handleOnboarding3Complete}
+				onOnboarding4Complete={handlers.handleOnboarding4Complete}
+				onProfileUpdate={handlers.handleProfileUpdate}
+				onWelcomeComplete={handlers.handleWelcomeComplete}
+				onWelcomeSkip={handlers.handleWelcomeSkip}
+				selectedLanguage={state.selectedLanguage}
+				showAuth={state.showAuth}
+				userData={state.userData}
+			/>
+		</ThemeProvider>
 	);
 }

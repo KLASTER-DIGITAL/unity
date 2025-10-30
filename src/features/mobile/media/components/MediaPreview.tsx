@@ -1,10 +1,10 @@
-import { Image as ImageIcon, Play, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-import { LazyImage } from "@/shared/components/LazyImage";
-import { PhotoViewer } from "@/shared/components/PhotoViewer";
-import { VideoPlayer } from "@/shared/components/VideoPlayer";
-import type { MediaFile } from "@/shared/lib/api";
+import { Image as ImageIcon, Play, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import { LazyImage } from '@/shared/components/LazyImage';
+import { PhotoViewer } from '@/shared/components/PhotoViewer';
+import { VideoPlayer } from '@/shared/components/VideoPlayer';
+import type { MediaFile } from '@/shared/lib/api';
 
 type MediaPreviewProps = {
 	media: MediaFile[];
@@ -13,7 +13,7 @@ type MediaPreviewProps = {
 	editable?: boolean;
 	isUploading?: boolean;
 	uploadProgress?: number;
-	layout?: "grid" | "row"; // ✅ NEW: Layout mode
+	layout?: 'grid' | 'row'; // ✅ NEW: Layout mode
 };
 
 export function MediaPreview({
@@ -23,7 +23,7 @@ export function MediaPreview({
 	editable = true,
 	isUploading = false,
 	uploadProgress = 0,
-	layout = "grid", // ✅ NEW: Default to grid layout
+	layout = 'grid', // ✅ NEW: Default to grid layout
 }: MediaPreviewProps) {
 	const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
 	const [viewerOpen, setViewerOpen] = useState(false);
@@ -48,15 +48,13 @@ export function MediaPreview({
 
 	// ✅ FIX: Динамический класс контейнера в зависимости от layout
 	const containerClass =
-		layout === "row"
-			? "flex gap-2 overflow-x-auto pb-2"
-			: "grid grid-cols-3 gap-2";
+		layout === 'row' ? 'flex gap-2 overflow-x-auto pb-2' : 'grid grid-cols-3 gap-2';
 
 	// ✅ FIX: Динамический класс элемента в зависимости от layout
 	const itemClass =
-		layout === "row"
-			? "flex-shrink-0 w-32 h-32" // Фиксированный размер для row
-			: "aspect-square"; // Квадрат для grid
+		layout === 'row'
+			? 'flex-shrink-0 w-32 h-32' // Фиксированный размер для row
+			: 'aspect-square'; // Квадрат для grid
 
 	return (
 		<>
@@ -103,11 +101,11 @@ export function MediaPreview({
 							onClick={() => handleMediaClick(item, index)}
 							transition={{ duration: 0.2 }}
 						>
-							{item.type === "image" ? (
+							{item.type === 'image' ? (
 								<LazyImage
-									alt={item.fileName || ""}
+									alt={item.fileName || ''}
 									className="h-full w-full cursor-pointer"
-									src={item.url || ""}
+									src={item.url || ''}
 								/>
 							) : (
 								<div className="relative h-full w-full">
@@ -127,7 +125,7 @@ export function MediaPreview({
 
 							{/* Type indicator */}
 							<div className="absolute top-1 left-1 flex items-center gap-0.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white backdrop-blur-sm">
-								{item.type === "image" ? (
+								{item.type === 'image' ? (
 									<>
 										<ImageIcon className="h-2.5 w-2.5" />
 										<span>Фото</span>
@@ -169,22 +167,22 @@ export function MediaPreview({
 			</div>
 
 			{/* Photo Viewer */}
-			{selectedMedia && selectedMedia.type === "image" && (
+			{selectedMedia && selectedMedia.type === 'image' && (
 				<PhotoViewer
 					fileName={selectedMedia.fileName}
-					imageUrl={selectedMedia.url || ""}
+					imageUrl={selectedMedia.url || ''}
 					isOpen={viewerOpen}
 					onClose={handleCloseViewer}
 				/>
 			)}
 
 			{/* Video Player */}
-			{selectedMedia && selectedMedia.type === "video" && (
+			{selectedMedia && selectedMedia.type === 'video' && (
 				<VideoPlayer
 					fileName={selectedMedia.fileName}
 					isOpen={viewerOpen}
 					onClose={handleCloseViewer}
-					videoUrl={selectedMedia.url || ""}
+					videoUrl={selectedMedia.url || ''}
 				/>
 			)}
 		</>

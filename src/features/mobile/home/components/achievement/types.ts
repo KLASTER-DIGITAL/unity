@@ -32,6 +32,6 @@ export type SwipeCardProps = {
 	card: AchievementCard;
 	index: number;
 	totalCards: number;
-	onSwipe: (direction: "left" | "right") => void;
+	onSwipe: (direction: 'left' | 'right') => void;
 	isTop: boolean;
 };

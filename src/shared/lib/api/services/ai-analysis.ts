@@ -1,6 +1,6 @@
-import { createClient } from "@/utils/supabase/client";
-import { API_URLS } from "../config/urls";
-import type { AIAnalysisResult } from "../types";
+import { createClient } from '@/utils/supabase/client';
+import { API_URLS } from '../config/urls';
+import type { AIAnalysisResult } from '../types';
 
 /**
  * Analyze text with AI
@@ -12,7 +12,7 @@ import type { AIAnalysisResult } from "../types";
 export async function analyzeTextWithAI(
 	text: string,
 	userName?: string,
-	userId?: string,
+	userId?: string
 ): Promise<AIAnalysisResult> {
 	try {
 		const supabase = createClient();
@@ -21,13 +21,13 @@ export async function analyzeTextWithAI(
 		} = await supabase.auth.getSession();
 
 		if (!session?.access_token) {
-			throw new Error("No active session. Please log in.");
+			throw new Error('No active session. Please log in.');
 		}
 
 		const response = await fetch(API_URLS.AI_ANALYSIS, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${session.access_token}`,
 			},
 			body: JSON.stringify({ text, userName, userId }),
@@ -35,29 +35,27 @@ export async function analyzeTextWithAI(
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error("AI analysis failed:", errorText);
-			throw new Error(
-				`AI analysis failed: ${response.status} ${response.statusText}`,
-			);
+			console.error('AI analysis failed:', errorText);
+			throw new Error(`AI analysis failed: ${response.status} ${response.statusText}`);
 		}
 
 		const result = await response.json();
-		console.log("[AI ANALYSIS] Analysis complete:", result);
+		console.log('[AI ANALYSIS] Analysis complete:', result);
 
 		return {
-			reply: result.reply || "",
-			summary: result.summary || "",
-			insight: result.insight || "",
-			sentiment: result.sentiment || "neutral",
-			category: result.category || "Другое",
+			reply: result.reply || '',
+			summary: result.summary || '',
+			insight: result.insight || '',
+			sentiment: result.sentiment || 'neutral',
+			category: result.category || 'Другое',
 			tags: result.tags || [],
 			confidence: result.confidence || 0,
 			isAchievement: result.isAchievement,
-			mood: result.mood || "нормальное",
+			mood: result.mood || 'нормальное',
 			entrySummaryId: result.entrySummaryId,
 		};
 	} catch (error) {
-		console.error("[AI ANALYSIS] Error:", error);
+		console.error('[AI ANALYSIS] Error:', error);
 		throw error;
 	}
 }

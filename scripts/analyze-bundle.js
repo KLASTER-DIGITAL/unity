@@ -5,36 +5,36 @@
  * Анализирует размер бандла и создает отчет о производительности
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 
 // Цвета для консоли
 const colors = {
-	reset: "\x1b[0m",
-	bright: "\x1b[1m",
-	red: "\x1b[31m",
-	green: "\x1b[32m",
-	yellow: "\x1b[33m",
-	blue: "\x1b[34m",
-	magenta: "\x1b[35m",
-	cyan: "\x1b[36m",
+	reset: '\x1b[0m',
+	bright: '\x1b[1m',
+	red: '\x1b[31m',
+	green: '\x1b[32m',
+	yellow: '\x1b[33m',
+	blue: '\x1b[34m',
+	magenta: '\x1b[35m',
+	cyan: '\x1b[36m',
 };
 
 function formatBytes(bytes) {
-	if (bytes === 0) return "0 B";
+	if (bytes === 0) return '0 B';
 	const k = 1024;
-	const sizes = ["B", "KB", "MB", "GB"];
+	const sizes = ['B', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return Number.parseFloat((bytes / k ** i).toFixed(2)) + " " + sizes[i];
+	return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
 }
 
 function analyzeBuildDirectory() {
-	const buildDir = path.join(process.cwd(), "build");
+	const buildDir = path.join(process.cwd(), 'build');
 
 	if (!fs.existsSync(buildDir)) {
 		console.log(
-			`${colors.red}❌ Build directory not found. Run 'npm run build' first.${colors.reset}`,
+			`${colors.red}❌ Build directory not found. Run 'npm run build' first.${colors.reset}`
 		);
 		process.exit(1);
 	}
@@ -46,7 +46,7 @@ function analyzeBuildDirectory() {
 	const cssFiles = [];
 	const assetFiles = [];
 
-	function scanDirectory(dir, prefix = "") {
+	function scanDirectory(dir, prefix = '') {
 		const files = fs.readdirSync(dir);
 
 		for (const file of files) {
@@ -54,21 +54,17 @@ function analyzeBuildDirectory() {
 			const stat = fs.statSync(filePath);
 
 			if (stat.isDirectory()) {
-				scanDirectory(filePath, prefix + file + "/");
+				scanDirectory(filePath, prefix + file + '/');
 			} else {
 				const ext = path.extname(file);
 				const size = stat.size;
 				const relativePath = prefix + file;
 
-				if (ext === ".js") {
+				if (ext === '.js') {
 					jsFiles.push({ name: relativePath, size });
-				} else if (ext === ".css") {
+				} else if (ext === '.css') {
 					cssFiles.push({ name: relativePath, size });
-				} else if (
-					[".png", ".jpg", ".jpeg", ".svg", ".ico", ".woff", ".woff2"].includes(
-						ext,
-					)
-				) {
+				} else if (['.png', '.jpg', '.jpeg', '.svg', '.ico', '.woff', '.woff2'].includes(ext)) {
 					assetFiles.push({ name: relativePath, size });
 				}
 			}
@@ -89,17 +85,11 @@ function analyzeBuildDirectory() {
 		totalJSSize += file.size;
 		const sizeStr = formatBytes(file.size);
 		const color =
-			file.size > 500_000
-				? colors.red
-				: file.size > 100_000
-					? colors.yellow
-					: colors.green;
-		console.log(
-			`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`,
-		);
+			file.size > 500_000 ? colors.red : file.size > 100_000 ? colors.yellow : colors.green;
+		console.log(`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
 	});
 	console.log(
-		`  ${colors.bright}${formatBytes(totalJSSize).padStart(10)} TOTAL JS${colors.reset}\n`,
+		`  ${colors.bright}${formatBytes(totalJSSize).padStart(10)} TOTAL JS${colors.reset}\n`
 	);
 
 	// Отчет по CSS файлам
@@ -108,12 +98,10 @@ function analyzeBuildDirectory() {
 	cssFiles.forEach((file) => {
 		totalCSSSize += file.size;
 		const sizeStr = formatBytes(file.size);
-		console.log(
-			`  ${colors.green}${sizeStr.padStart(10)}${colors.reset} ${file.name}`,
-		);
+		console.log(`  ${colors.green}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
 	});
 	console.log(
-		`  ${colors.bright}${formatBytes(totalCSSSize).padStart(10)} TOTAL CSS${colors.reset}\n`,
+		`  ${colors.bright}${formatBytes(totalCSSSize).padStart(10)} TOTAL CSS${colors.reset}\n`
 	);
 
 	// Отчет по ассетам
@@ -123,70 +111,56 @@ function analyzeBuildDirectory() {
 		totalAssetSize += file.size;
 		const sizeStr = formatBytes(file.size);
 		const color =
-			file.size > 1_000_000
-				? colors.red
-				: file.size > 500_000
-					? colors.yellow
-					: colors.green;
-		console.log(
-			`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`,
-		);
+			file.size > 1_000_000 ? colors.red : file.size > 500_000 ? colors.yellow : colors.green;
+		console.log(`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
 	});
 	console.log(
-		`  ${colors.bright}${formatBytes(totalAssetSize).padStart(10)} TOTAL ASSETS${colors.reset}\n`,
+		`  ${colors.bright}${formatBytes(totalAssetSize).padStart(10)} TOTAL ASSETS${colors.reset}\n`
 	);
 
 	// Общий размер
 	const totalSize = totalJSSize + totalCSSSize + totalAssetSize;
 	console.log(`${colors.cyan}📊 Summary:${colors.reset}`);
 	console.log(
-		`  JavaScript: ${formatBytes(totalJSSize)} (${((totalJSSize / totalSize) * 100).toFixed(1)}%)`,
+		`  JavaScript: ${formatBytes(totalJSSize)} (${((totalJSSize / totalSize) * 100).toFixed(1)}%)`
 	);
 	console.log(
-		`  CSS:        ${formatBytes(totalCSSSize)} (${((totalCSSSize / totalSize) * 100).toFixed(1)}%)`,
+		`  CSS:        ${formatBytes(totalCSSSize)} (${((totalCSSSize / totalSize) * 100).toFixed(1)}%)`
 	);
 	console.log(
-		`  Assets:     ${formatBytes(totalAssetSize)} (${((totalAssetSize / totalSize) * 100).toFixed(1)}%)`,
+		`  Assets:     ${formatBytes(totalAssetSize)} (${((totalAssetSize / totalSize) * 100).toFixed(1)}%)`
 	);
-	console.log(
-		`  ${colors.bright}Total:      ${formatBytes(totalSize)}${colors.reset}\n`,
-	);
+	console.log(`  ${colors.bright}Total:      ${formatBytes(totalSize)}${colors.reset}\n`);
 
 	// Рекомендации
 	console.log(`${colors.green}💡 Recommendations:${colors.reset}`);
 
 	const largeJSFiles = jsFiles.filter((f) => f.size > 500_000);
 	if (largeJSFiles.length > 0) {
-		console.log(
-			`  ${colors.yellow}⚠️  Large JS files detected (>500KB):${colors.reset}`,
-		);
+		console.log(`  ${colors.yellow}⚠️  Large JS files detected (>500KB):${colors.reset}`);
 		largeJSFiles.forEach((file) => {
 			console.log(`     - ${file.name} (${formatBytes(file.size)})`);
 		});
-		console.log("     Consider code splitting or lazy loading.");
+		console.log('     Consider code splitting or lazy loading.');
 	}
 
 	const largeAssets = assetFiles.filter((f) => f.size > 1_000_000);
 	if (largeAssets.length > 0) {
-		console.log(
-			`  ${colors.yellow}⚠️  Large assets detected (>1MB):${colors.reset}`,
-		);
+		console.log(`  ${colors.yellow}⚠️  Large assets detected (>1MB):${colors.reset}`);
 		largeAssets.forEach((file) => {
 			console.log(`     - ${file.name} (${formatBytes(file.size)})`);
 		});
-		console.log("     Consider image optimization or lazy loading.");
+		console.log('     Consider image optimization or lazy loading.');
 	}
 
 	if (totalJSSize < 2_000_000) {
-		console.log(
-			`  ${colors.green}✅ Good JS bundle size (<2MB)${colors.reset}`,
-		);
+		console.log(`  ${colors.green}✅ Good JS bundle size (<2MB)${colors.reset}`);
 	} else {
 		console.log(`  ${colors.red}❌ Large JS bundle size (>2MB)${colors.reset}`);
 	}
 
 	console.log(
-		`\n${colors.cyan}🔍 For detailed analysis, run: ANALYZE=true npm run build${colors.reset}`,
+		`\n${colors.cyan}🔍 For detailed analysis, run: ANALYZE=true npm run build${colors.reset}`
 	);
 }
 

@@ -9,12 +9,12 @@
  * - Статистика по времени
  */
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from '@/utils/supabase/client';
 
 export type PushAnalyticsEvent = {
 	notification_id?: string;
 	user_id: string;
-	event_type: "delivered" | "opened" | "closed" | "subscribed" | "unsubscribed";
+	event_type: 'delivered' | 'opened' | 'closed' | 'subscribed' | 'unsubscribed';
 	browser_info?: {
 		name: string;
 		version: string;
@@ -62,7 +62,7 @@ export async function trackPushEvent(event: PushAnalyticsEvent): Promise<void> {
 		const supabase = createClient();
 
 		// Сохраняем в usage таблицу
-		const { error } = await supabase.from("usage").insert({
+		const { error } = await supabase.from('usage').insert({
 			user_id: event.user_id,
 			operation_type: `push_${event.event_type}`,
 			metadata: {
@@ -74,12 +74,12 @@ export async function trackPushEvent(event: PushAnalyticsEvent): Promise<void> {
 		});
 
 		if (error) {
-			console.error("[Push Analytics] Failed to track event:", error);
+			console.error('[Push Analytics] Failed to track event:', error);
 		} else {
 			console.log(`[Push Analytics] Tracked: push_${event.event_type}`);
 		}
 	} catch (error) {
-		console.error("[Push Analytics] Error tracking event:", error);
+		console.error('[Push Analytics] Error tracking event:', error);
 	}
 }
 
@@ -89,12 +89,12 @@ export async function trackPushEvent(event: PushAnalyticsEvent): Promise<void> {
 export async function trackPushDelivered(
 	userId: string,
 	notificationId?: string,
-	metadata?: Record<string, any>,
+	metadata?: Record<string, any>
 ): Promise<void> {
 	await trackPushEvent({
 		notification_id: notificationId,
 		user_id: userId,
-		event_type: "delivered",
+		event_type: 'delivered',
 		metadata,
 		timestamp: new Date().toISOString(),
 	});
@@ -106,12 +106,12 @@ export async function trackPushDelivered(
 export async function trackPushOpened(
 	userId: string,
 	notificationId?: string,
-	metadata?: Record<string, any>,
+	metadata?: Record<string, any>
 ): Promise<void> {
 	await trackPushEvent({
 		notification_id: notificationId,
 		user_id: userId,
-		event_type: "opened",
+		event_type: 'opened',
 		metadata,
 		timestamp: new Date().toISOString(),
 	});
@@ -123,12 +123,12 @@ export async function trackPushOpened(
 export async function trackPushClosed(
 	userId: string,
 	notificationId?: string,
-	metadata?: Record<string, any>,
+	metadata?: Record<string, any>
 ): Promise<void> {
 	await trackPushEvent({
 		notification_id: notificationId,
 		user_id: userId,
-		event_type: "closed",
+		event_type: 'closed',
 		metadata,
 		timestamp: new Date().toISOString(),
 	});
@@ -140,11 +140,11 @@ export async function trackPushClosed(
 export async function trackPushSubscribed(
 	userId: string,
 	browserInfo?: { name: string; version: string; os: string },
-	metadata?: Record<string, any>,
+	metadata?: Record<string, any>
 ): Promise<void> {
 	await trackPushEvent({
 		user_id: userId,
-		event_type: "subscribed",
+		event_type: 'subscribed',
 		browser_info: browserInfo,
 		metadata,
 		timestamp: new Date().toISOString(),
@@ -156,11 +156,11 @@ export async function trackPushSubscribed(
  */
 export async function trackPushUnsubscribed(
 	userId: string,
-	metadata?: Record<string, any>,
+	metadata?: Record<string, any>
 ): Promise<void> {
 	await trackPushEvent({
 		user_id: userId,
-		event_type: "unsubscribed",
+		event_type: 'unsubscribed',
 		metadata,
 		timestamp: new Date().toISOString(),
 	});
@@ -171,43 +171,43 @@ export async function trackPushUnsubscribed(
  */
 export async function getPushAnalytics(
 	startDate?: Date,
-	endDate?: Date,
+	endDate?: Date
 ): Promise<PushAnalyticsStats | null> {
 	try {
-		console.log("[getPushAnalytics] Called with:", { startDate, endDate });
+		console.log('[getPushAnalytics] Called with:', { startDate, endDate });
 		const supabase = createClient();
 
 		// Формируем запрос
 		let query = supabase
-			.from("usage")
-			.select("*")
-			.in("operation_type", [
-				"push_delivered",
-				"push_opened",
-				"push_closed",
-				"push_subscribed",
-				"push_unsubscribed",
+			.from('usage')
+			.select('*')
+			.in('operation_type', [
+				'push_delivered',
+				'push_opened',
+				'push_closed',
+				'push_subscribed',
+				'push_unsubscribed',
 			]);
 
 		if (startDate) {
-			query = query.gte("created_at", startDate.toISOString());
+			query = query.gte('created_at', startDate.toISOString());
 		}
 		if (endDate) {
-			query = query.lte("created_at", endDate.toISOString());
+			query = query.lte('created_at', endDate.toISOString());
 		}
 
-		console.log("[getPushAnalytics] Executing query...");
+		console.log('[getPushAnalytics] Executing query...');
 		const { data: events, error } = await query;
 
 		if (error) {
-			console.error("[getPushAnalytics] Failed to get analytics:", error);
+			console.error('[getPushAnalytics] Failed to get analytics:', error);
 			return null;
 		}
 
-		console.log("[getPushAnalytics] Received events:", events?.length || 0);
+		console.log('[getPushAnalytics] Received events:', events?.length || 0);
 
 		if (!events || events.length === 0) {
-			console.log("[getPushAnalytics] No events found, returning empty stats");
+			console.log('[getPushAnalytics] No events found, returning empty stats');
 			return {
 				total_sent: 0,
 				total_delivered: 0,
@@ -223,23 +223,16 @@ export async function getPushAnalytics(
 		}
 
 		// Подсчитываем метрики
-		const delivered = events.filter(
-			(e) => e.operation_type === "push_delivered",
-		).length;
-		const opened = events.filter(
-			(e) => e.operation_type === "push_opened",
-		).length;
-		const closed = events.filter(
-			(e) => e.operation_type === "push_closed",
-		).length;
+		const delivered = events.filter((e) => e.operation_type === 'push_delivered').length;
+		const opened = events.filter((e) => e.operation_type === 'push_opened').length;
+		const closed = events.filter((e) => e.operation_type === 'push_closed').length;
 
 		// Получаем total_sent из push_notifications_history
 		const { data: history } = await supabase
-			.from("push_notifications_history")
-			.select("total_sent");
+			.from('push_notifications_history')
+			.select('total_sent');
 
-		const totalSent =
-			history?.reduce((sum, h) => sum + (h.total_sent || 0), 0) || 0;
+		const totalSent = history?.reduce((sum, h) => sum + (h.total_sent || 0), 0) || 0;
 
 		// Вычисляем проценты
 		const deliveryRate = totalSent > 0 ? (delivered / totalSent) * 100 : 0;
@@ -247,54 +240,44 @@ export async function getPushAnalytics(
 		const ctr = totalSent > 0 ? (opened / totalSent) * 100 : 0;
 
 		// Статистика по браузерам
-		const browserStats = new Map<
-			string,
-			{ sent: number; delivered: number; opened: number }
-		>();
+		const browserStats = new Map<string, { sent: number; delivered: number; opened: number }>();
 
 		events.forEach((event) => {
-			const browserName = event.metadata?.browser_info?.name || "Unknown";
+			const browserName = event.metadata?.browser_info?.name || 'Unknown';
 			const stats = browserStats.get(browserName) || {
 				sent: 0,
 				delivered: 0,
 				opened: 0,
 			};
 
-			if (event.operation_type === "push_delivered") {
+			if (event.operation_type === 'push_delivered') {
 				stats.delivered++;
-			} else if (event.operation_type === "push_opened") {
+			} else if (event.operation_type === 'push_opened') {
 				stats.opened++;
 			}
 
 			browserStats.set(browserName, stats);
 		});
 
-		const byBrowser = Array.from(browserStats.entries()).map(
-			([browser, stats]) => ({
-				browser,
-				sent: stats.sent,
-				delivered: stats.delivered,
-				opened: stats.opened,
-				delivery_rate:
-					stats.sent > 0 ? (stats.delivered / stats.sent) * 100 : 0,
-				open_rate:
-					stats.delivered > 0 ? (stats.opened / stats.delivered) * 100 : 0,
-			}),
-		);
+		const byBrowser = Array.from(browserStats.entries()).map(([browser, stats]) => ({
+			browser,
+			sent: stats.sent,
+			delivered: stats.delivered,
+			opened: stats.opened,
+			delivery_rate: stats.sent > 0 ? (stats.delivered / stats.sent) * 100 : 0,
+			open_rate: stats.delivered > 0 ? (stats.opened / stats.delivered) * 100 : 0,
+		}));
 
 		// Статистика по часам
-		const hourStats = new Map<
-			number,
-			{ sent: number; delivered: number; opened: number }
-		>();
+		const hourStats = new Map<number, { sent: number; delivered: number; opened: number }>();
 
 		events.forEach((event) => {
 			const hour = new Date(event.created_at).getHours();
 			const stats = hourStats.get(hour) || { sent: 0, delivered: 0, opened: 0 };
 
-			if (event.operation_type === "push_delivered") {
+			if (event.operation_type === 'push_delivered') {
 				stats.delivered++;
-			} else if (event.operation_type === "push_opened") {
+			} else if (event.operation_type === 'push_opened') {
 				stats.opened++;
 			}
 
@@ -311,18 +294,15 @@ export async function getPushAnalytics(
 			.sort((a, b) => a.hour - b.hour);
 
 		// Статистика по дням
-		const dayStats = new Map<
-			string,
-			{ sent: number; delivered: number; opened: number }
-		>();
+		const dayStats = new Map<string, { sent: number; delivered: number; opened: number }>();
 
 		events.forEach((event) => {
-			const date = new Date(event.created_at).toISOString().split("T")[0];
+			const date = new Date(event.created_at).toISOString().split('T')[0];
 			const stats = dayStats.get(date) || { sent: 0, delivered: 0, opened: 0 };
 
-			if (event.operation_type === "push_delivered") {
+			if (event.operation_type === 'push_delivered') {
 				stats.delivered++;
-			} else if (event.operation_type === "push_opened") {
+			} else if (event.operation_type === 'push_opened') {
 				stats.opened++;
 			}
 
@@ -351,10 +331,10 @@ export async function getPushAnalytics(
 			by_day: byDay,
 		};
 
-		console.log("[getPushAnalytics] Returning stats:", result);
+		console.log('[getPushAnalytics] Returning stats:', result);
 		return result;
 	} catch (error) {
-		console.error("[getPushAnalytics] Error getting analytics:", error);
+		console.error('[getPushAnalytics] Error getting analytics:', error);
 		return null;
 	}
 }

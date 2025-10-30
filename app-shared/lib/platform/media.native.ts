@@ -6,7 +6,7 @@
  * @module platform/media/native
  */
 
-import type { MediaAdapter } from "../media";
+import type { MediaAdapter } from '../media';
 
 /**
  * React Native media adapter using Expo modules
@@ -28,12 +28,9 @@ export class NativeMediaAdapter implements MediaAdapter {
 		if (this.initialized) return;
 
 		// Check if we're in a React Native environment
-		if (
-			typeof navigator === "undefined" ||
-			navigator.product !== "ReactNative"
-		) {
+		if (typeof navigator === 'undefined' || navigator.product !== 'ReactNative') {
 			console.warn(
-				"⚠️ [NativeMediaAdapter] Not in React Native environment, skipping initialization",
+				'⚠️ [NativeMediaAdapter] Not in React Native environment, skipping initialization'
 			);
 			return;
 		}
@@ -42,10 +39,10 @@ export class NativeMediaAdapter implements MediaAdapter {
 			// Dynamic imports to avoid bundling in web
 			// These will only be executed in React Native environment
 			const [fs, im, avModule, imageModule] = await Promise.all([
-				import("expo-file-system"),
-				import("expo-image-manipulator"),
-				import("expo-av"),
-				import("react-native").then((rn) => rn.Image),
+				import('expo-file-system'),
+				import('expo-image-manipulator'),
+				import('expo-av'),
+				import('react-native').then((rn) => rn.Image),
 			]);
 
 			this.fileSystem = fs;
@@ -54,11 +51,8 @@ export class NativeMediaAdapter implements MediaAdapter {
 			this.image = imageModule;
 			this.initialized = true;
 		} catch (error) {
-			console.error(
-				"❌ [NativeMediaAdapter] Failed to initialize Expo modules:",
-				error,
-			);
-			throw new Error("Failed to initialize native media adapter");
+			console.error('❌ [NativeMediaAdapter] Failed to initialize Expo modules:', error);
+			throw new Error('Failed to initialize native media adapter');
 		}
 	}
 
@@ -78,14 +72,11 @@ export class NativeMediaAdapter implements MediaAdapter {
 			});
 
 			// Determine MIME type
-			const mimeType = file.type || "application/octet-stream";
+			const mimeType = file.type || 'application/octet-stream';
 
 			return `data:${mimeType};base64,${base64}`;
 		} catch (error) {
-			console.error(
-				"❌ [NativeMediaAdapter] Failed to read as data URL:",
-				error,
-			);
+			console.error('❌ [NativeMediaAdapter] Failed to read as data URL:', error);
 			throw error;
 		}
 	}
@@ -113,10 +104,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 
 			return bytes.buffer;
 		} catch (error) {
-			console.error(
-				"❌ [NativeMediaAdapter] Failed to read as ArrayBuffer:",
-				error,
-			);
+			console.error('❌ [NativeMediaAdapter] Failed to read as ArrayBuffer:', error);
 			throw error;
 		}
 	}
@@ -134,7 +122,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 				encoding: this.fileSystem.EncodingType.UTF8,
 			});
 		} catch (error) {
-			console.error("❌ [NativeMediaAdapter] Failed to read as text:", error);
+			console.error('❌ [NativeMediaAdapter] Failed to read as text:', error);
 			throw error;
 		}
 	}
@@ -149,7 +137,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 		}
 
 		// Fallback: return file name as URI
-		return `file://${file.name || "unknown"}`;
+		return `file://${file.name || 'unknown'}`;
 	}
 
 	/**
@@ -162,9 +150,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 	/**
 	 * Get image dimensions
 	 */
-	async getImageDimensions(
-		file: File,
-	): Promise<{ width: number; height: number }> {
+	async getImageDimensions(file: File): Promise<{ width: number; height: number }> {
 		await this.init();
 
 		try {
@@ -177,19 +163,13 @@ export class NativeMediaAdapter implements MediaAdapter {
 						resolve({ width, height });
 					},
 					(error: Error) => {
-						console.error(
-							"❌ [NativeMediaAdapter] Failed to get image dimensions:",
-							error,
-						);
+						console.error('❌ [NativeMediaAdapter] Failed to get image dimensions:', error);
 						reject(error);
-					},
+					}
 				);
 			});
 		} catch (error) {
-			console.error(
-				"❌ [NativeMediaAdapter] Failed to get image dimensions:",
-				error,
-			);
+			console.error('❌ [NativeMediaAdapter] Failed to get image dimensions:', error);
 			throw error;
 		}
 	}
@@ -221,7 +201,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 			await video.unloadAsync();
 
 			if (!status.isLoaded) {
-				throw new Error("Failed to load video");
+				throw new Error('Failed to load video');
 			}
 
 			return {
@@ -230,10 +210,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 				height: status.naturalSize?.height || 0,
 			};
 		} catch (error) {
-			console.error(
-				"❌ [NativeMediaAdapter] Failed to get video metadata:",
-				error,
-			);
+			console.error('❌ [NativeMediaAdapter] Failed to get video metadata:', error);
 			throw error;
 		}
 	}
@@ -243,7 +220,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 	 */
 	createCanvas(_width: number, _height: number): any {
 		console.warn(
-			"⚠️ [NativeMediaAdapter] Canvas not supported in React Native. Use react-native-skia instead.",
+			'⚠️ [NativeMediaAdapter] Canvas not supported in React Native. Use react-native-skia instead.'
 		);
 		return null;
 	}
@@ -253,7 +230,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 	 */
 	createImage(): any {
 		if (!this.image) {
-			console.warn("⚠️ [NativeMediaAdapter] Image module not initialized");
+			console.warn('⚠️ [NativeMediaAdapter] Image module not initialized');
 			return null;
 		}
 		return this.image;
@@ -264,7 +241,7 @@ export class NativeMediaAdapter implements MediaAdapter {
 	 */
 	createVideo(): any {
 		if (!this.av) {
-			console.warn("⚠️ [NativeMediaAdapter] AV module not initialized");
+			console.warn('⚠️ [NativeMediaAdapter] AV module not initialized');
 			return null;
 		}
 		return this.av.Video;

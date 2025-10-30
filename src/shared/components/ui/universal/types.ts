@@ -7,7 +7,7 @@
  * @date 2025-01-18
  */
 
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 /**
  * Base props for all universal components
@@ -57,45 +57,32 @@ export type UniversalComponentProps = {
 /**
  * Universal button variants
  */
-export type ButtonVariant =
-	| "default"
-	| "destructive"
-	| "outline"
-	| "secondary"
-	| "ghost"
-	| "link";
+export type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 
 /**
  * Universal button sizes
  */
-export type ButtonSize = "default" | "sm" | "lg" | "icon";
+export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
 /**
  * Universal input types
  */
-export type InputType =
-	| "text"
-	| "email"
-	| "password"
-	| "number"
-	| "tel"
-	| "url"
-	| "search";
+export type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
 
 /**
  * Universal modal sizes
  */
-export type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 /**
  * Universal animation presets
  */
-export type AnimationPreset = "fade" | "slide" | "scale" | "bounce" | "none";
+export type AnimationPreset = 'fade' | 'slide' | 'scale' | 'bounce' | 'none';
 
 /**
  * Universal color scheme
  */
-export type ColorScheme = "light" | "dark" | "auto";
+export type ColorScheme = 'light' | 'dark' | 'auto';
 
 /**
  * Universal theme tokens
@@ -178,15 +165,15 @@ export type UniversalEventHandlers = {
  */
 export type UniversalLayoutProps = {
 	flex?: number;
-	flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
+	flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
 	justifyContent?:
-		| "flex-start"
-		| "flex-end"
-		| "center"
-		| "space-between"
-		| "space-around"
-		| "space-evenly";
-	alignItems?: "flex-start" | "flex-end" | "center" | "stretch" | "baseline";
+		| 'flex-start'
+		| 'flex-end'
+		| 'center'
+		| 'space-between'
+		| 'space-around'
+		| 'space-evenly';
+	alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
 	padding?: number | string;
 	paddingHorizontal?: number | string;
 	paddingVertical?: number | string;
@@ -260,7 +247,7 @@ export type ToastProps = {
 	id?: string;
 	title?: string;
 	description?: string;
-	variant?: "default" | "success" | "error" | "warning" | "info";
+	variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
 	duration?: number;
 	action?: {
 		label: string;

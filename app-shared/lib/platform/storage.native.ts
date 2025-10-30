@@ -6,7 +6,7 @@
  * @module platform/storage/native
  */
 
-import type { StorageAdapter } from "../storage";
+import type { StorageAdapter } from '../storage';
 
 /**
  * React Native storage adapter using AsyncStorage
@@ -27,25 +27,18 @@ export class NativeStorageAdapter implements StorageAdapter {
 
 		try {
 			// Check if we're in a React Native environment
-			if (
-				typeof navigator !== "undefined" &&
-				navigator.product === "ReactNative"
-			) {
+			if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
 				// Dynamic import to avoid bundling in web
-				const AsyncStorage = await import(
-					"@react-native-async-storage/async-storage"
-				);
+				const AsyncStorage = await import('@react-native-async-storage/async-storage');
 				this.asyncStorage = AsyncStorage.default;
 				this.initialized = true;
 			} else {
-				throw new Error(
-					"AsyncStorage is only available in React Native environment",
-				);
+				throw new Error('AsyncStorage is only available in React Native environment');
 			}
 		} catch (error) {
-			console.error("Failed to load AsyncStorage:", error);
+			console.error('Failed to load AsyncStorage:', error);
 			throw new Error(
-				"AsyncStorage is not available. Make sure @react-native-async-storage/async-storage is installed.",
+				'AsyncStorage is not available. Make sure @react-native-async-storage/async-storage is installed.'
 			);
 		}
 	}
@@ -55,7 +48,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			return await this.asyncStorage.getItem(key);
 		} catch (error) {
-			console.error("AsyncStorage getItem error:", error);
+			console.error('AsyncStorage getItem error:', error);
 			return null;
 		}
 	}
@@ -65,7 +58,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			await this.asyncStorage.setItem(key, value);
 		} catch (error) {
-			console.error("AsyncStorage setItem error:", error);
+			console.error('AsyncStorage setItem error:', error);
 			throw error;
 		}
 	}
@@ -75,7 +68,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			await this.asyncStorage.removeItem(key);
 		} catch (error) {
-			console.error("AsyncStorage removeItem error:", error);
+			console.error('AsyncStorage removeItem error:', error);
 			throw error;
 		}
 	}
@@ -85,7 +78,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			await this.asyncStorage.clear();
 		} catch (error) {
-			console.error("AsyncStorage clear error:", error);
+			console.error('AsyncStorage clear error:', error);
 			throw error;
 		}
 	}
@@ -95,7 +88,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			return await this.asyncStorage.getAllKeys();
 		} catch (error) {
-			console.error("AsyncStorage getAllKeys error:", error);
+			console.error('AsyncStorage getAllKeys error:', error);
 			return [];
 		}
 	}
@@ -105,7 +98,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			return await this.asyncStorage.multiGet(keys);
 		} catch (error) {
-			console.error("AsyncStorage multiGet error:", error);
+			console.error('AsyncStorage multiGet error:', error);
 			return keys.map((key) => [key, null]);
 		}
 	}
@@ -115,7 +108,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			await this.asyncStorage.multiSet(keyValuePairs);
 		} catch (error) {
-			console.error("AsyncStorage multiSet error:", error);
+			console.error('AsyncStorage multiSet error:', error);
 			throw error;
 		}
 	}
@@ -125,7 +118,7 @@ export class NativeStorageAdapter implements StorageAdapter {
 			await this.init();
 			await this.asyncStorage.multiRemove(keys);
 		} catch (error) {
-			console.error("AsyncStorage multiRemove error:", error);
+			console.error('AsyncStorage multiRemove error:', error);
 			throw error;
 		}
 	}

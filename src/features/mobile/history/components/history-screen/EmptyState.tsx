@@ -1,5 +1,5 @@
-import { Calendar } from "lucide-react";
-import { useTranslation } from "@/shared/lib/i18n";
+import { Calendar } from 'lucide-react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type EmptyStateProps = {
 	hasFilters: boolean;
@@ -18,12 +18,12 @@ export function EmptyState({ hasFilters }: EmptyStateProps) {
 				<Calendar className="h-8 w-8 text-accent" strokeWidth={2} />
 			</div>
 			<h3 className="mb-2 font-semibold! text-[18px]! text-foreground">
-				{t("no_entries_found", "Записей не найдено")}
+				{t('no_entries_found', 'Записей не найдено')}
 			</h3>
 			<p className="text-[14px]! text-muted-foreground">
 				{hasFilters
-					? t("try_change_filters", "Попробуйте изменить фильтры")
-					: t("create_first_entry", "Создайте первую запись")}
+					? t('try_change_filters', 'Попробуйте изменить фильтры')
+					: t('create_first_entry', 'Создайте первую запись')}
 			</p>
 		</div>
 	);

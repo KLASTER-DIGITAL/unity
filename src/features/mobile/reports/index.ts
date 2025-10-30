@@ -5,4 +5,4 @@
  * - ReportsScreen: Main reports screen with analytics and charts
  */
 
-export { ReportsScreen } from "./components/ReportsScreen";
+export { ReportsScreen } from './components/ReportsScreen';

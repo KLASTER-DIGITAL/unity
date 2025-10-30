@@ -1,23 +1,18 @@
-import { Bell, FileText, History, Send, TestTube } from "lucide-react";
-import { useState } from "react";
-import { PushNotificationManager } from "@/components/screens/admin/settings/PushNotificationManager";
-import { PushNotificationTester } from "@/components/screens/admin/settings/PushNotificationTester";
+import { Bell, FileText, History, Send, TestTube } from 'lucide-react';
+import { useState } from 'react';
+import { PushNotificationManager } from '@/components/screens/admin/settings/PushNotificationManager';
+import { PushNotificationTester } from '@/components/screens/admin/settings/PushNotificationTester';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
+} from '@/shared/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
 export function PushNotifications() {
-	const [activeTab, setActiveTab] = useState("send");
+	const [activeTab, setActiveTab] = useState('send');
 
 	return (
 		<div className="space-y-6">
@@ -35,11 +30,7 @@ export function PushNotifications() {
 			</div>
 
 			{/* Tabs */}
-			<Tabs
-				className="space-y-6"
-				onValueChange={setActiveTab}
-				value={activeTab}
-			>
+			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
 				<TabsList className="grid w-full max-w-2xl grid-cols-4">
 					<TabsTrigger className="flex items-center gap-2" value="send">
 						<Send className="h-4 w-4" />
@@ -90,9 +81,7 @@ export function PushNotifications() {
 								<History className="h-5 w-5" />
 								История отправок
 							</CardTitle>
-							<CardDescription>
-								Все отправленные push уведомления
-							</CardDescription>
+							<CardDescription>Все отправленные push уведомления</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="py-12 text-center text-muted-foreground">
@@ -111,17 +100,13 @@ export function PushNotifications() {
 								<FileText className="h-5 w-5" />
 								Шаблоны уведомлений
 							</CardTitle>
-							<CardDescription>
-								Мультиязычные шаблоны для разных типов уведомлений
-							</CardDescription>
+							<CardDescription>Мультиязычные шаблоны для разных типов уведомлений</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="py-12 text-center text-muted-foreground">
 								<FileText className="mx-auto mb-4 h-12 w-12 opacity-50" />
 								<p>Управление шаблонами будет реализовано в следующей версии</p>
-								<p className="mt-2 text-sm">
-									Сейчас используются встроенные шаблоны для 7 языков
-								</p>
+								<p className="mt-2 text-sm">Сейчас используются встроенные шаблоны для 7 языков</p>
 							</div>
 						</CardContent>
 					</Card>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { speech } from "../lib/platform/speech";
+import { useEffect, useState } from 'react';
+import { speech } from '../lib/platform/speech';
 
 type SpeechRecognitionHook = {
 	isListening: boolean;
@@ -11,7 +11,7 @@ type SpeechRecognitionHook = {
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
-	const [transcript, setTranscript] = useState("");
+	const [transcript, setTranscript] = useState('');
 
 	const isSupported = speech.isSupported();
 
@@ -36,7 +36,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		});
 
 		speech.onError((error) => {
-			console.error("Speech recognition error:", error);
+			console.error('Speech recognition error:', error);
 			setIsListening(false);
 		});
 
@@ -52,9 +52,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			return;
 		}
 
-		setTranscript("");
+		setTranscript('');
 		speech.startListening({
-			language: "ru-RU",
+			language: 'ru-RU',
 			continuous: false,
 			interimResults: false,
 		});

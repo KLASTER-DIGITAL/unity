@@ -10,14 +10,14 @@
  */
 export function truncate(text: string, maxLength: number): string {
 	if (text.length <= maxLength) return text;
-	return text.slice(0, maxLength) + "...";
+	return text.slice(0, maxLength) + '...';
 }
 
 /**
  * Capitalize first letter
  */
 export function capitalize(text: string): string {
-	if (!text) return "";
+	if (!text) return '';
 	return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
@@ -51,7 +51,7 @@ export function countCharacters(text: string): number {
  * Remove HTML tags from text
  */
 export function stripHtml(html: string): string {
-	return html.replace(/<[^>]*>/g, "");
+	return html.replace(/<[^>]*>/g, '');
 }
 
 /**
@@ -59,11 +59,11 @@ export function stripHtml(html: string): string {
  */
 export function escapeHtml(text: string): string {
 	const map: Record<string, string> = {
-		"&": "&amp;",
-		"<": "&lt;",
-		">": "&gt;",
-		'"': "&quot;",
-		"'": "&#039;",
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;',
 	};
 	return text.replace(/[&<>"']/g, (char) => map[char]);
 }

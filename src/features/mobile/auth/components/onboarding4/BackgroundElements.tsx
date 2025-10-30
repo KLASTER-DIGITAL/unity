@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 
 /**
  * Background Elements Component
@@ -17,7 +17,7 @@ export function BackgroundElements() {
 				transition={{
 					duration: 8,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "linear",
+					ease: 'linear',
 				}}
 			/>
 
@@ -31,7 +31,7 @@ export function BackgroundElements() {
 				transition={{
 					duration: 6,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "easeInOut",
+					ease: 'easeInOut',
 				}}
 			/>
 
@@ -44,7 +44,7 @@ export function BackgroundElements() {
 				transition={{
 					duration: 4,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "easeInOut",
+					ease: 'easeInOut',
 				}}
 			/>
 		</>

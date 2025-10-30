@@ -5,7 +5,7 @@ export type UserProfile = {
 	id: string;
 	email: string;
 	name: string;
-	role?: "user" | "super_admin";
+	role?: 'user' | 'super_admin';
 	avatar?: string;
 	diaryName?: string;
 	diaryEmoji?: string;
@@ -46,7 +46,7 @@ export type AIAnalysisResult = {
 	reply: string;
 	summary: string;
 	insight: string;
-	sentiment: "positive" | "neutral" | "negative";
+	sentiment: 'positive' | 'neutral' | 'negative';
 	category: string;
 	tags: string[];
 	confidence: number;
@@ -65,7 +65,7 @@ export type DiaryEntry = {
 	voiceUrl?: string | null;
 	mediaUrl?: string | null;
 	media?: MediaFile[];
-	sentiment: "positive" | "neutral" | "negative";
+	sentiment: 'positive' | 'neutral' | 'negative';
 	category: string;
 	tags: string[];
 	aiReply: string;

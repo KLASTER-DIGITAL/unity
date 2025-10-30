@@ -20,18 +20,17 @@
  * }
  */
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 // CORS headers
 const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Headers":
-		"authorization, x-client-info, apikey, content-type",
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Supabase Admin Client
-const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
@@ -39,13 +38,13 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
  */
 async function getUserPushSubscriptions(userId: string) {
 	const { data, error } = await supabaseAdmin
-		.from("push_subscriptions")
-		.select("*")
-		.eq("user_id", userId)
-		.eq("is_active", true);
+		.from('push_subscriptions')
+		.select('*')
+		.eq('user_id', userId)
+		.eq('is_active', true);
 
 	if (error) {
-		console.error("[PUSH-REALTIME] Failed to get subscriptions:", error);
+		console.error('[PUSH-REALTIME] Failed to get subscriptions:', error);
 		return [];
 	}
 
@@ -60,29 +59,29 @@ async function sendPushNotification(
 	title: string,
 	body: string,
 	icon?: string,
-	data?: Record<string, any>,
+	data?: Record<string, any>
 ) {
 	try {
 		const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${supabaseServiceKey}`,
 			},
 			body: JSON.stringify({
 				user_ids: [userId],
 				title,
 				body,
-				icon: icon || "/icon-192.png",
+				icon: icon || '/icon-192.png',
 				data: data || {},
 			}),
 		});
 
 		const result = await response.json();
-		console.log("[PUSH-REALTIME] Push sent:", result);
+		console.log('[PUSH-REALTIME] Push sent:', result);
 		return result;
 	} catch (error) {
-		console.error("[PUSH-REALTIME] Failed to send push:", error);
+		console.error('[PUSH-REALTIME] Failed to send push:', error);
 		return null;
 	}
 }
@@ -96,21 +95,21 @@ async function handleEntryInsert(record: any) {
 	// Проверяем есть ли активные subscriptions
 	const subscriptions = await getUserPushSubscriptions(userId);
 	if (subscriptions.length === 0) {
-		console.log("[PUSH-REALTIME] No active subscriptions for user:", userId);
+		console.log('[PUSH-REALTIME] No active subscriptions for user:', userId);
 		return;
 	}
 
 	// Отправляем уведомление
 	await sendPushNotification(
 		userId,
-		"✅ Запись сохранена!",
-		"Ваша запись успешно добавлена в дневник",
-		"/icon-192.png",
+		'✅ Запись сохранена!',
+		'Ваша запись успешно добавлена в дневник',
+		'/icon-192.png',
 		{
-			type: "entry_created",
+			type: 'entry_created',
 			entry_id: record.id,
 			url: `/?view=history&entry=${record.id}`,
-		},
+		}
 	);
 }
 
@@ -123,21 +122,21 @@ async function handleAchievementInsert(record: any) {
 	// Проверяем есть ли активные subscriptions
 	const subscriptions = await getUserPushSubscriptions(userId);
 	if (subscriptions.length === 0) {
-		console.log("[PUSH-REALTIME] No active subscriptions for user:", userId);
+		console.log('[PUSH-REALTIME] No active subscriptions for user:', userId);
 		return;
 	}
 
 	// Отправляем уведомление
 	await sendPushNotification(
 		userId,
-		"🎉 Новое достижение!",
-		`Поздравляем! Вы достигли: ${record.title || "новой цели"}`,
-		"/icon-192.png",
+		'🎉 Новое достижение!',
+		`Поздравляем! Вы достигли: ${record.title || 'новой цели'}`,
+		'/icon-192.png',
 		{
-			type: "achievement_unlocked",
+			type: 'achievement_unlocked',
 			achievement_id: record.id,
 			url: `/?view=achievements&achievement=${record.id}`,
-		},
+		}
 	);
 }
 
@@ -147,16 +146,13 @@ async function handleAchievementInsert(record: any) {
 async function handleSummaryInsert(record: any) {
 	// Получаем entry для определения user_id
 	const { data: entry } = await supabaseAdmin
-		.from("entries")
-		.select("user_id")
-		.eq("id", record.entry_id)
+		.from('entries')
+		.select('user_id')
+		.eq('id', record.entry_id)
 		.single();
 
 	if (!entry) {
-		console.error(
-			"[PUSH-REALTIME] Entry not found for summary:",
-			record.entry_id,
-		);
+		console.error('[PUSH-REALTIME] Entry not found for summary:', record.entry_id);
 		return;
 	}
 
@@ -165,53 +161,50 @@ async function handleSummaryInsert(record: any) {
 	// Проверяем есть ли активные subscriptions
 	const subscriptions = await getUserPushSubscriptions(userId);
 	if (subscriptions.length === 0) {
-		console.log("[PUSH-REALTIME] No active subscriptions for user:", userId);
+		console.log('[PUSH-REALTIME] No active subscriptions for user:', userId);
 		return;
 	}
 
 	// Отправляем уведомление
 	await sendPushNotification(
 		userId,
-		"🤖 AI-анализ готов!",
-		"Ваша запись проанализирована. Посмотрите результаты!",
-		"/icon-192.png",
+		'🤖 AI-анализ готов!',
+		'Ваша запись проанализирована. Посмотрите результаты!',
+		'/icon-192.png',
 		{
-			type: "ai_analysis_ready",
+			type: 'ai_analysis_ready',
 			entry_id: record.entry_id,
 			url: `/?view=history&entry=${record.entry_id}`,
-		},
+		}
 	);
 }
 
 // Main handler
 Deno.serve(async (req) => {
 	// Handle CORS preflight
-	if (req.method === "OPTIONS") {
-		return new Response("ok", { headers: corsHeaders });
+	if (req.method === 'OPTIONS') {
+		return new Response('ok', { headers: corsHeaders });
 	}
 
 	try {
 		// Parse webhook payload
 		const payload = await req.json();
-		console.log("[PUSH-REALTIME] Received webhook:", payload);
+		console.log('[PUSH-REALTIME] Received webhook:', payload);
 
 		const { type, table, record } = payload;
 
 		// Обрабатываем только INSERT события
-		if (type !== "INSERT") {
-			console.log("[PUSH-REALTIME] Ignoring non-INSERT event:", type);
-			return new Response(
-				JSON.stringify({ success: true, message: "Event ignored" }),
-				{
-					status: 200,
-					headers: { ...corsHeaders, "Content-Type": "application/json" },
-				},
-			);
+		if (type !== 'INSERT') {
+			console.log('[PUSH-REALTIME] Ignoring non-INSERT event:', type);
+			return new Response(JSON.stringify({ success: true, message: 'Event ignored' }), {
+				status: 200,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
 		}
 
 		// Обрабатываем события по таблицам
 		switch (table) {
-			case "entries":
+			case 'entries':
 				// Проверяем is_achievement флаг для достижений
 				if (record.is_achievement) {
 					await handleAchievementInsert(record);
@@ -220,23 +213,23 @@ Deno.serve(async (req) => {
 				}
 				break;
 
-			case "entry_summaries":
+			case 'entry_summaries':
 				await handleSummaryInsert(record);
 				break;
 
 			default:
-				console.log("[PUSH-REALTIME] Unknown table:", table);
+				console.log('[PUSH-REALTIME] Unknown table:', table);
 		}
 
 		return new Response(JSON.stringify({ success: true }), {
 			status: 200,
-			headers: { ...corsHeaders, "Content-Type": "application/json" },
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
 	} catch (error) {
-		console.error("[PUSH-REALTIME] Error:", error);
+		console.error('[PUSH-REALTIME] Error:', error);
 		return new Response(JSON.stringify({ error: error.message }), {
 			status: 500,
-			headers: { ...corsHeaders, "Content-Type": "application/json" },
+			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
 	}
 });

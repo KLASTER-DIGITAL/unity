@@ -1,12 +1,12 @@
-import { AnimatePresence } from "motion/react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
-import { useTranslation } from "@/shared/lib/i18n";
-import { PremiumModal } from "./PremiumModal";
-import { ProfileEditModal } from "./ProfileEditModal";
-import { SettingsRow, SettingsSection } from "./SettingsRow";
-import type { NotificationSettings, SettingsScreenProps } from "./settings";
+import { AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { ThemeToggle } from '@/shared/components/ui/ThemeToggle';
+import { useTranslation } from '@/shared/lib/i18n';
+import { PremiumModal } from './PremiumModal';
+import { ProfileEditModal } from './ProfileEditModal';
+import { SettingsRow, SettingsSection } from './SettingsRow';
+import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
 import {
 	AdditionalSection,
@@ -30,18 +30,14 @@ import {
 	saveNotificationSettings,
 	saveOfflineSettings,
 	saveSecuritySettings,
-} from "./settings";
+} from './settings';
 
 // Re-export types for backward compatibility
 export type { SettingsScreenProps };
 
-import { LogOut, Palette } from "lucide-react";
+import { LogOut, Palette } from 'lucide-react';
 
-export function SettingsScreen({
-	userData,
-	onLogout,
-	onProfileUpdate,
-}: SettingsScreenProps) {
+export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
 	// Extract profile from userData (userData = { success, user, profile })
 	const initialProfile = userData?.profile || userData;
 
@@ -59,12 +55,8 @@ export function SettingsScreen({
 	});
 
 	// State для настроек безопасности
-	const [biometricEnabled, setBiometricEnabled] = useState(
-		profile?.biometricEnabled,
-	);
-	const [autoBackupEnabled, setAutoBackupEnabled] = useState(
-		profile?.backupEnabled,
-	);
+	const [biometricEnabled, setBiometricEnabled] = useState(profile?.biometricEnabled);
+	const [autoBackupEnabled, setAutoBackupEnabled] = useState(profile?.backupEnabled);
 	const [biometricAvailable, setBiometricAvailable] = useState(false);
 
 	// State для offline режима
@@ -102,10 +94,7 @@ export function SettingsScreen({
 	useEffect(() => {
 		const newProfile = userData?.profile || userData;
 		if (newProfile && newProfile.id !== profile?.id) {
-			console.log(
-				"🔄 [SettingsScreen] Syncing profile from userData:",
-				newProfile,
-			);
+			console.log('🔄 [SettingsScreen] Syncing profile from userData:', newProfile);
 			setProfile(newProfile);
 		}
 	}, [userData, profile?.id]); // Added profile?.id to dependencies
@@ -143,11 +132,7 @@ export function SettingsScreen({
 		}
 
 		const timeoutId = setTimeout(() => {
-			saveNotificationSettings(
-				userId,
-				profile.notificationSettings,
-				notifications,
-			);
+			saveNotificationSettings(userId, profile.notificationSettings, notifications);
 		}, 1000);
 		return () => clearTimeout(timeoutId);
 	}, [notifications, profile?.id, profile?.notificationSettings]); // Added profile.notificationSettings
@@ -201,10 +186,7 @@ export function SettingsScreen({
 	return (
 		<div className="min-h-screen bg-background pb-20">
 			{/* Profile Section */}
-			<ProfileHeader
-				onEditClick={() => setShowEditProfile(true)}
-				profile={profile}
-			/>
+			<ProfileHeader onEditClick={() => setShowEditProfile(true)} profile={profile} />
 
 			{/* Уведомления */}
 			<NotificationsSection
@@ -215,15 +197,15 @@ export function SettingsScreen({
 			/>
 
 			{/* Темы оформления - shadcn/ui стандарт */}
-			<SettingsSection title={t("themes", "Темы оформления")}>
+			<SettingsSection title={t('themes', 'Темы оформления')}>
 				<SettingsRow
 					customRightElement={<ThemeToggle />}
-					description={t("appearanceDescription" as any, "Переключение темы")}
+					description={t('appearanceDescription' as any, 'Переключение темы')}
 					icon={Palette}
 					iconBgColor="bg-[var(--ios-purple)]/10"
 					iconColor="text-[var(--ios-purple)]"
 					rightElement="custom"
-					title={t("appearance" as any, "Внешний вид")}
+					title={t('appearance' as any, 'Внешний вид')}
 				/>
 			</SettingsSection>
 
@@ -250,19 +232,13 @@ export function SettingsScreen({
 			/>
 
 			{/* Персонализация */}
-			<CategoriesSection
-				onCategoriesClick={() => setShowCategories(true)}
-				t={t}
-			/>
+			<CategoriesSection onCategoriesClick={() => setShowCategories(true)} t={t} />
 
 			{/* Дополнительно */}
 			<AdditionalSection
 				currentLanguage={profile?.language}
 				firstDayOfWeek={userData?.firstDayOfWeek}
-				languageName={
-					languages.find((l) => l.code === profile?.language)?.native_name ||
-					"Русский"
-				}
+				languageName={languages.find((l) => l.code === profile?.language)?.native_name || 'Русский'}
 				onLanguageClick={() => setShowLanguage(true)}
 				t={t}
 			/>
@@ -284,7 +260,7 @@ export function SettingsScreen({
 					variant="outline"
 				>
 					<LogOut className="mr-2 h-5 w-5" strokeWidth={2} />
-					{t("logout", "Выйти")}
+					{t('logout', 'Выйти')}
 				</Button>
 			</div>
 
@@ -305,10 +281,7 @@ export function SettingsScreen({
 
 			{/* Rate App Modal */}
 			<AnimatePresence>
-				<RateAppModal
-					isOpen={showRateApp}
-					onClose={() => setShowRateApp(false)}
-				/>
+				<RateAppModal isOpen={showRateApp} onClose={() => setShowRateApp(false)} />
 			</AnimatePresence>
 
 			{/* Language Selection Modal */}
@@ -325,11 +298,7 @@ export function SettingsScreen({
 
 			{/* PWA Install Modal */}
 			<AnimatePresence>
-				<PWAInstallModal
-					isOpen={showPWAInstall}
-					onClose={() => setShowPWAInstall(false)}
-					t={t}
-				/>
+				<PWAInstallModal isOpen={showPWAInstall} onClose={() => setShowPWAInstall(false)} t={t} />
 			</AnimatePresence>
 
 			{/* Categories Modal */}
@@ -357,7 +326,7 @@ export function SettingsScreen({
 				isOpen={showEditProfile}
 				onClose={() => setShowEditProfile(false)}
 				onProfileUpdated={(updatedProfile) => {
-					console.log("✅ Profile updated in SettingsScreen:", updatedProfile);
+					console.log('✅ Profile updated in SettingsScreen:', updatedProfile);
 					// Update local state immediately for real-time display
 					setProfile(updatedProfile);
 					// Update global state in App.tsx
@@ -366,10 +335,10 @@ export function SettingsScreen({
 					}
 				}}
 				profile={{
-					id: profile?.id || "",
-					name: profile?.name || "",
-					email: profile?.email || "",
-					avatar: profile?.avatar || "",
+					id: profile?.id || '',
+					name: profile?.name || '',
+					email: profile?.email || '',
+					avatar: profile?.avatar || '',
 				}}
 			/>
 		</div>

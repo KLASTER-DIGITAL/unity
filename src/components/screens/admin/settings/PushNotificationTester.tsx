@@ -1,28 +1,21 @@
-import {
-	AlertCircle,
-	Bell,
-	CheckCircle,
-	Monitor,
-	Smartphone,
-	XCircle,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
+import { AlertCircle, Bell, CheckCircle, Monitor, Smartphone, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import {
 	checkPushSupport,
 	getPushRecommendations,
 	type PushSupportInfo,
 	sendTestNotification,
-} from "@/shared/lib/pwa/pushNotificationSupport";
+} from '@/shared/lib/pwa/pushNotificationSupport';
 
 /**
  * Компонент для тестирования Push Notifications
@@ -31,14 +24,10 @@ import {
 export function PushNotificationTester() {
 	const [supportInfo, setSupportInfo] = useState<PushSupportInfo | null>(null);
 	const [recommendations, setRecommendations] = useState<string[]>([]);
-	const [testTitle, setTestTitle] = useState("🎉 UNITY Diary");
-	const [testBody, setTestBody] = useState(
-		"Это тестовое уведомление из админ-панели!",
-	);
+	const [testTitle, setTestTitle] = useState('🎉 UNITY Diary');
+	const [testBody, setTestBody] = useState('Это тестовое уведомление из админ-панели!');
 	const [isSending, setIsSending] = useState(false);
-	const [lastResult, setLastResult] = useState<"success" | "error" | null>(
-		null,
-	);
+	const [lastResult, setLastResult] = useState<'success' | 'error' | null>(null);
 
 	useEffect(() => {
 		// Проверяем поддержку при монтировании
@@ -53,14 +42,12 @@ export function PushNotificationTester() {
 
 		try {
 			await sendTestNotification(testTitle, testBody);
-			setLastResult("success");
-			console.log("[PushTester] Test notification sent successfully");
+			setLastResult('success');
+			console.log('[PushTester] Test notification sent successfully');
 		} catch (error) {
-			setLastResult("error");
-			console.error("[PushTester] Failed to send test notification:", error);
-			alert(
-				`Ошибка: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
-			);
+			setLastResult('error');
+			console.error('[PushTester] Failed to send test notification:', error);
+			alert(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
 		} finally {
 			setIsSending(false);
 		}
@@ -70,9 +57,7 @@ export function PushNotificationTester() {
 		return (
 			<Card>
 				<CardContent className="p-6">
-					<div className="text-center text-muted-foreground">
-						Загрузка информации о браузере...
-					</div>
+					<div className="text-center text-muted-foreground">Загрузка информации о браузере...</div>
 				</CardContent>
 			</Card>
 		);
@@ -82,8 +67,8 @@ export function PushNotificationTester() {
 		<Card
 			className={
 				supportInfo.isSupported
-					? "border-green-200 dark:border-green-800"
-					: "border-red-200 dark:border-red-800"
+					? 'border-green-200 dark:border-green-800'
+					: 'border-red-200 dark:border-red-800'
 			}
 		>
 			<CardHeader>
@@ -121,17 +106,15 @@ export function PushNotificationTester() {
 						<div>
 							<span className="text-muted-foreground">Тип:</span>
 							<div className="font-medium">
-								{supportInfo.browserInfo.isMobile ? "Мобильный" : "Десктоп"}
+								{supportInfo.browserInfo.isMobile ? 'Мобильный' : 'Десктоп'}
 							</div>
 						</div>
 						<div>
 							<span className="text-muted-foreground">Поддержка:</span>
 							<div
-								className={`font-medium ${supportInfo.isSupported ? "text-green-600" : "text-red-600"}`}
+								className={`font-medium ${supportInfo.isSupported ? 'text-green-600' : 'text-red-600'}`}
 							>
-								{supportInfo.isSupported
-									? "✅ Поддерживается"
-									: "❌ Не поддерживается"}
+								{supportInfo.isSupported ? '✅ Поддерживается' : '❌ Не поддерживается'}
 							</div>
 						</div>
 					</div>
@@ -198,9 +181,7 @@ export function PushNotificationTester() {
 					<div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
 						<div className="flex items-start gap-2">
 							<XCircle className="mt-0.5 h-5 w-5 text-red-600" />
-							<div className="text-red-800 text-sm dark:text-red-200">
-								{supportInfo.reason}
-							</div>
+							<div className="text-red-800 text-sm dark:text-red-200">{supportInfo.reason}</div>
 						</div>
 					</div>
 				)}
@@ -208,9 +189,7 @@ export function PushNotificationTester() {
 				{/* Форма тестового уведомления */}
 				{supportInfo.isSupported && (
 					<div className="space-y-4 border-t pt-4">
-						<div className="font-medium text-sm">
-							Отправить тестовое уведомление:
-						</div>
+						<div className="font-medium text-sm">Отправить тестовое уведомление:</div>
 
 						<div className="space-y-3">
 							<div>
@@ -238,12 +217,10 @@ export function PushNotificationTester() {
 								disabled={isSending || !testTitle || !testBody}
 								onClick={handleSendTest}
 							>
-								{isSending
-									? "Отправка..."
-									: "📤 Отправить тестовое уведомление"}
+								{isSending ? 'Отправка...' : '📤 Отправить тестовое уведомление'}
 							</Button>
 
-							{lastResult === "success" && (
+							{lastResult === 'success' && (
 								<div className="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950">
 									<div className="flex items-center gap-2 text-green-800 text-sm dark:text-green-200">
 										<CheckCircle className="h-4 w-4" />
@@ -252,7 +229,7 @@ export function PushNotificationTester() {
 								</div>
 							)}
 
-							{lastResult === "error" && (
+							{lastResult === 'error' && (
 								<div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950">
 									<div className="flex items-center gap-2 text-red-800 text-sm dark:text-red-200">
 										<XCircle className="h-4 w-4" />
@@ -267,9 +244,7 @@ export function PushNotificationTester() {
 				{/* Превью уведомления */}
 				{supportInfo.isSupported && (
 					<div className="rounded-lg border bg-muted p-4">
-						<div className="mb-3 font-medium text-sm">
-							📱 Превью уведомления:
-						</div>
+						<div className="mb-3 font-medium text-sm">📱 Превью уведомления:</div>
 						<div className="max-w-sm rounded-lg bg-background p-4 shadow-lg">
 							<div className="flex items-start gap-3">
 								<img
@@ -282,15 +257,11 @@ export function PushNotificationTester() {
 									src="/icon-96x96.png"
 								/>
 								<div className="min-w-0 flex-1">
-									<div className="truncate font-medium text-sm">
-										{testTitle || "Заголовок"}
-									</div>
+									<div className="truncate font-medium text-sm">{testTitle || 'Заголовок'}</div>
 									<div className="mt-1 text-muted-foreground text-sm">
-										{testBody || "Текст уведомления"}
+										{testBody || 'Текст уведомления'}
 									</div>
-									<div className="mt-2 text-muted-foreground text-xs">
-										Сейчас
-									</div>
+									<div className="mt-2 text-muted-foreground text-xs">Сейчас</div>
 								</div>
 							</div>
 						</div>

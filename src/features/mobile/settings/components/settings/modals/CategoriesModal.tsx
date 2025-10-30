@@ -3,11 +3,11 @@
  * Simplified design matching LanguageModal
  */
 
-import { Plus, Trash2, X } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useCategories } from "@/shared/hooks/useCategories";
+import { Plus, Trash2, X } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useCategories } from '@/shared/hooks/useCategories';
 
 type CategoriesModalProps = {
 	isOpen: boolean;
@@ -18,42 +18,36 @@ type CategoriesModalProps = {
 
 // Emoji picker - 21 emojis (3 rows x 7 columns)
 const EMOJI_OPTIONS = [
-	"✨",
-	"💼",
-	"🎯",
-	"💪",
-	"📚",
-	"🎨",
-	"🏃",
-	"🧘",
-	"🍎",
-	"💰",
-	"🎵",
-	"🎮",
-	"📱",
-	"✈️",
-	"🏠",
-	"👨‍👩‍👧",
-	"🐕",
-	"🌱",
-	"🔧",
-	"🎓",
-	"❤️",
+	'✨',
+	'💼',
+	'🎯',
+	'💪',
+	'📚',
+	'🎨',
+	'🏃',
+	'🧘',
+	'🍎',
+	'💰',
+	'🎵',
+	'🎮',
+	'📱',
+	'✈️',
+	'🏠',
+	'👨‍👩‍👧',
+	'🐕',
+	'🌱',
+	'🔧',
+	'🎓',
+	'❤️',
 ];
 
-export function CategoriesModal({
-	isOpen,
-	onClose,
-	userId,
-	t,
-}: CategoriesModalProps) {
-	const { categories, isLoading, addCategory, removeCategory } =
-		useCategories(userId);
+export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalProps) {
+	const { categories, isLoading, addCategory, removeCategory } = useCategories(userId);
 	const [showAddForm, setShowAddForm] = useState(false);
 	const [formData, setFormData] = useState({
-		name: "",
-		icon: "✨",
-		color: "var(--gradient-neutral-1-start)", // Default color (not used in UI)
+		name: '',
+		icon: '✨',
+		color: 'var(--gradient-neutral-1-start)', // Default color (not used in UI)
 	});
 
 	const customCategories = categories.filter((c) => !c.is_default);
@@ -62,7 +56,7 @@ export function CategoriesModal({
 
 	const handleAdd = async () => {
 		if (!formData.name.trim()) {
-			toast.error("Введите название категории");
+			toast.error('Введите название категории');
 			return;
 		}
 
@@ -73,33 +67,33 @@ export function CategoriesModal({
 
 		try {
 			await addCategory(formData);
-			toast.success("Категория добавлена");
+			toast.success('Категория добавлена');
 			setShowAddForm(false);
 			setFormData({
-				name: "",
-				icon: "✨",
-				color: "var(--gradient-blue-1-start)",
+				name: '',
+				icon: '✨',
+				color: 'var(--gradient-blue-1-start)',
 			});
 		} catch (error: any) {
-			toast.error(error.message || "Ошибка при добавлении категории");
+			toast.error(error.message || 'Ошибка при добавлении категории');
 		}
 	};
 
 	const handleDelete = async (categoryId: string, isDefault: boolean) => {
 		if (isDefault) {
-			toast.error("Нельзя удалить системную категорию");
+			toast.error('Нельзя удалить системную категорию');
 			return;
 		}
 
-		if (!confirm("Удалить категорию? Это действие нельзя отменить.")) {
+		if (!confirm('Удалить категорию? Это действие нельзя отменить.')) {
 			return;
 		}
 
 		try {
 			await removeCategory(categoryId);
-			toast.success("Категория удалена");
+			toast.success('Категория удалена');
 		} catch (error: any) {
-			toast.error(error.message || "Ошибка при удалении категории");
+			toast.error(error.message || 'Ошибка при удалении категории');
 		}
 	};
 
@@ -124,9 +118,7 @@ export function CategoriesModal({
 				initial={{ opacity: 0, y: 100 }}
 			>
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="text-foreground text-title-3">
-						{t.categories || "Мои категории"}
-					</h3>
+					<h3 className="text-foreground text-title-3">{t.categories || 'Мои категории'}</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
@@ -136,8 +128,7 @@ export function CategoriesModal({
 				</div>
 
 				<p className="mb-4 text-footnote text-muted-foreground">
-					Управляйте категориями для ваших записей ({customCount}/
-					{maxCategories})
+					Управляйте категориями для ваших записей ({customCount}/{maxCategories})
 				</p>
 
 				{/* Add Category Button */}
@@ -147,9 +138,7 @@ export function CategoriesModal({
 						onClick={() => setShowAddForm(true)}
 					>
 						<Plus className="h-5 w-5 text-primary" />
-						<span className="font-medium text-foreground">
-							Добавить категорию
-						</span>
+						<span className="font-medium text-foreground">Добавить категорию</span>
 					</button>
 				)}
 
@@ -159,9 +148,7 @@ export function CategoriesModal({
 						<input
 							className="mb-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
 							maxLength={30}
-							onChange={(e) =>
-								setFormData({ ...formData, name: e.target.value })
-							}
+							onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 							placeholder="Название категории"
 							type="text"
 							value={formData.name}
@@ -169,22 +156,18 @@ export function CategoriesModal({
 
 						{/* Emoji Picker - 3 rows x 7 columns */}
 						<div className="mb-3">
-							<p className="mb-2 text-footnote text-muted-foreground">
-								Выберите иконку
-							</p>
+							<p className="mb-2 text-footnote text-muted-foreground">Выберите иконку</p>
 							<div
 								className="w-full gap-1"
 								style={{
-									display: "grid",
-									gridTemplateColumns: "repeat(7, 1fr)",
+									display: 'grid',
+									gridTemplateColumns: 'repeat(7, 1fr)',
 								}}
 							>
 								{EMOJI_OPTIONS.map((emoji) => (
 									<button
 										className={`rounded-lg p-2 text-3xl transition-colors ${
-											formData.icon === emoji
-												? "bg-primary/20"
-												: "hover:bg-muted"
+											formData.icon === emoji ? 'bg-primary/20' : 'hover:bg-muted'
 										}`}
 										key={emoji}
 										onClick={() => setFormData({ ...formData, icon: emoji })}
@@ -209,9 +192,9 @@ export function CategoriesModal({
 								onClick={() => {
 									setShowAddForm(false);
 									setFormData({
-										name: "",
-										icon: "✨",
-										color: "var(--gradient-neutral-1-start)",
+										name: '',
+										icon: '✨',
+										color: 'var(--gradient-neutral-1-start)',
 									});
 								}}
 							>
@@ -241,9 +224,7 @@ export function CategoriesModal({
 								<div className="flex items-center gap-3">
 									<span className="text-2xl">{category.icon}</span>
 									<div className="text-left">
-										<p className="font-medium text-foreground">
-											{category.name}
-										</p>
+										<p className="font-medium text-foreground">{category.name}</p>
 									</div>
 								</div>
 								<button

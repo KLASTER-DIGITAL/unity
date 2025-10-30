@@ -4,12 +4,9 @@
  * Visual dashboard for monitoring i18n performance metrics
  */
 
-import { Activity, AlertCircle, Download, TrendingUp, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
-import {
-	PerformanceMonitor,
-	type PerformanceStats,
-} from "./PerformanceMonitor";
+import { Activity, AlertCircle, Download, TrendingUp, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { PerformanceMonitor, type PerformanceStats } from './PerformanceMonitor';
 
 export function PerformanceDashboard() {
 	const [stats, setStats] = useState<PerformanceStats | null>(null);
@@ -34,9 +31,9 @@ export function PerformanceDashboard() {
 	// Export metrics
 	const handleExport = () => {
 		const data = PerformanceMonitor.export();
-		const blob = new Blob([data], { type: "application/json" });
+		const blob = new Blob([data], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
+		const a = document.createElement('a');
 		a.href = url;
 		a.download = `i18n-metrics-${Date.now()}.json`;
 		a.click();
@@ -45,7 +42,7 @@ export function PerformanceDashboard() {
 
 	// Clear metrics
 	const handleClear = () => {
-		if (confirm("Clear all performance metrics?")) {
+		if (confirm('Clear all performance metrics?')) {
 			PerformanceMonitor.clear();
 			updateStats();
 		}
@@ -57,15 +54,15 @@ export function PerformanceDashboard() {
 
 	const getHealthStatus = () => {
 		if (stats.errors > 10) {
-			return { color: "red", label: "Critical" };
+			return { color: 'red', label: 'Critical' };
 		}
 		if (stats.cacheHitRate < 0.7) {
-			return { color: "yellow", label: "Warning" };
+			return { color: 'yellow', label: 'Warning' };
 		}
 		if (stats.averageLookupTime > 10) {
-			return { color: "yellow", label: "Warning" };
+			return { color: 'yellow', label: 'Warning' };
 		}
-		return { color: "green", label: "Healthy" };
+		return { color: 'green', label: 'Healthy' };
 	};
 
 	const health = getHealthStatus();
@@ -77,9 +74,7 @@ export function PerformanceDashboard() {
 				<div className="mb-4 flex items-center justify-between">
 					<div>
 						<h1 className="font-bold text-2xl">i18n Performance Dashboard</h1>
-						<p className="text-muted-foreground">
-							Real-time monitoring of translation system
-						</p>
+						<p className="text-muted-foreground">Real-time monitoring of translation system</p>
 					</div>
 
 					<div className="flex items-center gap-4">
@@ -87,11 +82,11 @@ export function PerformanceDashboard() {
 							<span className="text-muted-foreground text-sm">Status:</span>
 							<span
 								className={`rounded-full px-3 py-1 font-semibold text-sm ${
-									health.color === "green"
-										? "bg-green-100 text-green-800"
-										: health.color === "yellow"
-											? "bg-yellow-100 text-yellow-800"
-											: "bg-red-100 text-red-800"
+									health.color === 'green'
+										? 'bg-green-100 text-green-800'
+										: health.color === 'yellow'
+											? 'bg-yellow-100 text-yellow-800'
+											: 'bg-red-100 text-red-800'
 								}`}
 							>
 								{health.label}
@@ -104,13 +99,11 @@ export function PerformanceDashboard() {
 				<div className="flex gap-2">
 					<button
 						className={`rounded-lg px-4 py-2 font-semibold ${
-							autoRefresh
-								? "bg-blue-600 text-white"
-								: "bg-muted text-foreground"
+							autoRefresh ? 'bg-blue-600 text-white' : 'bg-muted text-foreground'
 						}`}
 						onClick={() => setAutoRefresh(!autoRefresh)}
 					>
-						{autoRefresh ? "Auto-Refresh ON" : "Auto-Refresh OFF"}
+						{autoRefresh ? 'Auto-Refresh ON' : 'Auto-Refresh OFF'}
 					</button>
 
 					<button
@@ -146,9 +139,7 @@ export function PerformanceDashboard() {
 						<h3 className="font-semibold">Translation Lookups</h3>
 					</div>
 					<p className="font-bold text-3xl">{stats.translationLookups}</p>
-					<p className="mt-1 text-muted-foreground text-sm">
-						{stats.translationMisses} misses
-					</p>
+					<p className="mt-1 text-muted-foreground text-sm">{stats.translationMisses} misses</p>
 				</div>
 
 				{/* Cache Hit Rate */}
@@ -157,9 +148,7 @@ export function PerformanceDashboard() {
 						<Zap className="h-5 w-5 text-yellow-600" />
 						<h3 className="font-semibold">Cache Hit Rate</h3>
 					</div>
-					<p className="font-bold text-3xl">
-						{(stats.cacheHitRate * 100).toFixed(1)}%
-					</p>
+					<p className="font-bold text-3xl">{(stats.cacheHitRate * 100).toFixed(1)}%</p>
 					<p className="mt-1 text-muted-foreground text-sm">
 						{stats.cacheHits} hits / {stats.cacheMisses} misses
 					</p>
@@ -171,12 +160,8 @@ export function PerformanceDashboard() {
 						<TrendingUp className="h-5 w-5 text-green-600" />
 						<h3 className="font-semibold">Avg Lookup Time</h3>
 					</div>
-					<p className="font-bold text-3xl">
-						{stats.averageLookupTime.toFixed(2)}ms
-					</p>
-					<p className="mt-1 text-muted-foreground text-sm">
-						P95: {stats.p95.toFixed(2)}ms
-					</p>
+					<p className="font-bold text-3xl">{stats.averageLookupTime.toFixed(2)}ms</p>
+					<p className="mt-1 text-muted-foreground text-sm">P95: {stats.p95.toFixed(2)}ms</p>
 				</div>
 
 				{/* Errors */}
@@ -187,7 +172,7 @@ export function PerformanceDashboard() {
 					</div>
 					<p className="font-bold text-3xl">{stats.errors}</p>
 					<p className="mt-1 truncate text-muted-foreground text-sm">
-						{stats.lastError || "No errors"}
+						{stats.lastError || 'No errors'}
 					</p>
 				</div>
 			</div>
@@ -200,14 +185,8 @@ export function PerformanceDashboard() {
 					<div className="space-y-3">
 						<MetricRow label="Total Lookups" value={stats.translationLookups} />
 						<MetricRow label="Misses" value={stats.translationMisses} />
-						<MetricRow
-							label="Average Time"
-							value={`${stats.averageLookupTime.toFixed(2)}ms`}
-						/>
-						<MetricRow
-							label="P50 (Median)"
-							value={`${stats.p50.toFixed(2)}ms`}
-						/>
+						<MetricRow label="Average Time" value={`${stats.averageLookupTime.toFixed(2)}ms`} />
+						<MetricRow label="P50 (Median)" value={`${stats.p50.toFixed(2)}ms`} />
 						<MetricRow label="P95" value={`${stats.p95.toFixed(2)}ms`} />
 						<MetricRow label="P99" value={`${stats.p99.toFixed(2)}ms`} />
 					</div>
@@ -219,10 +198,7 @@ export function PerformanceDashboard() {
 					<div className="space-y-3">
 						<MetricRow label="Cache Hits" value={stats.cacheHits} />
 						<MetricRow label="Cache Misses" value={stats.cacheMisses} />
-						<MetricRow
-							label="Hit Rate"
-							value={`${(stats.cacheHitRate * 100).toFixed(1)}%`}
-						/>
+						<MetricRow label="Hit Rate" value={`${(stats.cacheHitRate * 100).toFixed(1)}%`} />
 						<MetricRow label="Cache Size" value={stats.cacheSize} />
 
 						{/* Progress bar */}
@@ -235,10 +211,10 @@ export function PerformanceDashboard() {
 								<div
 									className={`h-2 rounded-full ${
 										stats.cacheHitRate >= 0.8
-											? "bg-green-600"
+											? 'bg-green-600'
 											: stats.cacheHitRate >= 0.6
-												? "bg-yellow-600"
-												: "bg-red-600"
+												? 'bg-yellow-600'
+												: 'bg-red-600'
 									}`}
 									style={{ width: `${stats.cacheHitRate * 100}%` }}
 								/>
@@ -252,14 +228,8 @@ export function PerformanceDashboard() {
 					<h2 className="mb-4 font-bold text-xl">Loading Metrics</h2>
 					<div className="space-y-3">
 						<MetricRow label="Language Loads" value={stats.languageLoads} />
-						<MetricRow
-							label="Average Load Time"
-							value={`${stats.averageLoadTime.toFixed(2)}ms`}
-						/>
-						<MetricRow
-							label="Total Load Time"
-							value={`${stats.totalLoadTime.toFixed(2)}ms`}
-						/>
+						<MetricRow label="Average Load Time" value={`${stats.averageLoadTime.toFixed(2)}ms`} />
+						<MetricRow label="Total Load Time" value={`${stats.totalLoadTime.toFixed(2)}ms`} />
 					</div>
 				</div>
 
@@ -267,14 +237,8 @@ export function PerformanceDashboard() {
 				<div className="rounded-lg bg-card p-6 shadow">
 					<h2 className="mb-4 font-bold text-xl">Memory Metrics</h2>
 					<div className="space-y-3">
-						<MetricRow
-							label="Current Usage"
-							value={formatBytes(stats.memoryUsage)}
-						/>
-						<MetricRow
-							label="Estimated Size"
-							value={formatBytes(stats.estimatedSize)}
-						/>
+						<MetricRow label="Current Usage" value={formatBytes(stats.memoryUsage)} />
+						<MetricRow label="Estimated Size" value={formatBytes(stats.estimatedSize)} />
 					</div>
 				</div>
 			</div>
@@ -301,14 +265,12 @@ export function PerformanceDashboard() {
 							type="error"
 						/>
 					)}
-					{stats.cacheHitRate >= 0.8 &&
-						stats.averageLookupTime <= 5 &&
-						stats.errors === 0 && (
-							<Recommendation
-								message="All metrics are healthy! System is performing optimally."
-								type="success"
-							/>
-						)}
+					{stats.cacheHitRate >= 0.8 && stats.averageLookupTime <= 5 && stats.errors === 0 && (
+						<Recommendation
+							message="All metrics are healthy! System is performing optimally."
+							type="success"
+						/>
+					)}
 				</div>
 			</div>
 		</div>
@@ -317,13 +279,7 @@ export function PerformanceDashboard() {
 
 // Helper Components
 
-function MetricRow({
-	label,
-	value,
-}: {
-	label: string;
-	value: string | number;
-}) {
+function MetricRow({ label, value }: { label: string; value: string | number }) {
 	return (
 		<div className="flex items-center justify-between border-b py-2 last:border-b-0">
 			<span className="text-muted-foreground">{label}</span>
@@ -336,13 +292,13 @@ function Recommendation({
 	type,
 	message,
 }: {
-	type: "success" | "warning" | "error";
+	type: 'success' | 'warning' | 'error';
 	message: string;
 }) {
 	const colors = {
-		success: "bg-green-50 border-green-200 text-green-800",
-		warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
-		error: "bg-red-50 border-red-200 text-red-800",
+		success: 'bg-green-50 border-green-200 text-green-800',
+		warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+		error: 'bg-red-50 border-red-200 text-red-800',
 	};
 
 	return (
@@ -354,10 +310,10 @@ function Recommendation({
 
 function formatBytes(bytes: number): string {
 	if (bytes === 0) {
-		return "0 Bytes";
+		return '0 Bytes';
 	}
 	const k = 1024;
-	const sizes = ["Bytes", "KB", "MB", "GB"];
+	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 	return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 }

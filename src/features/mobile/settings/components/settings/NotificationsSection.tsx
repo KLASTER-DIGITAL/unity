@@ -1,7 +1,7 @@
-import { Bell, Calendar, Crown, Star } from "lucide-react";
-import { PushSubscriptionManager } from "@/shared/components/pwa/PushSubscriptionManager";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
-import type { NotificationSettings } from "./types";
+import { Bell, Calendar, Crown, Star } from 'lucide-react';
+import { PushSubscriptionManager } from '@/shared/components/pwa/PushSubscriptionManager';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
+import type { NotificationSettings } from './types';
 
 type NotificationsSectionProps = {
 	notifications: NotificationSettings;
@@ -30,7 +30,7 @@ export function NotificationsSection({
 	};
 
 	return (
-		<SettingsSection title={t.notifications || "Уведомления"}>
+		<SettingsSection title={t.notifications || 'Уведомления'}>
 			{/* Push Notifications Manager */}
 			{userId && (
 				<div className="mb-4">
@@ -43,40 +43,40 @@ export function NotificationsSection({
 				icon={Bell}
 				iconBgColor="bg-[var(--ios-blue)]/10"
 				iconColor="text-[var(--ios-blue)]"
-				onSwitchChange={(checked) => handleToggle("dailyReminder", checked)}
+				onSwitchChange={(checked) => handleToggle('dailyReminder', checked)}
 				rightElement="switch"
 				switchChecked={notifications.dailyReminder}
-				title={t.dailyReminders || "Ежедневные напоминания"}
+				title={t.dailyReminders || 'Ежедневные напоминания'}
 			/>
 			<SettingsRow
 				description="Статистика за неделю"
 				icon={Calendar}
 				iconBgColor="bg-[var(--ios-purple)]/10"
 				iconColor="text-[var(--ios-purple)]"
-				onSwitchChange={(checked) => handleToggle("weeklyReport", checked)}
+				onSwitchChange={(checked) => handleToggle('weeklyReport', checked)}
 				rightElement="switch"
 				switchChecked={notifications.weeklyReport}
-				title={t.weeklyReports || "Еженедельные отчеты"}
+				title={t.weeklyReports || 'Еженедельные отчеты'}
 			/>
 			<SettingsRow
 				description="Уведомления о наградах"
 				icon={Star}
 				iconBgColor="bg-[var(--ios-green)]/10"
 				iconColor="text-[var(--ios-green)]"
-				onSwitchChange={(checked) => handleToggle("achievements", checked)}
+				onSwitchChange={(checked) => handleToggle('achievements', checked)}
 				rightElement="switch"
 				switchChecked={notifications.achievements}
-				title={t.newAchievements || "Новые достижения"}
+				title={t.newAchievements || 'Новые достижения'}
 			/>
 			<SettingsRow
 				description="Мотивационные карточки"
 				icon={Crown}
 				iconBgColor="bg-[var(--ios-orange)]/10"
 				iconColor="text-[var(--ios-orange)]"
-				onSwitchChange={(checked) => handleToggle("motivational", checked)}
+				onSwitchChange={(checked) => handleToggle('motivational', checked)}
 				rightElement="switch"
 				switchChecked={notifications.motivational}
-				title={t.motivationalMessages || "Мотивационные сообщения"}
+				title={t.motivationalMessages || 'Мотивационные сообщения'}
 			/>
 		</SettingsSection>
 	);

@@ -1,16 +1,16 @@
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from '@/utils/supabase/client';
 
 // ✅ NEW: Import from modular API structure (2025-10-23)
-import { API_URLS } from "./config/urls";
-import type { ApiOptions } from "./core/request";
-import { blobToBase64 } from "./core/request";
-import type { MediaFile } from "./types";
+import { API_URLS } from './config/urls';
+import type { ApiOptions } from './core/request';
+import { blobToBase64 } from './core/request';
+import type { MediaFile } from './types';
 
 // Re-export types for backward compatibility
 export type {
 	MediaFile,
 	UserProfile,
-} from "./types";
+} from './types';
 
 // NOTE: Profile functions are now in ./services/profiles
 // They are re-exported from ./index.ts for backward compatibility
@@ -20,11 +20,11 @@ export type {
 const TRANSCRIPTION_API_URL = API_URLS.TRANSCRIPTION;
 
 // TODO: Books API microservice not yet created - using direct Supabase client for now
-const API_BASE_URL = ""; // Placeholder - will be removed when Books API is migrated
+const API_BASE_URL = ''; // Placeholder - will be removed when Books API is migrated
 
 // Базовая функция для API запросов
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
-	const { method = "GET", body, headers = {}, requireOpenAI = false } = options;
+	const { method = 'GET', body, headers = {}, requireOpenAI = false } = options;
 
 	// Получаем access token из сессии
 	const supabase = createClient();
@@ -33,18 +33,16 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 	} = await supabase.auth.getSession();
 
 	if (!session?.access_token) {
-		throw new Error("No active session. Please log in.");
+		throw new Error('No active session. Please log in.');
 	}
 
 	// Получаем OpenAI API ключ из localStorage (только если требуется)
-	const openaiApiKey = requireOpenAI
-		? localStorage.getItem("admin_openai_api_key")
-		: null;
+	const openaiApiKey = requireOpenAI ? localStorage.getItem('admin_openai_api_key') : null;
 
 	const requestHeaders = {
-		"Content-Type": "application/json",
+		'Content-Type': 'application/json',
 		Authorization: `Bearer ${session.access_token}`,
-		...(openaiApiKey && { "X-OpenAI-Key": openaiApiKey }), // Добавляем OpenAI ключ только если требуется
+		...(openaiApiKey && { 'X-OpenAI-Key': openaiApiKey }), // Добавляем OpenAI ключ только если требуется
 		...headers,
 	};
 
@@ -53,12 +51,12 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 		headers: requestHeaders,
 	};
 
-	if (body && method !== "GET") {
+	if (body && method !== 'GET') {
 		config.body = JSON.stringify(body);
 	}
 
 	try {
-		console.log(`[API] ${method} ${endpoint}`, body ? { body } : "");
+		console.log(`[API] ${method} ${endpoint}`, body ? { body } : '');
 
 		const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
@@ -69,20 +67,14 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 		try {
 			jsonData = JSON.parse(responseText);
 		} catch (_parseError) {
-			console.error(
-				`Failed to parse JSON response from ${endpoint}:`,
-				responseText,
-			);
-			throw new Error(
-				`Invalid JSON response: ${responseText.substring(0, 100)}`,
-			);
+			console.error(`Failed to parse JSON response from ${endpoint}:`, responseText);
+			throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
 		}
 
 		if (!response.ok) {
 			console.error(`API Error [${endpoint}]:`, jsonData);
 			throw new Error(
-				jsonData.error ||
-					`API request failed: ${response.status} ${response.statusText}`,
+				jsonData.error || `API request failed: ${response.status} ${response.statusText}`
 			);
 		}
 
@@ -101,7 +93,7 @@ export type AIAnalysisResult = {
 	reply: string;
 	summary: string; // Краткое резюме (до 200 символов)
 	insight: string; // Позитивный вывод (до 200 символов)
-	sentiment: "positive" | "neutral" | "negative";
+	sentiment: 'positive' | 'neutral' | 'negative';
 	category: string;
 	tags: string[];
 	confidence: number;
@@ -125,7 +117,7 @@ export type DiaryEntry = {
 	voiceUrl?: string | null;
 	mediaUrl?: string | null;
 	media?: MediaFile[]; // Массив медиафайлов (фото/видео)
-	sentiment: "positive" | "neutral" | "negative";
+	sentiment: 'positive' | 'neutral' | 'negative';
 	category: string;
 	tags: string[];
 	aiReply: string;
@@ -156,20 +148,20 @@ export type UserStats = {
 
 export async function getUserStats(userId: string): Promise<UserStats> {
 	// ✅ TEMPORARY FIX: Read directly from Supabase until stats microservice is deployed
-	console.log("[STATS] Fetching stats for user:", userId);
+	console.log('[STATS] Fetching stats for user:', userId);
 
 	const supabase = createClient();
 
 	// Get all entries for the user
 	const { data: entries, error } = await supabase
-		.from("entries")
-		.select("*")
-		.eq("user_id", userId)
-		.order("created_at", { ascending: false });
+		.from('entries')
+		.select('*')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error("[STATS] Failed to fetch entries:", error);
-		throw new Error(error.message || "Failed to fetch stats");
+		console.error('[STATS] Failed to fetch entries:', error);
+		throw new Error(error.message || 'Failed to fetch stats');
 	}
 
 	// Calculate statistics
@@ -178,14 +170,14 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 	// Calculate category counts
 	const categoryCounts: Record<string, number> = {};
 	entries?.forEach((entry) => {
-		const category = entry.category || "Другое";
+		const category = entry.category || 'Другое';
 		categoryCounts[category] = (categoryCounts[category] || 0) + 1;
 	});
 
 	// Calculate sentiment counts
 	const sentimentCounts: Record<string, number> = {};
 	entries?.forEach((entry) => {
-		const sentiment = entry.sentiment || "neutral";
+		const sentiment = entry.sentiment || 'neutral';
 		sentimentCounts[sentiment] = (sentimentCounts[sentiment] || 0) + 1;
 	});
 
@@ -200,9 +192,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
 		if (sortedDates.length > 0) {
 			const lastEntryDate = sortedDates[0];
-			const daysDiff = Math.floor(
-				(today - lastEntryDate) / (1000 * 60 * 60 * 24),
-			);
+			const daysDiff = Math.floor((today - lastEntryDate) / (1000 * 60 * 60 * 24));
 
 			if (daysDiff <= 1) {
 				currentStreak = 1;
@@ -220,8 +210,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 		}
 	}
 
-	const lastEntryDate =
-		entries && entries.length > 0 ? entries[0].created_at : null;
+	const lastEntryDate = entries && entries.length > 0 ? entries[0].created_at : null;
 
 	const stats: UserStats = {
 		totalEntries,
@@ -231,7 +220,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 		lastEntryDate,
 	};
 
-	console.log("[STATS] Stats calculated:", stats);
+	console.log('[STATS] Stats calculated:', stats);
 	return stats;
 }
 
@@ -250,9 +239,9 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 export async function transcribeAudio(
 	audioBlob: Blob,
 	userId?: string,
-	language?: string,
+	language?: string
 ): Promise<string> {
-	console.log("[TRANSCRIPTION] Transcribing audio with Whisper API...");
+	console.log('[TRANSCRIPTION] Transcribing audio with Whisper API...');
 
 	// Конвертируем Blob в base64
 	const base64Audio = await blobToBase64(audioBlob);
@@ -263,38 +252,38 @@ export async function transcribeAudio(
 	} = await supabase.auth.getSession();
 
 	if (!session?.access_token) {
-		throw new Error("No active session");
+		throw new Error('No active session');
 	}
 
 	// ✅ FIXED: Use new transcription-api microservice
 	const response = await fetch(`${TRANSCRIPTION_API_URL}/transcribe`, {
-		method: "POST",
+		method: 'POST',
 		headers: {
-			"Content-Type": "application/json",
+			'Content-Type': 'application/json',
 			Authorization: `Bearer ${session.access_token}`,
 		},
 		body: JSON.stringify({
 			audio: base64Audio,
 			mimeType: audioBlob.type,
 			userId,
-			language: language || "ru",
+			language: language || 'ru',
 		}),
 	});
 
 	if (!response.ok) {
 		const errorText = await response.text();
-		console.error("[TRANSCRIPTION] Failed:", response.status, errorText);
+		console.error('[TRANSCRIPTION] Failed:', response.status, errorText);
 		throw new Error(`Transcription failed: ${response.statusText}`);
 	}
 
 	const data = await response.json();
 
 	if (!data.success) {
-		console.error("[TRANSCRIPTION] Failed:", data);
-		throw new Error(data.error || "Transcription failed");
+		console.error('[TRANSCRIPTION] Failed:', data);
+		throw new Error(data.error || 'Transcription failed');
 	}
 
-	console.log("[TRANSCRIPTION] ✅ Successful:", data.text);
+	console.log('[TRANSCRIPTION] ✅ Successful:', data.text);
 	return data.text;
 }
 
@@ -363,22 +352,20 @@ export type BookGenerationRequest = {
 	userId: string;
 };
 
-export async function generateBookDraft(
-	request: BookGenerationRequest,
-): Promise<{
+export async function generateBookDraft(request: BookGenerationRequest): Promise<{
 	draftId: string;
 	storyJson: any;
 	estimatedPages: number;
 }> {
 	try {
-		const response = await apiRequest("/books/generate-draft", {
-			method: "POST",
+		const response = await apiRequest('/books/generate-draft', {
+			method: 'POST',
 			body: request,
 			requireOpenAI: true,
 		});
 
 		if (!response.success) {
-			throw new Error(response.error || "Failed to generate book draft");
+			throw new Error(response.error || 'Failed to generate book draft');
 		}
 
 		return {
@@ -387,7 +374,7 @@ export async function generateBookDraft(
 			estimatedPages: response.estimatedPages,
 		};
 	} catch (error) {
-		console.error("Error in generateBookDraft:", error);
+		console.error('Error in generateBookDraft:', error);
 		throw error;
 	}
 }
@@ -397,31 +384,28 @@ export async function getBookDraft(draftId: string): Promise<BookDraft> {
 		const response = await apiRequest(`/books/${draftId}`);
 
 		if (!response.success) {
-			throw new Error(response.error || "Failed to get book draft");
+			throw new Error(response.error || 'Failed to get book draft');
 		}
 
 		return response.book;
 	} catch (error) {
-		console.error("Error in getBookDraft:", error);
+		console.error('Error in getBookDraft:', error);
 		throw error;
 	}
 }
 
-export async function saveBookDraft(
-	draftId: string,
-	storyJson: any,
-): Promise<void> {
+export async function saveBookDraft(draftId: string, storyJson: any): Promise<void> {
 	try {
 		const response = await apiRequest(`/books/${draftId}/save`, {
-			method: "POST",
+			method: 'POST',
 			body: { storyJson },
 		});
 
 		if (!response.success) {
-			throw new Error(response.error || "Failed to save book draft");
+			throw new Error(response.error || 'Failed to save book draft');
 		}
 	} catch (error) {
-		console.error("Error in saveBookDraft:", error);
+		console.error('Error in saveBookDraft:', error);
 		throw error;
 	}
 }
@@ -431,12 +415,12 @@ export async function getBooksArchive(userId: string): Promise<BookDraft[]> {
 		const response = await apiRequest(`/books/archive/${userId}`);
 
 		if (!response.success) {
-			throw new Error(response.error || "Failed to get books archive");
+			throw new Error(response.error || 'Failed to get books archive');
 		}
 
 		return response.books || [];
 	} catch (error) {
-		console.error("Error in getBooksArchive:", error);
+		console.error('Error in getBooksArchive:', error);
 		throw error;
 	}
 }
@@ -448,12 +432,12 @@ export async function renderBookPDF(draftId: string): Promise<{
 }> {
 	try {
 		const response = await apiRequest(`/books/${draftId}/render-pdf`, {
-			method: "POST",
+			method: 'POST',
 			requireOpenAI: true,
 		});
 
 		if (!response.success) {
-			throw new Error(response.error || "Failed to render PDF");
+			throw new Error(response.error || 'Failed to render PDF');
 		}
 
 		return {
@@ -462,17 +446,17 @@ export async function renderBookPDF(draftId: string): Promise<{
 			wordCount: response.wordCount,
 		};
 	} catch (error) {
-		console.error("Error in renderBookPDF:", error);
+		console.error('Error in renderBookPDF:', error);
 		throw error;
 	}
 }
 
 export async function healthCheck(): Promise<boolean> {
 	try {
-		const response = await apiRequest("/health");
-		return response.status === "ok";
+		const response = await apiRequest('/health');
+		return response.status === 'ok';
 	} catch (error) {
-		console.error("Health check failed:", error);
+		console.error('Health check failed:', error);
 		return false;
 	}
 }

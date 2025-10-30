@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from 'react-native';
 
 interface Milestone {
 	id: number;
@@ -19,16 +19,14 @@ interface MilestoneCardProps {
  */
 export function MilestoneCard({ milestone }: MilestoneCardProps) {
 	const progressPercentage =
-		milestone.progress && milestone.total
-			? (milestone.progress / milestone.total) * 100
-			: 0;
+		milestone.progress && milestone.total ? (milestone.progress / milestone.total) * 100 : 0;
 
 	return (
 		<View style={[styles.card, milestone.completed && styles.cardCompleted]}>
 			{/* Header */}
 			<View style={styles.header}>
 				<View style={styles.iconContainer}>
-					<Text style={styles.icon}>{milestone.completed ? "✅" : "🎯"}</Text>
+					<Text style={styles.icon}>{milestone.completed ? '✅' : '🎯'}</Text>
 				</View>
 				<View style={styles.content}>
 					<Text style={styles.title}>{milestone.title}</Text>
@@ -43,10 +41,7 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
 					<View style={styles.progressContainer}>
 						<View style={styles.progressBar}>
 							<View
-								style={[
-									styles.progressFill,
-									{ width: `${Math.min(progressPercentage, 100)}%` },
-								]}
+								style={[styles.progressFill, { width: `${Math.min(progressPercentage, 100)}%` }]}
 							/>
 						</View>
 						<Text style={styles.progressText}>
@@ -67,29 +62,29 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
 
 const styles = StyleSheet.create({
 	card: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: '#FFFFFF',
 		borderRadius: 16,
 		padding: 16,
 		borderWidth: 1,
-		borderColor: "#E5E7EB",
+		borderColor: '#E5E7EB',
 		marginBottom: 12,
 	},
 	cardCompleted: {
-		backgroundColor: "#F0FDF4",
-		borderColor: "#10B981",
+		backgroundColor: '#F0FDF4',
+		borderColor: '#10B981',
 	},
 	header: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		marginBottom: 12,
 	},
 	iconContainer: {
 		width: 48,
 		height: 48,
 		borderRadius: 24,
-		backgroundColor: "#F3F4F6",
-		alignItems: "center",
-		justifyContent: "center",
+		backgroundColor: '#F3F4F6',
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginRight: 12,
 	},
 	icon: {
@@ -100,45 +95,45 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: 16,
-		fontWeight: "600",
-		color: "#111827",
+		fontWeight: '600',
+		color: '#111827',
 		marginBottom: 4,
 	},
 	reward: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 	},
 	progressContainer: {
 		marginTop: 8,
 	},
 	progressBar: {
 		height: 8,
-		backgroundColor: "#E5E7EB",
+		backgroundColor: '#E5E7EB',
 		borderRadius: 4,
-		overflow: "hidden",
+		overflow: 'hidden',
 		marginBottom: 8,
 	},
 	progressFill: {
-		height: "100%",
-		backgroundColor: "#3B82F6",
+		height: '100%',
+		backgroundColor: '#3B82F6',
 		borderRadius: 4,
 	},
 	progressText: {
 		fontSize: 12,
-		color: "#6B7280",
-		textAlign: "right",
+		color: '#6B7280',
+		textAlign: 'right',
 	},
 	completedBadge: {
 		marginTop: 8,
 		paddingVertical: 6,
 		paddingHorizontal: 12,
-		backgroundColor: "#10B981",
+		backgroundColor: '#10B981',
 		borderRadius: 8,
-		alignSelf: "flex-start",
+		alignSelf: 'flex-start',
 	},
 	completedText: {
 		fontSize: 12,
-		fontWeight: "600",
-		color: "#FFFFFF",
+		fontWeight: '600',
+		color: '#FFFFFF',
 	},
 });

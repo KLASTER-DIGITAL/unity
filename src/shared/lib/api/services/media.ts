@@ -1,7 +1,7 @@
-import { createClient } from "@/utils/supabase/client";
-import { API_URLS } from "../config/urls";
-import { blobToBase64 } from "../core/request";
-import type { MediaFile, UploadMediaOptions } from "../types";
+import { createClient } from '@/utils/supabase/client';
+import { API_URLS } from '../config/urls';
+import { blobToBase64 } from '../core/request';
+import type { MediaFile, UploadMediaOptions } from '../types';
 
 /**
  * Upload media file (image or video)
@@ -13,9 +13,9 @@ import type { MediaFile, UploadMediaOptions } from "../types";
 export async function uploadMedia(
 	file: File,
 	userId: string,
-	options?: UploadMediaOptions,
+	options?: UploadMediaOptions
 ): Promise<MediaFile> {
-	console.log("[MEDIA] 📤 Uploading media:", file.name, file.type, options);
+	console.log('[MEDIA] 📤 Uploading media:', file.name, file.type, options);
 
 	// Convert File to base64
 	const base64File = await blobToBase64(file);
@@ -23,7 +23,7 @@ export async function uploadMedia(
 	// Convert thumbnail to base64 (if provided)
 	let base64Thumbnail: string | undefined;
 	if (options?.thumbnail) {
-		console.log("[MEDIA] 🖼️ Converting thumbnail to base64...");
+		console.log('[MEDIA] 🖼️ Converting thumbnail to base64...');
 		base64Thumbnail = await blobToBase64(options.thumbnail);
 	}
 
@@ -33,7 +33,7 @@ export async function uploadMedia(
 	} = await supabase.auth.getSession();
 
 	if (!session?.access_token) {
-		throw new Error("No active session");
+		throw new Error('No active session');
 	}
 
 	const requestBody = {
@@ -49,18 +49,16 @@ export async function uploadMedia(
 	};
 
 	try {
-		console.log(
-			"[MEDIA] 🎯 Attempting media-upload-api microservice (10s timeout)...",
-		);
+		console.log('[MEDIA] 🎯 Attempting media-upload-api microservice (10s timeout)...');
 
 		// Create abort controller for timeout (10s for file upload)
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
 		const response = await fetch(`${API_URLS.MEDIA_UPLOAD}/upload`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${session.access_token}`,
 			},
 			body: JSON.stringify(requestBody),
@@ -76,15 +74,15 @@ export async function uploadMedia(
 		const data = await response.json();
 
 		if (!data.success) {
-			throw new Error(data.error || "Microservice returned error");
+			throw new Error(data.error || 'Microservice returned error');
 		}
 
-		console.log("[MEDIA] ✅ media-upload-api success:", data.path);
+		console.log('[MEDIA] ✅ media-upload-api success:', data.path);
 
-		const mediaType = file.type.startsWith("image/") ? "image" : "video";
+		const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
 
 		return {
-			id: data.id || "",
+			id: data.id || '',
 			userId,
 			fileName: file.name,
 			filePath: data.path,
@@ -97,8 +95,8 @@ export async function uploadMedia(
 			mimeType: data.mimeType,
 		};
 	} catch (microserviceError: any) {
-		console.error("[MEDIA] ❌ Media microservice failed!");
-		console.error("[MEDIA] Error:", microserviceError);
+		console.error('[MEDIA] ❌ Media microservice failed!');
+		console.error('[MEDIA] Error:', microserviceError);
 		throw new Error(`Failed to upload media: ${microserviceError.message}`);
 	}
 }
@@ -115,23 +113,21 @@ export async function getSignedUrl(path: string): Promise<string> {
 	} = await supabase.auth.getSession();
 
 	if (!session?.access_token) {
-		throw new Error("No active session");
+		throw new Error('No active session');
 	}
 
 	const requestBody = { path };
 
 	try {
-		console.log(
-			"[MEDIA] 🎯 Getting signed URL via media-manage-api (5s timeout)...",
-		);
+		console.log('[MEDIA] 🎯 Getting signed URL via media-manage-api (5s timeout)...');
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 5000);
 
 		const response = await fetch(`${API_URLS.MEDIA_MANAGE}/signed-url`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${session.access_token}`,
 			},
 			body: JSON.stringify(requestBody),
@@ -147,25 +143,23 @@ export async function getSignedUrl(path: string): Promise<string> {
 		const data = await response.json();
 
 		if (!(data.success && data.url)) {
-			throw new Error(data.error || "No URL returned");
+			throw new Error(data.error || 'No URL returned');
 		}
 
-		console.log("[MEDIA] ✅ Signed URL obtained from media-manage-api");
+		console.log('[MEDIA] ✅ Signed URL obtained from media-manage-api');
 		return data.url;
 	} catch (_microserviceError: any) {
-		console.error("[MEDIA] ❌ Microservice failed, using fallback...");
+		console.error('[MEDIA] ❌ Microservice failed, using fallback...');
 
 		// Fallback: Direct Supabase Storage
-		const { data, error } = await supabase.storage
-			.from("media")
-			.createSignedUrl(path, 3600);
+		const { data, error } = await supabase.storage.from('media').createSignedUrl(path, 3600);
 
 		if (error || !data?.signedUrl) {
-			console.error("[MEDIA] ❌ Fallback also failed:", error);
-			throw new Error("Failed to get signed URL");
+			console.error('[MEDIA] ❌ Fallback also failed:', error);
+			throw new Error('Failed to get signed URL');
 		}
 
-		console.log("[MEDIA] ✅ Fallback success");
+		console.log('[MEDIA] ✅ Fallback success');
 		return data.signedUrl;
 	}
 }
@@ -181,28 +175,23 @@ export async function deleteMedia(path: string): Promise<void> {
 	} = await supabase.auth.getSession();
 
 	if (!session?.access_token) {
-		throw new Error("No active session");
+		throw new Error('No active session');
 	}
 
 	try {
-		console.log(
-			"[MEDIA] 🎯 Attempting media-manage-api for delete (5s timeout)...",
-		);
+		console.log('[MEDIA] 🎯 Attempting media-manage-api for delete (5s timeout)...');
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-		const response = await fetch(
-			`${API_URLS.MEDIA_MANAGE}/${encodeURIComponent(path)}`,
-			{
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${session.access_token}`,
-				},
-				signal: controller.signal,
+		const response = await fetch(`${API_URLS.MEDIA_MANAGE}/${encodeURIComponent(path)}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${session.access_token}`,
 			},
-		);
+			signal: controller.signal,
+		});
 
 		clearTimeout(timeoutId);
 
@@ -213,22 +202,22 @@ export async function deleteMedia(path: string): Promise<void> {
 		const data = await response.json();
 
 		if (!data.success) {
-			throw new Error(data.error || "Delete failed");
+			throw new Error(data.error || 'Delete failed');
 		}
 
-		console.log("[MEDIA] ✅ Media deleted via media-manage-api");
+		console.log('[MEDIA] ✅ Media deleted via media-manage-api');
 		return;
 	} catch (_microserviceError: any) {
-		console.error("[MEDIA] ❌ Microservice failed, using fallback...");
+		console.error('[MEDIA] ❌ Microservice failed, using fallback...');
 
 		// Fallback: Direct Supabase Storage
-		const { error } = await supabase.storage.from("media").remove([path]);
+		const { error } = await supabase.storage.from('media').remove([path]);
 
 		if (error) {
-			console.error("[MEDIA] ❌ Fallback also failed:", error);
-			throw new Error("Failed to delete media");
+			console.error('[MEDIA] ❌ Fallback also failed:', error);
+			throw new Error('Failed to delete media');
 		}
 
-		console.log("[MEDIA] ✅ Media deleted via fallback");
+		console.log('[MEDIA] ✅ Media deleted via fallback');
 	}
 }

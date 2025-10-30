@@ -7,7 +7,7 @@ export type OnboardingData = {
 	diaryName: string;
 	diaryEmoji: string;
 	notificationSettings: {
-		selectedTime: "none" | "morning" | "evening" | "both";
+		selectedTime: 'none' | 'morning' | 'evening' | 'both';
 		morningTime: string;
 		eveningTime: string;
 		permissionGranted: boolean;
@@ -22,7 +22,7 @@ export type AuthScreenProps = {
 	showTopBar?: boolean;
 	contextText?: string;
 	selectedLanguage?: string;
-	initialMode?: "login" | "register";
+	initialMode?: 'login' | 'register';
 	onboardingData?: OnboardingData;
 };
 
@@ -39,7 +39,7 @@ export type UserData = {
 	diaryEmoji: string;
 	language: string;
 	notificationSettings: {
-		selectedTime: "none" | "morning" | "evening" | "both";
+		selectedTime: 'none' | 'morning' | 'evening' | 'both';
 		morningTime: string;
 		eveningTime: string;
 		permissionGranted: boolean;

@@ -14,7 +14,7 @@ module.exports = (api) => {
 	return {
 		presets: [
 			[
-				"babel-preset-expo",
+				'babel-preset-expo',
 				{
 					// Enable import.meta polyfill for React Native (Hermes)
 					unstable_transformImportMeta: true,
@@ -24,34 +24,34 @@ module.exports = (api) => {
 		plugins: [
 			// TypeScript path aliases
 			[
-				"module-resolver",
+				'module-resolver',
 				{
-					root: ["./src"],
+					root: ['./src'],
 					alias: {
-						"@": "./src",
-						"@/app": "./src/app",
-						"@/features": "./src/features",
-						"@/shared": "./src/shared",
+						'@': './src',
+						'@/app': './src/app',
+						'@/features': './src/features',
+						'@/shared': './src/shared',
 					},
 					extensions: [
-						".ios.ts",
-						".android.ts",
-						".native.ts",
-						".web.ts",
-						".ts",
-						".ios.tsx",
-						".android.tsx",
-						".native.tsx",
-						".web.tsx",
-						".tsx",
-						".jsx",
-						".js",
-						".json",
+						'.ios.ts',
+						'.android.ts',
+						'.native.ts',
+						'.web.ts',
+						'.ts',
+						'.ios.tsx',
+						'.android.tsx',
+						'.native.tsx',
+						'.web.tsx',
+						'.tsx',
+						'.jsx',
+						'.js',
+						'.json',
 					],
 				},
 			],
 			// React Native Reanimated (должен быть последним!)
-			"react-native-reanimated/plugin",
+			'react-native-reanimated/plugin',
 		],
 	};
 };

@@ -1,8 +1,8 @@
-import { motion } from "motion/react";
-import type React from "react";
-import { useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import type { AuthScreenProps } from "./auth-screen";
+import { motion } from 'motion/react';
+import type React from 'react';
+import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import type { AuthScreenProps } from './auth-screen';
 // Import modular components, handlers and types
 import {
 	AuthForm,
@@ -13,7 +13,7 @@ import {
 	handleSocialAuth,
 	handleTelegramAuth,
 	SocialAuthButtons,
-} from "./auth-screen";
+} from './auth-screen';
 
 // Re-export types for backward compatibility
 export type { AuthScreenProps };
@@ -23,24 +23,23 @@ export function AuthScreen({
 	onAuthComplete,
 	onBack,
 	showTopBar = true,
-	contextText = "Сохраним твои успехи?",
-	selectedLanguage = "ru",
-	initialMode = "register",
+	contextText = 'Сохраним твои успехи?',
+	selectedLanguage = 'ru',
+	initialMode = 'register',
 	onboardingData,
 }: AuthScreenProps) {
 	// Используем onAuthComplete если передан, иначе onComplete
 	const handleComplete = onAuthComplete || onComplete;
-	const [isLogin, setIsLogin] = useState(initialMode === "login");
+	const [isLogin, setIsLogin] = useState(initialMode === 'login');
 	const [isLoading, setIsLoading] = useState(false);
 	const [_isTelegramLoading, setIsTelegramLoading] = useState(false);
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const [name, setName] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 
 	// Получаем переводы для выбранного языка
 	const currentTranslations =
-		authTranslations[selectedLanguage as keyof typeof authTranslations] ||
-		authTranslations.ru;
+		authTranslations[selectedLanguage as keyof typeof authTranslations] || authTranslations.ru;
 
 	// Supabase клиент для работы с сессиями
 	const supabase = createClient();
@@ -87,9 +86,7 @@ export function AuthScreen({
 						initial={{ opacity: 0, y: -20 }}
 						transition={{ duration: 0.5 }}
 					>
-						<p className="font-semibold! text-[16px]! text-accent">
-							{contextText}
-						</p>
+						<p className="font-semibold! text-[16px]! text-accent">{contextText}</p>
 					</motion.div>
 				)}
 
@@ -104,9 +101,7 @@ export function AuthScreen({
 						{isLogin ? currentTranslations.signIn : currentTranslations.signUp}
 					</h1>
 					<p className="max-w-[300px] text-[#868d95] text-[14px]! leading-relaxed">
-						{isLogin
-							? currentTranslations.welcomeBack
-							: currentTranslations.createAccount}
+						{isLogin ? currentTranslations.welcomeBack : currentTranslations.createAccount}
 					</p>
 				</motion.div>
 

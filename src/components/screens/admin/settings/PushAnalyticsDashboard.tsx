@@ -17,64 +17,54 @@ import {
 	RefreshCw,
 	TrendingUp,
 	Users,
-} from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { SimpleChart } from "@/shared/components/SimpleChart";
-import {
-	Alert,
-	AlertDescription,
-	AlertTitle,
-} from "@/shared/components/ui/alert";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+} from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { SimpleChart } from '@/shared/components/SimpleChart';
+import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import {
-	getPushAnalytics,
-	type PushAnalyticsStats,
-} from "@/shared/lib/analytics/push-analytics";
+} from '@/shared/components/ui/card';
+import { getPushAnalytics, type PushAnalyticsStats } from '@/shared/lib/analytics/push-analytics';
 
 export const PushAnalyticsDashboard: React.FC = () => {
 	const [stats, setStats] = useState<PushAnalyticsStats | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [period, setPeriod] = useState<"7d" | "30d" | "all">("7d");
+	const [period, setPeriod] = useState<'7d' | '30d' | 'all'>('7d');
 
 	const loadAnalytics = async () => {
-		console.log("[PushAnalyticsDashboard] Loading analytics, period:", period);
+		console.log('[PushAnalyticsDashboard] Loading analytics, period:', period);
 		setLoading(true);
 		try {
 			let startDate: Date | undefined;
 			const endDate = new Date();
 
-			if (period === "7d") {
+			if (period === '7d') {
 				startDate = new Date();
 				startDate.setDate(startDate.getDate() - 7);
-			} else if (period === "30d") {
+			} else if (period === '30d') {
 				startDate = new Date();
 				startDate.setDate(startDate.getDate() - 30);
 			}
 
-			console.log("[PushAnalyticsDashboard] Calling getPushAnalytics with:", {
+			console.log('[PushAnalyticsDashboard] Calling getPushAnalytics with:', {
 				startDate,
 				endDate,
 			});
 			const data = await getPushAnalytics(startDate, endDate);
-			console.log("[PushAnalyticsDashboard] Received data:", data);
+			console.log('[PushAnalyticsDashboard] Received data:', data);
 			setStats(data);
 		} catch (error) {
-			console.error(
-				"[PushAnalyticsDashboard] Failed to load push analytics:",
-				error,
-			);
+			console.error('[PushAnalyticsDashboard] Failed to load push analytics:', error);
 		} finally {
 			setLoading(false);
-			console.log("[PushAnalyticsDashboard] Loading complete");
+			console.log('[PushAnalyticsDashboard] Loading complete');
 		}
 	};
 
@@ -82,13 +72,13 @@ export const PushAnalyticsDashboard: React.FC = () => {
 		loadAnalytics();
 	}, [loadAnalytics]);
 
-	console.log("[PushAnalyticsDashboard] Render state:", {
+	console.log('[PushAnalyticsDashboard] Render state:', {
 		loading,
 		stats: !!stats,
 	});
 
 	if (loading) {
-		console.log("[PushAnalyticsDashboard] Rendering loading state");
+		console.log('[PushAnalyticsDashboard] Rendering loading state');
 		return (
 			<Card>
 				<CardContent className="p-8">
@@ -102,13 +92,11 @@ export const PushAnalyticsDashboard: React.FC = () => {
 	}
 
 	if (!stats) {
-		console.log("[PushAnalyticsDashboard] Rendering no stats state");
+		console.log('[PushAnalyticsDashboard] Rendering no stats state');
 		return (
 			<Card>
 				<CardContent className="p-8">
-					<div className="text-center text-muted-foreground">
-						Не удалось загрузить аналитику
-					</div>
+					<div className="text-center text-muted-foreground">Не удалось загрузить аналитику</div>
 				</CardContent>
 			</Card>
 		);
@@ -123,29 +111,27 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						<BarChart3 className="h-5 w-5" />
 						Push Аналитика
 					</h3>
-					<p className="text-muted-foreground text-sm">
-						Статистика эффективности push уведомлений
-					</p>
+					<p className="text-muted-foreground text-sm">Статистика эффективности push уведомлений</p>
 				</div>
 				<div className="flex gap-2">
 					<Button
-						onClick={() => setPeriod("7d")}
+						onClick={() => setPeriod('7d')}
 						size="sm"
-						variant={period === "7d" ? "default" : "outline"}
+						variant={period === '7d' ? 'default' : 'outline'}
 					>
 						7 дней
 					</Button>
 					<Button
-						onClick={() => setPeriod("30d")}
+						onClick={() => setPeriod('30d')}
 						size="sm"
-						variant={period === "30d" ? "default" : "outline"}
+						variant={period === '30d' ? 'default' : 'outline'}
 					>
 						30 дней
 					</Button>
 					<Button
-						onClick={() => setPeriod("all")}
+						onClick={() => setPeriod('all')}
 						size="sm"
-						variant={period === "all" ? "default" : "outline"}
+						variant={period === 'all' ? 'default' : 'outline'}
 					>
 						Все время
 					</Button>
@@ -163,9 +149,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						<div className="flex items-center justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm">Отправлено</p>
-								<p className="font-bold text-2xl">
-									{stats.total_sent.toLocaleString()}
-								</p>
+								<p className="font-bold text-2xl">{stats.total_sent.toLocaleString()}</p>
 							</div>
 							<Bell className="h-8 w-8 text-blue-500 opacity-50" />
 						</div>
@@ -178,9 +162,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						<div className="flex items-center justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm">Доставлено</p>
-								<p className="font-bold text-2xl">
-									{stats.total_delivered.toLocaleString()}
-								</p>
+								<p className="font-bold text-2xl">{stats.total_delivered.toLocaleString()}</p>
 								<Badge className="mt-1" variant="secondary">
 									{stats.delivery_rate.toFixed(1)}%
 								</Badge>
@@ -196,9 +178,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						<div className="flex items-center justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm">Открыто</p>
-								<p className="font-bold text-2xl">
-									{stats.total_opened.toLocaleString()}
-								</p>
+								<p className="font-bold text-2xl">{stats.total_opened.toLocaleString()}</p>
 								<Badge className="mt-1" variant="secondary">
 									{stats.open_rate.toFixed(1)}%
 								</Badge>
@@ -215,9 +195,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 							<div>
 								<p className="text-muted-foreground text-sm">CTR</p>
 								<p className="font-bold text-2xl">{stats.ctr.toFixed(1)}%</p>
-								<p className="mt-1 text-muted-foreground text-xs">
-									Click-through rate
-								</p>
+								<p className="mt-1 text-muted-foreground text-xs">Click-through rate</p>
 							</div>
 							<BarChart3 className="h-8 w-8 text-orange-500 opacity-50" />
 						</div>
@@ -227,19 +205,15 @@ export const PushAnalyticsDashboard: React.FC = () => {
 
 			{/* Критичные алерты */}
 			{stats.delivery_rate < 50 && stats.total_sent > 0 && (
-				<Alert
-					className="border-red-500 bg-red-50 dark:bg-red-950/20"
-					variant="destructive"
-				>
+				<Alert className="border-red-500 bg-red-50 dark:bg-red-950/20" variant="destructive">
 					<AlertTriangle className="h-5 w-5" />
 					<AlertTitle className="font-semibold text-lg">
 						Критично низкий процент доставки!
 					</AlertTitle>
 					<AlertDescription className="mt-2 space-y-2">
 						<p className="text-base">
-							Только <strong>{stats.delivery_rate.toFixed(1)}%</strong>{" "}
-							уведомлений доставлено ({stats.total_delivered} из{" "}
-							{stats.total_sent}).
+							Только <strong>{stats.delivery_rate.toFixed(1)}%</strong> уведомлений доставлено (
+							{stats.total_delivered} из {stats.total_sent}).
 						</p>
 						<p className="text-sm">
 							<strong>Возможные причины:</strong>
@@ -251,8 +225,8 @@ export const PushAnalyticsDashboard: React.FC = () => {
 							<li>Неактивные подписки (истёк срок действия)</li>
 						</ul>
 						<p className="mt-2 text-sm">
-							<strong>Рекомендации:</strong> Проверьте VAPID keys в разделе
-							"Push Notifications" и обновите Service Worker.
+							<strong>Рекомендации:</strong> Проверьте VAPID keys в разделе "Push Notifications" и
+							обновите Service Worker.
 						</p>
 					</AlertDescription>
 				</Alert>
@@ -268,16 +242,14 @@ export const PushAnalyticsDashboard: React.FC = () => {
 								<Calendar className="h-5 w-5" />
 								Статистика по дням
 							</CardTitle>
-							<CardDescription>
-								Динамика отправки и открытия уведомлений
-							</CardDescription>
+							<CardDescription>Динамика отправки и открытия уведомлений</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<SimpleChart
 								data={stats.by_day.map((d) => ({
-									date: new Date(d.date).toLocaleDateString("ru-RU", {
-										day: "2-digit",
-										month: "short",
+									date: new Date(d.date).toLocaleDateString('ru-RU', {
+										day: '2-digit',
+										month: 'short',
 									}),
 									Доставлено: d.delivered,
 									Открыто: d.opened,
@@ -297,9 +269,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 								<Clock className="h-5 w-5" />
 								Статистика по часам
 							</CardTitle>
-							<CardDescription>
-								Лучшее время для отправки уведомлений
-							</CardDescription>
+							<CardDescription>Лучшее время для отправки уведомлений</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<SimpleChart
@@ -324,9 +294,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 							<Users className="h-5 w-5" />
 							Статистика по браузерам
 						</CardTitle>
-						<CardDescription>
-							Эффективность push уведомлений в разных браузерах
-						</CardDescription>
+						<CardDescription>Эффективность push уведомлений в разных браузерах</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-4">
@@ -343,12 +311,8 @@ export const PushAnalyticsDashboard: React.FC = () => {
 										</div>
 									</div>
 									<div className="flex gap-2">
-										<Badge variant="secondary">
-											Delivery: {browser.delivery_rate.toFixed(1)}%
-										</Badge>
-										<Badge variant="secondary">
-											Open: {browser.open_rate.toFixed(1)}%
-										</Badge>
+										<Badge variant="secondary">Delivery: {browser.delivery_rate.toFixed(1)}%</Badge>
+										<Badge variant="secondary">Open: {browser.open_rate.toFixed(1)}%</Badge>
 									</div>
 								</div>
 							))}
@@ -395,7 +359,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 								<p className="mt-1 text-green-700 dark:text-green-400">
 									{(() => {
 										const bestHour = stats.by_hour.reduce((best, current) =>
-											current.opened > best.opened ? current : best,
+											current.opened > best.opened ? current : best
 										);
 										return `${bestHour.hour}:00 - ${bestHour.hour + 1}:00 (${bestHour.opened} открытий)`;
 									})()}

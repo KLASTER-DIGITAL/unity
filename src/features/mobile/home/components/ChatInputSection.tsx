@@ -1,13 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import {
-	MediaLightbox,
-	PermissionGuide,
-	useVoiceRecorder,
-} from "@/features/mobile/media";
-import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
-import { AnimatedPresence } from "@/shared/lib/platform/animation";
-import type { ChatInputSectionProps, ChatMessage } from "./chat-input";
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { MediaLightbox, PermissionGuide, useVoiceRecorder } from '@/features/mobile/media';
+import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import type { ChatInputSectionProps, ChatMessage } from './chat-input';
 // Import modular components, handlers and types
 import {
 	AIHintSection,
@@ -18,7 +14,7 @@ import {
 	SuccessModal,
 	handleSendMessage as sendMessage,
 	handleVoiceInput as voiceInput,
-} from "./chat-input";
+} from './chat-input';
 
 // Re-export types for backward compatibility
 export type { ChatMessage, ChatInputSectionProps };
@@ -26,19 +22,19 @@ export type { ChatMessage, ChatInputSectionProps };
 export function ChatInputSection({
 	onMessageSent,
 	onEntrySaved,
-	userName = "Анна",
-	userId = "anonymous",
+	userName = 'Анна',
+	userId = 'anonymous',
 }: ChatInputSectionProps) {
-	const [inputText, setInputText] = useState("");
+	const [inputText, setInputText] = useState('');
 	const [messages, _setMessages] = useState<ChatMessage[]>([]);
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [_isProcessing, _setIsProcessing] = useState(false);
 	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
-	const [showPermissionGuide, setShowPermissionGuide] = useState<
-		"microphone" | "camera" | null
-	>(null);
+	const [showPermissionGuide, setShowPermissionGuide] = useState<'microphone' | 'camera' | null>(
+		null
+	);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [showAiHint, setShowAiHint] = useState(true); // ✅ NEW: AI hint visibility
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -67,13 +63,13 @@ export function ChatInputSection({
 
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	}, []);
 
 	// Auto-resize textarea
 	useEffect(() => {
 		if (textareaRef.current) {
-			textareaRef.current.style.height = "auto";
+			textareaRef.current.style.height = 'auto';
 			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 		}
 	}, []);
@@ -109,7 +105,7 @@ export function ChatInputSection({
 	// Отменить запись
 	const handleCancelRecording = () => {
 		cancelRecording();
-		toast.info("Запись отменена");
+		toast.info('Запись отменена');
 	};
 
 	// Обработка загрузки медиа
@@ -135,7 +131,7 @@ export function ChatInputSection({
 
 	// Обработка Enter (отправка) и Shift+Enter (новая строка)
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === "Enter" && !e.shiftKey) {
+		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
 			handleSendMessage();
 		}
@@ -221,11 +217,7 @@ export function ChatInputSection({
 			</AnimatedPresence>
 
 			{/* Success Modal */}
-			<SuccessModal
-				isOffline={!navigator.onLine}
-				isOpen={showSuccessModal}
-				userName={userName}
-			/>
+			<SuccessModal isOffline={!navigator.onLine} isOpen={showSuccessModal} userName={userName} />
 		</div>
 	);
 }

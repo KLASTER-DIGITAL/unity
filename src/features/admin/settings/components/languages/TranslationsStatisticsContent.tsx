@@ -6,19 +6,19 @@ import {
 	Languages,
 	Loader2,
 	TrendingUp,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Progress } from "@/shared/components/ui/progress";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Progress } from '@/shared/components/ui/progress';
+import { createClient } from '@/utils/supabase/client';
 
 type Language = {
 	code: string;
@@ -58,7 +58,7 @@ export function TranslationsStatisticsContent() {
 
 	useEffect(() => {
 		loadStatistics();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadStatistics is stable
 	}, []);
 
 	const loadStatistics = async () => {
@@ -68,7 +68,7 @@ export function TranslationsStatisticsContent() {
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
@@ -78,13 +78,13 @@ export function TranslationsStatisticsContent() {
 				{
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
-				},
+				}
 			);
 
 			if (!languagesResponse.ok) {
-				throw new Error("Failed to load languages");
+				throw new Error('Failed to load languages');
 			}
 
 			const languagesData = await languagesResponse.json();
@@ -96,41 +96,34 @@ export function TranslationsStatisticsContent() {
 				{
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
-				},
+				}
 			);
 
 			if (!translationsResponse.ok) {
-				throw new Error("Failed to load translations");
+				throw new Error('Failed to load translations');
 			}
 
 			const translationsData = await translationsResponse.json();
 			const translations = translationsData.translations || [];
 
 			// Calculate statistics
-			const uniqueKeys = [
-				...new Set(translations.map((t: any) => t.translation_key)),
-			];
+			const uniqueKeys = [...new Set(translations.map((t: any) => t.translation_key))];
 			const totalKeys = uniqueKeys.length;
 			const totalTranslations = translations.length;
 			const activeLanguages = languages.filter((l) => l.is_active);
 			const expectedTranslations = totalKeys * activeLanguages.length;
 			const missingCount = expectedTranslations - totalTranslations;
 			const completeness =
-				expectedTranslations > 0
-					? Math.round((totalTranslations / expectedTranslations) * 100)
-					: 0;
+				expectedTranslations > 0 ? Math.round((totalTranslations / expectedTranslations) * 100) : 0;
 
 			// Calculate per-language statistics
 			const languageStats = activeLanguages
 				.map((lang) => {
-					const langTranslations = translations.filter(
-						(t: any) => t.lang_code === lang.code,
-					);
+					const langTranslations = translations.filter((t: any) => t.lang_code === lang.code);
 					const count = langTranslations.length;
-					const progress =
-						totalKeys > 0 ? Math.round((count / totalKeys) * 100) : 0;
+					const progress = totalKeys > 0 ? Math.round((count / totalKeys) * 100) : 0;
 
 					return {
 						code: lang.code,
@@ -150,8 +143,8 @@ export function TranslationsStatisticsContent() {
 				languageStats,
 			});
 		} catch (error) {
-			console.error("Error loading statistics:", error);
-			toast.error("Ошибка загрузки статистики");
+			console.error('Error loading statistics:', error);
+			toast.error('Ошибка загрузки статистики');
 		} finally {
 			setIsLoading(false);
 		}
@@ -193,9 +186,7 @@ export function TranslationsStatisticsContent() {
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-center justify-between">
-							<div className="font-bold text-2xl">
-								{stats.totalTranslations}
-							</div>
+							<div className="font-bold text-2xl">{stats.totalTranslations}</div>
 							<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
 								<Languages className="h-5 w-5 text-green-500" />
 							</div>
@@ -205,9 +196,7 @@ export function TranslationsStatisticsContent() {
 
 				<Card>
 					<CardHeader className="pb-3">
-						<CardTitle className="font-medium text-muted-foreground text-sm">
-							Пропущено
-						</CardTitle>
+						<CardTitle className="font-medium text-muted-foreground text-sm">Пропущено</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-center justify-between">
@@ -221,9 +210,7 @@ export function TranslationsStatisticsContent() {
 
 				<Card>
 					<CardHeader className="pb-3">
-						<CardTitle className="font-medium text-muted-foreground text-sm">
-							Полнота
-						</CardTitle>
+						<CardTitle className="font-medium text-muted-foreground text-sm">Полнота</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-center justify-between">
@@ -243,9 +230,7 @@ export function TranslationsStatisticsContent() {
 						<BarChart3 className="h-5 w-5" />
 						Прогресс по языкам
 					</CardTitle>
-					<CardDescription>
-						Процент заполненности переводов для каждого языка
-					</CardDescription>
+					<CardDescription>Процент заполненности переводов для каждого языка</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{stats.languageStats.length === 0 ? (
@@ -272,10 +257,10 @@ export function TranslationsStatisticsContent() {
 											<Badge
 												variant={
 													lang.progress === 100
-														? "default"
+														? 'default'
 														: lang.progress >= 80
-															? "secondary"
-															: "destructive"
+															? 'secondary'
+															: 'destructive'
 												}
 											>
 												{lang.progress}%
@@ -294,8 +279,8 @@ export function TranslationsStatisticsContent() {
 			<Card
 				className={
 					stats.completeness === 100
-						? "border-green-200 bg-green-50/50"
-						: "border-orange-200 bg-orange-50/50"
+						? 'border-green-200 bg-green-50/50'
+						: 'border-orange-200 bg-orange-50/50'
 				}
 			>
 				<CardContent className="pt-6">
@@ -304,9 +289,7 @@ export function TranslationsStatisticsContent() {
 							<>
 								<CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
 								<div className="space-y-1">
-									<p className="font-medium text-green-900 text-sm">
-										Все переводы заполнены!
-									</p>
+									<p className="font-medium text-green-900 text-sm">Все переводы заполнены!</p>
 									<p className="text-green-700 text-xs">
 										Все ключи переведены на все активные языки. Отличная работа!
 									</p>
@@ -316,14 +299,11 @@ export function TranslationsStatisticsContent() {
 							<>
 								<AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
 								<div className="space-y-1">
-									<p className="font-medium text-orange-900 text-sm">
-										Требуется внимание
-									</p>
+									<p className="font-medium text-orange-900 text-sm">Требуется внимание</p>
 									<p className="text-orange-700 text-xs">
-										Осталось заполнить {stats.missingCount} переводов для
-										достижения 100% полноты. Используйте вкладку "Переводы" для
-										редактирования или "Автоперевод AI" для автоматического
-										заполнения.
+										Осталось заполнить {stats.missingCount} переводов для достижения 100% полноты.
+										Используйте вкладку "Переводы" для редактирования или "Автоперевод AI" для
+										автоматического заполнения.
 									</p>
 								</div>
 							</>

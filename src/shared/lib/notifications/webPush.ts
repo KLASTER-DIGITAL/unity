@@ -8,8 +8,8 @@
  * - Subscription storage in Supabase
  */
 
-import { getBrowserInfo } from "@/shared/lib/pwa/pushNotificationSupport";
-import { createClient } from "@/utils/supabase/client";
+import { getBrowserInfo } from '@/shared/lib/pwa/pushNotificationSupport';
+import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
@@ -26,20 +26,20 @@ async function loadVapidPublicKey(): Promise<string> {
 
 	try {
 		const { data, error } = await supabase
-			.from("admin_settings")
-			.select("value")
-			.eq("key", "vapid_public_key")
+			.from('admin_settings')
+			.select('value')
+			.eq('key', 'vapid_public_key')
 			.single();
 
 		if (error) {
-			console.error("[Web Push] Failed to load VAPID public key:", error);
-			throw new Error("VAPID public key not configured");
+			console.error('[Web Push] Failed to load VAPID public key:', error);
+			throw new Error('VAPID public key not configured');
 		}
 
 		VAPID_PUBLIC_KEY = data.value;
 		return data.value;
 	} catch (error) {
-		console.error("[Web Push] Error loading VAPID public key:", error);
+		console.error('[Web Push] Error loading VAPID public key:', error);
 		throw error;
 	}
 }
@@ -48,8 +48,8 @@ async function loadVapidPublicKey(): Promise<string> {
  * Конвертирует base64 строку в Uint8Array для VAPID key
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-	const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-	const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+	const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+	const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
 	const rawData = window.atob(base64);
 	const outputArray = new Uint8Array(rawData.length);
@@ -64,19 +64,15 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
  * Проверяет поддержку Web Push API
  */
 export function isPushSupported(): boolean {
-	return (
-		"serviceWorker" in navigator &&
-		"PushManager" in window &&
-		"Notification" in window
-	);
+	return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
 /**
  * Получает текущий статус разрешения на уведомления
  */
 export function getNotificationPermission(): NotificationPermission {
-	if (!("Notification" in window)) {
-		return "denied";
+	if (!('Notification' in window)) {
+		return 'denied';
 	}
 	return Notification.permission;
 }
@@ -85,18 +81,18 @@ export function getNotificationPermission(): NotificationPermission {
  * Запрашивает разрешение на push уведомления
  */
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
-	if (!("Notification" in window)) {
-		console.warn("[Web Push] Notifications not supported");
-		return "denied";
+	if (!('Notification' in window)) {
+		console.warn('[Web Push] Notifications not supported');
+		return 'denied';
 	}
 
 	try {
 		const permission = await Notification.requestPermission();
-		console.log("[Web Push] Permission result:", permission);
+		console.log('[Web Push] Permission result:', permission);
 		return permission;
 	} catch (error) {
-		console.error("[Web Push] Error requesting permission:", error);
-		return "denied";
+		console.error('[Web Push] Error requesting permission:', error);
+		return 'denied';
 	}
 }
 
@@ -104,18 +100,17 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  * Регистрирует Service Worker
  */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-	if (!("serviceWorker" in navigator)) {
-		console.warn("[Web Push] Service Worker not supported");
+	if (!('serviceWorker' in navigator)) {
+		console.warn('[Web Push] Service Worker not supported');
 		return null;
 	}
 
 	try {
-		const registration =
-			await navigator.serviceWorker.register("/service-worker.js");
-		console.log("[Web Push] Service Worker registered:", registration);
+		const registration = await navigator.serviceWorker.register('/service-worker.js');
+		console.log('[Web Push] Service Worker registered:', registration);
 		return registration;
 	} catch (error) {
-		console.error("[Web Push] Service Worker registration failed:", error);
+		console.error('[Web Push] Service Worker registration failed:', error);
 		return null;
 	}
 }
@@ -124,7 +119,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
  * Получает активную push subscription
  */
 export async function getPushSubscription(): Promise<PushSubscription | null> {
-	if (!("serviceWorker" in navigator)) {
+	if (!('serviceWorker' in navigator)) {
 		return null;
 	}
 
@@ -133,7 +128,7 @@ export async function getPushSubscription(): Promise<PushSubscription | null> {
 		const subscription = await registration.pushManager.getSubscription();
 		return subscription;
 	} catch (error) {
-		console.error("[Web Push] Error getting subscription:", error);
+		console.error('[Web Push] Error getting subscription:', error);
 		return null;
 	}
 }
@@ -141,26 +136,24 @@ export async function getPushSubscription(): Promise<PushSubscription | null> {
 /**
  * Создает новую push subscription
  */
-export async function subscribeToPush(
-	userId: string,
-): Promise<PushSubscription | null> {
+export async function subscribeToPush(userId: string): Promise<PushSubscription | null> {
 	if (!isPushSupported()) {
-		console.warn("[Web Push] Push not supported");
+		console.warn('[Web Push] Push not supported');
 		return null;
 	}
 
 	try {
 		// Проверяем разрешение
 		const permission = await requestNotificationPermission();
-		if (permission !== "granted") {
-			console.warn("[Web Push] Permission not granted:", permission);
+		if (permission !== 'granted') {
+			console.warn('[Web Push] Permission not granted:', permission);
 			return null;
 		}
 
 		// Регистрируем Service Worker
 		const registration = await registerServiceWorker();
 		if (!registration) {
-			console.error("[Web Push] Service Worker registration failed");
+			console.error('[Web Push] Service Worker registration failed');
 			return null;
 		}
 
@@ -169,9 +162,7 @@ export async function subscribeToPush(
 
 		// Загружаем VAPID public key
 		const vapidPublicKey = await loadVapidPublicKey();
-		const applicationServerKey = urlBase64ToUint8Array(
-			vapidPublicKey,
-		) as BufferSource;
+		const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey) as BufferSource;
 
 		// Создаем subscription
 		const subscription = await registration.pushManager.subscribe({
@@ -179,14 +170,14 @@ export async function subscribeToPush(
 			applicationServerKey,
 		});
 
-		console.log("[Web Push] Subscription created:", subscription);
+		console.log('[Web Push] Subscription created:', subscription);
 
 		// Сохраняем subscription в БД
 		await savePushSubscription(userId, subscription);
 
 		return subscription;
 	} catch (error) {
-		console.error("[Web Push] Error subscribing to push:", error);
+		console.error('[Web Push] Error subscribing to push:', error);
 		return null;
 	}
 }
@@ -194,15 +185,12 @@ export async function subscribeToPush(
 /**
  * Сохраняет push subscription в Supabase
  */
-async function savePushSubscription(
-	userId: string,
-	subscription: PushSubscription,
-): Promise<void> {
+async function savePushSubscription(userId: string, subscription: PushSubscription): Promise<void> {
 	try {
 		const subscriptionJson = subscription.toJSON();
 		const browserInfo = getBrowserInfo();
 
-		const { error } = await supabase.from("push_subscriptions").upsert(
+		const { error } = await supabase.from('push_subscriptions').upsert(
 			{
 				user_id: userId,
 				endpoint: subscriptionJson.endpoint!,
@@ -214,18 +202,18 @@ async function savePushSubscription(
 				last_used_at: new Date().toISOString(),
 			},
 			{
-				onConflict: "endpoint",
-			},
+				onConflict: 'endpoint',
+			}
 		);
 
 		if (error) {
-			console.error("[Web Push] Failed to save subscription:", error);
+			console.error('[Web Push] Failed to save subscription:', error);
 			throw error;
 		}
 
-		console.log("[Web Push] Subscription saved to database");
+		console.log('[Web Push] Subscription saved to database');
 	} catch (error) {
-		console.error("[Web Push] Error saving subscription:", error);
+		console.error('[Web Push] Error saving subscription:', error);
 		throw error;
 	}
 }
@@ -237,30 +225,30 @@ export async function unsubscribeFromPush(userId: string): Promise<boolean> {
 	try {
 		const subscription = await getPushSubscription();
 		if (!subscription) {
-			console.warn("[Web Push] No active subscription");
+			console.warn('[Web Push] No active subscription');
 			return false;
 		}
 
 		// Отписываемся от push
 		const success = await subscription.unsubscribe();
-		console.log("[Web Push] Unsubscribed:", success);
+		console.log('[Web Push] Unsubscribed:', success);
 
 		if (success) {
 			// Деактивируем subscription в БД
 			const { error } = await supabase
-				.from("push_subscriptions")
+				.from('push_subscriptions')
 				.update({ is_active: false })
-				.eq("user_id", userId)
-				.eq("endpoint", subscription.endpoint);
+				.eq('user_id', userId)
+				.eq('endpoint', subscription.endpoint);
 
 			if (error) {
-				console.error("[Web Push] Failed to deactivate subscription:", error);
+				console.error('[Web Push] Failed to deactivate subscription:', error);
 			}
 		}
 
 		return success;
 	} catch (error) {
-		console.error("[Web Push] Error unsubscribing:", error);
+		console.error('[Web Push] Error unsubscribing:', error);
 		return false;
 	}
 }
@@ -279,20 +267,20 @@ export async function isPushSubscribed(): Promise<boolean> {
 export async function getUserPushSubscriptions(userId: string): Promise<any[]> {
 	try {
 		const { data, error } = await supabase
-			.from("push_subscriptions")
-			.select("*")
-			.eq("user_id", userId)
-			.eq("is_active", true)
-			.order("created_at", { ascending: false });
+			.from('push_subscriptions')
+			.select('*')
+			.eq('user_id', userId)
+			.eq('is_active', true)
+			.order('created_at', { ascending: false });
 
 		if (error) {
-			console.error("[Web Push] Failed to get subscriptions:", error);
+			console.error('[Web Push] Failed to get subscriptions:', error);
 			return [];
 		}
 
 		return data || [];
 	} catch (error) {
-		console.error("[Web Push] Error getting subscriptions:", error);
+		console.error('[Web Push] Error getting subscriptions:', error);
 		return [];
 	}
 }
@@ -302,7 +290,7 @@ export async function getUserPushSubscriptions(userId: string): Promise<any[]> {
  */
 export async function initWebPush(userId: string): Promise<void> {
 	if (!isPushSupported()) {
-		console.warn("[Web Push] Push not supported on this browser");
+		console.warn('[Web Push] Push not supported on this browser');
 		return;
 	}
 
@@ -311,13 +299,13 @@ export async function initWebPush(userId: string): Promise<void> {
 		const existingSubscription = await getPushSubscription();
 
 		if (existingSubscription) {
-			console.log("[Web Push] Existing subscription found");
+			console.log('[Web Push] Existing subscription found');
 			// Обновляем last_used_at
 			await savePushSubscription(userId, existingSubscription);
 		} else {
-			console.log("[Web Push] No existing subscription");
+			console.log('[Web Push] No existing subscription');
 		}
 	} catch (error) {
-		console.error("[Web Push] Error initializing Web Push:", error);
+		console.error('[Web Push] Error initializing Web Push:', error);
 	}
 }

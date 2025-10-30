@@ -1,10 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import type React from "react";
-import { useRef } from "react";
-import { Animated, StyleSheet } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { DesignTokens } from "../../design-system/tokens";
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import type React from 'react';
+import { useRef } from 'react';
+import { Animated, StyleSheet } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import { DesignTokens } from '../../design-system/tokens';
 
 interface SwipeableCardProps {
 	children: React.ReactNode;
@@ -33,37 +33,31 @@ export function SwipeableCard({
 
 	const renderRightActions = (
 		_progress: Animated.AnimatedInterpolation<number>,
-		dragX: Animated.AnimatedInterpolation<number>,
+		dragX: Animated.AnimatedInterpolation<number>
 	) => {
 		const scale = dragX.interpolate({
 			inputRange: [-deleteThreshold, 0],
 			outputRange: [1, 0.8],
-			extrapolate: "clamp",
+			extrapolate: 'clamp',
 		});
 
 		const opacity = dragX.interpolate({
 			inputRange: [-deleteThreshold, -deleteThreshold / 2, 0],
 			outputRange: [1, 0.8, 0],
-			extrapolate: "clamp",
+			extrapolate: 'clamp',
 		});
 
 		return (
 			<Animated.View style={[styles.deleteAction, { opacity }]}>
-				<Animated.View
-					style={[styles.deleteIconContainer, { transform: [{ scale }] }]}
-				>
-					<Ionicons
-						color={DesignTokens.colors.background}
-						name="trash-outline"
-						size={24}
-					/>
+				<Animated.View style={[styles.deleteIconContainer, { transform: [{ scale }] }]}>
+					<Ionicons color={DesignTokens.colors.background} name="trash-outline" size={24} />
 				</Animated.View>
 			</Animated.View>
 		);
 	};
 
-	const handleSwipeableOpen = (direction: "left" | "right") => {
-		if (direction === "right" && onDelete) {
+	const handleSwipeableOpen = (direction: 'left' | 'right') => {
+		if (direction === 'right' && onDelete) {
 			// Haptic feedback при открытии
 			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
@@ -77,8 +71,8 @@ export function SwipeableCard({
 		}
 	};
 
-	const handleSwipeableWillOpen = (direction: "left" | "right") => {
-		if (direction === "right" && !hapticTriggered.current) {
+	const handleSwipeableWillOpen = (direction: 'left' | 'right') => {
+		if (direction === 'right' && !hapticTriggered.current) {
 			// Haptic feedback при достижении порога
 			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 			hapticTriggered.current = true;
@@ -111,8 +105,8 @@ export function SwipeableCard({
 
 const styles = StyleSheet.create({
 	deleteAction: {
-		justifyContent: "center",
-		alignItems: "flex-end",
+		justifyContent: 'center',
+		alignItems: 'flex-end',
 		paddingRight: DesignTokens.spacing.lg,
 	},
 	deleteIconContainer: {
@@ -120,8 +114,8 @@ const styles = StyleSheet.create({
 		height: 56,
 		borderRadius: DesignTokens.borderRadius.full,
 		backgroundColor: DesignTokens.colors.error,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 		...DesignTokens.shadows.md,
 	},
 });

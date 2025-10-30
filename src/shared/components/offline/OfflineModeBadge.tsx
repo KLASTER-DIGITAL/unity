@@ -14,9 +14,9 @@
  * @date 2025-10-28
  */
 
-import { CloudOff } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useOfflineMode } from "@/shared/lib/offline";
+import { CloudOff } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useOfflineMode } from '@/shared/lib/offline';
 
 /**
  * Offline Mode Badge Component
@@ -43,7 +43,7 @@ export function OfflineModeBadge() {
 				className="-translate-x-1/2 fixed top-2 left-1/2 z-50 max-w-md"
 				exit={{ opacity: 0, y: -10 }}
 				initial={{ opacity: 0, y: -10 }}
-				transition={{ duration: 0.2, ease: "easeOut" }}
+				transition={{ duration: 0.2, ease: 'easeOut' }}
 			>
 				<div className="flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 font-medium text-muted-foreground text-xs shadow-lg transition-colors duration-300">
 					{/* Icon */}

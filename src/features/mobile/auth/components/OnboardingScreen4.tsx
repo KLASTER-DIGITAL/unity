@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
-import { useState } from "react";
-import { TimePickerModal } from "@/components/TimePickerModal";
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { TimePickerModal } from '@/components/TimePickerModal';
 
 // Import modular components and types
 import {
@@ -14,7 +14,7 @@ import {
 	Sliedbar,
 	SuccessModal,
 	onboarding4Translations as translations,
-} from "./onboarding4";
+} from './onboarding4';
 
 // Re-export types for backward compatibility
 export type { OnboardingScreen4Props, NotificationSettingsType };
@@ -33,28 +33,25 @@ function HabitsAndEntryForm({
 	onNext: (entry: string, settings: NotificationSettingsType) => void;
 	onUpdate?: (entry: string, settings: NotificationSettingsType) => void;
 }) {
-	const [notificationSettings, setNotificationSettings] =
-		useState<NotificationSettingsType>({
-			selectedTime: "none",
-			morningTime: "08:00",
-			eveningTime: "21:00",
-			permissionGranted: false,
-		});
-	const [firstEntry, setFirstEntry] = useState("");
+	const [notificationSettings, setNotificationSettings] = useState<NotificationSettingsType>({
+		selectedTime: 'none',
+		morningTime: '08:00',
+		eveningTime: '21:00',
+		permissionGranted: false,
+	});
+	const [firstEntry, setFirstEntry] = useState('');
 	const [showPermissionRequest, setShowPermissionRequest] = useState(false);
 	const [showTimePicker, setShowTimePicker] = useState<{
 		show: boolean;
-		type: "morning" | "evening";
+		type: 'morning' | 'evening';
 		title: string;
 	}>({
 		show: false,
-		type: "morning",
-		title: "",
+		type: 'morning',
+		title: '',
 	});
 
-	const handleNotificationSelect = (
-		type: "none" | "morning" | "evening" | "both",
-	) => {
+	const handleNotificationSelect = (type: 'none' | 'morning' | 'evening' | 'both') => {
 		const newSettings = {
 			...notificationSettings,
 			selectedTime: type,
@@ -63,24 +60,23 @@ function HabitsAndEntryForm({
 		setNotificationSettings(newSettings);
 		onUpdate?.(firstEntry, newSettings);
 
-		if (type !== "none" && !notificationSettings.permissionGranted) {
+		if (type !== 'none' && !notificationSettings.permissionGranted) {
 			setShowPermissionRequest(true);
 		}
 	};
 
-	const handleTimeClick = (type: "morning" | "evening") => {
+	const handleTimeClick = (type: 'morning' | 'evening') => {
 		setShowTimePicker({
 			show: true,
 			type,
-			title:
-				type === "morning" ? "Утреннее напоминание" : "Вечернее напоминание",
+			title: type === 'morning' ? 'Утреннее напоминание' : 'Вечернее напоминание',
 		});
 	};
 
 	const handleTimeSelect = (time: string) => {
 		const newSettings = {
 			...notificationSettings,
-			[showTimePicker.type === "morning" ? "morningTime" : "eveningTime"]: time,
+			[showTimePicker.type === 'morning' ? 'morningTime' : 'eveningTime']: time,
 		};
 
 		setNotificationSettings(newSettings);
@@ -95,17 +91,17 @@ function HabitsAndEntryForm({
 				const permission = await Notification.requestPermission();
 				const newSettings = {
 					...notificationSettings,
-					permissionGranted: permission === "granted",
+					permissionGranted: permission === 'granted',
 				};
 				setNotificationSettings(newSettings);
 				onUpdate?.(firstEntry, newSettings);
 			} catch (error) {
-				console.log("Notification permission request failed:", error);
+				console.log('Notification permission request failed:', error);
 			}
 		} else {
 			const newSettings: NotificationSettingsType = {
 				...notificationSettings,
-				selectedTime: "none" as const,
+				selectedTime: 'none' as const,
 			};
 			setNotificationSettings(newSettings);
 			onUpdate?.(firstEntry, newSettings);
@@ -128,8 +124,8 @@ function HabitsAndEntryForm({
 			data-name="HabitsAndEntryForm"
 			initial={{ opacity: 0, y: 30 }}
 			style={{
-				left: "50%",
-				top: "min(120px, calc(50vh - 200px))",
+				left: '50%',
+				top: 'min(120px, calc(50vh - 200px))',
 			}}
 			transition={{ delay: 0.4, duration: 0.7 }}
 		>
@@ -209,7 +205,7 @@ function HabitsAndEntryForm({
 			{/* Time Picker Modal */}
 			<TimePickerModal
 				initialTime={
-					showTimePicker.type === "morning"
+					showTimePicker.type === 'morning'
 						? notificationSettings.morningTime
 						: notificationSettings.eveningTime
 				}
@@ -232,28 +228,24 @@ function Frame2087324620({
 	onStepClick,
 }: OnboardingScreen4Props) {
 	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] ||
-		translations.ru;
+		translations[selectedLanguage as keyof typeof translations] || translations.ru;
 	const [isFormComplete, setIsFormComplete] = useState(false);
 	const [formData, setFormData] = useState<{
 		entry: string;
 		settings: NotificationSettingsType;
 	}>({
-		entry: "",
+		entry: '',
 		settings: {
-			selectedTime: "none",
-			morningTime: "08:00",
-			eveningTime: "21:00",
+			selectedTime: 'none',
+			morningTime: '08:00',
+			eveningTime: '21:00',
 			permissionGranted: false,
 		},
 	});
 	const [showSuccess, setShowSuccess] = useState(false);
 
-	const handleFormNext = async (
-		entry: string,
-		settings: NotificationSettingsType,
-	) => {
-		console.log("[OnboardingScreen4] handleFormNext called:", {
+	const handleFormNext = async (entry: string, settings: NotificationSettingsType) => {
+		console.log('[OnboardingScreen4] handleFormNext called:', {
 			entry,
 			settings,
 		});
@@ -262,31 +254,27 @@ function Frame2087324620({
 
 		// Show success animation if there's an entry
 		if (entry.trim()) {
-			console.log("[OnboardingScreen4] Showing success animation...");
+			console.log('[OnboardingScreen4] Showing success animation...');
 			setShowSuccess(true);
 			await new Promise((resolve) => setTimeout(resolve, 2000));
-			console.log("[OnboardingScreen4] Success animation complete");
+			console.log('[OnboardingScreen4] Success animation complete');
 		}
 
-		console.log("[OnboardingScreen4] Calling onNext...");
+		console.log('[OnboardingScreen4] Calling onNext...');
 		onNext(entry, settings);
-		console.log("[OnboardingScreen4] onNext called successfully");
+		console.log('[OnboardingScreen4] onNext called successfully');
 	};
 
-	const handleFormUpdate = (
-		entry: string,
-		settings: NotificationSettingsType,
-	) => {
-		console.log("[OnboardingScreen4] handleFormUpdate called:", {
+	const handleFormUpdate = (entry: string, settings: NotificationSettingsType) => {
+		console.log('[OnboardingScreen4] handleFormUpdate called:', {
 			entry: `${entry.substring(0, 50)}...`,
 			entryLength: entry.length,
 			settings,
 		});
 		setFormData({ entry, settings });
 		// Форма считается завершенной, если есть текст ИЛИ настроены уведомления
-		const isComplete =
-			entry.trim().length > 0 || settings.selectedTime !== "none";
-		console.log("[OnboardingScreen4] isFormComplete:", isComplete);
+		const isComplete = entry.trim().length > 0 || settings.selectedTime !== 'none';
+		console.log('[OnboardingScreen4] isFormComplete:', isComplete);
 		setIsFormComplete(isComplete);
 	};
 
@@ -302,20 +290,13 @@ function Frame2087324620({
 				onNext={handleFormNext}
 				onUpdate={handleFormUpdate}
 			/>
-			<Sliedbar
-				currentStep={currentStep}
-				onStepClick={onStepClick}
-				totalSteps={totalSteps}
-			/>
+			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton
 				disabled={!isFormComplete}
 				onNext={() => handleFormNext(formData.entry, formData.settings)}
 			/>
 
-			<SuccessModal
-				isOpen={showSuccess}
-				message={currentTranslations.successMessage}
-			/>
+			<SuccessModal isOpen={showSuccess} message={currentTranslations.successMessage} />
 		</motion.div>
 	);
 }

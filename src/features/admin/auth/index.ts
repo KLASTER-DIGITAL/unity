@@ -6,4 +6,4 @@
  */
 
 // Components
-export { AdminLoginScreen } from "./components/AdminLoginScreen";
+export { AdminLoginScreen } from './components/AdminLoginScreen';

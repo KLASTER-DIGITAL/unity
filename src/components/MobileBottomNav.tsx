@@ -15,11 +15,11 @@
  * @date 2025-10-19
  */
 
-import { BarChart3, History, Home, Settings, Trophy } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { memo, useMemo } from "react";
-import { cn } from "@/shared/components/ui/utils";
-import { useTranslation } from "@/shared/lib/i18n";
+import { BarChart3, History, Home, Settings, Trophy } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { memo, useMemo } from 'react';
+import { cn } from '@/shared/components/ui/utils';
+import { useTranslation } from '@/shared/lib/i18n';
 
 interface MobileBottomNavProps {
 	activeTab: string;
@@ -37,17 +37,17 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 	// Memoize tabs array to prevent recreation on every render
 	const tabs = useMemo(
 		() => [
-			{ id: "home", label: t("home", "Главная"), icon: Home },
-			{ id: "history", label: t("history", "История"), icon: History },
+			{ id: 'home', label: t('home', 'Главная'), icon: Home },
+			{ id: 'history', label: t('history', 'История'), icon: History },
 			{
-				id: "achievements",
-				label: t("achievements", "Достижения"),
+				id: 'achievements',
+				label: t('achievements', 'Достижения'),
 				icon: Trophy,
 			},
-			{ id: "reports", label: t("reports", "Отчеты"), icon: BarChart3 },
-			{ id: "settings", label: t("settings", "Настройки"), icon: Settings },
+			{ id: 'reports', label: t('reports', 'Отчеты'), icon: BarChart3 },
+			{ id: 'settings', label: t('settings', 'Настройки'), icon: Settings },
 		],
-		[t],
+		[t]
 	);
 
 	return (
@@ -55,27 +55,27 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 			animate={{ y: 0, opacity: 1 }}
 			className={cn(
 				// Position & Layout
-				"fixed right-0 left-0 z-50 mx-auto max-w-md",
+				'fixed right-0 left-0 z-50 mx-auto max-w-md',
 				// Floating effect (unless sticky)
-				stickyBottom ? "bottom-0" : "bottom-4",
+				stickyBottom ? 'bottom-0' : 'bottom-4',
 				// Horizontal margins for floating effect
-				stickyBottom ? "" : "mx-4",
+				stickyBottom ? '' : 'mx-4',
 				// Background & Border
-				"border border-border bg-card/95 backdrop-blur-lg",
+				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 10px for floating, none for sticky
-				stickyBottom ? "rounded-none border-t" : "rounded-[10px] shadow-xl",
+				stickyBottom ? 'rounded-none border-t' : 'rounded-[10px] shadow-xl',
 				// Padding
-				"px-2 py-3",
+				'px-2 py-3',
 				// Transitions
-				"transition-colors duration-300",
+				'transition-colors duration-300'
 			)}
 			initial={{ y: 100, opacity: 0 }}
 			style={{
 				// iOS-style blur effect
-				WebkitBackdropFilter: "blur(20px)",
-				backdropFilter: "blur(20px)",
+				WebkitBackdropFilter: 'blur(20px)',
+				backdropFilter: 'blur(20px)',
 			}}
-			transition={{ type: "spring", stiffness: 300, damping: 30 }}
+			transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 		>
 			<div className="flex items-center justify-around gap-1">
 				{tabs.map((tab) => {
@@ -86,27 +86,27 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 						<motion.button
 							className={cn(
 								// Base styles - HORIZONTAL layout (flex-row)
-								"relative flex flex-row items-center justify-center gap-2",
-								"min-h-[44px] min-w-[44px]", // iOS touch target size
-								"rounded-full transition-all duration-200",
+								'relative flex flex-row items-center justify-center gap-2',
+								'min-h-[44px] min-w-[44px]', // iOS touch target size
+								'rounded-full transition-all duration-200',
 								// Active state - pill style with padding
-								isActive && "bg-primary/15 px-3 py-2",
+								isActive && 'bg-primary/15 px-3 py-2',
 								// Inactive state - compact
-								!isActive && "px-2 py-2",
+								!isActive && 'px-2 py-2',
 								// Hover effect (only for inactive)
-								!isActive && "hover:bg-primary/5 active:bg-primary/10",
+								!isActive && 'hover:bg-primary/5 active:bg-primary/10'
 							)}
 							key={tab.id}
 							layout
 							onClick={() => onTabChange(tab.id)}
-							transition={{ type: "spring", stiffness: 400, damping: 25 }}
+							transition={{ type: 'spring', stiffness: 400, damping: 25 }}
 							whileTap={{ scale: 0.95 }}
 						>
 							{/* Icon */}
 							<motion.div
 								className={cn(
-									"flex shrink-0 items-center justify-center",
-									isActive ? "text-primary" : "text-muted-foreground",
+									'flex shrink-0 items-center justify-center',
+									isActive ? 'text-primary' : 'text-muted-foreground'
 								)}
 								layout
 							>
@@ -117,7 +117,7 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 							<AnimatePresence mode="wait">
 								{isActive && (
 									<motion.span
-										animate={{ opacity: 1, width: "auto" }}
+										animate={{ opacity: 1, width: 'auto' }}
 										className="overflow-hidden whitespace-nowrap font-normal text-[11px] text-primary"
 										exit={{ opacity: 0, width: 0 }}
 										initial={{ opacity: 0, width: 0 }}

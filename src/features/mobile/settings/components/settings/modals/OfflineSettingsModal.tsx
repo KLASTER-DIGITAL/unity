@@ -1,10 +1,10 @@
-import { AlertTriangle, CloudOff, RefreshCw, Trash2, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { useOfflineMode } from "@/shared/lib/offline";
-import { SettingsRow, SettingsSection } from "../../SettingsRow";
+import { AlertTriangle, CloudOff, RefreshCw, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
+import { useOfflineMode } from '@/shared/lib/offline';
+import { SettingsRow, SettingsSection } from '../../SettingsRow';
 
 type OfflineSettingsModalProps = {
 	isOpen: boolean;
@@ -12,31 +12,25 @@ type OfflineSettingsModalProps = {
 	t: any;
 };
 
-type ConflictStrategy = "server-wins" | "client-wins" | "merge" | "manual";
+type ConflictStrategy = 'server-wins' | 'client-wins' | 'merge' | 'manual';
 
-export function OfflineSettingsModal({
-	isOpen,
-	onClose,
-	t,
-}: OfflineSettingsModalProps) {
-	const { isOnline, pendingCount, syncInProgress, sync, clearOfflineData } =
-		useOfflineMode();
+export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModalProps) {
+	const { isOnline, pendingCount, syncInProgress, sync, clearOfflineData } = useOfflineMode();
 
 	// Local state для настроек
 	const [autoSync, setAutoSync] = useState(true);
-	const [conflictStrategy, setConflictStrategy] =
-		useState<ConflictStrategy>("server-wins");
+	const [conflictStrategy, setConflictStrategy] = useState<ConflictStrategy>('server-wins');
 	const [_cacheSizeLimit, setCacheSizeLimit] = useState(100); // MB - Reserved for future use
 
 	// Load settings from localStorage
 	useEffect(() => {
 		if (isOpen) {
-			const savedAutoSync = localStorage.getItem("offline_auto_sync");
-			const savedStrategy = localStorage.getItem("offline_conflict_strategy");
-			const savedCacheLimit = localStorage.getItem("offline_cache_limit");
+			const savedAutoSync = localStorage.getItem('offline_auto_sync');
+			const savedStrategy = localStorage.getItem('offline_conflict_strategy');
+			const savedCacheLimit = localStorage.getItem('offline_cache_limit');
 
 			if (savedAutoSync !== null) {
-				setAutoSync(savedAutoSync === "true");
+				setAutoSync(savedAutoSync === 'true');
 			}
 			if (savedStrategy) {
 				setConflictStrategy(savedStrategy as ConflictStrategy);
@@ -49,48 +43,48 @@ export function OfflineSettingsModal({
 
 	const handleAutoSyncChange = (checked: boolean) => {
 		setAutoSync(checked);
-		localStorage.setItem("offline_auto_sync", checked.toString());
+		localStorage.setItem('offline_auto_sync', checked.toString());
 	};
 
 	const handleConflictStrategyChange = (strategy: ConflictStrategy) => {
 		setConflictStrategy(strategy);
-		localStorage.setItem("offline_conflict_strategy", strategy);
+		localStorage.setItem('offline_conflict_strategy', strategy);
 	};
 
 	const handleManualSync = async () => {
 		try {
 			await sync();
-			toast.success("Синхронизация завершена");
+			toast.success('Синхронизация завершена');
 		} catch (error) {
-			toast.error("Ошибка синхронизации");
-			console.error("[OfflineSettings] Sync error:", error);
+			toast.error('Ошибка синхронизации');
+			console.error('[OfflineSettings] Sync error:', error);
 		}
 	};
 
 	const handleClearOfflineData = async () => {
-		if (confirm("Вы уверены? Все несинхронизированные данные будут удалены.")) {
+		if (confirm('Вы уверены? Все несинхронизированные данные будут удалены.')) {
 			try {
 				await clearOfflineData();
-				toast.success("Offline данные очищены");
+				toast.success('Offline данные очищены');
 			} catch (error) {
-				toast.error("Ошибка очистки данных");
-				console.error("[OfflineSettings] Clear error:", error);
+				toast.error('Ошибка очистки данных');
+				console.error('[OfflineSettings] Clear error:', error);
 			}
 		}
 	};
 
 	const getConflictStrategyDescription = (strategy: ConflictStrategy) => {
 		switch (strategy) {
-			case "server-wins":
-				return "Данные с сервера имеют приоритет";
-			case "client-wins":
-				return "Локальные данные имеют приоритет";
-			case "merge":
-				return "Автоматическое объединение данных";
-			case "manual":
-				return "Ручное разрешение конфликтов";
+			case 'server-wins':
+				return 'Данные с сервера имеют приоритет';
+			case 'client-wins':
+				return 'Локальные данные имеют приоритет';
+			case 'merge':
+				return 'Автоматическое объединение данных';
+			case 'manual':
+				return 'Ручное разрешение конфликтов';
 			default:
-				return "";
+				return '';
 		}
 	};
 
@@ -119,7 +113,7 @@ export function OfflineSettingsModal({
 							<div className="flex items-center gap-responsive-sm">
 								<CloudOff className="h-6 w-6 text-[var(--ios-purple)]" />
 								<h3 className="text-foreground text-title-2">
-									{t.offlineSettings || "Настройки Offline"}
+									{t.offlineSettings || 'Настройки Offline'}
 								</h3>
 							</div>
 							<button
@@ -133,19 +127,15 @@ export function OfflineSettingsModal({
 						{/* Status */}
 						<div className="mb-6 rounded-lg border border-border bg-accent/5 p-4">
 							<div className="mb-2 flex items-center justify-between">
-								<span className="text-footnote text-muted-foreground">
-									Статус подключения:
-								</span>
+								<span className="text-footnote text-muted-foreground">Статус подключения:</span>
 								<span
-									className={`font-semibold text-footnote ${isOnline ? "text-green-600" : "text-orange-600"}`}
+									className={`font-semibold text-footnote ${isOnline ? 'text-green-600' : 'text-orange-600'}`}
 								>
-									{isOnline ? "🟢 Online" : "🔴 Offline"}
+									{isOnline ? '🟢 Online' : '🔴 Offline'}
 								</span>
 							</div>
 							<div className="flex items-center justify-between">
-								<span className="text-footnote text-muted-foreground">
-									Ожидают синхронизации:
-								</span>
+								<span className="text-footnote text-muted-foreground">Ожидают синхронизации:</span>
 								<span className="font-semibold text-footnote text-foreground">
 									{pendingCount} записей
 								</span>
@@ -169,45 +159,40 @@ export function OfflineSettingsModal({
 						{/* Conflict Resolution */}
 						<SettingsSection title="Разрешение конфликтов">
 							<div className="space-y-2">
-								{(
-									[
-										"server-wins",
-										"client-wins",
-										"merge",
-										"manual",
-									] as ConflictStrategy[]
-								).map((strategy) => (
-									<button
-										className={`w-full rounded-lg border p-3 text-left transition-colors ${
-											conflictStrategy === strategy
-												? "border-[var(--ios-blue)] bg-[var(--ios-blue)]/5"
-												: "border-border hover:bg-accent/5"
-										}`}
-										key={strategy}
-										onClick={() => handleConflictStrategyChange(strategy)}
-									>
-										<div className="flex items-center justify-between">
-											<div className="flex-1">
-												<div className="flex items-center gap-2">
-													{conflictStrategy === strategy && (
-														<div className="flex h-4 w-4 items-center justify-center rounded-full bg-primary transition-colors duration-300">
-															<div className="h-2 w-2 rounded-full bg-primary-foreground transition-colors duration-300" />
-														</div>
-													)}
-													<span className="font-medium text-footnote text-foreground">
-														{strategy === "server-wins" && "Приоритет сервера"}
-														{strategy === "client-wins" && "Приоритет клиента"}
-														{strategy === "merge" && "Автоматическое слияние"}
-														{strategy === "manual" && "Ручное разрешение"}
-													</span>
+								{(['server-wins', 'client-wins', 'merge', 'manual'] as ConflictStrategy[]).map(
+									(strategy) => (
+										<button
+											className={`w-full rounded-lg border p-3 text-left transition-colors ${
+												conflictStrategy === strategy
+													? 'border-[var(--ios-blue)] bg-[var(--ios-blue)]/5'
+													: 'border-border hover:bg-accent/5'
+											}`}
+											key={strategy}
+											onClick={() => handleConflictStrategyChange(strategy)}
+										>
+											<div className="flex items-center justify-between">
+												<div className="flex-1">
+													<div className="flex items-center gap-2">
+														{conflictStrategy === strategy && (
+															<div className="flex h-4 w-4 items-center justify-center rounded-full bg-primary transition-colors duration-300">
+																<div className="h-2 w-2 rounded-full bg-primary-foreground transition-colors duration-300" />
+															</div>
+														)}
+														<span className="font-medium text-footnote text-foreground">
+															{strategy === 'server-wins' && 'Приоритет сервера'}
+															{strategy === 'client-wins' && 'Приоритет клиента'}
+															{strategy === 'merge' && 'Автоматическое слияние'}
+															{strategy === 'manual' && 'Ручное разрешение'}
+														</span>
+													</div>
+													<p className="mt-1 ml-6 text-caption-1 text-muted-foreground">
+														{getConflictStrategyDescription(strategy)}
+													</p>
 												</div>
-												<p className="mt-1 ml-6 text-caption-1 text-muted-foreground">
-													{getConflictStrategyDescription(strategy)}
-												</p>
 											</div>
-										</div>
-									</button>
-								))}
+										</button>
+									)
+								)}
 							</div>
 						</SettingsSection>
 
@@ -220,12 +205,8 @@ export function OfflineSettingsModal({
 								onClick={handleManualSync}
 								variant="outline"
 							>
-								<RefreshCw
-									className={`mr-2 h-4 w-4 ${syncInProgress ? "animate-spin" : ""}`}
-								/>
-								{syncInProgress
-									? "Синхронизация..."
-									: `Синхронизировать сейчас (${pendingCount})`}
+								<RefreshCw className={`mr-2 h-4 w-4 ${syncInProgress ? 'animate-spin' : ''}`} />
+								{syncInProgress ? 'Синхронизация...' : `Синхронизировать сейчас (${pendingCount})`}
 							</Button>
 
 							{/* Clear Offline Data */}
@@ -244,9 +225,8 @@ export function OfflineSettingsModal({
 							<div className="flex items-start gap-2">
 								<AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
 								<p className="text-caption-1 text-orange-600">
-									Offline режим использует локальное хранилище браузера. Не
-									очищайте данные браузера, чтобы не потерять
-									несинхронизированные записи.
+									Offline режим использует локальное хранилище браузера. Не очищайте данные
+									браузера, чтобы не потерять несинхронизированные записи.
 								</p>
 							</div>
 						</div>

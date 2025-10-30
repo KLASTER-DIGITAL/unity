@@ -15,13 +15,13 @@
  * @date 2025-10-26
  */
 
-import { act, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useImageCompressionWorker } from "@/shared/hooks/useImageCompressionWorker";
-import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
-import { useSpeechRecognition } from "@/shared/hooks/useSpeechRecognition";
-import { useVoiceRecorder } from "@/shared/hooks/useVoiceRecorder";
-import { useOfflineMode } from "@/shared/lib/offline/useOfflineMode";
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useImageCompressionWorker } from '@/shared/hooks/useImageCompressionWorker';
+import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder';
+import { useOfflineMode } from '@/shared/lib/offline/useOfflineMode';
 
 // ============================================================================
 // MOCKS
@@ -29,36 +29,36 @@ import { useOfflineMode } from "@/shared/lib/offline/useOfflineMode";
 
 // Mock MediaRecorder
 class MockMediaRecorder {
-	state: "inactive" | "recording" | "paused" = "inactive";
+	state: 'inactive' | 'recording' | 'paused' = 'inactive';
 	ondataavailable: ((event: any) => void) | null = null;
 	onstop: (() => void) | null = null;
-	mimeType = "audio/webm";
+	mimeType = 'audio/webm';
 
 	constructor(stream: MediaStream, options?: any) {
-		this.mimeType = options?.mimeType || "audio/webm";
+		this.mimeType = options?.mimeType || 'audio/webm';
 	}
 
 	start() {
-		this.state = "recording";
+		this.state = 'recording';
 		// Simulate data available after 100ms
 		setTimeout(() => {
 			if (this.ondataavailable) {
 				this.ondataavailable({
-					data: new Blob(["audio data"], { type: this.mimeType }),
+					data: new Blob(['audio data'], { type: this.mimeType }),
 				});
 			}
 		}, 100);
 	}
 
 	stop() {
-		this.state = "inactive";
+		this.state = 'inactive';
 		if (this.onstop) {
 			this.onstop();
 		}
 	}
 
 	static isTypeSupported(type: string) {
-		return type === "audio/webm";
+		return type === 'audio/webm';
 	}
 }
 
@@ -87,7 +87,7 @@ class MockAudioContext {
 class MockSpeechRecognition {
 	continuous = false;
 	interimResults = false;
-	lang = "ru-RU";
+	lang = 'ru-RU';
 	onstart: (() => void) | null = null;
 	onresult: ((event: any) => void) | null = null;
 	onend: (() => void) | null = null;
@@ -101,7 +101,7 @@ class MockSpeechRecognition {
 		setTimeout(() => {
 			if (this.onresult) {
 				this.onresult({
-					results: [[{ transcript: "test transcript" }]],
+					results: [[{ transcript: 'test transcript' }]],
 				});
 			}
 		}, 100);
@@ -120,7 +120,7 @@ const mockGetUserMedia = vi.fn().mockResolvedValue({
 });
 
 // Mock offlineManager
-vi.mock("@/shared/lib/offline/offlineManager", () => ({
+vi.mock('@/shared/lib/offline/offlineManager', () => ({
 	offlineManager: {
 		getStatus: vi.fn(() => ({
 			isOnline: true,
@@ -136,46 +136,36 @@ vi.mock("@/shared/lib/offline/offlineManager", () => ({
 }));
 
 // Mock uploadMedia
-vi.mock("@/shared/lib/api", () => ({
+vi.mock('@/shared/lib/api', () => ({
 	uploadMedia: vi.fn().mockResolvedValue({
-		url: "https://example.com/uploaded.jpg",
-		path: "uploads/test.jpg",
+		url: 'https://example.com/uploaded.jpg',
+		path: 'uploads/test.jpg',
 		size: 1024,
 	}),
 }));
 
 // Mock image compression utilities
-vi.mock("@/utils/imageCompression", () => ({
+vi.mock('@/utils/imageCompression', () => ({
 	compressImage: vi
 		.fn()
-		.mockResolvedValue(
-			new File(["compressed"], "compressed.jpg", { type: "image/jpeg" }),
-		),
+		.mockResolvedValue(new File(['compressed'], 'compressed.jpg', { type: 'image/jpeg' })),
 	generateThumbnail: vi
 		.fn()
-		.mockResolvedValue(
-			new File(["thumbnail"], "thumb.jpg", { type: "image/jpeg" }),
-		),
+		.mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
 	getImageDimensions: vi.fn().mockResolvedValue({ width: 1920, height: 1080 }),
-	isImageFile: vi.fn((file: File) => file.type.startsWith("image/")),
-	isVideoFile: vi.fn((file: File) => file.type.startsWith("video/")),
+	isImageFile: vi.fn((file: File) => file.type.startsWith('image/')),
+	isVideoFile: vi.fn((file: File) => file.type.startsWith('video/')),
 }));
 
 // Mock video compression utilities
-vi.mock("@/utils/videoCompression", () => ({
+vi.mock('@/utils/videoCompression', () => ({
 	compressVideo: vi
 		.fn()
-		.mockResolvedValue(
-			new File(["compressed"], "compressed.mp4", { type: "video/mp4" }),
-		),
+		.mockResolvedValue(new File(['compressed'], 'compressed.mp4', { type: 'video/mp4' })),
 	generateVideoThumbnail: vi
 		.fn()
-		.mockResolvedValue(
-			new File(["thumbnail"], "thumb.jpg", { type: "image/jpeg" }),
-		),
-	getVideoMetadata: vi
-		.fn()
-		.mockResolvedValue({ width: 1920, height: 1080, duration: 10 }),
+		.mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
+	getVideoMetadata: vi.fn().mockResolvedValue({ width: 1920, height: 1080, duration: 10 }),
 	validateVideo: vi.fn().mockResolvedValue(true),
 }));
 
@@ -190,7 +180,7 @@ beforeEach(() => {
 	(global as any).webkitAudioContext = MockAudioContext;
 	(global as any).webkitSpeechRecognition = MockSpeechRecognition;
 
-	Object.defineProperty(global.navigator, "mediaDevices", {
+	Object.defineProperty(global.navigator, 'mediaDevices', {
 		value: { getUserMedia: mockGetUserMedia },
 		writable: true,
 	});
@@ -208,8 +198,8 @@ afterEach(() => {
 // TESTS: useVoiceRecorder (12 tests)
 // ============================================================================
 
-describe("useVoiceRecorder", () => {
-	it("should initialize with correct default values", () => {
+describe('useVoiceRecorder', () => {
+	it('should initialize with correct default values', () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		expect(result.current.isRecording).toBe(false);
@@ -218,12 +208,12 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should detect browser support correctly", () => {
+	it('should detect browser support correctly', () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should start recording successfully", async () => {
+	it('should start recording successfully', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		let error: any = null;
@@ -248,7 +238,7 @@ describe("useVoiceRecorder", () => {
 		});
 	});
 
-	it("should increment recording time", async () => {
+	it('should increment recording time', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -268,7 +258,7 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.recordingTime).toBeGreaterThanOrEqual(0);
 	});
 
-	it("should stop recording and return audio blob", async () => {
+	it('should stop recording and return audio blob', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -296,7 +286,7 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.isRecording).toBe(false);
 	});
 
-	it("should cancel recording without returning blob", async () => {
+	it('should cancel recording without returning blob', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -311,8 +301,8 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.recordingTime).toBe(0);
 	});
 
-	it("should handle getUserMedia error", async () => {
-		mockGetUserMedia.mockRejectedValueOnce(new Error("Permission denied"));
+	it('should handle getUserMedia error', async () => {
+		mockGetUserMedia.mockRejectedValueOnce(new Error('Permission denied'));
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -327,7 +317,7 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.isRecording).toBe(false);
 	});
 
-	it("should cleanup resources on unmount", async () => {
+	it('should cleanup resources on unmount', async () => {
 		const { result, unmount } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -340,7 +330,7 @@ describe("useVoiceRecorder", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should not start recording if already recording", async () => {
+	it('should not start recording if already recording', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -367,7 +357,7 @@ describe("useVoiceRecorder", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should return null when stopping without recording", async () => {
+	it('should return null when stopping without recording', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		let audioBlob: Blob | null = null;
@@ -378,7 +368,7 @@ describe("useVoiceRecorder", () => {
 		expect(audioBlob).toBeNull();
 	});
 
-	it("should reset audio level on cancel", async () => {
+	it('should reset audio level on cancel', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -392,7 +382,7 @@ describe("useVoiceRecorder", () => {
 		expect(result.current.audioLevel).toBe(0);
 	});
 
-	it("should use correct mime type", async () => {
+	it('should use correct mime type', async () => {
 		const { result } = renderHook(() => useVoiceRecorder());
 
 		await act(async () => {
@@ -400,7 +390,7 @@ describe("useVoiceRecorder", () => {
 		});
 
 		// MediaRecorder should be created with audio/webm
-		expect(MockMediaRecorder.isTypeSupported("audio/webm")).toBe(true);
+		expect(MockMediaRecorder.isTypeSupported('audio/webm')).toBe(true);
 	});
 });
 
@@ -408,21 +398,21 @@ describe("useVoiceRecorder", () => {
 // TESTS: useSpeechRecognition (10 tests)
 // ============================================================================
 
-describe("useSpeechRecognition", () => {
-	it("should initialize with correct default values", () => {
+describe('useSpeechRecognition', () => {
+	it('should initialize with correct default values', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		expect(result.current.isListening).toBe(false);
-		expect(result.current.transcript).toBe("");
+		expect(result.current.transcript).toBe('');
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should detect browser support correctly", () => {
+	it('should detect browser support correctly', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should start listening successfully", () => {
+	it('should start listening successfully', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -434,7 +424,7 @@ describe("useSpeechRecognition", () => {
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should capture transcript", async () => {
+	it('should capture transcript', async () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -451,7 +441,7 @@ describe("useSpeechRecognition", () => {
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should stop listening", () => {
+	it('should stop listening', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -465,7 +455,7 @@ describe("useSpeechRecognition", () => {
 		expect(result.current.isListening).toBe(false);
 	});
 
-	it("should clear transcript on new listening session", () => {
+	it('should clear transcript on new listening session', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -480,10 +470,10 @@ describe("useSpeechRecognition", () => {
 			result.current.startListening();
 		});
 
-		expect(result.current.transcript).toBe("");
+		expect(result.current.transcript).toBe('');
 	});
 
-	it("should not start if not supported", () => {
+	it('should not start if not supported', () => {
 		// Save original
 		const original = (global as any).webkitSpeechRecognition;
 		delete (global as any).webkitSpeechRecognition;
@@ -502,7 +492,7 @@ describe("useSpeechRecognition", () => {
 		(global as any).webkitSpeechRecognition = original;
 	});
 
-	it("should handle recognition error", async () => {
+	it('should handle recognition error', async () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -518,7 +508,7 @@ describe("useSpeechRecognition", () => {
 		expect(result.current.isSupported).toBe(true);
 	});
 
-	it("should cleanup on unmount", () => {
+	it('should cleanup on unmount', () => {
 		const { unmount } = renderHook(() => useSpeechRecognition());
 
 		unmount();
@@ -527,7 +517,7 @@ describe("useSpeechRecognition", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should use correct language setting", () => {
+	it('should use correct language setting', () => {
 		const { result } = renderHook(() => useSpeechRecognition());
 
 		act(() => {
@@ -543,22 +533,22 @@ describe("useSpeechRecognition", () => {
 // TESTS: useImageCompressionWorker (8 tests)
 // ============================================================================
 
-describe("useImageCompressionWorker", () => {
-	it("should initialize without errors", () => {
+describe('useImageCompressionWorker', () => {
+	it('should initialize without errors', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 		expect(result.current).toBeDefined();
 	});
 
-	it("should have compressImage method", () => {
+	it('should have compressImage method', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
-		expect(typeof result.current.compressImage).toBe("function");
+		expect(typeof result.current.compressImage).toBe('function');
 	});
 
-	it("should compress image successfully", async () => {
+	it('should compress image successfully', async () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
-		const mockFile = new File(["image data"], "test.jpg", {
-			type: "image/jpeg",
+		const mockFile = new File(['image data'], 'test.jpg', {
+			type: 'image/jpeg',
 		});
 
 		// Mock worker response
@@ -572,7 +562,7 @@ describe("useImageCompressionWorker", () => {
 		expect(result.current.compressImage).toBeDefined();
 	});
 
-	it("should handle compression options", () => {
+	it('should handle compression options', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
 		const options = {
@@ -586,7 +576,7 @@ describe("useImageCompressionWorker", () => {
 		expect(options.quality).toBe(0.8);
 	});
 
-	it("should cleanup worker on unmount", () => {
+	it('should cleanup worker on unmount', () => {
 		const { unmount } = renderHook(() => useImageCompressionWorker());
 
 		unmount();
@@ -595,23 +585,23 @@ describe("useImageCompressionWorker", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should handle worker errors gracefully", () => {
+	it('should handle worker errors gracefully', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
 		// Worker error handling is internal
 		expect(result.current.compressImage).toBeDefined();
 	});
 
-	it("should support multiple compressions", () => {
+	it('should support multiple compressions', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
 		// Method should be callable multiple times
-		expect(typeof result.current.compressImage).toBe("function");
+		expect(typeof result.current.compressImage).toBe('function');
 	});
 
-	it("should validate compression result structure", () => {
+	it('should validate compression result structure', () => {
 		const mockResult = {
-			file: new File(["compressed"], "test.jpg", { type: "image/jpeg" }),
+			file: new File(['compressed'], 'test.jpg', { type: 'image/jpeg' }),
 			originalSize: 2048,
 			compressedSize: 1024,
 			reduction: 50,
@@ -626,8 +616,8 @@ describe("useImageCompressionWorker", () => {
 // TESTS: useOfflineMode (8 tests)
 // ============================================================================
 
-describe("useOfflineMode", () => {
-	it("should initialize with correct default values", () => {
+describe('useOfflineMode', () => {
+	it('should initialize with correct default values', () => {
 		const { result } = renderHook(() => useOfflineMode());
 
 		expect(result.current.isOnline).toBe(true);
@@ -635,17 +625,17 @@ describe("useOfflineMode", () => {
 		expect(result.current.syncInProgress).toBe(false);
 	});
 
-	it("should provide sync method", () => {
+	it('should provide sync method', () => {
 		const { result } = renderHook(() => useOfflineMode());
-		expect(typeof result.current.sync).toBe("function");
+		expect(typeof result.current.sync).toBe('function');
 	});
 
-	it("should provide clearOfflineData method", () => {
+	it('should provide clearOfflineData method', () => {
 		const { result } = renderHook(() => useOfflineMode());
-		expect(typeof result.current.clearOfflineData).toBe("function");
+		expect(typeof result.current.clearOfflineData).toBe('function');
 	});
 
-	it("should call sync successfully", async () => {
+	it('should call sync successfully', async () => {
 		const { result } = renderHook(() => useOfflineMode());
 
 		await act(async () => {
@@ -656,7 +646,7 @@ describe("useOfflineMode", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should call clearOfflineData successfully", async () => {
+	it('should call clearOfflineData successfully', async () => {
 		const { result } = renderHook(() => useOfflineMode());
 
 		await act(async () => {
@@ -667,18 +657,18 @@ describe("useOfflineMode", () => {
 		expect(true).toBe(true);
 	});
 
-	it("should track last online time", () => {
+	it('should track last online time', () => {
 		const { result } = renderHook(() => useOfflineMode());
 		expect(result.current.lastOnline).toBeInstanceOf(Date);
 	});
 
-	it("should track last sync event", () => {
+	it('should track last sync event', () => {
 		const { result } = renderHook(() => useOfflineMode());
 		// Initially null
 		expect(result.current.lastSyncEvent).toBeNull();
 	});
 
-	it("should cleanup listeners on unmount", () => {
+	it('should cleanup listeners on unmount', () => {
 		const { unmount } = renderHook(() => useOfflineMode());
 
 		unmount();
@@ -692,8 +682,8 @@ describe("useOfflineMode", () => {
 // TESTS: useMediaUploader (15 tests)
 // ============================================================================
 
-describe("useMediaUploader", () => {
-	it("should initialize with correct default values", () => {
+describe('useMediaUploader', () => {
+	it('should initialize with correct default values', () => {
 		const { result } = renderHook(() => useMediaUploader());
 
 		expect(result.current.isUploading).toBe(false);
@@ -701,68 +691,68 @@ describe("useMediaUploader", () => {
 		expect(result.current.uploadProgress).toBe(0);
 	});
 
-	it("should have selectAndUploadMedia method", () => {
+	it('should have selectAndUploadMedia method', () => {
 		const { result } = renderHook(() => useMediaUploader());
-		expect(typeof result.current.selectAndUploadMedia).toBe("function");
+		expect(typeof result.current.selectAndUploadMedia).toBe('function');
 	});
 
-	it("should have uploadFiles method", () => {
+	it('should have uploadFiles method', () => {
 		const { result } = renderHook(() => useMediaUploader());
-		expect(typeof result.current.uploadFiles).toBe("function");
+		expect(typeof result.current.uploadFiles).toBe('function');
 	});
 
-	it("should have removeMedia method", () => {
+	it('should have removeMedia method', () => {
 		const { result } = renderHook(() => useMediaUploader());
-		expect(typeof result.current.removeMedia).toBe("function");
+		expect(typeof result.current.removeMedia).toBe('function');
 	});
 
-	it("should have clearMedia method", () => {
+	it('should have clearMedia method', () => {
 		const { result } = renderHook(() => useMediaUploader());
-		expect(typeof result.current.clearMedia).toBe("function");
+		expect(typeof result.current.clearMedia).toBe('function');
 	});
 
-	it("should upload files successfully", async () => {
+	it('should upload files successfully', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image data"], "test.jpg", {
-			type: "image/jpeg",
+		const mockFile = new File(['image data'], 'test.jpg', {
+			type: 'image/jpeg',
 		});
 
 		await act(async () => {
-			await result.current.uploadFiles([mockFile], "test-user-id");
+			await result.current.uploadFiles([mockFile], 'test-user-id');
 		});
 
 		expect(result.current.uploadedMedia.length).toBeGreaterThan(0);
 	});
 
-	it("should track upload progress", async () => {
+	it('should track upload progress', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image data"], "test.jpg", {
-			type: "image/jpeg",
+		const mockFile = new File(['image data'], 'test.jpg', {
+			type: 'image/jpeg',
 		});
 
 		await act(async () => {
-			await result.current.uploadFiles([mockFile], "test-user-id");
+			await result.current.uploadFiles([mockFile], 'test-user-id');
 		});
 
 		// Upload should complete
 		expect(result.current.isUploading).toBe(false);
 	});
 
-	it("should handle upload errors gracefully", async () => {
-		const { uploadMedia } = await import("@/shared/lib/api");
-		vi.mocked(uploadMedia).mockRejectedValueOnce(new Error("Upload failed"));
+	it('should handle upload errors gracefully', async () => {
+		const { uploadMedia } = await import('@/shared/lib/api');
+		vi.mocked(uploadMedia).mockRejectedValueOnce(new Error('Upload failed'));
 
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image data"], "test.jpg", {
-			type: "image/jpeg",
+		const mockFile = new File(['image data'], 'test.jpg', {
+			type: 'image/jpeg',
 		});
 
 		await act(async () => {
 			try {
-				await result.current.uploadFiles([mockFile], "test-user-id");
+				await result.current.uploadFiles([mockFile], 'test-user-id');
 			} catch (error) {
 				// Expected error
 				expect(error).toBeDefined();
@@ -773,32 +763,32 @@ describe("useMediaUploader", () => {
 		expect(result.current.isUploading).toBe(false);
 	});
 
-	it("should support multiple file uploads", async () => {
+	it('should support multiple file uploads', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
 		const mockFiles = [
-			new File(["image1"], "test1.jpg", { type: "image/jpeg" }),
-			new File(["image2"], "test2.jpg", { type: "image/jpeg" }),
+			new File(['image1'], 'test1.jpg', { type: 'image/jpeg' }),
+			new File(['image2'], 'test2.jpg', { type: 'image/jpeg' }),
 		];
 
 		await act(async () => {
-			await result.current.uploadFiles(mockFiles, "test-user-id");
+			await result.current.uploadFiles(mockFiles, 'test-user-id');
 		});
 
 		expect(result.current.isUploading).toBe(false);
 	});
 
-	it("should reject files larger than 10MB", async () => {
+	it('should reject files larger than 10MB', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["large image"], "large.jpg", {
-			type: "image/jpeg",
+		const mockFile = new File(['large image'], 'large.jpg', {
+			type: 'image/jpeg',
 		});
-		Object.defineProperty(mockFile, "size", { value: 15 * 1024 * 1024 }); // 15MB
+		Object.defineProperty(mockFile, 'size', { value: 15 * 1024 * 1024 }); // 15MB
 
 		await act(async () => {
 			try {
-				await result.current.uploadFiles([mockFile], "test-user-id");
+				await result.current.uploadFiles([mockFile], 'test-user-id');
 			} catch (error) {
 				// Expected error for large file
 				expect(error).toBeDefined();
@@ -809,26 +799,26 @@ describe("useMediaUploader", () => {
 		expect(result.current.uploadedMedia.length).toBe(0);
 	});
 
-	it("should track current upload status", async () => {
+	it('should track current upload status', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image"], "test.jpg", { type: "image/jpeg" });
+		const mockFile = new File(['image'], 'test.jpg', { type: 'image/jpeg' });
 
 		await act(async () => {
-			await result.current.uploadFiles([mockFile], "test-user-id");
+			await result.current.uploadFiles([mockFile], 'test-user-id');
 		});
 
 		// Current upload should have success status after completion
-		expect(result.current.currentUpload?.status).toBe("success");
+		expect(result.current.currentUpload?.status).toBe('success');
 	});
 
-	it("should remove media by index", async () => {
+	it('should remove media by index', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image"], "test.jpg", { type: "image/jpeg" });
+		const mockFile = new File(['image'], 'test.jpg', { type: 'image/jpeg' });
 
 		await act(async () => {
-			await result.current.uploadFiles([mockFile], "test-user-id");
+			await result.current.uploadFiles([mockFile], 'test-user-id');
 		});
 
 		const initialLength = result.current.uploadedMedia.length;
@@ -840,13 +830,13 @@ describe("useMediaUploader", () => {
 		expect(result.current.uploadedMedia.length).toBe(initialLength - 1);
 	});
 
-	it("should clear all media", async () => {
+	it('should clear all media', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["image"], "test.jpg", { type: "image/jpeg" });
+		const mockFile = new File(['image'], 'test.jpg', { type: 'image/jpeg' });
 
 		await act(async () => {
-			await result.current.uploadFiles([mockFile], "test-user-id");
+			await result.current.uploadFiles([mockFile], 'test-user-id');
 		});
 
 		act(() => {
@@ -856,14 +846,14 @@ describe("useMediaUploader", () => {
 		expect(result.current.uploadedMedia).toEqual([]);
 	});
 
-	it("should validate file types", async () => {
+	it('should validate file types', async () => {
 		const { result } = renderHook(() => useMediaUploader());
 
-		const mockFile = new File(["text"], "test.txt", { type: "text/plain" });
+		const mockFile = new File(['text'], 'test.txt', { type: 'text/plain' });
 
 		await act(async () => {
 			try {
-				await result.current.uploadFiles([mockFile], "test-user-id");
+				await result.current.uploadFiles([mockFile], 'test-user-id');
 			} catch (error) {
 				// Expected error for unsupported file type
 				expect(error).toBeDefined();
@@ -874,7 +864,7 @@ describe("useMediaUploader", () => {
 		expect(result.current.uploadedMedia.length).toBe(0);
 	});
 
-	it("should cleanup on unmount", () => {
+	it('should cleanup on unmount', () => {
 		const { unmount } = renderHook(() => useMediaUploader());
 
 		unmount();

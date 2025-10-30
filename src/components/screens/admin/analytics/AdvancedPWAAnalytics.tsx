@@ -8,26 +8,19 @@
  * - Экспорт в CSV/JSON
  */
 
-import {
-	BarChart3,
-	Calendar,
-	Download,
-	Filter,
-	RefreshCw,
-	TrendingUp,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { SimpleChart } from "@/shared/components/SimpleChart";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { BarChart3, Calendar, Download, Filter, RefreshCw, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { SimpleChart } from '@/shared/components/SimpleChart';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
+} from '@/shared/components/ui/card';
 import {
 	type CohortData,
 	exportToCSV,
@@ -37,11 +30,11 @@ import {
 	getFunnelAnalysis,
 	getTimeSeriesData,
 	type TimeSeriesData,
-} from "@/shared/lib/analytics/advanced-pwa-analytics";
+} from '@/shared/lib/analytics/advanced-pwa-analytics';
 
 export function AdvancedPWAAnalytics() {
 	const [isLoading, setIsLoading] = useState(false);
-	const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d");
+	const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
 
 	const [cohorts, setCohorts] = useState<CohortData[]>([]);
 	const [funnel, setFunnel] = useState<FunnelData[]>([]);
@@ -54,9 +47,9 @@ export function AdvancedPWAAnalytics() {
 			const endDate = new Date().toISOString();
 			const startDate = new Date();
 
-			if (period === "7d") {
+			if (period === '7d') {
 				startDate.setDate(startDate.getDate() - 7);
-			} else if (period === "30d") {
+			} else if (period === '30d') {
 				startDate.setDate(startDate.getDate() - 30);
 			} else {
 				startDate.setDate(startDate.getDate() - 90);
@@ -72,8 +65,8 @@ export function AdvancedPWAAnalytics() {
 			setFunnel(funnelData);
 			setTimeSeries(timeSeriesData);
 		} catch (error) {
-			console.error("[AdvancedPWAAnalytics] Failed to load analytics:", error);
-			toast.error("Ошибка загрузки аналитики");
+			console.error('[AdvancedPWAAnalytics] Failed to load analytics:', error);
+			toast.error('Ошибка загрузки аналитики');
 		} finally {
 			setIsLoading(false);
 		}
@@ -86,7 +79,7 @@ export function AdvancedPWAAnalytics() {
 	// Export handlers
 	const handleExportCSV = () => {
 		exportToCSV(timeSeries, `pwa-analytics-${period}-${Date.now()}.csv`);
-		toast.success("Экспорт в CSV завершен");
+		toast.success('Экспорт в CSV завершен');
 	};
 
 	const handleExportJSON = () => {
@@ -99,25 +92,17 @@ export function AdvancedPWAAnalytics() {
 		};
 
 		exportToJSON(data, `pwa-analytics-${period}-${Date.now()}.json`);
-		toast.success("Экспорт в JSON завершен");
+		toast.success('Экспорт в JSON завершен');
 	};
 
 	// Calculate overall retention
 	const overallRetention =
 		cohorts.length > 0
 			? {
-					week1: Math.round(
-						cohorts.reduce((sum, c) => sum + c.week1, 0) / cohorts.length,
-					),
-					week2: Math.round(
-						cohorts.reduce((sum, c) => sum + c.week2, 0) / cohorts.length,
-					),
-					week3: Math.round(
-						cohorts.reduce((sum, c) => sum + c.week3, 0) / cohorts.length,
-					),
-					week4: Math.round(
-						cohorts.reduce((sum, c) => sum + c.week4, 0) / cohorts.length,
-					),
+					week1: Math.round(cohorts.reduce((sum, c) => sum + c.week1, 0) / cohorts.length),
+					week2: Math.round(cohorts.reduce((sum, c) => sum + c.week2, 0) / cohorts.length),
+					week3: Math.round(cohorts.reduce((sum, c) => sum + c.week3, 0) / cohorts.length),
+					week4: Math.round(cohorts.reduce((sum, c) => sum + c.week4, 0) / cohorts.length),
 				}
 			: { week1: 0, week2: 0, week3: 0, week4: 0 };
 
@@ -133,15 +118,8 @@ export function AdvancedPWAAnalytics() {
 				</div>
 
 				<div className="flex gap-2">
-					<Button
-						disabled={isLoading}
-						onClick={loadAnalytics}
-						size="sm"
-						variant="outline"
-					>
-						<RefreshCw
-							className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-						/>
+					<Button disabled={isLoading} onClick={loadAnalytics} size="sm" variant="outline">
+						<RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
 						Обновить
 					</Button>
 
@@ -164,16 +142,16 @@ export function AdvancedPWAAnalytics() {
 						<Filter className="h-4 w-4 text-muted-foreground" />
 						<span className="font-medium text-sm">Период:</span>
 						<div className="flex gap-2">
-							{(["7d", "30d", "90d"] as const).map((p) => (
+							{(['7d', '30d', '90d'] as const).map((p) => (
 								<Button
 									key={p}
 									onClick={() => setPeriod(p)}
 									size="sm"
-									variant={period === p ? "default" : "outline"}
+									variant={period === p ? 'default' : 'outline'}
 								>
-									{p === "7d" && "7 дней"}
-									{p === "30d" && "30 дней"}
-									{p === "90d" && "90 дней"}
+									{p === '7d' && '7 дней'}
+									{p === '30d' && '30 дней'}
+									{p === '90d' && '90 дней'}
 								</Button>
 							))}
 						</div>
@@ -195,27 +173,19 @@ export function AdvancedPWAAnalytics() {
 				<CardContent>
 					<div className="mb-6 grid grid-cols-4 gap-4">
 						<div className="rounded-lg bg-muted p-4 text-center">
-							<div className="font-bold text-2xl">
-								{overallRetention.week1}%
-							</div>
+							<div className="font-bold text-2xl">{overallRetention.week1}%</div>
 							<div className="text-muted-foreground text-sm">Неделя 1</div>
 						</div>
 						<div className="rounded-lg bg-muted p-4 text-center">
-							<div className="font-bold text-2xl">
-								{overallRetention.week2}%
-							</div>
+							<div className="font-bold text-2xl">{overallRetention.week2}%</div>
 							<div className="text-muted-foreground text-sm">Неделя 2</div>
 						</div>
 						<div className="rounded-lg bg-muted p-4 text-center">
-							<div className="font-bold text-2xl">
-								{overallRetention.week3}%
-							</div>
+							<div className="font-bold text-2xl">{overallRetention.week3}%</div>
 							<div className="text-muted-foreground text-sm">Неделя 3</div>
 						</div>
 						<div className="rounded-lg bg-muted p-4 text-center">
-							<div className="font-bold text-2xl">
-								{overallRetention.week4}%
-							</div>
+							<div className="font-bold text-2xl">{overallRetention.week4}%</div>
 							<div className="text-muted-foreground text-sm">Неделя 4</div>
 						</div>
 					</div>
@@ -239,30 +209,22 @@ export function AdvancedPWAAnalytics() {
 											<td className="p-2">{cohort.cohort}</td>
 											<td className="p-2 text-right">{cohort.totalUsers}</td>
 											<td className="p-2 text-right">
-												<Badge
-													variant={cohort.week1 >= 50 ? "success" : "secondary"}
-												>
+												<Badge variant={cohort.week1 >= 50 ? 'success' : 'secondary'}>
 													{cohort.week1}%
 												</Badge>
 											</td>
 											<td className="p-2 text-right">
-												<Badge
-													variant={cohort.week2 >= 40 ? "success" : "secondary"}
-												>
+												<Badge variant={cohort.week2 >= 40 ? 'success' : 'secondary'}>
 													{cohort.week2}%
 												</Badge>
 											</td>
 											<td className="p-2 text-right">
-												<Badge
-													variant={cohort.week3 >= 30 ? "success" : "secondary"}
-												>
+												<Badge variant={cohort.week3 >= 30 ? 'success' : 'secondary'}>
 													{cohort.week3}%
 												</Badge>
 											</td>
 											<td className="p-2 text-right">
-												<Badge
-													variant={cohort.week4 >= 25 ? "success" : "secondary"}
-												>
+												<Badge variant={cohort.week4 >= 25 ? 'success' : 'secondary'}>
 													{cohort.week4}%
 												</Badge>
 											</td>
@@ -282,9 +244,7 @@ export function AdvancedPWAAnalytics() {
 						<BarChart3 className="h-5 w-5" />
 						Funnel Analysis
 					</CardTitle>
-					<CardDescription>
-						Конверсия пользователей на каждом этапе
-					</CardDescription>
+					<CardDescription>Конверсия пользователей на каждом этапе</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
@@ -301,9 +261,7 @@ export function AdvancedPWAAnalytics() {
 										<span className="text-muted-foreground text-sm">
 											{stage.users.toLocaleString()} пользователей
 										</span>
-										<Badge
-											variant={stage.percentage >= 50 ? "success" : "secondary"}
-										>
+										<Badge variant={stage.percentage >= 50 ? 'success' : 'secondary'}>
 											{stage.percentage}%
 										</Badge>
 									</div>

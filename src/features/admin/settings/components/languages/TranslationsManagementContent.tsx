@@ -1,4 +1,4 @@
-import { TranslationsManagementTab } from "../TranslationsManagementTab";
+import { TranslationsManagementTab } from '../TranslationsManagementTab';
 
 type TranslationsManagementContentProps = {
 	initialLanguage?: string;

@@ -1,11 +1,7 @@
-import { memo } from "react";
-import { NetworkStatusIndicator } from "@/shared/components/offline/NetworkStatusIndicator";
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/shared/components/ui/avatar";
-import { Pressable } from "@/shared/components/ui/universal";
+import { memo } from 'react';
+import { NetworkStatusIndicator } from '@/shared/components/offline/NetworkStatusIndicator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Pressable } from '@/shared/components/ui/universal';
 
 type AchievementHeaderProps = {
 	userName?: string;
@@ -17,8 +13,7 @@ type AchievementHeaderProps = {
 };
 
 // Дефолтное фото для аватара
-const DEFAULT_AVATAR_URL =
-	"https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png";
+const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 // Компонент аватарки с пульсацией онлайн-статуса - memoized
 const UserAvatar = memo(function UserAvatar({
@@ -42,11 +37,7 @@ const UserAvatar = memo(function UserAvatar({
 			pressScale={0.95}
 		>
 			<Avatar className="h-[46px] w-[46px] ring-1 ring-border">
-				<AvatarImage
-					alt={userName}
-					className="object-cover"
-					src={displayAvatarUrl}
-				/>
+				<AvatarImage alt={userName} className="object-cover" src={displayAvatarUrl} />
 				<AvatarFallback className="bg-muted">
 					<img
 						alt="Default avatar"
@@ -63,7 +54,7 @@ const UserAvatar = memo(function UserAvatar({
 });
 
 export const AchievementHeader = memo(function AchievementHeader({
-	userName = "Пользователь",
+	userName = 'Пользователь',
 	daysInApp = 1,
 	avatarUrl,
 	onNavigateToSettings,
@@ -76,19 +67,13 @@ export const AchievementHeader = memo(function AchievementHeader({
 					{/* Left: Avatar + Greeting */}
 					<div className="flex min-w-0 flex-1 items-center gap-4">
 						{/* Avatar with online pulse - клик переходит в настройки */}
-						<UserAvatar
-							avatarUrl={avatarUrl}
-							onClick={onNavigateToSettings}
-							userName={userName}
-						/>
+						<UserAvatar avatarUrl={avatarUrl} onClick={onNavigateToSettings} userName={userName} />
 
 						{/* Greeting - адаптивный размер шрифта для узких экранов (340px Telegram) */}
 						<div className="min-w-0 flex-1">
 							{/* Приветствие - увеличено на 2px (20-26px вместо 18-24px) */}
 							<h1 className="flex items-center gap-1 font-semibold! text-foreground leading-[1.2] tracking-[-0.5px]">
-								<span className="shrink-0 text-[clamp(20px,5.5vw,26px)]">
-									🙌
-								</span>
+								<span className="shrink-0 text-[clamp(20px,5.5vw,26px)]">🙌</span>
 								<span className="whitespace-nowrap text-[clamp(20px,5.5vw,26px)]!">
 									Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},
 								</span>
@@ -136,9 +121,7 @@ export const AchievementHeader = memo(function AchievementHeader({
 							<p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
 								{daysInApp}
 							</p>
-							<p className="text-[10px]! text-muted-foreground leading-none">
-								День
-							</p>
+							<p className="text-[10px]! text-muted-foreground leading-none">День</p>
 						</div>
 					</div>
 				</div>

@@ -6,10 +6,10 @@
  * @module components/ui/universal/Select.native
  */
 
-import { Picker } from "@react-native-picker/picker";
-import { useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { Picker } from '@react-native-picker/picker';
+import { useState } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
@@ -37,7 +37,7 @@ export interface SelectProps {
 	/** Custom className (ignored in native) */
 	className?: string;
 	/** Accessibility label */
-	"aria-label"?: string;
+	'aria-label'?: string;
 	/** Test ID */
 	testID?: string;
 	/** Label text */
@@ -53,13 +53,13 @@ export function Select({
 	onValueChange,
 	defaultValue,
 	disabled,
-	placeholder = "Select an option",
+	placeholder = 'Select an option',
 	options,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 	testID,
 	label,
 }: SelectProps) {
-	const [internalValue, setInternalValue] = useState(defaultValue || "");
+	const [internalValue, setInternalValue] = useState(defaultValue || '');
 	const isControlled = value !== undefined;
 	const currentValue = isControlled ? value : internalValue;
 
@@ -73,12 +73,7 @@ export function Select({
 	return (
 		<View style={styles.container}>
 			{label && <Text style={styles.label}>{label}</Text>}
-			<View
-				style={[
-					styles.pickerContainer,
-					disabled && styles.pickerContainerDisabled,
-				]}
-			>
+			<View style={[styles.pickerContainer, disabled && styles.pickerContainerDisabled]}>
 				<Picker
 					accessibilityLabel={ariaLabel || label}
 					enabled={!disabled}
@@ -98,11 +93,7 @@ export function Select({
 					)}
 					{options.map((option) => (
 						<Picker.Item
-							color={
-								option.disabled
-									? DesignTokens.colors.textSecondary
-									: DesignTokens.colors.text
-							}
+							color={option.disabled ? DesignTokens.colors.textSecondary : DesignTokens.colors.text}
 							enabled={!option.disabled}
 							key={option.value}
 							label={option.label}
@@ -121,7 +112,7 @@ export function Select({
 
 const styles = StyleSheet.create({
 	container: {
-		width: "100%",
+		width: '100%',
 	},
 	label: {
 		fontSize: DesignTokens.fontSize.sm,
@@ -134,7 +125,7 @@ const styles = StyleSheet.create({
 		borderColor: DesignTokens.colors.border,
 		borderRadius: DesignTokens.borderRadius.md,
 		backgroundColor: DesignTokens.colors.background,
-		overflow: "hidden",
+		overflow: 'hidden',
 		...Platform.select({
 			ios: {
 				// iOS picker has no border, so we add container styling
@@ -181,11 +172,11 @@ export const SelectUtils = {
 		const errors: string[] = [];
 
 		if (props.value !== undefined && props.defaultValue !== undefined) {
-			errors.push("Select cannot have both value and defaultValue");
+			errors.push('Select cannot have both value and defaultValue');
 		}
 
 		if (!props.options || props.options.length === 0) {
-			errors.push("Select must have at least one option");
+			errors.push('Select must have at least one option');
 		}
 
 		return {
@@ -199,7 +190,7 @@ export const SelectUtils = {
 // EXPORTS
 // ============================================================================
 
-Select.displayName = "Select";
+Select.displayName = 'Select';
 
 export default {
 	Select,

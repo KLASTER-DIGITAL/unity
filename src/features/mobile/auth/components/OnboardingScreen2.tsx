@@ -1,12 +1,8 @@
-import { motion } from "motion/react";
+import { motion } from 'motion/react';
 // Import hero image directly for Vite to process
-import heroImageSrc from "@/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp";
-import {
-	imgArrowRight,
-	imgCircle,
-	imgRectangle5904,
-} from "@/imports/svg-6xkhk";
-import { PriorityOptimizedImage } from "@/shared/components/OptimizedImage";
+import heroImageSrc from '@/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp';
+import { imgArrowRight, imgCircle, imgRectangle5904 } from '@/imports/svg-6xkhk';
+import { PriorityOptimizedImage } from '@/shared/components/OptimizedImage';
 
 type OnboardingScreen2Props = {
 	selectedLanguage: string;
@@ -18,32 +14,32 @@ type OnboardingScreen2Props = {
 
 const translations = {
 	ru: {
-		subtitle: "Твои маленькие шаги — большие победы",
-		title: "Фиксируй достижения и смотри, как растёт твой прогресс",
+		subtitle: 'Твои маленькие шаги — большие победы',
+		title: 'Фиксируй достижения и смотри, как растёт твой прогресс',
 	},
 	en: {
-		subtitle: "Your small steps — big victories",
-		title: "Track achievements and watch your progress grow",
+		subtitle: 'Your small steps — big victories',
+		title: 'Track achievements and watch your progress grow',
 	},
 	es: {
-		subtitle: "Tus pequeños pasos — grandes victorias",
-		title: "Rastrea logros y observa cómo crece tu progreso",
+		subtitle: 'Tus pequeños pasos — grandes victorias',
+		title: 'Rastrea logros y observa cómo crece tu progreso',
 	},
 	de: {
-		subtitle: "Deine kleinen Schritte — große Siege",
-		title: "Verfolge Erfolge und sieh, wie dein Fortschritt wächst",
+		subtitle: 'Deine kleinen Schritte — große Siege',
+		title: 'Verfolge Erfolge und sieh, wie dein Fortschritt wächst',
 	},
 	fr: {
-		subtitle: "Tes petits pas — de grandes victoires",
-		title: "Suivez les réalisations et regardez votre progrès grandir",
+		subtitle: 'Tes petits pas — de grandes victoires',
+		title: 'Suivez les réalisations et regardez votre progrès grandir',
 	},
 	zh: {
-		subtitle: "你的小步骤——大胜利",
-		title: "跟踪成就，观看你的进步增长",
+		subtitle: '你的小步骤——大胜利',
+		title: '跟踪成就，观看你的进步增长',
 	},
 	ja: {
-		subtitle: "あなたの小さな一歩—大きな勝利",
-		title: "成果を追跡し、進歩の成長を見る",
+		subtitle: 'あなたの小さな一歩—大きな勝利',
+		title: '成果を追跡し、進歩の成長を見る',
 	},
 };
 
@@ -60,9 +56,9 @@ function Circle() {
 			data-name="Circle"
 			initial={{ opacity: 0, rotate: -10, scale: 0.9 }}
 			style={{
-				height: "clamp(300px, 48vh, 434px)",
-				width: "min(369px, 90vw)",
-				marginTop: "min(10px, 1vh)",
+				height: 'clamp(300px, 48vh, 434px)',
+				width: 'min(369px, 90vw)',
+				marginTop: 'min(10px, 1vh)',
 			}}
 			transition={{
 				delay: 0.2,
@@ -70,7 +66,7 @@ function Circle() {
 				y: {
 					duration: 3,
 					repeat: Number.POSITIVE_INFINITY,
-					ease: "easeInOut",
+					ease: 'easeInOut',
 				},
 			}}
 		>
@@ -87,10 +83,10 @@ function Text({ currentTranslations }: { currentTranslations: any }) {
 			data-name="Text"
 			initial={{ opacity: 0, y: 30 }}
 			style={{
-				left: "50%",
-				top: "clamp(300px, calc(100vh - 270px), 453px)",
-				width: "min(335px, calc(100vw - 32px))",
-				height: "clamp(100px, 13vh, 133px)",
+				left: '50%',
+				top: 'clamp(300px, calc(100vh - 270px), 453px)',
+				width: 'min(335px, calc(100vw - 32px))',
+				height: 'clamp(100px, 13vh, 133px)',
 			}}
 			transition={{ delay: 0.4, duration: 0.7 }}
 		>
@@ -138,8 +134,8 @@ function Sliedbar({
 			data-name="Sliedbar"
 			initial={{ opacity: 0, y: 20 }}
 			style={{
-				bottom: "max(calc(env(safe-area-inset-bottom, 20px) + 85px), 85px)",
-				left: "min(25px, 8vw)",
+				bottom: 'max(calc(env(safe-area-inset-bottom, 20px) + 85px), 85px)',
+				left: 'min(25px, 8vw)',
 			}}
 			transition={{ delay: 0.8, duration: 0.5 }}
 		>
@@ -147,20 +143,19 @@ function Sliedbar({
 				<motion.button
 					animate={{ scaleX: index < currentStep ? 1 : 0.3 }}
 					className={`h-[6px] cursor-pointer rounded-[4px] border-0 p-0 transition-all duration-300 hover:scale-110 ${
-						index === 0 ? "w-[25px]" : "w-[8px]"
+						index === 0 ? 'w-[25px]' : 'w-[8px]'
 					}`}
 					initial={{ scaleX: 0 }}
 					key={index}
 					onClick={() => onStepClick(index + 1)}
 					style={{
-						background:
-							"linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)",
+						background: 'linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)',
 						opacity: index < currentStep ? 1 : 0.4,
 					}}
 					transition={{
 						delay: 0.8 + index * 0.1,
 						duration: 0.8,
-						ease: "easeOut",
+						ease: 'easeOut',
 					}}
 					whileHover={{ scale: 1.2 }}
 					whileTap={{ scale: 0.9 }}
@@ -187,8 +182,8 @@ function ArrowRight1({ onClick }: { onClick: () => void }) {
 			data-name="Arrow - Right"
 			onClick={onClick}
 			style={{
-				bottom: "max(env(safe-area-inset-bottom, 20px), 20px)",
-				right: "min(46px, 12vw)",
+				bottom: 'max(env(safe-area-inset-bottom, 20px), 20px)',
+				right: 'min(46px, 12vw)',
 			}}
 		>
 			<div className="pointer-events-none absolute inset-[23.75%_17.71%_26.04%_19.79%] flex items-center justify-center">
@@ -208,10 +203,10 @@ function NextButton({ onNext }: { onNext: () => void }) {
 			data-name="Next Button"
 			initial={{ opacity: 0, scale: 0.8 }}
 			style={{
-				bottom: "max(env(safe-area-inset-bottom, 0px), 0px)",
-				right: "max(-1px, calc(0px - 1vw))",
+				bottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+				right: 'max(-1px, calc(0px - 1vw))',
 			}}
-			transition={{ delay: 0.6, duration: 0.6, type: "spring" }}
+			transition={{ delay: 0.6, duration: 0.6, type: 'spring' }}
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
 		>
@@ -219,10 +214,10 @@ function NextButton({ onNext }: { onNext: () => void }) {
 				className="absolute cursor-pointer border-0 bg-transparent"
 				onClick={onNext}
 				style={{
-					bottom: "max(env(safe-area-inset-bottom, 0px), 0px)",
-					right: "max(-1px, calc(0px - 1vw))",
-					height: "min(191px, 25vh)",
-					width: "min(129px, 30vw)",
+					bottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+					right: 'max(-1px, calc(0px - 1vw))',
+					height: 'min(191px, 25vh)',
+					width: 'min(129px, 30vw)',
 				}}
 			>
 				<div className="pointer-events-none absolute top-0 right-0 bottom-0 left-[7.57%]">
@@ -242,8 +237,7 @@ function Frame2087324618({
 	onStepClick,
 }: OnboardingScreen2Props) {
 	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] ||
-		translations.ru;
+		translations[selectedLanguage as keyof typeof translations] || translations.ru;
 
 	return (
 		<motion.div
@@ -259,10 +253,10 @@ function Frame2087324618({
 				data-name="image 1569"
 				initial={{ opacity: 0, scale: 0.9 }}
 				style={{
-					left: "50%",
-					top: "clamp(0px, -5vh, 15px)",
-					height: "min(379px, 50vh)",
-					width: "min(314px, 85vw)",
+					left: '50%',
+					top: 'clamp(0px, -5vh, 15px)',
+					height: 'min(379px, 50vh)',
+					width: 'min(314px, 85vw)',
 				}}
 				transition={{ delay: 0.3, duration: 0.8 }}
 			>
@@ -274,11 +268,7 @@ function Frame2087324618({
 				/>
 			</motion.div>
 			<Text currentTranslations={currentTranslations} />
-			<Sliedbar
-				currentStep={currentStep}
-				onStepClick={onStepClick}
-				totalSteps={totalSteps}
-			/>
+			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton onNext={onNext} />
 		</motion.div>
 	);

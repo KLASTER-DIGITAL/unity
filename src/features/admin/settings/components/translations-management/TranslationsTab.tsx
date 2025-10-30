@@ -1,17 +1,17 @@
-import { AlertCircle, Edit2, Save, Search, X } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { AlertCircle, Edit2, Save, Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { TabsContent } from "@/shared/components/ui/tabs";
-import type { Language, Translation } from "./types";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { TabsContent } from '@/shared/components/ui/tabs';
+import type { Language, Translation } from './types';
 
 type TranslationsTabProps = {
 	translations: Translation[];
@@ -39,7 +39,7 @@ export function TranslationsTab({
 	onSaveTranslation,
 }: TranslationsTabProps) {
 	const [editingKey, setEditingKey] = useState<string | null>(null);
-	const [editValue, setEditValue] = useState("");
+	const [editValue, setEditValue] = useState('');
 
 	const handleSave = async () => {
 		if (!editingKey) {
@@ -48,7 +48,7 @@ export function TranslationsTab({
 
 		await onSaveTranslation(editingKey, editValue);
 		setEditingKey(null);
-		setEditValue("");
+		setEditValue('');
 	};
 
 	const handleEdit = (key: string, value: string) => {
@@ -58,7 +58,7 @@ export function TranslationsTab({
 
 	const handleCancel = () => {
 		setEditingKey(null);
-		setEditValue("");
+		setEditValue('');
 	};
 
 	return (
@@ -73,7 +73,7 @@ export function TranslationsTab({
 								key={lang.code}
 								onClick={() => onLanguageChange(lang.code)}
 								size="sm"
-								variant={selectedLanguage === lang.code ? "default" : "outline"}
+								variant={selectedLanguage === lang.code ? 'default' : 'outline'}
 							>
 								{lang.native_name}
 							</Button>
@@ -97,8 +97,7 @@ export function TranslationsTab({
 			<Card>
 				<CardHeader>
 					<CardTitle>
-						Переводы для{" "}
-						{languages.find((l) => l.code === selectedLanguage)?.native_name}
+						Переводы для {languages.find((l) => l.code === selectedLanguage)?.native_name}
 					</CardTitle>
 					<CardDescription>
 						Найдено: {translations.length} из {uniqueKeysCount} ключей
@@ -128,9 +127,7 @@ export function TranslationsTab({
 												</Badge>
 											)}
 										</div>
-										<Badge variant="secondary">
-											{translation.lang_code.toUpperCase()}
-										</Badge>
+										<Badge variant="secondary">{translation.lang_code.toUpperCase()}</Badge>
 									</div>
 
 									{editingKey === translation.translation_key ? (
@@ -146,11 +143,7 @@ export function TranslationsTab({
 													<Save className="mr-1 h-4 w-4" />
 													Сохранить
 												</Button>
-												<Button
-													onClick={handleCancel}
-													size="sm"
-													variant="outline"
-												>
+												<Button onClick={handleCancel} size="sm" variant="outline">
 													<X className="mr-1 h-4 w-4" />
 													Отмена
 												</Button>
@@ -163,10 +156,7 @@ export function TranslationsTab({
 											</span>
 											<Button
 												onClick={() =>
-													handleEdit(
-														translation.translation_key,
-														translation.translation_value,
-													)
+													handleEdit(translation.translation_key, translation.translation_value)
 												}
 												size="sm"
 												variant="ghost"

@@ -1,7 +1,7 @@
-import { Save, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useTranslation } from "@/shared/lib/i18n";
-import { CATEGORIES } from "./constants";
+import { Save, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from '@/shared/lib/i18n';
+import { CATEGORIES } from './constants';
 
 type EditEntryModalProps = {
 	isOpen: boolean;
@@ -51,9 +51,7 @@ export function EditEntryModal({
 				initial={{ opacity: 0, y: 100 }}
 			>
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="font-semibold! text-[18px]! text-foreground">
-						Редактировать запись
-					</h3>
+					<h3 className="font-semibold! text-[18px]! text-foreground">Редактировать запись</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10 disabled:opacity-50"
 						disabled={isSaving}
@@ -67,16 +65,13 @@ export function EditEntryModal({
 					{/* Text Input */}
 					<div>
 						<label className="mb-2 block font-medium! text-[13px]! text-muted-foreground">
-							{t("entry_text", "Текст записи")}
+							{t('entry_text', 'Текст записи')}
 						</label>
 						<textarea
 							className="w-full resize-none rounded-[12px] border border-border bg-muted px-4 py-3 text-[15px]! text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent disabled:opacity-50"
 							disabled={isSaving}
 							onChange={(e) => onTextChange(e.target.value)}
-							placeholder={t(
-								"describe_achievement",
-								"Опишите ваше достижение...",
-							)}
+							placeholder={t('describe_achievement', 'Опишите ваше достижение...')}
 							rows={6}
 							value={editText}
 						/>
@@ -116,7 +111,7 @@ export function EditEntryModal({
 							onClick={onSave}
 						>
 							{isSaving ? (
-								"Сохранение..."
+								'Сохранение...'
 							) : (
 								<>
 									<Save className="h-4 w-4" strokeWidth={2} />

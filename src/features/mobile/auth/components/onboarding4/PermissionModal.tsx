@@ -1,5 +1,5 @@
-import { Bell } from "lucide-react";
-import { motion } from "motion/react";
+import { Bell } from 'lucide-react';
+import { motion } from 'motion/react';
 
 type PermissionModalProps = {
 	isOpen: boolean;

@@ -13,7 +13,7 @@
  * - other: default form
  */
 
-export type PluralForm = "zero" | "one" | "two" | "few" | "many" | "other";
+export type PluralForm = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
 
 export type PluralRule = (count: number) => PluralForm;
 
@@ -22,9 +22,9 @@ export type PluralRule = (count: number) => PluralForm;
  */
 const englishRule: PluralRule = (count: number): PluralForm => {
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
@@ -40,12 +40,12 @@ const russianRule: PluralRule = (count: number): PluralForm => {
 	const mod100 = count % 100;
 
 	if (mod10 === 1 && mod100 !== 11) {
-		return "one";
+		return 'one';
 	}
 	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-		return "few";
+		return 'few';
 	}
-	return "many";
+	return 'many';
 };
 
 /**
@@ -53,9 +53,9 @@ const russianRule: PluralRule = (count: number): PluralForm => {
  */
 const spanishRule: PluralRule = (count: number): PluralForm => {
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
@@ -63,9 +63,9 @@ const spanishRule: PluralRule = (count: number): PluralForm => {
  */
 const germanRule: PluralRule = (count: number): PluralForm => {
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
@@ -73,29 +73,29 @@ const germanRule: PluralRule = (count: number): PluralForm => {
  */
 const frenchRule: PluralRule = (count: number): PluralForm => {
 	if (count === 0 || count === 1) {
-		return "one";
+		return 'one';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
  * Chinese plural rules (no plurals, always other)
  */
-const chineseRule: PluralRule = (_count: number): PluralForm => "other";
+const chineseRule: PluralRule = (_count: number): PluralForm => 'other';
 
 /**
  * Japanese plural rules (no plurals, always other)
  */
-const japaneseRule: PluralRule = (_count: number): PluralForm => "other";
+const japaneseRule: PluralRule = (_count: number): PluralForm => 'other';
 
 /**
  * Georgian plural rules (simple: one/other)
  */
 const georgianRule: PluralRule = (count: number): PluralForm => {
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
@@ -111,21 +111,21 @@ const georgianRule: PluralRule = (count: number): PluralForm => {
  */
 const arabicRule: PluralRule = (count: number): PluralForm => {
 	if (count === 0) {
-		return "zero";
+		return 'zero';
 	}
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
 	if (count === 2) {
-		return "two";
+		return 'two';
 	}
 	if (count >= 3 && count <= 10) {
-		return "few";
+		return 'few';
 	}
 	if (count >= 11 && count <= 99) {
-		return "many";
+		return 'many';
 	}
-	return "other";
+	return 'other';
 };
 
 /**
@@ -136,12 +136,12 @@ const polishRule: PluralRule = (count: number): PluralForm => {
 	const mod100 = count % 100;
 
 	if (count === 1) {
-		return "one";
+		return 'one';
 	}
 	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-		return "few";
+		return 'few';
 	}
-	return "many";
+	return 'many';
 };
 
 /**
@@ -192,16 +192,16 @@ export function getPluralForm(language: string, count: number): PluralForm {
  */
 export function getPluralForms(language: string): PluralForm[] {
 	switch (language) {
-		case "ar":
-			return ["zero", "one", "two", "few", "many", "other"];
-		case "ru":
-		case "pl":
-			return ["one", "few", "many"];
-		case "zh":
-		case "ja":
-			return ["other"];
+		case 'ar':
+			return ['zero', 'one', 'two', 'few', 'many', 'other'];
+		case 'ru':
+		case 'pl':
+			return ['one', 'few', 'many'];
+		case 'zh':
+		case 'ja':
+			return ['other'];
 		default:
-			return ["one", "other"];
+			return ['one', 'other'];
 	}
 }
 
@@ -216,12 +216,10 @@ export function hasComplexPlurals(language: string): boolean {
 /**
  * Get example counts for each plural form in a language
  */
-export function getPluralExamples(
-	language: string,
-): Record<PluralForm, number[]> {
+export function getPluralExamples(language: string): Record<PluralForm, number[]> {
 	switch (language) {
-		case "ru":
-		case "pl":
+		case 'ru':
+		case 'pl':
 			return {
 				one: [1, 21, 31, 41],
 				few: [2, 3, 4, 22, 23, 24],
@@ -230,7 +228,7 @@ export function getPluralExamples(
 				two: [],
 				other: [],
 			};
-		case "ar":
+		case 'ar':
 			return {
 				zero: [0],
 				one: [1],
@@ -239,8 +237,8 @@ export function getPluralExamples(
 				many: [11, 20, 50, 99],
 				other: [100, 200, 1000],
 			};
-		case "zh":
-		case "ja":
+		case 'zh':
+		case 'ja':
 			return {
 				other: [0, 1, 2, 5, 10, 100],
 				zero: [],
@@ -283,7 +281,7 @@ export function parsePluralKey(key: string): {
 	baseKey: string;
 	form: PluralForm | null;
 } {
-	const forms: PluralForm[] = ["zero", "one", "two", "few", "many", "other"];
+	const forms: PluralForm[] = ['zero', 'one', 'two', 'few', 'many', 'other'];
 
 	for (const form of forms) {
 		if (key.endsWith(`_${form}`)) {

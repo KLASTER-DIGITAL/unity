@@ -2,18 +2,18 @@
  * Home Tab Screen - Achievement Home
  */
 
-import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { RefreshControl, ScrollView, StyleSheet } from "react-native";
-import { LottiePreloader } from "../../app-shared/components/LottiePreloader.native";
-import { AchievementHeader } from "../../app-shared/components/screens/home/AchievementHeader.native";
-import { ChatInputSection } from "../../app-shared/components/screens/home/ChatInputSection.native";
-import { RecentEntriesFeed } from "../../app-shared/components/screens/home/RecentEntriesFeed.native";
-import { useTheme } from "../../app-shared/contexts/ThemeContext";
-import { useEntries } from "../../app-shared/hooks/useEntries";
-import { useUserData } from "../../app-shared/hooks/useUserData";
-import { supabase } from "../../app-shared/lib/supabase/client";
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { LottiePreloader } from '../../app-shared/components/LottiePreloader.native';
+import { AchievementHeader } from '../../app-shared/components/screens/home/AchievementHeader.native';
+import { ChatInputSection } from '../../app-shared/components/screens/home/ChatInputSection.native';
+import { RecentEntriesFeed } from '../../app-shared/components/screens/home/RecentEntriesFeed.native';
+import { useTheme } from '../../app-shared/contexts/ThemeContext';
+import { useEntries } from '../../app-shared/hooks/useEntries';
+import { useUserData } from '../../app-shared/hooks/useUserData';
+import { supabase } from '../../app-shared/lib/supabase/client';
 
 export default function HomeScreen() {
 	const router = useRouter();
@@ -22,19 +22,13 @@ export default function HomeScreen() {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	// Real data from Supabase
-	const {
-		profile,
-		stats,
-		isLoading: isLoadingUser,
-		refetch: refetchUser,
-	} = useUserData(userId);
-	const { isLoading: isLoadingEntries, refetch: refetchEntries } =
-		useEntries(userId);
+	const { profile, stats, isLoading: isLoadingUser, refetch: refetchUser } = useUserData(userId);
+	const { isLoading: isLoadingEntries, refetch: refetchEntries } = useEntries(userId);
 
 	// Get current user on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: getCurrentUser is stable
 	useEffect(() => {
 		getCurrentUser();
-		// eslint-disable-next-line react-hooks/exhaustive-dependencies
 	}, []);
 
 	const getCurrentUser = async () => {
@@ -46,28 +40,29 @@ export default function HomeScreen() {
 				setUserId(session.user.id);
 			} else {
 				// Fallback to test user for development (Rustam's real UUID)
-				console.log("[HomeScreen] No session, using test user");
+				console.log('[HomeScreen] No session, using test user');
 				// TODO: Implement proper auth flow
-				setUserId("c1b3e4f5-6789-4abc-def0-123456789abc"); // Valid UUID format
+				setUserId('c1b3e4f5-6789-4abc-def0-123456789abc'); // Valid UUID format
 			}
 		} catch (error) {
-			console.error("[HomeScreen] Error getting user:", error);
+			console.error('[HomeScreen] Error getting user:', error);
 		}
 	};
 
+	// biome-ignore lint/suspicious/noExplicitAny: Dynamic entry type
 	const handleNewEntry = (entry: any) => {
-		console.log("[HomeScreen] New entry created:", entry);
+		console.log('[HomeScreen] New entry created:', entry);
 		// Reload data
 		refetchUser();
 		refetchEntries();
 	};
 
 	const handleNavigateToSettings = () => {
-		router.push("/settings");
+		router.push('/settings');
 	};
 
 	const handleNavigateToHistory = () => {
-		router.push("/diary");
+		router.push('/diary');
 	};
 
 	const handleRefresh = async () => {
@@ -81,11 +76,9 @@ export default function HomeScreen() {
 	};
 
 	// Extract user data
-	const userName = profile?.name || "Пользователь";
-	const userEmail = profile?.email || "";
-	const avatarUrl =
-		profile?.avatar ||
-		"https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png";
+	const userName = profile?.name || 'Пользователь';
+	const userEmail = profile?.email || '';
+	const avatarUrl = profile?.avatar || 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 	const daysInApp = stats?.currentStreak || 1;
 
 	// Show loading state
@@ -110,7 +103,7 @@ export default function HomeScreen() {
 			email: userEmail,
 			avatar: avatarUrl,
 		},
-		language: "ru",
+		language: 'ru',
 	};
 
 	return (
@@ -141,17 +134,17 @@ export default function HomeScreen() {
 			<ChatInputSection
 				onEntrySaved={handleNewEntry}
 				onMessageSent={(message) => {
-					console.log("New achievement message:", message);
+					console.log('New achievement message:', message);
 				}}
-				userId={userData?.user?.id || userData?.id || "anonymous"}
+				userId={userData?.user?.id || userData?.id || 'anonymous'}
 				userName={userName}
 			/>
 
 			{/* Recent Entries Feed */}
 			<RecentEntriesFeed
-				language={userData?.language || "ru"}
+				language={userData?.language || 'ru'}
 				onEntryClick={(entry) => {
-					console.log("Entry clicked:", entry);
+					console.log('Entry clicked:', entry);
 					// TODO: Open entry detail modal
 				}}
 				onViewAllClick={handleNavigateToHistory}

@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 /**
  * Splash screen для PWA
@@ -11,15 +11,15 @@ export function PWASplash() {
 	useEffect(() => {
 		// Проверяем standalone режим
 		const isStandalone =
-			window.matchMedia("(display-mode: standalone)").matches ||
+			window.matchMedia('(display-mode: standalone)').matches ||
 			(window.navigator as any).standalone === true;
 
 		// Проверяем, первый ли это запуск после установки
-		const splashShown = sessionStorage.getItem("pwaSplashShown");
+		const splashShown = sessionStorage.getItem('pwaSplashShown');
 
 		if (isStandalone && !splashShown) {
 			setShowSplash(true);
-			sessionStorage.setItem("pwaSplashShown", "true");
+			sessionStorage.setItem('pwaSplashShown', 'true');
 
 			// Автоматически скрываем через 2 секунды
 			const timer = setTimeout(() => {
@@ -45,7 +45,7 @@ export function PWASplash() {
 						className="text-center"
 						exit={{ scale: 1.2, opacity: 0 }}
 						initial={{ scale: 0.8, opacity: 0 }}
-						transition={{ duration: 0.5, ease: "easeOut" }}
+						transition={{ duration: 0.5, ease: 'easeOut' }}
 					>
 						{/* Icon */}
 						<motion.div
@@ -57,7 +57,7 @@ export function PWASplash() {
 							transition={{
 								duration: 1.5,
 								repeat: Number.POSITIVE_INFINITY,
-								ease: "easeInOut",
+								ease: 'easeInOut',
 							}}
 						>
 							<span className="text-[64px]">🏆</span>
@@ -102,7 +102,7 @@ export function PWASplash() {
 										duration: 1,
 										repeat: Number.POSITIVE_INFINITY,
 										delay: i * 0.2,
-										ease: "easeInOut",
+										ease: 'easeInOut',
 									}}
 								/>
 							))}

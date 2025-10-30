@@ -1,36 +1,28 @@
-import {
-	Bell,
-	Download,
-	Loader2,
-	Save,
-	Settings,
-	Smartphone,
-	Wifi,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
+import { Bell, Download, Loader2, Save, Settings, Smartphone, Wifi } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { Select } from "@/shared/components/ui/universal/Select.web";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import { Select } from '@/shared/components/ui/universal/Select.web';
+import { createClient } from '@/utils/supabase/client';
 
 type PWASettings = {
 	enableNotifications: boolean;
 	enableOfflineMode: boolean;
 	enableInstallPrompt: boolean;
-	installPromptTiming: "immediate" | "after_visits" | "after_time" | "manual";
+	installPromptTiming: 'immediate' | 'after_visits' | 'after_time' | 'manual';
 	installPromptVisitsCount: number;
 	installPromptDelayMinutes: number;
-	installPromptLocation: "onboarding" | "user_cabinet" | "both" | "anywhere";
+	installPromptLocation: 'onboarding' | 'user_cabinet' | 'both' | 'anywhere';
 	installPromptTitle: string;
 	installPromptDescription: string;
 	installPromptButtonText: string;
@@ -52,29 +44,29 @@ export function PWASettings() {
 		enableNotifications: true,
 		enableOfflineMode: true,
 		enableInstallPrompt: true,
-		installPromptTiming: "after_visits",
+		installPromptTiming: 'after_visits',
 		installPromptVisitsCount: 3,
 		installPromptDelayMinutes: 5,
-		installPromptLocation: "anywhere",
-		installPromptTitle: "pwa.install.title",
-		installPromptDescription: "pwa.install.description",
-		installPromptButtonText: "pwa.install.button",
-		installPromptSkipText: "pwa.install.skip",
+		installPromptLocation: 'anywhere',
+		installPromptTitle: 'pwa.install.title',
+		installPromptDescription: 'pwa.install.description',
+		installPromptButtonText: 'pwa.install.button',
+		installPromptSkipText: 'pwa.install.skip',
 	});
 
 	const [manifest, setManifest] = useState<PWAManifest>({
-		appName: "Дневник Достижений",
-		shortName: "Дневник",
-		description: "Персональный дневник для отслеживания достижений",
-		themeColor: "#3b82f6",
-		backgroundColor: "#ffffff",
+		appName: 'Дневник Достижений',
+		shortName: 'Дневник',
+		description: 'Персональный дневник для отслеживания достижений',
+		themeColor: '#3b82f6',
+		backgroundColor: '#ffffff',
 	});
 
 	const supabase = createClient();
 
 	useEffect(() => {
 		loadSettings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadSettings is stable
 	}, []);
 
 	const loadSettings = async () => {
@@ -84,15 +76,15 @@ export function PWASettings() {
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
 			// Load PWA settings
 			const { data: settingsData, error: settingsError } = await supabase
-				.from("admin_settings")
-				.select("value")
-				.eq("key", "pwa_settings");
+				.from('admin_settings')
+				.select('value')
+				.eq('key', 'pwa_settings');
 
 			if (settingsError) {
 				throw settingsError;
@@ -104,9 +96,9 @@ export function PWASettings() {
 
 			// Load PWA manifest
 			const { data: manifestData, error: manifestError } = await supabase
-				.from("admin_settings")
-				.select("value")
-				.eq("key", "pwa_manifest");
+				.from('admin_settings')
+				.select('value')
+				.eq('key', 'pwa_manifest');
 
 			if (manifestError) {
 				throw manifestError;
@@ -116,35 +108,35 @@ export function PWASettings() {
 				setManifest(JSON.parse(manifestData[0].value as string));
 			}
 		} catch (error) {
-			console.error("Error loading PWA settings:", error);
-			toast.error("Ошибка загрузки настроек");
+			console.error('Error loading PWA settings:', error);
+			toast.error('Ошибка загрузки настроек');
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleSave = async () => {
-		console.log("[PWASettings] Saving settings:", settings);
-		console.log("[PWASettings] Saving manifest:", manifest);
+		console.log('[PWASettings] Saving settings:', settings);
+		console.log('[PWASettings] Saving manifest:', manifest);
 		setIsSaving(true);
 		try {
 			// Save PWA settings
 			const settingsPayload = {
-				key: "pwa_settings",
+				key: 'pwa_settings',
 				value: JSON.stringify(settings),
-				category: "pwa",
+				category: 'pwa',
 				updated_at: new Date().toISOString(),
 			};
-			console.log("[PWASettings] Settings upsert payload:", settingsPayload);
+			console.log('[PWASettings] Settings upsert payload:', settingsPayload);
 
 			const { data: settingsData, error: settingsError } = await supabase
-				.from("admin_settings")
+				.from('admin_settings')
 				.upsert(settingsPayload, {
-					onConflict: "key",
+					onConflict: 'key',
 				})
 				.select();
 
-			console.log("[PWASettings] Settings upsert result:", {
+			console.log('[PWASettings] Settings upsert result:', {
 				data: settingsData,
 				error: settingsError,
 			});
@@ -155,21 +147,21 @@ export function PWASettings() {
 
 			// Save PWA manifest
 			const manifestPayload = {
-				key: "pwa_manifest",
+				key: 'pwa_manifest',
 				value: JSON.stringify(manifest),
-				category: "pwa",
+				category: 'pwa',
 				updated_at: new Date().toISOString(),
 			};
-			console.log("[PWASettings] Manifest upsert payload:", manifestPayload);
+			console.log('[PWASettings] Manifest upsert payload:', manifestPayload);
 
 			const { data: manifestData, error: manifestError } = await supabase
-				.from("admin_settings")
+				.from('admin_settings')
 				.upsert(manifestPayload, {
-					onConflict: "key",
+					onConflict: 'key',
 				})
 				.select();
 
-			console.log("[PWASettings] Manifest upsert result:", {
+			console.log('[PWASettings] Manifest upsert result:', {
 				data: manifestData,
 				error: manifestError,
 			});
@@ -178,9 +170,9 @@ export function PWASettings() {
 				throw manifestError;
 			}
 
-			toast.success("Настройки PWA успешно сохранены! 📱");
+			toast.success('Настройки PWA успешно сохранены! 📱');
 		} catch (error: any) {
-			console.error("[PWASettings] Error saving PWA settings:", error);
+			console.error('[PWASettings] Error saving PWA settings:', error);
 			toast.error(`Ошибка сохранения: ${error.message}`);
 		} finally {
 			setIsSaving(false);
@@ -230,9 +222,7 @@ export function PWASettings() {
 						<Smartphone className="h-5 w-5" />
 						Манифест PWA
 					</CardTitle>
-					<CardDescription className="text-sm">
-						Настройка веб-манифеста приложения
-					</CardDescription>
+					<CardDescription className="text-sm">Настройка веб-манифеста приложения</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -240,9 +230,7 @@ export function PWASettings() {
 							<Label htmlFor="app-name">Название приложения</Label>
 							<Input
 								id="app-name"
-								onChange={(e) =>
-									setManifest((prev) => ({ ...prev, appName: e.target.value }))
-								}
+								onChange={(e) => setManifest((prev) => ({ ...prev, appName: e.target.value }))}
 								type="text"
 								value={manifest.appName}
 							/>
@@ -343,23 +331,21 @@ export function PWASettings() {
 						<div
 							className={`flex items-center justify-between rounded-lg border p-3 ${
 								settings.enableNotifications
-									? "border-primary/20 bg-primary/5"
-									: "border-border bg-muted"
+									? 'border-primary/20 bg-primary/5'
+									: 'border-border bg-muted'
 							}`}
 						>
 							<div className="flex items-center gap-3">
 								<Bell
-									className={`h-5 w-5 ${settings.enableNotifications ? "text-primary" : "text-muted-foreground"}`}
+									className={`h-5 w-5 ${settings.enableNotifications ? 'text-primary' : 'text-muted-foreground'}`}
 								/>
 								<div className="space-y-0.5">
 									<div
-										className={`font-medium text-sm ${settings.enableNotifications ? "text-primary" : ""}`}
+										className={`font-medium text-sm ${settings.enableNotifications ? 'text-primary' : ''}`}
 									>
 										Push-уведомления
 									</div>
-									<p className="text-muted-foreground text-xs">
-										Разрешить отправку уведомлений
-									</p>
+									<p className="text-muted-foreground text-xs">Разрешить отправку уведомлений</p>
 								</div>
 							</div>
 							<Switch
@@ -373,23 +359,21 @@ export function PWASettings() {
 						<div
 							className={`flex items-center justify-between rounded-lg border p-3 ${
 								settings.enableOfflineMode
-									? "border-primary/20 bg-primary/5"
-									: "border-border bg-muted"
+									? 'border-primary/20 bg-primary/5'
+									: 'border-border bg-muted'
 							}`}
 						>
 							<div className="flex items-center gap-3">
 								<Wifi
-									className={`h-5 w-5 ${settings.enableOfflineMode ? "text-primary" : "text-muted-foreground"}`}
+									className={`h-5 w-5 ${settings.enableOfflineMode ? 'text-primary' : 'text-muted-foreground'}`}
 								/>
 								<div className="space-y-0.5">
 									<div
-										className={`font-medium text-sm ${settings.enableOfflineMode ? "text-primary" : ""}`}
+										className={`font-medium text-sm ${settings.enableOfflineMode ? 'text-primary' : ''}`}
 									>
 										Offline режим
 									</div>
-									<p className="text-muted-foreground text-xs">
-										Работа без интернета
-									</p>
+									<p className="text-muted-foreground text-xs">Работа без интернета</p>
 								</div>
 							</div>
 							<Switch
@@ -403,23 +387,21 @@ export function PWASettings() {
 						<div
 							className={`flex items-center justify-between rounded-lg border p-3 ${
 								settings.enableInstallPrompt
-									? "border-primary/20 bg-primary/5"
-									: "border-border bg-muted"
+									? 'border-primary/20 bg-primary/5'
+									: 'border-border bg-muted'
 							}`}
 						>
 							<div className="flex items-center gap-3">
 								<Download
-									className={`h-5 w-5 ${settings.enableInstallPrompt ? "text-primary" : "text-muted-foreground"}`}
+									className={`h-5 w-5 ${settings.enableInstallPrompt ? 'text-primary' : 'text-muted-foreground'}`}
 								/>
 								<div className="space-y-0.5">
 									<div
-										className={`font-medium text-sm ${settings.enableInstallPrompt ? "text-primary" : ""}`}
+										className={`font-medium text-sm ${settings.enableInstallPrompt ? 'text-primary' : ''}`}
 									>
 										Install Prompt
 									</div>
-									<p className="text-muted-foreground text-xs">
-										Предложение установки
-									</p>
+									<p className="text-muted-foreground text-xs">Предложение установки</p>
 								</div>
 							</div>
 							<Switch
@@ -454,10 +436,10 @@ export function PWASettings() {
 									setSettings({ ...settings, installPromptTiming: value })
 								}
 								options={[
-									{ value: "immediate", label: "Сразу при первом визите" },
-									{ value: "after_visits", label: "После N визитов" },
-									{ value: "after_time", label: "После N минут на сайте" },
-									{ value: "manual", label: "Только вручную" },
+									{ value: 'immediate', label: 'Сразу при первом визите' },
+									{ value: 'after_visits', label: 'После N визитов' },
+									{ value: 'after_time', label: 'После N минут на сайте' },
+									{ value: 'manual', label: 'Только вручную' },
 								]}
 								placeholder="Выберите время"
 								value={settings.installPromptTiming}
@@ -465,7 +447,7 @@ export function PWASettings() {
 						</div>
 
 						{/* Visits Count */}
-						{settings.installPromptTiming === "after_visits" && (
+						{settings.installPromptTiming === 'after_visits' && (
 							<div className="space-y-2">
 								<Label>Количество визитов</Label>
 								<Input
@@ -473,10 +455,7 @@ export function PWASettings() {
 									onChange={(e) =>
 										setSettings({
 											...settings,
-											installPromptVisitsCount: Number.parseInt(
-												e.target.value,
-												10,
-											),
+											installPromptVisitsCount: Number.parseInt(e.target.value, 10),
 										})
 									}
 									type="number"
@@ -486,7 +465,7 @@ export function PWASettings() {
 						)}
 
 						{/* Delay Minutes */}
-						{settings.installPromptTiming === "after_time" && (
+						{settings.installPromptTiming === 'after_time' && (
 							<div className="space-y-2">
 								<Label>Задержка (минуты)</Label>
 								<Input
@@ -494,10 +473,7 @@ export function PWASettings() {
 									onChange={(e) =>
 										setSettings({
 											...settings,
-											installPromptDelayMinutes: Number.parseInt(
-												e.target.value,
-												10,
-											),
+											installPromptDelayMinutes: Number.parseInt(e.target.value, 10),
 										})
 									}
 									type="number"
@@ -514,10 +490,10 @@ export function PWASettings() {
 									setSettings({ ...settings, installPromptLocation: value })
 								}
 								options={[
-									{ value: "onboarding", label: "Только на онбординге" },
-									{ value: "user_cabinet", label: "Только в личном кабинете" },
-									{ value: "both", label: "На онбординге и в кабинете" },
-									{ value: "anywhere", label: "Везде" },
+									{ value: 'onboarding', label: 'Только на онбординге' },
+									{ value: 'user_cabinet', label: 'Только в личном кабинете' },
+									{ value: 'both', label: 'На онбординге и в кабинете' },
+									{ value: 'anywhere', label: 'Везде' },
 								]}
 								placeholder="Выберите место"
 								value={settings.installPromptLocation}

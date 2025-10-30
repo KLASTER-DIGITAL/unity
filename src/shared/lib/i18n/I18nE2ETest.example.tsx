@@ -4,18 +4,17 @@
  * Comprehensive testing of all i18n features
  */
 
-import { Check, X } from "lucide-react";
-import { useState } from "react";
-import { useTranslation } from "./useTranslation";
+import { Check, X } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from './useTranslation';
 
 export function I18nE2ETest() {
-	const { t, changeLanguage, currentLanguage, isLoading, isLoaded, error } =
-		useTranslation();
+	const { t, changeLanguage, currentLanguage, isLoading, isLoaded, error } = useTranslation();
 	const [testResults, setTestResults] = useState<Record<string, boolean>>({});
 
 	// Test 1: Basic Translation
 	const testBasicTranslation = () => {
-		const result = t("welcome.title", "Welcome to UNITY");
+		const result = t('welcome.title', 'Welcome to UNITY');
 		const passed = result.length > 0;
 		setTestResults((prev) => ({ ...prev, basicTranslation: passed }));
 		return passed;
@@ -24,11 +23,11 @@ export function I18nE2ETest() {
 	// Test 2: Language Switching
 	const testLanguageSwitching = async () => {
 		try {
-			await changeLanguage("es");
+			await changeLanguage('es');
 			await new Promise((resolve) => setTimeout(resolve, 500));
-			const passed = currentLanguage === "es";
+			const passed = currentLanguage === 'es';
 			setTestResults((prev) => ({ ...prev, languageSwitching: passed }));
-			await changeLanguage("en"); // Reset
+			await changeLanguage('en'); // Reset
 			return passed;
 		} catch (_err) {
 			setTestResults((prev) => ({ ...prev, languageSwitching: false }));
@@ -39,9 +38,9 @@ export function I18nE2ETest() {
 	// Test 3: Date Formatting
 	const testDateFormatting = () => {
 		try {
-			const date = new Date("2024-01-15T15:30:00");
-			const formatted = t.formatDate(date, { style: "medium" });
-			const passed = formatted.length > 0 && formatted.includes("2024");
+			const date = new Date('2024-01-15T15:30:00');
+			const formatted = t.formatDate(date, { style: 'medium' });
+			const passed = formatted.length > 0 && formatted.includes('2024');
 			setTestResults((prev) => ({ ...prev, dateFormatting: passed }));
 			return passed;
 		} catch (_err) {
@@ -80,10 +79,8 @@ export function I18nE2ETest() {
 	// Test 6: Currency Formatting
 	const testCurrencyFormatting = () => {
 		try {
-			const formatted = t.formatCurrency(1234.56, "USD");
-			const passed =
-				formatted.length > 0 &&
-				(formatted.includes("$") || formatted.includes("USD"));
+			const formatted = t.formatCurrency(1234.56, 'USD');
+			const passed = formatted.length > 0 && (formatted.includes('$') || formatted.includes('USD'));
 			setTestResults((prev) => ({ ...prev, currencyFormatting: passed }));
 			return passed;
 		} catch (_err) {
@@ -96,7 +93,7 @@ export function I18nE2ETest() {
 	const testPercentFormatting = () => {
 		try {
 			const formatted = t.formatPercent(0.85);
-			const passed = formatted.includes("85") && formatted.includes("%");
+			const passed = formatted.includes('85') && formatted.includes('%');
 			setTestResults((prev) => ({ ...prev, percentFormatting: passed }));
 			return passed;
 		} catch (_err) {
@@ -122,7 +119,7 @@ export function I18nE2ETest() {
 	const testFileSizeFormatting = () => {
 		try {
 			const formatted = t.formatFileSize(1024 * 1024);
-			const passed = formatted.includes("MB");
+			const passed = formatted.includes('MB');
 			setTestResults((prev) => ({ ...prev, fileSizeFormatting: passed }));
 			return passed;
 		} catch (_err) {
@@ -147,15 +144,15 @@ export function I18nE2ETest() {
 	// Test 11: Pluralization
 	const testPluralization = () => {
 		try {
-			const singular = t.plural("item.count", 1, {
-				one: "1 item",
-				other: "{count} items",
+			const singular = t.plural('item.count', 1, {
+				one: '1 item',
+				other: '{count} items',
 			});
-			const plural = t.plural("item.count", 5, {
-				one: "1 item",
-				other: "{count} items",
+			const plural = t.plural('item.count', 5, {
+				one: '1 item',
+				other: '{count} items',
 			});
-			const passed = singular.includes("1") && plural.includes("5");
+			const passed = singular.includes('1') && plural.includes('5');
 			setTestResults((prev) => ({ ...prev, pluralization: passed }));
 			return passed;
 		} catch (_err) {
@@ -169,9 +166,7 @@ export function I18nE2ETest() {
 		try {
 			const isRTL = t.isRTL;
 			const direction = t.direction;
-			const passed =
-				typeof isRTL === "boolean" &&
-				(direction === "ltr" || direction === "rtl");
+			const passed = typeof isRTL === 'boolean' && (direction === 'ltr' || direction === 'rtl');
 			setTestResults((prev) => ({ ...prev, rtlDetection: passed }));
 			return passed;
 		} catch (_err) {
@@ -182,7 +177,7 @@ export function I18nE2ETest() {
 
 	// Run all tests
 	const runAllTests = async () => {
-		console.log("🧪 Starting i18n E2E Tests...");
+		console.log('🧪 Starting i18n E2E Tests...');
 
 		testBasicTranslation();
 		await testLanguageSwitching();
@@ -197,25 +192,19 @@ export function I18nE2ETest() {
 		testPluralization();
 		testRTLDetection();
 
-		console.log("✅ All tests completed!");
+		console.log('✅ All tests completed!');
 	};
 
-	const allPassed = Object.values(testResults).every(
-		(result) => result === true,
-	);
+	const allPassed = Object.values(testResults).every((result) => result === true);
 	const totalTests = 12;
-	const passedTests = Object.values(testResults).filter(
-		(result) => result === true,
-	).length;
+	const passedTests = Object.values(testResults).filter((result) => result === true).length;
 
 	return (
 		<div className="mx-auto max-w-4xl space-y-6 p-6">
 			{/* Header */}
 			<div className="rounded-lg bg-card p-6 shadow">
 				<h1 className="mb-2 font-bold text-2xl">i18n System E2E Tests</h1>
-				<p className="text-muted-foreground">
-					Comprehensive testing of all i18n features
-				</p>
+				<p className="text-muted-foreground">Comprehensive testing of all i18n features</p>
 
 				{/* Status */}
 				<div className="mt-4 flex items-center gap-4">
@@ -223,9 +212,7 @@ export function I18nE2ETest() {
 						<span className="text-muted-foreground text-sm">Status:</span>
 						{isLoading && <span className="text-yellow-600">Loading...</span>}
 						{isLoaded && <span className="text-green-600">Loaded</span>}
-						{error && (
-							<span className="text-red-600">Error: {error.message}</span>
-						)}
+						{error && <span className="text-red-600">Error: {error.message}</span>}
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -271,30 +258,23 @@ export function I18nE2ETest() {
 
 				<div className="space-y-2">
 					{[
-						{ key: "basicTranslation", label: "Basic Translation" },
-						{ key: "languageSwitching", label: "Language Switching" },
-						{ key: "dateFormatting", label: "Date Formatting" },
-						{ key: "relativeTime", label: "Relative Time" },
-						{ key: "numberFormatting", label: "Number Formatting" },
-						{ key: "currencyFormatting", label: "Currency Formatting" },
-						{ key: "percentFormatting", label: "Percent Formatting" },
-						{ key: "compactNotation", label: "Compact Notation" },
-						{ key: "fileSizeFormatting", label: "File Size Formatting" },
-						{ key: "durationFormatting", label: "Duration Formatting" },
-						{ key: "pluralization", label: "Pluralization" },
-						{ key: "rtlDetection", label: "RTL Detection" },
+						{ key: 'basicTranslation', label: 'Basic Translation' },
+						{ key: 'languageSwitching', label: 'Language Switching' },
+						{ key: 'dateFormatting', label: 'Date Formatting' },
+						{ key: 'relativeTime', label: 'Relative Time' },
+						{ key: 'numberFormatting', label: 'Number Formatting' },
+						{ key: 'currencyFormatting', label: 'Currency Formatting' },
+						{ key: 'percentFormatting', label: 'Percent Formatting' },
+						{ key: 'compactNotation', label: 'Compact Notation' },
+						{ key: 'fileSizeFormatting', label: 'File Size Formatting' },
+						{ key: 'durationFormatting', label: 'Duration Formatting' },
+						{ key: 'pluralization', label: 'Pluralization' },
+						{ key: 'rtlDetection', label: 'RTL Detection' },
 					].map(({ key, label }) => (
-						<div
-							className="flex items-center justify-between rounded-lg border p-3"
-							key={key}
-						>
+						<div className="flex items-center justify-between rounded-lg border p-3" key={key}>
 							<span>{label}</span>
-							{testResults[key] === true && (
-								<Check className="h-5 w-5 text-green-600" />
-							)}
-							{testResults[key] === false && (
-								<X className="h-5 w-5 text-red-600" />
-							)}
+							{testResults[key] === true && <Check className="h-5 w-5 text-green-600" />}
+							{testResults[key] === false && <X className="h-5 w-5 text-red-600" />}
 							{testResults[key] === undefined && (
 								<span className="text-muted-foreground">Not run</span>
 							)}
@@ -310,12 +290,12 @@ export function I18nE2ETest() {
 				<div className="space-y-4">
 					<div className="border-b pb-4">
 						<h3 className="mb-2 font-semibold">Translation</h3>
-						<p>{t("welcome.title", "Welcome to UNITY")}</p>
+						<p>{t('welcome.title', 'Welcome to UNITY')}</p>
 					</div>
 
 					<div className="border-b pb-4">
 						<h3 className="mb-2 font-semibold">Date Formatting</h3>
-						<p>{t.formatDate(new Date(), { style: "long" })}</p>
+						<p>{t.formatDate(new Date(), { style: 'long' })}</p>
 					</div>
 
 					<div className="border-b pb-4">
@@ -330,15 +310,15 @@ export function I18nE2ETest() {
 
 					<div className="border-b pb-4">
 						<h3 className="mb-2 font-semibold">Currency</h3>
-						<p>{t.formatCurrency(1234.56, "USD")}</p>
+						<p>{t.formatCurrency(1234.56, 'USD')}</p>
 					</div>
 
 					<div>
 						<h3 className="mb-2 font-semibold">Pluralization</h3>
 						<p>
-							{t.plural("item.count", 5, {
-								one: "1 item",
-								other: "{count} items",
+							{t.plural('item.count', 5, {
+								one: '1 item',
+								other: '{count} items',
 							})}
 						</p>
 					</div>

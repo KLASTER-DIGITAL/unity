@@ -8,7 +8,7 @@
  * @date 2025-01-18
  */
 
-import { media as platformMedia } from "./media/index";
+import { media as platformMedia } from './media/index';
 
 /**
  * Universal media interface
@@ -101,14 +101,14 @@ export const MediaUtils = {
 	 * Check if file is an image
 	 */
 	isImageFile(file: File): boolean {
-		return file.type.startsWith("image/");
+		return file.type.startsWith('image/');
 	},
 
 	/**
 	 * Check if file is a video
 	 */
 	isVideoFile(file: File): boolean {
-		return file.type.startsWith("video/");
+		return file.type.startsWith('video/');
 	},
 
 	/**
@@ -116,11 +116,11 @@ export const MediaUtils = {
 	 */
 	formatFileSize(bytes: number): string {
 		if (bytes === 0) {
-			return "0 Bytes";
+			return '0 Bytes';
 		}
 
 		const k = 1024;
-		const sizes = ["Bytes", "KB", "MB", "GB"];
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
 
 		return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
@@ -138,6 +138,6 @@ export const MediaUtils = {
 	 * Get file extension
 	 */
 	getFileExtension(filename: string): string {
-		return filename.split(".").pop()?.toLowerCase() || "";
+		return filename.split('.').pop()?.toLowerCase() || '';
 	},
 };

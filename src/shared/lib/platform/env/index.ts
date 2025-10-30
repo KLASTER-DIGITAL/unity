@@ -1,8 +1,8 @@
 /**
  * Platform Environment Adapter
- * 
+ *
  * Provides unified access to environment variables across web and React Native.
- * 
+ *
  * Web: Uses import.meta.env (Vite)
  * React Native: Uses expo-constants
  */
@@ -28,4 +28,3 @@ export const env = {
 };
 
 export type Env = typeof env;
-

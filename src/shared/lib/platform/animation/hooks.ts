@@ -4,19 +4,15 @@
  * Platform-agnostic hooks for managing animation state.
  */
 
-import {
-	useMotionValue as useMotionValueWeb,
-	useTransform as useTransformWeb,
-} from "motion/react";
-import { useCallback, useState } from "react";
-import type { AnimationConfig } from "./types";
+import { useMotionValue as useMotionValueWeb, useTransform as useTransformWeb } from 'motion/react';
+import { useCallback, useState } from 'react';
+import type { AnimationConfig } from './types';
 
 /**
  * Hook for managing animation state
  */
 export function useAnimationState(initialState: AnimationConfig = {}) {
-	const [animationState, setAnimationState] =
-		useState<AnimationConfig>(initialState);
+	const [animationState, setAnimationState] = useState<AnimationConfig>(initialState);
 
 	const animate = useCallback((newState: AnimationConfig) => {
 		setAnimationState(newState);

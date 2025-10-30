@@ -3,22 +3,22 @@
  * Создает иконки с градиентным фоном и эмодзи
  */
 
-export function generatePWAIcon(size: number, emoji = "🏆"): Promise<Blob> {
+export function generatePWAIcon(size: number, emoji = '🏆'): Promise<Blob> {
 	return new Promise((resolve, reject) => {
-		const canvas = document.createElement("canvas");
+		const canvas = document.createElement('canvas');
 		canvas.width = size;
 		canvas.height = size;
-		const ctx = canvas.getContext("2d");
+		const ctx = canvas.getContext('2d');
 
 		if (!ctx) {
-			reject(new Error("Could not get canvas context"));
+			reject(new Error('Could not get canvas context'));
 			return;
 		}
 
 		// Фон с градиентом
 		const gradient = ctx.createLinearGradient(0, 0, size, size);
-		gradient.addColorStop(0, "#007AFF");
-		gradient.addColorStop(1, "#0051D5");
+		gradient.addColorStop(0, '#007AFF');
+		gradient.addColorStop(1, '#0051D5');
 		ctx.fillStyle = gradient;
 
 		// Скругленные углы
@@ -39,11 +39,11 @@ export function generatePWAIcon(size: number, emoji = "🏆"): Promise<Blob> {
 		// Эмодзи в центре
 		const fontSize = size * 0.55;
 		ctx.font = `${fontSize}px Arial`;
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
 
 		// Небольшая тень для эмодзи
-		ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+		ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
 		ctx.shadowBlur = size * 0.02;
 		ctx.shadowOffsetY = size * 0.01;
 
@@ -54,9 +54,9 @@ export function generatePWAIcon(size: number, emoji = "🏆"): Promise<Blob> {
 			if (blob) {
 				resolve(blob);
 			} else {
-				reject(new Error("Failed to create blob"));
+				reject(new Error('Failed to create blob'));
 			}
-		}, "image/png");
+		}, 'image/png');
 	});
 }
 
@@ -84,12 +84,12 @@ export async function generateAllPWAIcons(): Promise<void> {
 function updateIconLink(size: number, url: string) {
 	// Обновляем обычную иконку
 	let iconLink = document.querySelector(
-		`link[rel="icon"][sizes="${size}x${size}"]`,
+		`link[rel="icon"][sizes="${size}x${size}"]`
 	) as HTMLLinkElement;
 	if (!iconLink) {
-		iconLink = document.createElement("link");
-		iconLink.rel = "icon";
-		iconLink.type = "image/png";
+		iconLink = document.createElement('link');
+		iconLink.rel = 'icon';
+		iconLink.type = 'image/png';
 		iconLink.sizes = `${size}x${size}`;
 		document.head.appendChild(iconLink);
 	}
@@ -97,12 +97,10 @@ function updateIconLink(size: number, url: string) {
 
 	// Для 192px также обновляем apple-touch-icon
 	if (size === 192) {
-		let appleIconLink = document.querySelector(
-			'link[rel="apple-touch-icon"]',
-		) as HTMLLinkElement;
+		let appleIconLink = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
 		if (!appleIconLink) {
-			appleIconLink = document.createElement("link");
-			appleIconLink.rel = "apple-touch-icon";
+			appleIconLink = document.createElement('link');
+			appleIconLink.rel = 'apple-touch-icon';
 			document.head.appendChild(appleIconLink);
 		}
 		appleIconLink.href = url;
@@ -112,38 +110,35 @@ function updateIconLink(size: number, url: string) {
 /**
  * Генерирует скриншот для PWA (для app stores)
  */
-export async function generatePWAScreenshot(
-	width = 390,
-	height = 844,
-): Promise<Blob> {
+export async function generatePWAScreenshot(width = 390, height = 844): Promise<Blob> {
 	return new Promise((resolve, reject) => {
-		const canvas = document.createElement("canvas");
+		const canvas = document.createElement('canvas');
 		canvas.width = width;
 		canvas.height = height;
-		const ctx = canvas.getContext("2d");
+		const ctx = canvas.getContext('2d');
 
 		if (!ctx) {
-			reject(new Error("Could not get canvas context"));
+			reject(new Error('Could not get canvas context'));
 			return;
 		}
 
 		// Белый фон
-		ctx.fillStyle = "#ffffff";
+		ctx.fillStyle = '#ffffff';
 		ctx.fillRect(0, 0, width, height);
 
 		// Можно добавить логику для захвата реального скриншота
 		// Но для простоты используем placeholder
-		ctx.fillStyle = "#007AFF";
-		ctx.font = "24px Arial";
-		ctx.textAlign = "center";
-		ctx.fillText("Дневник Достижений", width / 2, height / 2);
+		ctx.fillStyle = '#007AFF';
+		ctx.font = '24px Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText('Дневник Достижений', width / 2, height / 2);
 
 		canvas.toBlob((blob) => {
 			if (blob) {
 				resolve(blob);
 			} else {
-				reject(new Error("Failed to create screenshot blob"));
+				reject(new Error('Failed to create screenshot blob'));
 			}
-		}, "image/png");
+		}, 'image/png');
 	});
 }

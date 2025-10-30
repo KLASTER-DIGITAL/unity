@@ -7,7 +7,7 @@
  * @date 2025-10-24
  */
 
-import { Platform } from "../platform";
+import { Platform } from '../platform';
 
 /**
  * Core Web Vitals metrics
@@ -61,7 +61,7 @@ export type CustomMetrics = {
 export type PerformanceEntry = {
 	name: string;
 	value: number;
-	rating: "good" | "needs-improvement" | "poor";
+	rating: 'good' | 'needs-improvement' | 'poor';
 	timestamp: number;
 };
 
@@ -114,7 +114,7 @@ export class PerformanceMonitor {
 			// Observe INP
 			this.observeINP();
 		} catch (error) {
-			console.error("Failed to initialize performance observers:", error);
+			console.error('Failed to initialize performance observers:', error);
 		}
 	}
 
@@ -128,14 +128,14 @@ export class PerformanceMonitor {
 				const lastEntry = entries.at(-1) as any;
 
 				if (lastEntry) {
-					this.recordMetric("lcp", lastEntry.renderTime || lastEntry.loadTime);
+					this.recordMetric('lcp', lastEntry.renderTime || lastEntry.loadTime);
 				}
 			});
 
-			observer.observe({ type: "largest-contentful-paint", buffered: true });
+			observer.observe({ type: 'largest-contentful-paint', buffered: true });
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("LCP observation not supported:", error);
+			console.warn('LCP observation not supported:', error);
 		}
 	}
 
@@ -147,14 +147,14 @@ export class PerformanceMonitor {
 			const observer = new PerformanceObserver((list) => {
 				const entries = list.getEntries();
 				entries.forEach((entry: any) => {
-					this.recordMetric("fid", entry.processingStart - entry.startTime);
+					this.recordMetric('fid', entry.processingStart - entry.startTime);
 				});
 			});
 
-			observer.observe({ type: "first-input", buffered: true });
+			observer.observe({ type: 'first-input', buffered: true });
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("FID observation not supported:", error);
+			console.warn('FID observation not supported:', error);
 		}
 	}
 
@@ -170,15 +170,15 @@ export class PerformanceMonitor {
 				entries.forEach((entry: any) => {
 					if (!entry.hadRecentInput) {
 						clsValue += entry.value;
-						this.recordMetric("cls", clsValue);
+						this.recordMetric('cls', clsValue);
 					}
 				});
 			});
 
-			observer.observe({ type: "layout-shift", buffered: true });
+			observer.observe({ type: 'layout-shift', buffered: true });
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("CLS observation not supported:", error);
+			console.warn('CLS observation not supported:', error);
 		}
 	}
 
@@ -190,16 +190,16 @@ export class PerformanceMonitor {
 			const observer = new PerformanceObserver((list) => {
 				const entries = list.getEntries();
 				entries.forEach((entry: any) => {
-					if (entry.name === "first-contentful-paint") {
-						this.recordMetric("fcp", entry.startTime);
+					if (entry.name === 'first-contentful-paint') {
+						this.recordMetric('fcp', entry.startTime);
 					}
 				});
 			});
 
-			observer.observe({ type: "paint", buffered: true });
+			observer.observe({ type: 'paint', buffered: true });
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("FCP observation not supported:", error);
+			console.warn('FCP observation not supported:', error);
 		}
 	}
 
@@ -212,15 +212,15 @@ export class PerformanceMonitor {
 				const entries = list.getEntries();
 				entries.forEach((entry: any) => {
 					if (entry.responseStart > 0) {
-						this.recordMetric("ttfb", entry.responseStart - entry.requestStart);
+						this.recordMetric('ttfb', entry.responseStart - entry.requestStart);
 					}
 				});
 			});
 
-			observer.observe({ type: "navigation", buffered: true });
+			observer.observe({ type: 'navigation', buffered: true });
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("TTFB observation not supported:", error);
+			console.warn('TTFB observation not supported:', error);
 		}
 	}
 
@@ -240,14 +240,14 @@ export class PerformanceMonitor {
 				});
 
 				if (maxDuration > 0) {
-					this.recordMetric("inp", maxDuration);
+					this.recordMetric('inp', maxDuration);
 				}
 			});
 
-			observer.observe({ type: "event", buffered: true } as any);
+			observer.observe({ type: 'event', buffered: true } as any);
 			this.observers.push(observer);
 		} catch (error) {
-			console.warn("INP observation not supported:", error);
+			console.warn('INP observation not supported:', error);
 		}
 	}
 
@@ -268,33 +268,27 @@ export class PerformanceMonitor {
 
 		// Log in development
 		if (import.meta.env.DEV) {
-			console.log(
-				`📊 Performance: ${name.toUpperCase()} = ${value.toFixed(2)}ms (${rating})`,
-			);
+			console.log(`📊 Performance: ${name.toUpperCase()} = ${value.toFixed(2)}ms (${rating})`);
 		}
 	}
 
 	/**
 	 * Get rating for a metric
 	 */
-	private getRating(
-		name: string,
-		value: number,
-	): "good" | "needs-improvement" | "poor" {
-		const threshold =
-			PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
+	private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
+		const threshold = PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
 
 		if (!threshold) {
-			return "good";
+			return 'good';
 		}
 
 		if (value <= threshold.good) {
-			return "good";
+			return 'good';
 		}
 		if (value <= threshold.poor) {
-			return "needs-improvement";
+			return 'needs-improvement';
 		}
-		return "poor";
+		return 'poor';
 	}
 
 	/**
@@ -302,12 +296,12 @@ export class PerformanceMonitor {
 	 */
 	getMetrics(): WebVitalsMetrics {
 		return {
-			lcp: this.metrics.get("lcp")?.value,
-			fid: this.metrics.get("fid")?.value,
-			cls: this.metrics.get("cls")?.value,
-			fcp: this.metrics.get("fcp")?.value,
-			ttfb: this.metrics.get("ttfb")?.value,
-			inp: this.metrics.get("inp")?.value,
+			lcp: this.metrics.get('lcp')?.value,
+			fid: this.metrics.get('fid')?.value,
+			cls: this.metrics.get('cls')?.value,
+			fcp: this.metrics.get('fcp')?.value,
+			ttfb: this.metrics.get('ttfb')?.value,
+			inp: this.metrics.get('inp')?.value,
 		};
 	}
 
@@ -341,7 +335,7 @@ export class PerformanceMonitor {
 			try {
 				callback(entry);
 			} catch (error) {
-				console.error("Performance listener error:", error);
+				console.error('Performance listener error:', error);
 			}
 		});
 	}
@@ -364,10 +358,8 @@ export const performanceMonitor = new PerformanceMonitor();
 /**
  * Report Web Vitals to analytics
  */
-export function reportWebVitals(
-	onPerfEntry?: (entry: PerformanceEntry) => void,
-): void {
-	if (onPerfEntry && typeof onPerfEntry === "function") {
+export function reportWebVitals(onPerfEntry?: (entry: PerformanceEntry) => void): void {
+	if (onPerfEntry && typeof onPerfEntry === 'function') {
 		performanceMonitor.addListener(onPerfEntry);
 	}
 }

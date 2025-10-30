@@ -6,12 +6,8 @@
  * @module platform/navigation/web
  */
 
-import { Platform } from "../detection";
-import type {
-	NavigationAdapter,
-	NavigationOptions,
-	RouteParams,
-} from "../navigation";
+import { Platform } from '../detection';
+import type { NavigationAdapter, NavigationOptions, RouteParams } from '../navigation';
 
 /**
  * Web navigation adapter using browser History API
@@ -22,7 +18,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
 	constructor() {
 		// Initialize with browser history if available
-		if (Platform.isBrowser && typeof window !== "undefined") {
+		if (Platform.isBrowser && typeof window !== 'undefined') {
 			this.history = window.history;
 			this.location = window.location;
 		}
@@ -30,7 +26,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
 	navigate(route: string, options?: NavigationOptions): void {
 		if (!Platform.isBrowser) {
-			console.warn("Navigation not available in non-browser environment");
+			console.warn('Navigation not available in non-browser environment');
 			return;
 		}
 
@@ -38,28 +34,28 @@ export class WebNavigationAdapter implements NavigationAdapter {
 			const url = this.buildUrl(route, options?.params);
 
 			if (options?.replace) {
-				this.history?.replaceState(null, "", url);
+				this.history?.replaceState(null, '', url);
 			} else {
-				this.history?.pushState(null, "", url);
+				this.history?.pushState(null, '', url);
 			}
 
 			// Dispatch popstate event to notify React Router
-			window.dispatchEvent(new PopStateEvent("popstate"));
+			window.dispatchEvent(new PopStateEvent('popstate'));
 		} catch (error) {
-			console.error("Navigation error:", error);
+			console.error('Navigation error:', error);
 		}
 	}
 
 	goBack(): void {
 		if (!Platform.isBrowser) {
-			console.warn("Navigation not available in non-browser environment");
+			console.warn('Navigation not available in non-browser environment');
 			return;
 		}
 
 		try {
 			this.history?.back();
 		} catch (error) {
-			console.error("Go back error:", error);
+			console.error('Go back error:', error);
 		}
 	}
 
@@ -69,7 +65,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
 	reset(route: string, options?: NavigationOptions): void {
 		if (!Platform.isBrowser) {
-			console.warn("Navigation not available in non-browser environment");
+			console.warn('Navigation not available in non-browser environment');
 			return;
 		}
 
@@ -77,18 +73,18 @@ export class WebNavigationAdapter implements NavigationAdapter {
 			const url = this.buildUrl(route, options?.params);
 
 			// Clear history by replacing current state
-			this.history?.replaceState(null, "", url);
+			this.history?.replaceState(null, '', url);
 
 			// Dispatch popstate event
-			window.dispatchEvent(new PopStateEvent("popstate"));
+			window.dispatchEvent(new PopStateEvent('popstate'));
 		} catch (error) {
-			console.error("Reset navigation error:", error);
+			console.error('Reset navigation error:', error);
 		}
 	}
 
 	getCurrentRoute(): string {
 		if (!(Platform.isBrowser && this.location)) {
-			return "/";
+			return '/';
 		}
 
 		return this.location.pathname + this.location.search + this.location.hash;
@@ -105,17 +101,15 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
 	addListener(event: string, callback: (data?: any) => void): () => void {
 		if (!Platform.isBrowser) {
-			console.warn(
-				"Navigation listeners not available in non-browser environment",
-			);
+			console.warn('Navigation listeners not available in non-browser environment');
 			return () => {};
 		}
 
 		const eventMap: { [key: string]: string } = {
-			focus: "focus",
-			blur: "blur",
-			beforeRemove: "beforeunload",
-			state: "popstate",
+			focus: 'focus',
+			blur: 'blur',
+			beforeRemove: 'beforeunload',
+			state: 'popstate',
 		};
 
 		const browserEvent = eventMap[event] || event;

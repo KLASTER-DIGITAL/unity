@@ -7,19 +7,19 @@ import {
 	Smartphone,
 	TrendingUp,
 	Users,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Progress } from "@/shared/components/ui/progress";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Progress } from '@/shared/components/ui/progress';
+import { createClient } from '@/utils/supabase/client';
 
 type PWAStats = {
 	totalInstalls: number;
@@ -38,9 +38,7 @@ type InstallationData = {
 
 // Simple Chart Component (из PWASettingsTab)
 function SimpleChart({ data }: { data: InstallationData[] }) {
-	const maxValue = Math.max(
-		...data.map((d) => Math.max(d.installs, d.uninstalls)),
-	);
+	const maxValue = Math.max(...data.map((d) => Math.max(d.installs, d.uninstalls)));
 
 	return (
 		<div className="space-y-4">
@@ -79,19 +77,17 @@ export function PWAOverview() {
 		pushSubscriptionRate: 0,
 		installsGrowth: 0,
 	});
-	const [_installationData, _setInstallationData] = useState<
-		InstallationData[]
-	>([
-		{ month: "Apr", installs: 180, uninstalls: 20 },
-		{ month: "May", installs: 250, uninstalls: 22 },
-		{ month: "Jun", installs: 300, uninstalls: 25 },
+	const [_installationData, _setInstallationData] = useState<InstallationData[]>([
+		{ month: 'Apr', installs: 180, uninstalls: 20 },
+		{ month: 'May', installs: 250, uninstalls: 22 },
+		{ month: 'Jun', installs: 300, uninstalls: 25 },
 	]);
 
 	const supabase = createClient();
 
 	useEffect(() => {
 		loadStats();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadStats is stable
 	}, []);
 
 	const loadStats = async () => {
@@ -101,14 +97,14 @@ export function PWAOverview() {
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
 			// Загрузка статистики PWA
 			const { data: profiles, error } = await supabase
-				.from("profiles")
-				.select("pwa_installed, last_active");
+				.from('profiles')
+				.select('pwa_installed, last_active');
 
 			if (error) {
 				throw error;
@@ -127,15 +123,11 @@ export function PWAOverview() {
 				}).length;
 
 				// Загрузка push подписок
-				const { data: pushSubs } = await supabase
-					.from("push_subscriptions")
-					.select("id");
+				const { data: pushSubs } = await supabase.from('push_subscriptions').select('id');
 
 				const pushSubscriptions = pushSubs?.length || 0;
 				const pushSubscriptionRate =
-					totalInstalls > 0
-						? Math.round((pushSubscriptions / totalInstalls) * 100)
-						: 0;
+					totalInstalls > 0 ? Math.round((pushSubscriptions / totalInstalls) * 100) : 0;
 
 				setStats({
 					totalInstalls,
@@ -147,8 +139,8 @@ export function PWAOverview() {
 				});
 			}
 		} catch (error) {
-			console.error("Error loading PWA stats:", error);
-			toast.error("Ошибка загрузки статистики");
+			console.error('Error loading PWA stats:', error);
+			toast.error('Ошибка загрузки статистики');
 		} finally {
 			setIsLoading(false);
 		}
@@ -190,9 +182,7 @@ export function PWAOverview() {
 				{/* Главная метрика - Всего установок */}
 				<Card className="border-primary/20">
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-primary text-sm">
-							Всего установок
-						</CardTitle>
+						<CardTitle className="font-medium text-primary text-sm">Всего установок</CardTitle>
 						<Smartphone className="h-4 w-4 text-primary" />
 					</CardHeader>
 					<CardContent className="pt-0">
@@ -207,9 +197,7 @@ export function PWAOverview() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-sm">
-							Retention Rate
-						</CardTitle>
+						<CardTitle className="font-medium text-sm">Retention Rate</CardTitle>
 						<BarChart3 className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent className="pt-0">
@@ -220,27 +208,19 @@ export function PWAOverview() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-sm">
-							Активные пользователи
-						</CardTitle>
+						<CardTitle className="font-medium text-sm">Активные пользователи</CardTitle>
 						<Users className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent className="pt-0">
-						<div className="font-bold text-2xl">
-							{stats.activeUsers.toLocaleString()}
-						</div>
-						<p className="mt-1 text-muted-foreground text-xs">
-							За последние 7 дней
-						</p>
+						<div className="font-bold text-2xl">{stats.activeUsers.toLocaleString()}</div>
+						<p className="mt-1 text-muted-foreground text-xs">За последние 7 дней</p>
 					</CardContent>
 				</Card>
 
 				{/* Главная метрика - Push подписки */}
 				<Card className="border-primary/20">
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-primary text-sm">
-							Push подписки
-						</CardTitle>
+						<CardTitle className="font-medium text-primary text-sm">Push подписки</CardTitle>
 						<Bell className="h-4 w-4 text-primary" />
 					</CardHeader>
 					<CardContent className="pt-0">
@@ -261,9 +241,7 @@ export function PWAOverview() {
 						<TrendingUp className="h-5 w-5" />
 						Динамика установок
 					</CardTitle>
-					<CardDescription className="text-sm">
-						Последние 3 месяца
-					</CardDescription>
+					<CardDescription className="text-sm">Последние 3 месяца</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<SimpleChart data={_installationData} />
@@ -276,22 +254,20 @@ export function PWAOverview() {
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 					<Card
 						className="cursor-pointer transition-colors hover:bg-muted/50"
-						onClick={() => handleQuickAction("Отправить Push")}
+						onClick={() => handleQuickAction('Отправить Push')}
 					>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2 text-base">
 								<Bell className="h-5 w-5" />
 								Отправить Push
 							</CardTitle>
-							<CardDescription>
-								Отправить уведомление всем пользователям
-							</CardDescription>
+							<CardDescription>Отправить уведомление всем пользователям</CardDescription>
 						</CardHeader>
 					</Card>
 
 					<Card
 						className="cursor-pointer transition-colors hover:bg-muted/50"
-						onClick={() => handleQuickAction("Очистить кэш")}
+						onClick={() => handleQuickAction('Очистить кэш')}
 					>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2 text-base">
@@ -304,7 +280,7 @@ export function PWAOverview() {
 
 					<Card
 						className="cursor-pointer transition-colors hover:bg-muted/50"
-						onClick={() => handleQuickAction("Настройки PWA")}
+						onClick={() => handleQuickAction('Настройки PWA')}
 					>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2 text-base">

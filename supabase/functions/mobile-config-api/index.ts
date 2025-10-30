@@ -1,10 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Headers":
-		"authorization, x-client-info, apikey, content-type",
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface MobileSettings {
@@ -20,8 +19,8 @@ interface MobileSettings {
 	splash_image_url?: string;
 	splash_bg_color: string;
 	splash_duration_ms: number;
-	splash_animation: "fade" | "zoom" | "slide" | "none";
-	splash_next_screen: "onboarding" | "login" | "home";
+	splash_animation: 'fade' | 'zoom' | 'slide' | 'none';
+	splash_next_screen: 'onboarding' | 'login' | 'home';
 	onboarding_enabled: boolean;
 	onboarding_screens: any[];
 	onboarding_skip_enabled: boolean;
@@ -42,29 +41,26 @@ interface MobileSettings {
 
 serve(async (req) => {
 	// Handle CORS preflight requests
-	if (req.method === "OPTIONS") {
-		return new Response("ok", { headers: corsHeaders });
+	if (req.method === 'OPTIONS') {
+		return new Response('ok', { headers: corsHeaders });
 	}
 
 	try {
-		const supabaseUrl = Deno.env.get("SUPABASE_URL");
-		const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+		const supabaseUrl = Deno.env.get('SUPABASE_URL');
+		const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
 
 		if (!(supabaseUrl && supabaseAnonKey)) {
-			throw new Error("Missing Supabase environment variables");
+			throw new Error('Missing Supabase environment variables');
 		}
 
 		const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 		// GET /mobile-config - получить конфигурацию
-		if (req.method === "GET") {
-			const { data, error } = await supabase
-				.from("mobile_settings")
-				.select("*")
-				.single();
+		if (req.method === 'GET') {
+			const { data, error } = await supabase.from('mobile_settings').select('*').single();
 
 			if (error) {
-				console.error("Error fetching mobile settings:", error);
+				console.error('Error fetching mobile settings:', error);
 				return new Response(
 					JSON.stringify({
 						success: false,
@@ -72,8 +68,8 @@ serve(async (req) => {
 					}),
 					{
 						status: 500,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
@@ -83,29 +79,29 @@ serve(async (req) => {
 					config: data,
 				}),
 				{
-					headers: { ...corsHeaders, "Content-Type": "application/json" },
-				},
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
 			);
 		}
 
 		// PUT /mobile-config - обновить конфигурацию (только super_admin)
-		if (req.method === "PUT") {
-			const authHeader = req.headers.get("Authorization");
+		if (req.method === 'PUT') {
+			const authHeader = req.headers.get('Authorization');
 			if (!authHeader) {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "Unauthorized: Missing authorization header",
+						error: 'Unauthorized: Missing authorization header',
 					}),
 					{
 						status: 401,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
 			// Проверка роли super_admin
-			const token = authHeader.replace("Bearer ", "");
+			const token = authHeader.replace('Bearer ', '');
 			const {
 				data: { user },
 				error: userError,
@@ -115,44 +111,44 @@ serve(async (req) => {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "Unauthorized: Invalid token",
+						error: 'Unauthorized: Invalid token',
 					}),
 					{
 						status: 401,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
 			const { data: profile, error: profileError } = await supabase
-				.from("profiles")
-				.select("role")
-				.eq("id", user.id)
+				.from('profiles')
+				.select('role')
+				.eq('id', user.id)
 				.single();
 
 			if (profileError || !profile) {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "Unauthorized: Profile not found",
+						error: 'Unauthorized: Profile not found',
 					}),
 					{
 						status: 401,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
-			if (profile.role !== "super_admin") {
+			if (profile.role !== 'super_admin') {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "Forbidden: Only super admins can update mobile settings",
+						error: 'Forbidden: Only super admins can update mobile settings',
 					}),
 					{
 						status: 403,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
@@ -166,48 +162,48 @@ serve(async (req) => {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "splash_duration_ms must be between 0 and 10000",
+						error: 'splash_duration_ms must be between 0 and 10000',
 					}),
 					{
 						status: 400,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
 			// Get current settings to update
 			const { data: currentSettings, error: fetchError } = await supabase
-				.from("mobile_settings")
-				.select("id, version")
+				.from('mobile_settings')
+				.select('id, version')
 				.single();
 
 			if (fetchError) {
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: "Failed to fetch current settings",
+						error: 'Failed to fetch current settings',
 					}),
 					{
 						status: 500,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
 			// Update settings
 			const { data, error } = await supabase
-				.from("mobile_settings")
+				.from('mobile_settings')
 				.update({
 					...body,
 					version: (currentSettings.version || 1) + 1,
 					updated_at: new Date().toISOString(),
 				})
-				.eq("id", currentSettings.id)
+				.eq('id', currentSettings.id)
 				.select()
 				.single();
 
 			if (error) {
-				console.error("Error updating mobile settings:", error);
+				console.error('Error updating mobile settings:', error);
 				return new Response(
 					JSON.stringify({
 						success: false,
@@ -215,8 +211,8 @@ serve(async (req) => {
 					}),
 					{
 						status: 500,
-						headers: { ...corsHeaders, "Content-Type": "application/json" },
-					},
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
 				);
 			}
 
@@ -226,32 +222,32 @@ serve(async (req) => {
 					config: data,
 				}),
 				{
-					headers: { ...corsHeaders, "Content-Type": "application/json" },
-				},
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
 			);
 		}
 
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: "Method not allowed",
+				error: 'Method not allowed',
 			}),
 			{
 				status: 405,
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			},
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
 		);
 	} catch (error) {
-		console.error("Unexpected error:", error);
+		console.error('Unexpected error:', error);
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: error instanceof Error ? error.message : "Unknown error",
+				error: error instanceof Error ? error.message : 'Unknown error',
 			}),
 			{
 				status: 500,
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			},
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			}
 		);
 	}
 });

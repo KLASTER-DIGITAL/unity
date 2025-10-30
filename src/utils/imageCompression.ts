@@ -1,6 +1,6 @@
-import imageCompression from "browser-image-compression";
+import imageCompression from 'browser-image-compression';
 // Direct import to avoid circular dependency
-import { media } from "../shared/lib/platform/media";
+import { media } from '../shared/lib/platform/media';
 
 /**
  * 📸 PROFESSIONAL IMAGE COMPRESSION
@@ -11,15 +11,15 @@ export async function compressImage(
 	file: File,
 	maxWidth = 1920,
 	// // maxHeight: number = 1920,
-	quality = 0.8,
+	quality = 0.8
 ): Promise<File> {
 	// Проверка типа файла
-	if (!file.type.startsWith("image/")) {
-		throw new Error("Файл не является изображением");
+	if (!file.type.startsWith('image/')) {
+		throw new Error('Файл не является изображением');
 	}
 
 	console.log(
-		`📸 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+		`📸 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`
 	);
 
 	try {
@@ -28,7 +28,7 @@ export async function compressImage(
 			maxWidthOrHeight: maxWidth, // Max 1920x1080
 			useWebWorker: true, // Parallel processing
 			quality, // 80% quality
-			fileType: "image/jpeg", // Always JPEG (smaller)
+			fileType: 'image/jpeg', // Always JPEG (smaller)
 			initialQuality: quality, // Initial quality
 			alwaysKeepResolution: false, // Allow resize
 		};
@@ -36,15 +36,13 @@ export async function compressImage(
 		const compressedFile = await imageCompression(file, options);
 
 		console.log(
-			`📸 [COMPRESS] ✅ Success: ${(file.size / 1024).toFixed(2)}KB → ${(compressedFile.size / 1024).toFixed(2)}KB (${((1 - compressedFile.size / file.size) * 100).toFixed(1)}% reduction)`,
+			`📸 [COMPRESS] ✅ Success: ${(file.size / 1024).toFixed(2)}KB → ${(compressedFile.size / 1024).toFixed(2)}KB (${((1 - compressedFile.size / file.size) * 100).toFixed(1)}% reduction)`
 		);
 
 		return compressedFile;
 	} catch (error) {
-		console.error("📸 [COMPRESS] ❌ Error:", error);
-		throw new Error(
-			"Ошибка при сжатии изображения: " + (error as Error).message,
-		);
+		console.error('📸 [COMPRESS] ❌ Error:', error);
+		throw new Error(`Ошибка при сжатии изображения: ${(error as Error).message}`);
 	}
 }
 
@@ -61,21 +59,17 @@ export async function generateThumbnail(file: File): Promise<File> {
 			maxWidthOrHeight: 200, // 200x200
 			useWebWorker: true,
 			quality: 0.7,
-			fileType: "image/jpeg",
+			fileType: 'image/jpeg',
 		};
 
 		const thumbnail = await imageCompression(file, options);
 
-		console.log(
-			`🖼️ [THUMBNAIL] ✅ Generated: ${(thumbnail.size / 1024).toFixed(2)}KB`,
-		);
+		console.log(`🖼️ [THUMBNAIL] ✅ Generated: ${(thumbnail.size / 1024).toFixed(2)}KB`);
 
 		return thumbnail;
 	} catch (error) {
-		console.error("🖼️ [THUMBNAIL] ❌ Error:", error);
-		throw new Error(
-			"Ошибка при создании thumbnail: " + (error as Error).message,
-		);
+		console.error('🖼️ [THUMBNAIL] ❌ Error:', error);
+		throw new Error(`Ошибка при создании thumbnail: ${(error as Error).message}`);
 	}
 }
 
@@ -83,9 +77,7 @@ export async function generateThumbnail(file: File): Promise<File> {
  * 📐 EXTRACT IMAGE DIMENSIONS
  * Returns width and height of the image
  */
-export async function getImageDimensions(
-	file: File,
-): Promise<{ width: number; height: number }> {
+export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
 	return media.getImageDimensions(file);
 }
 
@@ -93,10 +85,7 @@ export async function getImageDimensions(
  * 🎨 CREATE THUMBNAIL DATA URL (for instant preview)
  * Returns base64 data URL for immediate display
  */
-export async function createThumbnail(
-	file: File,
-	maxSize = 200,
-): Promise<string> {
+export async function createThumbnail(file: File, maxSize = 200): Promise<string> {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const dataUrl = await media.readAsDataURL(file);
@@ -110,9 +99,9 @@ export async function createThumbnail(
 
 				// Создаем canvas
 				const canvas = media.createCanvas(maxSize, maxSize);
-				const ctx = canvas.getContext("2d");
+				const ctx = canvas.getContext('2d');
 				if (!ctx) {
-					reject(new Error("Failed to get canvas context"));
+					reject(new Error('Failed to get canvas context'));
 					return;
 				}
 
@@ -120,11 +109,11 @@ export async function createThumbnail(
 				ctx.drawImage(img, x, y, size, size, 0, 0, maxSize, maxSize);
 
 				// Возвращаем data URL
-				resolve(canvas.toDataURL("image/jpeg", 0.7));
+				resolve(canvas.toDataURL('image/jpeg', 0.7));
 			};
 
 			img.onerror = () => {
-				reject(new Error("Failed to load image"));
+				reject(new Error('Failed to load image'));
 			};
 
 			img.src = dataUrl;
@@ -138,14 +127,14 @@ export async function createThumbnail(
  * Проверка является ли файл изображением
  */
 export function isImageFile(file: File): boolean {
-	return file.type.startsWith("image/");
+	return file.type.startsWith('image/');
 }
 
 /**
  * Проверка является ли файл видео
  */
 export function isVideoFile(file: File): boolean {
-	return file.type.startsWith("video/");
+	return file.type.startsWith('video/');
 }
 
 /**

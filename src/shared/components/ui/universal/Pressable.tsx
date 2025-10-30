@@ -10,17 +10,15 @@
  * @date 2025-10-29
  */
 
-import { motion } from "motion/react";
-import type { RefObject } from "react";
-import { cn } from "../utils";
-import type { UniversalComponentProps, UniversalEventHandlers } from "./types";
+import { motion } from 'motion/react';
+import type { RefObject } from 'react';
+import { cn } from '../utils';
+import type { UniversalComponentProps, UniversalEventHandlers } from './types';
 
 /**
  * Pressable component props
  */
-export interface PressableProps
-	extends UniversalComponentProps,
-		UniversalEventHandlers {
+export interface PressableProps extends UniversalComponentProps, UniversalEventHandlers {
 	/**
 	 * Scale value when pressed (0-1)
 	 * @default 0.95
@@ -56,7 +54,7 @@ export interface PressableProps
 	/**
 	 * Role for accessibility
 	 */
-	role?: "button" | "link" | "none";
+	role?: 'button' | 'link' | 'none';
 
 	/**
 	 * Tab index for keyboard navigation (web only)
@@ -66,7 +64,7 @@ export interface PressableProps
 	/**
 	 * Aria label for accessibility
 	 */
-	"aria-label"?: string;
+	'aria-label'?: string;
 }
 
 /**
@@ -84,9 +82,9 @@ const WebPressable = ({
 	onPressOut,
 	testID,
 	accessibilityLabel,
-	role = "button",
+	role = 'button',
 	tabIndex = 0,
-	"aria-label": ariaLabel,
+	'aria-label': ariaLabel,
 	ref,
 	...props
 }: PressableProps & { ref?: RefObject<HTMLDivElement | null> }) => {
@@ -131,9 +129,9 @@ const WebPressable = ({
 			aria-disabled={disabled}
 			aria-label={ariaLabel || accessibilityLabel}
 			className={cn(
-				"cursor-pointer select-none",
-				disabled && "pointer-events-none cursor-not-allowed opacity-50",
-				className,
+				'cursor-pointer select-none',
+				disabled && 'pointer-events-none cursor-not-allowed opacity-50',
+				className
 			)}
 			data-testid={testID}
 			onClick={handleClick}
@@ -158,7 +156,7 @@ const WebPressable = ({
 			role={role}
 			style={style}
 			tabIndex={disabled ? -1 : tabIndex}
-			transition={{ type: "spring", stiffness: 400, damping: 30 }}
+			transition={{ type: 'spring', stiffness: 400, damping: 30 }}
 			whileTap={{ scale: disabled ? 1 : pressScale }}
 			{...props}
 		>
@@ -178,6 +176,6 @@ export const Pressable = WebPressable as typeof WebPressable & {
 	displayName: string;
 };
 
-Pressable.displayName = "Pressable";
+Pressable.displayName = 'Pressable';
 
 export default Pressable;

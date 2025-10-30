@@ -1,19 +1,16 @@
-import type React from "react";
+import type React from 'react';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import type { MobileSettingsProps } from "./types";
+} from '@/shared/components/ui/card';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import type { MobileSettingsProps } from './types';
 
-export const OnboardingSettings: React.FC<MobileSettingsProps> = ({
-	settings,
-	onChange,
-}) => {
+export const OnboardingSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
 	const handleChange = (field: string, value: any) => {
 		onChange({ ...settings, [field]: value });
 	};
@@ -35,9 +32,7 @@ export const OnboardingSettings: React.FC<MobileSettingsProps> = ({
 						</div>
 						<Switch
 							checked={settings.onboarding_enabled}
-							onCheckedChange={(checked) =>
-								handleChange("onboarding_enabled", checked)
-							}
+							onCheckedChange={(checked) => handleChange('onboarding_enabled', checked)}
 						/>
 					</div>
 
@@ -52,9 +47,7 @@ export const OnboardingSettings: React.FC<MobileSettingsProps> = ({
 								</div>
 								<Switch
 									checked={settings.onboarding_skip_enabled}
-									onCheckedChange={(checked) =>
-										handleChange("onboarding_skip_enabled", checked)
-									}
+									onCheckedChange={(checked) => handleChange('onboarding_skip_enabled', checked)}
 								/>
 							</div>
 

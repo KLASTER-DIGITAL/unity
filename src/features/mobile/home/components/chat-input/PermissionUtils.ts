@@ -6,23 +6,21 @@
  * Check microphone permission status
  * @returns Permission status: 'granted', 'denied', or 'prompt'
  */
-export const checkMicrophonePermission = async (): Promise<
-	"granted" | "denied" | "prompt"
-> => {
+export const checkMicrophonePermission = async (): Promise<'granted' | 'denied' | 'prompt'> => {
 	try {
 		// Check Permissions API
 		if (navigator.permissions?.query) {
 			const result = await navigator.permissions.query({
-				name: "microphone" as PermissionName,
+				name: 'microphone' as PermissionName,
 			});
-			return result.state as "granted" | "denied" | "prompt";
+			return result.state as 'granted' | 'denied' | 'prompt';
 		}
 	} catch (error) {
-		console.log("Permissions API not available:", error);
+		console.log('Permissions API not available:', error);
 	}
 
 	// Fallback - try to get access
-	return "prompt";
+	return 'prompt';
 };
 
 /**

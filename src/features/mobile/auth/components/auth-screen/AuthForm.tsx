@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import type { AuthTranslations } from "./translations";
+import { motion } from 'motion/react';
+import type { AuthTranslations } from './translations';
 
 type AuthFormProps = {
 	isLogin: boolean;
@@ -84,11 +84,7 @@ export function AuthForm({
 				type="submit"
 				whileTap={{ scale: isLoading ? 1 : 0.98 }}
 			>
-				{isLoading
-					? "Загрузка..."
-					: isLogin
-						? translations.signIn
-						: translations.signUp}
+				{isLoading ? 'Загрузка...' : isLogin ? translations.signIn : translations.signUp}
 			</motion.button>
 		</motion.form>
 	);

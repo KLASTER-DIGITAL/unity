@@ -71,8 +71,7 @@ export type SpeechAdapter = {
 class WebSpeechAdapter implements SpeechAdapter {
 	private recognition: any = null;
 	private listening = false;
-	private resultCallback: ((result: SpeechRecognitionResult) => void) | null =
-		null;
+	private resultCallback: ((result: SpeechRecognitionResult) => void) | null = null;
 	private errorCallback: ((error: Error) => void) | null = null;
 	private startCallback: (() => void) | null = null;
 	private endCallback: (() => void) | null = null;
@@ -85,8 +84,8 @@ class WebSpeechAdapter implements SpeechAdapter {
 
 	isSupported(): boolean {
 		return !!(
-			typeof window !== "undefined" &&
-			("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+			typeof window !== 'undefined' &&
+			('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
 		);
 	}
 
@@ -100,7 +99,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 			// Permissions are requested when starting recognition
 			return true;
 		} catch (error) {
-			console.error("Permission denied:", error);
+			console.error('Permission denied:', error);
 			return false;
 		}
 	}
@@ -111,7 +110,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		}
 
 		const {
-			language = "ru-RU",
+			language = 'ru-RU',
 			continuous = false,
 			interimResults = false,
 			maxAlternatives = 1,
@@ -126,9 +125,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 			this.recognition.start();
 		} catch (error: any) {
 			if (this.errorCallback) {
-				this.errorCallback(
-					new Error(`Failed to start recognition: ${error.message}`),
-				);
+				this.errorCallback(new Error(`Failed to start recognition: ${error.message}`));
 			}
 		}
 	}
@@ -141,7 +138,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		try {
 			this.recognition.stop();
 		} catch (error) {
-			console.error("Error stopping recognition:", error);
+			console.error('Error stopping recognition:', error);
 		}
 	}
 
@@ -154,7 +151,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 			this.recognition.abort();
 			this.listening = false;
 		} catch (error) {
-			console.error("Error aborting recognition:", error);
+			console.error('Error aborting recognition:', error);
 		}
 	}
 
@@ -180,8 +177,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 
 	private initializeRecognition(): void {
 		const SpeechRecognition =
-			(window as any).webkitSpeechRecognition ||
-			(window as any).SpeechRecognition;
+			(window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
 		this.recognition = new SpeechRecognition();
 
 		this.recognition.onstart = () => {
@@ -218,23 +214,23 @@ class WebSpeechAdapter implements SpeechAdapter {
 			this.listening = false;
 
 			if (this.errorCallback) {
-				let errorMessage = "Speech recognition error";
+				let errorMessage = 'Speech recognition error';
 
 				switch (event.error) {
-					case "no-speech":
-						errorMessage = "No speech detected";
+					case 'no-speech':
+						errorMessage = 'No speech detected';
 						break;
-					case "audio-capture":
-						errorMessage = "No microphone found";
+					case 'audio-capture':
+						errorMessage = 'No microphone found';
 						break;
-					case "not-allowed":
-						errorMessage = "Microphone access denied";
+					case 'not-allowed':
+						errorMessage = 'Microphone access denied';
 						break;
-					case "network":
-						errorMessage = "Network error";
+					case 'network':
+						errorMessage = 'Network error';
 						break;
-					case "aborted":
-						errorMessage = "Recognition aborted";
+					case 'aborted':
+						errorMessage = 'Recognition aborted';
 						break;
 					default:
 						errorMessage = `Speech recognition error: ${event.error}`;

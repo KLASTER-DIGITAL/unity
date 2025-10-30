@@ -1,6 +1,6 @@
-import { X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 
 type PhotoViewerProps = {
 	imageUrl: string;
@@ -9,29 +9,24 @@ type PhotoViewerProps = {
 	onClose: () => void;
 };
 
-export function PhotoViewer({
-	imageUrl,
-	fileName,
-	isOpen,
-	onClose,
-}: PhotoViewerProps) {
+export function PhotoViewer({ imageUrl, fileName, isOpen, onClose }: PhotoViewerProps) {
 	// Close on Escape key
 	useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
+			if (e.key === 'Escape') {
 				onClose();
 			}
 		};
 
 		if (isOpen) {
-			document.addEventListener("keydown", handleEscape);
+			document.addEventListener('keydown', handleEscape);
 			// Prevent body scroll
-			document.body.style.overflow = "hidden";
+			document.body.style.overflow = 'hidden';
 		}
 
 		return () => {
-			document.removeEventListener("keydown", handleEscape);
-			document.body.style.overflow = "";
+			document.removeEventListener('keydown', handleEscape);
+			document.body.style.overflow = '';
 		};
 	}, [isOpen, onClose]);
 
@@ -63,7 +58,7 @@ export function PhotoViewer({
 						onClick={(e) => e.stopPropagation()}
 					>
 						<img
-							alt={fileName || "Photo"}
+							alt={fileName || 'Photo'}
 							className="max-h-[90vh] max-w-full rounded-lg object-contain"
 							src={imageUrl}
 						/>

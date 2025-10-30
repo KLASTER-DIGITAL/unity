@@ -8,11 +8,11 @@
  * @date 2025-01-18
  */
 
-import { XIcon } from "lucide-react";
-import type React from "react";
-import { useEffect } from "react";
-import { cn } from "../utils";
-import type { ModalProps, ModalSize, UniversalEventHandlers } from "./types";
+import { XIcon } from 'lucide-react';
+import type React from 'react';
+import { useEffect } from 'react';
+import { cn } from '../utils';
+import type { ModalProps, ModalSize, UniversalEventHandlers } from './types';
 
 /**
  * Extended Modal component props
@@ -77,16 +77,16 @@ const WebModal = ({
 	onOpenChange,
 	title,
 	description,
-	size = "md",
+	size = 'md',
 	closable = true,
 	backdrop = true,
-	animation = "fade",
+	animation = 'fade',
 	closeOnBackdrop = true,
 	closeOnEscape = true,
 	showCloseButton = true,
 	closeButton,
 	zIndex = 50,
-	backdropColor = "rgba(0, 0, 0, 0.5)",
+	backdropColor = 'rgba(0, 0, 0, 0.5)',
 	preventBodyScroll = true,
 	children,
 	header,
@@ -104,13 +104,13 @@ const WebModal = ({
 		}
 
 		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === "Escape" && onOpenChange) {
+			if (e.key === 'Escape' && onOpenChange) {
 				onOpenChange(false);
 			}
 		};
 
-		document.addEventListener("keydown", handleEscape);
-		return () => document.removeEventListener("keydown", handleEscape);
+		document.addEventListener('keydown', handleEscape);
+		return () => document.removeEventListener('keydown', handleEscape);
 	}, [open, closeOnEscape, onOpenChange]);
 
 	// Prevent body scroll
@@ -120,7 +120,7 @@ const WebModal = ({
 		}
 
 		const originalStyle = window.getComputedStyle(document.body).overflow;
-		document.body.style.overflow = "hidden";
+		document.body.style.overflow = 'hidden';
 
 		return () => {
 			document.body.style.overflow = originalStyle;
@@ -133,20 +133,20 @@ const WebModal = ({
 
 	// Size styles
 	const sizeStyles = {
-		sm: "max-w-sm",
-		md: "max-w-md",
-		lg: "max-w-lg",
-		xl: "max-w-xl",
-		full: "max-w-full h-full",
+		sm: 'max-w-sm',
+		md: 'max-w-md',
+		lg: 'max-w-lg',
+		xl: 'max-w-xl',
+		full: 'max-w-full h-full',
 	};
 
 	// Animation styles
 	const animationStyles = {
-		fade: "animate-in fade-in-0 duration-200",
-		slide: "animate-in slide-in-from-bottom-4 duration-300",
-		scale: "animate-in zoom-in-95 duration-200",
-		bounce: "animate-in zoom-in-95 duration-300",
-		none: "",
+		fade: 'animate-in fade-in-0 duration-200',
+		slide: 'animate-in slide-in-from-bottom-4 duration-300',
+		scale: 'animate-in zoom-in-95 duration-200',
+		bounce: 'animate-in zoom-in-95 duration-300',
+		none: '',
 	};
 
 	const handleBackdropClick = (e: React.MouseEvent) => {
@@ -159,8 +159,8 @@ const WebModal = ({
 		<div
 			aria-label={accessibilityLabel}
 			className={cn(
-				"fixed inset-0 z-50 flex items-center justify-center p-4",
-				animationStyles[animation],
+				'fixed inset-0 z-50 flex items-center justify-center p-4',
+				animationStyles[animation]
 			)}
 			data-testid={testID}
 			style={{ zIndex }}
@@ -176,14 +176,14 @@ const WebModal = ({
 
 			{/* Modal Content */}
 			<div
-				aria-describedby={description ? "modal-description" : undefined}
-				aria-labelledby={title ? "modal-title" : undefined}
+				aria-describedby={description ? 'modal-description' : undefined}
+				aria-labelledby={title ? 'modal-title' : undefined}
 				aria-modal="true"
 				className={cn(
-					"relative max-h-[90vh] overflow-hidden rounded-lg border bg-background shadow-lg",
-					"flex w-full flex-col",
+					'relative max-h-[90vh] overflow-hidden rounded-lg border bg-background shadow-lg',
+					'flex w-full flex-col',
 					sizeStyles[size],
-					className,
+					className
 				)}
 				ref={ref}
 				role="dialog"
@@ -201,10 +201,7 @@ const WebModal = ({
 										</h2>
 									)}
 									{description && (
-										<p
-											className="mt-1 text-muted-foreground text-sm"
-											id="modal-description"
-										>
+										<p className="mt-1 text-muted-foreground text-sm" id="modal-description">
 											{description}
 										</p>
 									)}
@@ -244,7 +241,7 @@ const WebModal = ({
  */
 export const Modal = WebModal as typeof WebModal & { displayName: string };
 
-Modal.displayName = "Modal";
+Modal.displayName = 'Modal';
 
 /**
  * Modal utilities
@@ -259,7 +256,7 @@ export const ModalUtils = {
 			md: { maxWidth: 400 },
 			lg: { maxWidth: 500 },
 			xl: { maxWidth: 600 },
-			full: { maxWidth: "100%", height: "100%" },
+			full: { maxWidth: '100%', height: '100%' },
 		};
 		return styles[size] || styles.md;
 	},
@@ -270,13 +267,13 @@ export const ModalUtils = {
 	validateProps: (props: ExtendedModalProps) => {
 		const errors: string[] = [];
 
-		if (props.size && !["sm", "md", "lg", "xl", "full"].includes(props.size)) {
+		if (props.size && !['sm', 'md', 'lg', 'xl', 'full'].includes(props.size)) {
 			errors.push(`Invalid size: ${props.size}`);
 		}
 
 		if (
 			props.animation &&
-			!["fade", "slide", "scale", "bounce", "none"].includes(props.animation)
+			!['fade', 'slide', 'scale', 'bounce', 'none'].includes(props.animation)
 		) {
 			errors.push(`Invalid animation: ${props.animation}`);
 		}

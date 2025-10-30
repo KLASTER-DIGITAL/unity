@@ -1,28 +1,25 @@
-import type React from "react";
+import type React from 'react';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/shared/components/ui/select";
-import { Slider } from "@/shared/components/ui/slider";
-import { Switch } from "@/shared/components/ui/switch";
-import type { MobileSettingsProps } from "./types";
+} from '@/shared/components/ui/select';
+import { Slider } from '@/shared/components/ui/slider';
+import { Switch } from '@/shared/components/ui/switch';
+import type { MobileSettingsProps } from './types';
 
-export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
-	settings,
-	onChange,
-}) => {
+export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
 	const handleChange = (field: string, value: any) => {
 		onChange({ ...settings, [field]: value });
 	};
@@ -32,23 +29,17 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 			<Card>
 				<CardHeader>
 					<CardTitle>Splash Screen</CardTitle>
-					<CardDescription>
-						Экран загрузки при запуске приложения
-					</CardDescription>
+					<CardDescription>Экран загрузки при запуске приложения</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="flex items-center justify-between">
 						<div className="space-y-0.5">
 							<Label>Включить Splash Screen</Label>
-							<p className="text-muted-foreground text-sm">
-								Показывать экран загрузки при запуске
-							</p>
+							<p className="text-muted-foreground text-sm">Показывать экран загрузки при запуске</p>
 						</div>
 						<Switch
 							checked={settings.splash_enabled}
-							onCheckedChange={(checked) =>
-								handleChange("splash_enabled", checked)
-							}
+							onCheckedChange={(checked) => handleChange('splash_enabled', checked)}
 						/>
 					</div>
 
@@ -57,11 +48,9 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 							<div className="space-y-2">
 								<Label>Изображение</Label>
 								<Input
-									onChange={(e) =>
-										handleChange("splash_image_url", e.target.value)
-									}
+									onChange={(e) => handleChange('splash_image_url', e.target.value)}
 									placeholder="https://cdn.unity.com/splash.png"
-									value={settings.splash_image_url || ""}
+									value={settings.splash_image_url || ''}
 								/>
 							</div>
 
@@ -70,17 +59,13 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 								<div className="flex gap-2">
 									<Input
 										className="h-10 w-20 p-1"
-										onChange={(e) =>
-											handleChange("splash_bg_color", e.target.value)
-										}
+										onChange={(e) => handleChange('splash_bg_color', e.target.value)}
 										type="color"
 										value={settings.splash_bg_color}
 									/>
 									<Input
 										className="flex-1"
-										onChange={(e) =>
-											handleChange("splash_bg_color", e.target.value)
-										}
+										onChange={(e) => handleChange('splash_bg_color', e.target.value)}
 										value={settings.splash_bg_color}
 									/>
 								</div>
@@ -91,9 +76,7 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 								<Slider
 									max={5000}
 									min={500}
-									onValueChange={([value]) =>
-										handleChange("splash_duration_ms", value)
-									}
+									onValueChange={([value]) => handleChange('splash_duration_ms', value)}
 									step={100}
 									value={[settings.splash_duration_ms]}
 								/>
@@ -102,9 +85,7 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 							<div className="space-y-2">
 								<Label>Анимация</Label>
 								<Select
-									onValueChange={(value) =>
-										handleChange("splash_animation", value)
-									}
+									onValueChange={(value) => handleChange('splash_animation', value)}
 									value={settings.splash_animation}
 								>
 									<SelectTrigger>
@@ -122,9 +103,7 @@ export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({
 							<div className="space-y-2">
 								<Label>Следующий экран</Label>
 								<Select
-									onValueChange={(value) =>
-										handleChange("splash_next_screen", value)
-									}
+									onValueChange={(value) => handleChange('splash_next_screen', value)}
 									value={settings.splash_next_screen}
 								>
 									<SelectTrigger>

@@ -1,6 +1,6 @@
-import { Image as ImageIcon, Upload, Video } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { type DragEvent, useCallback, useState } from "react";
+import { Image as ImageIcon, Upload, Video } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type DragEvent, useCallback, useState } from 'react';
 
 type DragDropZoneProps = {
 	onFilesSelected: (files: File[]) => void;
@@ -12,7 +12,7 @@ type DragDropZoneProps = {
 
 export function DragDropZone({
 	onFilesSelected,
-	accept = "image/*,video/*",
+	accept = 'image/*,video/*',
 	maxFiles = 10,
 	disabled = false,
 	children,
@@ -35,7 +35,7 @@ export function DragDropZone({
 				setIsDragging(true);
 			}
 		},
-		[disabled],
+		[disabled]
 	);
 
 	const handleDragLeave = useCallback(
@@ -55,7 +55,7 @@ export function DragDropZone({
 				return newCounter;
 			});
 		},
-		[disabled],
+		[disabled]
 	);
 
 	const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -83,16 +83,14 @@ export function DragDropZone({
 
 			// Filter by accept type
 			const acceptedFiles = files.filter((file) => {
-				if (accept === "image/*,video/*") {
-					return (
-						file.type.startsWith("image/") || file.type.startsWith("video/")
-					);
+				if (accept === 'image/*,video/*') {
+					return file.type.startsWith('image/') || file.type.startsWith('video/');
 				}
-				if (accept === "image/*") {
-					return file.type.startsWith("image/");
+				if (accept === 'image/*') {
+					return file.type.startsWith('image/');
 				}
-				if (accept === "video/*") {
-					return file.type.startsWith("video/");
+				if (accept === 'video/*') {
+					return file.type.startsWith('video/');
 				}
 				return true;
 			});
@@ -104,7 +102,7 @@ export function DragDropZone({
 				onFilesSelected(limitedFiles);
 			}
 		},
-		[disabled, accept, maxFiles, onFilesSelected],
+		[disabled, accept, maxFiles, onFilesSelected]
 	);
 
 	return (
@@ -134,14 +132,12 @@ export function DragDropZone({
 								transition={{
 									repeat: Number.POSITIVE_INFINITY,
 									duration: 1,
-									repeatType: "reverse",
+									repeatType: 'reverse',
 								}}
 							>
 								<Upload className="h-8 w-8 text-white" />
 							</motion.div>
-							<p className="font-semibold text-blue-600 text-lg">
-								Отпустите файлы для загрузки
-							</p>
+							<p className="font-semibold text-blue-600 text-lg">Отпустите файлы для загрузки</p>
 							<div className="mt-2 flex items-center justify-center gap-2">
 								<ImageIcon className="h-4 w-4 text-blue-500" />
 								<span className="text-blue-500 text-sm">Фото</span>

@@ -1,8 +1,8 @@
-import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
-import React, { useEffect } from "react";
-import { Alert, AlertDescription } from "@/shared/components/ui/alert";
-import { Button } from "@/shared/components/ui/button";
-import { useTranslation } from "./useTranslation";
+import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Alert, AlertDescription } from '@/shared/components/ui/alert';
+import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from './useTranslation';
 
 type TranslationLoaderProps = {
 	children: React.ReactNode;
@@ -36,7 +36,7 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({
 
 	useEffect(() => {
 		if (error) {
-			console.error("Translation loading error:", error);
+			console.error('Translation loading error:', error);
 		}
 	}, [error]);
 
@@ -48,9 +48,7 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({
 					<div className="text-center">
 						<Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin text-primary" />
 						<p className="text-muted-foreground text-sm">
-							{isLoaded
-								? "Updating translations..."
-								: "Loading translations..."}
+							{isLoaded ? 'Updating translations...' : 'Loading translations...'}
 						</p>
 					</div>
 				</div>
@@ -70,12 +68,7 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({
 						<span className="text-xs opacity-75">Error: {error}</span>
 					</span>
 					{showRetry && (
-						<Button
-							className="ml-2"
-							onClick={refreshTranslations}
-							size="sm"
-							variant="outline"
-						>
+						<Button className="ml-2" onClick={refreshTranslations} size="sm" variant="outline">
 							<RefreshCw className="mr-1 h-4 w-4" />
 							Retry
 						</Button>
@@ -91,9 +84,9 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({
 // Компонент для индикатора загрузки переводов
 export const TranslationLoadingIndicator: React.FC<{
 	showText?: boolean;
-	size?: "sm" | "md" | "lg";
+	size?: 'sm' | 'md' | 'lg';
 	className?: string;
-}> = ({ showText = true, size = "sm", className = "" }) => {
+}> = ({ showText = true, size = 'sm', className = '' }) => {
 	const { isLoading } = useTranslation();
 
 	if (!isLoading) {
@@ -101,17 +94,15 @@ export const TranslationLoadingIndicator: React.FC<{
 	}
 
 	const sizeClasses = {
-		sm: "w-4 h-4",
-		md: "w-6 h-6",
-		lg: "w-8 h-8",
+		sm: 'w-4 h-4',
+		md: 'w-6 h-6',
+		lg: 'w-8 h-8',
 	};
 
 	return (
 		<div className={`flex items-center gap-2 ${className}`}>
 			<Loader2 className={`animate-spin text-primary ${sizeClasses[size]}`} />
-			{showText && (
-				<span className="text-muted-foreground text-xs">Loading...</span>
-			)}
+			{showText && <span className="text-muted-foreground text-xs">Loading...</span>}
 		</div>
 	);
 };
@@ -122,15 +113,15 @@ export const TranslationDebugInfo: React.FC<{
 }> = ({ show = false }) => {
 	const { currentLanguage, isLoading, error, isLoaded } = useTranslation();
 
-	if (!show || process.env.NODE_ENV !== "development") {
+	if (!show || process.env.NODE_ENV !== 'development') {
 		return null;
 	}
 
 	return (
 		<div className="fixed right-4 bottom-4 z-50 max-w-xs rounded bg-black/80 p-2 text-white text-xs">
 			<div>Language: {currentLanguage}</div>
-			<div>Loading: {isLoading ? "Yes" : "No"}</div>
-			<div>Loaded: {isLoaded ? "Yes" : "No"}</div>
+			<div>Loading: {isLoading ? 'Yes' : 'No'}</div>
+			<div>Loaded: {isLoaded ? 'Yes' : 'No'}</div>
 			{error && <div className="text-red-400">Error: {error}</div>}
 		</div>
 	);

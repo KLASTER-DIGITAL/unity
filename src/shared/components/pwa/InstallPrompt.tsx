@@ -1,6 +1,6 @@
-import { Download, Smartphone, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { Download, Smartphone, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 type InstallPromptProps = {
 	onClose: () => void;
@@ -12,8 +12,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 
 	useEffect(() => {
 		// Определяем iOS устройство
-		const iOS =
-			/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+		const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 		setIsIOS(iOS);
 	}, []);
 
@@ -32,7 +31,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 					exit={{ y: 400, opacity: 0, scale: 0.9 }}
 					initial={{ y: 400, opacity: 0, scale: 0.9 }}
 					onClick={(e) => e.stopPropagation()}
-					transition={{ type: "spring", damping: 30, stiffness: 300 }}
+					transition={{ type: 'spring', damping: 30, stiffness: 300 }}
 				>
 					{/* Close button */}
 					<button
@@ -49,7 +48,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							animate={{ scale: 1, rotate: 0 }}
 							className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-accent to-blue-600 shadow-xl"
 							initial={{ scale: 0, rotate: -180 }}
-							transition={{ delay: 0.2, type: "spring", damping: 15 }}
+							transition={{ delay: 0.2, type: 'spring', damping: 15 }}
 						>
 							<span className="text-[48px]">🏆</span>
 						</motion.div>
@@ -71,8 +70,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.4 }}
 						>
-							Установите приложение для быстрого доступа к вашему дневнику
-							достижений
+							Установите приложение для быстрого доступа к вашему дневнику достижений
 						</motion.p>
 
 						{/* Features */}
@@ -94,9 +92,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">📱</span>
 								</div>
-								<p className="font-normal! text-[14px]! text-foreground">
-									Работает без интернета
-								</p>
+								<p className="font-normal! text-[14px]! text-foreground">Работает без интернета</p>
 							</div>
 							<div className="flex items-center gap-3">
 								<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
@@ -117,15 +113,13 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								transition={{ delay: 0.6 }}
 							>
 								<p className="text-center font-normal! text-[13px]! text-foreground leading-[1.5]">
-									Нажмите{" "}
+									Нажмите{' '}
 									<span className="mx-1 inline-flex items-center gap-1 rounded-md bg-accent/20 px-2 py-0.5">
 										<Download className="h-3 w-3" />
 										Поделиться
-									</span>{" "}
-									внизу экрана, затем выберите{" "}
-									<span className="mx-1 rounded-md bg-accent/20 px-2 py-0.5">
-										"На экран Домой"
-									</span>
+									</span>{' '}
+									внизу экрана, затем выберите{' '}
+									<span className="mx-1 rounded-md bg-accent/20 px-2 py-0.5">"На экран Домой"</span>
 								</p>
 							</motion.div>
 						) : (
@@ -137,9 +131,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								transition={{ delay: 0.6 }}
 							>
 								<Smartphone className="h-5 w-5" />
-								<span className="font-semibold! text-[16px]!">
-									Установить приложение
-								</span>
+								<span className="font-semibold! text-[16px]!">Установить приложение</span>
 							</motion.button>
 						)}
 
@@ -151,9 +143,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							onClick={onClose}
 							transition={{ delay: 0.7 }}
 						>
-							<span className="font-normal! text-[14px]!">
-								Может быть позже
-							</span>
+							<span className="font-normal! text-[14px]!">Может быть позже</span>
 						</motion.button>
 					</div>
 				</motion.div>

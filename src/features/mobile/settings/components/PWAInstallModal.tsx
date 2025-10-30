@@ -1,12 +1,12 @@
-import { Apple, Chrome, Monitor, Smartphone } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Apple, Chrome, Monitor, Smartphone } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "@/shared/components/ui/universal/Dialog";
+} from '@/shared/components/ui/universal/Dialog';
 
 type PWAInstallModalProps = {
 	open: boolean;
@@ -42,8 +42,8 @@ export function PWAInstallModal({ open, onClose }: PWAInstallModalProps) {
 								<li className="flex gap-2">
 									<span className="font-semibold">1.</span>
 									<span>
-										Нажмите кнопку <strong>"Поделиться"</strong> (квадрат со
-										стрелкой вверх) внизу экрана
+										Нажмите кнопку <strong>"Поделиться"</strong> (квадрат со стрелкой вверх) внизу
+										экрана
 									</span>
 								</li>
 								<li className="flex gap-2">
@@ -75,14 +75,13 @@ export function PWAInstallModal({ open, onClose }: PWAInstallModalProps) {
 								<li className="flex gap-2">
 									<span className="font-semibold">1.</span>
 									<span>
-										Нажмите кнопку <strong>меню</strong> (три точки) в правом
-										верхнем углу
+										Нажмите кнопку <strong>меню</strong> (три точки) в правом верхнем углу
 									</span>
 								</li>
 								<li className="flex gap-2">
 									<span className="font-semibold">2.</span>
 									<span>
-										Выберите <strong>"Установить приложение"</strong> или{" "}
+										Выберите <strong>"Установить приложение"</strong> или{' '}
 										<strong>"Добавить на главный экран"</strong>
 									</span>
 								</li>
@@ -109,8 +108,7 @@ export function PWAInstallModal({ open, onClose }: PWAInstallModalProps) {
 								<li className="flex gap-2">
 									<span className="font-semibold">1.</span>
 									<span>
-										Найдите иконку <strong>"Установить"</strong> в адресной
-										строке браузера
+										Найдите иконку <strong>"Установить"</strong> в адресной строке браузера
 									</span>
 								</li>
 								<li className="flex gap-2">
@@ -131,9 +129,7 @@ export function PWAInstallModal({ open, onClose }: PWAInstallModalProps) {
 					)}
 
 					<div className="border-t pt-4">
-						<h4 className="mb-2 font-semibold text-sm">
-							Преимущества установки:
-						</h4>
+						<h4 className="mb-2 font-semibold text-sm">Преимущества установки:</h4>
 						<ul className="space-y-1 text-muted-foreground text-sm">
 							<li>✅ Быстрый доступ с главного экрана</li>
 							<li>✅ Работает офлайн</li>

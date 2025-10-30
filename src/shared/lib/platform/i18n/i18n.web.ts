@@ -10,7 +10,7 @@ import {
 	RTL_LANGUAGES,
 	SUPPORTED_LANGUAGES,
 	type SupportedLanguage,
-} from "./types";
+} from './types';
 
 class I18nWebAdapter implements I18nPlatformAdapter {
 	/**
@@ -18,19 +18,18 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 	 * Uses navigator.language with fallback to 'en'
 	 */
 	getDeviceLanguage(): string {
-		if (typeof navigator === "undefined") {
-			return "en";
+		if (typeof navigator === 'undefined') {
+			return 'en';
 		}
 
-		const browserLanguage =
-			navigator.language || (navigator as any).userLanguage;
+		const browserLanguage = navigator.language || (navigator as any).userLanguage;
 
 		if (!browserLanguage) {
-			return "en";
+			return 'en';
 		}
 
 		// Extract language code (e.g., 'en-US' -> 'en')
-		const languageCode = browserLanguage.split("-")[0].toLowerCase();
+		const languageCode = browserLanguage.split('-')[0].toLowerCase();
 
 		// Check if supported
 		if (this.isLanguageSupported(languageCode)) {
@@ -38,7 +37,7 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 		}
 
 		// Fallback to English
-		return "en";
+		return 'en';
 	}
 
 	/**
@@ -46,14 +45,14 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 	 * Uses navigator.languages with fallback to navigator.language
 	 */
 	getPreferredLanguages(): string[] {
-		if (typeof navigator === "undefined") {
-			return ["en"];
+		if (typeof navigator === 'undefined') {
+			return ['en'];
 		}
 
 		const languages = navigator.languages || [navigator.language];
 
 		return languages
-			.map((lang) => lang.split("-")[0].toLowerCase())
+			.map((lang) => lang.split('-')[0].toLowerCase())
 			.filter((lang, index, self) => self.indexOf(lang) === index) // Remove duplicates
 			.filter((lang) => this.isLanguageSupported(lang));
 	}
@@ -69,16 +68,16 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 	 * Get locale information
 	 */
 	getLocaleInfo(): LocaleInfo {
-		if (typeof navigator === "undefined") {
+		if (typeof navigator === 'undefined') {
 			return {
-				language: "en",
-				locale: "en-US",
-				direction: "ltr",
+				language: 'en',
+				locale: 'en-US',
+				direction: 'ltr',
 			};
 		}
 
-		const browserLanguage = navigator.language || "en-US";
-		const [language, region] = browserLanguage.split("-");
+		const browserLanguage = navigator.language || 'en-US';
+		const [language, region] = browserLanguage.split('-');
 		const languageCode = language.toLowerCase();
 
 		return {
@@ -94,8 +93,8 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 	/**
 	 * Get text direction for language
 	 */
-	private getTextDirection(language: string): "ltr" | "rtl" {
-		return RTL_LANGUAGES.includes(language as any) ? "rtl" : "ltr";
+	private getTextDirection(language: string): 'ltr' | 'rtl' {
+		return RTL_LANGUAGES.includes(language as any) ? 'rtl' : 'ltr';
 	}
 
 	/**
@@ -107,62 +106,62 @@ class I18nWebAdapter implements I18nPlatformAdapter {
 		}
 
 		const currencyMap: Record<string, string> = {
-			US: "USD",
-			RU: "RUB",
-			EU: "EUR",
-			GB: "GBP",
-			JP: "JPY",
-			CN: "CNY",
-			IN: "INR",
-			BR: "BRL",
-			CA: "CAD",
-			AU: "AUD",
-			MX: "MXN",
-			KR: "KRW",
-			TR: "TRY",
-			SA: "SAR",
-			AE: "AED",
-			CH: "CHF",
-			SE: "SEK",
-			NO: "NOK",
-			DK: "DKK",
-			PL: "PLN",
-			CZ: "CZK",
-			HU: "HUF",
-			RO: "RON",
-			BG: "BGN",
-			HR: "HRK",
-			RS: "RSD",
-			UA: "UAH",
-			BY: "BYN",
-			KZ: "KZT",
-			UZ: "UZS",
-			GE: "GEL",
-			AM: "AMD",
-			AZ: "AZN",
-			TJ: "TJS",
-			KG: "KGS",
-			TM: "TMT",
-			MD: "MDL",
-			LT: "EUR",
-			LV: "EUR",
-			EE: "EUR",
-			FI: "EUR",
-			AT: "EUR",
-			BE: "EUR",
-			NL: "EUR",
-			DE: "EUR",
-			FR: "EUR",
-			IT: "EUR",
-			ES: "EUR",
-			PT: "EUR",
-			GR: "EUR",
-			IE: "EUR",
-			LU: "EUR",
-			MT: "EUR",
-			CY: "EUR",
-			SK: "EUR",
-			SI: "EUR",
+			US: 'USD',
+			RU: 'RUB',
+			EU: 'EUR',
+			GB: 'GBP',
+			JP: 'JPY',
+			CN: 'CNY',
+			IN: 'INR',
+			BR: 'BRL',
+			CA: 'CAD',
+			AU: 'AUD',
+			MX: 'MXN',
+			KR: 'KRW',
+			TR: 'TRY',
+			SA: 'SAR',
+			AE: 'AED',
+			CH: 'CHF',
+			SE: 'SEK',
+			NO: 'NOK',
+			DK: 'DKK',
+			PL: 'PLN',
+			CZ: 'CZK',
+			HU: 'HUF',
+			RO: 'RON',
+			BG: 'BGN',
+			HR: 'HRK',
+			RS: 'RSD',
+			UA: 'UAH',
+			BY: 'BYN',
+			KZ: 'KZT',
+			UZ: 'UZS',
+			GE: 'GEL',
+			AM: 'AMD',
+			AZ: 'AZN',
+			TJ: 'TJS',
+			KG: 'KGS',
+			TM: 'TMT',
+			MD: 'MDL',
+			LT: 'EUR',
+			LV: 'EUR',
+			EE: 'EUR',
+			FI: 'EUR',
+			AT: 'EUR',
+			BE: 'EUR',
+			NL: 'EUR',
+			DE: 'EUR',
+			FR: 'EUR',
+			IT: 'EUR',
+			ES: 'EUR',
+			PT: 'EUR',
+			GR: 'EUR',
+			IE: 'EUR',
+			LU: 'EUR',
+			MT: 'EUR',
+			CY: 'EUR',
+			SK: 'EUR',
+			SI: 'EUR',
 		};
 
 		return currencyMap[region.toUpperCase()];

@@ -1,19 +1,19 @@
-import { lazy, Suspense } from "react";
-import { Toaster } from "sonner";
-import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
-import { LoadingScreen } from "@/shared/components/LoadingScreen";
-import { TranslationManager, TranslationProvider } from "@/shared/lib/i18n";
+import { lazy, Suspense } from 'react';
+import { Toaster } from 'sonner';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { LoadingScreen } from '@/shared/components/LoadingScreen';
+import { TranslationManager, TranslationProvider } from '@/shared/lib/i18n';
 
 // Admin screens - lazy loading для оптимизации производительности
 const AdminLoginScreen = lazy(() =>
-	import("@/features/admin/auth").then((module) => ({
+	import('@/features/admin/auth').then((module) => ({
 		default: module.AdminLoginScreen,
-	})),
+	}))
 );
 const AdminDashboard = lazy(() =>
-	import("@/features/admin/dashboard").then((module) => ({
+	import('@/features/admin/dashboard').then((module) => ({
 		default: module.AdminDashboard,
-	})),
+	}))
 );
 
 type AdminAppProps = {
@@ -36,7 +36,7 @@ export function AdminApp({
 		return (
 			<ErrorBoundary showHomeButton>
 				<TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
-					<TranslationManager preloadLanguages={["en"]}>
+					<TranslationManager preloadLanguages={['en']}>
 						<div className="min-h-screen bg-muted">
 							<Suspense fallback={<LoadingScreen />}>
 								<AdminLoginScreen onBack={onBack} onComplete={onAuthComplete} />
@@ -53,7 +53,7 @@ export function AdminApp({
 	return (
 		<ErrorBoundary showHomeButton>
 			<TranslationProvider defaultLanguage="ru" fallbackLanguage="ru">
-				<TranslationManager preloadLanguages={["en"]}>
+				<TranslationManager preloadLanguages={['en']}>
 					<div className="min-h-screen bg-muted">
 						<Suspense fallback={<LoadingScreen />}>
 							<AdminDashboard onLogout={onLogout} userData={userData} />

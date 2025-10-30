@@ -7,7 +7,7 @@
 export interface MediaFile {
 	id: string;
 	url: string;
-	type: "image" | "video" | "audio";
+	type: 'image' | 'video' | 'audio';
 	thumbnail_url?: string;
 	duration?: number; // For video/audio
 	size?: number; // File size in bytes

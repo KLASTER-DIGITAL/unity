@@ -1,18 +1,14 @@
-import { AlertTriangle, Lightbulb } from "lucide-react";
-import {
-	Alert,
-	AlertDescription,
-	AlertTitle,
-} from "@/shared/components/ui/alert";
-import { Badge } from "@/shared/components/ui/badge";
+import { AlertTriangle, Lightbulb } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import type { AIRecommendation } from "./types";
+} from '@/shared/components/ui/card';
+import type { AIRecommendation } from './types';
 
 /**
  * Recommendations Card Component
@@ -22,9 +18,7 @@ type RecommendationsCardProps = {
 	recommendations: AIRecommendation[];
 };
 
-export function RecommendationsCard({
-	recommendations,
-}: RecommendationsCardProps) {
+export function RecommendationsCard({ recommendations }: RecommendationsCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -45,14 +39,14 @@ export function RecommendationsCard({
 					recommendations.map((rec, index) => (
 						<Alert
 							className={
-								rec.type === "success"
-									? "border-green-500/50 bg-green-500/10"
-									: rec.type === "info"
-										? "border-blue-500/50 bg-blue-500/10"
-										: ""
+								rec.type === 'success'
+									? 'border-green-500/50 bg-green-500/10'
+									: rec.type === 'info'
+										? 'border-blue-500/50 bg-blue-500/10'
+										: ''
 							}
 							key={index}
-							variant={rec.type === "warning" ? "destructive" : "default"}
+							variant={rec.type === 'warning' ? 'destructive' : 'default'}
 						>
 							<AlertTriangle className="h-4 w-4" />
 							<AlertTitle className="font-semibold! text-[14px]!">

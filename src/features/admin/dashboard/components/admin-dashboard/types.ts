@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * AdminDashboard - Type definitions
@@ -21,20 +21,15 @@ export type AdminStats = {
 };
 
 export type TabId =
-	| "overview"
-	| "users"
-	| "subscriptions"
-	| "ai-analytics"
-	| "pwa"
-	| "developer"
-	| "settings"
-	| "test-lab";
-export type PWASubTab =
-	| "overview"
-	| "settings"
-	| "push"
-	| "analytics"
-	| "cache";
+	| 'overview'
+	| 'users'
+	| 'subscriptions'
+	| 'ai-analytics'
+	| 'pwa'
+	| 'developer'
+	| 'settings'
+	| 'test-lab';
+export type PWASubTab = 'overview' | 'settings' | 'push' | 'analytics' | 'cache';
 
 export type MenuItem = {
 	id: TabId;

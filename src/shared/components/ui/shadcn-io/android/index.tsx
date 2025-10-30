@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
 export interface AndroidProps extends SVGProps<SVGSVGElement> {
 	width?: number;
@@ -9,13 +9,7 @@ export interface AndroidProps extends SVGProps<SVGSVGElement> {
 	videoSrc?: string;
 }
 
-export const Android = ({
-	width = 433,
-	height = 882,
-	src,
-	videoSrc,
-	...props
-}: AndroidProps) => (
+export const Android = ({ width = 433, height = 882, src, videoSrc, ...props }: AndroidProps) => (
 	<svg
 		fill="none"
 		height={height}
@@ -48,12 +42,7 @@ export const Android = ({
 			/>
 		</g>
 		<circle className="fill-white dark:fill-[#262626]" cx="189" cy="28" r="9" />
-		<circle
-			className="fill-[#E5E5E5] dark:fill-[#404040]"
-			cx="189"
-			cy="28"
-			r="4"
-		/>
+		<circle className="fill-[#E5E5E5] dark:fill-[#404040]" cx="189" cy="28" r="4" />
 		{src && (
 			<image
 				className="size-full object-cover"
@@ -65,21 +54,8 @@ export const Android = ({
 			/>
 		)}
 		{videoSrc && (
-			<foreignObject
-				clipPath="url(#android-clip)"
-				height="800"
-				width="360"
-				x="9"
-				y="14"
-			>
-				<video
-					autoPlay
-					className="size-full object-cover"
-					loop
-					muted
-					playsInline
-					src={videoSrc}
-				/>
+			<foreignObject clipPath="url(#android-clip)" height="800" width="360" x="9" y="14">
+				<video autoPlay className="size-full object-cover" loop muted playsInline src={videoSrc} />
 			</foreignObject>
 		)}
 		<defs>

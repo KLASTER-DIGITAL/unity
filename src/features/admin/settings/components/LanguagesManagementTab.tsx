@@ -1,26 +1,19 @@
-import {
-	AlertCircle,
-	ArrowRight,
-	CheckCircle,
-	Globe,
-	Loader2,
-	Plus,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { AlertCircle, ArrowRight, CheckCircle, Globe, Loader2, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Progress } from "@/shared/components/ui/progress";
-import { Switch } from "@/shared/components/ui/switch";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Progress } from '@/shared/components/ui/progress';
+import { Switch } from '@/shared/components/ui/switch';
 import {
 	Dialog,
 	DialogContent,
@@ -29,8 +22,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/shared/components/ui/universal/Dialog";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/universal/Dialog';
+import { createClient } from '@/utils/supabase/client';
 
 type Language = {
 	code: string;
@@ -62,10 +55,10 @@ export function LanguagesManagementTab({
 	const [isLoading, setIsLoading] = useState(false);
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [newLanguage, setNewLanguage] = useState<NewLanguageForm>({
-		code: "",
-		name: "",
-		native_name: "",
-		flag: "",
+		code: '',
+		name: '',
+		native_name: '',
+		flag: '',
 		is_active: true,
 	});
 
@@ -73,7 +66,7 @@ export function LanguagesManagementTab({
 
 	useEffect(() => {
 		loadLanguages();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadLanguages is stable
 	}, []);
 
 	const loadLanguages = async () => {
@@ -83,7 +76,7 @@ export function LanguagesManagementTab({
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
@@ -92,9 +85,9 @@ export function LanguagesManagementTab({
 				{
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
-				},
+				}
 			);
 
 			if (response.ok) {
@@ -102,11 +95,11 @@ export function LanguagesManagementTab({
 				setLanguages(data.languages || []);
 			} else {
 				const error = await response.json();
-				toast.error(error.error || "Ошибка загрузки языков");
+				toast.error(error.error || 'Ошибка загрузки языков');
 			}
 		} catch (error) {
-			console.error("Error loading languages:", error);
-			toast.error("Ошибка соединения с сервером");
+			console.error('Error loading languages:', error);
+			toast.error('Ошибка соединения с сервером');
 		} finally {
 			setIsLoading(false);
 		}
@@ -114,7 +107,7 @@ export function LanguagesManagementTab({
 
 	const handleAddLanguage = async () => {
 		if (!(newLanguage.code && newLanguage.name && newLanguage.native_name)) {
-			toast.error("Заполните все обязательные поля");
+			toast.error('Заполните все обязательные поля');
 			return;
 		}
 
@@ -123,40 +116,40 @@ export function LanguagesManagementTab({
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
 			const response = await fetch(
 				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-management/language`,
 				{
-					method: "POST",
+					method: 'POST',
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(newLanguage),
-				},
+				}
 			);
 
 			if (response.ok) {
 				await loadLanguages();
 				setIsAddDialogOpen(false);
 				setNewLanguage({
-					code: "",
-					name: "",
-					native_name: "",
-					flag: "",
+					code: '',
+					name: '',
+					native_name: '',
+					flag: '',
 					is_active: true,
 				});
-				toast.success("Язык успешно добавлен! 🌍");
+				toast.success('Язык успешно добавлен! 🌍');
 			} else {
 				const error = await response.json();
-				toast.error(error.error || "Ошибка добавления языка");
+				toast.error(error.error || 'Ошибка добавления языка');
 			}
 		} catch (error) {
-			console.error("Error adding language:", error);
-			toast.error("Ошибка соединения с сервером");
+			console.error('Error adding language:', error);
+			toast.error('Ошибка соединения с сервером');
 		}
 	};
 
@@ -166,7 +159,7 @@ export function LanguagesManagementTab({
 				data: { session },
 			} = await supabase.auth.getSession();
 			if (!session) {
-				toast.error("Ошибка авторизации");
+				toast.error('Ошибка авторизации');
 				return;
 			}
 
@@ -178,10 +171,10 @@ export function LanguagesManagementTab({
 			const response = await fetch(
 				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-management/language`,
 				{
-					method: "POST",
+					method: 'POST',
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
 						code: language.code,
@@ -190,30 +183,26 @@ export function LanguagesManagementTab({
 						flag: language.flag,
 						is_active: !currentStatus,
 					}),
-				},
+				}
 			);
 
 			if (response.ok) {
 				await loadLanguages();
-				toast.success(
-					`Язык ${!currentStatus ? "активирован" : "деактивирован"}! 🌍`,
-				);
+				toast.success(`Язык ${!currentStatus ? 'активирован' : 'деактивирован'}! 🌍`);
 			} else {
 				const error = await response.json();
-				toast.error(error.error || "Ошибка обновления языка");
+				toast.error(error.error || 'Ошибка обновления языка');
 			}
 		} catch (error) {
-			console.error("Error toggling language:", error);
-			toast.error("Ошибка соединения с сервером");
+			console.error('Error toggling language:', error);
+			toast.error('Ошибка соединения с сервером');
 		}
 	};
 
 	const handleNavigateToTranslations = (languageCode: string) => {
 		if (onNavigateToTranslations) {
 			onNavigateToTranslations(languageCode);
-			toast.success(
-				`Переход к переводам для языка: ${languageCode.toUpperCase()}`,
-			);
+			toast.success(`Переход к переводам для языка: ${languageCode.toUpperCase()}`);
 		} else {
 			toast.info(`Переход к переводам для языка: ${languageCode}`);
 		}
@@ -241,8 +230,7 @@ export function LanguagesManagementTab({
 						Управление языками
 					</h2>
 					<p className="mt-1 text-muted-foreground text-sm">
-						Добавляйте языки, отслеживайте прогресс переводов и управляйте
-						локализацией
+						Добавляйте языки, отслеживайте прогресс переводов и управляйте локализацией
 					</p>
 				</div>
 				<Dialog onOpenChange={setIsAddDialogOpen} open={isAddDialogOpen}>
@@ -279,9 +267,7 @@ export function LanguagesManagementTab({
 								<Label htmlFor="name">Название *</Label>
 								<Input
 									id="name"
-									onChange={(e) =>
-										setNewLanguage({ ...newLanguage, name: e.target.value })
-									}
+									onChange={(e) => setNewLanguage({ ...newLanguage, name: e.target.value })}
 									placeholder="Русский, English..."
 									value={newLanguage.name}
 								/>
@@ -305,9 +291,7 @@ export function LanguagesManagementTab({
 								<Input
 									id="flag"
 									maxLength={2}
-									onChange={(e) =>
-										setNewLanguage({ ...newLanguage, flag: e.target.value })
-									}
+									onChange={(e) => setNewLanguage({ ...newLanguage, flag: e.target.value })}
 									placeholder="🇷🇺, 🇺🇸, 🇪🇸..."
 									value={newLanguage.flag}
 								/>
@@ -324,10 +308,7 @@ export function LanguagesManagementTab({
 							</div>
 						</div>
 						<DialogFooter>
-							<Button
-								onClick={() => setIsAddDialogOpen(false)}
-								variant="outline"
-							>
+							<Button onClick={() => setIsAddDialogOpen(false)} variant="outline">
 								Отмена
 							</Button>
 							<Button onClick={handleAddLanguage}>
@@ -358,9 +339,7 @@ export function LanguagesManagementTab({
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-bold text-2xl text-green-600">
-							{activeLanguages.length}
-						</div>
+						<div className="font-bold text-2xl text-green-600">{activeLanguages.length}</div>
 					</CardContent>
 				</Card>
 				<Card>
@@ -388,9 +367,7 @@ export function LanguagesManagementTab({
 								<CheckCircle className="h-5 w-5 text-green-500" />
 								Активные языки
 							</CardTitle>
-							<CardDescription>
-								Языки, доступные для пользователей приложения
-							</CardDescription>
+							<CardDescription>Языки, доступные для пользователей приложения</CardDescription>
 						</CardHeader>
 						<CardContent>
 							{activeLanguages.length === 0 ? (
@@ -405,20 +382,14 @@ export function LanguagesManagementTab({
 										<Card
 											className="cursor-pointer border-2 transition-shadow hover:border-primary/50 hover:shadow-md"
 											key={language.code}
-											onClick={() =>
-												handleNavigateToTranslations(language.code)
-											}
+											onClick={() => handleNavigateToTranslations(language.code)}
 										>
 											<CardContent className="p-6">
 												<div className="mb-4 flex items-start justify-between">
 													<div className="flex items-center gap-3">
-														{language.flag && (
-															<div className="text-4xl">{language.flag}</div>
-														)}
+														{language.flag && <div className="text-4xl">{language.flag}</div>}
 														<div>
-															<div className="font-semibold text-lg">
-																{language.name}
-															</div>
+															<div className="font-semibold text-lg">{language.name}</div>
 															<div className="text-muted-foreground text-sm">
 																{language.native_name}
 															</div>
@@ -430,10 +401,7 @@ export function LanguagesManagementTab({
 													<Switch
 														checked={language.is_active}
 														onCheckedChange={() =>
-															handleToggleLanguage(
-																language.code,
-																language.is_active,
-															)
+															handleToggleLanguage(language.code, language.is_active)
 														}
 														onClick={(e) => e.stopPropagation()}
 													/>
@@ -441,28 +409,22 @@ export function LanguagesManagementTab({
 
 												<div className="space-y-2">
 													<div className="flex items-center justify-between text-sm">
-														<span className="text-muted-foreground">
-															Прогресс переводов
-														</span>
+														<span className="text-muted-foreground">Прогресс переводов</span>
 														<span className="font-medium">
-															{language.translation_count || 0} /{" "}
-															{language.total_keys || 0}
+															{language.translation_count || 0} / {language.total_keys || 0}
 														</span>
 													</div>
-													<Progress
-														className="h-2"
-														value={language.progress || 0}
-													/>
+													<Progress className="h-2" value={language.progress || 0} />
 													<div className="flex items-center justify-between">
 														<span
 															className={`font-medium text-sm ${
 																(language.progress || 0) >= 90
-																	? "text-green-600"
+																	? 'text-green-600'
 																	: (language.progress || 0) >= 70
-																		? "text-blue-600"
+																		? 'text-blue-600'
 																		: (language.progress || 0) >= 50
-																			? "text-yellow-600"
-																			: "text-red-600"
+																			? 'text-yellow-600'
+																			: 'text-red-600'
 															}`}
 														>
 															{Math.round(language.progress || 0)}%
@@ -496,9 +458,7 @@ export function LanguagesManagementTab({
 									<AlertCircle className="h-5 w-5 text-muted-foreground" />
 									Неактивные языки
 								</CardTitle>
-								<CardDescription>
-									Языки, которые не отображаются пользователям
-								</CardDescription>
+								<CardDescription>Языки, которые не отображаются пользователям</CardDescription>
 							</CardHeader>
 							<CardContent>
 								<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -511,14 +471,10 @@ export function LanguagesManagementTab({
 												<div className="mb-4 flex items-start justify-between">
 													<div className="flex items-center gap-3">
 														{language.flag && (
-															<div className="text-4xl grayscale">
-																{language.flag}
-															</div>
+															<div className="text-4xl grayscale">{language.flag}</div>
 														)}
 														<div>
-															<div className="font-semibold text-lg">
-																{language.name}
-															</div>
+															<div className="font-semibold text-lg">{language.name}</div>
 															<div className="text-muted-foreground text-sm">
 																{language.native_name}
 															</div>
@@ -530,36 +486,25 @@ export function LanguagesManagementTab({
 													<Switch
 														checked={language.is_active}
 														onCheckedChange={() =>
-															handleToggleLanguage(
-																language.code,
-																language.is_active,
-															)
+															handleToggleLanguage(language.code, language.is_active)
 														}
 													/>
 												</div>
 
 												<div className="space-y-2">
 													<div className="flex items-center justify-between text-sm">
-														<span className="text-muted-foreground">
-															Прогресс переводов
-														</span>
+														<span className="text-muted-foreground">Прогресс переводов</span>
 														<span className="font-medium">
-															{language.translation_count || 0} /{" "}
-															{language.total_keys || 0}
+															{language.translation_count || 0} / {language.total_keys || 0}
 														</span>
 													</div>
-													<Progress
-														className="h-2"
-														value={language.progress || 0}
-													/>
+													<Progress className="h-2" value={language.progress || 0} />
 													<div className="flex items-center justify-between">
 														<span className="font-medium text-muted-foreground text-sm">
 															{Math.round(language.progress || 0)}%
 														</span>
 														<Button
-															onClick={() =>
-																handleNavigateToTranslations(language.code)
-															}
+															onClick={() => handleNavigateToTranslations(language.code)}
 															size="sm"
 															variant="ghost"
 														>

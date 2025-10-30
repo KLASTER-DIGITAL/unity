@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { memo } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { memo } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 interface AchievementHeaderProps {
 	userName?: string;
@@ -14,14 +14,13 @@ interface AchievementHeaderProps {
 }
 
 // Дефолтное фото для аватара
-const DEFAULT_AVATAR_URL =
-	"https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png";
+const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 // Компонент аватарки - memoized
 const UserAvatar = memo(function UserAvatar({
-	userName,
+	_userName,
 	avatarUrl,
-	onClick,
+	_onClick,
 }: {
 	userName?: string;
 	avatarUrl?: string;
@@ -39,10 +38,7 @@ const UserAvatar = memo(function UserAvatar({
 		<Pressable
 			accessibilityLabel="Перейти в настройки профиля"
 			onPress={handlePress}
-			style={({ pressed }) => [
-				styles.avatarContainer,
-				pressed && styles.avatarPressed,
-			]}
+			style={({ pressed }) => [styles.avatarContainer, pressed && styles.avatarPressed]}
 		>
 			<View style={styles.avatarWrapper}>
 				<Image
@@ -61,7 +57,7 @@ const UserAvatar = memo(function UserAvatar({
 });
 
 export const AchievementHeader = memo(function AchievementHeader({
-	userName = "Пользователь",
+	userName = 'Пользователь',
 	daysInApp = 1,
 	avatarUrl,
 	onNavigateToSettings,
@@ -73,21 +69,13 @@ export const AchievementHeader = memo(function AchievementHeader({
 				{/* Left: Avatar + Greeting */}
 				<View style={styles.leftSection}>
 					{/* Avatar with online pulse - клик переходит в настройки */}
-					<UserAvatar
-						avatarUrl={avatarUrl}
-						onClick={onNavigateToSettings}
-						userName={userName}
-					/>
+					<UserAvatar avatarUrl={avatarUrl} onClick={onNavigateToSettings} userName={userName} />
 
 					{/* Greeting */}
 					<View style={styles.greetingContainer}>
 						{/* Приветствие */}
 						<View style={styles.greetingRow}>
-							<Ionicons
-								color={DesignTokens.colors.primary}
-								name="hand-left"
-								size={22}
-							/>
+							<Ionicons color={DesignTokens.colors.primary} name="hand-left" size={22} />
 							<Text numberOfLines={1} style={styles.greeting}>
 								Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},
 							</Text>
@@ -120,20 +108,20 @@ const styles = StyleSheet.create({
 		backgroundColor: DesignTokens.colors.background,
 	},
 	topBar: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
 		gap: DesignTokens.spacing.md,
 	},
 	leftSection: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.lg,
 		flex: 1,
 		minWidth: 0,
 	},
 	avatarContainer: {
-		position: "relative",
+		position: 'relative',
 		flexShrink: 0,
 	},
 	avatarPressed: {
@@ -145,15 +133,15 @@ const styles = StyleSheet.create({
 		borderRadius: 23,
 		borderWidth: 1,
 		borderColor: DesignTokens.colors.border,
-		overflow: "hidden",
+		overflow: 'hidden',
 		...DesignTokens.shadows.sm,
 	},
 	avatar: {
-		width: "100%",
-		height: "100%",
+		width: '100%',
+		height: '100%',
 	},
 	onlineIndicator: {
-		position: "absolute",
+		position: 'absolute',
 		bottom: 0,
 		right: 0,
 		width: 14,
@@ -164,8 +152,8 @@ const styles = StyleSheet.create({
 		borderColor: DesignTokens.colors.background,
 	},
 	onlinePulse: {
-		width: "100%",
-		height: "100%",
+		width: '100%',
+		height: '100%',
 		borderRadius: 7,
 		backgroundColor: DesignTokens.colors.success,
 	},
@@ -174,8 +162,8 @@ const styles = StyleSheet.create({
 		minWidth: 0,
 	},
 	greetingRow: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.xs,
 	},
 	greeting: {
@@ -188,16 +176,15 @@ const styles = StyleSheet.create({
 	question: {
 		fontSize: DesignTokens.fontSizes.bodySmall,
 		color: DesignTokens.colors.textSecondary,
-		lineHeight:
-			DesignTokens.fontSizes.bodySmall * DesignTokens.lineHeights.normal,
+		lineHeight: DesignTokens.fontSizes.bodySmall * DesignTokens.lineHeights.normal,
 		marginTop: 2,
 	},
 	daysCounter: {
 		width: 130,
 		height: 130,
 		flexShrink: 0,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	circle: {
 		width: 120,
@@ -205,8 +192,8 @@ const styles = StyleSheet.create({
 		borderRadius: 60,
 		borderWidth: 2,
 		borderColor: DesignTokens.colors.border,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		...DesignTokens.shadows.sm,
 		backgroundColor: DesignTokens.colors.background,
 	},
@@ -219,7 +206,6 @@ const styles = StyleSheet.create({
 	daysLabel: {
 		fontSize: DesignTokens.fontSizes.caption,
 		color: DesignTokens.colors.textSecondary,
-		lineHeight:
-			DesignTokens.fontSizes.caption * DesignTokens.lineHeights.normal,
+		lineHeight: DesignTokens.fontSizes.caption * DesignTokens.lineHeights.normal,
 	},
 });

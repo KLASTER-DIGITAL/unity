@@ -1,38 +1,30 @@
-import { AlertCircle, Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/shared/components/ui/button";
+import { AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { TabsContent } from "@/shared/components/ui/tabs";
-import { Select } from "@/shared/components/ui/universal/Select.web";
-import type { Language } from "./types";
+} from '@/shared/components/ui/card';
+import { TabsContent } from '@/shared/components/ui/tabs';
+import { Select } from '@/shared/components/ui/universal/Select.web';
+import type { Language } from './types';
 
 type AutoTranslateTabProps = {
 	languages: Language[];
-	onAutoTranslate: (
-		sourceLanguage: string,
-		targetLanguages: string[],
-	) => Promise<void>;
+	onAutoTranslate: (sourceLanguage: string, targetLanguages: string[]) => Promise<void>;
 };
 
 /**
  * Auto Translate Tab Component
  * AI-powered automatic translation interface
  */
-export function AutoTranslateTab({
-	languages,
-	onAutoTranslate,
-}: AutoTranslateTabProps) {
+export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTabProps) {
 	const [isTranslating, setIsTranslating] = useState(false);
-	const [autoTranslateSource, setAutoTranslateSource] = useState<string>("ru");
-	const [autoTranslateTargets, setAutoTranslateTargets] = useState<string[]>(
-		[],
-	);
+	const [autoTranslateSource, setAutoTranslateSource] = useState<string>('ru');
+	const [autoTranslateTargets, setAutoTranslateTargets] = useState<string[]>([]);
 
 	const handleAutoTranslate = async () => {
 		setIsTranslating(true);
@@ -45,7 +37,7 @@ export function AutoTranslateTab({
 
 	const toggleTargetLanguage = (code: string) => {
 		setAutoTranslateTargets((prev) =>
-			prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
+			prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
 		);
 	};
 
@@ -58,8 +50,7 @@ export function AutoTranslateTab({
 						Автоматический перевод через AI
 					</CardTitle>
 					<CardDescription>
-						Используйте GPT-4o-mini для автоматического перевода пропущенных
-						ключей
+						Используйте GPT-4o-mini для автоматического перевода пропущенных ключей
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
@@ -90,11 +81,7 @@ export function AutoTranslateTab({
 										key={lang.code}
 										onClick={() => toggleTargetLanguage(lang.code)}
 										size="sm"
-										variant={
-											autoTranslateTargets.includes(lang.code)
-												? "default"
-												: "outline"
-										}
+										variant={autoTranslateTargets.includes(lang.code) ? 'default' : 'outline'}
 									>
 										{lang.native_name}
 									</Button>
@@ -116,13 +103,8 @@ export function AutoTranslateTab({
 									Как работает автоперевод:
 								</p>
 								<ul className="list-inside list-disc space-y-1 text-blue-700 dark:text-blue-300">
-									<li>
-										Переводятся только пропущенные ключи (не перезаписывает
-										существующие)
-									</li>
-									<li>
-										Используется модель GPT-4o-mini ($0.15/1M входных токенов)
-									</li>
+									<li>Переводятся только пропущенные ключи (не перезаписывает существующие)</li>
+									<li>Используется модель GPT-4o-mini ($0.15/1M входных токенов)</li>
 									<li>Обработка батчами по 10 ключей за раз</li>
 									<li>Стоимость логируется в таблицу openai_usage</li>
 									<li>Сохраняются эмодзи и специальные символы</li>
@@ -134,11 +116,7 @@ export function AutoTranslateTab({
 					{/* Action Button */}
 					<Button
 						className="w-full"
-						disabled={
-							isTranslating ||
-							!autoTranslateSource ||
-							autoTranslateTargets.length === 0
-						}
+						disabled={isTranslating || !autoTranslateSource || autoTranslateTargets.length === 0}
 						onClick={handleAutoTranslate}
 						size="lg"
 					>

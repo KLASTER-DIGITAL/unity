@@ -4,11 +4,11 @@
  * Uses i18n Platform Adapter for device language detection
  */
 
-import { i18nAdapter } from "../platform/i18n";
-import { storage } from "../platform/storage";
+import { i18nAdapter } from '../platform/i18n';
+import { storage } from '../platform/storage';
 
-const LANGUAGE_STORAGE_KEY = "user_preferred_language";
-const AUTO_DETECT_ENABLED_KEY = "i18n_auto_detect_enabled";
+const LANGUAGE_STORAGE_KEY = 'user_preferred_language';
+const AUTO_DETECT_ENABLED_KEY = 'i18n_auto_detect_enabled';
 
 /**
  * Get user's preferred language with auto-detection
@@ -36,11 +36,11 @@ export async function getPreferredLanguage(): Promise<string> {
 		}
 
 		// 3. Fallback to default
-		console.log("[i18n] Using default language: ru");
-		return "ru";
+		console.log('[i18n] Using default language: ru');
+		return 'ru';
 	} catch (error) {
-		console.error("[i18n] Error getting preferred language:", error);
-		return "ru";
+		console.error('[i18n] Error getting preferred language:', error);
+		return 'ru';
 	}
 }
 
@@ -52,7 +52,7 @@ export async function savePreferredLanguage(language: string): Promise<void> {
 		await storage.setItem(LANGUAGE_STORAGE_KEY, language);
 		console.log(`[i18n] Saved preferred language: ${language}`);
 	} catch (error) {
-		console.error("[i18n] Error saving preferred language:", error);
+		console.error('[i18n] Error saving preferred language:', error);
 	}
 }
 
@@ -62,9 +62,9 @@ export async function savePreferredLanguage(language: string): Promise<void> {
 export async function clearPreferredLanguage(): Promise<void> {
 	try {
 		await storage.removeItem(LANGUAGE_STORAGE_KEY);
-		console.log("[i18n] Cleared preferred language");
+		console.log('[i18n] Cleared preferred language');
 	} catch (error) {
-		console.error("[i18n] Error clearing preferred language:", error);
+		console.error('[i18n] Error clearing preferred language:', error);
 	}
 }
 
@@ -74,9 +74,9 @@ export async function clearPreferredLanguage(): Promise<void> {
 export async function isAutoDetectEnabled(): Promise<boolean> {
 	try {
 		const enabled = await storage.getItem(AUTO_DETECT_ENABLED_KEY);
-		return enabled === "true" || enabled === null; // Default: true
+		return enabled === 'true' || enabled === null; // Default: true
 	} catch (error) {
-		console.error("[i18n] Error checking auto-detect status:", error);
+		console.error('[i18n] Error checking auto-detect status:', error);
 		return true; // Default: enabled
 	}
 }
@@ -87,9 +87,9 @@ export async function isAutoDetectEnabled(): Promise<boolean> {
 export async function setAutoDetectEnabled(enabled: boolean): Promise<void> {
 	try {
 		await storage.setItem(AUTO_DETECT_ENABLED_KEY, enabled.toString());
-		console.log(`[i18n] Auto-detect ${enabled ? "enabled" : "disabled"}`);
+		console.log(`[i18n] Auto-detect ${enabled ? 'enabled' : 'disabled'}`);
 	} catch (error) {
-		console.error("[i18n] Error setting auto-detect:", error);
+		console.error('[i18n] Error setting auto-detect:', error);
 	}
 }
 

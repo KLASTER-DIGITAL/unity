@@ -1,8 +1,8 @@
-import type React from "react";
-import { useEffect, useState } from "react";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { TranslationLoader } from "./loader";
-import { useTranslationContext } from "./TranslationProvider";
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { TranslationLoader } from './loader';
+import { useTranslationContext } from './TranslationProvider';
 
 type TranslationManagerProps = {
 	children: React.ReactNode;
@@ -13,7 +13,7 @@ type TranslationManagerProps = {
 
 export const TranslationManager: React.FC<TranslationManagerProps> = ({
 	children,
-	preloadLanguages = ["en"],
+	preloadLanguages = ['en'],
 	onLanguageChange,
 	validateCacheOnMount = true,
 }) => {
@@ -30,28 +30,26 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 	useEffect(() => {
 		const initialize = async () => {
 			try {
-				console.log("TranslationManager: Initializing...");
+				console.log('TranslationManager: Initializing...');
 
 				// Валидация кэша при запуске
 				if (validateCacheOnMount) {
-					console.log("TranslationManager: Validating cache...");
+					console.log('TranslationManager: Validating cache...');
 					await TranslationLoader.validateCache();
 				}
 
 				// Предзагрузка дополнительных языков
 				if (preloadLanguages.length > 0) {
-					console.log(
-						`TranslationManager: Preloading languages: ${preloadLanguages.join(", ")}`,
-					);
+					console.log(`TranslationManager: Preloading languages: ${preloadLanguages.join(', ')}`);
 					await TranslationLoader.preloadLanguages(preloadLanguages);
 				}
 
-				console.log("TranslationManager: Initialization complete");
+				console.log('TranslationManager: Initialization complete');
 				setIsInitialized(true);
 				setInitError(null);
 			} catch (error) {
-				console.error("TranslationManager initialization error:", error);
-				setInitError(error instanceof Error ? error.message : "Unknown error");
+				console.error('TranslationManager initialization error:', error);
+				setInitError(error instanceof Error ? error.message : 'Unknown error');
 				setIsInitialized(true); // Все равно продолжаем работу
 			}
 		};
@@ -76,12 +74,9 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 					<div className="mb-4 text-4xl text-red-500">⚠️</div>
 					<h2 className="mb-2 font-semibold text-xl">Initialization Error</h2>
 					<p className="mb-4 text-muted-foreground">
-						We had trouble setting up the app, but we'll try to continue with
-						basic functionality.
+						We had trouble setting up the app, but we'll try to continue with basic functionality.
 					</p>
-					<div className="rounded bg-red-50 p-3 text-red-500 text-sm">
-						{initError}
-					</div>
+					<div className="rounded bg-red-50 p-3 text-red-500 text-sm">{initError}</div>
 				</div>
 			</div>
 		);
@@ -92,8 +87,7 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 
 // Хук для отслеживания состояния инициализации
 export const useTranslationManager = () => {
-	const { currentLanguage, isLoading, error, isLoaded } =
-		useTranslationContext();
+	const { currentLanguage, isLoading, error, isLoaded } = useTranslationContext();
 	const [isInitializing, setIsInitializing] = useState(true);
 
 	useEffect(() => {
@@ -122,11 +116,7 @@ export const SafeTranslationProvider: React.FC<{
 }> = ({ children, useNewSystem = true }) => {
 	// В будущем здесь будет логика для переключения между старой и новой системами
 	if (useNewSystem) {
-		return (
-			<TranslationManager preloadLanguages={["en"]}>
-				{children}
-			</TranslationManager>
-		);
+		return <TranslationManager preloadLanguages={['en']}>{children}</TranslationManager>;
 	}
 
 	return <>{children}</>;

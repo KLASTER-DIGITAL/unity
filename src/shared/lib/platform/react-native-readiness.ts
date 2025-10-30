@@ -7,20 +7,20 @@
  * @date 2025-10-24
  */
 
-import { Platform, PlatformFeatures } from "./detection";
-import { media } from "./media";
-import { navigation } from "./navigation";
-import { storage } from "./storage";
+import { Platform, PlatformFeatures } from './detection';
+import { media } from './media';
+import { navigation } from './navigation';
+import { storage } from './storage';
 
 export type ReadinessCheckResult = {
 	name: string;
-	status: "ready" | "partial" | "not_ready";
+	status: 'ready' | 'partial' | 'not_ready';
 	details: string;
 	score: number; // 0-100
 };
 
 export type ReadinessReport = {
-	overall: "ready" | "partial" | "not_ready";
+	overall: 'ready' | 'partial' | 'not_ready';
 	overallScore: number;
 	checks: ReadinessCheckResult[];
 	timestamp: string;
@@ -56,17 +56,17 @@ export class ReactNativeReadinessChecker {
 
 		// Calculate overall score
 		const overallScore = Math.round(
-			checks.reduce((sum, check) => sum + check.score, 0) / checks.length,
+			checks.reduce((sum, check) => sum + check.score, 0) / checks.length
 		);
 
 		// Determine overall status
-		let overall: "ready" | "partial" | "not_ready";
+		let overall: 'ready' | 'partial' | 'not_ready';
 		if (overallScore >= 90) {
-			overall = "ready";
+			overall = 'ready';
 		} else if (overallScore >= 60) {
-			overall = "partial";
+			overall = 'partial';
 		} else {
-			overall = "not_ready";
+			overall = 'not_ready';
 		}
 
 		return {
@@ -82,32 +82,31 @@ export class ReactNativeReadinessChecker {
 	 */
 	private checkPlatformDetection(): ReadinessCheckResult {
 		try {
-			const hasOS = typeof Platform.OS === "string";
-			const hasIsWeb = typeof Platform.isWeb === "boolean";
-			const hasIsNative = typeof Platform.isNative === "boolean";
-			const hasSelect = typeof Platform.select === "function";
+			const hasOS = typeof Platform.OS === 'string';
+			const hasIsWeb = typeof Platform.isWeb === 'boolean';
+			const hasIsNative = typeof Platform.isNative === 'boolean';
+			const hasSelect = typeof Platform.select === 'function';
 
-			const score =
-				[hasOS, hasIsWeb, hasIsNative, hasSelect].filter(Boolean).length * 25;
+			const score = [hasOS, hasIsWeb, hasIsNative, hasSelect].filter(Boolean).length * 25;
 
 			if (score === 100) {
 				return {
-					name: "Platform Detection",
-					status: "ready",
+					name: 'Platform Detection',
+					status: 'ready',
 					details: `✅ All platform detection APIs working (OS: ${Platform.OS})`,
 					score,
 				};
 			}
 			return {
-				name: "Platform Detection",
-				status: "partial",
+				name: 'Platform Detection',
+				status: 'partial',
 				details: `⚠️ Some platform detection APIs missing (${score}%)`,
 				score,
 			};
 		} catch (error) {
 			return {
-				name: "Platform Detection",
-				status: "not_ready",
+				name: 'Platform Detection',
+				status: 'not_ready',
 				details: `❌ Platform detection failed: ${error}`,
 				score: 0,
 			};
@@ -119,13 +118,13 @@ export class ReactNativeReadinessChecker {
 	 */
 	private async checkStorageAdapter(): Promise<ReadinessCheckResult> {
 		try {
-			const hasGetItem = typeof storage.getItem === "function";
-			const hasSetItem = typeof storage.setItem === "function";
-			const hasRemoveItem = typeof storage.removeItem === "function";
-			const hasClear = typeof storage.clear === "function";
+			const hasGetItem = typeof storage.getItem === 'function';
+			const hasSetItem = typeof storage.setItem === 'function';
+			const hasRemoveItem = typeof storage.removeItem === 'function';
+			const hasClear = typeof storage.clear === 'function';
 
 			// Test actual functionality
-			const testKey = "__rn_readiness_test__";
+			const testKey = '__rn_readiness_test__';
 			const testValue = `test_value_${Date.now()}`;
 
 			await storage.setItem(testKey, testValue);
@@ -135,32 +134,27 @@ export class ReactNativeReadinessChecker {
 			const functionalityWorks = retrieved === testValue;
 
 			const score =
-				[
-					hasGetItem,
-					hasSetItem,
-					hasRemoveItem,
-					hasClear,
-					functionalityWorks,
-				].filter(Boolean).length * 20;
+				[hasGetItem, hasSetItem, hasRemoveItem, hasClear, functionalityWorks].filter(Boolean)
+					.length * 20;
 
 			if (score === 100) {
 				return {
-					name: "Storage Adapter",
-					status: "ready",
-					details: "✅ Storage adapter fully functional",
+					name: 'Storage Adapter',
+					status: 'ready',
+					details: '✅ Storage adapter fully functional',
 					score,
 				};
 			}
 			return {
-				name: "Storage Adapter",
-				status: "partial",
+				name: 'Storage Adapter',
+				status: 'partial',
 				details: `⚠️ Storage adapter partially working (${score}%)`,
 				score,
 			};
 		} catch (error) {
 			return {
-				name: "Storage Adapter",
-				status: "not_ready",
+				name: 'Storage Adapter',
+				status: 'not_ready',
 				details: `❌ Storage adapter failed: ${error}`,
 				score: 0,
 			};
@@ -173,33 +167,32 @@ export class ReactNativeReadinessChecker {
 	private checkMediaAdapter(): ReadinessCheckResult {
 		try {
 			const mediaAny = media as any;
-			const hasPickImage = typeof mediaAny.pickImage === "function";
-			const hasPickVideo = typeof mediaAny.pickVideo === "function";
-			const hasPickAudio = typeof mediaAny.pickAudio === "function";
-			const hasPickFile = typeof mediaAny.pickFile === "function";
+			const hasPickImage = typeof mediaAny.pickImage === 'function';
+			const hasPickVideo = typeof mediaAny.pickVideo === 'function';
+			const hasPickAudio = typeof mediaAny.pickAudio === 'function';
+			const hasPickFile = typeof mediaAny.pickFile === 'function';
 
 			const score =
-				[hasPickImage, hasPickVideo, hasPickAudio, hasPickFile].filter(Boolean)
-					.length * 25;
+				[hasPickImage, hasPickVideo, hasPickAudio, hasPickFile].filter(Boolean).length * 25;
 
 			if (score === 100) {
 				return {
-					name: "Media Adapter",
-					status: "ready",
-					details: "✅ Media adapter fully implemented",
+					name: 'Media Adapter',
+					status: 'ready',
+					details: '✅ Media adapter fully implemented',
 					score,
 				};
 			}
 			return {
-				name: "Media Adapter",
-				status: "partial",
+				name: 'Media Adapter',
+				status: 'partial',
 				details: `⚠️ Media adapter partially implemented (${score}%)`,
 				score,
 			};
 		} catch (error) {
 			return {
-				name: "Media Adapter",
-				status: "not_ready",
+				name: 'Media Adapter',
+				status: 'not_ready',
 				details: `❌ Media adapter failed: ${error}`,
 				score: 0,
 			};
@@ -211,34 +204,32 @@ export class ReactNativeReadinessChecker {
 	 */
 	private checkNavigationAdapter(): ReadinessCheckResult {
 		try {
-			const hasNavigate = typeof navigation.navigate === "function";
-			const hasGoBack = typeof navigation.goBack === "function";
-			const hasReplace = typeof navigation.replace === "function";
-			const hasGetCurrentRoute =
-				typeof navigation.getCurrentRoute === "function";
+			const hasNavigate = typeof navigation.navigate === 'function';
+			const hasGoBack = typeof navigation.goBack === 'function';
+			const hasReplace = typeof navigation.replace === 'function';
+			const hasGetCurrentRoute = typeof navigation.getCurrentRoute === 'function';
 
 			const score =
-				[hasNavigate, hasGoBack, hasReplace, hasGetCurrentRoute].filter(Boolean)
-					.length * 25;
+				[hasNavigate, hasGoBack, hasReplace, hasGetCurrentRoute].filter(Boolean).length * 25;
 
 			if (score === 100) {
 				return {
-					name: "Navigation Adapter",
-					status: "ready",
-					details: "✅ Navigation adapter fully implemented",
+					name: 'Navigation Adapter',
+					status: 'ready',
+					details: '✅ Navigation adapter fully implemented',
 					score,
 				};
 			}
 			return {
-				name: "Navigation Adapter",
-				status: "partial",
+				name: 'Navigation Adapter',
+				status: 'partial',
 				details: `⚠️ Navigation adapter partially implemented (${score}%)`,
 				score,
 			};
 		} catch (error) {
 			return {
-				name: "Navigation Adapter",
-				status: "not_ready",
+				name: 'Navigation Adapter',
+				status: 'not_ready',
 				details: `❌ Navigation adapter failed: ${error}`,
 				score: 0,
 			};
@@ -250,40 +241,33 @@ export class ReactNativeReadinessChecker {
 	 */
 	private checkPlatformFeatures(): ReadinessCheckResult {
 		try {
-			const hasCamera = typeof PlatformFeatures.hasCamera === "boolean";
-			const hasGeolocation =
-				typeof PlatformFeatures.hasGeolocation === "boolean";
-			const hasPushNotifications =
-				typeof PlatformFeatures.hasPushNotifications === "boolean";
-			const hasOfflineStorage =
-				typeof PlatformFeatures.hasOfflineStorage === "boolean";
+			const hasCamera = typeof PlatformFeatures.hasCamera === 'boolean';
+			const hasGeolocation = typeof PlatformFeatures.hasGeolocation === 'boolean';
+			const hasPushNotifications = typeof PlatformFeatures.hasPushNotifications === 'boolean';
+			const hasOfflineStorage = typeof PlatformFeatures.hasOfflineStorage === 'boolean';
 
 			const score =
-				[
-					hasCamera,
-					hasGeolocation,
-					hasPushNotifications,
-					hasOfflineStorage,
-				].filter(Boolean).length * 25;
+				[hasCamera, hasGeolocation, hasPushNotifications, hasOfflineStorage].filter(Boolean)
+					.length * 25;
 
 			if (score === 100) {
 				return {
-					name: "Platform Features",
-					status: "ready",
-					details: "✅ All platform features detected",
+					name: 'Platform Features',
+					status: 'ready',
+					details: '✅ All platform features detected',
 					score,
 				};
 			}
 			return {
-				name: "Platform Features",
-				status: "partial",
+				name: 'Platform Features',
+				status: 'partial',
 				details: `⚠️ Some platform features missing (${score}%)`,
 				score,
 			};
 		} catch (error) {
 			return {
-				name: "Platform Features",
-				status: "not_ready",
+				name: 'Platform Features',
+				status: 'not_ready',
 				details: `❌ Platform features check failed: ${error}`,
 				score: 0,
 			};
@@ -303,23 +287,22 @@ export class ReactNativeReadinessChecker {
 
 			if (score === 100) {
 				return {
-					name: "Universal Components",
-					status: "ready",
-					details:
-						"✅ Universal components ready (Button, Select, Switch, Modal)",
+					name: 'Universal Components',
+					status: 'ready',
+					details: '✅ Universal components ready (Button, Select, Switch, Modal)',
 					score,
 				};
 			}
 			return {
-				name: "Universal Components",
-				status: "not_ready",
-				details: "❌ Universal components not found",
+				name: 'Universal Components',
+				status: 'not_ready',
+				details: '❌ Universal components not found',
 				score: 0,
 			};
 		} catch (error) {
 			return {
-				name: "Universal Components",
-				status: "not_ready",
+				name: 'Universal Components',
+				status: 'not_ready',
 				details: `❌ Universal components check failed: ${error}`,
 				score: 0,
 			};
@@ -330,19 +313,17 @@ export class ReactNativeReadinessChecker {
 	 * Print readiness report to console
 	 */
 	printReport(report: ReadinessReport): void {
-		console.group("🚀 React Native Readiness Report");
+		console.group('🚀 React Native Readiness Report');
 		console.log(
-			`Overall Status: ${this.getStatusEmoji(report.overall)} ${report.overall.toUpperCase()}`,
+			`Overall Status: ${this.getStatusEmoji(report.overall)} ${report.overall.toUpperCase()}`
 		);
 		console.log(`Overall Score: ${report.overallScore}%`);
 		console.log(`Timestamp: ${report.timestamp}`);
-		console.log("");
+		console.log('');
 
-		console.group("📋 Detailed Checks:");
+		console.group('📋 Detailed Checks:');
 		report.checks.forEach((check) => {
-			console.log(
-				`${this.getStatusEmoji(check.status)} ${check.name}: ${check.score}%`,
-			);
+			console.log(`${this.getStatusEmoji(check.status)} ${check.name}: ${check.score}%`);
 			console.log(`   ${check.details}`);
 		});
 		console.groupEnd();
@@ -353,14 +334,14 @@ export class ReactNativeReadinessChecker {
 	/**
 	 * Get emoji for status
 	 */
-	private getStatusEmoji(status: "ready" | "partial" | "not_ready"): string {
+	private getStatusEmoji(status: 'ready' | 'partial' | 'not_ready'): string {
 		switch (status) {
-			case "ready":
-				return "✅";
-			case "partial":
-				return "⚠️";
-			case "not_ready":
-				return "❌";
+			case 'ready':
+				return '✅';
+			case 'partial':
+				return '⚠️';
+			case 'not_ready':
+				return '❌';
 		}
 	}
 }
@@ -372,7 +353,7 @@ export async function checkReactNativeReadiness(): Promise<ReadinessReport> {
 	const checker = new ReactNativeReadinessChecker();
 	const report = await checker.runAllChecks();
 
-	if (typeof window !== "undefined" && import.meta.env.DEV) {
+	if (typeof window !== 'undefined' && import.meta.env.DEV) {
 		checker.printReport(report);
 	}
 

@@ -10,32 +10,32 @@ import {
 	Smartphone,
 	TestTube,
 	Users,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
-import { AIAnalyticsTab } from "@/features/admin/analytics";
-import { PerformanceDashboard } from "@/features/admin/components/PerformanceDashboard";
-import { ReactNativeReadinessTest } from "@/features/admin/components/ReactNativeReadinessTest";
-import { TestLab } from "@/features/admin/components/TestLab";
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useCallback, useEffect, useState } from 'react';
+import { AIAnalyticsTab } from '@/features/admin/analytics';
+import { PerformanceDashboard } from '@/features/admin/components/PerformanceDashboard';
+import { ReactNativeReadinessTest } from '@/features/admin/components/ReactNativeReadinessTest';
+import { TestLab } from '@/features/admin/components/TestLab';
 import {
 	PushNotifications,
 	PWAAnalytics,
 	PWACache,
 	PWAOverview,
 	PWASettings,
-} from "@/features/admin/pwa";
-import { SettingsTab, SubscriptionsTab } from "@/features/admin/settings";
-import { CompactErrorBoundary } from "@/shared/components/ErrorBoundary";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { useTranslation } from "@/shared/lib/i18n";
+} from '@/features/admin/pwa';
+import { SettingsTab, SubscriptionsTab } from '@/features/admin/settings';
+import { CompactErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { useTranslation } from '@/shared/lib/i18n';
 import type {
 	AdminDashboardProps,
 	AdminStats,
 	MenuItem,
 	PWASubTab,
 	TabId,
-} from "./admin-dashboard";
+} from './admin-dashboard';
 
 // Import modular components
 import {
@@ -45,19 +45,19 @@ import {
 	loadAdminStats,
 	MobileSidebar,
 	OverviewTab,
-} from "./admin-dashboard";
-import { UsersManagementTab } from "./UsersManagementTab";
+} from './admin-dashboard';
+import { UsersManagementTab } from './UsersManagementTab';
 
 // Re-export types for backward compatibility
 export type { AdminDashboardProps };
 
 export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	const { t } = useTranslation();
-	const [activeTab, setActiveTab] = useState<TabId>("overview");
+	const [activeTab, setActiveTab] = useState<TabId>('overview');
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [isLoadingStats, setIsLoadingStats] = useState(false);
-	const [settingsSubTab, setSettingsSubTab] = useState("pwa");
-	const [pwaSubTab, setPwaSubTab] = useState<PWASubTab>("overview");
+	const [settingsSubTab, setSettingsSubTab] = useState('pwa');
+	const [pwaSubTab, setPwaSubTab] = useState<PWASubTab>('overview');
 	const [stats, setStats] = useState<AdminStats>(INITIAL_STATS);
 
 	// Проверка прав супер-админа
@@ -81,7 +81,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	// Логирование изменений activeTab (only in development)
 	useEffect(() => {
 		if (import.meta.env.DEV) {
-			console.log("[AdminDashboard] activeTab changed:", activeTab);
+			console.log('[AdminDashboard] activeTab changed:', activeTab);
 		}
 	}, [activeTab]);
 
@@ -90,7 +90,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 		const handleAdminNavigate = (event: any) => {
 			const { tab, subtab, pwaSubTab: pwaSubTabParam } = event.detail;
 			if (import.meta.env.DEV) {
-				console.log("[AdminDashboard] admin-navigate event:", {
+				console.log('[AdminDashboard] admin-navigate event:', {
 					tab,
 					subtab,
 					pwaSubTab: pwaSubTabParam,
@@ -107,15 +107,9 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 			}
 		};
 
-		window.addEventListener(
-			"admin-navigate",
-			handleAdminNavigate as EventListener,
-		);
+		window.addEventListener('admin-navigate', handleAdminNavigate as EventListener);
 		return () => {
-			window.removeEventListener(
-				"admin-navigate",
-				handleAdminNavigate as EventListener,
-			);
+			window.removeEventListener('admin-navigate', handleAdminNavigate as EventListener);
 		};
 	}, []); // Empty deps - event handler doesn't depend on state
 
@@ -146,29 +140,29 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 
 	const menuItems: MenuItem[] = [
 		{
-			id: "overview",
-			label: t("admin_overview", "Обзор"),
+			id: 'overview',
+			label: t('admin_overview', 'Обзор'),
 			icon: LayoutDashboard,
 		},
-		{ id: "users", label: t("admin_users", "Пользователи"), icon: Users },
+		{ id: 'users', label: t('admin_users', 'Пользователи'), icon: Users },
 		{
-			id: "subscriptions",
-			label: t("admin_subscriptions", "Подписки"),
+			id: 'subscriptions',
+			label: t('admin_subscriptions', 'Подписки'),
 			icon: CreditCard,
 		},
 		{
-			id: "ai-analytics",
-			label: t("admin_ai_analytics", "AI Analytics"),
+			id: 'ai-analytics',
+			label: t('admin_ai_analytics', 'AI Analytics'),
 			icon: Brain,
 		},
-		{ id: "pwa", label: t("admin_pwa", "PWA"), icon: Smartphone },
-		{ id: "test-lab", label: "Test Lab", icon: TestTube },
+		{ id: 'pwa', label: t('admin_pwa', 'PWA'), icon: Smartphone },
+		{ id: 'test-lab', label: 'Test Lab', icon: TestTube },
 		{
-			id: "developer",
-			label: t("admin_developer", "Developer Tools"),
+			id: 'developer',
+			label: t('admin_developer', 'Developer Tools'),
 			icon: Code,
 		},
-		{ id: "settings", label: t("admin_settings", "Настройки"), icon: Settings },
+		{ id: 'settings', label: t('admin_settings', 'Настройки'), icon: Settings },
 	];
 
 	return (
@@ -236,41 +230,38 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 						>
 							<CompactErrorBoundary>
 								{(() => {
-									console.log(
-										"[AdminDashboard] Rendering content for activeTab:",
-										activeTab,
-									);
+									console.log('[AdminDashboard] Rendering content for activeTab:', activeTab);
 									return null;
 								})()}
-								{activeTab === "overview" && (
+								{activeTab === 'overview' && (
 									<OverviewTab
 										isLoading={isLoadingStats}
 										onRefresh={handleLoadStats}
 										stats={stats}
 									/>
 								)}
-								{activeTab === "users" && <UsersManagementTab />}
-								{activeTab === "subscriptions" && <SubscriptionsTab />}
-								{activeTab === "ai-analytics" && <AIAnalyticsTab />}
-								{activeTab === "pwa" && (
+								{activeTab === 'users' && <UsersManagementTab />}
+								{activeTab === 'subscriptions' && <SubscriptionsTab />}
+								{activeTab === 'ai-analytics' && <AIAnalyticsTab />}
+								{activeTab === 'pwa' && (
 									<div className="space-y-6">
 										{/* PWA Sub-navigation */}
 										<div className="flex items-center gap-2 overflow-x-auto pb-2">
 											{[
-												{ id: "overview" as PWASubTab, label: "Overview" },
-												{ id: "settings" as PWASubTab, label: "Settings" },
+												{ id: 'overview' as PWASubTab, label: 'Overview' },
+												{ id: 'settings' as PWASubTab, label: 'Settings' },
 												{
-													id: "push" as PWASubTab,
-													label: "Push Notifications",
+													id: 'push' as PWASubTab,
+													label: 'Push Notifications',
 												},
-												{ id: "analytics" as PWASubTab, label: "Analytics" },
-												{ id: "cache" as PWASubTab, label: "Cache" },
+												{ id: 'analytics' as PWASubTab, label: 'Analytics' },
+												{ id: 'cache' as PWASubTab, label: 'Cache' },
 											].map((tab) => (
 												<Button
 													key={tab.id}
 													onClick={() => setPwaSubTab(tab.id)}
 													size="sm"
-													variant={pwaSubTab === tab.id ? "default" : "outline"}
+													variant={pwaSubTab === tab.id ? 'default' : 'outline'}
 												>
 													{tab.label}
 												</Button>
@@ -278,25 +269,22 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 										</div>
 
 										{/* PWA Content */}
-										{pwaSubTab === "overview" && <PWAOverview />}
-										{pwaSubTab === "settings" && <PWASettings />}
-										{pwaSubTab === "push" && <PushNotifications />}
-										{pwaSubTab === "analytics" && <PWAAnalytics />}
-										{pwaSubTab === "cache" && <PWACache />}
+										{pwaSubTab === 'overview' && <PWAOverview />}
+										{pwaSubTab === 'settings' && <PWASettings />}
+										{pwaSubTab === 'push' && <PushNotifications />}
+										{pwaSubTab === 'analytics' && <PWAAnalytics />}
+										{pwaSubTab === 'cache' && <PWACache />}
 									</div>
 								)}
-								{activeTab === "test-lab" && <TestLab />}
-								{activeTab === "developer" && (
+								{activeTab === 'test-lab' && <TestLab />}
+								{activeTab === 'developer' && (
 									<div className="space-y-6">
 										<PerformanceDashboard />
 										<ReactNativeReadinessTest />
 									</div>
 								)}
-								{activeTab === "settings" && (
-									<SettingsTab
-										activeSubTab={settingsSubTab}
-										onSubTabChange={setSettingsSubTab}
-									/>
+								{activeTab === 'settings' && (
+									<SettingsTab activeSubTab={settingsSubTab} onSubTabChange={setSettingsSubTab} />
 								)}
 							</CompactErrorBoundary>
 						</motion.div>

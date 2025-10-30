@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { type HTMLMotionProps, motion, type Transition } from "motion/react";
+import { type HTMLMotionProps, motion, type Transition } from 'motion/react';
 
-import { cn } from "../../utils";
+import { cn } from '../../utils';
 
-type CounterProps = HTMLMotionProps<"div"> & {
+type CounterProps = HTMLMotionProps<'div'> & {
 	number: number;
 	setNumber: (number: number) => void;
 	className?: string;
@@ -15,14 +15,14 @@ function Counter({
 	number,
 	setNumber,
 	className,
-	transition = { type: "spring", bounce: 0, stiffness: 300, damping: 30 },
+	transition = { type: 'spring', bounce: 0, stiffness: 300, damping: 30 },
 	...props
 }: CounterProps) {
 	return (
 		<motion.div
 			className={cn(
-				"flex items-center gap-x-2 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800",
-				className,
+				'flex items-center gap-x-2 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800',
+				className
 			)}
 			data-slot="counter"
 			layout

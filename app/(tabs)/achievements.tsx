@@ -2,27 +2,21 @@
  * Achievements Tab Screen
  */
 
-import * as Haptics from "expo-haptics";
-import { useEffect, useState } from "react";
-import {
-	RefreshControl,
-	ScrollView,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
-import { AchievementCard } from "../../app-shared/components/screens/achievements/AchievementCard.native";
-import { MilestoneCard } from "../../app-shared/components/screens/achievements/MilestoneCard.native";
+import * as Haptics from 'expo-haptics';
+import { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AchievementCard } from '../../app-shared/components/screens/achievements/AchievementCard.native';
+import { MilestoneCard } from '../../app-shared/components/screens/achievements/MilestoneCard.native';
 import {
 	SkeletonAchievementCard,
 	SkeletonCircle,
 	SkeletonMilestoneCard,
 	SkeletonText,
-} from "../../app-shared/components/skeleton/SkeletonCard";
-import { useTheme } from "../../app-shared/contexts/ThemeContext";
-import { useEntries } from "../../app-shared/hooks/useEntries";
-import { useUserData } from "../../app-shared/hooks/useUserData";
-import { supabase } from "../../app-shared/lib/supabase/client";
+} from '../../app-shared/components/skeleton/SkeletonCard';
+import { useTheme } from '../../app-shared/contexts/ThemeContext';
+import { useEntries } from '../../app-shared/hooks/useEntries';
+import { useUserData } from '../../app-shared/hooks/useUserData';
+import { supabase } from '../../app-shared/lib/supabase/client';
 
 type Achievement = {
 	id: string;
@@ -44,27 +38,20 @@ type Milestone = {
 	total?: number;
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex screen component
 export default function AchievementsScreen() {
 	const { colors } = useTheme();
 	const [userId, setUserId] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	// Real data from Supabase
-	const {
-		stats,
-		isLoading: isLoadingUser,
-		refetch: refetchUser,
-	} = useUserData(userId);
-	const {
-		entries,
-		isLoading: isLoadingEntries,
-		refetch: refetchEntries,
-	} = useEntries(userId);
+	const { stats, isLoading: isLoadingUser, refetch: refetchUser } = useUserData(userId);
+	const { entries, isLoading: isLoadingEntries, refetch: refetchEntries } = useEntries(userId);
 
 	// Get current user on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: getCurrentUser is stable
 	useEffect(() => {
 		getCurrentUser();
-		// eslint-disable-next-line react-hooks/exhaustive-dependencies
 	}, []);
 
 	const getCurrentUser = async () => {
@@ -75,11 +62,11 @@ export default function AchievementsScreen() {
 			if (session?.user?.id) {
 				setUserId(session.user.id);
 			} else {
-				console.log("[AchievementsScreen] No session, using test user");
-				setUserId("c1b3e4f5-6789-4abc-def0-123456789abc"); // Valid UUID format
+				console.log('[AchievementsScreen] No session, using test user');
+				setUserId('c1b3e4f5-6789-4abc-def0-123456789abc'); // Valid UUID format
 			}
 		} catch (error) {
-			console.error("[AchievementsScreen] Error getting user:", error);
+			console.error('[AchievementsScreen] Error getting user:', error);
 		}
 	};
 
@@ -99,47 +86,45 @@ export default function AchievementsScreen() {
 	const _currentStreak = stats?.currentStreak || 0;
 	const _longestStreak = stats?.longestStreak || 0;
 	const _level = stats?.level || 1;
-	const _nextLevelProgress = stats
-		? Math.round(((stats.xp % 100) / 100) * 100)
-		: 0;
+	const _nextLevelProgress = stats ? Math.round(((stats.xp % 100) / 100) * 100) : 0;
 
 	const isLoading = isLoadingUser || isLoadingEntries;
 
 	const achievements: Achievement[] = [
 		{
-			id: "1",
-			name: "Первые шаги",
-			description: "Создайте свою первую запись",
-			icon: "⭐",
+			id: '1',
+			name: 'Первые шаги',
+			description: 'Создайте свою первую запись',
+			icon: '⭐',
 			earned: true,
-			rarity: "common",
+			rarity: 'common',
 			earnedDate: new Date().toISOString(),
 		},
 		{
-			id: "2",
-			name: "Неделя силы",
-			description: "Пишите 7 дней подряд",
-			icon: "🔥",
+			id: '2',
+			name: 'Неделя силы',
+			description: 'Пишите 7 дней подряд',
+			icon: '🔥',
 			earned: true,
-			rarity: "uncommon",
+			rarity: 'uncommon',
 			earnedDate: new Date(Date.now() - 86_400_000).toISOString(),
 		},
 		{
-			id: "3",
-			name: "Мастер слова",
-			description: "Напишите 50 записей",
-			icon: "📚",
+			id: '3',
+			name: 'Мастер слова',
+			description: 'Напишите 50 записей',
+			icon: '📚',
 			earned: false,
-			rarity: "rare",
+			rarity: 'rare',
 			progress: 30,
 		},
 		{
-			id: "4",
-			name: "Легенда",
-			description: "Пишите 30 дней подряд",
-			icon: "👑",
+			id: '4',
+			name: 'Легенда',
+			description: 'Пишите 30 дней подряд',
+			icon: '👑',
 			earned: false,
-			rarity: "legendary",
+			rarity: 'legendary',
 			progress: 23,
 		},
 	];
@@ -147,27 +132,27 @@ export default function AchievementsScreen() {
 	const milestones: Milestone[] = [
 		{
 			id: 1,
-			title: "10 записей",
+			title: '10 записей',
 			completed: true,
 			reward: 'Бейдж "Начинающий"',
 		},
 		{
 			id: 2,
-			title: "Неделя подряд",
+			title: 'Неделя подряд',
 			completed: true,
 			reward: 'Бейдж "Постоянство"',
 		},
 		{
 			id: 3,
-			title: "50 записей",
+			title: '50 записей',
 			completed: false,
 			progress: stats?.totalEntries || 0,
 			total: 50,
-			reward: "Премиум тема",
+			reward: 'Премиум тема',
 		},
 		{
 			id: 4,
-			title: "Месяц подряд",
+			title: 'Месяц подряд',
 			completed: false,
 			progress: stats?.longestStreak || 0,
 			total: 30,
@@ -203,12 +188,7 @@ export default function AchievementsScreen() {
 							<SkeletonText height={14} width={100} />
 							<SkeletonText height={14} width={40} />
 						</View>
-						<SkeletonText
-							borderRadius={12}
-							height={8}
-							style={{ marginTop: 8 }}
-							width="100%"
-						/>
+						<SkeletonText borderRadius={12} height={8} style={{ marginTop: 8 }} width="100%" />
 					</View>
 				</View>
 
@@ -273,20 +253,11 @@ export default function AchievementsScreen() {
 
 				<View style={styles.progressSection}>
 					<View style={styles.progressHeader}>
-						<Text style={styles.progressLabel}>
-							До уровня {(stats?.level || 1) + 1}
-						</Text>
-						<Text style={styles.progressPercent}>
-							{stats?.nextLevelProgress || 0}%
-						</Text>
+						<Text style={styles.progressLabel}>До уровня {(stats?.level || 1) + 1}</Text>
+						<Text style={styles.progressPercent}>{stats?.nextLevelProgress || 0}%</Text>
 					</View>
 					<View style={styles.progressBar}>
-						<View
-							style={[
-								styles.progressFill,
-								{ width: `${stats?.nextLevelProgress || 0}%` },
-							]}
-						/>
+						<View style={[styles.progressFill, { width: `${stats?.nextLevelProgress || 0}%` }]} />
 					</View>
 				</View>
 			</View>
@@ -294,11 +265,7 @@ export default function AchievementsScreen() {
 			<View style={styles.section}>
 				<Text style={styles.sectionTitle}>Достижения</Text>
 				{achievements.map((achievement, index) => (
-					<AchievementCard
-						achievement={achievement}
-						index={index}
-						key={achievement.id}
-					/>
+					<AchievementCard achievement={achievement} index={index} key={achievement.id} />
 				))}
 			</View>
 
@@ -315,32 +282,32 @@ export default function AchievementsScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#F9FAFB",
+		backgroundColor: '#F9FAFB',
 	},
 	contentContainer: {
 		paddingBottom: 120, // Space for floating bottom tab bar
 	},
 	loadingContainer: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor: "#F9FAFB",
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#F9FAFB',
 	},
 	header: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: '#FFFFFF',
 		padding: 24,
 		paddingTop: 60,
-		alignItems: "center",
+		alignItems: 'center',
 		borderBottomWidth: 1,
-		borderBottomColor: "#E5E7EB",
+		borderBottomColor: '#E5E7EB',
 	},
 	levelBadge: {
 		width: 80,
 		height: 80,
 		borderRadius: 40,
-		backgroundColor: "#3B82F6",
-		alignItems: "center",
-		justifyContent: "center",
+		backgroundColor: '#3B82F6',
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginBottom: 12,
 	},
 	levelIcon: {
@@ -348,61 +315,61 @@ const styles = StyleSheet.create({
 	},
 	levelText: {
 		fontSize: 24,
-		fontWeight: "600",
-		color: "#111827",
+		fontWeight: '600',
+		color: '#111827',
 		marginBottom: 4,
 	},
 	subtitle: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginBottom: 24,
 	},
 	statsGrid: {
-		flexDirection: "row",
-		width: "100%",
+		flexDirection: 'row',
+		width: '100%',
 		marginBottom: 24,
 	},
 	statItem: {
 		flex: 1,
-		alignItems: "center",
+		alignItems: 'center',
 	},
 	statValue: {
 		fontSize: 24,
-		fontWeight: "600",
-		color: "#111827",
+		fontWeight: '600',
+		color: '#111827',
 		marginBottom: 4,
 	},
 	statLabel: {
 		fontSize: 12,
-		color: "#6B7280",
+		color: '#6B7280',
 	},
 	progressSection: {
-		width: "100%",
+		width: '100%',
 	},
 	progressHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 		marginBottom: 8,
 	},
 	progressLabel: {
 		fontSize: 14,
-		fontWeight: "500",
-		color: "#111827",
+		fontWeight: '500',
+		color: '#111827',
 	},
 	progressPercent: {
 		fontSize: 14,
-		fontWeight: "600",
-		color: "#3B82F6",
+		fontWeight: '600',
+		color: '#3B82F6',
 	},
 	progressBar: {
 		height: 8,
-		backgroundColor: "#E5E7EB",
+		backgroundColor: '#E5E7EB',
 		borderRadius: 4,
-		overflow: "hidden",
+		overflow: 'hidden',
 	},
 	progressFill: {
-		height: "100%",
-		backgroundColor: "#3B82F6",
+		height: '100%',
+		backgroundColor: '#3B82F6',
 		borderRadius: 4,
 	},
 	section: {
@@ -410,8 +377,8 @@ const styles = StyleSheet.create({
 	},
 	sectionTitle: {
 		fontSize: 20,
-		fontWeight: "600",
-		color: "#111827",
+		fontWeight: '600',
+		color: '#111827',
 		marginBottom: 16,
 	},
 });

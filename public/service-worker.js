@@ -1,6 +1,6 @@
-const CACHE_NAME = "achievement-diary-v1";
-const CACHE_NAME_API = "achievement-diary-api-v1";
-const CACHE_NAME_STATIC = "achievement-diary-static-v1";
+const CACHE_NAME = 'achievement-diary-v1';
+const CACHE_NAME_API = 'achievement-diary-api-v1';
+const CACHE_NAME_STATIC = 'achievement-diary-static-v1';
 
 // Cache TTL (Time To Live) в миллисекундах
 const CACHE_TTL = {
@@ -9,26 +9,26 @@ const CACHE_TTL = {
 	images: 7 * 24 * 60 * 60 * 1000, // 7 дней для изображений
 };
 
-const urlsToCache = ["/", "/App.tsx", "/styles/globals.css"];
+const urlsToCache = ['/', '/App.tsx', '/styles/globals.css'];
 
 // Install event - cache resources
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
 	event.waitUntil(
 		caches
 			.open(CACHE_NAME)
 			.then((cache) => {
-				console.log("Opened cache");
+				console.log('Opened cache');
 				return cache.addAll(urlsToCache);
 			})
 			.catch((error) => {
-				console.error("Cache installation failed:", error);
-			}),
+				console.error('Cache installation failed:', error);
+			})
 	);
 	// Не вызываем skipWaiting автоматически, ждем сообщения от клиента
 });
 
 // Activate event - clean up old caches
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
 	const currentCaches = [CACHE_NAME, CACHE_NAME_API, CACHE_NAME_STATIC];
 
 	event.waitUntil(
@@ -36,12 +36,12 @@ self.addEventListener("activate", (event) => {
 			Promise.all(
 				cacheNames.map((cacheName) => {
 					if (!currentCaches.includes(cacheName)) {
-						console.log("Deleting old cache:", cacheName);
+						console.log('Deleting old cache:', cacheName);
 						return caches.delete(cacheName);
 					}
-				}),
-			),
-		),
+				})
+			)
+		)
 	);
 	self.clients.claim();
 });
@@ -50,7 +50,7 @@ self.addEventListener("activate", (event) => {
 function isCacheExpired(cachedResponse, ttl) {
 	if (!cachedResponse) return true;
 
-	const cachedTime = cachedResponse.headers.get("sw-cache-time");
+	const cachedTime = cachedResponse.headers.get('sw-cache-time');
 	if (!cachedTime) return true;
 
 	const age = Date.now() - Number.parseInt(cachedTime, 10);
@@ -61,7 +61,7 @@ function isCacheExpired(cachedResponse, ttl) {
 function addCacheTimestamp(response) {
 	const clonedResponse = response.clone();
 	const headers = new Headers(clonedResponse.headers);
-	headers.set("sw-cache-time", Date.now().toString());
+	headers.set('sw-cache-time', Date.now().toString());
 
 	return new Response(clonedResponse.body, {
 		status: clonedResponse.status,
@@ -76,24 +76,21 @@ function getCacheStrategy(request) {
 
 	// API requests - Stale-While-Revalidate
 	if (
-		url.pathname.startsWith("/api/") ||
-		url.pathname.includes("supabase.co") ||
-		url.pathname.includes("/rest/v1/")
+		url.pathname.startsWith('/api/') ||
+		url.pathname.includes('supabase.co') ||
+		url.pathname.includes('/rest/v1/')
 	) {
 		return {
-			strategy: "stale-while-revalidate",
+			strategy: 'stale-while-revalidate',
 			cacheName: CACHE_NAME_API,
 			ttl: CACHE_TTL.api,
 		};
 	}
 
 	// Images - Cache-First with long TTL
-	if (
-		request.destination === "image" ||
-		/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname)
-	) {
+	if (request.destination === 'image' || /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname)) {
 		return {
-			strategy: "cache-first",
+			strategy: 'cache-first',
 			cacheName: CACHE_NAME_STATIC,
 			ttl: CACHE_TTL.images,
 		};
@@ -101,12 +98,12 @@ function getCacheStrategy(request) {
 
 	// Static assets - Cache-First
 	if (
-		request.destination === "style" ||
-		request.destination === "script" ||
+		request.destination === 'style' ||
+		request.destination === 'script' ||
 		/\.(css|js|woff2?|ttf|eot)$/i.test(url.pathname)
 	) {
 		return {
-			strategy: "cache-first",
+			strategy: 'cache-first',
 			cacheName: CACHE_NAME_STATIC,
 			ttl: CACHE_TTL.static,
 		};
@@ -114,7 +111,7 @@ function getCacheStrategy(request) {
 
 	// Default - Network-First
 	return {
-		strategy: "network-first",
+		strategy: 'network-first',
 		cacheName: CACHE_NAME,
 		ttl: CACHE_TTL.static,
 	};
@@ -136,29 +133,22 @@ async function staleWhileRevalidate(request, cacheName, ttl) {
 			return networkResponse;
 		})
 		.catch((error) => {
-			console.log("[SW] Network fetch failed:", error);
+			console.log('[SW] Network fetch failed:', error);
 			return null;
 		});
 
 	// Return cached response immediately if available and not expired
 	if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
-		console.log(
-			"[SW] Serving from cache (stale-while-revalidate):",
-			request.url,
-		);
+		console.log('[SW] Serving from cache (stale-while-revalidate):', request.url);
 		// Update cache in background
 		fetchPromise.catch(() => {}); // Ignore errors
 		return cachedResponse;
 	}
 
 	// Wait for network if cache is expired or missing
-	console.log("[SW] Waiting for network (cache expired):", request.url);
+	console.log('[SW] Waiting for network (cache expired):', request.url);
 	const networkResponse = await fetchPromise;
-	return (
-		networkResponse ||
-		cachedResponse ||
-		new Response("Network error", { status: 503 })
-	);
+	return networkResponse || cachedResponse || new Response('Network error', { status: 503 });
 }
 
 // Cache-First strategy
@@ -168,7 +158,7 @@ async function cacheFirst(request, cacheName, ttl) {
 
 	// Return cached if available and not expired
 	if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
-		console.log("[SW] Serving from cache (cache-first):", request.url);
+		console.log('[SW] Serving from cache (cache-first):', request.url);
 		return cachedResponse;
 	}
 
@@ -182,8 +172,8 @@ async function cacheFirst(request, cacheName, ttl) {
 		}
 		return networkResponse;
 	} catch (error) {
-		console.log("[SW] Network fetch failed, returning stale cache:", error);
-		return cachedResponse || new Response("Network error", { status: 503 });
+		console.log('[SW] Network fetch failed, returning stale cache:', error);
+		return cachedResponse || new Response('Network error', { status: 503 });
 	}
 }
 
@@ -199,25 +189,25 @@ async function networkFirst(request, cacheName) {
 		}
 		return networkResponse;
 	} catch (error) {
-		console.log("[SW] Network fetch failed, trying cache:", error);
+		console.log('[SW] Network fetch failed, trying cache:', error);
 		const cache = await caches.open(cacheName);
 		const cachedResponse = await cache.match(request);
-		return cachedResponse || new Response("Network error", { status: 503 });
+		return cachedResponse || new Response('Network error', { status: 503 });
 	}
 }
 
 // Fetch event - use appropriate caching strategy
-self.addEventListener("fetch", (event) => {
+self.addEventListener('fetch', (event) => {
 	// Skip non-GET requests
-	if (event.request.method !== "GET") {
+	if (event.request.method !== 'GET') {
 		return;
 	}
 
 	const { strategy, cacheName, ttl } = getCacheStrategy(event.request);
 
-	if (strategy === "stale-while-revalidate") {
+	if (strategy === 'stale-while-revalidate') {
 		event.respondWith(staleWhileRevalidate(event.request, cacheName, ttl));
-	} else if (strategy === "cache-first") {
+	} else if (strategy === 'cache-first') {
 		event.respondWith(cacheFirst(event.request, cacheName, ttl));
 	} else {
 		event.respondWith(networkFirst(event.request, cacheName));
@@ -225,22 +215,22 @@ self.addEventListener("fetch", (event) => {
 });
 
 // Handle messages from clients
-self.addEventListener("message", (event) => {
-	if (event.data && event.data.type === "SKIP_WAITING") {
-		console.log("Received SKIP_WAITING message");
+self.addEventListener('message', (event) => {
+	if (event.data && event.data.type === 'SKIP_WAITING') {
+		console.log('Received SKIP_WAITING message');
 		self.skipWaiting();
 	}
 });
 
 // Handle push notifications
-self.addEventListener("push", (event) => {
-	console.log("[Service Worker] Push received:", event);
+self.addEventListener('push', (event) => {
+	console.log('[Service Worker] Push received:', event);
 
 	let notificationData = {
-		title: "Дневник Достижений",
-		body: "Время записать новое достижение!",
-		icon: "/icon-192.png",
-		badge: "/badge-72.png",
+		title: 'Дневник Достижений',
+		body: 'Время записать новое достижение!',
+		icon: '/icon-192.png',
+		badge: '/badge-72.png',
 		data: {},
 	};
 
@@ -256,7 +246,7 @@ self.addEventListener("push", (event) => {
 				data: payload.data || {},
 			};
 		} catch (error) {
-			console.error("[Service Worker] Failed to parse push data:", error);
+			console.error('[Service Worker] Failed to parse push data:', error);
 			notificationData.body = event.data.text();
 		}
 	}
@@ -269,59 +259,59 @@ self.addEventListener("push", (event) => {
 		data: {
 			...notificationData.data,
 			dateOfArrival: Date.now(),
-			url: notificationData.data.url || "/",
+			url: notificationData.data.url || '/',
 		},
 		actions: [
 			{
-				action: "open",
-				title: "Открыть",
+				action: 'open',
+				title: 'Открыть',
 			},
 			{
-				action: "close",
-				title: "Закрыть",
+				action: 'close',
+				title: 'Закрыть',
 			},
 		],
 		requireInteraction: false,
-		tag: "achievement-diary-notification",
+		tag: 'achievement-diary-notification',
 	};
 
 	event.waitUntil(
 		self.registration
 			.showNotification(notificationData.title, options)
 			.then(() => {
-				console.log("[Service Worker] Notification shown");
+				console.log('[Service Worker] Notification shown');
 				// Отправляем событие о доставке уведомления
-				return self.clients.matchAll({ type: "window" });
+				return self.clients.matchAll({ type: 'window' });
 			})
 			.then((clients) => {
 				clients.forEach((client) => {
 					client.postMessage({
-						type: "PUSH_DELIVERED",
+						type: 'PUSH_DELIVERED',
 						data: notificationData,
 					});
 				});
 			})
 			.catch((error) => {
-				console.error("[Service Worker] Failed to show notification:", error);
-			}),
+				console.error('[Service Worker] Failed to show notification:', error);
+			})
 	);
 });
 
 // Handle notification click
-self.addEventListener("notificationclick", (event) => {
-	console.log("[Service Worker] Notification clicked:", event);
+self.addEventListener('notificationclick', (event) => {
+	console.log('[Service Worker] Notification clicked:', event);
 
 	event.notification.close();
 
-	const urlToOpen = event.notification.data?.url || "/";
+	const urlToOpen = event.notification.data?.url || '/';
 
 	event.waitUntil(
 		self.clients
-			.matchAll({ type: "window", includeUncontrolled: true })
+			.matchAll({ type: 'window', includeUncontrolled: true })
 			.then((clientList) => {
 				// Проверяем есть ли уже открытое окно
 				for (const client of clientList) {
-					if (client.url === urlToOpen && "focus" in client) {
+					if (client.url === urlToOpen && 'focus' in client) {
 						return client.focus();
 					}
 				}
@@ -332,38 +322,35 @@ self.addEventListener("notificationclick", (event) => {
 			})
 			.then(() => {
 				// Отправляем событие о клике на уведомление
-				return self.clients.matchAll({ type: "window" });
+				return self.clients.matchAll({ type: 'window' });
 			})
 			.then((clients) => {
 				clients.forEach((client) => {
 					client.postMessage({
-						type: "PUSH_CLICKED",
+						type: 'PUSH_CLICKED',
 						data: event.notification.data,
 					});
 				});
 			})
 			.catch((error) => {
-				console.error(
-					"[Service Worker] Failed to handle notification click:",
-					error,
-				);
-			}),
+				console.error('[Service Worker] Failed to handle notification click:', error);
+			})
 	);
 });
 
 // Handle notification close
-self.addEventListener("notificationclose", (event) => {
-	console.log("[Service Worker] Notification closed:", event);
+self.addEventListener('notificationclose', (event) => {
+	console.log('[Service Worker] Notification closed:', event);
 
 	event.waitUntil(
-		self.clients.matchAll({ type: "window" }).then((clients) => {
+		self.clients.matchAll({ type: 'window' }).then((clients) => {
 			clients.forEach((client) => {
 				client.postMessage({
-					type: "PUSH_CLOSED",
+					type: 'PUSH_CLOSED',
 					data: event.notification.data,
 				});
 			});
-		}),
+		})
 	);
 });
 
@@ -375,10 +362,10 @@ self.addEventListener("notificationclose", (event) => {
  * Background Sync event handler
  * Syncs pending entries when connection is restored
  */
-self.addEventListener("sync", (event) => {
-	console.log("[SW] Sync event triggered:", event.tag);
+self.addEventListener('sync', (event) => {
+	console.log('[SW] Sync event triggered:', event.tag);
 
-	if (event.tag === "sync-entries") {
+	if (event.tag === 'sync-entries') {
 		event.waitUntil(syncPendingEntries());
 	}
 });
@@ -387,13 +374,13 @@ self.addEventListener("sync", (event) => {
  * Sync pending entries from IndexedDB
  */
 async function syncPendingEntries() {
-	console.log("[SW] Starting sync of pending entries...");
+	console.log('[SW] Starting sync of pending entries...');
 
 	try {
 		// Open IndexedDB
 		const db = await openDB();
-		const transaction = db.transaction(["pending_entries"], "readonly");
-		const store = transaction.objectStore("pending_entries");
+		const transaction = db.transaction(['pending_entries'], 'readonly');
+		const store = transaction.objectStore('pending_entries');
 		const pendingEntries = await getAllFromStore(store);
 
 		console.log(`[SW] Found ${pendingEntries.length} pending entries`);
@@ -403,19 +390,19 @@ async function syncPendingEntries() {
 
 		for (const entry of pendingEntries) {
 			// Skip if already syncing or exceeded retry limit
-			if (entry.syncStatus === "syncing" || entry.retryCount >= 3) {
+			if (entry.syncStatus === 'syncing' || entry.retryCount >= 3) {
 				continue;
 			}
 
 			try {
 				// Mark as syncing
-				await updateEntryStatus(db, entry.id, "syncing");
+				await updateEntryStatus(db, entry.id, 'syncing');
 
 				// Sync entry to server
-				const response = await fetch("/api/entries", {
-					method: "POST",
+				const response = await fetch('/api/entries', {
+					method: 'POST',
 					headers: {
-						"Content-Type": "application/json",
+						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
 						userId: entry.userId,
@@ -443,7 +430,7 @@ async function syncPendingEntries() {
 				const clients = await self.clients.matchAll();
 				clients.forEach((client) => {
 					client.postMessage({
-						type: "ENTRY_SYNCED",
+						type: 'ENTRY_SYNCED',
 						entryId: entry.id,
 						savedEntry,
 					});
@@ -459,7 +446,7 @@ async function syncPendingEntries() {
 				const clients = await self.clients.matchAll();
 				clients.forEach((client) => {
 					client.postMessage({
-						type: "ENTRY_SYNC_FAILED",
+						type: 'ENTRY_SYNC_FAILED',
 						entryId: entry.id,
 						error: error.message,
 					});
@@ -473,13 +460,13 @@ async function syncPendingEntries() {
 		const clients = await self.clients.matchAll();
 		clients.forEach((client) => {
 			client.postMessage({
-				type: "BACKGROUND_SYNC_COMPLETE",
+				type: 'BACKGROUND_SYNC_COMPLETE',
 				synced,
 				failed,
 			});
 		});
 	} catch (error) {
-		console.error("[SW] Background sync failed:", error);
+		console.error('[SW] Background sync failed:', error);
 		throw error;
 	}
 }
@@ -489,7 +476,7 @@ async function syncPendingEntries() {
  */
 function openDB() {
 	return new Promise((resolve, reject) => {
-		const request = indexedDB.open("unity-diary-offline", 1);
+		const request = indexedDB.open('unity-diary-offline', 1);
 		request.onsuccess = () => resolve(request.result);
 		request.onerror = () => reject(request.error);
 	});
@@ -510,8 +497,8 @@ function getAllFromStore(store) {
  * Update entry sync status
  */
 async function updateEntryStatus(db, entryId, status) {
-	const transaction = db.transaction(["pending_entries"], "readwrite");
-	const store = transaction.objectStore("pending_entries");
+	const transaction = db.transaction(['pending_entries'], 'readwrite');
+	const store = transaction.objectStore('pending_entries');
 	const entry = await new Promise((resolve, reject) => {
 		const request = store.get(entryId);
 		request.onsuccess = () => resolve(request.result);
@@ -532,8 +519,8 @@ async function updateEntryStatus(db, entryId, status) {
  * Update entry retry count
  */
 async function updateEntryRetry(db, entryId, errorMessage) {
-	const transaction = db.transaction(["pending_entries"], "readwrite");
-	const store = transaction.objectStore("pending_entries");
+	const transaction = db.transaction(['pending_entries'], 'readwrite');
+	const store = transaction.objectStore('pending_entries');
 	const entry = await new Promise((resolve, reject) => {
 		const request = store.get(entryId);
 		request.onsuccess = () => resolve(request.result);
@@ -541,7 +528,7 @@ async function updateEntryRetry(db, entryId, errorMessage) {
 	});
 
 	if (entry) {
-		entry.syncStatus = "failed";
+		entry.syncStatus = 'failed';
 		entry.retryCount = (entry.retryCount || 0) + 1;
 		entry.lastError = errorMessage;
 		await new Promise((resolve, reject) => {
@@ -556,8 +543,8 @@ async function updateEntryRetry(db, entryId, errorMessage) {
  * Delete entry from IndexedDB
  */
 async function deleteEntry(db, entryId) {
-	const transaction = db.transaction(["pending_entries"], "readwrite");
-	const store = transaction.objectStore("pending_entries");
+	const transaction = db.transaction(['pending_entries'], 'readwrite');
+	const store = transaction.objectStore('pending_entries');
 	await new Promise((resolve, reject) => {
 		const request = store.delete(entryId);
 		request.onsuccess = () => resolve();

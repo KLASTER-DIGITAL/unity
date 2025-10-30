@@ -1,20 +1,17 @@
-import type React from "react";
+import type React from 'react';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import type { MobileSettingsProps } from "./types";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import type { MobileSettingsProps } from './types';
 
-export const GeneralSettings: React.FC<MobileSettingsProps> = ({
-	settings,
-	onChange,
-}) => {
+export const GeneralSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
 	const handleChange = (field: string, value: any) => {
 		onChange({
 			...settings,
@@ -34,7 +31,7 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 						<Label htmlFor="app_name">Название приложения</Label>
 						<Input
 							id="app_name"
-							onChange={(e) => handleChange("app_name", e.target.value)}
+							onChange={(e) => handleChange('app_name', e.target.value)}
 							placeholder="UNITY"
 							value={settings.app_name}
 						/>
@@ -45,9 +42,9 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 							<Label htmlFor="logo_light_url">Логотип (светлая тема)</Label>
 							<Input
 								id="logo_light_url"
-								onChange={(e) => handleChange("logo_light_url", e.target.value)}
+								onChange={(e) => handleChange('logo_light_url', e.target.value)}
 								placeholder="https://cdn.unity.com/logo-light.png"
-								value={settings.logo_light_url || ""}
+								value={settings.logo_light_url || ''}
 							/>
 							{settings.logo_light_url && (
 								<div className="mt-2 rounded-lg border bg-white p-4">
@@ -64,9 +61,9 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 							<Label htmlFor="logo_dark_url">Логотип (тёмная тема)</Label>
 							<Input
 								id="logo_dark_url"
-								onChange={(e) => handleChange("logo_dark_url", e.target.value)}
+								onChange={(e) => handleChange('logo_dark_url', e.target.value)}
 								placeholder="https://cdn.unity.com/logo-dark.png"
-								value={settings.logo_dark_url || ""}
+								value={settings.logo_dark_url || ''}
 							/>
 							{settings.logo_dark_url && (
 								<div className="mt-2 rounded-lg border bg-gray-900 p-4">
@@ -95,17 +92,13 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 								<Input
 									className="h-10 w-20 cursor-pointer p-1"
 									id="primary_color"
-									onChange={(e) =>
-										handleChange("primary_color", e.target.value)
-									}
+									onChange={(e) => handleChange('primary_color', e.target.value)}
 									type="color"
 									value={settings.primary_color}
 								/>
 								<Input
 									className="flex-1"
-									onChange={(e) =>
-										handleChange("primary_color", e.target.value)
-									}
+									onChange={(e) => handleChange('primary_color', e.target.value)}
 									placeholder="#756ef3"
 									value={settings.primary_color}
 								/>
@@ -118,13 +111,13 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 								<Input
 									className="h-10 w-20 cursor-pointer p-1"
 									id="accent_color"
-									onChange={(e) => handleChange("accent_color", e.target.value)}
+									onChange={(e) => handleChange('accent_color', e.target.value)}
 									type="color"
 									value={settings.accent_color}
 								/>
 								<Input
 									className="flex-1"
-									onChange={(e) => handleChange("accent_color", e.target.value)}
+									onChange={(e) => handleChange('accent_color', e.target.value)}
 									placeholder="#8B78FF"
 									value={settings.accent_color}
 								/>
@@ -166,9 +159,7 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({
 						<Switch
 							checked={settings.dark_theme_enabled}
 							id="dark_theme_enabled"
-							onCheckedChange={(checked) =>
-								handleChange("dark_theme_enabled", checked)
-							}
+							onCheckedChange={(checked) => handleChange('dark_theme_enabled', checked)}
 						/>
 					</div>
 				</CardContent>

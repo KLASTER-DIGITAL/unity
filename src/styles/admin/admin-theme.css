@@ -61,14 +61,10 @@
 
 	/* ===== Shadows ===== */
 	--admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-	--admin-shadow:
-		0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-	--admin-shadow-md:
-		0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	--admin-shadow-lg:
-		0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-	--admin-shadow-xl:
-		0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	--admin-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	--admin-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	--admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	--admin-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
 	/* ===== Border Radius ===== */
 	--admin-radius-sm: 0.25rem;
@@ -95,8 +91,7 @@
 	/* ===== Typography ===== */
 	/* Font Families */
 	--admin-font-family:
-		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-		Arial, sans-serif;
+		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	--admin-font-mono: "SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace;
 
 	/* Font Sizes */

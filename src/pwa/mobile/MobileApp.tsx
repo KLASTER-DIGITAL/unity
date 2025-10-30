@@ -1,39 +1,29 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Toaster } from "sonner";
-import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
-import { LoadingScreen } from "@/shared/components/LoadingScreen";
-import { TranslationManager, TranslationProvider } from "@/shared/lib/i18n";
-import { prefetchOnIdle, routePrefetcher } from "@/shared/lib/performance";
-import {
-	AnimatedPresence,
-	AnimatedView,
-	ScreenTransitions,
-} from "@/shared/lib/platform/animation";
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Toaster } from 'sonner';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
+import { LoadingScreen } from '@/shared/components/LoadingScreen';
+import { TranslationManager, TranslationProvider } from '@/shared/lib/i18n';
+import { prefetchOnIdle, routePrefetcher } from '@/shared/lib/performance';
+import { AnimatedPresence, AnimatedView, ScreenTransitions } from '@/shared/lib/platform/animation';
 
 // ✅ ROUTE-BASED CODE SPLITTING: Все screens загружаются lazy для уменьшения main bundle
 // Onboarding screens - lazy loading (показываются только при первом запуске)
 const importWelcomeScreen = () =>
-	import("@/features/mobile/auth/components/WelcomeScreen").then((module) => ({
+	import('@/features/mobile/auth/components/WelcomeScreen').then((module) => ({
 		default: module.WelcomeScreen,
 	}));
 const importOnboardingScreen2 = () =>
-	import("@/features/mobile/auth/components/OnboardingScreen2").then(
-		(module) => ({
-			default: module.OnboardingScreen2,
-		}),
-	);
+	import('@/features/mobile/auth/components/OnboardingScreen2').then((module) => ({
+		default: module.OnboardingScreen2,
+	}));
 const importOnboardingScreen3 = () =>
-	import("@/features/mobile/auth/components/OnboardingScreen3").then(
-		(module) => ({
-			default: module.OnboardingScreen3,
-		}),
-	);
+	import('@/features/mobile/auth/components/OnboardingScreen3').then((module) => ({
+		default: module.OnboardingScreen3,
+	}));
 const importOnboardingScreen4 = () =>
-	import("@/features/mobile/auth/components/OnboardingScreen4").then(
-		(module) => ({
-			default: module.OnboardingScreen4,
-		}),
-	);
+	import('@/features/mobile/auth/components/OnboardingScreen4').then((module) => ({
+		default: module.OnboardingScreen4,
+	}));
 
 const WelcomeScreen = lazy(importWelcomeScreen);
 const OnboardingScreen2 = lazy(importOnboardingScreen2);
@@ -42,7 +32,7 @@ const OnboardingScreen4 = lazy(importOnboardingScreen4);
 
 // Auth screen - lazy loading (показывается только при авторизации)
 const importAuthScreen = () =>
-	import("@/features/mobile/auth/components/AuthScreenNew").then((module) => ({
+	import('@/features/mobile/auth/components/AuthScreenNew').then((module) => ({
 		default: module.AuthScreen,
 	}));
 const AuthScreen = lazy(importAuthScreen);
@@ -50,23 +40,23 @@ const AuthScreen = lazy(importAuthScreen);
 // Main screens - lazy loading для оптимизации производительности
 // Import functions для prefetch
 const importAchievementHomeScreen = () =>
-	import("@/features/mobile/home").then((module) => ({
+	import('@/features/mobile/home').then((module) => ({
 		default: module.AchievementHomeScreen,
 	}));
 const importHistoryScreen = () =>
-	import("@/features/mobile/history").then((module) => ({
+	import('@/features/mobile/history').then((module) => ({
 		default: module.HistoryScreen,
 	}));
 const importAchievementsScreen = () =>
-	import("@/features/mobile/achievements").then((module) => ({
+	import('@/features/mobile/achievements').then((module) => ({
 		default: module.AchievementsScreen,
 	}));
 const importReportsScreen = () =>
-	import("@/features/mobile/reports").then((module) => ({
+	import('@/features/mobile/reports').then((module) => ({
 		default: module.ReportsScreen,
 	}));
 const importSettingsScreen = () =>
-	import("@/features/mobile/settings").then((module) => ({
+	import('@/features/mobile/settings').then((module) => ({
 		default: module.SettingsScreen,
 	}));
 
@@ -77,14 +67,14 @@ const ReportsScreen = lazy(importReportsScreen);
 const SettingsScreen = lazy(importSettingsScreen);
 
 // Layout components
-import { MobileBottomNav } from "@/shared/components/layout";
+import { MobileBottomNav } from '@/shared/components/layout';
 
 type OnboardingData = {
 	language: string;
 	diaryName: string;
 	diaryEmoji: string;
 	notificationSettings: {
-		selectedTime: "none" | "morning" | "evening" | "both";
+		selectedTime: 'none' | 'morning' | 'evening' | 'both';
 		morningTime: string;
 		eveningTime: string;
 		permissionGranted: boolean;
@@ -98,7 +88,7 @@ type MobileAppProps = {
 	currentStep: number;
 	selectedLanguage: string;
 	showAuth: boolean;
-	authMode: "login" | "register";
+	authMode: 'login' | 'register';
 	onboardingData: OnboardingData;
 	onWelcomeComplete: (language: string) => void;
 	onWelcomeSkip: () => void;
@@ -128,21 +118,21 @@ export function MobileApp({
 	onProfileUpdate,
 }: MobileAppProps) {
 	const [activeScreen, setActiveScreen] = useState<
-		"home" | "history" | "achievements" | "reports" | "settings"
-	>("home");
+		'home' | 'history' | 'achievements' | 'reports' | 'settings'
+	>('home');
 	const [direction, setDirection] = useState(0);
-	const prevScreenRef = useRef<string>("home");
+	const prevScreenRef = useRef<string>('home');
 
 	// Tab order for directional animations
-	const tabOrder = ["home", "history", "achievements", "reports", "settings"];
+	const tabOrder = ['home', 'history', 'achievements', 'reports', 'settings'];
 
 	// Register routes for smart prefetching
 	useEffect(() => {
-		routePrefetcher.registerRoute("home", importAchievementHomeScreen);
-		routePrefetcher.registerRoute("history", importHistoryScreen);
-		routePrefetcher.registerRoute("achievements", importAchievementsScreen);
-		routePrefetcher.registerRoute("reports", importReportsScreen);
-		routePrefetcher.registerRoute("settings", importSettingsScreen);
+		routePrefetcher.registerRoute('home', importAchievementHomeScreen);
+		routePrefetcher.registerRoute('history', importHistoryScreen);
+		routePrefetcher.registerRoute('achievements', importAchievementsScreen);
+		routePrefetcher.registerRoute('reports', importReportsScreen);
+		routePrefetcher.registerRoute('settings', importSettingsScreen);
 
 		// Prefetch critical screens on idle after onboarding
 		if (onboardingComplete) {
@@ -158,9 +148,7 @@ export function MobileApp({
 
 		setDirection(newIndex > prevIndex ? 1 : -1);
 		prevScreenRef.current = newTab;
-		setActiveScreen(
-			newTab as "home" | "history" | "achievements" | "reports" | "settings",
-		);
+		setActiveScreen(newTab as 'home' | 'history' | 'achievements' | 'reports' | 'settings');
 
 		// Track navigation for smart prefetching
 		routePrefetcher.trackNavigation(newTab);
@@ -169,14 +157,8 @@ export function MobileApp({
 	// Show auth screen if user clicked "У меня уже есть аккаунт" or completed onboarding
 	if (showAuth && !userData) {
 		return (
-			<TranslationProvider
-				defaultLanguage={selectedLanguage}
-				fallbackLanguage="ru"
-			>
-				<TranslationManager
-					preloadLanguages={["en"]}
-					validateCacheOnMount={false}
-				>
+			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
+				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
 					<Suspense fallback={<LoadingScreen />}>
 						<AuthScreen
 							initialMode={authMode}
@@ -196,14 +178,8 @@ export function MobileApp({
 		const totalSteps = 4;
 
 		return (
-			<TranslationProvider
-				defaultLanguage={selectedLanguage}
-				fallbackLanguage="ru"
-			>
-				<TranslationManager
-					preloadLanguages={["en"]}
-					validateCacheOnMount={false}
-				>
+			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
+				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
 					<Suspense fallback={<LoadingScreen />}>
 						{currentStep === 1 && (
 							<WelcomeScreen
@@ -256,14 +232,8 @@ export function MobileApp({
 
 	if (!hasUser) {
 		return (
-			<TranslationProvider
-				defaultLanguage={selectedLanguage}
-				fallbackLanguage="ru"
-			>
-				<TranslationManager
-					preloadLanguages={["en"]}
-					validateCacheOnMount={false}
-				>
+			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
+				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
 					<div className="min-h-screen bg-background backdrop-blur-sm">
 						<Suspense fallback={<LoadingScreen />}>
 							<AuthScreen onComplete={onAuthComplete} />
@@ -277,14 +247,8 @@ export function MobileApp({
 
 	// Main mobile app - only show if user is authenticated
 	return (
-		<TranslationProvider
-			defaultLanguage={selectedLanguage}
-			fallbackLanguage="ru"
-		>
-			<TranslationManager
-				preloadLanguages={["en"]}
-				validateCacheOnMount={false}
-			>
+		<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
+			<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
 				{/* OUTER: Scrollable container - allows vertical scroll */}
 				<div className="min-h-screen bg-background backdrop-blur-sm">
 					{/* INNER: Animation container - NO overflow-hidden */}
@@ -292,25 +256,25 @@ export function MobileApp({
 						{/* Screens container - relative ONLY for absolute positioning of screens, overflow-hidden for animations */}
 						<div className="relative min-h-screen overflow-hidden">
 							<AnimatedPresence>
-								{activeScreen === "home" && (
+								{activeScreen === 'home' && (
 									<AnimatedView
 										key="home"
 										{...(direction > 0
 											? ScreenTransitions.slideLeft
 											: ScreenTransitions.slideRight)}
 										className="absolute inset-0 overflow-y-auto"
-										transition={{ type: "spring", stiffness: 300, damping: 30 }}
+										transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 									>
 										<Suspense fallback={<LoadingScreen />}>
 											<AchievementHomeScreen
-												onNavigateToHistory={() => handleTabChange("history")}
-												onNavigateToSettings={() => handleTabChange("settings")}
+												onNavigateToHistory={() => handleTabChange('history')}
+												onNavigateToSettings={() => handleTabChange('settings')}
 												userData={userData}
 											/>
 										</Suspense>
 									</AnimatedView>
 								)}
-								{activeScreen === "history" && (
+								{activeScreen === 'history' && (
 									<AnimatedView
 										key="history"
 										{...(direction > 0
@@ -323,7 +287,7 @@ export function MobileApp({
 										</Suspense>
 									</AnimatedView>
 								)}
-								{activeScreen === "achievements" && (
+								{activeScreen === 'achievements' && (
 									<AnimatedView
 										key="achievements"
 										{...(direction > 0
@@ -338,7 +302,7 @@ export function MobileApp({
 										</ErrorBoundary>
 									</AnimatedView>
 								)}
-								{activeScreen === "reports" && (
+								{activeScreen === 'reports' && (
 									<AnimatedView
 										key="reports"
 										{...(direction > 0
@@ -351,7 +315,7 @@ export function MobileApp({
 										</Suspense>
 									</AnimatedView>
 								)}
-								{activeScreen === "settings" && (
+								{activeScreen === 'settings' && (
 									<AnimatedView
 										key="settings"
 										{...(direction > 0
@@ -373,10 +337,7 @@ export function MobileApp({
 					</div>
 
 					{/* Mobile Bottom Navigation - FIXED poверх всего */}
-					<MobileBottomNav
-						activeTab={activeScreen}
-						onTabChange={handleTabChange}
-					/>
+					<MobileBottomNav activeTab={activeScreen} onTabChange={handleTabChange} />
 
 					<Toaster position="top-center" />
 				</div>

@@ -5,33 +5,33 @@
  * like Arabic, Hebrew, Persian, Urdu, etc.
  */
 
-export type TextDirection = "ltr" | "rtl";
+export type TextDirection = 'ltr' | 'rtl';
 
 /**
  * List of RTL language codes
  */
 const RTL_LANGUAGES = [
-	"ar", // Arabic
-	"he", // Hebrew
-	"fa", // Persian (Farsi)
-	"ur", // Urdu
-	"yi", // Yiddish
-	"ji", // Yiddish (alternative code)
-	"iw", // Hebrew (alternative code)
-	"ps", // Pashto
-	"sd", // Sindhi
-	"ug", // Uyghur
-	"ku", // Kurdish (Sorani)
-	"arc", // Aramaic
-	"bcc", // Balochi
-	"bqi", // Bakhtiari
-	"ckb", // Central Kurdish
-	"dv", // Dhivehi
-	"glk", // Gilaki
-	"lrc", // Northern Luri
-	"mzn", // Mazanderani
-	"pnb", // Western Punjabi
-	"ydd", // Eastern Yiddish
+	'ar', // Arabic
+	'he', // Hebrew
+	'fa', // Persian (Farsi)
+	'ur', // Urdu
+	'yi', // Yiddish
+	'ji', // Yiddish (alternative code)
+	'iw', // Hebrew (alternative code)
+	'ps', // Pashto
+	'sd', // Sindhi
+	'ug', // Uyghur
+	'ku', // Kurdish (Sorani)
+	'arc', // Aramaic
+	'bcc', // Balochi
+	'bqi', // Bakhtiari
+	'ckb', // Central Kurdish
+	'dv', // Dhivehi
+	'glk', // Gilaki
+	'lrc', // Northern Luri
+	'mzn', // Mazanderani
+	'pnb', // Western Punjabi
+	'ydd', // Eastern Yiddish
 ];
 
 /**
@@ -43,7 +43,7 @@ export function isRTL(languageCode: string): boolean {
 	}
 
 	// Extract base language code (e.g., 'ar' from 'ar-SA')
-	const baseCode = languageCode.toLowerCase().split("-")[0];
+	const baseCode = languageCode.toLowerCase().split('-')[0];
 
 	return RTL_LANGUAGES.includes(baseCode);
 }
@@ -52,7 +52,7 @@ export function isRTL(languageCode: string): boolean {
  * Get text direction for a language
  */
 export function getTextDirection(languageCode: string): TextDirection {
-	return isRTL(languageCode) ? "rtl" : "ltr";
+	return isRTL(languageCode) ? 'rtl' : 'ltr';
 }
 
 /**
@@ -78,7 +78,7 @@ export function containsRTLCharacters(text: string): boolean {
  */
 export function detectTextDirection(text: string): TextDirection {
 	if (!text) {
-		return "ltr";
+		return 'ltr';
 	}
 
 	let rtlCount = 0;
@@ -92,16 +92,13 @@ export function detectTextDirection(text: string): TextDirection {
 		}
 	}
 
-	return rtlCount > ltrCount ? "rtl" : "ltr";
+	return rtlCount > ltrCount ? 'rtl' : 'ltr';
 }
 
 /**
  * Apply text direction to HTML element
  */
-export function applyTextDirection(
-	element: HTMLElement,
-	direction: TextDirection,
-): void {
+export function applyTextDirection(element: HTMLElement, direction: TextDirection): void {
 	element.dir = direction;
 	element.style.direction = direction;
 }
@@ -122,7 +119,7 @@ export function applyDocumentDirection(direction: TextDirection): void {
  * Get CSS class for text direction
  */
 export function getDirectionClass(direction: TextDirection): string {
-	return direction === "rtl" ? "rtl" : "ltr";
+	return direction === 'rtl' ? 'rtl' : 'ltr';
 }
 
 /**
@@ -134,17 +131,17 @@ export function getDirectionClass(direction: TextDirection): string {
  * mirrorValue('left', 'ltr') // → 'left'
  */
 export function mirrorValue(value: string, direction: TextDirection): string {
-	if (direction === "ltr") {
+	if (direction === 'ltr') {
 		return value;
 	}
 
 	const mirrorMap: Record<string, string> = {
-		left: "right",
-		right: "left",
-		start: "end",
-		end: "start",
-		"flex-start": "flex-end",
-		"flex-end": "flex-start",
+		left: 'right',
+		right: 'left',
+		start: 'end',
+		end: 'start',
+		'flex-start': 'flex-end',
+		'flex-end': 'flex-start',
 	};
 
 	return mirrorMap[value] || value;
@@ -159,16 +156,16 @@ export function mirrorValue(value: string, direction: TextDirection): string {
  */
 export function getLogicalProperty(property: string): string {
 	const logicalMap: Record<string, string> = {
-		"margin-left": "margin-inline-start",
-		"margin-right": "margin-inline-end",
-		"padding-left": "padding-inline-start",
-		"padding-right": "padding-inline-end",
-		"border-left": "border-inline-start",
-		"border-right": "border-inline-end",
-		left: "inset-inline-start",
-		right: "inset-inline-end",
-		"text-align-left": "text-align-start",
-		"text-align-right": "text-align-end",
+		'margin-left': 'margin-inline-start',
+		'margin-right': 'margin-inline-end',
+		'padding-left': 'padding-inline-start',
+		'padding-right': 'padding-inline-end',
+		'border-left': 'border-inline-start',
+		'border-right': 'border-inline-end',
+		left: 'inset-inline-start',
+		right: 'inset-inline-end',
+		'text-align-left': 'text-align-start',
+		'text-align-right': 'text-align-end',
 	};
 
 	return logicalMap[property] || property;
@@ -177,12 +174,8 @@ export function getLogicalProperty(property: string): string {
 /**
  * RTL-aware class names helper
  */
-export function rtlClass(
-	ltrClass: string,
-	rtlClass: string,
-	direction: TextDirection,
-): string {
-	return direction === "rtl" ? rtlClass : ltrClass;
+export function rtlClass(ltrClass: string, rtlClass: string, direction: TextDirection): string {
+	return direction === 'rtl' ? rtlClass : ltrClass;
 }
 
 /**
@@ -191,9 +184,9 @@ export function rtlClass(
 export function rtlStyle(
 	ltrStyle: React.CSSProperties,
 	rtlStyle: React.CSSProperties,
-	direction: TextDirection,
+	direction: TextDirection
 ): React.CSSProperties {
-	return direction === "rtl" ? rtlStyle : ltrStyle;
+	return direction === 'rtl' ? rtlStyle : ltrStyle;
 }
 
 /**
@@ -203,11 +196,8 @@ export function rtlStyle(
  * flipHorizontal(10, 'rtl') // → -10
  * flipHorizontal(10, 'ltr') // → 10
  */
-export function flipHorizontal(
-	value: number,
-	direction: TextDirection,
-): number {
-	return direction === "rtl" ? -value : value;
+export function flipHorizontal(value: number, direction: TextDirection): number {
+	return direction === 'rtl' ? -value : value;
 }
 
 /**
@@ -216,11 +206,8 @@ export function flipHorizontal(
  * @example
  * getTransform('translateX(100px)', 'rtl') // → 'translateX(-100px)'
  */
-export function getTransform(
-	transform: string,
-	direction: TextDirection,
-): string {
-	if (direction === "ltr") {
+export function getTransform(transform: string, direction: TextDirection): string {
+	if (direction === 'ltr') {
 		return transform;
 	}
 
@@ -230,7 +217,7 @@ export function getTransform(
 		(_match, value, unit) => {
 			const flipped = -Number.parseFloat(value);
 			return `translateX(${flipped}${unit})`;
-		},
+		}
 	);
 }
 
@@ -251,7 +238,7 @@ export function getRTLConfig(languageCode: string): RTLConfig {
 	const direction = getTextDirection(languageCode);
 
 	return {
-		isRTL: direction === "rtl",
+		isRTL: direction === 'rtl',
 		direction,
 		languageCode,
 		directionClass: getDirectionClass(direction),

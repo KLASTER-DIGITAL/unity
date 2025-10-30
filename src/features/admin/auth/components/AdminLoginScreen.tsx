@@ -1,47 +1,44 @@
-import { ArrowLeft, Eye, EyeOff, Shield } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
+import { ArrowLeft, Eye, EyeOff, Shield } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { createClient } from '@/utils/supabase/client';
 
 type AdminLoginScreenProps = {
 	onComplete: (userData: any) => void;
 	onBack: () => void;
 };
 
-export function AdminLoginScreen({
-	onComplete,
-	onBack,
-}: AdminLoginScreenProps) {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) {
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("🔐 [AdminLoginScreen] handleLogin called");
+		console.log('🔐 [AdminLoginScreen] handleLogin called');
 
 		if (!(email && password)) {
-			toast.error("Заполните все поля");
+			toast.error('Заполните все поля');
 			return;
 		}
 
 		setIsLoading(true);
-		console.log("🔐 [AdminLoginScreen] Starting login process...");
+		console.log('🔐 [AdminLoginScreen] Starting login process...');
 
 		try {
 			const supabase = createClient();
-			console.log("🔐 [AdminLoginScreen] Supabase client created");
+			console.log('🔐 [AdminLoginScreen] Supabase client created');
 
 			// Вход через Supabase
 			const { data, error } = await supabase.auth.signInWithPassword({
@@ -50,55 +47,53 @@ export function AdminLoginScreen({
 			});
 
 			if (error) {
-				console.error("Sign in error:", error);
-				toast.error("Неверный email или пароль");
+				console.error('Sign in error:', error);
+				toast.error('Неверный email или пароль');
 				setIsLoading(false);
 				return;
 			}
 
 			if (!data.session) {
-				toast.error("Не удалось войти в систему");
+				toast.error('Не удалось войти в систему');
 				setIsLoading(false);
 				return;
 			}
 
-			console.log(
-				"🔐 [AdminLoginScreen] Session created, fetching profile from DB...",
-			);
+			console.log('🔐 [AdminLoginScreen] Session created, fetching profile from DB...');
 
 			// Получаем профиль пользователя напрямую из БД (как PWA пользователи)
 			// Это быстрее и надежнее чем через Edge Function
 			const { data: profileData, error: profileError } = await supabase
-				.from("profiles")
-				.select("*")
-				.eq("id", data.user.id)
+				.from('profiles')
+				.select('*')
+				.eq('id', data.user.id)
 				.single();
 
 			if (profileError) {
-				console.error("Profile fetch error:", profileError);
-				toast.error("Ошибка загрузки профиля");
+				console.error('Profile fetch error:', profileError);
+				toast.error('Ошибка загрузки профиля');
 				setIsLoading(false);
 				return;
 			}
 
 			if (!profileData) {
-				console.error("Profile not found for user:", data.user.id);
-				toast.error("Профиль не найден");
+				console.error('Profile not found for user:', data.user.id);
+				toast.error('Профиль не найден');
 				setIsLoading(false);
 				return;
 			}
 
 			console.log(
-				"🔐 [AdminLoginScreen] Profile loaded:",
+				'🔐 [AdminLoginScreen] Profile loaded:',
 				profileData.email,
-				"role:",
-				profileData.role,
+				'role:',
+				profileData.role
 			);
 
 			// 🔒 SECURITY: Проверка роли - только super_admin может войти в админ-панель
-			if (profileData.role !== "super_admin") {
-				toast.error("Доступ запрещен", {
-					description: "У вас нет прав доступа к панели администратора",
+			if (profileData.role !== 'super_admin') {
+				toast.error('Доступ запрещен', {
+					description: 'У вас нет прав доступа к панели администратора',
 				});
 				// Выходим из системы
 				await supabase.auth.signOut();
@@ -134,20 +129,20 @@ export function AdminLoginScreen({
 			};
 
 			console.log(
-				"🔐 [AdminLoginScreen] Admin login successful:",
+				'🔐 [AdminLoginScreen] Admin login successful:',
 				userData.email,
-				"role:",
-				userData.role,
+				'role:',
+				userData.role
 			);
-			toast.success("Вход выполнен успешно");
+			toast.success('Вход выполнен успешно');
 
 			// Вызываем onComplete для перехода к админ-панели
-			console.log("🔐 [AdminLoginScreen] Calling onComplete...");
+			console.log('🔐 [AdminLoginScreen] Calling onComplete...');
 			onComplete(userData);
-			console.log("🔐 [AdminLoginScreen] onComplete called");
+			console.log('🔐 [AdminLoginScreen] onComplete called');
 		} catch (error) {
-			console.error("Login error:", error);
-			toast.error("Ошибка входа. Попробуйте снова.");
+			console.error('Login error:', error);
+			toast.error('Ошибка входа. Попробуйте снова.');
 			setIsLoading(false);
 		}
 	};
@@ -178,12 +173,8 @@ export function AdminLoginScreen({
 						</div>
 
 						<div className="space-y-2">
-							<CardTitle className="text-foreground">
-								Панель администратора
-							</CardTitle>
-							<CardDescription>
-								Вход только для супер-администратора
-							</CardDescription>
+							<CardTitle className="text-foreground">Панель администратора</CardTitle>
+							<CardDescription>Вход только для супер-администратора</CardDescription>
 						</div>
 					</CardHeader>
 
@@ -221,7 +212,7 @@ export function AdminLoginScreen({
 										onChange={(e) => setPassword(e.target.value)}
 										placeholder="Введите пароль"
 										required
-										type={showPassword ? "text" : "password"}
+										type={showPassword ? 'text' : 'password'}
 										value={password}
 									/>
 									<button
@@ -230,11 +221,7 @@ export function AdminLoginScreen({
 										tabIndex={-1}
 										type="button"
 									>
-										{showPassword ? (
-											<EyeOff className="h-5 w-5" />
-										) : (
-											<Eye className="h-5 w-5" />
-										)}
+										{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
 									</button>
 								</div>
 							</div>
@@ -245,7 +232,7 @@ export function AdminLoginScreen({
 								disabled={isLoading}
 								type="submit"
 							>
-								{isLoading ? "Загрузка..." : "Войти"}
+								{isLoading ? 'Загрузка...' : 'Войти'}
 							</Button>
 
 							{/* Security Notice */}
@@ -255,10 +242,8 @@ export function AdminLoginScreen({
 									<div className="text-muted-foreground">
 										<p className="mb-1">Защищенный доступ</p>
 										<p>
-											Только для пользователей с ролью{" "}
-											<span className="font-semibold text-foreground">
-												super_admin
-											</span>
+											Только для пользователей с ролью{' '}
+											<span className="font-semibold text-foreground">super_admin</span>
 										</p>
 									</div>
 								</div>
@@ -270,11 +255,8 @@ export function AdminLoginScreen({
 				{/* Additional Info */}
 				<div className="mt-6 text-center text-muted-foreground">
 					<p>
-						Нет доступа?{" "}
-						<button
-							className="font-semibold text-accent hover:underline"
-							onClick={onBack}
-						>
+						Нет доступа?{' '}
+						<button className="font-semibold text-accent hover:underline" onClick={onBack}>
 							Вернуться на главную
 						</button>
 					</p>

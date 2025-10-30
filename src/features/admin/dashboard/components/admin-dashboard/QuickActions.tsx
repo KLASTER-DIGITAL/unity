@@ -1,13 +1,13 @@
-import { Activity, CreditCard, Smartphone, Users } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Activity, CreditCard, Smartphone, Users } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { useTranslation } from "@/shared/lib/i18n";
+} from '@/shared/components/ui/card';
+import { useTranslation } from '@/shared/lib/i18n';
 
 /**
  * Quick Actions Component
@@ -20,11 +20,9 @@ export function QuickActions() {
 	return (
 		<Card className="border-border">
 			<CardHeader>
-				<CardTitle className="text-[17px]!">
-					{t("quick_actions", "Быстрые действия")}
-				</CardTitle>
+				<CardTitle className="text-[17px]!">{t('quick_actions', 'Быстрые действия')}</CardTitle>
 				<CardDescription className="font-normal! text-[13px]!">
-					{t("quick_actions_desc", "Управление ключевыми функциями приложения")}
+					{t('quick_actions_desc', 'Управление ключевыми функциями приложения')}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -33,9 +31,9 @@ export function QuickActions() {
 						className="h-auto justify-start border-border py-4"
 						onClick={() =>
 							window.dispatchEvent(
-								new CustomEvent("admin-navigate", {
-									detail: { tab: "pwa", pwaSubTab: "settings" },
-								}),
+								new CustomEvent('admin-navigate', {
+									detail: { tab: 'pwa', pwaSubTab: 'settings' },
+								})
 							)
 						}
 						variant="outline"
@@ -45,14 +43,9 @@ export function QuickActions() {
 								<Smartphone className="h-5 w-5 text-accent" />
 							</div>
 							<div className="flex-1 text-left">
-								<p className="text-[15px]! text-foreground">
-									{t("pwa_settings", "Настройки PWA")}
-								</p>
+								<p className="text-[15px]! text-foreground">{t('pwa_settings', 'Настройки PWA')}</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t(
-										"pwa_settings_desc",
-										"Управление установкой и обновлениями",
-									)}
+									{t('pwa_settings_desc', 'Управление установкой и обновлениями')}
 								</p>
 							</div>
 						</div>
@@ -62,9 +55,9 @@ export function QuickActions() {
 						className="h-auto justify-start border-border py-4"
 						onClick={() =>
 							window.dispatchEvent(
-								new CustomEvent("admin-navigate", {
-									detail: { tab: "pwa", pwaSubTab: "push" },
-								}),
+								new CustomEvent('admin-navigate', {
+									detail: { tab: 'pwa', pwaSubTab: 'push' },
+								})
 							)
 						}
 						variant="outline"
@@ -75,10 +68,10 @@ export function QuickActions() {
 							</div>
 							<div className="flex-1 text-left">
 								<p className="text-[15px]! text-foreground">
-									{t("push_notifications", "Push-уведомления")}
+									{t('push_notifications', 'Push-уведомления')}
 								</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t("push_notifications_desc", "Настройка уведомлений")}
+									{t('push_notifications_desc', 'Настройка уведомлений')}
 								</p>
 							</div>
 						</div>
@@ -87,9 +80,7 @@ export function QuickActions() {
 					<Button
 						className="h-auto justify-start border-border py-4"
 						onClick={() =>
-							window.dispatchEvent(
-								new CustomEvent("admin-navigate", { detail: { tab: "users" } }),
-							)
+							window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'users' } }))
 						}
 						variant="outline"
 					>
@@ -99,13 +90,10 @@ export function QuickActions() {
 							</div>
 							<div className="flex-1 text-left">
 								<p className="text-[15px]! text-foreground">
-									{t("user_management", "Управление пользователями")}
+									{t('user_management', 'Управление пользователями')}
 								</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t(
-										"user_management_desc",
-										"Просмотр и редактирование пользователей",
-									)}
+									{t('user_management_desc', 'Просмотр и редактирование пользователей')}
 								</p>
 							</div>
 						</div>
@@ -115,9 +103,9 @@ export function QuickActions() {
 						className="h-auto justify-start border-border py-4"
 						onClick={() =>
 							window.dispatchEvent(
-								new CustomEvent("admin-navigate", {
-									detail: { tab: "subscriptions" },
-								}),
+								new CustomEvent('admin-navigate', {
+									detail: { tab: 'subscriptions' },
+								})
 							)
 						}
 						variant="outline"
@@ -128,13 +116,10 @@ export function QuickActions() {
 							</div>
 							<div className="flex-1 text-left">
 								<p className="text-[15px]! text-foreground">
-									{t("subscription_management", "Управление подписками")}
+									{t('subscription_management', 'Управление подписками')}
 								</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t(
-										"subscription_management_desc",
-										"Premium подписки и платежи",
-									)}
+									{t('subscription_management_desc', 'Premium подписки и платежи')}
 								</p>
 							</div>
 						</div>

@@ -5,7 +5,7 @@ import {
 	formatRelativeTime,
 	formatTime,
 	type RelativeTimeOptions,
-} from "./formatting/DateFormatter";
+} from './formatting/DateFormatter';
 import {
 	formatCompact,
 	formatCurrency,
@@ -15,16 +15,11 @@ import {
 	formatPercent,
 	NUMBER_FORMATS,
 	type NumberFormatOptions,
-} from "./formatting/NumberFormatter";
-import { pluralize } from "./pluralization";
-import {
-	getRTLConfig,
-	getTextDirection,
-	isRTL,
-	type TextDirection,
-} from "./rtl/RTLDetector";
-import { useTranslationContext } from "./TranslationProvider";
-import type { LanguageCode, TranslationKey } from "./types/TranslationKeys";
+} from './formatting/NumberFormatter';
+import { pluralize } from './pluralization';
+import { getRTLConfig, getTextDirection, isRTL, type TextDirection } from './rtl/RTLDetector';
+import { useTranslationContext } from './TranslationProvider';
+import type { LanguageCode, TranslationKey } from './types/TranslationKeys';
 
 /**
  * Hook for accessing translation functionality with TypeScript autocomplete
@@ -86,8 +81,7 @@ export const useTranslation = () => {
 		/**
 		 * Get all available language codes
 		 */
-		getAvailableLanguages: () =>
-			Array.from(state.cache.keys()) as LanguageCode[],
+		getAvailableLanguages: () => Array.from(state.cache.keys()) as LanguageCode[],
 
 		/**
 		 * Check if a language is loaded in cache
@@ -141,8 +135,7 @@ export const useTranslation = () => {
 		 * @example
 		 * t.formatTime(new Date()) // → "3:30 PM" (en) / "15:30" (ru)
 		 */
-		formatTime: (date: Date | string | number) =>
-			formatTime(date, currentLanguage),
+		formatTime: (date: Date | string | number) => formatTime(date, currentLanguage),
 
 		/**
 		 * Format relative time (time ago)
@@ -150,10 +143,8 @@ export const useTranslation = () => {
 		 * @example
 		 * t.formatRelativeTime(new Date(Date.now() - 5 * 60 * 1000)) // → "5 minutes ago"
 		 */
-		formatRelativeTime: (
-			date: Date | string | number,
-			options?: RelativeTimeOptions,
-		) => formatRelativeTime(date, currentLanguage, options),
+		formatRelativeTime: (date: Date | string | number, options?: RelativeTimeOptions) =>
+			formatRelativeTime(date, currentLanguage, options),
 
 		// Number formatting methods
 		/**
@@ -204,8 +195,7 @@ export const useTranslation = () => {
 		 * @example
 		 * t.formatDuration(3665) // → "1h 1m 5s"
 		 */
-		formatDuration: (seconds: number) =>
-			formatDuration(seconds, currentLanguage),
+		formatDuration: (seconds: number) => formatDuration(seconds, currentLanguage),
 
 		// Preset formats
 		dateFormats: DATE_FORMATS,

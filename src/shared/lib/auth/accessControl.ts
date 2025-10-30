@@ -3,7 +3,7 @@
  * Centralized role-based access control for UNITY-v2
  */
 
-export type UserRole = "user" | "super_admin";
+export type UserRole = 'user' | 'super_admin';
 
 export type UserData = {
 	user?: {
@@ -38,14 +38,14 @@ export function getUserRole(userData: UserData | null): UserRole | null {
  * Check if user is super admin
  */
 export function isSuperAdmin(userData: UserData | null): boolean {
-	return getUserRole(userData) === "super_admin";
+	return getUserRole(userData) === 'super_admin';
 }
 
 /**
  * Check if user is regular user
  */
 export function isRegularUser(userData: UserData | null): boolean {
-	return getUserRole(userData) === "user";
+	return getUserRole(userData) === 'user';
 }
 
 /**
@@ -54,7 +54,7 @@ export function isRegularUser(userData: UserData | null): boolean {
 export function parseRouteParams(): RouteParams {
 	const urlParams = new URLSearchParams(window.location.search);
 	return {
-		view: urlParams.get("view"),
+		view: urlParams.get('view'),
 	};
 }
 
@@ -63,7 +63,7 @@ export function parseRouteParams(): RouteParams {
  */
 export function isAdminRoute(params?: RouteParams): boolean {
 	const routeParams = params || parseRouteParams();
-	return routeParams.view === "admin";
+	return routeParams.view === 'admin';
 }
 
 /**
@@ -71,7 +71,7 @@ export function isAdminRoute(params?: RouteParams): boolean {
  */
 export function isTestRoute(params?: RouteParams): boolean {
 	const routeParams = params || parseRouteParams();
-	return routeParams.view === "test";
+	return routeParams.view === 'test';
 }
 
 /**
@@ -79,7 +79,7 @@ export function isTestRoute(params?: RouteParams): boolean {
  */
 export function isPerformanceRoute(params?: RouteParams): boolean {
 	const routeParams = params || parseRouteParams();
-	return routeParams.view === "performance";
+	return routeParams.view === 'performance';
 }
 
 /**
@@ -87,7 +87,7 @@ export function isPerformanceRoute(params?: RouteParams): boolean {
  */
 export function isShowcaseRoute(params?: RouteParams): boolean {
 	const routeParams = params || parseRouteParams();
-	return routeParams.view === "showcase";
+	return routeParams.view === 'showcase';
 }
 
 /**
@@ -96,7 +96,7 @@ export function isShowcaseRoute(params?: RouteParams): boolean {
  */
 export function validateRouteAccess(
 	userData: UserData | null,
-	params?: RouteParams,
+	params?: RouteParams
 ): string | null {
 	if (!userData) {
 		return null; // Not authenticated yet, allow to proceed
@@ -109,19 +109,15 @@ export function validateRouteAccess(
 	const isPerf = isPerformanceRoute(routeParams);
 
 	// Super admin trying to access PWA (not admin/test/performance)
-	if (userRole === "super_admin" && !isAdmin && !isTest && !isPerf) {
-		console.log(
-			"🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel",
-		);
-		return "/?view=admin";
+	if (userRole === 'super_admin' && !isAdmin && !isTest && !isPerf) {
+		console.log('🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel');
+		return '/?view=admin';
 	}
 
 	// Regular user trying to access admin panel
-	if (isAdmin && userRole !== "super_admin") {
-		console.log(
-			"🚫 Access denied: user role is not super_admin, redirecting to PWA",
-		);
-		return "/";
+	if (isAdmin && userRole !== 'super_admin') {
+		console.log('🚫 Access denied: user role is not super_admin, redirecting to PWA');
+		return '/';
 	}
 
 	return null; // Access allowed
@@ -142,10 +138,7 @@ export function redirectIfNeeded(redirectUrl: string | null): boolean {
  * Check access and redirect if needed
  * Returns true if redirected, false if access is allowed
  */
-export function checkAccessAndRedirect(
-	userData: UserData | null,
-	params?: RouteParams,
-): boolean {
+export function checkAccessAndRedirect(userData: UserData | null, params?: RouteParams): boolean {
 	const redirectUrl = validateRouteAccess(userData, params);
 	return redirectIfNeeded(redirectUrl);
 }

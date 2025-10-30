@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 /**
  * Entry Card Skeleton Component

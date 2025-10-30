@@ -5,4 +5,4 @@
  * - AdminApp: Main admin application with authentication and dashboard
  */
 
-export { AdminApp } from "./AdminApp";
+export { AdminApp } from './AdminApp';

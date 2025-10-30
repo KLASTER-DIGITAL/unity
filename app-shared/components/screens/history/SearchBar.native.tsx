@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 interface SearchBarProps {
 	searchQuery: string;
@@ -30,11 +30,7 @@ export function SearchBar({
 		<View style={styles.container}>
 			{/* Search Input */}
 			<View style={styles.searchContainer}>
-				<Ionicons
-					color={DesignTokens.colors.textSecondary}
-					name="search"
-					size={20}
-				/>
+				<Ionicons color={DesignTokens.colors.textSecondary} name="search" size={20} />
 				<TextInput
 					onChangeText={onSearchChange}
 					placeholder="Поиск по записям..."
@@ -47,16 +43,9 @@ export function SearchBar({
 			{/* Filters Button */}
 			<Pressable
 				onPress={handleFilterPress}
-				style={({ pressed }) => [
-					styles.filterButton,
-					pressed && styles.filterButtonPressed,
-				]}
+				style={({ pressed }) => [styles.filterButton, pressed && styles.filterButtonPressed]}
 			>
-				<Ionicons
-					color={DesignTokens.colors.text}
-					name="options-outline"
-					size={20}
-				/>
+				<Ionicons color={DesignTokens.colors.text} name="options-outline" size={20} />
 				{activeFiltersCount > 0 && (
 					<View style={styles.badge}>
 						<Text style={styles.badgeText}>{activeFiltersCount}</Text>
@@ -69,14 +58,14 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		gap: DesignTokens.spacing.md,
-		alignItems: "center",
+		alignItems: 'center',
 	},
 	searchContainer: {
 		flex: 1,
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		backgroundColor: DesignTokens.colors.gray50,
 		borderRadius: DesignTokens.borderRadius.lg,
 		borderWidth: 1,
@@ -92,28 +81,28 @@ const styles = StyleSheet.create({
 		padding: 0,
 	},
 	filterButton: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 		paddingHorizontal: DesignTokens.spacing.lg,
 		paddingVertical: DesignTokens.spacing.md,
 		backgroundColor: `${DesignTokens.colors.primary}10`,
 		borderRadius: DesignTokens.borderRadius.lg,
-		position: "relative",
+		position: 'relative',
 	},
 	filterButtonPressed: {
 		opacity: 0.7,
 	},
 	badge: {
-		position: "absolute",
+		position: 'absolute',
 		top: -4,
 		right: -4,
 		backgroundColor: DesignTokens.colors.primary,
 		borderRadius: DesignTokens.borderRadius.full,
 		minWidth: 20,
 		height: 20,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		paddingHorizontal: DesignTokens.spacing.xs + 2,
 	},
 	badgeText: {

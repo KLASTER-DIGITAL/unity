@@ -1,14 +1,14 @@
-import { AlertCircle, CheckCircle } from "lucide-react";
-import { Badge } from "@/shared/components/ui/badge";
+import { AlertCircle, CheckCircle } from 'lucide-react';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import { TabsContent } from "@/shared/components/ui/tabs";
-import type { Language, MissingTranslation } from "./types";
+} from '@/shared/components/ui/card';
+import { TabsContent } from '@/shared/components/ui/tabs';
+import type { Language, MissingTranslation } from './types';
 
 type MissingTabProps = {
 	missingKeys: MissingTranslation[];
@@ -47,12 +47,8 @@ export function MissingTab({ missingKeys, languages }: MissingTabProps) {
 									key={index}
 								>
 									<div className="mb-2 flex items-start justify-between">
-										<div className="font-medium font-mono text-sm">
-											{missing.key}
-										</div>
-										<Badge variant="destructive">
-											{missing.languages.length} языков
-										</Badge>
+										<div className="font-medium font-mono text-sm">{missing.key}</div>
+										<Badge variant="destructive">{missing.languages.length} языков</Badge>
 									</div>
 									<div className="flex flex-wrap gap-2">
 										{missing.languages.map((langCode) => {

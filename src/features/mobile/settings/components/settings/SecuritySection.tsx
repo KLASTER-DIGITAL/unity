@@ -1,5 +1,5 @@
-import { Lock, Shield } from "lucide-react";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Lock, Shield } from 'lucide-react';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type SecuritySectionProps = {
 	biometricEnabled: boolean;
@@ -43,9 +43,9 @@ export function SecuritySection({
 	};
 
 	return (
-		<SettingsSection title={t.security || "Безопасность"}>
+		<SettingsSection title={t.security || 'Безопасность'}>
 			<SettingsRow
-				description={biometricAvailable ? "Доступно" : "Недоступно в браузере"}
+				description={biometricAvailable ? 'Доступно' : 'Недоступно в браузере'}
 				disabled={!biometricAvailable}
 				icon={Lock}
 				iconBgColor="bg-[var(--ios-blue)]/10"
@@ -53,10 +53,10 @@ export function SecuritySection({
 				onSwitchChange={onBiometricChange}
 				rightElement="switch"
 				switchChecked={biometricEnabled}
-				title={t.biometricProtection || "Биометрическая защита"}
+				title={t.biometricProtection || 'Биометрическая защита'}
 			/>
 			<SettingsRow
-				description={isPremium ? "Премиум функция" : "Требуется премиум"}
+				description={isPremium ? 'Премиум функция' : 'Требуется премиум'}
 				disabled={!isPremium}
 				icon={Shield}
 				iconBgColor="bg-[var(--ios-green)]/10"
@@ -65,7 +65,7 @@ export function SecuritySection({
 				onSwitchChange={handleAutoBackupChange}
 				rightElement="switch"
 				switchChecked={autoBackupEnabled}
-				title={t.autoBackup || "Автоматическое резервирование"}
+				title={t.autoBackup || 'Автоматическое резервирование'}
 			/>
 		</SettingsSection>
 	);

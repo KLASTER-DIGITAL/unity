@@ -6,11 +6,7 @@
  * @module platform/speech/native
  */
 
-import type {
-	SpeechAdapter,
-	SpeechRecognitionOptions,
-	SpeechRecognitionResult,
-} from "./index";
+import type { SpeechAdapter, SpeechRecognitionOptions, SpeechRecognitionResult } from './index';
 
 // ============================================================================
 // NATIVE IMPLEMENTATION
@@ -18,8 +14,7 @@ import type {
 
 export class NativeSpeechAdapter implements SpeechAdapter {
 	private listening = false;
-	private resultCallback: ((result: SpeechRecognitionResult) => void) | null =
-		null;
+	private resultCallback: ((result: SpeechRecognitionResult) => void) | null = null;
 	private errorCallback: ((error: Error) => void) | null = null;
 	private startCallback: (() => void) | null = null;
 	private endCallback: (() => void) | null = null;
@@ -31,12 +26,9 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 	private async init(): Promise<void> {
 		if (this.initialized) return;
 
-		if (
-			typeof navigator !== "undefined" &&
-			navigator.product === "ReactNative"
-		) {
+		if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
 			try {
-				const moduleName = "@react-native-voice/voice";
+				const moduleName = '@react-native-voice/voice';
 				const VoiceModule = await import(/* @vite-ignore */ moduleName);
 				this.Voice = VoiceModule.default;
 
@@ -45,16 +37,14 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 
 				this.initialized = true;
 			} catch (error) {
-				console.error("Failed to load @react-native-voice/voice:", error);
-				throw new Error("@react-native-voice/voice is not available");
+				console.error('Failed to load @react-native-voice/voice:', error);
+				throw new Error('@react-native-voice/voice is not available');
 			}
 		}
 	}
 
 	isSupported(): boolean {
-		return (
-			typeof navigator !== "undefined" && navigator.product === "ReactNative"
-		);
+		return typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
 	}
 
 	async requestPermissions(): Promise<boolean> {
@@ -70,22 +60,22 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 			const available = await this.Voice.isAvailable();
 			return available === 1 || available === true;
 		} catch (error) {
-			console.error("Permission check failed:", error);
+			console.error('Permission check failed:', error);
 			return false;
 		}
 	}
 
 	startListening(options: SpeechRecognitionOptions = {}): void {
 		if (!this.Voice) {
-			throw new Error("@react-native-voice/voice is not available");
+			throw new Error('@react-native-voice/voice is not available');
 		}
 
 		if (this.listening) {
-			throw new Error("Already listening");
+			throw new Error('Already listening');
 		}
 
 		const {
-			language = "ru-RU",
+			language = 'ru-RU',
 			continuous = false,
 			interimResults = false,
 			maxAlternatives = 1,
@@ -94,12 +84,8 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 		try {
 			// Start recognition
 			this.Voice.start(language, {
-				EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS: continuous
-					? 10_000
-					: 2000,
-				EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS: continuous
-					? 5000
-					: 1000,
+				EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS: continuous ? 10_000 : 2000,
+				EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS: continuous ? 5000 : 1000,
 				EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS: 1000,
 				EXTRA_MAX_RESULTS: maxAlternatives,
 				EXTRA_PARTIAL_RESULTS: interimResults,
@@ -110,9 +96,7 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 			this.listening = false;
 
 			if (this.errorCallback) {
-				this.errorCallback(
-					new Error(`Failed to start listening: ${error.message}`),
-				);
+				this.errorCallback(new Error(`Failed to start listening: ${error.message}`));
 			}
 		}
 	}
@@ -127,9 +111,7 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 			this.listening = false;
 		} catch (error: any) {
 			if (this.errorCallback) {
-				this.errorCallback(
-					new Error(`Failed to stop listening: ${error.message}`),
-				);
+				this.errorCallback(new Error(`Failed to stop listening: ${error.message}`));
 			}
 		}
 	}
@@ -144,9 +126,7 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 			this.listening = false;
 		} catch (error: any) {
 			if (this.errorCallback) {
-				this.errorCallback(
-					new Error(`Failed to abort listening: ${error.message}`),
-				);
+				this.errorCallback(new Error(`Failed to abort listening: ${error.message}`));
 			}
 		}
 	}
@@ -229,48 +209,47 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 			this.listening = false;
 
 			if (this.errorCallback) {
-				let errorMessage = "Speech recognition error";
+				let errorMessage = 'Speech recognition error';
 
 				if (event.error) {
-					const errorCode =
-						event.error.code || event.error.message || event.error;
+					const errorCode = event.error.code || event.error.message || event.error;
 
 					switch (errorCode) {
-						case "1":
-						case "network":
-							errorMessage = "Network error";
+						case '1':
+						case 'network':
+							errorMessage = 'Network error';
 							break;
-						case "2":
-						case "network_timeout":
-							errorMessage = "Network timeout";
+						case '2':
+						case 'network_timeout':
+							errorMessage = 'Network timeout';
 							break;
-						case "3":
-						case "audio":
-							errorMessage = "Audio recording error";
+						case '3':
+						case 'audio':
+							errorMessage = 'Audio recording error';
 							break;
-						case "4":
-						case "server":
-							errorMessage = "Server error";
+						case '4':
+						case 'server':
+							errorMessage = 'Server error';
 							break;
-						case "5":
-						case "client":
-							errorMessage = "Client error";
+						case '5':
+						case 'client':
+							errorMessage = 'Client error';
 							break;
-						case "6":
-						case "speech_timeout":
-							errorMessage = "No speech detected";
+						case '6':
+						case 'speech_timeout':
+							errorMessage = 'No speech detected';
 							break;
-						case "7":
-						case "no_match":
-							errorMessage = "No recognition result matched";
+						case '7':
+						case 'no_match':
+							errorMessage = 'No recognition result matched';
 							break;
-						case "8":
-						case "recognizer_busy":
-							errorMessage = "Recognition service busy";
+						case '8':
+						case 'recognizer_busy':
+							errorMessage = 'Recognition service busy';
 							break;
-						case "9":
-						case "insufficient_permissions":
-							errorMessage = "Microphone permission denied";
+						case '9':
+						case 'insufficient_permissions':
+							errorMessage = 'Microphone permission denied';
 							break;
 						default:
 							errorMessage = `Speech recognition error: ${errorCode}`;
@@ -299,7 +278,7 @@ export class NativeSpeechAdapter implements SpeechAdapter {
 				await this.Voice.destroy();
 				this.Voice.removeAllListeners();
 			} catch (error) {
-				console.error("Failed to destroy Voice:", error);
+				console.error('Failed to destroy Voice:', error);
 			}
 		}
 

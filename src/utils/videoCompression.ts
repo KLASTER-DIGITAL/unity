@@ -17,4 +17,4 @@ export {
 	isVideoTooLarge,
 	isVideoTooLong,
 	validateVideo,
-} from "./videoCompression.web";
+} from './videoCompression.web';

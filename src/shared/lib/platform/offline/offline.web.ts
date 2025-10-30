@@ -13,15 +13,15 @@ import type {
 	NetworkAdapter,
 	OfflineStorageAdapter,
 	PendingEntry,
-} from "./types";
+} from './types';
 
-const DB_NAME = "unity-diary-offline";
+const DB_NAME = 'unity-diary-offline';
 const DB_VERSION = 1;
 
 const STORES = {
-	PENDING_ENTRIES: "pending_entries",
-	CACHED_ENTRIES: "cached_entries",
-	SYNC_QUEUE: "sync_queue",
+	PENDING_ENTRIES: 'pending_entries',
+	CACHED_ENTRIES: 'cached_entries',
+	SYNC_QUEUE: 'sync_queue',
 } as const;
 
 /**
@@ -40,21 +40,21 @@ function openDB(): Promise<IDBDatabase> {
 			// Create stores if they don't exist
 			if (!db.objectStoreNames.contains(STORES.PENDING_ENTRIES)) {
 				const pendingStore = db.createObjectStore(STORES.PENDING_ENTRIES, {
-					keyPath: "id",
+					keyPath: 'id',
 				});
-				pendingStore.createIndex("userId", "userId", { unique: false });
-				pendingStore.createIndex("syncStatus", "syncStatus", { unique: false });
+				pendingStore.createIndex('userId', 'userId', { unique: false });
+				pendingStore.createIndex('syncStatus', 'syncStatus', { unique: false });
 			}
 
 			if (!db.objectStoreNames.contains(STORES.CACHED_ENTRIES)) {
 				const cachedStore = db.createObjectStore(STORES.CACHED_ENTRIES, {
-					keyPath: "id",
+					keyPath: 'id',
 				});
-				cachedStore.createIndex("userId", "userId", { unique: false });
+				cachedStore.createIndex('userId', 'userId', { unique: false });
 			}
 
 			if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
-				db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: "id" });
+				db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: 'id' });
 			}
 		};
 	});
@@ -68,7 +68,7 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 
 	async initialize(): Promise<void> {
 		this.db = await openDB();
-		console.log("[WebOfflineStorage] Initialized IndexedDB");
+		console.log('[WebOfflineStorage] Initialized IndexedDB');
 	}
 
 	async addPendingEntry(entry: PendingEntry): Promise<void> {
@@ -77,14 +77,15 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.PENDING_ENTRIES],
-				"readwrite",
-			);
+			const transaction = this.db?.transaction([STORES.PENDING_ENTRIES], 'readwrite');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
 			const request = store.add(entry);
 
@@ -99,16 +100,17 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.PENDING_ENTRIES],
-				"readonly",
-			);
+			const transaction = this.db?.transaction([STORES.PENDING_ENTRIES], 'readonly');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
-			const index = store.index("userId");
+			const index = store.index('userId');
 			const request = index.getAll(userId);
 
 			request.onsuccess = () => resolve(request.result || []);
@@ -122,14 +124,15 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.PENDING_ENTRIES],
-				"readwrite",
-			);
+			const transaction = this.db?.transaction([STORES.PENDING_ENTRIES], 'readwrite');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
 			const request = store.put(entry);
 
@@ -144,14 +147,15 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.PENDING_ENTRIES],
-				"readwrite",
-			);
+			const transaction = this.db?.transaction([STORES.PENDING_ENTRIES], 'readwrite');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
 			const request = store.delete(id);
 
@@ -166,14 +170,15 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.CACHED_ENTRIES],
-				"readwrite",
-			);
+			const transaction = this.db?.transaction([STORES.CACHED_ENTRIES], 'readwrite');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.CACHED_ENTRIES);
 			const request = store.add(entry);
 
@@ -188,16 +193,17 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
-				[STORES.CACHED_ENTRIES],
-				"readonly",
-			);
+			const transaction = this.db?.transaction([STORES.CACHED_ENTRIES], 'readonly');
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 			const store = transaction.objectStore(STORES.CACHED_ENTRIES);
-			const index = store.index("userId");
+			const index = store.index('userId');
 			const request = index.getAll(userId);
 
 			request.onsuccess = () => resolve(request.result || []);
@@ -211,14 +217,19 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		if (!this.db) {
-			throw new Error("Database not initialized");
+			throw new Error('Database not initialized');
 		}
 
 		return new Promise((resolve, reject) => {
-			const transaction = this.db!.transaction(
+			const transaction = this.db?.transaction(
 				[STORES.PENDING_ENTRIES, STORES.CACHED_ENTRIES, STORES.SYNC_QUEUE],
-				"readwrite",
+				'readwrite'
 			);
+
+			if (!transaction) {
+				reject(new Error('Failed to create transaction'));
+				return;
+			}
 
 			// Clear all stores
 			transaction.objectStore(STORES.PENDING_ENTRIES).clear();
@@ -236,8 +247,8 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
 		}
 
 		// Estimate storage size by counting entries
-		const pendingEntries = await this.getPendingEntries("");
-		const cachedEntries = await this.getCachedEntries("");
+		const pendingEntries = await this.getPendingEntries('');
+		const cachedEntries = await this.getCachedEntries('');
 
 		// Rough estimate: 1KB per entry
 		return (pendingEntries.length + cachedEntries.length) * 1024;
@@ -248,14 +259,14 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
  * Web Media Storage Adapter (Cache API)
  */
 export class WebMediaStorageAdapter implements MediaStorageAdapter {
-	private readonly cacheName = "unity-media-cache";
+	private readonly cacheName = 'unity-media-cache';
 
 	async saveMedia(userId: string, file: File): Promise<string> {
 		const cache = await caches.open(this.cacheName);
 		const url = `/offline-media/${userId}/${file.name}`;
 
 		const response = new Response(file, {
-			headers: { "Content-Type": file.type },
+			headers: { 'Content-Type': file.type },
 		});
 
 		await cache.put(url, response);
@@ -312,13 +323,13 @@ export class WebNetworkAdapter implements NetworkAdapter {
 		const onlineHandler = () => callback(true);
 		const offlineHandler = () => callback(false);
 
-		window.addEventListener("online", onlineHandler);
-		window.addEventListener("offline", offlineHandler);
+		window.addEventListener('online', onlineHandler);
+		window.addEventListener('offline', offlineHandler);
 
 		// Return cleanup function
 		return () => {
-			window.removeEventListener("online", onlineHandler);
-			window.removeEventListener("offline", offlineHandler);
+			window.removeEventListener('online', onlineHandler);
+			window.removeEventListener('offline', offlineHandler);
 		};
 	}
 }

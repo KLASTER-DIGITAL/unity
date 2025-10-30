@@ -1,7 +1,7 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-import type { MediaFile } from "@/shared/lib/api";
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import type { MediaFile } from '@/shared/lib/api';
 
 type MediaLightboxProps = {
 	media: MediaFile[];
@@ -10,12 +10,7 @@ type MediaLightboxProps = {
 	onClose: () => void;
 };
 
-export function MediaLightbox({
-	media,
-	initialIndex = 0,
-	isOpen,
-	onClose,
-}: MediaLightboxProps) {
+export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: MediaLightboxProps) {
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
 	const goToPrevious = () => {
@@ -69,13 +64,13 @@ export function MediaLightbox({
 								key={currentIndex}
 								transition={{ duration: 0.2 }}
 							>
-								{currentMedia?.type === "image" ? (
+								{currentMedia?.type === 'image' ? (
 									<img
 										alt=""
 										className="max-h-full max-w-full rounded-[12px] object-contain"
 										src={currentMedia.url}
 									/>
-								) : currentMedia?.type === "video" ? (
+								) : currentMedia?.type === 'video' ? (
 									<video
 										autoPlay
 										className="max-h-full max-w-full rounded-[12px]"
@@ -119,8 +114,8 @@ export function MediaLightbox({
 								<button
 									className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-[8px] border-2 transition-all ${
 										index === currentIndex
-											? "scale-110 border-white"
-											: "border-white/30 opacity-60 hover:opacity-100"
+											? 'scale-110 border-white'
+											: 'border-white/30 opacity-60 hover:opacity-100'
 									}`}
 									key={item.path}
 									onClick={(e) => {
@@ -128,18 +123,10 @@ export function MediaLightbox({
 										setCurrentIndex(index);
 									}}
 								>
-									{item.type === "image" ? (
-										<img
-											alt=""
-											className="h-full w-full object-cover"
-											src={item.url}
-										/>
+									{item.type === 'image' ? (
+										<img alt="" className="h-full w-full object-cover" src={item.url} />
 									) : (
-										<video
-											className="h-full w-full object-cover"
-											muted
-											src={item.url}
-										/>
+										<video className="h-full w-full object-cover" muted src={item.url} />
 									)}
 								</button>
 							))}

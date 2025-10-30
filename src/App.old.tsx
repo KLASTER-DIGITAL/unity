@@ -1,6 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { ThemeProvider } from "@/shared/components/theme-provider";
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { ThemeProvider } from '@/shared/components/theme-provider';
 import {
 	checkAccessAndRedirect,
 	isAdminRoute as checkIsAdminRoute,
@@ -9,62 +9,54 @@ import {
 	checkSession,
 	parseRouteParams,
 	signOut,
-} from "@/shared/lib/auth";
-import { addBreadcrumb, setUser } from "@/shared/lib/monitoring/lazy";
-import { reportWebVitals } from "@/shared/lib/performance";
+} from '@/shared/lib/auth';
+import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
+import { reportWebVitals } from '@/shared/lib/performance';
 
 // Lazy load app-level components for code splitting
 const MobileApp = lazy(() =>
-	import("@/pwa/mobile").then((module) => ({ default: module.MobileApp })),
+	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
 );
-const AdminApp = lazy(() =>
-	import("@/pwa/admin").then((module) => ({ default: module.AdminApp })),
-);
+const AdminApp = lazy(() => import('@/pwa/admin').then((module) => ({ default: module.AdminApp })));
 
 // PWA Components - Lazy loaded для улучшения производительности
-const PWAHead = lazy(() => import("@/shared/components/pwa/PWAHead"));
-const PWASplash = lazy(() => import("@/shared/components/pwa/PWASplash"));
-const PWAStatus = lazy(() => import("@/shared/components/pwa/PWAStatus"));
-const PWAUpdatePrompt = lazy(
-	() => import("@/shared/components/pwa/PWAUpdatePrompt"),
-);
-const InstallPrompt = lazy(
-	() => import("@/shared/components/pwa/InstallPrompt"),
-);
+const PWAHead = lazy(() => import('@/shared/components/pwa/PWAHead'));
+const PWASplash = lazy(() => import('@/shared/components/pwa/PWASplash'));
+const PWAStatus = lazy(() => import('@/shared/components/pwa/PWAStatus'));
+const PWAUpdatePrompt = lazy(() => import('@/shared/components/pwa/PWAUpdatePrompt'));
+const InstallPrompt = lazy(() => import('@/shared/components/pwa/InstallPrompt'));
 
 // Offline Components
-const OfflineSyncIndicator = lazy(
-	() => import("@/shared/components/offline/OfflineSyncIndicator"),
-);
+const OfflineSyncIndicator = lazy(() => import('@/shared/components/offline/OfflineSyncIndicator'));
 const OfflineModeBadge = lazy(() =>
-	import("@/shared/components/offline/OfflineModeBadge").then((m) => ({
+	import('@/shared/components/offline/OfflineModeBadge').then((m) => ({
 		default: m.OfflineModeBadge,
-	})),
+	}))
 );
 const SyncCompletionModal = lazy(() =>
-	import("@/shared/components/offline/SyncCompletionModal").then((m) => ({
+	import('@/shared/components/offline/SyncCompletionModal').then((m) => ({
 		default: m.SyncCompletionModal,
-	})),
+	}))
 );
 
-import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
+import { useInitPushAnalytics } from '@/shared/hooks/usePushAnalytics';
 import {
 	incrementVisitCount,
 	shouldShowInstallPrompt,
 	usePWASettings,
-} from "@/shared/hooks/usePWASettings";
+} from '@/shared/hooks/usePWASettings';
 import {
 	initPWAAnalytics,
 	trackInstallAccepted,
 	trackInstallDismissed,
 	trackInstallPromptShown,
-} from "@/shared/lib/analytics/pwa-tracking";
-import { getEntries, getUserStats } from "@/shared/lib/api";
-import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
+} from '@/shared/lib/analytics/pwa-tracking';
+import { getEntries, getUserStats } from '@/shared/lib/api';
+import { markInstallPromptAsShown } from '@/shared/lib/api/pwaUtils';
 // Import E2E test component (disabled - moved to .example.tsx)
 // import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
-import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
-import { initBackgroundSync } from "@/shared/lib/offline";
+import { PerformanceDashboard } from '@/shared/lib/i18n/monitoring/PerformanceDashboard';
+import { initBackgroundSync } from '@/shared/lib/offline';
 
 // import { ComponentShowcase } from "@/pages/ComponentShowcase";
 
@@ -74,7 +66,7 @@ interface OnboardingData {
 	diaryName: string;
 	diaryEmoji: string;
 	notificationSettings: {
-		selectedTime: "none" | "morning" | "evening" | "both";
+		selectedTime: 'none' | 'morning' | 'evening' | 'both';
 		morningTime: string;
 		eveningTime: string;
 		permissionGranted: boolean;
@@ -88,11 +80,11 @@ export default function App() {
 	const [userData, setUserData] = useState<any>(null);
 	const [isCheckingSession, setIsCheckingSession] = useState(true);
 	const [minLoadingTimeElapsed, setMinLoadingTimeElapsed] = useState(false);
-	const [selectedLanguage, setSelectedLanguage] = useState("ru");
+	const [selectedLanguage, setSelectedLanguage] = useState('ru');
 	const [isAdminRoute, setIsAdminRoute] = useState(false);
 	const [showAdminAuth, setShowAdminAuth] = useState(false);
 	const [showAuth, setShowAuth] = useState(false);
-	const [authMode, setAuthMode] = useState<"login" | "register">("register");
+	const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
 
 	// PWA state
 	const { settings: pwaSettings, isLoading: isPWALoading } = usePWASettings();
@@ -105,16 +97,16 @@ export default function App() {
 
 	// Onboarding data state
 	const [onboardingData, setOnboardingData] = useState<OnboardingData>({
-		language: "ru",
-		diaryName: "Мой дневник",
-		diaryEmoji: "🏆",
+		language: 'ru',
+		diaryName: 'Мой дневник',
+		diaryEmoji: '🏆',
 		notificationSettings: {
-			selectedTime: "none",
-			morningTime: "08:00",
-			eveningTime: "21:00",
+			selectedTime: 'none',
+			morningTime: '08:00',
+			eveningTime: '21:00',
 			permissionGranted: false,
 		},
-		firstEntry: "",
+		firstEntry: '',
 	});
 
 	// Check for test route
@@ -156,14 +148,14 @@ export default function App() {
 			reportWebVitals((metric) => {
 				// Send Web Vitals to Sentry
 				addBreadcrumb({
-					category: "performance",
+					category: 'performance',
 					message: `${metric.name}: ${metric.value.toFixed(2)}ms`,
 					level:
-						metric.rating === "good"
-							? "info"
-							: metric.rating === "needs-improvement"
-								? "warning"
-								: "error",
+						metric.rating === 'good'
+							? 'info'
+							: metric.rating === 'needs-improvement'
+								? 'warning'
+								: 'error',
 					data: {
 						name: metric.name,
 						value: metric.value,
@@ -177,12 +169,12 @@ export default function App() {
 
 	useEffect(() => {
 		checkRouteAndAccess();
-		window.addEventListener("popstate", checkRouteAndAccess);
-		window.addEventListener("hashchange", checkRouteAndAccess);
+		window.addEventListener('popstate', checkRouteAndAccess);
+		window.addEventListener('hashchange', checkRouteAndAccess);
 
 		return () => {
-			window.removeEventListener("popstate", checkRouteAndAccess);
-			window.removeEventListener("hashchange", checkRouteAndAccess);
+			window.removeEventListener('popstate', checkRouteAndAccess);
+			window.removeEventListener('hashchange', checkRouteAndAccess);
 		};
 	}, [checkRouteAndAccess]);
 
@@ -191,7 +183,7 @@ export default function App() {
 		const initSession = async () => {
 			try {
 				const session = await checkSession();
-				console.log("🔍 Session check result:", session);
+				console.log('🔍 Session check result:', session);
 
 				// Check if session is successful (has user data)
 				if (session && session.success !== false && session.user) {
@@ -205,11 +197,11 @@ export default function App() {
 					});
 
 					addBreadcrumb({
-						category: "auth",
-						message: "User session restored",
-						level: "info",
+						category: 'auth',
+						message: 'User session restored',
+						level: 'info',
 						data: {
-							role: session.profile?.role || "user",
+							role: session.profile?.role || 'user',
 						},
 					});
 
@@ -219,58 +211,50 @@ export default function App() {
 
 					// ✅ PREFETCH: Предзагрузка критических данных для улучшения LCP
 					if (session.user.id) {
-						console.log(
-							"[PREFETCH] Starting critical data prefetch for user:",
-							session.user.id,
-						);
+						console.log('[PREFETCH] Starting critical data prefetch for user:', session.user.id);
 
 						// Prefetch entries и stats параллельно (не блокируем UI)
 						Promise.all([
 							getEntries(session.user.id, 10).catch((err) => {
-								console.error("[PREFETCH] Failed to prefetch entries:", err);
+								console.error('[PREFETCH] Failed to prefetch entries:', err);
 								return [];
 							}),
 							getUserStats(session.user.id).catch((err) => {
-								console.error("[PREFETCH] Failed to prefetch stats:", err);
+								console.error('[PREFETCH] Failed to prefetch stats:', err);
 								return null;
 							}),
 						]).then(([entries, stats]) => {
-							console.log("[PREFETCH] Critical data prefetched:", {
+							console.log('[PREFETCH] Critical data prefetched:', {
 								entriesCount: entries.length,
-								stats: stats ? "loaded" : "failed",
+								stats: stats ? 'loaded' : 'failed',
 							});
 						});
 					}
 
 					// ✅ Загружаем язык из профиля пользователя
 					if (session.profile?.language) {
-						console.log(
-							"🌐 Loading user language from profile:",
-							session.profile.language,
-						);
+						console.log('🌐 Loading user language from profile:', session.profile.language);
 						setSelectedLanguage(session.profile.language);
-						const language = session.profile.language || "ru";
+						const language = session.profile.language || 'ru';
 						setOnboardingData((prev) => ({ ...prev, language }));
 					}
 
 					// ✅ Проверяем onboardingCompleted из профиля
 					if (session.profile?.onboardingCompleted) {
-						console.log("✅ Onboarding complete, going to step 5");
+						console.log('✅ Onboarding complete, going to step 5');
 						setOnboardingComplete(true);
 						setCurrentStep(5);
 					} else {
-						console.log(
-							"⚠️ Session exists but onboarding not complete, going to step 2",
-						);
+						console.log('⚠️ Session exists but onboarding not complete, going to step 2');
 						setCurrentStep(2);
 					}
 				} else {
-					console.log("ℹ️ No session found, staying at step 1 (WelcomeScreen)");
+					console.log('ℹ️ No session found, staying at step 1 (WelcomeScreen)');
 					// Explicitly stay at step 1 for WelcomeScreen
 					setCurrentStep(1);
 				}
 			} catch (error) {
-				console.error("Session check error:", error);
+				console.error('Session check error:', error);
 				// On error, also stay at step 1
 				setCurrentStep(1);
 			} finally {
@@ -288,37 +272,34 @@ export default function App() {
 
 		// Слушаем beforeinstallprompt event
 		const handleBeforeInstallPrompt = (e: any) => {
-			console.log("[PWA] beforeinstallprompt event fired");
+			console.log('[PWA] beforeinstallprompt event fired');
 			e.preventDefault();
 			setDeferredPrompt(e);
 		};
 
-		window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+		window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
 		// Проверяем нужно ли показать install prompt (async)
 		if (!isPWALoading) {
 			(async () => {
 				// Определяем текущую локацию
-				let currentLocation: "onboarding" | "user_cabinet" | undefined;
+				let currentLocation: 'onboarding' | 'user_cabinet' | undefined;
 
 				if (!userData) {
 					// Пользователь не залогинен = онбординг
-					currentLocation = "onboarding";
+					currentLocation = 'onboarding';
 				} else if (userData && onboardingComplete) {
 					// Пользователь залогинен и прошел онбординг = кабинет
-					currentLocation = "user_cabinet";
+					currentLocation = 'user_cabinet';
 				}
 
-				const shouldShow = await shouldShowInstallPrompt(
-					pwaSettings,
-					currentLocation,
-				);
+				const shouldShow = await shouldShowInstallPrompt(pwaSettings, currentLocation);
 				console.log(
-					"[PWA] Should show install prompt:",
+					'[PWA] Should show install prompt:',
 					shouldShow,
-					"location:",
+					'location:',
 					currentLocation,
-					pwaSettings,
+					pwaSettings
 				);
 
 				if (shouldShow) {
@@ -338,15 +319,12 @@ export default function App() {
 		// Инициализируем Background Sync
 		if (userData?.id) {
 			initBackgroundSync().catch((error) => {
-				console.error("[App] Failed to initialize Background Sync:", error);
+				console.error('[App] Failed to initialize Background Sync:', error);
 			});
 		}
 
 		return () => {
-			window.removeEventListener(
-				"beforeinstallprompt",
-				handleBeforeInstallPrompt,
-			);
+			window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 		};
 	}, [isPWALoading, pwaSettings, userData, onboardingComplete]);
 
@@ -358,52 +336,47 @@ export default function App() {
 		const handleSyncComplete = (event: MessageEvent) => {
 			const { type, data } = event.data || {};
 
-			if (type === "BACKGROUND_SYNC_COMPLETE" && data?.synced > 0) {
-				console.log("[App] Sync completed:", data.synced, "entries");
+			if (type === 'BACKGROUND_SYNC_COMPLETE' && data?.synced > 0) {
+				console.log('[App] Sync completed:', data.synced, 'entries');
 				setSyncedCount(data.synced);
 				setShowSyncComplete(true);
 			}
 		};
 
 		// Listen for Service Worker messages
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.addEventListener("message", handleSyncComplete);
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.addEventListener('message', handleSyncComplete);
 		}
 
 		return () => {
-			if ("serviceWorker" in navigator) {
-				navigator.serviceWorker.removeEventListener(
-					"message",
-					handleSyncComplete,
-				);
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.removeEventListener('message', handleSyncComplete);
 			}
 		};
 	}, []);
 
 	// PWA Install Handlers
 	const handleInstall = async () => {
-		console.log("[PWA] Install button clicked");
+		console.log('[PWA] Install button clicked');
 
 		if (deferredPrompt) {
 			deferredPrompt.prompt();
 			const { outcome } = await deferredPrompt.userChoice;
 			console.log(`[PWA] User response: ${outcome}`);
 
-			if (outcome === "accepted") {
-				console.log("[PWA] User accepted the install prompt");
+			if (outcome === 'accepted') {
+				console.log('[PWA] User accepted the install prompt');
 				// Track установку PWA
 				trackInstallAccepted(userData?.id || null);
 			} else {
-				console.log("[PWA] User dismissed the install prompt");
+				console.log('[PWA] User dismissed the install prompt');
 				// Track отказ от установки
-				trackInstallDismissed(userData?.id || null, "user_declined");
+				trackInstallDismissed(userData?.id || null, 'user_declined');
 			}
 
 			setDeferredPrompt(null);
 		} else {
-			console.log(
-				"[PWA] No deferred prompt available (iOS or already installed)",
-			);
+			console.log('[PWA] No deferred prompt available (iOS or already installed)');
 		}
 
 		await markInstallPromptAsShown();
@@ -412,8 +385,8 @@ export default function App() {
 
 	const handleInstallClose = async () => {
 		// Track закрытие install prompt
-		trackInstallDismissed(userData?.id || null, "user_closed");
-		console.log("[PWA] Install prompt closed");
+		trackInstallDismissed(userData?.id || null, 'user_closed');
+		console.log('[PWA] Install prompt closed');
 		await markInstallPromptAsShown();
 		setShowInstallPrompt(false);
 	};
@@ -425,7 +398,7 @@ export default function App() {
 	};
 
 	const handleWelcomeSkip = () => {
-		setAuthMode("login"); // Пользователь хочет войти
+		setAuthMode('login'); // Пользователь хочет войти
 		setShowAuth(true);
 	};
 
@@ -449,7 +422,7 @@ export default function App() {
 			notificationSettings: settings,
 		}));
 		// Показываем AuthScreen с сохраненными данными
-		setAuthMode("register"); // Пользователь прошел онбординг, нужна регистрация
+		setAuthMode('register'); // Пользователь прошел онбординг, нужна регистрация
 		setShowAuth(true);
 	};
 
@@ -465,9 +438,9 @@ export default function App() {
 		});
 
 		addBreadcrumb({
-			category: "auth",
-			message: "User authenticated",
-			level: "info",
+			category: 'auth',
+			message: 'User authenticated',
+			level: 'info',
 			data: {
 				role: user.profile?.role || user.role,
 				onboardingCompleted: user.onboardingCompleted,
@@ -477,25 +450,22 @@ export default function App() {
 		// ✅ PREFETCH: Предзагрузка критических данных после авторизации
 		const userId = user.user?.id || user.id;
 		if (userId) {
-			console.log(
-				"[PREFETCH] Starting critical data prefetch after auth for user:",
-				userId,
-			);
+			console.log('[PREFETCH] Starting critical data prefetch after auth for user:', userId);
 
 			// Prefetch entries и stats параллельно (не блокируем UI)
 			Promise.all([
 				getEntries(userId, 10).catch((err) => {
-					console.error("[PREFETCH] Failed to prefetch entries:", err);
+					console.error('[PREFETCH] Failed to prefetch entries:', err);
 					return [];
 				}),
 				getUserStats(userId).catch((err) => {
-					console.error("[PREFETCH] Failed to prefetch stats:", err);
+					console.error('[PREFETCH] Failed to prefetch stats:', err);
 					return null;
 				}),
 			]).then(([entries, stats]) => {
-				console.log("[PREFETCH] Critical data prefetched after auth:", {
+				console.log('[PREFETCH] Critical data prefetched after auth:', {
 					entriesCount: entries.length,
-					stats: stats ? "loaded" : "failed",
+					stats: stats ? 'loaded' : 'failed',
 				});
 			});
 		}
@@ -510,14 +480,12 @@ export default function App() {
 
 	// PWA пользователь: ПОЛНЫЙ выход через настройки (показывает welcome screen)
 	const handleLogout = async () => {
-		console.log(
-			"🚪 [App.tsx] PWA user full logout - clearing session for welcome screen",
-		);
+		console.log('🚪 [App.tsx] PWA user full logout - clearing session for welcome screen');
 
 		addBreadcrumb({
-			category: "auth",
-			message: "PWA user logged out",
-			level: "info",
+			category: 'auth',
+			message: 'PWA user logged out',
+			level: 'info',
 		});
 
 		await signOut(); // Полная очистка сессии чтобы показать welcome screen
@@ -530,12 +498,12 @@ export default function App() {
 
 	// Супер-админ: полный выход с очисткой сессии для безопасности
 	const handleAdminLogout = async () => {
-		console.log("🔐 [App.tsx] Admin logout - clearing session for security");
+		console.log('🔐 [App.tsx] Admin logout - clearing session for security');
 
 		addBreadcrumb({
-			category: "auth",
-			message: "Admin logged out",
-			level: "info",
+			category: 'auth',
+			message: 'Admin logged out',
+			level: 'info',
 		});
 
 		await signOut(); // Полная очистка сессии для безопасности
@@ -547,12 +515,7 @@ export default function App() {
 	};
 
 	const handleAdminAuthComplete = (adminUser: any) => {
-		console.log(
-			"🔐 [App.tsx] Admin auth complete:",
-			adminUser.email,
-			"role:",
-			adminUser.role,
-		);
+		console.log('🔐 [App.tsx] Admin auth complete:', adminUser.email, 'role:', adminUser.role);
 
 		// Устанавливаем админа в Sentry
 		setUser({
@@ -562,9 +525,9 @@ export default function App() {
 		});
 
 		addBreadcrumb({
-			category: "auth",
-			message: "Admin authenticated",
-			level: "info",
+			category: 'auth',
+			message: 'Admin authenticated',
+			level: 'info',
 			data: {
 				role: adminUser.role,
 			},
@@ -576,10 +539,7 @@ export default function App() {
 	};
 
 	const handleProfileUpdate = (updatedProfile: any) => {
-		console.log(
-			"🔄 [App.tsx] Updating userData with new profile:",
-			updatedProfile,
-		);
+		console.log('🔄 [App.tsx] Updating userData with new profile:', updatedProfile);
 		setUserData((prev: any) => ({
 			...prev,
 			profile: updatedProfile,
@@ -607,7 +567,7 @@ export default function App() {
 				<AdminApp
 					onAuthComplete={handleAdminAuthComplete}
 					onBack={() => {
-						window.location.href = "/";
+						window.location.href = '/';
 					}}
 					onLogout={handleAdminLogout}
 					showAdminAuth={showAdminAuth} // Используем handleAdminLogout для полной очистки сессии
@@ -623,9 +583,7 @@ export default function App() {
 			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
 				<div className="p-8">
 					<h1 className="font-bold text-2xl">Test Route Disabled</h1>
-					<p className="mt-4">
-						I18nE2ETest component has been moved to .example.tsx file
-					</p>
+					<p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
 				</div>
 			</ThemeProvider>
 		);
@@ -658,66 +616,59 @@ export default function App() {
 	}
 
 	return (
-		<>
-			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
-				{/* PWA Components - Lazy loaded с Suspense для производительности */}
-				<Suspense fallback={null}>
-					{/* PWA Head - динамические meta tags */}
-					<PWAHead />
+		<ThemeProvider defaultTheme="light" storageKey="unity-theme">
+			{/* PWA Components - Lazy loaded с Suspense для производительности */}
+			<Suspense fallback={null}>
+				{/* PWA Head - динамические meta tags */}
+				<PWAHead />
 
-					{/* PWA Splash Screen - показывается при первом запуске в standalone */}
-					<PWASplash />
+				{/* PWA Splash Screen - показывается при первом запуске в standalone */}
+				<PWASplash />
 
-					{/* PWA Status - уведомление об успешной установке */}
-					<PWAStatus />
+				{/* PWA Status - уведомление об успешной установке */}
+				<PWAStatus />
 
-					{/* PWA Update Prompt - обновление Service Worker */}
-					<PWAUpdatePrompt />
+				{/* PWA Update Prompt - обновление Service Worker */}
+				<PWAUpdatePrompt />
 
-					{/* Install Prompt - настраиваемый через админ-панель */}
-					{showInstallPrompt && (
-						<InstallPrompt
-							onClose={handleInstallClose}
-							onInstall={handleInstall}
-						/>
-					)}
+				{/* Install Prompt - настраиваемый через админ-панель */}
+				{showInstallPrompt && (
+					<InstallPrompt onClose={handleInstallClose} onInstall={handleInstall} />
+				)}
 
-					{/* Offline Sync Indicator - показывает pending syncs */}
-					{userData?.user?.id && !isAdminRoute && (
-						<OfflineSyncIndicator userId={userData.user.id} />
-					)}
+				{/* Offline Sync Indicator - показывает pending syncs */}
+				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
 
-					{/* Offline Mode Badge - показывает offline статус и pending count */}
-					{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
+				{/* Offline Mode Badge - показывает offline статус и pending count */}
+				{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
 
-					{/* Sync Completion Modal - показывается после успешной синхронизации */}
-					{userData?.user?.id && !isAdminRoute && (
-						<SyncCompletionModal
-							isOpen={showSyncComplete}
-							onClose={() => setShowSyncComplete(false)}
-							syncedCount={syncedCount}
-						/>
-					)}
-				</Suspense>
+				{/* Sync Completion Modal - показывается после успешной синхронизации */}
+				{userData?.user?.id && !isAdminRoute && (
+					<SyncCompletionModal
+						isOpen={showSyncComplete}
+						onClose={() => setShowSyncComplete(false)}
+						syncedCount={syncedCount}
+					/>
+				)}
+			</Suspense>
 
-				<MobileApp
-					authMode={authMode}
-					currentStep={currentStep}
-					onAuthComplete={handleAuthComplete}
-					onboardingComplete={onboardingComplete}
-					onboardingData={onboardingData}
-					onLogout={handleLogout}
-					onOnboarding2Complete={handleOnboarding2Complete}
-					onOnboarding3Complete={handleOnboarding3Complete}
-					onOnboarding4Complete={handleOnboarding4Complete}
-					onProfileUpdate={handleProfileUpdate}
-					onWelcomeComplete={handleWelcomeComplete}
-					onWelcomeSkip={handleWelcomeSkip}
-					selectedLanguage={selectedLanguage}
-					showAuth={showAuth}
-					userData={userData}
-				/>
-			</ThemeProvider>
-		</>
+			<MobileApp
+				authMode={authMode}
+				currentStep={currentStep}
+				onAuthComplete={handleAuthComplete}
+				onboardingComplete={onboardingComplete}
+				onboardingData={onboardingData}
+				onLogout={handleLogout}
+				onOnboarding2Complete={handleOnboarding2Complete}
+				onOnboarding3Complete={handleOnboarding3Complete}
+				onOnboarding4Complete={handleOnboarding4Complete}
+				onProfileUpdate={handleProfileUpdate}
+				onWelcomeComplete={handleWelcomeComplete}
+				onWelcomeSkip={handleWelcomeSkip}
+				selectedLanguage={selectedLanguage}
+				showAuth={showAuth}
+				userData={userData}
+			/>
+		</ThemeProvider>
 	);
 }

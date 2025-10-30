@@ -1,5 +1,5 @@
-import { Database } from "lucide-react";
-import { CacheManager } from "@/components/screens/admin/settings/CacheManager";
+import { Database } from 'lucide-react';
+import { CacheManager } from '@/components/screens/admin/settings/CacheManager';
 
 export function PWACache() {
 	return (
@@ -11,9 +11,7 @@ export function PWACache() {
 						<Database className="h-6 w-6" />
 						Cache Management
 					</h2>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Управление кэшем Service Worker
-					</p>
+					<p className="mt-1 text-muted-foreground text-sm">Управление кэшем Service Worker</p>
 				</div>
 			</div>
 

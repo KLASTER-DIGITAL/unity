@@ -8,11 +8,11 @@
  * @module platform/storage
  */
 
-import { WebStorageAdapter } from "./storage.web";
-import type { StorageAdapter } from "./types";
+import { WebStorageAdapter } from './storage.web';
+import type { StorageAdapter } from './types';
 
 // Re-export StorageAdapter interface
-export type { StorageAdapter } from "./types";
+export type { StorageAdapter } from './types';
 
 /**
  * Universal storage instance

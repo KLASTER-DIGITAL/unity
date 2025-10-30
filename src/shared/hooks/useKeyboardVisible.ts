@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 /**
  * Hook to detect if mobile keyboard is visible
@@ -11,7 +11,7 @@ export function useKeyboardVisible(): boolean {
 
 	useEffect(() => {
 		// Check if visualViewport is supported (iOS Safari 13+, Chrome 61+)
-		if (typeof window === "undefined" || !window.visualViewport) {
+		if (typeof window === 'undefined' || !window.visualViewport) {
 			return;
 		}
 
@@ -23,8 +23,7 @@ export function useKeyboardVisible(): boolean {
 			// Check if focus is on input/textarea
 			const activeElement = document.activeElement;
 			const isInputFocused =
-				activeElement instanceof HTMLInputElement ||
-				activeElement instanceof HTMLTextAreaElement;
+				activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement;
 
 			// Calculate keyboard height
 			const viewportHeight = window.visualViewport.height;
@@ -43,16 +42,13 @@ export function useKeyboardVisible(): boolean {
 		handleResize();
 
 		// Listen to viewport resize events
-		window.visualViewport.addEventListener("resize", handleResize);
-		window.visualViewport.addEventListener("scroll", handleResize);
+		window.visualViewport.addEventListener('resize', handleResize);
+		window.visualViewport.addEventListener('scroll', handleResize);
 
 		// Listen to focus/blur events on input/textarea elements
 		const handleFocusIn = (e: FocusEvent) => {
 			const target = e.target;
-			if (
-				target instanceof HTMLInputElement ||
-				target instanceof HTMLTextAreaElement
-			) {
+			if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
 				// Delay to allow keyboard to appear
 				setTimeout(handleResize, 100);
 			}
@@ -63,16 +59,16 @@ export function useKeyboardVisible(): boolean {
 			setTimeout(handleResize, 100);
 		};
 
-		document.addEventListener("focusin", handleFocusIn);
-		document.addEventListener("focusout", handleFocusOut);
+		document.addEventListener('focusin', handleFocusIn);
+		document.addEventListener('focusout', handleFocusOut);
 
 		return () => {
 			if (window.visualViewport) {
-				window.visualViewport.removeEventListener("resize", handleResize);
-				window.visualViewport.removeEventListener("scroll", handleResize);
+				window.visualViewport.removeEventListener('resize', handleResize);
+				window.visualViewport.removeEventListener('scroll', handleResize);
 			}
-			document.removeEventListener("focusin", handleFocusIn);
-			document.removeEventListener("focusout", handleFocusOut);
+			document.removeEventListener('focusin', handleFocusIn);
+			document.removeEventListener('focusout', handleFocusOut);
 		};
 	}, []);
 

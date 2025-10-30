@@ -5,16 +5,16 @@
  * Displays at the top of the screen when there are pending syncs.
  */
 
-import { AlertCircle, Cloud, CloudOff, RefreshCw, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { AlertCircle, Cloud, CloudOff, RefreshCw, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import {
 	deleteFailedEntry,
 	getPendingEntries,
 	retryFailedEntry,
 	syncPendingEntries,
-} from "@/shared/lib/offline/backgroundSync";
-import type { PendingEntry } from "@/shared/lib/offline/indexedDB";
+} from '@/shared/lib/offline/backgroundSync';
+import type { PendingEntry } from '@/shared/lib/offline/indexedDB';
 
 type OfflineSyncIndicatorProps = {
 	userId: string;
@@ -32,10 +32,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 			const entries = await getPendingEntries(userId);
 			setPendingEntries(entries);
 		} catch (error) {
-			console.error(
-				"[OfflineSyncIndicator] Failed to load pending entries:",
-				error,
-			);
+			console.error('[OfflineSyncIndicator] Failed to load pending entries:', error);
 		}
 	};
 
@@ -50,27 +47,24 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 			setIsOnline(false);
 		};
 
-		window.addEventListener("online", handleOnline);
-		window.addEventListener("offline", handleOffline);
+		window.addEventListener('online', handleOnline);
+		window.addEventListener('offline', handleOffline);
 
 		// Load initial pending entries
 		loadPendingEntries();
 
 		// Listen for sync events from Service Worker
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.addEventListener("message", (event) => {
-				if (
-					event.data.type === "ENTRY_SYNCED" ||
-					event.data.type === "ENTRY_SYNC_FAILED"
-				) {
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.addEventListener('message', (event) => {
+				if (event.data.type === 'ENTRY_SYNCED' || event.data.type === 'ENTRY_SYNC_FAILED') {
 					loadPendingEntries();
 				}
 			});
 		}
 
 		return () => {
-			window.removeEventListener("online", handleOnline);
-			window.removeEventListener("offline", handleOffline);
+			window.removeEventListener('online', handleOnline);
+			window.removeEventListener('offline', handleOffline);
 		};
 	}, [
 		// Load initial pending entries
@@ -88,7 +82,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 			await syncPendingEntries();
 			await loadPendingEntries();
 		} catch (error) {
-			console.error("[OfflineSyncIndicator] Manual sync failed:", error);
+			console.error('[OfflineSyncIndicator] Manual sync failed:', error);
 		} finally {
 			setIsSyncing(false);
 		}
@@ -100,7 +94,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 			await retryFailedEntry(entryId);
 			await loadPendingEntries();
 		} catch (error) {
-			console.error("[OfflineSyncIndicator] Retry failed:", error);
+			console.error('[OfflineSyncIndicator] Retry failed:', error);
 		}
 	};
 
@@ -110,19 +104,13 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 			await deleteFailedEntry(entryId);
 			await loadPendingEntries();
 		} catch (error) {
-			console.error("[OfflineSyncIndicator] Delete failed:", error);
+			console.error('[OfflineSyncIndicator] Delete failed:', error);
 		}
 	};
 
-	const pendingCount = pendingEntries.filter(
-		(e) => e.syncStatus === "pending",
-	).length;
-	const failedCount = pendingEntries.filter(
-		(e) => e.syncStatus === "failed",
-	).length;
-	const syncingCount = pendingEntries.filter(
-		(e) => e.syncStatus === "syncing",
-	).length;
+	const pendingCount = pendingEntries.filter((e) => e.syncStatus === 'pending').length;
+	const failedCount = pendingEntries.filter((e) => e.syncStatus === 'failed').length;
+	const syncingCount = pendingEntries.filter((e) => e.syncStatus === 'syncing').length;
 
 	// Don't show if no pending entries
 	if (pendingEntries.length === 0) {
@@ -140,15 +128,11 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 				<div className="mx-auto max-w-md px-4 py-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							{isOnline ? (
-								<Cloud className="h-5 w-5" />
-							) : (
-								<CloudOff className="h-5 w-5" />
-							)}
+							{isOnline ? <Cloud className="h-5 w-5" /> : <CloudOff className="h-5 w-5" />}
 
 							<div className="flex flex-col">
 								<span className="font-medium text-sm">
-									{isOnline ? "Синхронизация..." : "Вы офлайн"}
+									{isOnline ? 'Синхронизация...' : 'Вы офлайн'}
 								</span>
 								<span className="text-xs opacity-90">
 									{pendingCount > 0 && `${pendingCount} записей ожидают`}
@@ -165,9 +149,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 									disabled={isSyncing}
 									onClick={handleManualSync}
 								>
-									<RefreshCw
-										className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
-									/>
+									<RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
 								</button>
 							)}
 
@@ -175,11 +157,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 								className="rounded-lg p-2 transition-colors duration-300 hover:bg-muted/20"
 								onClick={() => setShowDetails(!showDetails)}
 							>
-								{showDetails ? (
-									<X className="h-4 w-4" />
-								) : (
-									<AlertCircle className="h-4 w-4" />
-								)}
+								{showDetails ? <X className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
 							</button>
 						</div>
 					</div>
@@ -188,7 +166,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 					<AnimatePresence>
 						{showDetails && (
 							<motion.div
-								animate={{ height: "auto", opacity: 1 }}
+								animate={{ height: 'auto', opacity: 1 }}
 								className="mt-3 space-y-2 overflow-hidden"
 								exit={{ height: 0, opacity: 0 }}
 								initial={{ height: 0, opacity: 0 }}
@@ -202,22 +180,22 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 											<div className="min-w-0 flex-1">
 												<p className="truncate font-medium text-sm">
 													{entry.text.substring(0, 50)}
-													{entry.text.length > 50 && "..."}
+													{entry.text.length > 50 && '...'}
 												</p>
 												<div className="mt-1 flex items-center gap-2">
-													{entry.syncStatus === "pending" && (
+													{entry.syncStatus === 'pending' && (
 														<span className="flex items-center gap-1 text-xs opacity-75">
 															<Cloud className="h-3 w-3" />
 															Ожидает
 														</span>
 													)}
-													{entry.syncStatus === "syncing" && (
+													{entry.syncStatus === 'syncing' && (
 														<span className="flex items-center gap-1 text-xs opacity-75">
 															<RefreshCw className="h-3 w-3 animate-spin" />
 															Синхронизация...
 														</span>
 													)}
-													{entry.syncStatus === "failed" && (
+													{entry.syncStatus === 'failed' && (
 														<span className="flex items-center gap-1 text-xs opacity-75">
 															<AlertCircle className="h-3 w-3" />
 															Ошибка ({entry.retryCount}/3)
@@ -225,13 +203,11 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 													)}
 												</div>
 												{entry.lastError && (
-													<p className="mt-1 text-xs opacity-75">
-														{entry.lastError}
-													</p>
+													<p className="mt-1 text-xs opacity-75">{entry.lastError}</p>
 												)}
 											</div>
 
-											{entry.syncStatus === "failed" && (
+											{entry.syncStatus === 'failed' && (
 												<div className="flex gap-1">
 													<button
 														className="rounded p-1.5 transition-colors duration-300 hover:bg-muted/20"

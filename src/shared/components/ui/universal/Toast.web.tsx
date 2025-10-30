@@ -4,8 +4,8 @@
  * Uses sonner for React Web (PWA)
  */
 
-import { Toaster as SonnerToaster, toast as sonnerToast } from "sonner";
-import type { ToastProps } from "./types";
+import { Toaster as SonnerToaster, toast as sonnerToast } from 'sonner';
+import type { ToastProps } from './types';
 
 /**
  * Toast API for Web (sonner)
@@ -126,7 +126,7 @@ export const toast = {
 			loading: string;
 			success: string | ((data: T) => string);
 			error: string | ((error: any) => string);
-		},
+		}
 	) => sonnerToast.promise(promise, options),
 };
 
@@ -135,13 +135,13 @@ export const toast = {
  */
 export type ToasterProps = {
 	position?:
-		| "top-left"
-		| "top-center"
-		| "top-right"
-		| "bottom-left"
-		| "bottom-center"
-		| "bottom-right";
-	theme?: "light" | "dark" | "system";
+		| 'top-left'
+		| 'top-center'
+		| 'top-right'
+		| 'bottom-left'
+		| 'bottom-center'
+		| 'bottom-right';
+	theme?: 'light' | 'dark' | 'system';
 	richColors?: boolean;
 	expand?: boolean;
 	visibleToasts?: number;
@@ -149,8 +149,8 @@ export type ToasterProps = {
 };
 
 export function Toaster({
-	position = "top-center",
-	theme = "system",
+	position = 'top-center',
+	theme = 'system',
 	richColors = true,
 	expand = false,
 	visibleToasts = 3,
@@ -165,9 +165,9 @@ export function Toaster({
 			richColors={richColors}
 			style={
 				{
-					"--normal-bg": "var(--popover)",
-					"--normal-text": "var(--popover-foreground)",
-					"--normal-border": "var(--border)",
+					'--normal-bg': 'var(--popover)',
+					'--normal-text': 'var(--popover-foreground)',
+					'--normal-border': 'var(--border)',
 				} as React.CSSProperties
 			}
 			theme={theme}

@@ -1,9 +1,9 @@
-import { Image as ImageIcon, Play, X } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
-import type { MediaFile } from "@/shared/lib/api";
-import { PhotoViewer } from "./PhotoViewer";
-import { VideoPlayer } from "./VideoPlayer";
+import { Image as ImageIcon, Play, X } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import type { MediaFile } from '@/shared/lib/api';
+import { PhotoViewer } from './PhotoViewer';
+import { VideoPlayer } from './VideoPlayer';
 
 type MediaGridProps = {
 	media: MediaFile[];
@@ -11,11 +11,7 @@ type MediaGridProps = {
 	readonly?: boolean;
 };
 
-export function MediaGrid({
-	media,
-	onRemove,
-	readonly = false,
-}: MediaGridProps) {
+export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps) {
 	const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
 	const [viewerOpen, setViewerOpen] = useState(false);
 
@@ -49,7 +45,7 @@ export function MediaGrid({
 							className="h-full w-full overflow-hidden rounded-lg bg-muted transition-opacity hover:opacity-90 dark:bg-card"
 							onClick={() => handleMediaClick(mediaFile)}
 						>
-							{mediaFile.type === "image" ? (
+							{mediaFile.type === 'image' ? (
 								<img
 									alt={mediaFile.fileName}
 									className="h-full w-full object-cover"
@@ -64,7 +60,7 @@ export function MediaGrid({
 
 						{/* Type indicator */}
 						<div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-black/50 px-2 py-1 text-white text-xs backdrop-blur-sm">
-							{mediaFile.type === "image" ? (
+							{mediaFile.type === 'image' ? (
 								<>
 									<ImageIcon className="h-3 w-3" />
 									<span>Фото</span>
@@ -100,22 +96,22 @@ export function MediaGrid({
 			</div>
 
 			{/* Photo Viewer */}
-			{selectedMedia && selectedMedia.type === "image" && (
+			{selectedMedia && selectedMedia.type === 'image' && (
 				<PhotoViewer
 					fileName={selectedMedia.fileName}
-					imageUrl={selectedMedia.url ?? ""}
+					imageUrl={selectedMedia.url ?? ''}
 					isOpen={viewerOpen}
 					onClose={handleCloseViewer}
 				/>
 			)}
 
 			{/* Video Player */}
-			{selectedMedia && selectedMedia.type === "video" && (
+			{selectedMedia && selectedMedia.type === 'video' && (
 				<VideoPlayer
 					fileName={selectedMedia.fileName}
 					isOpen={viewerOpen}
 					onClose={handleCloseViewer}
-					videoUrl={selectedMedia.url ?? ""}
+					videoUrl={selectedMedia.url ?? ''}
 				/>
 			)}
 		</>

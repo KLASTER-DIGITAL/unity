@@ -2,47 +2,40 @@
 // This file is used instead of app.json to enable dynamic env loading
 
 // Load environment variables from .env file
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = {
 	expo: {
-		name: "UNITY - Дневник достижений",
-		slug: "unity",
-		version: "2.0.0",
-		orientation: "portrait",
-		userInterfaceStyle: "automatic",
-		scheme: "unity",
+		name: 'UNITY - Дневник достижений',
+		slug: 'unity',
+		version: '2.0.0',
+		orientation: 'portrait',
+		userInterfaceStyle: 'automatic',
+		scheme: 'unity',
 		splash: {
-			resizeMode: "contain",
-			backgroundColor: "#007AFF",
+			resizeMode: 'contain',
+			backgroundColor: '#007AFF',
 		},
-		assetBundlePatterns: ["**/*"],
+		assetBundlePatterns: ['**/*'],
 		ios: {
 			supportsTablet: true,
-			bundleIdentifier: "com.unity.diary",
+			bundleIdentifier: 'com.unity.diary',
 			infoPlist: {
-				NSCameraUsageDescription:
-					"UNITY использует камеру для добавления фото к достижениям",
+				NSCameraUsageDescription: 'UNITY использует камеру для добавления фото к достижениям',
 				NSPhotoLibraryUsageDescription:
-					"UNITY использует галерею для добавления фото к достижениям",
-				NSMicrophoneUsageDescription:
-					"UNITY использует микрофон для записи голосовых заметок",
+					'UNITY использует галерею для добавления фото к достижениям',
+				NSMicrophoneUsageDescription: 'UNITY использует микрофон для записи голосовых заметок',
 				ITSAppUsesNonExemptEncryption: false,
 			},
 		},
 		android: {
-			package: "com.unity.diary",
-			permissions: [
-				"CAMERA",
-				"READ_EXTERNAL_STORAGE",
-				"WRITE_EXTERNAL_STORAGE",
-				"RECORD_AUDIO",
-			],
+			package: 'com.unity.diary',
+			permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE', 'RECORD_AUDIO'],
 		},
 		web: {
-			bundler: "metro",
+			bundler: 'metro',
 		},
-		plugins: ["expo-router", "expo-font", "expo-sqlite"],
+		plugins: ['expo-router', 'expo-font', 'expo-sqlite'],
 		experiments: {
 			typedRoutes: true,
 		},

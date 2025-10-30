@@ -1,6 +1,6 @@
-import { Edit, Trash2, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import type { DiaryEntry } from "@/shared/lib/api";
+import { Edit, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type { DiaryEntry } from '@/shared/lib/api';
 
 type EntryActionsModalProps = {
 	entry: DiaryEntry | null;
@@ -13,12 +13,7 @@ type EntryActionsModalProps = {
  * Entry Actions Modal Component
  * Modal for entry actions (edit, delete)
  */
-export function EntryActionsModal({
-	entry,
-	onClose,
-	onEdit,
-	onDelete,
-}: EntryActionsModalProps) {
+export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryActionsModalProps) {
 	if (!entry) {
 		return null;
 	}
@@ -40,9 +35,7 @@ export function EntryActionsModal({
 				initial={{ opacity: 0, y: 100 }}
 			>
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="font-semibold! text-[18px]! text-foreground">
-						Действия
-					</h3>
+					<h3 className="font-semibold! text-[18px]! text-foreground">Действия</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}

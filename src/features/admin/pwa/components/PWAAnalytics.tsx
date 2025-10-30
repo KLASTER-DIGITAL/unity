@@ -1,23 +1,18 @@
-import { BarChart3, Bell, TrendingUp, Users } from "lucide-react";
-import { useState } from "react";
-import { AdvancedPWAAnalytics } from "@/components/screens/admin/analytics/AdvancedPWAAnalytics";
-import { PushAnalyticsDashboard } from "@/components/screens/admin/settings/PushAnalyticsDashboard";
+import { BarChart3, Bell, TrendingUp, Users } from 'lucide-react';
+import { useState } from 'react';
+import { AdvancedPWAAnalytics } from '@/components/screens/admin/analytics/AdvancedPWAAnalytics';
+import { PushAnalyticsDashboard } from '@/components/screens/admin/settings/PushAnalyticsDashboard';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@/shared/components/ui/tabs";
+} from '@/shared/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
 export function PWAAnalytics() {
-	const [activeTab, setActiveTab] = useState("push");
+	const [activeTab, setActiveTab] = useState('push');
 
 	return (
 		<div className="space-y-6">
@@ -35,11 +30,7 @@ export function PWAAnalytics() {
 			</div>
 
 			{/* Tabs */}
-			<Tabs
-				className="space-y-6"
-				onValueChange={setActiveTab}
-				value={activeTab}
-			>
+			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
 				<TabsList className="grid w-full max-w-2xl grid-cols-4">
 					<TabsTrigger className="flex items-center gap-2" value="push">
 						<Bell className="h-4 w-4" />
@@ -77,17 +68,13 @@ export function PWAAnalytics() {
 								<Users className="h-5 w-5" />
 								Cohort Retention Analysis
 							</CardTitle>
-							<CardDescription>
-								Анализ удержания пользователей по когортам
-							</CardDescription>
+							<CardDescription>Анализ удержания пользователей по когортам</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="py-12 text-center text-muted-foreground">
 								<Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
 								<p>Cohort Retention доступен в Advanced Analytics</p>
-								<p className="mt-2 text-sm">
-									Переключитесь на вкладку "Advanced" для просмотра
-								</p>
+								<p className="mt-2 text-sm">Переключитесь на вкладку "Advanced" для просмотра</p>
 							</div>
 						</CardContent>
 					</Card>
@@ -101,17 +88,13 @@ export function PWAAnalytics() {
 								<BarChart3 className="h-5 w-5" />
 								Funnel Analysis
 							</CardTitle>
-							<CardDescription>
-								Анализ конверсии через воронку установки
-							</CardDescription>
+							<CardDescription>Анализ конверсии через воронку установки</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="py-12 text-center text-muted-foreground">
 								<BarChart3 className="mx-auto mb-4 h-12 w-12 opacity-50" />
 								<p>Funnel Analysis доступен в Advanced Analytics</p>
-								<p className="mt-2 text-sm">
-									Переключитесь на вкладку "Advanced" для просмотра
-								</p>
+								<p className="mt-2 text-sm">Переключитесь на вкладку "Advanced" для просмотра</p>
 							</div>
 						</CardContent>
 					</Card>

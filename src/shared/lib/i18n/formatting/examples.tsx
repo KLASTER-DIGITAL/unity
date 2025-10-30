@@ -5,7 +5,7 @@
  * in different scenarios.
  */
 
-import { useTranslation } from "../useTranslation";
+import { useTranslation } from '../useTranslation';
 
 /**
  * Example 1: Format entry creation date
@@ -16,16 +16,16 @@ export function ExampleEntryDate({ createdAt }: { createdAt: string }) {
 	return (
 		<div className="text-muted-foreground text-sm">
 			{/* Short date: "1/15/24" (en) / "15.01.24" (ru) */}
-			<p>{t.formatDate(createdAt, { style: "short" })}</p>
+			<p>{t.formatDate(createdAt, { style: 'short' })}</p>
 
 			{/* Medium date: "Jan 15, 2024" (en) / "15 янв. 2024 г." (ru) */}
-			<p>{t.formatDate(createdAt, { style: "medium" })}</p>
+			<p>{t.formatDate(createdAt, { style: 'medium' })}</p>
 
 			{/* Long date: "January 15, 2024" (en) / "15 января 2024 г." (ru) */}
-			<p>{t.formatDate(createdAt, { style: "long" })}</p>
+			<p>{t.formatDate(createdAt, { style: 'long' })}</p>
 
 			{/* With time: "Jan 15, 2024, 3:30 PM" */}
-			<p>{t.formatDate(createdAt, { style: "medium", includeTime: true })}</p>
+			<p>{t.formatDate(createdAt, { style: 'medium', includeTime: true })}</p>
 		</div>
 	);
 }
@@ -42,10 +42,10 @@ export function ExampleTimeAgo({ date }: { date: string }) {
 			<p>{t.formatRelativeTime(date)}</p>
 
 			{/* Short version: "5m ago" / "2h ago" */}
-			<p>{t.formatRelativeTime(date, { style: "short" })}</p>
+			<p>{t.formatRelativeTime(date, { style: 'short' })}</p>
 
 			{/* Always numeric: "1 day ago" instead of "yesterday" */}
-			<p>{t.formatRelativeTime(date, { numeric: "always" })}</p>
+			<p>{t.formatRelativeTime(date, { numeric: 'always' })}</p>
 		</div>
 	);
 }
@@ -121,13 +121,13 @@ export function ExampleCurrency({ amount }: { amount: number }) {
 	return (
 		<div className="space-y-2">
 			{/* USD: "$1,234.56" (en) / "1 234,56 $" (ru) */}
-			<p>{t.formatCurrency(amount, "USD")}</p>
+			<p>{t.formatCurrency(amount, 'USD')}</p>
 
 			{/* EUR: "€1,234.56" (en) / "1 234,56 €" (ru) */}
-			<p>{t.formatCurrency(amount, "EUR")}</p>
+			<p>{t.formatCurrency(amount, 'EUR')}</p>
 
 			{/* RUB: "₽1,234.56" (en) / "1 234,56 ₽" (ru) */}
-			<p>{t.formatCurrency(amount, "RUB")}</p>
+			<p>{t.formatCurrency(amount, 'RUB')}</p>
 
 			{/* Using presets */}
 			<p>{t.numberFormats.usd(amount, t.currentLanguage)}</p>
@@ -183,11 +183,9 @@ export function ExampleReportStats({
 	return (
 		<div className="grid grid-cols-2 gap-4">
 			<div className="rounded-lg bg-card p-4">
-				<div className="font-bold text-2xl">
-					{t.formatNumber(stats.totalEntries)}
-				</div>
+				<div className="font-bold text-2xl">{t.formatNumber(stats.totalEntries)}</div>
 				<div className="text-muted-foreground text-sm">
-					{t("reports.totalEntries", "Total Entries")}
+					{t('reports.totalEntries', 'Total Entries')}
 				</div>
 			</div>
 
@@ -198,26 +196,20 @@ export function ExampleReportStats({
 						maximumFractionDigits: 1,
 					})}
 				</div>
+				<div className="text-muted-foreground text-sm">{t('reports.avgPerDay', 'Avg per Day')}</div>
+			</div>
+
+			<div className="rounded-lg bg-card p-4">
+				<div className="font-bold text-2xl">{t.formatPercent(stats.completionRate)}</div>
 				<div className="text-muted-foreground text-sm">
-					{t("reports.avgPerDay", "Avg per Day")}
+					{t('reports.completionRate', 'Completion Rate')}
 				</div>
 			</div>
 
 			<div className="rounded-lg bg-card p-4">
-				<div className="font-bold text-2xl">
-					{t.formatPercent(stats.completionRate)}
-				</div>
+				<div className="font-bold text-2xl">{t.formatDuration(stats.totalDuration)}</div>
 				<div className="text-muted-foreground text-sm">
-					{t("reports.completionRate", "Completion Rate")}
-				</div>
-			</div>
-
-			<div className="rounded-lg bg-card p-4">
-				<div className="font-bold text-2xl">
-					{t.formatDuration(stats.totalDuration)}
-				</div>
-				<div className="text-muted-foreground text-sm">
-					{t("reports.totalDuration", "Total Duration")}
+					{t('reports.totalDuration', 'Total Duration')}
 				</div>
 			</div>
 		</div>
@@ -243,23 +235,17 @@ export function ExampleAdminUsage({
 		<div className="space-y-4">
 			<div className="flex justify-between">
 				<span>Total Users:</span>
-				<span className="font-semibold">
-					{t.formatCompact(usage.totalUsers)}
-				</span>
+				<span className="font-semibold">{t.formatCompact(usage.totalUsers)}</span>
 			</div>
 
 			<div className="flex justify-between">
 				<span>Active Users:</span>
-				<span className="font-semibold">
-					{t.formatNumber(usage.activeUsers)}
-				</span>
+				<span className="font-semibold">{t.formatNumber(usage.activeUsers)}</span>
 			</div>
 
 			<div className="flex justify-between">
 				<span>Storage Used:</span>
-				<span className="font-semibold">
-					{t.formatFileSize(usage.totalStorage)}
-				</span>
+				<span className="font-semibold">{t.formatFileSize(usage.totalStorage)}</span>
 			</div>
 
 			<div className="flex justify-between">
@@ -292,9 +278,7 @@ export function ExamplePresetFormats() {
 			<p>Decimal: {t.numberFormats.decimal(1234.56, t.currentLanguage)}</p>
 			<p>Percent: {t.numberFormats.percent(0.85, t.currentLanguage)}</p>
 			<p>Compact: {t.numberFormats.compact(1_234_567, t.currentLanguage)}</p>
-			<p>
-				File size: {t.numberFormats.fileSize(1024 * 1024, t.currentLanguage)}
-			</p>
+			<p>File size: {t.numberFormats.fileSize(1024 * 1024, t.currentLanguage)}</p>
 		</div>
 	);
 }

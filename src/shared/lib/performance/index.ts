@@ -11,7 +11,7 @@ export {
 	performanceMonitor,
 	reportWebVitals,
 	type WebVitalsMetrics,
-} from "./monitoring";
+} from './monitoring';
 export {
 	createHoverPrefetch,
 	prefetchComponent,
@@ -22,9 +22,9 @@ export {
 	RoutePrefetcher,
 	routePrefetcher,
 	smartPrefetch,
-} from "./prefetch";
+} from './prefetch';
 
 export {
 	initSentryPerformanceIntegration,
 	reportPerformanceSummary,
-} from "./sentry-integration";
+} from './sentry-integration';

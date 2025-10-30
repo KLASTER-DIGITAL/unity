@@ -5,29 +5,26 @@
  * Разбито из App.tsx для соблюдения AI-friendly правила (<250 строк)
  */
 
-import { useCallback, useEffect } from "react";
-import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
+import { useCallback, useEffect } from 'react';
+import { useInitPushAnalytics } from '@/shared/hooks/usePushAnalytics';
 import {
 	incrementVisitCount,
 	shouldShowInstallPrompt,
 	usePWASettings,
-} from "@/shared/hooks/usePWASettings";
-import {
-	initPWAAnalytics,
-	trackInstallPromptShown,
-} from "@/shared/lib/analytics/pwa-tracking";
-import { getEntries, getUserStats } from "@/shared/lib/api";
-import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
+} from '@/shared/hooks/usePWASettings';
+import { initPWAAnalytics, trackInstallPromptShown } from '@/shared/lib/analytics/pwa-tracking';
+import { getEntries, getUserStats } from '@/shared/lib/api';
+import { markInstallPromptAsShown } from '@/shared/lib/api/pwaUtils';
 import {
 	isAdminRoute as checkIsAdminRoute,
 	isPerformanceRoute as checkIsPerformanceRoute,
 	isTestRoute as checkIsTestRoute,
 	parseRouteParams,
-} from "@/shared/lib/auth";
-import { addBreadcrumb, setUser } from "@/shared/lib/monitoring/lazy";
-import { initBackgroundSync } from "@/shared/lib/offline";
-import { reportWebVitals } from "@/shared/lib/performance";
-import { checkSession } from "@/utils/auth";
+} from '@/shared/lib/auth';
+import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
+import { initBackgroundSync } from '@/shared/lib/offline';
+import { reportWebVitals } from '@/shared/lib/performance';
+import { checkSession } from '@/utils/auth';
 
 type UseAppInitializationProps = {
 	userData: any;
@@ -90,7 +87,7 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		const isTestParam = checkIsTestRoute(params);
 		const isPerformanceParam = checkIsPerformanceRoute(params);
 
-		console.log("🔍 [App.tsx] Route check:", {
+		console.log('🔍 [App.tsx] Route check:', {
 			isAdminParam,
 			isTestParam,
 			isPerformanceParam,
@@ -122,14 +119,14 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 			reportWebVitals((metric) => {
 				// Send Web Vitals to Sentry
 				addBreadcrumb({
-					category: "performance",
+					category: 'performance',
 					message: `${metric.name}: ${metric.value.toFixed(2)}ms`,
 					level:
-						metric.rating === "good"
-							? "info"
-							: metric.rating === "needs-improvement"
-								? "warning"
-								: "error",
+						metric.rating === 'good'
+							? 'info'
+							: metric.rating === 'needs-improvement'
+								? 'warning'
+								: 'error',
 					data: {
 						name: metric.name,
 						value: metric.value,
@@ -144,10 +141,10 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 	// Check route on mount and popstate
 	useEffect(() => {
 		checkRouteAndAccess();
-		window.addEventListener("popstate", checkRouteAndAccess);
+		window.addEventListener('popstate', checkRouteAndAccess);
 
 		return () => {
-			window.removeEventListener("popstate", checkRouteAndAccess);
+			window.removeEventListener('popstate', checkRouteAndAccess);
 		};
 	}, [checkRouteAndAccess]);
 
@@ -155,11 +152,11 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 	useEffect(() => {
 		const initSession = async () => {
 			try {
-				console.log("🔐 [App.tsx] Checking session...");
+				console.log('🔐 [App.tsx] Checking session...');
 				const session = await checkSession();
 
 				if (session?.user) {
-					console.log("✅ [App.tsx] Session found:", session.user.email);
+					console.log('✅ [App.tsx] Session found:', session.user.email);
 
 					// Set user in Sentry for error tracking
 					setUser({
@@ -174,27 +171,26 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 					const entries = await getEntries(session.user.id);
 					const stats = await getUserStats(session.user.id);
 
-					console.log("📊 [App.tsx] User stats:", {
+					console.log('📊 [App.tsx] User stats:', {
 						entriesCount: entries?.length || 0,
 						hasStats: !!stats,
 					});
 
 					// User has completed onboarding if they have entries or stats
-					const hasCompletedOnboarding =
-						(entries && entries.length > 0) || !!stats;
+					const hasCompletedOnboarding = (entries && entries.length > 0) || !!stats;
 					setOnboardingComplete(hasCompletedOnboarding);
 
 					console.log(
-						"🎯 [App.tsx] Onboarding status:",
-						hasCompletedOnboarding ? "COMPLETE" : "INCOMPLETE",
+						'🎯 [App.tsx] Onboarding status:',
+						hasCompletedOnboarding ? 'COMPLETE' : 'INCOMPLETE'
 					);
 				} else {
-					console.log("❌ [App.tsx] No session found");
+					console.log('❌ [App.tsx] No session found');
 					setUserData(null);
 					setOnboardingComplete(false);
 				}
 			} catch (error) {
-				console.error("❌ [App.tsx] Session check error:", error);
+				console.error('❌ [App.tsx] Session check error:', error);
 				setUserData(null);
 				setOnboardingComplete(false);
 			} finally {
@@ -216,45 +212,42 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		// Initialize Background Sync
 		if (userData?.id) {
 			initBackgroundSync().catch((error) => {
-				console.error("[App] Failed to initialize Background Sync:", error);
+				console.error('[App] Failed to initialize Background Sync:', error);
 			});
 		}
 
 		// Обработчик beforeinstallprompt
 		const handleBeforeInstallPrompt = (e: Event) => {
-			console.log("[PWA] beforeinstallprompt event fired");
+			console.log('[PWA] beforeinstallprompt event fired');
 			e.preventDefault();
 			setDeferredPrompt(e);
 
 			// Проверяем условия показа install prompt
 			shouldShowInstallPrompt(pwaSettings).then((shouldShow) => {
 				if (shouldShow) {
-					console.log("[PWA] Showing install prompt based on settings");
+					console.log('[PWA] Showing install prompt based on settings');
 					setShowInstallPrompt(true);
 					trackInstallPromptShown(userData?.id || null);
 					markInstallPromptAsShown();
 				} else {
-					console.log("[PWA] Install prompt conditions not met");
+					console.log('[PWA] Install prompt conditions not met');
 				}
 			});
 		};
 
 		// Обработчик appinstalled
 		const handleAppInstalled = () => {
-			console.log("[PWA] App installed successfully");
+			console.log('[PWA] App installed successfully');
 			setShowInstallPrompt(false);
 			setDeferredPrompt(null);
 		};
 
-		window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-		window.addEventListener("appinstalled", handleAppInstalled);
+		window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+		window.addEventListener('appinstalled', handleAppInstalled);
 
 		return () => {
-			window.removeEventListener(
-				"beforeinstallprompt",
-				handleBeforeInstallPrompt,
-			);
-			window.removeEventListener("appinstalled", handleAppInstalled);
+			window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+			window.removeEventListener('appinstalled', handleAppInstalled);
 		};
 	}, [pwaSettings, userData, setDeferredPrompt, setShowInstallPrompt]);
 
@@ -263,8 +256,8 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		const handleSyncComplete = (event: MessageEvent) => {
 			const { type, data } = event.data || {};
 
-			if (type === "SYNC_COMPLETE") {
-				console.log("[Offline] Sync complete:", data);
+			if (type === 'SYNC_COMPLETE') {
+				console.log('[Offline] Sync complete:', data);
 				setSyncedCount(data?.count || 0);
 				setShowSyncComplete(true);
 
@@ -275,13 +268,10 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 			}
 		};
 
-		navigator.serviceWorker?.addEventListener("message", handleSyncComplete);
+		navigator.serviceWorker?.addEventListener('message', handleSyncComplete);
 
 		return () => {
-			navigator.serviceWorker?.removeEventListener(
-				"message",
-				handleSyncComplete,
-			);
+			navigator.serviceWorker?.removeEventListener('message', handleSyncComplete);
 		};
 	}, [setShowSyncComplete, setSyncedCount]);
 

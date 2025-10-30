@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // Функция для анализа использования React в файле
 function analyzeReactUsage(content) {
@@ -38,7 +38,7 @@ function analyzeReactUsage(content) {
 		const matches = content.match(pattern);
 		if (matches) {
 			matches.forEach((match) => {
-				const hook = match.replace("React.", "");
+				const hook = match.replace('React.', '');
 				reactUsages.add(hook);
 			});
 		}
@@ -54,42 +54,42 @@ function analyzeReactUsage(content) {
 function createOptimizedImport(reactUsages, hasJSX) {
 	const hooks = reactUsages.filter((usage) =>
 		[
-			"useState",
-			"useEffect",
-			"useCallback",
-			"useMemo",
-			"useRef",
-			"useContext",
-			"useReducer",
-			"useImperativeHandle",
-			"useLayoutEffect",
-		].includes(usage),
+			'useState',
+			'useEffect',
+			'useCallback',
+			'useMemo',
+			'useRef',
+			'useContext',
+			'useReducer',
+			'useImperativeHandle',
+			'useLayoutEffect',
+		].includes(usage)
 	);
 
 	const components = reactUsages.filter((usage) =>
 		[
-			"forwardRef",
-			"memo",
-			"lazy",
-			"Suspense",
-			"Fragment",
-			"createElement",
-			"cloneElement",
-			"isValidElement",
-			"Component",
-			"PureComponent",
-		].includes(usage),
+			'forwardRef',
+			'memo',
+			'lazy',
+			'Suspense',
+			'Fragment',
+			'createElement',
+			'cloneElement',
+			'isValidElement',
+			'Component',
+			'PureComponent',
+		].includes(usage)
 	);
 
 	const types = reactUsages.filter((usage) =>
 		[
-			"FC",
-			"ReactNode",
-			"ReactElement",
-			"ComponentProps",
-			"HTMLAttributes",
-			"CSSProperties",
-		].includes(usage),
+			'FC',
+			'ReactNode',
+			'ReactElement',
+			'ComponentProps',
+			'HTMLAttributes',
+			'CSSProperties',
+		].includes(usage)
 	);
 
 	const namedImports = [...hooks, ...components];
@@ -98,28 +98,28 @@ function createOptimizedImport(reactUsages, hasJSX) {
 	if (!hasJSX && namedImports.length === 0) {
 		// Если есть только типы, импортируем только типы
 		if (types.length > 0) {
-			return `import type { ${types.join(", ")} } from "react";`;
+			return `import type { ${types.join(', ')} } from "react";`;
 		}
 		return null;
 	}
 
-	let importStatement = "";
+	let importStatement = '';
 
 	// Если есть JSX или именованные импорты, добавляем React
 	if (hasJSX && namedImports.length > 0) {
-		importStatement = `import React, { ${namedImports.join(", ")} } from "react";`;
+		importStatement = `import React, { ${namedImports.join(', ')} } from "react";`;
 	} else if (hasJSX) {
 		importStatement = `import React from "react";`;
 	} else if (namedImports.length > 0) {
-		importStatement = `import { ${namedImports.join(", ")} } from "react";`;
+		importStatement = `import { ${namedImports.join(', ')} } from "react";`;
 	}
 
 	// Если есть типы, добавляем их отдельно
 	if (types.length > 0) {
 		if (importStatement) {
-			importStatement += `\nimport type { ${types.join(", ")} } from "react";`;
+			importStatement += `\nimport type { ${types.join(', ')} } from "react";`;
 		} else {
-			importStatement = `import type { ${types.join(", ")} } from "react";`;
+			importStatement = `import type { ${types.join(', ')} } from "react";`;
 		}
 	}
 
@@ -129,10 +129,10 @@ function createOptimizedImport(reactUsages, hasJSX) {
 // Функция для обновления файла
 function optimizeReactImports(filePath) {
 	try {
-		const content = fs.readFileSync(filePath, "utf8");
+		const content = fs.readFileSync(filePath, 'utf8');
 
 		// Проверяем, есть ли import * as React
-		if (!content.includes("import * as React")) {
+		if (!content.includes('import * as React')) {
 			return false;
 		}
 
@@ -146,23 +146,20 @@ function optimizeReactImports(filePath) {
 
 		if (!optimizedImport) {
 			// Удаляем импорт React, если он не нужен
-			const updatedContent = content.replace(
-				/import \* as React from ["']react["'];?\n?/g,
-				"",
-			);
+			const updatedContent = content.replace(/import \* as React from ["']react["'];?\n?/g, '');
 			fs.writeFileSync(filePath, updatedContent);
-			console.log("  ✅ Удален неиспользуемый импорт React");
+			console.log('  ✅ Удален неиспользуемый импорт React');
 			return true;
 		}
 
 		// Заменяем импорт
 		const updatedContent = content.replace(
 			/import \* as React from ["']react["'];?/g,
-			optimizedImport,
+			optimizedImport
 		);
 
 		fs.writeFileSync(filePath, updatedContent);
-		console.log(`  ✅ Оптимизирован импорт: ${reactUsages.join(", ")}`);
+		console.log(`  ✅ Оптимизирован импорт: ${reactUsages.join(', ')}`);
 		return true;
 	} catch (error) {
 		console.error(`❌ Ошибка при обработке ${filePath}:`, error.message);
@@ -181,13 +178,13 @@ function processDirectory(dirPath) {
 
 		if (stat.isDirectory()) {
 			// Пропускаем node_modules, build, dist, old
-			if (["node_modules", "build", "dist", ".git", "old"].includes(entry)) {
+			if (['node_modules', 'build', 'dist', '.git', 'old'].includes(entry)) {
 				continue;
 			}
 			optimizedCount += processDirectory(fullPath);
 		} else if (
 			stat.isFile() &&
-			(entry.endsWith(".ts") || entry.endsWith(".tsx")) &&
+			(entry.endsWith('.ts') || entry.endsWith('.tsx')) &&
 			optimizeReactImports(fullPath)
 		) {
 			optimizedCount++;
@@ -198,21 +195,21 @@ function processDirectory(dirPath) {
 }
 
 // Запуск оптимизации
-console.log("🚀 Начинаем оптимизацию React импортов...");
+console.log('🚀 Начинаем оптимизацию React импортов...');
 const startTime = Date.now();
 
-const optimizedFiles = processDirectory("./src");
+const optimizedFiles = processDirectory('./src');
 
 const endTime = Date.now();
 const duration = ((endTime - startTime) / 1000).toFixed(2);
 
-console.log("\n✅ Оптимизация завершена!");
+console.log('\n✅ Оптимизация завершена!');
 console.log(`📊 Обработано файлов: ${optimizedFiles}`);
 console.log(`⏱️ Время выполнения: ${duration}s`);
 
 if (optimizedFiles > 0) {
-	console.log("\n🔍 Рекомендуется проверить:");
-	console.log("   npx tsc --noEmit  # Проверить TypeScript ошибки");
-	console.log("   npm run build     # Проверить сборку");
-	console.log("   npm run dev       # Проверить работу приложения");
+	console.log('\n🔍 Рекомендуется проверить:');
+	console.log('   npx tsc --noEmit  # Проверить TypeScript ошибки');
+	console.log('   npm run build     # Проверить сборку');
+	console.log('   npm run dev       # Проверить работу приложения');
 }

@@ -8,15 +8,11 @@
  * @date 2025-01-18
  */
 
-import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
-import { cn } from "../utils";
-import type {
-	FormFieldProps,
-	SelectOption,
-	UniversalEventHandlers,
-} from "./types";
+import { CheckIcon, ChevronDownIcon } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '../utils';
+import type { FormFieldProps, SelectOption, UniversalEventHandlers } from './types';
 
 /**
  * Select component props
@@ -90,7 +86,7 @@ const WebSelect = ({
 	options = [],
 	value,
 	defaultValue,
-	placeholder = "Select an option...",
+	placeholder = 'Select an option...',
 	multiple = false,
 	searchable = false,
 	clearable = false,
@@ -107,13 +103,12 @@ const WebSelect = ({
 	...props
 }: SelectProps & { ref?: React.RefObject<HTMLDivElement | null> }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const [searchQuery, setSearchQuery] = useState("");
+	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedValue, setSelectedValue] = useState(value || defaultValue);
 	const selectRef = useRef<HTMLDivElement>(null);
 
 	// Find selected option
-	const selectedOption =
-		options.find((opt) => opt.value === selectedValue) || null;
+	const selectedOption = options.find((opt) => opt.value === selectedValue) || null;
 
 	// Filter options based on search
 	const filteredOptions =
@@ -121,7 +116,7 @@ const WebSelect = ({
 			? options.filter(
 					(opt) =>
 						opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-						opt.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+						opt.description?.toLowerCase().includes(searchQuery.toLowerCase())
 				)
 			: options;
 
@@ -132,7 +127,7 @@ const WebSelect = ({
 			onValueChange(newValue);
 		}
 		setIsOpen(false);
-		setSearchQuery("");
+		setSearchQuery('');
 	};
 
 	// Handle search
@@ -146,22 +141,19 @@ const WebSelect = ({
 	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				selectRef.current &&
-				!selectRef.current.contains(event.target as Node)
-			) {
+			if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
 				setIsOpen(false);
-				setSearchQuery("");
+				setSearchQuery('');
 			}
 		};
 
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => document.removeEventListener("mousedown", handleClickOutside);
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
 	return (
 		<div
-			className={cn("relative w-full", className)}
+			className={cn('relative w-full', className)}
 			data-testid={testID}
 			ref={ref || selectRef}
 			{...props}
@@ -172,22 +164,17 @@ const WebSelect = ({
 				aria-haspopup="listbox"
 				aria-label={accessibilityLabel}
 				className={cn(
-					"flex h-9 w-full items-center justify-between rounded-md border border-input",
-					"bg-background px-3 py-2 text-sm ring-offset-background",
-					"placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring",
-					"disabled:cursor-not-allowed disabled:opacity-50",
-					isOpen && "ring-1 ring-ring",
+					'flex h-9 w-full items-center justify-between rounded-md border border-input',
+					'bg-background px-3 py-2 text-sm ring-offset-background',
+					'placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring',
+					'disabled:cursor-not-allowed disabled:opacity-50',
+					isOpen && 'ring-1 ring-ring'
 				)}
 				disabled={disabled || loading}
 				onClick={() => setIsOpen(!isOpen)}
 				type="button"
 			>
-				<span
-					className={cn(
-						"block truncate",
-						!selectedOption && "text-muted-foreground",
-					)}
-				>
+				<span className={cn('block truncate', !selectedOption && 'text-muted-foreground')}>
 					{loading ? (
 						<span className="flex items-center gap-2">
 							<div className="h-4 w-4 animate-spin rounded-full border-current border-b-2" />
@@ -204,10 +191,7 @@ const WebSelect = ({
 					)}
 				</span>
 				<ChevronDownIcon
-					className={cn(
-						"h-4 w-4 opacity-50 transition-transform",
-						isOpen && "rotate-180",
-					)}
+					className={cn('h-4 w-4 opacity-50 transition-transform', isOpen && 'rotate-180')}
 				/>
 			</button>
 
@@ -215,15 +199,14 @@ const WebSelect = ({
 			{isOpen && (
 				<div
 					className={cn(
-						"absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md",
-						"fade-in-0 zoom-in-95 animate-in",
+						'absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md',
+						'fade-in-0 zoom-in-95 animate-in'
 					)}
 				>
 					{/* Search Input */}
 					{searchable && (
 						<div className="border-b p-2">
 							<input
-								autoFocus
 								className="w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 								onChange={(e) => handleSearch(e.target.value)}
 								placeholder="Search options..."
@@ -246,42 +229,31 @@ const WebSelect = ({
 						)}
 
 						{filteredOptions.length === 0 ? (
-							<div className="px-2 py-1.5 text-muted-foreground text-sm">
-								No options found
-							</div>
+							<div className="px-2 py-1.5 text-muted-foreground text-sm">No options found</div>
 						) : (
 							filteredOptions.map((option) => (
 								<button
 									className={cn(
-										"w-full rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground",
-										"flex items-center justify-between",
-										option.disabled && "cursor-not-allowed opacity-50",
-										selectedValue === option.value &&
-											"bg-accent text-accent-foreground",
+										'w-full rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground',
+										'flex items-center justify-between',
+										option.disabled && 'cursor-not-allowed opacity-50',
+										selectedValue === option.value && 'bg-accent text-accent-foreground'
 									)}
 									disabled={option.disabled}
 									key={option.value}
-									onClick={() =>
-										!option.disabled && handleValueChange(option.value)
-									}
+									onClick={() => !option.disabled && handleValueChange(option.value)}
 									type="button"
 								>
 									<div className="flex items-center gap-2">
 										{option.icon && option.icon}
 										<div>
-											<div>
-												{renderOption ? renderOption(option) : option.label}
-											</div>
+											<div>{renderOption ? renderOption(option) : option.label}</div>
 											{option.description && (
-												<div className="text-muted-foreground text-xs">
-													{option.description}
-												</div>
+												<div className="text-muted-foreground text-xs">{option.description}</div>
 											)}
 										</div>
 									</div>
-									{selectedValue === option.value && (
-										<CheckIcon className="h-4 w-4" />
-									)}
+									{selectedValue === option.value && <CheckIcon className="h-4 w-4" />}
 								</button>
 							))
 						)}
@@ -301,7 +273,7 @@ const _NativeSelect = ({
 	options = [],
 	value,
 	defaultValue,
-	placeholder = "Select an option...",
+	placeholder = 'Select an option...',
 	disabled = false,
 	onValueChange,
 	testID,
@@ -330,12 +302,12 @@ const _NativeSelect = ({
 			ref={ref}
 			style={{
 				borderWidth: 1,
-				borderColor: "#C7C7CC",
+				borderColor: '#C7C7CC',
 				borderRadius: 6,
 				padding: 12,
-				backgroundColor: "white",
+				backgroundColor: 'white',
 				minHeight: 36,
-				justifyContent: "center",
+				justifyContent: 'center',
 				opacity: disabled ? 0.5 : 1,
 				...style,
 			}}
@@ -345,13 +317,13 @@ const _NativeSelect = ({
 				disabled={disabled}
 				onChange={(e) => handleValueChange(e.target.value || null)}
 				style={{
-					width: "100%",
-					border: "none",
-					outline: "none",
-					backgroundColor: "transparent",
+					width: '100%',
+					border: 'none',
+					outline: 'none',
+					backgroundColor: 'transparent',
 					fontSize: 14,
 				}}
-				value={selectedValue || ""}
+				value={selectedValue || ''}
 			>
 				{placeholder && (
 					<option disabled value="">
@@ -359,11 +331,7 @@ const _NativeSelect = ({
 					</option>
 				)}
 				{options.map((option) => (
-					<option
-						disabled={option.disabled}
-						key={option.value}
-						value={option.value}
-					>
+					<option disabled={option.disabled} key={option.value} value={option.value}>
 						{option.label}
 					</option>
 				))}
@@ -381,7 +349,7 @@ const _NativeSelect = ({
  */
 export const Select = WebSelect as typeof WebSelect & { displayName: string };
 
-Select.displayName = "Select";
+Select.displayName = 'Select';
 
 /**
  * Select utilities
@@ -399,10 +367,8 @@ export const SelectUtils = {
 	/**
 	 * Find option by value
 	 */
-	findOption: (
-		options: SelectOption[],
-		value: string | number,
-	): SelectOption | null => options.find((opt) => opt.value === value) || null,
+	findOption: (options: SelectOption[], value: string | number): SelectOption | null =>
+		options.find((opt) => opt.value === value) || null,
 
 	/**
 	 * Filter options by search query
@@ -412,7 +378,7 @@ export const SelectUtils = {
 		return options.filter(
 			(opt) =>
 				opt.label.toLowerCase().includes(lowerQuery) ||
-				opt.description?.toLowerCase().includes(lowerQuery),
+				opt.description?.toLowerCase().includes(lowerQuery)
 		);
 	},
 
@@ -423,13 +389,11 @@ export const SelectUtils = {
 		const errors: string[] = [];
 
 		if (!Array.isArray(props.options)) {
-			errors.push("Options must be an array");
+			errors.push('Options must be an array');
 		}
 
 		if (props.value !== undefined && props.options.length > 0) {
-			const hasValidValue = props.options.some(
-				(opt) => opt.value === props.value,
-			);
+			const hasValidValue = props.options.some((opt) => opt.value === props.value);
 			if (!hasValidValue) {
 				errors.push(`Value "${props.value}" not found in options`);
 			}

@@ -7,30 +7,16 @@
  * @date 2025-10-24
  */
 
-import {
-	Activity,
-	Minus,
-	RefreshCw,
-	TrendingDown,
-	TrendingUp,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/shared/components/ui/card";
-import {
-	type PerformanceEntry,
-	performanceMonitor,
-} from "@/shared/lib/performance";
+import { Activity, Minus, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { type PerformanceEntry, performanceMonitor } from '@/shared/lib/performance';
 
 type MetricData = {
 	name: string;
 	value: number;
-	rating: "good" | "needs-improvement" | "poor";
+	rating: 'good' | 'needs-improvement' | 'poor';
 	timestamp: number;
 };
 
@@ -39,7 +25,7 @@ type MetricStats = {
 	average: number;
 	min: number;
 	max: number;
-	trend: "up" | "down" | "stable";
+	trend: 'up' | 'down' | 'stable';
 };
 
 export function PerformanceDashboard() {
@@ -49,30 +35,28 @@ export function PerformanceDashboard() {
 
 	useEffect(() => {
 		// Subscribe to performance metrics
-		const unsubscribe = performanceMonitor.addListener(
-			(metric: PerformanceEntry) => {
-				setMetrics((prev) => {
-					const newMetrics = new Map(prev);
-					const metricHistory = newMetrics.get(metric.name) || [];
+		const unsubscribe = performanceMonitor.addListener((metric: PerformanceEntry) => {
+			setMetrics((prev) => {
+				const newMetrics = new Map(prev);
+				const metricHistory = newMetrics.get(metric.name) || [];
 
-					// Keep last 50 entries
-					const updatedHistory = [
-						...metricHistory,
-						{
-							name: metric.name,
-							value: metric.value,
-							rating: metric.rating,
-							timestamp: metric.timestamp,
-						},
-					].slice(-50);
+				// Keep last 50 entries
+				const updatedHistory = [
+					...metricHistory,
+					{
+						name: metric.name,
+						value: metric.value,
+						rating: metric.rating,
+						timestamp: metric.timestamp,
+					},
+				].slice(-50);
 
-					newMetrics.set(metric.name, updatedHistory);
-					return newMetrics;
-				});
+				newMetrics.set(metric.name, updatedHistory);
+				return newMetrics;
+			});
 
-				setLastUpdate(new Date());
-			},
-		);
+			setLastUpdate(new Date());
+		});
 
 		setIsMonitoring(true);
 
@@ -95,16 +79,16 @@ export function PerformanceDashboard() {
 		const max = Math.max(...values);
 
 		// Calculate trend (last 10 vs previous 10)
-		let trend: "up" | "down" | "stable" = "stable";
+		let trend: 'up' | 'down' | 'stable' = 'stable';
 		if (values.length >= 20) {
 			const recent = values.slice(-10).reduce((a, b) => a + b, 0) / 10;
 			const previous = values.slice(-20, -10).reduce((a, b) => a + b, 0) / 10;
 			const change = ((recent - previous) / previous) * 100;
 
 			if (change > 5) {
-				trend = "up";
+				trend = 'up';
 			} else if (change < -5) {
-				trend = "down";
+				trend = 'down';
 			}
 		}
 
@@ -113,35 +97,35 @@ export function PerformanceDashboard() {
 
 	const getRatingColor = (rating: string) => {
 		switch (rating) {
-			case "good":
-				return "text-green-600 bg-green-50 border-green-200";
-			case "needs-improvement":
-				return "text-yellow-600 bg-yellow-50 border-yellow-200";
-			case "poor":
-				return "text-red-600 bg-red-50 border-red-200";
+			case 'good':
+				return 'text-green-600 bg-green-50 border-green-200';
+			case 'needs-improvement':
+				return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+			case 'poor':
+				return 'text-red-600 bg-red-50 border-red-200';
 			default:
-				return "text-muted-foreground bg-muted border-border";
+				return 'text-muted-foreground bg-muted border-border';
 		}
 	};
 
 	const getRatingEmoji = (rating: string) => {
 		switch (rating) {
-			case "good":
-				return "✅";
-			case "needs-improvement":
-				return "⚠️";
-			case "poor":
-				return "❌";
+			case 'good':
+				return '✅';
+			case 'needs-improvement':
+				return '⚠️';
+			case 'poor':
+				return '❌';
 			default:
-				return "❓";
+				return '❓';
 		}
 	};
 
 	const getTrendIcon = (trend: string) => {
 		switch (trend) {
-			case "up":
+			case 'up':
 				return <TrendingUp className="h-4 w-4 text-red-500" />;
-			case "down":
+			case 'down':
 				return <TrendingDown className="h-4 w-4 text-green-500" />;
 			default:
 				return <Minus className="h-4 w-4 text-muted-foreground" />;
@@ -149,7 +133,7 @@ export function PerformanceDashboard() {
 	};
 
 	const formatValue = (name: string, value: number) => {
-		if (name === "cls") {
+		if (name === 'cls') {
 			return value.toFixed(3);
 		}
 		return `${value.toFixed(0)}ms`;
@@ -167,14 +151,14 @@ export function PerformanceDashboard() {
 		return thresholds[name] || { good: 0, poor: 0 };
 	};
 
-	const metricNames = ["lcp", "fid", "cls", "fcp", "ttfb", "inp"];
+	const metricNames = ['lcp', 'fid', 'cls', 'fcp', 'ttfb', 'inp'];
 	const metricLabels: Record<string, string> = {
-		lcp: "Largest Contentful Paint",
-		fid: "First Input Delay",
-		cls: "Cumulative Layout Shift",
-		fcp: "First Contentful Paint",
-		ttfb: "Time to First Byte",
-		inp: "Interaction to Next Paint",
+		lcp: 'Largest Contentful Paint',
+		fid: 'First Input Delay',
+		cls: 'Cumulative Layout Shift',
+		fcp: 'First Contentful Paint',
+		ttfb: 'Time to First Byte',
+		inp: 'Interaction to Next Paint',
 	};
 
 	const clearMetrics = () => {
@@ -191,9 +175,7 @@ export function PerformanceDashboard() {
 						<Activity className="h-6 w-6" />
 						Performance Dashboard
 					</h2>
-					<p className="mt-1 text-muted-foreground">
-						Real-time Web Vitals monitoring
-					</p>
+					<p className="mt-1 text-muted-foreground">Real-time Web Vitals monitoring</p>
 				</div>
 
 				<div className="flex items-center gap-4">
@@ -205,10 +187,10 @@ export function PerformanceDashboard() {
 
 					<div className="flex items-center gap-2">
 						<div
-							className={`h-2 w-2 rounded-full ${isMonitoring ? "animate-pulse bg-green-500" : "bg-gray-400"}`}
+							className={`h-2 w-2 rounded-full ${isMonitoring ? 'animate-pulse bg-green-500' : 'bg-gray-400'}`}
 						/>
 						<span className="text-muted-foreground text-sm">
-							{isMonitoring ? "Monitoring" : "Stopped"}
+							{isMonitoring ? 'Monitoring' : 'Stopped'}
 						</span>
 					</div>
 
@@ -228,10 +210,7 @@ export function PerformanceDashboard() {
 					const threshold = getMetricThreshold(metricName);
 
 					return (
-						<Card
-							className="transition-shadow hover:shadow-lg"
-							key={metricName}
-						>
+						<Card className="transition-shadow hover:shadow-lg" key={metricName}>
 							<CardHeader className="pb-3">
 								<CardTitle className="font-medium text-muted-foreground text-sm uppercase">
 									{metricLabels[metricName]}
@@ -246,17 +225,14 @@ export function PerformanceDashboard() {
 												<div className="font-bold text-3xl">
 													{formatValue(metricName, stats.current)}
 												</div>
-												<div className="mt-1 text-muted-foreground text-sm">
-													Current
-												</div>
+												<div className="mt-1 text-muted-foreground text-sm">Current</div>
 											</div>
 											<div className="flex flex-col items-end gap-2">
 												<div
-													className={`rounded-full border px-3 py-1 ${getRatingColor(latestMetric?.rating || "good")}`}
+													className={`rounded-full border px-3 py-1 ${getRatingColor(latestMetric?.rating || 'good')}`}
 												>
 													<span className="font-medium text-sm">
-														{getRatingEmoji(latestMetric?.rating || "good")}{" "}
-														{latestMetric?.rating}
+														{getRatingEmoji(latestMetric?.rating || 'good')} {latestMetric?.rating}
 													</span>
 												</div>
 												{getTrendIcon(stats.trend)}
@@ -288,21 +264,17 @@ export function PerformanceDashboard() {
 										{/* Threshold Indicator */}
 										<div className="pt-2">
 											<div className="mb-1 flex justify-between text-muted-foreground text-xs">
-												<span>
-													Good: {formatValue(metricName, threshold.good)}
-												</span>
-												<span>
-													Poor: {formatValue(metricName, threshold.poor)}
-												</span>
+												<span>Good: {formatValue(metricName, threshold.good)}</span>
+												<span>Poor: {formatValue(metricName, threshold.poor)}</span>
 											</div>
 											<div className="h-2 w-full overflow-hidden rounded-full bg-muted">
 												<div
 													className={`h-full transition-all ${
 														stats.current <= threshold.good
-															? "bg-green-500"
+															? 'bg-green-500'
 															: stats.current <= threshold.poor
-																? "bg-yellow-500"
-																: "bg-red-500"
+																? 'bg-yellow-500'
+																: 'bg-red-500'
 													}`}
 													style={{
 														width: `${Math.min((stats.current / threshold.poor) * 100, 100)}%`,
@@ -335,13 +307,10 @@ export function PerformanceDashboard() {
 						<div className="flex items-start gap-3">
 							<div className="text-blue-600">ℹ️</div>
 							<div>
-								<h3 className="mb-1 font-semibold text-blue-900">
-									How to collect metrics
-								</h3>
+								<h3 className="mb-1 font-semibold text-blue-900">How to collect metrics</h3>
 								<p className="text-blue-800 text-sm">
-									Navigate through the application to collect Web Vitals
-									metrics. Metrics are automatically tracked and displayed here
-									in real-time.
+									Navigate through the application to collect Web Vitals metrics. Metrics are
+									automatically tracked and displayed here in real-time.
 								</p>
 							</div>
 						</div>

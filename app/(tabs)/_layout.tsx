@@ -5,8 +5,8 @@
  * Максимально близко к PWA версии MobileBottomNav.
  */
 
-import { Tabs } from "expo-router";
-import { CustomTabBar } from "../../app-shared/components/navigation/CustomTabBar";
+import { Tabs } from 'expo-router';
+import { CustomTabBar } from '../../app-shared/components/navigation/CustomTabBar';
 
 export default function TabsLayout() {
 	return (
@@ -19,25 +19,25 @@ export default function TabsLayout() {
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Главная",
+					title: 'Главная',
 				}}
 			/>
 			<Tabs.Screen
 				name="diary"
 				options={{
-					title: "Дневник",
+					title: 'Дневник',
 				}}
 			/>
 			<Tabs.Screen
 				name="achievements"
 				options={{
-					title: "Достижения",
+					title: 'Достижения',
 				}}
 			/>
 			<Tabs.Screen
 				name="settings"
 				options={{
-					title: "Настройки",
+					title: 'Настройки',
 				}}
 			/>
 		</Tabs>

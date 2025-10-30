@@ -1,25 +1,21 @@
-import { RefreshCw, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { RefreshCw, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 /**
  * Компонент показывает уведомление когда доступно обновление приложения
  */
 export function PWAUpdatePrompt() {
 	const [showUpdate, setShowUpdate] = useState(false);
-	const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(
-		null,
-	);
+	const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
 
 	useEffect(() => {
-		if (!("serviceWorker" in navigator)) {
+		if (!('serviceWorker' in navigator)) {
 			return;
 		}
 
-		const handleServiceWorkerUpdate = (
-			registration: ServiceWorkerRegistration,
-		) => {
+		const handleServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
 			// Если есть ожидающий Service Worker
 			if (registration.waiting) {
 				setWaitingWorker(registration.waiting);
@@ -28,9 +24,9 @@ export function PWAUpdatePrompt() {
 
 			// Слушаем изменения состояния
 			if (registration.installing) {
-				registration.installing.addEventListener("statechange", (e) => {
+				registration.installing.addEventListener('statechange', (e) => {
 					const sw = e.target as ServiceWorker;
-					if (sw.state === "installed" && navigator.serviceWorker.controller) {
+					if (sw.state === 'installed' && navigator.serviceWorker.controller) {
 						setWaitingWorker(sw);
 						setShowUpdate(true);
 					}
@@ -51,7 +47,7 @@ export function PWAUpdatePrompt() {
 		});
 
 		// Слушаем событие обновления контроллера
-		navigator.serviceWorker.addEventListener("controllerchange", () => {
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
 			if (!isUpdating) {
 				window.location.reload();
 			}
@@ -66,7 +62,7 @@ export function PWAUpdatePrompt() {
 		setIsUpdating(true);
 
 		// Отправляем сообщение новому Service Worker для активации
-		waitingWorker.postMessage({ type: "SKIP_WAITING" });
+		waitingWorker.postMessage({ type: 'SKIP_WAITING' });
 
 		setShowUpdate(false);
 	};
@@ -105,7 +101,7 @@ export function PWAUpdatePrompt() {
 										onClick={handleUpdate}
 									>
 										<span className="font-semibold! text-[13px]!">
-											{isUpdating ? "Обновление..." : "Обновить"}
+											{isUpdating ? 'Обновление...' : 'Обновить'}
 										</span>
 									</button>
 									<button

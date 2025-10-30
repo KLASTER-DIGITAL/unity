@@ -53,7 +53,7 @@ export type LocaleInfo = {
 	/**
 	 * Text direction
 	 */
-	direction: "ltr" | "rtl";
+	direction: 'ltr' | 'rtl';
 
 	/**
 	 * Currency code (ISO 4217)
@@ -71,19 +71,11 @@ export type LocaleInfo = {
 /**
  * Supported languages in UNITY-v2
  */
-export const SUPPORTED_LANGUAGES = [
-	"ru",
-	"en",
-	"es",
-	"de",
-	"fr",
-	"zh",
-	"ja",
-] as const;
+export const SUPPORTED_LANGUAGES = ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 /**
  * RTL languages
  */
-export const RTL_LANGUAGES = ["ar", "he", "fa", "ur"] as const;
+export const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur'] as const;
 export type RTLLanguage = (typeof RTL_LANGUAGES)[number];

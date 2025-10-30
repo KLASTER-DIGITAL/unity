@@ -15,7 +15,7 @@ import {
 	PlatformFeatures,
 	type PlatformSpecific,
 	type PlatformType,
-} from "./detection";
+} from './detection';
 
 export {
 	Platform,
@@ -31,7 +31,7 @@ export {
 	type MediaAdapter,
 	MediaUtils,
 	media,
-} from "./media";
+} from './media';
 // Navigation adapter
 export {
 	type NavigationAdapter,
@@ -39,21 +39,21 @@ export {
 	NavigationUtils,
 	navigation,
 	type RouteParams,
-} from "./navigation";
+} from './navigation';
 // React Native readiness checker
 export {
 	checkReactNativeReadiness,
 	ReactNativeReadinessChecker,
 	type ReadinessCheckResult,
 	type ReadinessReport,
-} from "./react-native-readiness";
+} from './react-native-readiness';
 // Storage adapter
 export {
 	type StorageAdapter,
 	StorageKeys,
 	StorageUtils,
 	storage,
-} from "./storage";
+} from './storage';
 
 /**
  * Platform abstraction utilities
@@ -63,14 +63,14 @@ export const PlatformUtils = {
 	 * Get platform-specific file path separator
 	 */
 	get pathSeparator(): string {
-		return Platform.value("/", "/", "/");
+		return Platform.value('/', '/', '/');
 	},
 
 	/**
 	 * Get platform-specific line ending
 	 */
 	get lineEnding(): string {
-		return Platform.value("\n", "\n", "\n");
+		return Platform.value('\n', '\n', '\n');
 	},
 
 	/**
@@ -83,9 +83,7 @@ export const PlatformUtils = {
 	/**
 	 * Get platform-specific constant
 	 */
-	getConstant<K extends keyof typeof PlatformConstants>(
-		key: K,
-	): (typeof PlatformConstants)[K] {
+	getConstant<K extends keyof typeof PlatformConstants>(key: K): (typeof PlatformConstants)[K] {
 		return PlatformConstants[key];
 	},
 };
@@ -93,4 +91,4 @@ export const PlatformUtils = {
 /**
  * Re-export commonly used platform utilities
  */
-export { Platform as default } from "./detection";
+export { Platform as default } from './detection';

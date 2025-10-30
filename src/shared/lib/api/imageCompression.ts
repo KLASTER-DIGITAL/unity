@@ -5,11 +5,11 @@ export async function compressImage(
 	file: File,
 	maxWidth = 1920,
 	maxHeight = 1920,
-	quality = 0.85,
+	quality = 0.85
 ): Promise<File> {
 	// Проверка типа файла
-	if (!file.type.startsWith("image/")) {
-		throw new Error("Файл не является изображением");
+	if (!file.type.startsWith('image/')) {
+		throw new Error('Файл не является изображением');
 	}
 
 	return new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ export async function compressImage(
 
 		reader.onload = (e) => {
 			if (!e.target?.result) {
-				reject(new Error("Не удалось прочитать файл"));
+				reject(new Error('Не удалось прочитать файл'));
 				return;
 			}
 
@@ -40,68 +40,60 @@ export async function compressImage(
 					}
 
 					// Создаем canvas
-					const canvas = document.createElement("canvas");
+					const canvas = document.createElement('canvas');
 					canvas.width = width;
 					canvas.height = height;
 
-					const ctx = canvas.getContext("2d");
+					const ctx = canvas.getContext('2d');
 					if (!ctx) {
-						reject(new Error("Не удалось создать контекст canvas"));
+						reject(new Error('Не удалось создать контекст canvas'));
 						return;
 					}
 
 					// Рисуем изображение на canvas с сглаживанием
 					ctx.imageSmoothingEnabled = true;
-					ctx.imageSmoothingQuality = "high";
+					ctx.imageSmoothingQuality = 'high';
 					ctx.drawImage(img, 0, 0, width, height);
 
 					// Конвертируем в Blob
 					canvas.toBlob(
 						(blob) => {
 							if (!blob) {
-								reject(new Error("Не удалось сжать изображение"));
+								reject(new Error('Не удалось сжать изображение'));
 								return;
 							}
 
 							// Создаем новый File из Blob
 							const compressedFile = new File([blob], file.name, {
-								type: "image/jpeg",
+								type: 'image/jpeg',
 								lastModified: Date.now(),
 							});
 
 							console.log(
-								`Image compressed: ${(file.size / 1024).toFixed(2)}KB -> ${(compressedFile.size / 1024).toFixed(2)}KB`,
+								`Image compressed: ${(file.size / 1024).toFixed(2)}KB -> ${(compressedFile.size / 1024).toFixed(2)}KB`
 							);
 
 							resolve(compressedFile);
 						},
-						"image/jpeg",
-						quality,
+						'image/jpeg',
+						quality
 					);
 				} catch (error) {
-					reject(
-						new Error(
-							`Ошибка при обработке изображения: ${(error as Error).message}`,
-						),
-					);
+					reject(new Error(`Ошибка при обработке изображения: ${(error as Error).message}`));
 				}
 			};
 
 			img.onerror = () => {
-				reject(
-					new Error(
-						"Не удалось загрузить изображение. Файл может быть поврежден.",
-					),
-				);
+				reject(new Error('Не удалось загрузить изображение. Файл может быть поврежден.'));
 			};
 
 			// Устанавливаем crossOrigin для избежания проблем с CORS
-			img.crossOrigin = "anonymous";
+			img.crossOrigin = 'anonymous';
 			img.src = e.target.result as string;
 		};
 
 		reader.onerror = () => {
-			reject(new Error("Не удалось прочитать файл"));
+			reject(new Error('Не удалось прочитать файл'));
 		};
 
 		reader.readAsDataURL(file);
@@ -111,10 +103,7 @@ export async function compressImage(
 /**
  * Создание thumbnail для изображения
  */
-export async function createThumbnail(
-	file: File,
-	maxSize = 200,
-): Promise<string> {
+export async function createThumbnail(file: File, maxSize = 200): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 
@@ -128,13 +117,13 @@ export async function createThumbnail(
 				const y = (img.height - size) / 2;
 
 				// Создаем canvas
-				const canvas = document.createElement("canvas");
+				const canvas = document.createElement('canvas');
 				canvas.width = maxSize;
 				canvas.height = maxSize;
 
-				const ctx = canvas.getContext("2d");
+				const ctx = canvas.getContext('2d');
 				if (!ctx) {
-					reject(new Error("Failed to get canvas context"));
+					reject(new Error('Failed to get canvas context'));
 					return;
 				}
 
@@ -142,18 +131,18 @@ export async function createThumbnail(
 				ctx.drawImage(img, x, y, size, size, 0, 0, maxSize, maxSize);
 
 				// Возвращаем data URL
-				resolve(canvas.toDataURL("image/jpeg", 0.7));
+				resolve(canvas.toDataURL('image/jpeg', 0.7));
 			};
 
 			img.onerror = () => {
-				reject(new Error("Failed to load image"));
+				reject(new Error('Failed to load image'));
 			};
 
 			img.src = e.target?.result as string;
 		};
 
 		reader.onerror = () => {
-			reject(new Error("Failed to read file"));
+			reject(new Error('Failed to read file'));
 		};
 
 		reader.readAsDataURL(file);
@@ -164,14 +153,14 @@ export async function createThumbnail(
  * Проверка является ли файл изображением
  */
 export function isImageFile(file: File): boolean {
-	return file.type.startsWith("image/");
+	return file.type.startsWith('image/');
 }
 
 /**
  * Проверка является ли файл видео
  */
 export function isVideoFile(file: File): boolean {
-	return file.type.startsWith("video/");
+	return file.type.startsWith('video/');
 }
 
 /**
@@ -186,7 +175,7 @@ export function getFilePreviewUrl(file: File): Promise<string> {
 		};
 
 		reader.onerror = () => {
-			reject(new Error("Failed to read file"));
+			reject(new Error('Failed to read file'));
 		};
 
 		reader.readAsDataURL(file);

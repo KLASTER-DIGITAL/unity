@@ -10,7 +10,7 @@
 export function prefetchComponent(importFn: () => Promise<any>): void {
 	// Start loading the component in the background
 	importFn().catch((error) => {
-		console.error("[Prefetch] Failed to prefetch component:", error);
+		console.error('[Prefetch] Failed to prefetch component:', error);
 	});
 }
 
@@ -18,13 +18,11 @@ export function prefetchComponent(importFn: () => Promise<any>): void {
  * Prefetch multiple components in parallel
  * @param importFns - Array of import functions
  */
-export async function prefetchComponents(
-	importFns: Array<() => Promise<any>>,
-): Promise<void> {
+export async function prefetchComponents(importFns: Array<() => Promise<any>>): Promise<void> {
 	try {
 		await Promise.all(importFns.map((fn) => fn()));
 	} catch (error) {
-		console.error("[Prefetch] Failed to prefetch components:", error);
+		console.error('[Prefetch] Failed to prefetch components:', error);
 	}
 }
 
@@ -48,16 +46,13 @@ export function createHoverPrefetch(importFn: () => Promise<any>) {
  * @param importFn - The import function to prefetch
  * @param timeout - Timeout in ms (default: 2000)
  */
-export function prefetchOnIdle(
-	importFn: () => Promise<any>,
-	timeout = 2000,
-): void {
-	if ("requestIdleCallback" in window) {
+export function prefetchOnIdle(importFn: () => Promise<any>, timeout = 2000): void {
+	if ('requestIdleCallback' in window) {
 		requestIdleCallback(
 			() => {
 				prefetchComponent(importFn);
 			},
-			{ timeout },
+			{ timeout }
 		);
 	} else {
 		// Fallback for browsers without requestIdleCallback
@@ -74,7 +69,7 @@ export function prefetchOnIdle(
  */
 export function prefetchOnInteraction(
 	element: HTMLElement | null,
-	importFn: () => Promise<any>,
+	importFn: () => Promise<any>
 ): () => void {
 	if (!element) {
 		return () => {};
@@ -89,15 +84,15 @@ export function prefetchOnInteraction(
 		}
 	};
 
-	element.addEventListener("mouseenter", handleInteraction, { once: true });
-	element.addEventListener("touchstart", handleInteraction, { once: true });
-	element.addEventListener("focus", handleInteraction, { once: true });
+	element.addEventListener('mouseenter', handleInteraction, { once: true });
+	element.addEventListener('touchstart', handleInteraction, { once: true });
+	element.addEventListener('focus', handleInteraction, { once: true });
 
 	// Cleanup function
 	return () => {
-		element.removeEventListener("mouseenter", handleInteraction);
-		element.removeEventListener("touchstart", handleInteraction);
-		element.removeEventListener("focus", handleInteraction);
+		element.removeEventListener('mouseenter', handleInteraction);
+		element.removeEventListener('touchstart', handleInteraction);
+		element.removeEventListener('focus', handleInteraction);
 	};
 }
 
@@ -110,9 +105,9 @@ export function prefetchOnInteraction(
 export function prefetchOnVisible(
 	element: HTMLElement | null,
 	importFn: () => Promise<any>,
-	options: IntersectionObserverInit = { rootMargin: "50px" },
+	options: IntersectionObserverInit = { rootMargin: '50px' }
 ): () => void {
-	if (!(element && "IntersectionObserver" in window)) {
+	if (!(element && 'IntersectionObserver' in window)) {
 		return () => {};
 	}
 
@@ -158,15 +153,15 @@ export function smartPrefetch(importFn: () => Promise<any>): void {
 
 	// Don't prefetch if user has data saver enabled
 	if (saveData) {
-		console.log("[Prefetch] Data saver enabled, skipping prefetch");
+		console.log('[Prefetch] Data saver enabled, skipping prefetch');
 		return;
 	}
 
 	// Only prefetch on fast connections
-	if (effectiveType === "4g" || effectiveType === "wifi") {
+	if (effectiveType === '4g' || effectiveType === 'wifi') {
 		prefetchOnIdle(importFn);
 	} else {
-		console.log("[Prefetch] Slow connection detected, skipping prefetch");
+		console.log('[Prefetch] Slow connection detected, skipping prefetch');
 	}
 }
 
@@ -245,7 +240,7 @@ export class RoutePrefetcher {
 		const predictions = new Map<string, string>();
 		patterns.forEach((transitions, from) => {
 			let maxCount = 0;
-			let mostCommon = "";
+			let mostCommon = '';
 
 			transitions.forEach((count, to) => {
 				if (count > maxCount) {

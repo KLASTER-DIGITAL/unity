@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-console.log("🔧 Исправляем неправильные React импорты...");
+console.log('🔧 Исправляем неправильные React импорты...');
 
 // Функция для поиска всех файлов
-function findFiles(dir, extensions = [".ts", ".tsx"]) {
+function findFiles(dir, extensions = ['.ts', '.tsx']) {
 	let results = [];
 	const list = fs.readdirSync(dir);
 
@@ -16,7 +16,7 @@ function findFiles(dir, extensions = [".ts", ".tsx"]) {
 
 		if (stat && stat.isDirectory()) {
 			// Пропускаем node_modules и другие служебные папки
-			if (!["node_modules", ".git", "dist", "build"].includes(file)) {
+			if (!['node_modules', '.git', 'dist', 'build'].includes(file)) {
 				results = results.concat(findFiles(filePath, extensions));
 			}
 		} else if (extensions.some((ext) => file.endsWith(ext))) {
@@ -29,7 +29,7 @@ function findFiles(dir, extensions = [".ts", ".tsx"]) {
 
 // Функция для исправления импортов в файле
 function fixReactImports(filePath) {
-	const content = fs.readFileSync(filePath, "utf8");
+	const content = fs.readFileSync(filePath, 'utf8');
 
 	// Паттерны для поиска неправильных импортов
 	const patterns = [
@@ -62,7 +62,7 @@ function fixReactImports(filePath) {
 	});
 
 	if (hasChanges) {
-		fs.writeFileSync(filePath, newContent, "utf8");
+		fs.writeFileSync(filePath, newContent, 'utf8');
 		return true;
 	}
 
@@ -72,10 +72,10 @@ function fixReactImports(filePath) {
 // Основная функция
 function main() {
 	const startTime = Date.now();
-	const srcDir = path.join(process.cwd(), "src");
+	const srcDir = path.join(process.cwd(), 'src');
 
 	if (!fs.existsSync(srcDir)) {
-		console.error("❌ Папка src/ не найдена");
+		console.error('❌ Папка src/ не найдена');
 		process.exit(1);
 	}
 
@@ -92,7 +92,7 @@ function main() {
 	const endTime = Date.now();
 	const duration = ((endTime - startTime) / 1000).toFixed(2);
 
-	console.log("\n✅ Исправление завершено!");
+	console.log('\n✅ Исправление завершено!');
 	console.log(`📊 Исправлено файлов: ${processedCount}`);
 	console.log(`⏱️ Время выполнения: ${duration}s`);
 }

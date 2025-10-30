@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { imgArrowRight, imgRectangle5904 } from "@/imports/svg-6xkhk";
+import { motion } from 'motion/react';
+import { imgArrowRight, imgRectangle5904 } from '@/imports/svg-6xkhk';
 
 type NextButtonProps = {
 	onNext: () => void;
@@ -22,13 +22,13 @@ function ArrowRight() {
  */
 export function NextButton({ onNext, disabled }: NextButtonProps) {
 	const handleClick = () => {
-		console.log("[NextButton] onClick called, disabled:", disabled);
+		console.log('[NextButton] onClick called, disabled:', disabled);
 		if (!disabled) {
-			console.log("[NextButton] Calling onNext...");
+			console.log('[NextButton] Calling onNext...');
 			onNext();
-			console.log("[NextButton] onNext called successfully");
+			console.log('[NextButton] onNext called successfully');
 		} else {
-			console.log("[NextButton] Click ignored - button is disabled");
+			console.log('[NextButton] Click ignored - button is disabled');
 		}
 	};
 
@@ -39,16 +39,16 @@ export function NextButton({ onNext, disabled }: NextButtonProps) {
 				scale: 1,
 				x: 0,
 			}}
-			className={`absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+			className={`absolute h-[191px] w-[129px] max-w-[30vw] bg-transparent ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
 			data-name="Next Button"
 			initial={{ opacity: 0, scale: 0.8, x: 50 }}
 			onClick={handleClick}
 			style={{
-				bottom: "max(-2px, calc(0px - 2vh))",
-				right: "max(-1px, calc(0px - 1vw))",
+				bottom: 'max(-2px, calc(0px - 2vh))',
+				right: 'max(-1px, calc(0px - 1vw))',
 				zIndex: 50,
 			}}
-			transition={{ delay: 0.6, duration: 0.6, type: "spring" }}
+			transition={{ delay: 0.6, duration: 0.6, type: 'spring' }}
 			whileHover={{
 				scale: disabled ? 1 : 1.05,
 				rotate: disabled ? 0 : 2,
@@ -62,10 +62,10 @@ export function NextButton({ onNext, disabled }: NextButtonProps) {
 
 				{/* Arrow integrated inside */}
 				<div
-					className={`absolute z-10 size-6 ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+					className={`absolute z-10 size-6 ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 					style={{
-						bottom: "min(69px, 15vh)",
-						right: "min(46px, 12vw)",
+						bottom: 'min(69px, 15vh)',
+						right: 'min(46px, 12vw)',
 					}}
 				>
 					<div className="pointer-events-none absolute inset-[23.75%_17.71%_26.04%_19.79%] flex items-center justify-center">

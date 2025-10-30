@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
-import { DesignTokens } from "../../../design-system/tokens";
-import { AnimatedCard } from "../../animated/AnimatedCard";
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
+import { AnimatedCard } from '../../animated/AnimatedCard';
 
 interface Achievement {
 	id: string;
@@ -40,42 +40,39 @@ const RARITY_COLORS: {
 		text: DesignTokens.colors.primary,
 	},
 	legendary: {
-		gradient: ["#F3E8FF", "#A855F7"],
-		border: "#A855F7",
-		text: "#A855F7",
+		gradient: ['#F3E8FF', '#A855F7'],
+		border: '#A855F7',
+		text: '#A855F7',
 	},
 };
 
 // Rarity labels
 const RARITY_LABELS: { [key: string]: string } = {
-	common: "Обычное",
-	uncommon: "Необычное",
-	rare: "Редкое",
-	legendary: "Легендарное",
+	common: 'Обычное',
+	uncommon: 'Необычное',
+	rare: 'Редкое',
+	legendary: 'Легендарное',
 };
 
 // Icon mapping (emoji to Ionicons)
 const ICON_MAP: { [key: string]: keyof typeof Ionicons.glyphMap } = {
-	"⭐": "star",
-	"🔥": "flame",
-	"📚": "book",
-	"👑": "trophy",
-	"💪": "fitness",
-	"❤️": "heart",
-	"🎯": "target",
+	'⭐': 'star',
+	'🔥': 'flame',
+	'📚': 'book',
+	'👑': 'trophy',
+	'💪': 'fitness',
+	'❤️': 'heart',
+	'🎯': 'target',
 };
 
 /**
  * Achievement Card Component - React Native
  * Displays a single achievement badge
  */
-export function AchievementCard({
-	achievement,
-	index = 0,
-}: AchievementCardProps) {
+export function AchievementCard({ achievement, index = 0 }: AchievementCardProps) {
 	const rarityColor = RARITY_COLORS[achievement.rarity] || RARITY_COLORS.common;
-	const rarityLabel = RARITY_LABELS[achievement.rarity] || "Обычное";
-	const iconName = ICON_MAP[achievement.icon] || "star";
+	const rarityLabel = RARITY_LABELS[achievement.rarity] || 'Обычное';
+	const iconName = ICON_MAP[achievement.icon] || 'star';
 
 	return (
 		<AnimatedCard index={index} staggerDelay={75}>
@@ -88,7 +85,7 @@ export function AchievementCard({
 					style={[styles.iconContainer, { borderColor: rarityColor.border }]}
 				>
 					<Ionicons
-						color={achievement.earned ? "#FFFFFF" : "rgba(255,255,255,0.5)"}
+						color={achievement.earned ? '#FFFFFF' : 'rgba(255,255,255,0.5)'}
 						name={iconName}
 						size={28}
 					/>
@@ -104,12 +101,7 @@ export function AchievementCard({
 					<Text style={[styles.name, !achievement.earned && styles.textLocked]}>
 						{achievement.name}
 					</Text>
-					<Text
-						style={[
-							styles.description,
-							!achievement.earned && styles.textLocked,
-						]}
-					>
+					<Text style={[styles.description, !achievement.earned && styles.textLocked]}>
 						{achievement.description}
 					</Text>
 
@@ -124,24 +116,20 @@ export function AchievementCard({
 								},
 							]}
 						>
-							<Text style={[styles.rarityText, { color: rarityColor.text }]}>
-								{rarityLabel}
-							</Text>
+							<Text style={[styles.rarityText, { color: rarityColor.text }]}>{rarityLabel}</Text>
 						</View>
 
 						{achievement.earned && achievement.earnedDate && (
 							<Text style={styles.earnedDate}>
-								{new Date(achievement.earnedDate).toLocaleDateString("ru-RU", {
-									day: "numeric",
-									month: "short",
+								{new Date(achievement.earnedDate).toLocaleDateString('ru-RU', {
+									day: 'numeric',
+									month: 'short',
 								})}
 							</Text>
 						)}
 
 						{!achievement.earned && achievement.progress !== undefined && (
-							<Text style={styles.progress}>
-								{Math.round(achievement.progress)}%
-							</Text>
+							<Text style={styles.progress}>{Math.round(achievement.progress)}%</Text>
 						)}
 					</View>
 				</View>
@@ -152,7 +140,7 @@ export function AchievementCard({
 
 const styles = StyleSheet.create({
 	card: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		backgroundColor: DesignTokens.colors.card,
 		borderRadius: DesignTokens.borderRadius.xl,
 		padding: DesignTokens.spacing.lg,
@@ -169,22 +157,22 @@ const styles = StyleSheet.create({
 		height: 56,
 		borderRadius: 28,
 		borderWidth: 2,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginRight: DesignTokens.spacing.lg,
-		position: "relative",
+		position: 'relative',
 		...DesignTokens.shadows.sm,
 	},
 	lockOverlay: {
-		position: "absolute",
+		position: 'absolute',
 		top: 0,
 		left: 0,
 		right: 0,
 		bottom: 0,
-		backgroundColor: "rgba(0, 0, 0, 0.4)",
+		backgroundColor: 'rgba(0, 0, 0, 0.4)',
 		borderRadius: 28,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	content: {
 		flex: 1,
@@ -198,16 +186,15 @@ const styles = StyleSheet.create({
 	description: {
 		fontSize: DesignTokens.fontSizes.bodySmall,
 		color: DesignTokens.colors.textSecondary,
-		lineHeight:
-			DesignTokens.fontSizes.bodySmall * DesignTokens.lineHeights.normal,
+		lineHeight: DesignTokens.fontSizes.bodySmall * DesignTokens.lineHeights.normal,
 		marginBottom: DesignTokens.spacing.md,
 	},
 	textLocked: {
 		color: DesignTokens.colors.textTertiary,
 	},
 	footer: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 	},
 	rarityBadge: {
