@@ -1,5 +1,5 @@
-import { getAuthHeaders } from '../core/request';
 import { API_URLS } from '../config/urls';
+import { getAuthHeaders } from '../core/request';
 import type { UserProfile } from '../types';
 
 /**
@@ -13,7 +13,7 @@ async function profilesApiRequest<T = any>(endpoint: string, options: any = {}):
 
   const headers = {
     ...(await getAuthHeaders()),
-    ...customHeaders
+    ...customHeaders,
   };
 
   const config: RequestInit = {
@@ -30,12 +30,12 @@ async function profilesApiRequest<T = any>(endpoint: string, options: any = {}):
 
     const response = await fetch(`${API_URLS.PROFILES}${endpoint}`, config);
     const responseText = await response.text();
-    
+
     console.log(`[PROFILES API Response] ${endpoint}:`, responseText);
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      
+
       try {
         const errorData = JSON.parse(responseText);
         errorMessage = errorData.error || errorData.message || errorMessage;
@@ -52,7 +52,7 @@ async function profilesApiRequest<T = any>(endpoint: string, options: any = {}):
 
     try {
       return JSON.parse(responseText);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error('Failed to parse response as JSON:', responseText);
       throw new Error('Invalid JSON response from server');
     }
@@ -70,9 +70,13 @@ async function profilesApiRequest<T = any>(endpoint: string, options: any = {}):
 export async function createUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
   console.log('[PROFILES] Creating user profile:', profile);
 
-  const response = await profilesApiRequest<{ success: boolean; profile: UserProfile; error?: string }>('/create', {
+  const response = await profilesApiRequest<{
+    success: boolean;
+    profile: UserProfile;
+    error?: string;
+  }>('/create', {
     method: 'POST',
-    body: profile
+    body: profile,
   });
 
   if (!response.success) {
@@ -93,7 +97,9 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   try {
     console.log('[PROFILES] Fetching profile for user:', userId);
 
-    const response = await profilesApiRequest<{ success: boolean; profile: UserProfile }>(`/${userId}`);
+    const response = await profilesApiRequest<{ success: boolean; profile: UserProfile }>(
+      `/${userId}`
+    );
 
     if (!response.success) {
       console.log('[PROFILES] Profile not found for user:', userId);
@@ -114,13 +120,19 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
  * @param updates - Partial user profile updates
  * @returns Updated user profile
  */
-export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+export async function updateUserProfile(
+  userId: string,
+  updates: Partial<UserProfile>
+): Promise<UserProfile> {
   console.log('[PROFILES] Updating user profile:', userId, updates);
 
-  const response = await profilesApiRequest<{ success: boolean; profile: UserProfile }>(`/${userId}`, {
-    method: 'PUT',
-    body: updates
-  });
+  const response = await profilesApiRequest<{ success: boolean; profile: UserProfile }>(
+    `/${userId}`,
+    {
+      method: 'PUT',
+      body: updates,
+    }
+  );
 
   if (!response.success) {
     console.error('[PROFILES] Profile update failed:', response);
@@ -130,4 +142,3 @@ export async function updateUserProfile(userId: string, updates: Partial<UserPro
   console.log('[PROFILES] Profile updated successfully:', response.profile);
   return response.profile;
 }
-

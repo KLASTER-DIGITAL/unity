@@ -16,7 +16,7 @@ async function loadVapidKeys(supabaseAdmin: any) {
   const publicKeyRow = data.find((row: any) => row.key === 'vapid_public_key');
   const privateKeyRow = data.find((row: any) => row.key === 'vapid_private_key');
 
-  if (!publicKeyRow || !privateKeyRow) throw new Error('VAPID keys not found');
+  if (!(publicKeyRow && privateKeyRow)) throw new Error('VAPID keys not found');
 
   VAPID_PUBLIC_KEY = publicKeyRow.value;
   VAPID_PRIVATE_KEY = privateKeyRow.value;
@@ -30,18 +30,24 @@ async function generateVapidHeaders(endpoint: string, vapidKeys: any) {
   const header = { typ: 'JWT', alg: 'ES256' };
   const payload = {
     aud: audience,
-    exp: Math.floor(Date.now() / 1000) + 43200,
-    sub: 'mailto:admin@unity.app'
+    exp: Math.floor(Date.now() / 1000) + 43_200,
+    sub: 'mailto:admin@unity.app',
   };
 
-  const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  const encodedHeader = btoa(JSON.stringify(header))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+  const encodedPayload = btoa(JSON.stringify(payload))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
   const signature = 'simplified_signature';
   const jwt = `${encodedHeader}.${encodedPayload}.${signature}`;
 
   return {
-    'Authorization': `vapid t=${jwt}, k=${vapidKeys.publicKey}`,
-    'Crypto-Key': `p256ecdsa=${vapidKeys.publicKey}`
+    Authorization: `vapid t=${jwt}, k=${vapidKeys.publicKey}`,
+    'Crypto-Key': `p256ecdsa=${vapidKeys.publicKey}`,
   };
 }
 
@@ -60,8 +66,8 @@ async function sendPushNotification(subscription: any, payload: any, vapidKeys: 
       headers: {
         'Content-Type': 'application/octet-stream',
         'Content-Encoding': 'aes128gcm',
-        'TTL': '86400',
-        'Urgency': 'normal',
+        TTL: '86400',
+        Urgency: 'normal',
         ...vapidHeaders,
       },
       body: encryptedPayload,
@@ -95,15 +101,22 @@ Deno.serve(async (req: Request) => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Missing authorization' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'Missing authorization' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const { data: profile } = await supabaseAdmin
@@ -113,16 +126,20 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (profile?.role !== 'super_admin') {
-      return new Response(JSON.stringify({ error: 'Forbidden' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const body = await req.json();
     const { user_ids, title, body: messageBody, icon, badge, data } = body;
 
-    if (!title || !messageBody) {
-      return new Response(JSON.stringify({ error: 'Missing title or body' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (!(title && messageBody)) {
+      return new Response(JSON.stringify({ error: 'Missing title or body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const vapidKeys = await loadVapidKeys(supabaseAdmin);
@@ -133,8 +150,10 @@ Deno.serve(async (req: Request) => {
     const { data: subscriptions } = await query;
 
     if (!subscriptions || subscriptions.length === 0) {
-      return new Response(JSON.stringify({ success: true, sent: 0, failed: 0 }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: true, sent: 0, failed: 0 }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const payload = {
@@ -147,7 +166,11 @@ Deno.serve(async (req: Request) => {
 
     const results = await Promise.all(
       subscriptions.map((sub: any) =>
-        sendPushNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, vapidKeys)
+        sendPushNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          payload,
+          vapidKeys
+        )
       )
     );
 
@@ -171,12 +194,15 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-    return new Response(JSON.stringify({ success: true, sent, failed, total: subscriptions.length }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({ success: true, sent, failed, total: subscriptions.length }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('[PUSH] Error:', error);
-    return new Response(JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

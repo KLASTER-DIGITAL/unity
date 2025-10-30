@@ -1,10 +1,10 @@
 /**
  * Universal Switch Component
- * 
+ *
  * Cross-platform switch/toggle component
  * - Web: Radix UI Switch
  * - Native: React Native Switch
- * 
+ *
  * @module components/ui/universal/UniversalSwitch
  */
 
@@ -39,4 +39,3 @@ export default {
   Switch: UniversalSwitch,
   SwitchUtils,
 };
-

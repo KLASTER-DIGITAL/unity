@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    
+
     // Get access token from Authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -31,13 +31,16 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify user JWT token
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(accessToken);
     if (authError || !user) {
       console.error('[AUTH] User verification failed:', authError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('[AUTH] User verified:', user.id, user.email);
@@ -71,11 +74,11 @@ Deno.serve(async (req) => {
 
     // Parse URL path
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(p => p);
+    const pathParts = url.pathname.split('/').filter((p) => p);
     // Remove 'functions', 'v1', 'admin-api' from path
-    const relevantParts = pathParts.filter(p => !['functions', 'v1', 'admin-api'].includes(p));
+    const relevantParts = pathParts.filter((p) => !['functions', 'v1', 'admin-api'].includes(p));
     // Remove 'admin' prefix if present (for /admin/stats -> /stats)
-    const endpoint = relevantParts.filter(p => p !== 'admin').join('/') || 'stats';
+    const endpoint = relevantParts.filter((p) => p !== 'admin').join('/') || 'stats';
 
     console.log('[ADMIN-API] Request:', req.method, endpoint, 'from path:', url.pathname);
 
@@ -133,7 +136,7 @@ Deno.serve(async (req) => {
       }
 
       // Count premium users
-      const premiumUsers = profiles?.filter(p => p.is_premium).length || 0;
+      const premiumUsers = profiles?.filter((p) => p.is_premium).length || 0;
 
       // Calculate revenue (estimate: 499 RUB/month per premium user)
       const totalRevenue = premiumUsers * 499;
@@ -146,15 +149,14 @@ Deno.serve(async (req) => {
         activeToday: activeTodaySet.size,
         premiumUsers,
         totalRevenue,
-        pwaInstalls: 0
+        pwaInstalls: 0,
       };
 
       console.log('[ADMIN-API] ✅ Stats:', stats);
-      
-      return new Response(
-        JSON.stringify({ success: true, ...stats }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+
+      return new Response(JSON.stringify({ success: true, ...stats }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /users - List all users
@@ -162,8 +164,7 @@ Deno.serve(async (req) => {
       // ✅ FIX N+1: Используем один запрос с подсчетом через SQL
       // Вместо 1 + N запросов (где N = количество пользователей)
       // делаем 1 запрос с LEFT JOIN и COUNT + streak calculation
-      const { data: usersRaw, error } = await supabaseAdmin
-        .rpc('get_users_with_stats');
+      const { data: usersRaw, error } = await supabaseAdmin.rpc('get_users_with_stats');
 
       if (error) {
         // Fallback на старый метод если RPC функция не существует
@@ -185,21 +186,23 @@ Deno.serve(async (req) => {
         if (countsError) throw countsError;
 
         // Группируем подсчеты по user_id
-        const countsMap = (entriesCounts || []).reduce((acc: Record<string, number>, entry: any) => {
-          acc[entry.user_id] = (acc[entry.user_id] || 0) + 1;
-          return acc;
-        }, {});
+        const countsMap = (entriesCounts || []).reduce(
+          (acc: Record<string, number>, entry: any) => {
+            acc[entry.user_id] = (acc[entry.user_id] || 0) + 1;
+            return acc;
+          },
+          {}
+        );
 
         // Добавляем подсчеты к пользователям
-        const usersWithStats = (users || []).map(user => ({
+        const usersWithStats = (users || []).map((user) => ({
           ...user,
-          entriesCount: countsMap[user.id] || 0
+          entriesCount: countsMap[user.id] || 0,
         }));
 
-        return new Response(
-          JSON.stringify({ success: true, users: usersWithStats }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: true, users: usersWithStats }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       // ✅ FIX: Map snake_case to camelCase for frontend
@@ -220,7 +223,7 @@ Deno.serve(async (req) => {
         biometricEnabled: user.biometric_enabled,
         backupEnabled: user.backup_enabled,
         firstDayOfWeek: user.first_day_of_week,
-        privacySettings: user.privacy_settings
+        privacySettings: user.privacy_settings,
       }));
 
       return new Response(
@@ -231,17 +234,13 @@ Deno.serve(async (req) => {
 
     // Route: GET /languages - List languages
     if (endpoint === 'languages' && req.method === 'GET') {
-      const { data, error } = await supabaseAdmin
-        .from('languages')
-        .select('*')
-        .order('name');
+      const { data, error } = await supabaseAdmin.from('languages').select('*').order('name');
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ success: true, languages: data || [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, languages: data || [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /translations - Get all translations
@@ -253,10 +252,9 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ success: true, translations: data || [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, translations: data || [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /translation-stats - Translation progress per language
@@ -282,7 +280,7 @@ Deno.serve(async (req) => {
         totalKeys,
         translatedKeys: {},
         progress: {},
-        lastUpdated: {}
+        lastUpdated: {},
       };
 
       // Get stats for each language
@@ -296,21 +294,22 @@ Deno.serve(async (req) => {
 
         const translatedCount = translations?.length || 0;
         stats.translatedKeys[lang.code] = translatedCount;
-        stats.progress[lang.code] = totalKeys > 0 ? Math.round((translatedCount / totalKeys) * 100) : 0;
+        stats.progress[lang.code] =
+          totalKeys > 0 ? Math.round((translatedCount / totalKeys) * 100) : 0;
 
         // Get last updated timestamp
         if (translations && translations.length > 0) {
-          const lastUpdated = translations.reduce((latest, t) => {
-            return new Date(t.updated_at) > new Date(latest) ? t.updated_at : latest;
-          }, translations[0].updated_at);
+          const lastUpdated = translations.reduce(
+            (latest, t) => (new Date(t.updated_at) > new Date(latest) ? t.updated_at : latest),
+            translations[0].updated_at
+          );
           stats.lastUpdated[lang.code] = lastUpdated;
         }
       }
 
-      return new Response(
-        JSON.stringify({ success: true, ...stats }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, ...stats }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /settings/:key - Get admin setting by key
@@ -324,14 +323,14 @@ Deno.serve(async (req) => {
         .eq('key', settingKey)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 = not found
         throw error;
       }
 
-      return new Response(
-        JSON.stringify({ success: true, setting: data || null }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, setting: data || null }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: POST /settings - Save admin setting
@@ -340,10 +339,10 @@ Deno.serve(async (req) => {
       const { key, value } = body;
 
       if (!key) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Setting key is required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'Setting key is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       console.log('[ADMIN-API] Saving setting:', key);
@@ -351,13 +350,16 @@ Deno.serve(async (req) => {
       // Upsert setting
       const { data, error } = await supabaseAdmin
         .from('admin_settings')
-        .upsert({
-          key,
-          value,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'key'
-        })
+        .upsert(
+          {
+            key,
+            value,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'key',
+          }
+        )
         .select()
         .single();
 
@@ -368,10 +370,9 @@ Deno.serve(async (req) => {
 
       console.log('[ADMIN-API] Setting saved successfully:', key);
 
-      return new Response(
-        JSON.stringify({ success: true, setting: data }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, setting: data }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: POST /notifications/send - Send push notification to all users
@@ -379,7 +380,7 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const { title, body: notificationBody, icon, badge } = body;
 
-      if (!title || !notificationBody) {
+      if (!(title && notificationBody)) {
         return new Response(
           JSON.stringify({ success: false, error: 'Title and body are required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -398,7 +399,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           message: 'Push notification sent to all users',
-          notification: { title, body: notificationBody, icon, badge }
+          notification: { title, body: notificationBody, icon, badge },
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -415,7 +416,7 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({
             success: false,
-            error: `Invalid service: ${service}. Valid services: ${validServices.join(', ')}`
+            error: `Invalid service: ${service}. Valid services: ${validServices.join(', ')}`,
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -432,7 +433,7 @@ Deno.serve(async (req) => {
           success: true,
           message: `Service ${service} restart initiated`,
           service,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -443,10 +444,7 @@ Deno.serve(async (req) => {
       console.log('[ADMIN-API] Getting system status...');
 
       // Get database status
-      const { error: dbError } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .limit(1);
+      const { error: dbError } = await supabaseAdmin.from('profiles').select('id').limit(1);
 
       const systemStatus = {
         database: dbError ? 'error' : 'healthy',
@@ -454,15 +452,14 @@ Deno.serve(async (req) => {
         auth: 'healthy', // TODO: Add actual auth health check
         functions: 'healthy',
         realtime: 'healthy', // TODO: Add actual realtime health check
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       console.log('[ADMIN-API] System status:', systemStatus);
 
-      return new Response(
-        JSON.stringify({ success: true, status: systemStatus }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, status: systemStatus }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Unknown endpoint
@@ -470,13 +467,11 @@ Deno.serve(async (req) => {
       JSON.stringify({ success: false, error: `Unknown endpoint: ${endpoint}` }),
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error: any) {
     console.error('[ADMIN-API] Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

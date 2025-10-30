@@ -15,7 +15,7 @@ export const authTranslations = {
     createAccount: 'Создать аккаунт',
     notRegisteredYet: 'Еще не зарегистрированы?',
     alreadyHaveAccountAuth: 'Уже есть аккаунт?',
-    back: 'Назад'
+    back: 'Назад',
   },
   en: {
     signIn: 'Sign In',
@@ -29,7 +29,7 @@ export const authTranslations = {
     createAccount: 'Create account',
     notRegisteredYet: 'Not registered yet?',
     alreadyHaveAccountAuth: 'Already have an account?',
-    back: 'Back'
+    back: 'Back',
   },
   es: {
     signIn: 'Iniciar sesión',
@@ -43,7 +43,7 @@ export const authTranslations = {
     createAccount: 'Crear cuenta',
     notRegisteredYet: '¿Aún no registrado?',
     alreadyHaveAccountAuth: '¿Ya tienes cuenta?',
-    back: 'Atrás'
+    back: 'Atrás',
   },
   de: {
     signIn: 'Anmelden',
@@ -57,13 +57,13 @@ export const authTranslations = {
     createAccount: 'Konto erstellen',
     notRegisteredYet: 'Noch nicht registriert?',
     alreadyHaveAccountAuth: 'Bereits ein Konto?',
-    back: 'Zurück'
+    back: 'Zurück',
   },
   fr: {
     signIn: 'Se connecter',
-    signUp: 'S\'inscrire',
+    signUp: "S'inscrire",
     signInWith: 'Se connecter avec',
-    signUpWith: 'S\'inscrire avec',
+    signUpWith: "S'inscrire avec",
     yourEmail: 'Ton email',
     yourName: 'Ton nom',
     password: 'Mot de passe',
@@ -71,7 +71,7 @@ export const authTranslations = {
     createAccount: 'Créer un compte',
     notRegisteredYet: 'Pas encore inscrit ?',
     alreadyHaveAccountAuth: 'Déjà un compte ?',
-    back: 'Retour'
+    back: 'Retour',
   },
   zh: {
     signIn: '登录',
@@ -85,7 +85,7 @@ export const authTranslations = {
     createAccount: '创建账户',
     notRegisteredYet: '还没有注册？',
     alreadyHaveAccountAuth: '已经有账户了？',
-    back: '返回'
+    back: '返回',
   },
   ja: {
     signIn: 'サインイン',
@@ -99,10 +99,9 @@ export const authTranslations = {
     createAccount: 'アカウントを作成',
     notRegisteredYet: 'まだ登録していませんか？',
     alreadyHaveAccountAuth: 'すでにアカウントをお持ちですか？',
-    back: '戻る'
-  }
+    back: '戻る',
+  },
 };
 
 export type AuthTranslations = typeof authTranslations.ru;
 export type SupportedLanguage = keyof typeof authTranslations;
-

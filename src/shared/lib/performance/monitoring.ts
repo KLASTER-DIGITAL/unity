@@ -1,8 +1,8 @@
 /**
  * Performance Monitoring System for UNITY-v2
- * 
+ *
  * Tracks Core Web Vitals and custom performance metrics
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
@@ -12,58 +12,58 @@ import { Platform } from '../platform';
 /**
  * Core Web Vitals metrics
  */
-export interface WebVitalsMetrics {
+export type WebVitalsMetrics = {
   // Largest Contentful Paint (LCP) - Loading performance
   lcp?: number;
-  
+
   // First Input Delay (FID) - Interactivity
   fid?: number;
-  
+
   // Cumulative Layout Shift (CLS) - Visual stability
   cls?: number;
-  
+
   // First Contentful Paint (FCP) - Loading
   fcp?: number;
-  
+
   // Time to First Byte (TTFB) - Server response
   ttfb?: number;
-  
+
   // Interaction to Next Paint (INP) - Responsiveness
   inp?: number;
-}
+};
 
 /**
  * Custom performance metrics
  */
-export interface CustomMetrics {
+export type CustomMetrics = {
   // Time to Interactive
   tti?: number;
-  
+
   // Total Blocking Time
   tbt?: number;
-  
+
   // Speed Index
   speedIndex?: number;
-  
+
   // Bundle size
   bundleSize?: number;
-  
+
   // Memory usage
   memoryUsage?: number;
-  
+
   // API response times
   apiResponseTimes?: Record<string, number>;
-}
+};
 
 /**
  * Performance entry
  */
-export interface PerformanceEntry {
+export type PerformanceEntry = {
   name: string;
   value: number;
   rating: 'good' | 'needs-improvement' | 'poor';
   timestamp: number;
-}
+};
 
 /**
  * Performance thresholds (based on Google's recommendations)
@@ -74,14 +74,14 @@ export const PERFORMANCE_THRESHOLDS = {
   cls: { good: 0.1, poor: 0.25 },
   fcp: { good: 1800, poor: 3000 },
   ttfb: { good: 800, poor: 1800 },
-  inp: { good: 200, poor: 500 }
+  inp: { good: 200, poor: 500 },
 };
 
 /**
  * Performance Monitor
  */
 export class PerformanceMonitor {
-  private metrics: Map<string, PerformanceEntry> = new Map();
+  private readonly metrics: Map<string, PerformanceEntry> = new Map();
   private observers: PerformanceObserver[] = [];
   private listeners: Array<(entry: PerformanceEntry) => void> = [];
 
@@ -98,19 +98,19 @@ export class PerformanceMonitor {
     try {
       // Observe LCP
       this.observeLCP();
-      
+
       // Observe FID
       this.observeFID();
-      
+
       // Observe CLS
       this.observeCLS();
-      
+
       // Observe FCP
       this.observeFCP();
-      
+
       // Observe TTFB
       this.observeTTFB();
-      
+
       // Observe INP
       this.observeINP();
     } catch (error) {
@@ -125,13 +125,13 @@ export class PerformanceMonitor {
     try {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1] as any;
-        
+        const lastEntry = entries.at(-1) as any;
+
         if (lastEntry) {
           this.recordMetric('lcp', lastEntry.renderTime || lastEntry.loadTime);
         }
       });
-      
+
       observer.observe({ type: 'largest-contentful-paint', buffered: true });
       this.observers.push(observer);
     } catch (error) {
@@ -150,7 +150,7 @@ export class PerformanceMonitor {
           this.recordMetric('fid', entry.processingStart - entry.startTime);
         });
       });
-      
+
       observer.observe({ type: 'first-input', buffered: true });
       this.observers.push(observer);
     } catch (error) {
@@ -164,7 +164,7 @@ export class PerformanceMonitor {
   private observeCLS(): void {
     try {
       let clsValue = 0;
-      
+
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         entries.forEach((entry: any) => {
@@ -174,7 +174,7 @@ export class PerformanceMonitor {
           }
         });
       });
-      
+
       observer.observe({ type: 'layout-shift', buffered: true });
       this.observers.push(observer);
     } catch (error) {
@@ -195,7 +195,7 @@ export class PerformanceMonitor {
           }
         });
       });
-      
+
       observer.observe({ type: 'paint', buffered: true });
       this.observers.push(observer);
     } catch (error) {
@@ -216,7 +216,7 @@ export class PerformanceMonitor {
           }
         });
       });
-      
+
       observer.observe({ type: 'navigation', buffered: true });
       this.observers.push(observer);
     } catch (error) {
@@ -232,18 +232,18 @@ export class PerformanceMonitor {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         let maxDuration = 0;
-        
+
         entries.forEach((entry: any) => {
           if (entry.duration > maxDuration) {
             maxDuration = entry.duration;
           }
         });
-        
+
         if (maxDuration > 0) {
           this.recordMetric('inp', maxDuration);
         }
       });
-      
+
       observer.observe({ type: 'event', buffered: true } as any);
       this.observers.push(observer);
     } catch (error) {
@@ -260,12 +260,12 @@ export class PerformanceMonitor {
       name,
       value,
       rating,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
+
     this.metrics.set(name, entry);
     this.notifyListeners(entry);
-    
+
     // Log in development
     if (import.meta.env.DEV) {
       console.log(`📊 Performance: ${name.toUpperCase()} = ${value.toFixed(2)}ms (${rating})`);
@@ -277,11 +277,17 @@ export class PerformanceMonitor {
    */
   private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
     const threshold = PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
-    
-    if (!threshold) return 'good';
-    
-    if (value <= threshold.good) return 'good';
-    if (value <= threshold.poor) return 'needs-improvement';
+
+    if (!threshold) {
+      return 'good';
+    }
+
+    if (value <= threshold.good) {
+      return 'good';
+    }
+    if (value <= threshold.poor) {
+      return 'needs-improvement';
+    }
     return 'poor';
   }
 
@@ -295,7 +301,7 @@ export class PerformanceMonitor {
       cls: this.metrics.get('cls')?.value,
       fcp: this.metrics.get('fcp')?.value,
       ttfb: this.metrics.get('ttfb')?.value,
-      inp: this.metrics.get('inp')?.value
+      inp: this.metrics.get('inp')?.value,
     };
   }
 
@@ -311,7 +317,7 @@ export class PerformanceMonitor {
    */
   addListener(callback: (entry: PerformanceEntry) => void): () => void {
     this.listeners.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.listeners.indexOf(callback);
@@ -325,7 +331,7 @@ export class PerformanceMonitor {
    * Notify all listeners
    */
   private notifyListeners(entry: PerformanceEntry): void {
-    this.listeners.forEach(callback => {
+    this.listeners.forEach((callback) => {
       try {
         callback(entry);
       } catch (error) {
@@ -338,7 +344,7 @@ export class PerformanceMonitor {
    * Disconnect all observers
    */
   disconnect(): void {
-    this.observers.forEach(observer => observer.disconnect());
+    this.observers.forEach((observer) => observer.disconnect());
     this.observers = [];
     this.listeners = [];
   }
@@ -357,4 +363,3 @@ export function reportWebVitals(onPerfEntry?: (entry: PerformanceEntry) => void)
     performanceMonitor.addListener(onPerfEntry);
   }
 }
-

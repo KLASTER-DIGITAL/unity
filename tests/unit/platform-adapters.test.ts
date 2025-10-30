@@ -1,13 +1,13 @@
 /**
  * Unit tests for Platform Adapters
- * 
+ *
  * Tests cross-platform adapters for Storage, Media, Navigation, and Animation
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-26
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ============================================================================
 // STORAGE ADAPTER TESTS
@@ -19,7 +19,7 @@ describe('Storage Adapter', () => {
   beforeEach(() => {
     // Mock localStorage
     mockLocalStorage = {};
-    
+
     global.localStorage = {
       getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
       setItem: vi.fn((key: string, value: string) => {
@@ -34,7 +34,7 @@ describe('Storage Adapter', () => {
       key: vi.fn((index: number) => Object.keys(mockLocalStorage)[index] || null),
       get length() {
         return Object.keys(mockLocalStorage).length;
-      }
+      },
     } as any;
   });
 
@@ -45,43 +45,43 @@ describe('Storage Adapter', () => {
   describe('WebStorageAdapter', () => {
     it('should store and retrieve string value', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.setItem('test_key', 'test_value');
       const value = await storage.getItem('test_key');
-      
+
       expect(value).toBe('test_value');
       expect(global.localStorage.setItem).toHaveBeenCalledWith('test_key', 'test_value');
     });
 
     it('should return null for non-existent key', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       const value = await storage.getItem('non_existent_key');
-      
+
       expect(value).toBeNull();
     });
 
     it('should remove item from storage', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.setItem('test_key', 'test_value');
       await storage.removeItem('test_key');
       const value = await storage.getItem('test_key');
-      
+
       expect(value).toBeNull();
       expect(global.localStorage.removeItem).toHaveBeenCalledWith('test_key');
     });
 
     it('should clear all items from storage', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.setItem('key1', 'value1');
       await storage.setItem('key2', 'value2');
       await storage.clear();
-      
+
       const value1 = await storage.getItem('key1');
       const value2 = await storage.getItem('key2');
-      
+
       expect(value1).toBeNull();
       expect(value2).toBeNull();
       expect(global.localStorage.clear).toHaveBeenCalled();
@@ -106,32 +106,32 @@ describe('Storage Adapter', () => {
 
     it('should get multiple items at once', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.setItem('key1', 'value1');
       await storage.setItem('key2', 'value2');
-      
+
       const items = await storage.multiGet(['key1', 'key2', 'key3']);
-      
+
       expect(items).toEqual([
         ['key1', 'value1'],
         ['key2', 'value2'],
-        ['key3', null]
+        ['key3', null],
       ]);
     });
 
     it('should set multiple items at once', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.multiSet([
         ['key1', 'value1'],
         ['key2', 'value2'],
-        ['key3', 'value3']
+        ['key3', 'value3'],
       ]);
-      
+
       const value1 = await storage.getItem('key1');
       const value2 = await storage.getItem('key2');
       const value3 = await storage.getItem('key3');
-      
+
       expect(value1).toBe('value1');
       expect(value2).toBe('value2');
       expect(value3).toBe('value3');
@@ -139,17 +139,17 @@ describe('Storage Adapter', () => {
 
     it('should remove multiple items at once', async () => {
       const { storage } = await import('@/shared/lib/platform/storage');
-      
+
       await storage.setItem('key1', 'value1');
       await storage.setItem('key2', 'value2');
       await storage.setItem('key3', 'value3');
-      
+
       await storage.multiRemove(['key1', 'key3']);
-      
+
       const value1 = await storage.getItem('key1');
       const value2 = await storage.getItem('key2');
       const value3 = await storage.getItem('key3');
-      
+
       expect(value1).toBeNull();
       expect(value2).toBe('value2');
       expect(value3).toBeNull();
@@ -159,54 +159,54 @@ describe('Storage Adapter', () => {
   describe('StorageUtils', () => {
     it('should store and retrieve JSON object', async () => {
       const { StorageUtils } = await import('@/shared/lib/platform/storage');
-      
+
       const testObject = { name: 'Test', age: 25, active: true };
-      
+
       await StorageUtils.setJSON('test_json', testObject);
       const retrieved = await StorageUtils.getJSON<typeof testObject>('test_json');
-      
+
       expect(retrieved).toEqual(testObject);
     });
 
     it('should return null for non-existent JSON key', async () => {
       const { StorageUtils } = await import('@/shared/lib/platform/storage');
-      
+
       const retrieved = await StorageUtils.getJSON('non_existent');
-      
+
       expect(retrieved).toBeNull();
     });
 
     it('should store and retrieve boolean value', async () => {
       const { StorageUtils } = await import('@/shared/lib/platform/storage');
-      
+
       await StorageUtils.setBoolean('test_bool_true', true);
       await StorageUtils.setBoolean('test_bool_false', false);
-      
+
       const valueTrue = await StorageUtils.getBoolean('test_bool_true');
       const valueFalse = await StorageUtils.getBoolean('test_bool_false');
-      
+
       expect(valueTrue).toBe(true);
       expect(valueFalse).toBe(false);
     });
 
     it('should store and retrieve number value', async () => {
       const { StorageUtils } = await import('@/shared/lib/platform/storage');
-      
+
       await StorageUtils.setNumber('test_number', 42.5);
       const value = await StorageUtils.getNumber('test_number');
-      
+
       expect(value).toBe(42.5);
     });
 
     it('should return null for invalid number', async () => {
       const { StorageUtils } = await import('@/shared/lib/platform/storage');
-      
-      await import('@/shared/lib/platform/storage').then(({ storage }) => 
+
+      await import('@/shared/lib/platform/storage').then(({ storage }) =>
         storage.setItem('invalid_number', 'not_a_number')
       );
-      
+
       const value = await StorageUtils.getNumber('invalid_number');
-      
+
       expect(value).toBeNull();
     });
   });
@@ -214,7 +214,7 @@ describe('Storage Adapter', () => {
   describe('StorageKeys', () => {
     it('should have all required storage keys defined', async () => {
       const { StorageKeys } = await import('@/shared/lib/platform/storage');
-      
+
       expect(StorageKeys.LANGUAGE).toBe('unity_language');
       expect(StorageKeys.THEME).toBe('unity_theme');
       expect(StorageKeys.NOTIFICATIONS_ENABLED).toBe('unity_notifications_enabled');
@@ -233,27 +233,27 @@ describe('Media Adapter', () => {
   describe('MediaUtils', () => {
     it('should identify image files correctly', async () => {
       const { MediaUtils } = await import('@/shared/lib/platform/media');
-      
+
       const imageFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const videoFile = new File([''], 'test.mp4', { type: 'video/mp4' });
-      
+
       expect(MediaUtils.isImageFile(imageFile)).toBe(true);
       expect(MediaUtils.isImageFile(videoFile)).toBe(false);
     });
 
     it('should identify video files correctly', async () => {
       const { MediaUtils } = await import('@/shared/lib/platform/media');
-      
+
       const imageFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const videoFile = new File([''], 'test.mp4', { type: 'video/mp4' });
-      
+
       expect(MediaUtils.isVideoFile(videoFile)).toBe(true);
       expect(MediaUtils.isVideoFile(imageFile)).toBe(false);
     });
 
     it('should format file size correctly', async () => {
       const { MediaUtils } = await import('@/shared/lib/platform/media');
-      
+
       expect(MediaUtils.formatFileSize(0)).toBe('0 Bytes');
       expect(MediaUtils.formatFileSize(1024)).toBe('1 KB');
       expect(MediaUtils.formatFileSize(1024 * 1024)).toBe('1 MB');
@@ -263,10 +263,10 @@ describe('Media Adapter', () => {
 
     it('should validate file size correctly', async () => {
       const { MediaUtils } = await import('@/shared/lib/platform/media');
-      
+
       const smallFile = new File(['x'.repeat(1024)], 'small.txt');
       const largeFile = new File(['x'.repeat(10 * 1024 * 1024)], 'large.txt');
-      
+
       expect(MediaUtils.validateFileSize(smallFile, 5)).toBe(true);
       expect(MediaUtils.validateFileSize(largeFile, 5)).toBe(false);
     });
@@ -303,7 +303,8 @@ describe('Media Adapter', () => {
       const { media } = await import('@/shared/lib/platform/media');
 
       // Create a 1x1 transparent PNG
-      const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      const base64PNG =
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
       const binaryString = atob(base64PNG);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -386,7 +387,8 @@ describe('Media Adapter', () => {
       expect(typeof media.getImageDimensions).toBe('function');
 
       // Create a valid PNG file
-      const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      const base64PNG =
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
       const binaryString = atob(base64PNG);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -468,14 +470,14 @@ describe('Navigation Adapter', () => {
       pushState: vi.fn(),
       replaceState: vi.fn(),
       back: vi.fn(),
-      length: 2
+      length: 2,
     };
 
     mockLocation = {
       pathname: '/',
       search: '',
       hash: '',
-      origin: 'http://localhost:3000'
+      origin: 'http://localhost:3000',
     };
 
     global.window = {
@@ -483,7 +485,7 @@ describe('Navigation Adapter', () => {
       location: mockLocation,
       dispatchEvent: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     } as any;
   });
 
@@ -580,7 +582,7 @@ describe('Navigation Adapter', () => {
 
       const route = NavigationUtils.buildRoute('/user/:id/post/:postId', {
         id: '123',
-        postId: '456'
+        postId: '456',
       });
 
       expect(route).toBe('/user/123/post/456');

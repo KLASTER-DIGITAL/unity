@@ -5,9 +5,9 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from 'dotenv';
 
 // Load environment variables from .env file
 config();
@@ -60,8 +60,8 @@ async function generateTranslationTypes() {
     process.exit(1);
   }
 
-  const uniqueKeys = [...new Set(keys?.map(k => k.translation_key) || [])];
-  const languageCodes = languages?.map(l => l.code) || [];
+  const uniqueKeys = [...new Set(keys?.map((k) => k.translation_key) || [])];
+  const languageCodes = languages?.map((l) => l.code) || [];
 
   console.log(`✅ Found ${uniqueKeys.length} translation keys`);
   console.log(`✅ Found ${languageCodes.length} languages: ${languageCodes.join(', ')}`);
@@ -94,31 +94,85 @@ function categorizeKeys(keys: string[]): Record<string, string[]> {
     settings: [],
     admin: [],
     categories: [],
-    other: []
+    other: [],
   };
 
-  keys.forEach(key => {
+  keys.forEach((key) => {
     if (key.startsWith('admin_')) {
       categories.admin.push(key);
     } else if (key.includes('onboarding') || key.includes('welcome') || key.includes('diary_')) {
       categories.onboarding.push(key);
-    } else if (key.includes('sign_') || key.includes('auth') || key.includes('password') || key.includes('email')) {
+    } else if (
+      key.includes('sign_') ||
+      key.includes('auth') ||
+      key.includes('password') ||
+      key.includes('email')
+    ) {
       categories.auth.push(key);
     } else if (['home', 'history', 'achievements', 'reports', 'settings'].includes(key)) {
       categories.navigation.push(key);
-    } else if (key.includes('achievement') || key.includes('milestone') || key.includes('badge') || key.includes('level')) {
+    } else if (
+      key.includes('achievement') ||
+      key.includes('milestone') ||
+      key.includes('badge') ||
+      key.includes('level')
+    ) {
       categories.achievements.push(key);
-    } else if (key.includes('report') || key.includes('weekly') || key.includes('monthly') || key.includes('yearly')) {
+    } else if (
+      key.includes('report') ||
+      key.includes('weekly') ||
+      key.includes('monthly') ||
+      key.includes('yearly')
+    ) {
       categories.reports.push(key);
-    } else if (key.includes('setting') || key.includes('profile') || key.includes('language') || key.includes('theme') || key.includes('notification')) {
+    } else if (
+      key.includes('setting') ||
+      key.includes('profile') ||
+      key.includes('language') ||
+      key.includes('theme') ||
+      key.includes('notification')
+    ) {
       categories.settings.push(key);
-    } else if (key.includes('entry') || key.includes('entries') || key.includes('filter') || key.includes('search')) {
+    } else if (
+      key.includes('entry') ||
+      key.includes('entries') ||
+      key.includes('filter') ||
+      key.includes('search')
+    ) {
       categories.history.push(key);
-    } else if (key.includes('morning') || key.includes('afternoon') || key.includes('evening') || key.includes('night') || key.includes('motivation') || key.includes('recent')) {
+    } else if (
+      key.includes('morning') ||
+      key.includes('afternoon') ||
+      key.includes('evening') ||
+      key.includes('night') ||
+      key.includes('motivation') ||
+      key.includes('recent')
+    ) {
       categories.home.push(key);
-    } else if (['family', 'work', 'finance', 'health', 'education', 'hobby', 'travel', 'sport', 'creativity', 'relationships', 'career', 'personal_growth', 'other'].includes(key)) {
+    } else if (
+      [
+        'family',
+        'work',
+        'finance',
+        'health',
+        'education',
+        'hobby',
+        'travel',
+        'sport',
+        'creativity',
+        'relationships',
+        'career',
+        'personal_growth',
+        'other',
+      ].includes(key)
+    ) {
       categories.categories.push(key);
-    } else if (key.includes('loading') || key.includes('error') || key.includes('success') || key.includes('failed')) {
+    } else if (
+      key.includes('loading') ||
+      key.includes('error') ||
+      key.includes('success') ||
+      key.includes('failed')
+    ) {
       categories.common.push(key);
     } else {
       categories.other.push(key);
@@ -126,7 +180,7 @@ function categorizeKeys(keys: string[]): Record<string, string[]> {
   });
 
   // Remove empty categories
-  Object.keys(categories).forEach(cat => {
+  Object.keys(categories).forEach((cat) => {
     if (categories[cat].length === 0) {
       delete categories[cat];
     }
@@ -135,9 +189,12 @@ function categorizeKeys(keys: string[]): Record<string, string[]> {
   return categories;
 }
 
-function generateTypeScriptFile(categorizedKeys: Record<string, string[]>, languageCodes: string[]): string {
+function generateTypeScriptFile(
+  categorizedKeys: Record<string, string[]>,
+  languageCodes: string[]
+): string {
   const now = new Date().toISOString().split('T')[0];
-  
+
   let content = `/**
  * Auto-generated TypeScript types for translation keys
  * 
@@ -158,7 +215,8 @@ export type TranslationKey =\n`;
   Object.entries(categorizedKeys).forEach(([category, keys], categoryIndex) => {
     content += `  // ${category.charAt(0).toUpperCase() + category.slice(1)}\n`;
     keys.forEach((key, index) => {
-      const isLast = categoryIndex === Object.keys(categorizedKeys).length - 1 && index === keys.length - 1;
+      const isLast =
+        categoryIndex === Object.keys(categorizedKeys).length - 1 && index === keys.length - 1;
       content += `  | '${key}'${isLast ? ';' : ''}\n`;
     });
     content += '\n';
@@ -179,7 +237,7 @@ export type Translations = Partial<Record<TranslationKey, string>>;
 /**
  * Language code type
  */
-export type LanguageCode = ${languageCodes.map(code => `'${code}'`).join(' | ')};
+export type LanguageCode = ${languageCodes.map((code) => `'${code}'`).join(' | ')};
 
 /**
  * Language object type
@@ -233,8 +291,7 @@ export interface TranslationContextValue {
 }
 
 // Run the script
-generateTranslationTypes().catch(error => {
+generateTranslationTypes().catch((error) => {
   console.error('❌ Error generating translation types:', error);
   process.exit(1);
 });
-

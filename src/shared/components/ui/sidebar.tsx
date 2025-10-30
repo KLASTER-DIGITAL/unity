@@ -17,42 +17,39 @@
  * @module sidebar
  */
 
-"use client";
-
-// Context and Provider
-export { SidebarProvider, useSidebar } from "./sidebar-context";
+'use client';
 
 // Base Components
 export {
   Sidebar,
-  SidebarTrigger,
-  SidebarRail,
-  SidebarInset,
-  SidebarInput,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarSeparator,
   SidebarContent,
-} from "./sidebar-components-base";
-
+  SidebarFooter,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+} from './sidebar-components-base';
 // Group Components
 export {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupAction,
   SidebarGroupContent,
-} from "./sidebar-components-group";
-
+  SidebarGroupLabel,
+} from './sidebar-components-group';
 // Menu Components
 export {
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  sidebarMenuButtonVariants,
   SidebarMenuAction,
   SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuSubButton,
-} from "./sidebar-components-menu";
+  SidebarMenuSubItem,
+  sidebarMenuButtonVariants,
+} from './sidebar-components-menu';
+// Context and Provider
+export { SidebarProvider, useSidebar } from './sidebar-context';

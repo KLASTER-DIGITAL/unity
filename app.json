@@ -10,9 +10,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#007AFF"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.unity.diary",
@@ -36,9 +34,15 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ],
       "expo-font",
-      "expo-sqlite"
+      "expo-sqlite",
+      "react-native-reanimated/plugin"
     ],
     "experiments": {
       "typedRoutes": true

@@ -2,11 +2,10 @@
  * SettingsScreen - Modals Index
  */
 
-export { FAQModal } from "./FAQModal";
-export { SupportModal } from "./SupportModal";
-export { RateAppModal } from "./RateAppModal";
-export { LanguageModal } from "./LanguageModal";
-export { PWAInstallModal } from "./PWAInstallModal";
-export { CategoriesModal } from "./CategoriesModal";
-export { OfflineSettingsModal } from "./OfflineSettingsModal";
-
+export { CategoriesModal } from './CategoriesModal';
+export { FAQModal } from './FAQModal';
+export { LanguageModal } from './LanguageModal';
+export { OfflineSettingsModal } from './OfflineSettingsModal';
+export { PWAInstallModal } from './PWAInstallModal';
+export { RateAppModal } from './RateAppModal';
+export { SupportModal } from './SupportModal';

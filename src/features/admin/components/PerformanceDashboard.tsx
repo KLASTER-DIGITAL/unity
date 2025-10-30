@@ -1,32 +1,32 @@
 /**
  * Performance Dashboard Component
- * 
+ *
  * Admin panel component for monitoring Web Vitals and performance metrics
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Activity, Minus, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
-import { Activity, TrendingUp, TrendingDown, Minus, RefreshCw } from 'lucide-react';
-import { performanceMonitor, type PerformanceEntry } from '@/shared/lib/performance';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { type PerformanceEntry, performanceMonitor } from '@/shared/lib/performance';
 
-interface MetricData {
+type MetricData = {
   name: string;
   value: number;
   rating: 'good' | 'needs-improvement' | 'poor';
   timestamp: number;
-}
+};
 
-interface MetricStats {
+type MetricStats = {
   current: number;
   average: number;
   min: number;
   max: number;
   trend: 'up' | 'down' | 'stable';
-}
+};
 
 export function PerformanceDashboard() {
   const [metrics, setMetrics] = useState<Map<string, MetricData[]>>(new Map());
@@ -36,22 +36,25 @@ export function PerformanceDashboard() {
   useEffect(() => {
     // Subscribe to performance metrics
     const unsubscribe = performanceMonitor.addListener((metric: PerformanceEntry) => {
-      setMetrics(prev => {
+      setMetrics((prev) => {
         const newMetrics = new Map(prev);
         const metricHistory = newMetrics.get(metric.name) || [];
-        
+
         // Keep last 50 entries
-        const updatedHistory = [...metricHistory, {
-          name: metric.name,
-          value: metric.value,
-          rating: metric.rating,
-          timestamp: metric.timestamp
-        }].slice(-50);
-        
+        const updatedHistory = [
+          ...metricHistory,
+          {
+            name: metric.name,
+            value: metric.value,
+            rating: metric.rating,
+            timestamp: metric.timestamp,
+          },
+        ].slice(-50);
+
         newMetrics.set(metric.name, updatedHistory);
         return newMetrics;
       });
-      
+
       setLastUpdate(new Date());
     });
 
@@ -65,10 +68,12 @@ export function PerformanceDashboard() {
 
   const calculateStats = (metricName: string): MetricStats | null => {
     const history = metrics.get(metricName);
-    if (!history || history.length === 0) return null;
+    if (!history || history.length === 0) {
+      return null;
+    }
 
-    const values = history.map(m => m.value);
-    const current = values[values.length - 1];
+    const values = history.map((m) => m.value);
+    const current = values.at(-1) ?? 0;
     const average = values.reduce((a, b) => a + b, 0) / values.length;
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -79,9 +84,12 @@ export function PerformanceDashboard() {
       const recent = values.slice(-10).reduce((a, b) => a + b, 0) / 10;
       const previous = values.slice(-20, -10).reduce((a, b) => a + b, 0) / 10;
       const change = ((recent - previous) / previous) * 100;
-      
-      if (change > 5) trend = 'up';
-      else if (change < -5) trend = 'down';
+
+      if (change > 5) {
+        trend = 'up';
+      } else if (change < -5) {
+        trend = 'down';
+      }
     }
 
     return { current, average, min, max, trend };
@@ -89,32 +97,45 @@ export function PerformanceDashboard() {
 
   const getRatingColor = (rating: string) => {
     switch (rating) {
-      case 'good': return 'text-green-600 bg-green-50 border-green-200';
-      case 'needs-improvement': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'poor': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-muted-foreground bg-muted border-border';
+      case 'good':
+        return 'text-green-600 bg-green-50 border-green-200';
+      case 'needs-improvement':
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'poor':
+        return 'text-red-600 bg-red-50 border-red-200';
+      default:
+        return 'text-muted-foreground bg-muted border-border';
     }
   };
 
   const getRatingEmoji = (rating: string) => {
     switch (rating) {
-      case 'good': return '✅';
-      case 'needs-improvement': return '⚠️';
-      case 'poor': return '❌';
-      default: return '❓';
+      case 'good':
+        return '✅';
+      case 'needs-improvement':
+        return '⚠️';
+      case 'poor':
+        return '❌';
+      default:
+        return '❓';
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up': return <TrendingUp className="w-4 h-4 text-red-500" />;
-      case 'down': return <TrendingDown className="w-4 h-4 text-green-500" />;
-      default: return <Minus className="w-4 h-4 text-muted-foreground" />;
+      case 'up':
+        return <TrendingUp className="h-4 w-4 text-red-500" />;
+      case 'down':
+        return <TrendingDown className="h-4 w-4 text-green-500" />;
+      default:
+        return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const formatValue = (name: string, value: number) => {
-    if (name === 'cls') return value.toFixed(3);
+    if (name === 'cls') {
+      return value.toFixed(3);
+    }
     return `${value.toFixed(0)}ms`;
   };
 
@@ -150,52 +171,48 @@ export function PerformanceDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Activity className="w-6 h-6" />
+          <h2 className="flex items-center gap-2 font-bold text-2xl">
+            <Activity className="h-6 w-6" />
             Performance Dashboard
           </h2>
-          <p className="text-muted-foreground mt-1">
-            Real-time Web Vitals monitoring
-          </p>
+          <p className="mt-1 text-muted-foreground">Real-time Web Vitals monitoring</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           {lastUpdate && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Last update: {lastUpdate.toLocaleTimeString()}
             </div>
           )}
-          
+
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isMonitoring ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-            <span className="text-sm text-muted-foreground">
+            <div
+              className={`h-2 w-2 rounded-full ${isMonitoring ? 'animate-pulse bg-green-500' : 'bg-gray-400'}`}
+            />
+            <span className="text-muted-foreground text-sm">
               {isMonitoring ? 'Monitoring' : 'Stopped'}
             </span>
           </div>
 
-          <Button
-            onClick={clearMetrics}
-            variant="outline"
-            size="sm"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button onClick={clearMetrics} size="sm" variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
             Clear
           </Button>
         </div>
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {metricNames.map(metricName => {
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {metricNames.map((metricName) => {
           const history = metrics.get(metricName);
           const stats = calculateStats(metricName);
           const latestMetric = history?.[history.length - 1];
           const threshold = getMetricThreshold(metricName);
 
           return (
-            <Card key={metricName} className="hover:shadow-lg transition-shadow">
+            <Card className="transition-shadow hover:shadow-lg" key={metricName}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground uppercase">
+                <CardTitle className="font-medium text-muted-foreground text-sm uppercase">
                   {metricLabels[metricName]}
                 </CardTitle>
               </CardHeader>
@@ -205,16 +222,16 @@ export function PerformanceDashboard() {
                     {/* Current Value */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-3xl font-bold">
+                        <div className="font-bold text-3xl">
                           {formatValue(metricName, stats.current)}
                         </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Current
-                        </div>
+                        <div className="mt-1 text-muted-foreground text-sm">Current</div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <div className={`px-3 py-1 rounded-full border ${getRatingColor(latestMetric?.rating || 'good')}`}>
-                          <span className="text-sm font-medium">
+                        <div
+                          className={`rounded-full border px-3 py-1 ${getRatingColor(latestMetric?.rating || 'good')}`}
+                        >
+                          <span className="font-medium text-sm">
                             {getRatingEmoji(latestMetric?.rating || 'good')} {latestMetric?.rating}
                           </span>
                         </div>
@@ -223,22 +240,22 @@ export function PerformanceDashboard() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t">
+                    <div className="grid grid-cols-3 gap-2 border-t pt-3">
                       <div>
-                        <div className="text-xs text-muted-foreground">Avg</div>
-                        <div className="text-sm font-semibold">
+                        <div className="text-muted-foreground text-xs">Avg</div>
+                        <div className="font-semibold text-sm">
                           {formatValue(metricName, stats.average)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-muted-foreground">Min</div>
-                        <div className="text-sm font-semibold text-green-600">
+                        <div className="text-muted-foreground text-xs">Min</div>
+                        <div className="font-semibold text-green-600 text-sm">
                           {formatValue(metricName, stats.min)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-muted-foreground">Max</div>
-                        <div className="text-sm font-semibold text-red-600">
+                        <div className="text-muted-foreground text-xs">Max</div>
+                        <div className="font-semibold text-red-600 text-sm">
                           {formatValue(metricName, stats.max)}
                         </div>
                       </div>
@@ -246,32 +263,34 @@ export function PerformanceDashboard() {
 
                     {/* Threshold Indicator */}
                     <div className="pt-2">
-                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                      <div className="mb-1 flex justify-between text-muted-foreground text-xs">
                         <span>Good: {formatValue(metricName, threshold.good)}</span>
                         <span>Poor: {formatValue(metricName, threshold.poor)}</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                         <div
                           className={`h-full transition-all ${
-                            stats.current <= threshold.good ? 'bg-green-500' :
-                            stats.current <= threshold.poor ? 'bg-yellow-500' :
-                            'bg-red-500'
+                            stats.current <= threshold.good
+                              ? 'bg-green-500'
+                              : stats.current <= threshold.poor
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
                           }`}
                           style={{
-                            width: `${Math.min((stats.current / threshold.poor) * 100, 100)}%`
+                            width: `${Math.min((stats.current / threshold.poor) * 100, 100)}%`,
                           }}
                         />
                       </div>
                     </div>
 
                     {/* Sample Count */}
-                    <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                    <div className="border-t pt-2 text-center text-muted-foreground text-xs">
                       {history?.length || 0} samples collected
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <div className="py-8 text-center text-muted-foreground">
+                    <Activity className="mx-auto mb-2 h-8 w-8 opacity-50" />
                     <p className="text-sm">Waiting for data...</p>
                   </div>
                 )}
@@ -283,17 +302,15 @@ export function PerformanceDashboard() {
 
       {/* Info */}
       {metrics.size === 0 && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="border-blue-200 bg-blue-50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
               <div className="text-blue-600">ℹ️</div>
               <div>
-                <h3 className="font-semibold text-blue-900 mb-1">
-                  How to collect metrics
-                </h3>
-                <p className="text-sm text-blue-800">
-                  Navigate through the application to collect Web Vitals metrics. 
-                  Metrics are automatically tracked and displayed here in real-time.
+                <h3 className="mb-1 font-semibold text-blue-900">How to collect metrics</h3>
+                <p className="text-blue-800 text-sm">
+                  Navigate through the application to collect Web Vitals metrics. Metrics are
+                  automatically tracked and displayed here in real-time.
                 </p>
               </div>
             </div>
@@ -303,4 +320,3 @@ export function PerformanceDashboard() {
     </div>
   );
 }
-

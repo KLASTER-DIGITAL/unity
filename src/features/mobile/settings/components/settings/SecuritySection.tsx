@@ -1,7 +1,7 @@
-import { Lock, Shield } from "lucide-react";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Lock, Shield } from 'lucide-react';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
-interface SecuritySectionProps {
+type SecuritySectionProps = {
   biometricEnabled: boolean;
   biometricAvailable: boolean;
   autoBackupEnabled: boolean;
@@ -10,7 +10,7 @@ interface SecuritySectionProps {
   onAutoBackupChange: (enabled: boolean) => void;
   onPremiumRequired: () => void;
   t: any; // Translation object
-}
+};
 
 /**
  * Security settings section
@@ -26,7 +26,7 @@ export function SecuritySection({
   onBiometricChange,
   onAutoBackupChange,
   onPremiumRequired,
-  t
+  t,
 }: SecuritySectionProps) {
   const handleAutoBackupChange = (checked: boolean) => {
     if (!isPremium && checked) {
@@ -43,31 +43,30 @@ export function SecuritySection({
   };
 
   return (
-    <SettingsSection title={t.security || "Безопасность"}>
+    <SettingsSection title={t.security || 'Безопасность'}>
       <SettingsRow
+        description={biometricAvailable ? 'Доступно' : 'Недоступно в браузере'}
+        disabled={!biometricAvailable}
         icon={Lock}
-        iconColor="text-[var(--ios-blue)]"
         iconBgColor="bg-[var(--ios-blue)]/10"
-        title={t.biometricProtection || "Биометрическая защита"}
-        description={biometricAvailable ? "Доступно" : "Недоступно в браузере"}
+        iconColor="text-[var(--ios-blue)]"
+        onSwitchChange={onBiometricChange}
         rightElement="switch"
         switchChecked={biometricEnabled}
-        onSwitchChange={onBiometricChange}
-        disabled={!biometricAvailable}
+        title={t.biometricProtection || 'Биометрическая защита'}
       />
       <SettingsRow
+        description={isPremium ? 'Премиум функция' : 'Требуется премиум'}
+        disabled={!isPremium}
         icon={Shield}
-        iconColor="text-[var(--ios-green)]"
         iconBgColor="bg-[var(--ios-green)]/10"
-        title={t.autoBackup || "Автоматическое резервирование"}
-        description={isPremium ? "Премиум функция" : "Требуется премиум"}
+        iconColor="text-[var(--ios-green)]"
+        onClick={handleAutoBackupClick}
+        onSwitchChange={handleAutoBackupChange}
         rightElement="switch"
         switchChecked={autoBackupEnabled}
-        onSwitchChange={handleAutoBackupChange}
-        onClick={handleAutoBackupClick}
-        disabled={!isPremium}
+        title={t.autoBackup || 'Автоматическое резервирование'}
       />
     </SettingsSection>
   );
 }
-

@@ -5,7 +5,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 
-export interface UserCategory {
+export type UserCategory = {
   id: string;
   user_id: string;
   name: string;
@@ -14,19 +14,19 @@ export interface UserCategory {
   is_default: boolean;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface CreateCategoryInput {
+export type CreateCategoryInput = {
   name: string;
   icon?: string;
   color?: string;
-}
+};
 
-export interface UpdateCategoryInput {
+export type UpdateCategoryInput = {
   name?: string;
   icon?: string;
   color?: string;
-}
+};
 
 /**
  * Get all categories for a user (default + custom)
@@ -62,7 +62,7 @@ export async function createCategory(
 
   // Validate max categories (default 9 + max 20 custom = 29 total)
   const existingCategories = await getUserCategories(userId);
-  const customCategories = existingCategories.filter(c => !c.is_default);
+  const customCategories = existingCategories.filter((c) => !c.is_default);
 
   if (customCategories.length >= 20) {
     throw new Error('Достигнут лимит пользовательских категорий (20)');
@@ -76,7 +76,7 @@ export async function createCategory(
       name: input.name,
       icon: input.icon || '✨',
       color: input.color || 'var(--gradient-neutral-1-start)',
-      is_default: false
+      is_default: false,
     })
     .select()
     .single();
@@ -112,7 +112,7 @@ export async function updateCategory(
       ...(input.name && { name: input.name }),
       ...(input.icon && { icon: input.icon }),
       ...(input.color && { color: input.color }),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', categoryId)
     .eq('is_default', false) // Only allow updating custom categories
@@ -173,11 +173,11 @@ export async function getCategoryByName(
     .ilike('name', name)
     .single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+  if (error && error.code !== 'PGRST116') {
+    // PGRST116 = no rows returned
     console.error('[CATEGORIES] Error fetching category by name:', error);
     throw error;
   }
 
   return data;
 }
-

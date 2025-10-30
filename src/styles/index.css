@@ -1,7 +1,7 @@
 /**
  * UNITY-v2 Main CSS Entry Point
  * AI-Friendly modular structure for easy maintenance and debugging
- * 
+ *
  * Structure:
  * - Tailwind CSS base (auto-generated)
  * - Theme tokens (@theme directive)
@@ -148,4 +148,3 @@
     @apply bg-background text-foreground;
   }
 }
-

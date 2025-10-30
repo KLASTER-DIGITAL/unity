@@ -10,75 +10,68 @@
 import React from 'react';
 
 // Types and interfaces
-import type { UniversalComponentProps, ColorScheme } from './types';
+import type { ColorScheme, UniversalComponentProps } from './types';
+
 export * from './types';
 
 // Core components
 import { ButtonUtils } from './Button';
 import { ModalUtils } from './Modal';
 
-export { Button, ButtonUtils } from './Button';
 export type { ButtonProps } from './Button';
-
-export { Modal, ModalUtils } from './Modal';
-export type { ExtendedModalProps as ModalProps } from './Modal';
-
-export { toast, Toaster } from './Toast';
-export type { ToasterProps } from './Toast';
-
-export { RadioGroup, RadioGroupUtils } from './RadioGroup';
-export type { RadioGroupProps, RadioGroupOption } from './RadioGroup';
-
+export { Button, ButtonUtils } from './Button';
+export type {
+  DialogContentProps,
+  DialogDescriptionProps,
+  DialogFooterProps,
+  DialogHeaderProps,
+  DialogProps,
+  DialogTitleProps,
+} from './Dialog';
 export {
   Dialog,
-  DialogTrigger,
-  DialogPortal,
   DialogClose,
-  DialogOverlay,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
 } from './Dialog';
-export type {
-  DialogProps,
-  DialogContentProps,
-  DialogHeaderProps,
-  DialogFooterProps,
-  DialogTitleProps,
-  DialogDescriptionProps,
-} from './Dialog';
-
-export { UniversalSelect, SelectUtils } from './UniversalSelect';
-export type { SelectProps as UniversalSelectProps, SelectOption } from './UniversalSelect';
-
-export { UniversalSwitch, SwitchUtils } from './UniversalSwitch';
-export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
-
-export { UniversalCheckbox, CheckboxUtils } from './UniversalCheckbox';
-export type { CheckboxProps as UniversalCheckboxProps } from './UniversalCheckbox';
-
-export { Pressable } from './Pressable';
+export type { ExtendedModalProps as ModalProps } from './Modal';
+export { Modal, ModalUtils } from './Modal';
 export type { PressableProps } from './Pressable';
-
+export { Pressable } from './Pressable';
+export type { RadioGroupOption, RadioGroupProps } from './RadioGroup';
+export { RadioGroup, RadioGroupUtils } from './RadioGroup';
+export type { ToasterProps } from './Toast';
+export { Toaster, toast } from './Toast';
 // Re-export common types for convenience
 export type {
+  AnimationPreset,
+  ButtonSize,
+  ButtonVariant,
+  ColorScheme,
+  FormFieldProps,
+  LoadingState,
+  ModalSize,
+  ThemeTokens,
+  ToastProps,
+  UniversalAnimationProps,
   UniversalComponentProps,
   UniversalEventHandlers,
   UniversalLayoutProps,
-  UniversalAnimationProps,
-  FormFieldProps,
-  ButtonVariant,
-  ButtonSize,
-  ModalSize,
-  AnimationPreset,
-  ColorScheme,
-  ThemeTokens,
-  ToastProps,
-  LoadingState,
-  ValidationResult
+  ValidationResult,
 } from './types';
+export type { CheckboxProps as UniversalCheckboxProps } from './UniversalCheckbox';
+
+export { CheckboxUtils, UniversalCheckbox } from './UniversalCheckbox';
+export type { SelectOption, SelectProps as UniversalSelectProps } from './UniversalSelect';
+export { SelectUtils, UniversalSelect } from './UniversalSelect';
+export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
+export { SwitchUtils, UniversalSwitch } from './UniversalSwitch';
 
 /**
  * Universal component utilities
@@ -114,39 +107,39 @@ export const UniversalUtils = {
         error: '#FF3B30',
         warning: '#FF9500',
         success: '#34C759',
-        info: '#007AFF'
+        info: '#007AFF',
       },
       spacing: {
         xs: 4,
         sm: 8,
         md: 16,
         lg: 24,
-        xl: 32
+        xl: 32,
       },
       borderRadius: {
         sm: 4,
         md: 6,
         lg: 8,
-        full: 9999
+        full: 9999,
       },
       fontSize: {
         xs: 12,
         sm: 14,
         md: 16,
         lg: 18,
-        xl: 20
+        xl: 20,
       },
       fontWeight: {
         normal: '400',
         medium: '500',
         semibold: '600',
-        bold: '700'
+        bold: '700',
       },
       shadows: {
         sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
         md: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        lg: '0 10px 15px rgba(0, 0, 0, 0.1)'
-      }
+        lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+      },
     };
 
     const darkTheme = {
@@ -158,8 +151,8 @@ export const UniversalUtils = {
         surface: '#1C1C1E',
         text: '#FFFFFF',
         textSecondary: '#8E8E93',
-        border: '#38383A'
-      }
+        border: '#38383A',
+      },
     };
 
     return theme === 'dark' ? darkTheme : lightTheme;
@@ -168,17 +161,11 @@ export const UniversalUtils = {
   /**
    * Create responsive styles
    */
-  createResponsiveStyles: (styles: {
-    mobile?: any;
-    tablet?: any;
-    desktop?: any;
-  }) => {
-    return {
-      '@media (max-width: 768px)': styles.mobile || {},
-      '@media (min-width: 769px) and (max-width: 1024px)': styles.tablet || {},
-      '@media (min-width: 1025px)': styles.desktop || {}
-    };
-  },
+  createResponsiveStyles: (styles: { mobile?: any; tablet?: any; desktop?: any }) => ({
+    '@media (max-width: 768px)': styles.mobile || {},
+    '@media (min-width: 769px) and (max-width: 1024px)': styles.tablet || {},
+    '@media (min-width: 1025px)': styles.desktop || {},
+  }),
 
   /**
    * Convert web styles to React Native styles
@@ -200,13 +187,14 @@ export const UniversalUtils = {
       'margin-top': 'marginTop',
       'margin-bottom': 'marginBottom',
       'margin-left': 'marginLeft',
-      'margin-right': 'marginRight'
+      'margin-right': 'marginRight',
     };
 
     const nativeStyles: any = {};
-    
+
     Object.entries(webStyles).forEach(([key, value]) => {
-      const nativeKey = conversion[key] || key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+      const nativeKey =
+        conversion[key] || key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
       nativeStyles[nativeKey] = value;
     });
 
@@ -216,19 +204,12 @@ export const UniversalUtils = {
   /**
    * Generate accessibility props
    */
-  generateA11yProps: (props: {
-    label?: string;
-    hint?: string;
-    role?: string;
-    state?: string;
-  }) => {
-    return {
-      accessibilityLabel: props.label,
-      accessibilityHint: props.hint,
-      accessibilityRole: props.role,
-      accessibilityState: props.state ? { [props.state]: true } : undefined
-    };
-  }
+  generateA11yProps: (props: { label?: string; hint?: string; role?: string; state?: string }) => ({
+    accessibilityLabel: props.label,
+    accessibilityHint: props.hint,
+    accessibilityRole: props.role,
+    accessibilityState: props.state ? { [props.state]: true } : undefined,
+  }),
 };
 
 /**
@@ -250,28 +231,20 @@ export const createUniversalComponent = <T extends UniversalComponentProps>(
 /**
  * HOC for adding universal props to existing components
  */
-export const withUniversalProps = <T extends object>(
-  Component: React.ComponentType<T>
-) => {
-  return React.forwardRef<any, T & UniversalComponentProps>((props, ref) => {
-    const { testID, accessibilityLabel, accessibilityHint, accessibilityRole, ...restProps } = props;
-    
+export const withUniversalProps =
+  <T extends object>(Component: React.ComponentType<T>) =>
+  ({ ref, ...props }: T & UniversalComponentProps & { ref?: React.RefObject<any | null> }) => {
+    const { testID, accessibilityLabel, accessibilityHint, accessibilityRole, ...restProps } =
+      props;
+
     const a11yProps = UniversalUtils.generateA11yProps({
       label: accessibilityLabel,
       hint: accessibilityHint,
-      role: accessibilityRole
+      role: accessibilityRole,
     });
 
-    return (
-      <Component
-        ref={ref}
-        data-testid={testID}
-        {...a11yProps}
-        {...(restProps as T)}
-      />
-    );
-  });
-};
+    return <Component data-testid={testID} ref={ref} {...a11yProps} {...(restProps as T)} />;
+  };
 
 /**
  * Hook for using universal theme
@@ -284,21 +257,20 @@ export const useUniversalTheme = (colorScheme: ColorScheme = 'auto') => {
       // Auto-detect system theme
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       setTheme(mediaQuery.matches ? 'dark' : 'light');
-      
+
       const handleChange = (e: MediaQueryListEvent) => {
         setTheme(e.matches ? 'dark' : 'light');
       };
-      
+
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
-    } else {
-      setTheme(colorScheme);
     }
+    setTheme(colorScheme);
   }, [colorScheme]);
 
   return {
     theme,
     themeStyles: UniversalUtils.getThemeStyles(theme),
-    setTheme
+    setTheme,
   };
 };

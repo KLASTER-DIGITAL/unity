@@ -1,6 +1,6 @@
 /**
  * App Constants - Shared between PWA and React Native
- * 
+ *
  * TRULY shared code - NO platform-specific imports
  */
 
@@ -31,8 +31,7 @@ export const MOOD_SCALE = {
 
 export const ENTRY_LIMITS = {
   TITLE_MAX_LENGTH: 100,
-  CONTENT_MAX_LENGTH: 10000,
+  CONTENT_MAX_LENGTH: 10_000,
   TAGS_MAX_COUNT: 10,
   MEDIA_MAX_COUNT: 10,
 } as const;
-

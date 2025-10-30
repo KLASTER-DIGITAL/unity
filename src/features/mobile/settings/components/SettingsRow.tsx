@@ -1,9 +1,9 @@
-import React from 'react';
-import { ChevronRight, LucideIcon } from 'lucide-react';
+import { ChevronRight, type LucideIcon } from 'lucide-react';
+import type React from 'react';
 import { Switch } from '@/shared/components/ui/switch';
 import { cn } from '@/shared/components/ui/utils';
 
-interface SettingsRowProps {
+type SettingsRowProps = {
   icon: LucideIcon;
   iconColor?: string;
   iconBgColor?: string;
@@ -16,7 +16,7 @@ interface SettingsRowProps {
   customRightElement?: React.ReactNode;
   className?: string;
   disabled?: boolean;
-}
+};
 
 export const SettingsRow: React.FC<SettingsRowProps> = ({
   icon: Icon,
@@ -55,32 +55,35 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 
   return (
     <div
-      onClick={handleClick}
       className={cn(
         'flex items-center justify-between p-row transition-colors',
         // iOS HIG: minimum 44px touch target
         'min-h-[44px]',
         // Make entire row clickable for switch
-        rightElement === 'switch' && !disabled && 'cursor-pointer hover:bg-muted active:bg-accent/10',
+        rightElement === 'switch' &&
+          !disabled &&
+          'cursor-pointer hover:bg-muted active:bg-accent/10',
         // Regular onClick behavior
-        !disabled && onClick && rightElement !== 'switch' && 'cursor-pointer hover:bg-muted active:bg-accent/10',
+        !disabled &&
+          onClick &&
+          rightElement !== 'switch' &&
+          'cursor-pointer hover:bg-muted active:bg-accent/10',
         disabled && onClick && 'cursor-pointer hover:bg-muted active:bg-accent/10',
         className
       )}
+      onClick={handleClick}
     >
-      <div className="flex items-center gap-responsive-md flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 items-center gap-responsive-md">
         {/* Icon */}
-        <div className={cn('p-2.5 rounded-xl shrink-0', iconBgColor)}>
+        <div className={cn('shrink-0 rounded-xl p-2.5', iconBgColor)}>
           <Icon className={cn('h-5 w-5', iconColor)} strokeWidth={2} />
         </div>
 
         {/* Text Content */}
-        <div className="flex-1 min-w-0">
-          <h4 className="text-headline text-foreground leading-tight">
-            {title}
-          </h4>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-foreground text-headline leading-tight">{title}</h4>
           {description && (
-            <p className="text-footnote text-muted-foreground mt-0.5 leading-tight">
+            <p className="mt-0.5 text-footnote text-muted-foreground leading-tight">
               {description}
             </p>
           )}
@@ -88,15 +91,15 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
       </div>
 
       {/* Right Element */}
-      <div className="shrink-0 ml-3">
+      <div className="ml-3 shrink-0">
         {rightElement === 'chevron' && (
           <ChevronRight className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
         )}
         {rightElement === 'switch' && (
           <Switch
             checked={switchChecked}
-            onCheckedChange={handleSwitchChange}
             disabled={disabled}
+            onCheckedChange={handleSwitchChange}
           />
         )}
         {rightElement === 'custom' && customRightElement}
@@ -105,26 +108,19 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
   );
 };
 
-interface SettingsSectionProps {
+type SettingsSectionProps = {
   title: string;
   children: React.ReactNode;
   className?: string;
-}
-
-export const SettingsSection: React.FC<SettingsSectionProps> = ({
-  title,
-  children,
-  className,
-}) => {
-  return (
-    <div className={cn('px-4 pt-6 pb-2', className)}>
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-3 text-center">
-        {title}
-      </h3>
-      <div className="bg-card rounded-2xl shadow-sm border-0 overflow-hidden divide-y divide-border transition-colors duration-300">
-        {children}
-      </div>
-    </div>
-  );
 };
 
+export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, children, className }) => (
+  <div className={cn('px-4 pt-6 pb-2', className)}>
+    <h3 className="mb-3 px-2 text-center font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+      {title}
+    </h3>
+    <div className="divide-y divide-border overflow-hidden rounded-2xl border-0 bg-card shadow-sm transition-colors duration-300">
+      {children}
+    </div>
+  </div>
+);

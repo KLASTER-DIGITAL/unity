@@ -1,18 +1,18 @@
 /**
  * Universal Component Types for UNITY-v2
- * 
+ *
  * Shared types and interfaces for cross-platform components
- * 
+ *
  * @author UNITY Team
  * @date 2025-01-18
  */
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Base props for all universal components
  */
-export interface UniversalComponentProps {
+export type UniversalComponentProps = {
   /**
    * Component children
    */
@@ -52,72 +52,42 @@ export interface UniversalComponentProps {
    * Disabled state
    */
   disabled?: boolean;
-}
+};
 
 /**
  * Universal button variants
  */
-export type ButtonVariant = 
-  | 'default'
-  | 'destructive'
-  | 'outline'
-  | 'secondary'
-  | 'ghost'
-  | 'link';
+export type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 
 /**
  * Universal button sizes
  */
-export type ButtonSize = 
-  | 'default'
-  | 'sm'
-  | 'lg'
-  | 'icon';
+export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
 /**
  * Universal input types
  */
-export type InputType = 
-  | 'text'
-  | 'email'
-  | 'password'
-  | 'number'
-  | 'tel'
-  | 'url'
-  | 'search';
+export type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
 
 /**
  * Universal modal sizes
  */
-export type ModalSize = 
-  | 'sm'
-  | 'md'
-  | 'lg'
-  | 'xl'
-  | 'full';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 /**
  * Universal animation presets
  */
-export type AnimationPreset = 
-  | 'fade'
-  | 'slide'
-  | 'scale'
-  | 'bounce'
-  | 'none';
+export type AnimationPreset = 'fade' | 'slide' | 'scale' | 'bounce' | 'none';
 
 /**
  * Universal color scheme
  */
-export type ColorScheme = 
-  | 'light'
-  | 'dark'
-  | 'auto';
+export type ColorScheme = 'light' | 'dark' | 'auto';
 
 /**
  * Universal theme tokens
  */
-export interface ThemeTokens {
+export type ThemeTokens = {
   colors: {
     primary: string;
     secondary: string;
@@ -131,7 +101,7 @@ export interface ThemeTokens {
     success: string;
     info: string;
   };
-  
+
   spacing: {
     xs: number;
     sm: number;
@@ -139,14 +109,14 @@ export interface ThemeTokens {
     lg: number;
     xl: number;
   };
-  
+
   borderRadius: {
     sm: number;
     md: number;
     lg: number;
     full: number;
   };
-  
+
   fontSize: {
     xs: number;
     sm: number;
@@ -154,49 +124,55 @@ export interface ThemeTokens {
     lg: number;
     xl: number;
   };
-  
+
   fontWeight: {
     normal: string;
     medium: string;
     semibold: string;
     bold: string;
   };
-  
+
   shadows: {
     sm: string;
     md: string;
     lg: string;
   };
-}
+};
 
 /**
  * Platform-specific style mapping
  */
-export interface PlatformStyles {
+export type PlatformStyles = {
   web?: any;
   native?: any;
   default?: any;
-}
+};
 
 /**
  * Universal event handlers
  */
-export interface UniversalEventHandlers {
+export type UniversalEventHandlers = {
   onPress?: () => void;
   onLongPress?: () => void;
   onFocus?: () => void;
   onBlur?: () => void;
   onHover?: () => void;
   onHoverEnd?: () => void;
-}
+};
 
 /**
  * Universal layout props
  */
-export interface UniversalLayoutProps {
+export type UniversalLayoutProps = {
   flex?: number;
   flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
-  justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+  justifyContent?:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
   alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
   padding?: number | string;
   paddingHorizontal?: number | string;
@@ -210,29 +186,29 @@ export interface UniversalLayoutProps {
   minHeight?: number | string;
   maxWidth?: number | string;
   maxHeight?: number | string;
-}
+};
 
 /**
  * Universal animation props
  */
-export interface UniversalAnimationProps {
+export type UniversalAnimationProps = {
   animate?: boolean;
   animationDuration?: number;
   animationDelay?: number;
   animationPreset?: AnimationPreset;
   animationEasing?: string;
-}
+};
 
 /**
  * Select option interface
  */
-export interface SelectOption {
+export type SelectOption = {
   label: string;
   value: string | number;
   disabled?: boolean;
   icon?: ReactNode;
   description?: string;
-}
+};
 
 /**
  * Form field props
@@ -267,7 +243,7 @@ export interface ModalProps extends UniversalComponentProps {
 /**
  * Toast props
  */
-export interface ToastProps {
+export type ToastProps = {
   id?: string;
   title?: string;
   description?: string;
@@ -278,38 +254,38 @@ export interface ToastProps {
     onClick: () => void;
   };
   onDismiss?: () => void;
-}
+};
 
 /**
  * Loading state interface
  */
-export interface LoadingState {
+export type LoadingState = {
   loading: boolean;
   error?: string | null;
   data?: any;
-}
+};
 
 /**
  * Validation result interface
  */
-export interface ValidationResult {
+export type ValidationResult = {
   valid: boolean;
   errors: string[];
-}
+};
 
 /**
  * Universal component ref interface
  */
-export interface UniversalComponentRef {
+export type UniversalComponentRef = {
   focus?: () => void;
   blur?: () => void;
   measure?: () => { width: number; height: number; x: number; y: number };
-}
+};
 
 /**
  * Platform detection utilities for components
  */
-export interface ComponentPlatformUtils {
+export type ComponentPlatformUtils = {
   isWeb: boolean;
   isNative: boolean;
   isMobile: boolean;
@@ -317,4 +293,4 @@ export interface ComponentPlatformUtils {
   isDesktop: boolean;
   hasTouch: boolean;
   hasHover: boolean;
-}
+};

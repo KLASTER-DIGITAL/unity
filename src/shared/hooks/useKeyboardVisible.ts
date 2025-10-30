@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Hook to detect if mobile keyboard is visible
  * Uses visualViewport API for accurate detection on iOS and Android
- * 
+ *
  * @returns boolean - true if keyboard is visible
  */
 export function useKeyboardVisible(): boolean {
@@ -16,13 +16,14 @@ export function useKeyboardVisible(): boolean {
     }
 
     const handleResize = () => {
-      if (!window.visualViewport) return;
+      if (!window.visualViewport) {
+        return;
+      }
 
       // Check if focus is on input/textarea
       const activeElement = document.activeElement;
       const isInputFocused =
-        activeElement instanceof HTMLInputElement ||
-        activeElement instanceof HTMLTextAreaElement;
+        activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement;
 
       // Calculate keyboard height
       const viewportHeight = window.visualViewport.height;
@@ -73,4 +74,3 @@ export function useKeyboardVisible(): boolean {
 
   return isKeyboardVisible;
 }
-

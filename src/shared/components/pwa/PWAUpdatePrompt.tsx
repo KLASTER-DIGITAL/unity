@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { RefreshCw, X } from "lucide-react";
+import { RefreshCw, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 /**
  * Компонент показывает уведомление когда доступно обновление приложения
@@ -11,7 +11,9 @@ export function PWAUpdatePrompt() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
+    if (!('serviceWorker' in navigator)) {
+      return;
+    }
 
     const handleServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
       // Если есть ожидающий Service Worker
@@ -36,11 +38,11 @@ export function PWAUpdatePrompt() {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration) {
         handleServiceWorkerUpdate(registration);
-        
+
         // Проверяем обновления каждые 60 секунд
         setInterval(() => {
           registration.update();
-        }, 60000);
+        }, 60_000);
       }
     });
 
@@ -53,13 +55,15 @@ export function PWAUpdatePrompt() {
   }, [isUpdating]);
 
   const handleUpdate = () => {
-    if (!waitingWorker) return;
-    
+    if (!waitingWorker) {
+      return;
+    }
+
     setIsUpdating(true);
-    
+
     // Отправляем сообщение новому Service Worker для активации
     waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-    
+
     setShowUpdate(false);
   };
 
@@ -71,40 +75,40 @@ export function PWAUpdatePrompt() {
     <AnimatePresence>
       {showUpdate && (
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
+          className="-translate-x-1/2 fixed bottom-20 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
           exit={{ opacity: 0, y: 100 }}
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)]"
+          initial={{ opacity: 0, y: 100 }}
         >
-          <div className="bg-card border border-border rounded-xl shadow-2xl p-4">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-2xl">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <RefreshCw className="w-5 h-5 text-accent" />
+              <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+                <RefreshCw className="h-5 w-5 text-accent" />
               </div>
-              
+
               <div className="flex-1">
-                <h3 className="text-foreground text-[15px]! font-semibold! mb-1">
+                <h3 className="mb-1 font-semibold! text-[15px]! text-foreground">
                   Доступно обновление
                 </h3>
-                <p className="text-muted-foreground text-[13px]! font-normal! mb-3">
+                <p className="mb-3 font-normal! text-[13px]! text-muted-foreground">
                   Новая версия приложения готова к установке
                 </p>
-                
+
                 <div className="flex gap-2">
                   <button
-                    onClick={handleUpdate}
+                    className="flex-1 rounded-[var(--radius-lg)] bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={isUpdating}
-                    className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground rounded-[var(--radius-lg)] py-2 px-4 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleUpdate}
                   >
-                    <span className="text-[13px]! font-semibold!">
+                    <span className="font-semibold! text-[13px]!">
                       {isUpdating ? 'Обновление...' : 'Обновить'}
                     </span>
                   </button>
                   <button
+                    className="px-3 text-muted-foreground transition-colors hover:text-foreground"
                     onClick={handleSkip}
-                    className="px-3 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
               </div>

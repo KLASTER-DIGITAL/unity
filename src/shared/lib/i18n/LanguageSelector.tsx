@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Check, Globe } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Check, ChevronDown, Globe } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
+import type { LanguageConfig } from './types';
 import { useTranslation } from './useTranslation';
-import { LanguageConfig } from './types';
 
-interface LanguageSelectorProps {
+type LanguageSelectorProps = {
   variant?: 'dropdown' | 'modal' | 'inline';
   showFlag?: boolean;
   showNativeName?: boolean;
   className?: string;
   onLanguageChange?: (language: string) => void;
-}
+};
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   variant = 'dropdown',
   showFlag = true,
   showNativeName = true,
   className = '',
-  onLanguageChange
+  onLanguageChange,
 }) => {
   const { currentLanguage, changeLanguage, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +41,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           { code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: false },
           { code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: false },
         ];
-        
+
         setLanguages(fallbackLanguages);
       } catch (error) {
         console.error('Failed to load languages:', error);
@@ -52,8 +53,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     loadLanguages();
   }, []);
 
-  const currentLang = languages.find(lang => lang.code === currentLanguage);
-  
+  const currentLang = languages.find((lang) => lang.code === currentLanguage);
+
   const handleLanguageSelect = async (languageCode: string) => {
     setIsOpen(false);
     await changeLanguage(languageCode as any);
@@ -62,34 +63,30 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   const renderLanguageOption = (language: LanguageConfig, isSelected: boolean) => (
     <motion.button
+      className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors ${
+        isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+      }`}
       key={language.code}
       onClick={() => handleLanguageSelect(language.code)}
-      className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
-        isSelected 
-          ? 'bg-primary/10 text-primary' 
-          : 'hover:bg-muted text-foreground'
-      }`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
       <div className="flex items-center gap-3">
-        {showFlag && (
-          <span className="text-2xl">{language.flag}</span>
-        )}
+        {showFlag && <span className="text-2xl">{language.flag}</span>}
         <div className="text-left">
           <div className="font-medium">{language.name}</div>
           {showNativeName && (
-            <div className="text-sm text-muted-foreground">{language.native_name}</div>
+            <div className="text-muted-foreground text-sm">{language.native_name}</div>
           )}
         </div>
       </div>
       {isSelected && (
         <motion.div
-          initial={{ scale: 0 }}
           animate={{ scale: 1 }}
+          initial={{ scale: 0 }}
           transition={{ type: 'spring', duration: 0.2 }}
         >
-          <Check size={20} className="text-primary" />
+          <Check className="text-primary" size={20} />
         </motion.div>
       )}
     </motion.button>
@@ -98,14 +95,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   if (variant === 'inline') {
     return (
       <div className={`flex flex-wrap gap-2 ${className}`}>
-        {languages.map(language => (
+        {languages.map((language) => (
           <Button
-            key={language.code}
-            variant={currentLanguage === language.code ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleLanguageSelect(language.code)}
-            disabled={isLoading}
             className="flex items-center gap-2"
+            disabled={isLoading}
+            key={language.code}
+            onClick={() => handleLanguageSelect(language.code)}
+            size="sm"
+            variant={currentLanguage === language.code ? 'default' : 'outline'}
           >
             {showFlag && <span>{language.flag}</span>}
             {showNativeName ? language.native_name : language.name}
@@ -118,75 +115,67 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   return (
     <div className={`relative ${className}`}>
       <Button
-        variant="outline"
-        onClick={() => setIsOpen(!isOpen)}
+        className="flex min-w-[140px] items-center gap-2"
         disabled={isLoading}
-        className="flex items-center gap-2 min-w-[140px]"
+        onClick={() => setIsOpen(!isOpen)}
+        variant="outline"
       >
         {isLoading ? (
-          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         ) : (
           <>
-            {showFlag && currentLang && (
-              <span className="text-lg">{currentLang.flag}</span>
-            )}
+            {showFlag && currentLang && <span className="text-lg">{currentLang.flag}</span>}
             <Globe size={16} />
             <span>
-              {showNativeName && currentLang 
-                ? currentLang.native_name 
-                : currentLang?.name || currentLanguage
-              }
+              {showNativeName && currentLang
+                ? currentLang.native_name
+                : currentLang?.name || currentLanguage}
             </span>
-            <ChevronDown 
-              size={16} 
+            <ChevronDown
               className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              size={16}
             />
           </>
         )}
       </Button>
 
       <AnimatePresence>
-        {isOpen && (
-          <>
-            {variant === 'modal' ? (
-              // Модальная версия
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-card rounded-2xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-hidden"
-                >
-                  <h3 className="text-lg font-semibold mb-4">{t('select_language', 'Select Language')}</h3>
-                  <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                    {languages.map(language => 
-                      renderLanguageOption(language, language.code === currentLanguage)
-                    )}
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full mt-4"
-                  >
-                    {t('cancel_button' as any, 'Cancel')}
-                  </Button>
-                </motion.div>
-              </div>
-            ) : (
-              // Выпадающая версия
+        {isOpen &&
+          (variant === 'modal' ? (
+            // Модальная версия
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+                animate={{ opacity: 1, scale: 1 }}
+                className="mx-4 max-h-[80vh] w-full max-w-md overflow-hidden rounded-2xl bg-card p-6"
+                exit={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.95 }}
               >
-                {languages.map(language => 
-                  renderLanguageOption(language, language.code === currentLanguage)
-                )}
+                <h3 className="mb-4 font-semibold text-lg">
+                  {t('select_language', 'Select Language')}
+                </h3>
+                <div className="max-h-[60vh] space-y-2 overflow-y-auto">
+                  {languages.map((language) =>
+                    renderLanguageOption(language, language.code === currentLanguage)
+                  )}
+                </div>
+                <Button className="mt-4 w-full" onClick={() => setIsOpen(false)} variant="outline">
+                  {t('cancel_button' as any, 'Cancel')}
+                </Button>
               </motion.div>
-            )}
-          </>
-        )}
+            </div>
+          ) : (
+            // Выпадающая версия
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-full right-0 left-0 z-50 mt-2 max-h-64 overflow-y-auto rounded-lg border border-border bg-card shadow-lg"
+              exit={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -10 }}
+            >
+              {languages.map((language) =>
+                renderLanguageOption(language, language.code === currentLanguage)
+              )}
+            </motion.div>
+          ))}
       </AnimatePresence>
     </div>
   );

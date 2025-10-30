@@ -1,10 +1,10 @@
 /**
  * Universal Select Component
- * 
+ *
  * Cross-platform select/dropdown component
  * - Web: Radix UI Select
  * - Native: React Native Picker / Custom Modal
- * 
+ *
  * @module components/ui/universal/UniversalSelect
  */
 
@@ -30,7 +30,7 @@ export const UniversalSelect = SelectComponents.Select;
 export const SelectUtils = SelectComponents.SelectUtils;
 
 // Export types
-export type { SelectProps, SelectOption } from './Select.web';
+export type { SelectOption, SelectProps } from './Select.web';
 
 // Note: NativeSelect is NOT exported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed in React Native environment
@@ -39,4 +39,3 @@ export default {
   Select: UniversalSelect,
   SelectUtils,
 };
-

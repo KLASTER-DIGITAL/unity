@@ -24,7 +24,18 @@
  */
 
 /* ===== Base Typography ===== */
-h1, h2, h3, h4, h5, h6, p, span, label, button, input, textarea {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+label,
+button,
+input,
+textarea {
   font-family: var(--font-family-ios);
   transition: color 0.3s ease;
 }
@@ -144,7 +155,8 @@ button {
 }
 
 /* ===== Inputs ===== */
-input, textarea {
+input,
+textarea {
   font-size: var(--text-body);
   font-weight: var(--font-weight-normal);
   color: var(--foreground);
@@ -187,4 +199,3 @@ textarea::placeholder {
 .font-semibold {
   font-weight: var(--font-weight-semibold);
 }
-

@@ -1,6 +1,6 @@
 /**
  * Advanced PWA Analytics
- * 
+ *
  * Расширенная аналитика для PWA:
  * - Retention rate по когортам
  * - Funnel анализ (prompt → install → usage)
@@ -12,7 +12,7 @@ import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
-export interface CohortData {
+export type CohortData = {
   cohort: string; // Дата первого визита
   week0: number; // Retention в неделю 0 (100%)
   week1: number; // Retention в неделю 1
@@ -20,37 +20,37 @@ export interface CohortData {
   week3: number; // Retention в неделю 3
   week4: number; // Retention в неделю 4
   totalUsers: number;
-}
+};
 
-export interface FunnelData {
+export type FunnelData = {
   stage: string;
   users: number;
   percentage: number;
   dropoff: number;
-}
+};
 
-export interface TimeSeriesData {
+export type TimeSeriesData = {
   date: string;
   installs: number;
   uninstalls: number;
   activeUsers: number;
   standaloneUsage: number;
-}
+};
 
-export interface BrowserStats {
+export type BrowserStats = {
   browser: string;
   installs: number;
   conversionRate: number;
   avgTimeToInstall: number; // в минутах
-}
+};
 
-export interface AdvancedPWAStats {
+export type AdvancedPWAStats = {
   // Общая статистика
   totalInstalls: number;
   totalUninstalls: number;
   activeInstalls: number;
   conversionRate: number;
-  
+
   // Retention
   cohorts: CohortData[];
   overallRetention: {
@@ -59,22 +59,22 @@ export interface AdvancedPWAStats {
     week3: number;
     week4: number;
   };
-  
+
   // Funnel
   funnel: FunnelData[];
-  
+
   // Time series
   timeSeries: TimeSeriesData[];
-  
+
   // Browser breakdown
   browsers: BrowserStats[];
-  
+
   // Engagement
   avgSessionsPerUser: number;
   avgTimeToInstall: number; // в минутах
   installsByDayOfWeek: { day: string; installs: number }[];
   installsByHour: { hour: number; installs: number }[];
-}
+};
 
 /**
  * Получить retention rate по когортам
@@ -100,18 +100,18 @@ export async function getCohortRetention(
 
     // Группируем по неделям
     const cohorts = new Map<string, Set<string>>();
-    
-    users.forEach(user => {
+
+    users.forEach((user) => {
       const weekStart = getWeekStart(new Date(user.created_at));
       if (!cohorts.has(weekStart)) {
         cohorts.set(weekStart, new Set());
       }
-      cohorts.get(weekStart)!.add(user.user_id);
+      cohorts.get(weekStart)?.add(user.user_id);
     });
 
     // Вычисляем retention для каждой когорты
     const cohortData: CohortData[] = [];
-    
+
     for (const [cohort, userIds] of cohorts.entries()) {
       const retention = await calculateCohortRetention(cohort, Array.from(userIds));
       cohortData.push({
@@ -140,17 +140,17 @@ async function calculateCohortRetention(
   userIds: string[]
 ): Promise<{ week1: number; week2: number; week3: number; week4: number }> {
   const cohortDate = new Date(cohortStart);
-  
+
   const weeks = [1, 2, 3, 4];
   const retention: any = {};
-  
+
   for (const week of weeks) {
     const weekStart = new Date(cohortDate);
     weekStart.setDate(weekStart.getDate() + week * 7);
-    
+
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
-    
+
     const { data, error } = await supabase
       .from('usage')
       .select('user_id')
@@ -158,15 +158,15 @@ async function calculateCohortRetention(
       .eq('operation_type', 'pwa_standalone_usage')
       .gte('created_at', weekStart.toISOString())
       .lt('created_at', weekEnd.toISOString());
-    
+
     if (!error && data) {
-      const activeUsers = new Set(data.map(d => d.user_id)).size;
+      const activeUsers = new Set(data.map((d) => d.user_id)).size;
       retention[`week${week}`] = Math.round((activeUsers / userIds.length) * 100);
     } else {
       retention[`week${week}`] = 0;
     }
   }
-  
+
   return retention;
 }
 
@@ -192,15 +192,15 @@ export async function getFunnelAnalysis(): Promise<FunnelData[]> {
 
     // Подсчитываем уникальных пользователей на каждом этапе
     const promptShown = new Set(
-      data.filter(d => d.operation_type === 'pwa_install_prompt_shown').map(d => d.user_id)
+      data.filter((d) => d.operation_type === 'pwa_install_prompt_shown').map((d) => d.user_id)
     ).size;
-    
+
     const installed = new Set(
-      data.filter(d => d.operation_type === 'pwa_install_accepted').map(d => d.user_id)
+      data.filter((d) => d.operation_type === 'pwa_install_accepted').map((d) => d.user_id)
     ).size;
-    
+
     const activeUsers = new Set(
-      data.filter(d => d.operation_type === 'pwa_standalone_usage').map(d => d.user_id)
+      data.filter((d) => d.operation_type === 'pwa_standalone_usage').map((d) => d.user_id)
     ).size;
 
     const funnel: FunnelData[] = [
@@ -242,11 +242,7 @@ export async function getTimeSeriesData(
     const { data, error } = await supabase
       .from('usage')
       .select('operation_type, created_at')
-      .in('operation_type', [
-        'pwa_install_accepted',
-        'pwa_uninstall',
-        'pwa_standalone_usage',
-      ])
+      .in('operation_type', ['pwa_install_accepted', 'pwa_uninstall', 'pwa_standalone_usage'])
       .gte('created_at', startDate)
       .lte('created_at', endDate)
       .order('created_at', { ascending: true });
@@ -258,10 +254,10 @@ export async function getTimeSeriesData(
 
     // Группируем по дням
     const dailyData = new Map<string, TimeSeriesData>();
-    
-    data.forEach(event => {
+
+    data.forEach((event) => {
       const date = event.created_at.split('T')[0];
-      
+
       if (!dailyData.has(date)) {
         dailyData.set(date, {
           date,
@@ -271,9 +267,9 @@ export async function getTimeSeriesData(
           standaloneUsage: 0,
         });
       }
-      
+
       const dayData = dailyData.get(date)!;
-      
+
       if (event.operation_type === 'pwa_install_accepted') {
         dayData.installs++;
       } else if (event.operation_type === 'pwa_uninstall') {
@@ -302,14 +298,15 @@ export async function getBrowserStats(): Promise<BrowserStats[]> {
  * Экспорт в CSV
  */
 export function exportToCSV(data: any[], filename: string): void {
-  if (data.length === 0) return;
-  
+  if (data.length === 0) {
+    return;
+  }
+
   const headers = Object.keys(data[0]);
-  const csv = [
-    headers.join(','),
-    ...data.map(row => headers.map(h => row[h]).join(','))
-  ].join('\n');
-  
+  const csv = [headers.join(','), ...data.map((row) => headers.map((h) => row[h]).join(','))].join(
+    '\n'
+  );
+
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -343,4 +340,3 @@ function getWeekStart(date: Date): string {
   d.setDate(diff);
   return d.toISOString().split('T')[0];
 }
-

@@ -1,15 +1,15 @@
 /**
  * Sentry Integration for Performance Monitoring
- * 
+ *
  * Отправляет Web Vitals и custom metrics в Sentry для анализа
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { performanceMonitor, type PerformanceEntry } from './monitoring';
-import { addBreadcrumb, captureMessage } from '@/shared/lib/monitoring';
 import { isProd } from '@/shared/lib/env';
+import { addBreadcrumb, captureMessage } from '@/shared/lib/monitoring';
+import { type PerformanceEntry, performanceMonitor } from './monitoring';
 
 /**
  * Initialize Sentry Performance Integration
@@ -39,21 +39,24 @@ export function initSentryPerformanceIntegration(): void {
 
     // Capture message for poor performance
     if (metric.rating === 'poor') {
-      captureMessage(`Poor ${metric.name.toUpperCase()} performance: ${metric.value.toFixed(2)}ms`, {
-        level: 'warning',
-        tags: {
-          metric: metric.name,
-          rating: metric.rating,
-        },
-        contexts: {
-          performance: {
-            name: metric.name,
-            value: metric.value,
+      captureMessage(
+        `Poor ${metric.name.toUpperCase()} performance: ${metric.value.toFixed(2)}ms`,
+        {
+          level: 'warning',
+          tags: {
+            metric: metric.name,
             rating: metric.rating,
-            timestamp: metric.timestamp,
           },
-        },
-      });
+          contexts: {
+            performance: {
+              name: metric.name,
+              value: metric.value,
+              rating: metric.rating,
+              timestamp: metric.timestamp,
+            },
+          },
+        }
+      );
     }
   });
 
@@ -80,10 +83,12 @@ function getLogLevel(rating: 'good' | 'needs-improvement' | 'poor'): 'info' | 'w
  * Отправляет сводку всех метрик в Sentry
  */
 export function reportPerformanceSummary(): void {
-  if (!isProd) return;
+  if (!isProd) {
+    return;
+  }
 
   const metrics = performanceMonitor.getMetrics();
-  
+
   // Calculate overall score
   const scores = {
     lcp: metrics.lcp ? getScore('lcp', metrics.lcp) : null,
@@ -94,10 +99,11 @@ export function reportPerformanceSummary(): void {
     inp: metrics.inp ? getScore('inp', metrics.inp) : null,
   };
 
-  const validScores = Object.values(scores).filter(s => s !== null) as number[];
-  const overallScore = validScores.length > 0
-    ? Math.round(validScores.reduce((sum, score) => sum + score, 0) / validScores.length)
-    : 0;
+  const validScores = Object.values(scores).filter((s) => s !== null) as number[];
+  const overallScore =
+    validScores.length > 0
+      ? Math.round(validScores.reduce((sum, score) => sum + score, 0) / validScores.length)
+      : 0;
 
   // Send summary to Sentry
   captureMessage('Performance Summary', {
@@ -129,21 +135,22 @@ function getScore(name: string, value: number): number {
   };
 
   const threshold = thresholds[name];
-  if (!threshold) return 50;
+  if (!threshold) {
+    return 50;
+  }
 
   if (value <= threshold.good) {
     // Good: 100-80
     return 100 - Math.round((value / threshold.good) * 20);
-  } else if (value <= threshold.poor) {
+  }
+  if (value <= threshold.poor) {
     // Needs improvement: 80-50
     const range = threshold.poor - threshold.good;
     const position = value - threshold.good;
     return 80 - Math.round((position / range) * 30);
-  } else {
-    // Poor: 50-0
-    const excess = value - threshold.poor;
-    const penalty = Math.min(50, Math.round((excess / threshold.poor) * 50));
-    return 50 - penalty;
   }
+  // Poor: 50-0
+  const excess = value - threshold.poor;
+  const penalty = Math.min(50, Math.round((excess / threshold.poor) * 50));
+  return 50 - penalty;
 }
-

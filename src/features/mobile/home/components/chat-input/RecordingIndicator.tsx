@@ -1,14 +1,15 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
-import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
-import { Square, X } from "lucide-react";
 
-interface RecordingIndicatorProps {
+import { Square, X } from 'lucide-react';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
+
+type RecordingIndicatorProps = {
   isRecording: boolean;
   recordingTime: number;
   audioLevel: number;
   onStop: () => void;
   onCancel: () => void;
-}
+};
 
 /**
  * Recording indicator shown during voice recording
@@ -23,45 +24,44 @@ export function RecordingIndicator({
   recordingTime,
   audioLevel,
   onStop,
-  onCancel
+  onCancel,
 }: RecordingIndicatorProps) {
   return (
     <AnimatedPresence>
       {isRecording && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          className="-top-16 absolute right-0 left-0 rounded-[16px] bg-linear-to-r from-red-500 to-pink-500 p-3 shadow-lg"
           exit={{ opacity: 0, y: 10 }}
-          className="absolute -top-16 left-0 right-0 bg-linear-to-r from-red-500 to-pink-500 rounded-[16px] p-3 shadow-lg"
+          initial={{ opacity: 0, y: 10 }}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
-                transition={{ repeat: Infinity, duration: 1 }}
-                className="w-3 h-3 bg-card rounded-full"
+                className="h-3 w-3 rounded-full bg-card"
+                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1 }}
               />
               <div>
-                <p className="text-[13px]! text-white font-semibold!">
-                  Идет запись...
-                </p>
+                <p className="font-semibold! text-[13px]! text-white">Идет запись...</p>
                 <p className="text-[11px]! text-white/80">
-                  {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                  {Math.floor(recordingTime / 60)}:
+                  {(recordingTime % 60).toString().padStart(2, '0')}
                 </p>
               </div>
             </div>
 
             {/* Audio Level Visualizer */}
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
+              {[...new Array(5)].map((_, i) => (
                 <motion.div
-                  key={i}
-                  className="w-1 bg-card rounded-full"
                   animate={{
-                    height: audioLevel * 20 * (1 + i * 0.2)
+                    height: audioLevel * 20 * (1 + i * 0.2),
                   }}
-                  transition={{ duration: 0.1 }}
+                  className="w-1 rounded-full bg-card"
+                  key={i}
                   style={{ minHeight: '4px' }}
+                  transition={{ duration: 0.1 }}
                 />
               ))}
             </div>
@@ -69,19 +69,19 @@ export function RecordingIndicator({
             {/* Stop and Cancel buttons */}
             <div className="flex items-center gap-2">
               <button
-                onClick={onStop}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/20 hover:bg-muted/30 rounded-full transition-colors duration-300"
                 aria-label="Остановить запись"
+                className="flex items-center gap-1.5 rounded-full bg-muted/20 px-3 py-1.5 transition-colors duration-300 hover:bg-muted/30"
+                onClick={onStop}
               >
-                <Square className="w-3.5 h-3.5 text-white" fill="currentColor" />
-                <span className="text-[11px]! text-white font-medium!">Stop</span>
+                <Square className="h-3.5 w-3.5 text-white" fill="currentColor" />
+                <span className="font-medium! text-[11px]! text-white">Stop</span>
               </button>
               <button
-                onClick={onCancel}
-                className="p-1 hover:bg-card/20 rounded-full transition-colors"
                 aria-label="Отменить запись"
+                className="rounded-full p-1 transition-colors hover:bg-card/20"
+                onClick={onCancel}
               >
-                <X className="w-4 h-4 text-white" />
+                <X className="h-4 w-4 text-white" />
               </button>
             </div>
           </div>
@@ -90,4 +90,3 @@ export function RecordingIndicator({
     </AnimatedPresence>
   );
 }
-

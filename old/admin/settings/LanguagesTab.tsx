@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '../../../../shared/components/SimpleChart';
 
@@ -50,12 +51,15 @@ export const LanguagesTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -93,22 +97,25 @@ export const LanguagesTab: React.FC = () => {
         return;
       }
 
-      const response = await fetch('https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          key: editingTranslation.key,
-          language: editingTranslation.language,
-          value: editValue
-        })
-      });
+      const response = await fetch(
+        'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/make-server-9729c493/admin/translations',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            key: editingTranslation.key,
+            language: editingTranslation.language,
+            value: editValue,
+          }),
+        }
+      );
 
       if (response.ok) {
-        setTranslations(prev =>
-          prev.map(t =>
+        setTranslations((prev) =>
+          prev.map((t) =>
             t.key === editingTranslation.key && t.language === editingTranslation.language
               ? { ...t, value: editValue }
               : t
@@ -129,31 +136,32 @@ export const LanguagesTab: React.FC = () => {
 
   const getTranslationProgress = (languageCode: string) => {
     const totalKeys = 50;
-    const translatedKeys = translations.filter(t => t.language === languageCode).length;
+    const translatedKeys = translations.filter((t) => t.language === languageCode).length;
     return Math.round((translatedKeys / totalKeys) * 100);
   };
 
-  const getLanguageData = () => {
-    return languages.map((lang, index) => ({
+  const getLanguageData = () =>
+    languages.map((lang, index) => ({
       name: lang.name,
       value: getTranslationProgress(lang.code),
-      color: COLORS[index % COLORS.length]
+      color: COLORS[index % COLORS.length],
     }));
-  };
 
-  const getBarChartData = () => {
-    return languages.map(lang => ({
+  const getBarChartData = () =>
+    languages.map((lang) => ({
       language: lang.code.toUpperCase(),
       progress: getTranslationProgress(lang.code),
-      name: lang.name
+      name: lang.name,
     }));
-  };
 
   return (
     <div className="admin-space-y-10">
       {/* Заголовок раздела */}
       <header className="admin-flex admin-items-center admin-gap-4 admin-pb-4 admin-border-b admin-border-gray-200">
-        <div className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl" aria-hidden="true">
+        <div
+          aria-hidden="true"
+          className="admin-p-3 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-2xl"
+        >
           🌍
         </div>
         <div>
@@ -190,20 +198,34 @@ export const LanguagesTab: React.FC = () => {
             <div className="admin-card-content">
               <div className="admin-grid admin-grid-cols-1 md:admin-grid-cols-2 admin-gap-8">
                 {languages.map((language) => (
-                  <div key={language.code} className="admin-card admin-border admin-border-gray-200 admin-shadow-sm hover:admin-shadow-md admin-transition-shadow">
+                  <div
+                    className="admin-card admin-border admin-border-gray-200 admin-shadow-sm hover:admin-shadow-md admin-transition-shadow"
+                    key={language.code}
+                  >
                     <div className="admin-p-8">
                       <div className="admin-flex admin-items-center admin-justify-between admin-mb-4">
                         <div className="admin-flex admin-items-center admin-gap-4">
-                          <div className="admin-text-4xl" aria-hidden="true">{language.flag}</div>
+                          <div aria-hidden="true" className="admin-text-4xl">
+                            {language.flag}
+                          </div>
                           <div>
-                            <div className="admin-font-semibold admin-text-gray-900 admin-text-lg">{language.name}</div>
-                            <div className="admin-text-gray-600 admin-text-sm">{language.native_name}</div>
+                            <div className="admin-font-semibold admin-text-gray-900 admin-text-lg">
+                              {language.name}
+                            </div>
+                            <div className="admin-text-gray-600 admin-text-sm">
+                              {language.native_name}
+                            </div>
                           </div>
                         </div>
                         <div className="admin-flex admin-flex-col admin-items-end admin-gap-2">
-                          <div className={`admin-w-3 admin-h-3 admin-rounded-full ${language.is_active ? 'admin-bg-admin-success' : 'admin-bg-admin-gray-400'}`} aria-hidden="true"></div>
-                          <div className={`admin-px-2 admin-py-1 admin-rounded admin-text-xs admin-font-medium ${language.is_active ? 'admin-bg-admin-success-lighter admin-text-admin-success' : 'admin-bg-admin-gray-100 admin-text-admin-gray-600'}`}>
-                            {language.is_active ? "Активен" : "Неактивен"}
+                          <div
+                            aria-hidden="true"
+                            className={`admin-w-3 admin-h-3 admin-rounded-full ${language.is_active ? 'admin-bg-admin-success' : 'admin-bg-admin-gray-400'}`}
+                          />
+                          <div
+                            className={`admin-px-2 admin-py-1 admin-rounded admin-text-xs admin-font-medium ${language.is_active ? 'admin-bg-admin-success-lighter admin-text-admin-success' : 'admin-bg-admin-gray-100 admin-text-admin-gray-600'}`}
+                          >
+                            {language.is_active ? 'Активен' : 'Неактивен'}
                           </div>
                         </div>
                       </div>
@@ -211,26 +233,28 @@ export const LanguagesTab: React.FC = () => {
                       <div className="admin-space-y-3">
                         <div className="admin-flex admin-justify-between admin-text-sm">
                           <span className="admin-text-gray-600">Прогресс переводов</span>
-                          <span className="admin-font-medium admin-text-gray-900">{getTranslationProgress(language.code)}%</span>
+                          <span className="admin-font-medium admin-text-gray-900">
+                            {getTranslationProgress(language.code)}%
+                          </span>
                         </div>
                         <div className="admin-w-full admin-bg-gray-200 admin-rounded-full admin-h-2">
                           <div
+                            aria-label={`Прогресс переводов: ${getTranslationProgress(language.code)}%`}
                             className="admin-bg-admin-primary admin-h-2 admin-rounded-full admin-transition-all"
                             style={{ width: `${getTranslationProgress(language.code)}%` }}
-                            aria-label={`Прогресс переводов: ${getTranslationProgress(language.code)}%`}
-                          ></div>
+                          />
                         </div>
                         <div className="admin-flex admin-gap-2">
                           <button
-                            onClick={() => setSelectedLanguage(language.code)}
                             className="admin-btn admin-btn-outline admin-btn-sm"
+                            onClick={() => setSelectedLanguage(language.code)}
                           >
                             Редактировать
                           </button>
                           <button
+                            aria-label={`Запустить автоперевод для языка ${language.name}`}
                             className="admin-btn admin-btn-primary admin-btn-sm"
                             title="Автоперевод"
-                            aria-label={`Запустить автоперевод для языка ${language.name}`}
                           >
                             Автоперевод
                           </button>
@@ -257,9 +281,9 @@ export const LanguagesTab: React.FC = () => {
               <SimpleChart
                 data={getLanguageData()}
                 dataKey="value"
-                xAxisKey="name"
                 title="Прогресс переводов по языкам"
                 type="pie"
+                xAxisKey="name"
               />
             </div>
           </div>
@@ -274,17 +298,21 @@ export const LanguagesTab: React.FC = () => {
             <div className="admin-card-content admin-space-y-4">
               <div className="admin-grid admin-grid-cols-2 admin-gap-4">
                 <div className="admin-p-4 admin-bg-admin-primary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-primary-light">
-                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-primary admin-mb-1">{languages.length}</div>
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-primary admin-mb-1">
+                    {languages.length}
+                  </div>
                   <div className="admin-text-gray-600 admin-text-sm">Всего языков</div>
                 </div>
                 <div className="admin-p-4 admin-bg-admin-success-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-success-light">
                   <div className="admin-text-3xl admin-font-semibold admin-text-admin-success admin-mb-1">
-                    {languages.filter(l => l.is_active).length}
+                    {languages.filter((l) => l.is_active).length}
                   </div>
                   <div className="admin-text-gray-600 admin-text-sm">Активных</div>
                 </div>
                 <div className="admin-p-4 admin-bg-admin-warning-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-warning-light">
-                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-warning admin-mb-1">{translations.length}</div>
+                  <div className="admin-text-3xl admin-font-semibold admin-text-admin-warning admin-mb-1">
+                    {translations.length}
+                  </div>
                   <div className="admin-text-gray-600 admin-text-sm">Переводов</div>
                 </div>
                 <div className="admin-p-4 admin-bg-admin-secondary-lighter admin-rounded-lg admin-text-center admin-border admin-border-admin-secondary-light">
@@ -306,19 +334,25 @@ export const LanguagesTab: React.FC = () => {
             📝 Редактирование переводов
           </h3>
           <p className="admin-card-description">
-            Редактирование текстов для языка: {languages.find(l => l.code === selectedLanguage)?.name}
+            Редактирование текстов для языка:{' '}
+            {languages.find((l) => l.code === selectedLanguage)?.name}
           </p>
         </div>
         <div className="admin-card-content">
           <div className="admin-space-y-4 admin-max-h-96 admin-overflow-y-auto">
             {translations
-              .filter(t => t.language === selectedLanguage)
+              .filter((t) => t.language === selectedLanguage)
               .slice(0, 15)
               .map((translation, index) => (
-                <div key={index} className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200 hover:admin-bg-gray-100 admin-transition-colors">
+                <div
+                  className="admin-p-4 admin-bg-gray-50 admin-rounded-lg admin-border admin-border-gray-200 hover:admin-bg-gray-100 admin-transition-colors"
+                  key={index}
+                >
                   <div className="admin-flex admin-items-start admin-justify-between admin-mb-3">
                     <div className="admin-flex-1">
-                      <div className="admin-font-medium admin-text-gray-900 admin-text-sm admin-mb-1">{translation.key}</div>
+                      <div className="admin-font-medium admin-text-gray-900 admin-text-sm admin-mb-1">
+                        {translation.key}
+                      </div>
                       <div className="admin-text-gray-600 admin-text-xs">Ключ перевода</div>
                     </div>
                     <div className="admin-px-2 admin-py-1 admin-bg-admin-primary-lighter admin-text-admin-primary admin-rounded admin-text-xs admin-font-medium">
@@ -326,24 +360,28 @@ export const LanguagesTab: React.FC = () => {
                     </div>
                   </div>
 
-                  {editingTranslation?.key === translation.key && editingTranslation?.language === translation.language ? (
+                  {editingTranslation?.key === translation.key &&
+                  editingTranslation?.language === translation.language ? (
                     <div className="admin-space-y-3">
                       <input
+                        className="admin-input"
+                        onChange={(e) => setEditValue(e.target.value)}
                         type="text"
                         value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="admin-input"
                       />
                       <div className="admin-flex admin-gap-2">
-                        <button onClick={handleSaveTranslation} className="admin-btn admin-btn-success admin-btn-sm">
+                        <button
+                          className="admin-btn admin-btn-success admin-btn-sm"
+                          onClick={handleSaveTranslation}
+                        >
                           💾 Сохранить
                         </button>
                         <button
+                          className="admin-btn admin-btn-outline admin-btn-sm"
                           onClick={() => {
                             setEditingTranslation(null);
                             setEditValue('');
                           }}
-                          className="admin-btn admin-btn-outline admin-btn-sm"
                         >
                           ❌ Отмена
                         </button>
@@ -351,12 +389,14 @@ export const LanguagesTab: React.FC = () => {
                     </div>
                   ) : (
                     <div className="admin-flex admin-items-center admin-justify-between">
-                      <span className="admin-text-gray-900 admin-flex-1 admin-mr-4">{translation.value}</span>
+                      <span className="admin-text-gray-900 admin-flex-1 admin-mr-4">
+                        {translation.value}
+                      </span>
                       <button
-                        onClick={() => handleEditTranslation(translation)}
-                        className="admin-btn admin-btn-outline admin-btn-sm"
-                        title="Редактировать перевод"
                         aria-label={`Редактировать перевод для ключа ${translation.key}`}
+                        className="admin-btn admin-btn-outline admin-btn-sm"
+                        onClick={() => handleEditTranslation(translation)}
+                        title="Редактировать перевод"
                       >
                         ✏️ Редактировать
                       </button>
@@ -371,27 +411,27 @@ export const LanguagesTab: React.FC = () => {
       {/* Действия и кнопки */}
       <div className="admin-flex admin-justify-center admin-gap-4">
         <button
+          className="admin-btn admin-btn-success admin-font-medium"
           onClick={() => {
             toast.info('Функция автоперевода в разработке 🤖');
           }}
-          className="admin-btn admin-btn-success admin-font-medium"
         >
           <span className="mr-2">🤖</span>
           Автоперевод AI
         </button>
         <button
+          className="admin-btn admin-btn-primary admin-font-medium"
           onClick={() => {
             toast.info('Функция экспорта отчетов в разработке 📊');
           }}
-          className="admin-btn admin-btn-primary admin-font-medium"
         >
           <span className="mr-2">📊</span>
           Экспорт отчетов
         </button>
         <button
-          onClick={loadTranslations}
-          disabled={isLoading}
           className="admin-btn admin-btn-outline admin-font-medium"
+          disabled={isLoading}
+          onClick={loadTranslations}
         >
           {isLoading ? (
             <div className="admin-flex admin-items-center admin-gap-2">

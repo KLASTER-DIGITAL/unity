@@ -1,21 +1,29 @@
 /**
  * Platform Detection Test for UNITY-v2
- * 
+ *
  * Simple test to verify platform detection and storage adapter work correctly
- * 
+ *
  * @author UNITY Team
  * @date 2025-01-18
  */
 
-import { Platform, PlatformFeatures, storage, StorageUtils, media, navigation, NavigationUtils } from './index';
-import { platformTestSuite, runPlatformTests } from './test-suite';
+import {
+  media,
+  NavigationUtils,
+  navigation,
+  Platform,
+  PlatformFeatures,
+  StorageUtils,
+  storage,
+} from './index';
+import { platformTestSuite } from './test-suite';
 
 /**
  * Test platform detection functionality
  */
 export async function testPlatformDetection(): Promise<void> {
   console.group('🧪 Platform Detection Test');
-  
+
   try {
     // Test platform detection
     console.log('✅ Platform OS:', Platform.OS);
@@ -24,30 +32,30 @@ export async function testPlatformDetection(): Promise<void> {
     console.log('✅ Has DOM API:', Platform.hasDOMAPI);
     console.log('✅ Is Browser:', Platform.isBrowser);
     console.log('✅ Is PWA:', Platform.isPWA);
-    
+
     // Test platform selection
     const testValue = Platform.select({
       web: 'Web Platform',
       native: 'Native Platform',
-      default: 'Unknown Platform'
+      default: 'Unknown Platform',
     });
     console.log('✅ Platform Select:', testValue);
-    
+
     // Test platform features
     console.log('✅ Features:', {
       camera: PlatformFeatures.hasCamera,
       haptic: PlatformFeatures.hasHapticFeedback,
       geolocation: PlatformFeatures.hasGeolocation,
       pushNotifications: PlatformFeatures.hasPushNotifications,
-      offlineStorage: PlatformFeatures.hasOfflineStorage
+      offlineStorage: PlatformFeatures.hasOfflineStorage,
     });
-    
+
     console.log('🎉 Platform detection tests passed!');
   } catch (error) {
     console.error('❌ Platform detection test failed:', error);
     throw error;
   }
-  
+
   console.groupEnd();
 }
 
@@ -56,71 +64,71 @@ export async function testPlatformDetection(): Promise<void> {
  */
 export async function testStorageAdapter(): Promise<void> {
   console.group('🧪 Storage Adapter Test');
-  
+
   try {
     const testKey = 'unity_test_key';
-    const testValue = 'test_value_' + Date.now();
-    
+    const testValue = `test_value_${Date.now()}`;
+
     // Test basic storage operations
     console.log('📝 Testing setItem...');
     await storage.setItem(testKey, testValue);
-    
+
     console.log('📖 Testing getItem...');
     const retrieved = await storage.getItem(testKey);
-    
+
     if (retrieved !== testValue) {
       throw new Error(`Storage test failed: expected "${testValue}", got "${retrieved}"`);
     }
-    
+
     console.log('✅ Basic storage operations work');
-    
+
     // Test JSON storage utilities
     console.log('📝 Testing JSON storage...');
-    const testObject = { 
-      name: 'UNITY Test', 
+    const testObject = {
+      name: 'UNITY Test',
       timestamp: Date.now(),
-      features: ['platform-detection', 'storage-adapter']
+      features: ['platform-detection', 'storage-adapter'],
     };
-    
+
     await StorageUtils.setJSON('unity_test_json', testObject);
     const retrievedObject = await StorageUtils.getJSON('unity_test_json');
-    
+
     if (!retrievedObject || retrievedObject.name !== testObject.name) {
       throw new Error('JSON storage test failed');
     }
-    
+
     console.log('✅ JSON storage utilities work');
-    
+
     // Test boolean and number utilities
     await StorageUtils.setBoolean('unity_test_bool', true);
     const boolValue = await StorageUtils.getBoolean('unity_test_bool');
-    
+
     await StorageUtils.setNumber('unity_test_number', 42);
     const numberValue = await StorageUtils.getNumber('unity_test_number');
-    
+
     if (boolValue !== true || numberValue !== 42) {
       throw new Error('Boolean/Number storage test failed');
     }
-    
+
     console.log('✅ Boolean/Number storage utilities work');
-    
+
     // Test multi operations
     console.log('📝 Testing multi operations...');
-    const multiData: Array<[string, string]> = [
+    const multiData: [string, string][] = [
       ['unity_multi_1', 'value1'],
       ['unity_multi_2', 'value2'],
-      ['unity_multi_3', 'value3']
+      ['unity_multi_3', 'value3'],
     ];
-    
+
     await storage.multiSet(multiData);
     const multiResult = await storage.multiGet(['unity_multi_1', 'unity_multi_2', 'unity_multi_3']);
-    
+
     if (multiResult.length !== 3 || multiResult[0][1] !== 'value1') {
       throw new Error('Multi operations test failed');
     }
-    
+
     console.log('✅ Multi operations work');
-    
+
     // Cleanup test data
     console.log('🧹 Cleaning up test data...');
     await storage.multiRemove([
@@ -130,15 +138,15 @@ export async function testStorageAdapter(): Promise<void> {
       'unity_test_number',
       'unity_multi_1',
       'unity_multi_2',
-      'unity_multi_3'
+      'unity_multi_3',
     ]);
-    
+
     console.log('🎉 Storage adapter tests passed!');
   } catch (error) {
     console.error('❌ Storage adapter test failed:', error);
     throw error;
   }
-  
+
   console.groupEnd();
 }
 
@@ -164,7 +172,7 @@ export async function testMediaAdapter(): Promise<void> {
     // Test object URL creation (web only)
     if (Platform.isWeb) {
       const objectUrl = media.createObjectURL(mockFile);
-      console.log('✅ Object URL created:', objectUrl.substring(0, 20) + '...');
+      console.log('✅ Object URL created:', `${objectUrl.substring(0, 20)}...`);
 
       media.revokeObjectURL(objectUrl);
       console.log('✅ Object URL revoked');
@@ -175,7 +183,7 @@ export async function testMediaAdapter(): Promise<void> {
     console.log('✅ Canvas created:', canvas.width, 'x', canvas.height);
 
     // Test image creation
-    const img = media.createImage();
+    const _img = media.createImage();
     console.log('✅ Image element created');
 
     console.log('🎉 Media adapter tests passed!');

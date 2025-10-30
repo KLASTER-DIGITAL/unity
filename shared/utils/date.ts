@@ -1,6 +1,6 @@
 /**
  * Date Utils - Shared between PWA and React Native
- * 
+ *
  * TRULY shared code - NO platform-specific imports
  * Pure functions only
  */
@@ -40,7 +40,7 @@ export function formatTime(date: Date | string): string {
 /**
  * Get relative time (e.g., "2 hours ago")
  */
-export function getRelativeTime(date: Date | string, locale: string = 'ru'): string {
+export function getRelativeTime(date: Date | string, locale = 'ru'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
@@ -55,13 +55,12 @@ export function getRelativeTime(date: Date | string, locale: string = 'ru'): str
     if (diffHour < 24) return `${diffHour} ч назад`;
     if (diffDay < 7) return `${diffDay} дн назад`;
     return formatDateRu(d);
-  } else {
-    if (diffSec < 60) return 'just now';
-    if (diffMin < 60) return `${diffMin} min ago`;
-    if (diffHour < 24) return `${diffHour} h ago`;
-    if (diffDay < 7) return `${diffDay} d ago`;
-    return formatDate(d);
   }
+  if (diffSec < 60) return 'just now';
+  if (diffMin < 60) return `${diffMin} min ago`;
+  if (diffHour < 24) return `${diffHour} h ago`;
+  if (diffDay < 7) return `${diffDay} d ago`;
+  return formatDate(d);
 }
 
 /**
@@ -82,4 +81,3 @@ export function isYesterday(date: Date | string): boolean {
   yesterday.setDate(yesterday.getDate() - 1);
   return formatDate(d) === formatDate(yesterday);
 }
-

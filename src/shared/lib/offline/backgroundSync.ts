@@ -1,6 +1,6 @@
 /**
  * Background Sync API
- * 
+ *
  * Handles offline entry creation and automatic synchronization when online.
  * Uses IndexedDB for storage and Service Worker Background Sync API.
  */
@@ -8,12 +8,12 @@
 import { createEntry } from '@/shared/lib/api';
 import {
   addItem,
-  getItem,
-  getAllItems,
-  updateItem,
   deleteItem,
-  STORES,
+  getAllItems,
+  getItem,
   type PendingEntry,
+  STORES,
+  updateItem,
 } from './indexedDB';
 
 const SYNC_TAG = 'sync-entries';
@@ -165,7 +165,9 @@ export async function syncPendingEntries(): Promise<{
   const remaining = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
   const pending = remaining.length;
 
-  console.log(`[BackgroundSync] Sync complete: ${synced} synced, ${failed} failed, ${pending} pending`);
+  console.log(
+    `[BackgroundSync] Sync complete: ${synced} synced, ${failed} failed, ${pending} pending`
+  );
 
   return { synced, failed, pending };
 }
@@ -175,7 +177,7 @@ export async function syncPendingEntries(): Promise<{
  */
 export async function getPendingEntries(userId: string): Promise<PendingEntry[]> {
   const allPending = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
-  return allPending.filter(entry => entry.userId === userId);
+  return allPending.filter((entry) => entry.userId === userId);
 }
 
 /**
@@ -191,7 +193,7 @@ export async function getPendingEntriesCount(userId: string): Promise<number> {
  */
 export async function retryFailedEntry(entryId: string): Promise<void> {
   const entry = await getItem<PendingEntry>(STORES.PENDING_ENTRIES, entryId);
-  
+
   if (!entry) {
     throw new Error(`Entry ${entryId} not found`);
   }
@@ -217,7 +219,7 @@ export async function retryFailedEntry(entryId: string): Promise<void> {
  */
 export async function deleteFailedEntry(entryId: string): Promise<void> {
   const entry = await getItem<PendingEntry>(STORES.PENDING_ENTRIES, entryId);
-  
+
   if (!entry) {
     throw new Error(`Entry ${entryId} not found`);
   }
@@ -267,4 +269,3 @@ export async function initBackgroundSync(): Promise<void> {
 
   console.log('[BackgroundSync] Initialized successfully');
 }
-

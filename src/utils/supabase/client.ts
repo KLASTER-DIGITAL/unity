@@ -1,20 +1,23 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { env, validateEnv } from '@/shared/lib/platform/env';
 
 /**
  * ✅ PWA + React Native Architecture:
- * - PWA build (src/): Uses import.meta.env (Vite)
- * - React Native build (/app/): Uses expo-constants
+ * - PWA build (src/): Uses import.meta.env (Vite) via Platform Adapter
+ * - React Native build (/app/): Uses process.env.EXPO_PUBLIC_* via Platform Adapter
+ *
+ * @see src/shared/lib/platform/env/index.ts
  */
 
-// Get Supabase credentials from environment variables with fallback
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
-const publicAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTg2OTQsImV4cCI6MjA3NTYzNDY5NH0.OnBM1BIQMVgJur2nM4gZGDW-PWWwSR92DpJHhPpqB88';
+// Get Supabase credentials from Platform Adapter
+const supabaseUrl = env.SUPABASE_URL;
+const publicAnonKey = env.SUPABASE_ANON_KEY;
 
 // Validate credentials
-if (!supabaseUrl || !publicAnonKey) {
-  console.error('❌ Supabase credentials are missing!');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl);
-  console.error('VITE_SUPABASE_ANON_KEY:', publicAnonKey ? 'present' : 'missing');
+if (!validateEnv()) {
+  console.error('❌ Supabase credentials validation failed!');
+  console.error('SUPABASE_URL:', supabaseUrl);
+  console.error('SUPABASE_ANON_KEY:', publicAnonKey ? 'present' : 'missing');
 }
 
 // Создаем singleton instance Supabase клиента для фронтенда
@@ -25,8 +28,8 @@ export const supabase = createSupabaseClient(supabaseUrl, publicAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     storage: window.localStorage,
-    storageKey: 'supabase.auth.token'
-  }
+    storageKey: 'supabase.auth.token',
+  },
 });
 
 // Handle auth state changes and errors

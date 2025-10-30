@@ -1,12 +1,12 @@
 /**
  * Web Media Picker Adapter
- * 
+ *
  * Uses HTML input[type="file"] for media selection
- * 
+ *
  * @module platform/media-picker/web
  */
 
-import type { MediaPickerAdapter, MediaFile, MediaPickerOptions, CameraOptions } from './index';
+import type { CameraOptions, MediaFile, MediaPickerAdapter, MediaPickerOptions } from './index';
 
 /**
  * Web media picker adapter using HTML input[type="file"]
@@ -36,20 +36,18 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
 
   async takePhoto(_options?: CameraOptions): Promise<MediaFile | null> {
     // Web: use file input with camera capture
-    const files = await this.pickFiles('image/*', { 
+    const files = await this.pickFiles('image/*', {
       multiple: false,
-      // @ts-ignore - capture attribute is valid but not in TS types
-      capture: 'environment' 
+      capture: 'environment',
     });
     return files.length > 0 ? files[0] : null;
   }
 
   async recordVideo(_options?: CameraOptions): Promise<MediaFile | null> {
     // Web: use file input with camera capture
-    const files = await this.pickFiles('video/*', { 
+    const files = await this.pickFiles('video/*', {
       multiple: false,
-      // @ts-ignore - capture attribute is valid but not in TS types
-      capture: 'environment' 
+      capture: 'environment',
     });
     return files.length > 0 ? files[0] : null;
   }
@@ -57,7 +55,10 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
   /**
    * Generic file picker implementation
    */
-  private async pickFiles(accept: string, options: MediaPickerOptions & { capture?: string } = {}): Promise<MediaFile[]> {
+  private async pickFiles(
+    accept: string,
+    options: MediaPickerOptions & { capture?: string } = {}
+  ): Promise<MediaFile[]> {
     return new Promise((resolve, reject) => {
       if (!this.isSupported()) {
         reject(new Error('File picker is not supported in this environment'));
@@ -68,7 +69,7 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
       input.type = 'file';
       input.accept = accept;
       input.multiple = options.multiple !== false; // Default to true
-      
+
       // Add capture attribute if specified (for camera access)
       if (options.capture) {
         input.setAttribute('capture', options.capture);
@@ -77,20 +78,18 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
       input.onchange = async (e) => {
         try {
           const files = Array.from((e.target as HTMLInputElement).files || []);
-          
+
           if (files.length === 0) {
             resolve([]);
             return;
           }
 
           // Apply maxFiles limit
-          const limitedFiles = options.maxFiles 
-            ? files.slice(0, options.maxFiles)
-            : files;
+          const limitedFiles = options.maxFiles ? files.slice(0, options.maxFiles) : files;
 
           // Convert to MediaFile format
           const mediaFiles = await Promise.all(
-            limitedFiles.map(file => this.fileToMediaFile(file))
+            limitedFiles.map((file) => this.fileToMediaFile(file))
           );
 
           resolve(mediaFiles);
@@ -159,18 +158,18 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
   private async getImageDimensions(uri: string): Promise<{ width: number; height: number }> {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      
+
       img.onload = () => {
         resolve({
           width: img.naturalWidth,
           height: img.naturalHeight,
         });
       };
-      
+
       img.onerror = () => {
         reject(new Error('Failed to load image'));
       };
-      
+
       img.src = uri;
     });
   }
@@ -186,7 +185,7 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
       video.preload = 'metadata';
-      
+
       video.onloadedmetadata = () => {
         resolve({
           width: video.videoWidth,
@@ -194,13 +193,12 @@ export class WebMediaPickerAdapter implements MediaPickerAdapter {
           duration: video.duration,
         });
       };
-      
+
       video.onerror = () => {
         reject(new Error('Failed to load video metadata'));
       };
-      
+
       video.src = uri;
     });
   }
 }
-

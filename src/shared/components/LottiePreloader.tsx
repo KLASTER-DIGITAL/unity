@@ -1,15 +1,15 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useTheme } from '@/shared/components/theme-provider';
 
 // Lazy load lottie-react библиотеки для уменьшения initial bundle на ~150 KB
-const Lottie = lazy(() => import('lottie-react').then(module => ({ default: module.default })));
+const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: module.default })));
 
 // Lottie animations будут загружаться динамически через import()
 // Page-level loading - Black-2.json для темной темы, White-2.json для светлой
 // Используется ТОЛЬКО для первой загрузки страницы (page-level loading)
 // Для component-level loading используйте Skeleton компоненты
 
-interface LottiePreloaderProps {
+type LottiePreloaderProps = {
   /**
    * Текст сообщения под анимацией
    * @default "Загрузка..."
@@ -54,7 +54,7 @@ interface LottiePreloaderProps {
    * @default "transition" - Black-2.json/White-2.json для page-level loading
    */
   animationType?: 'initial' | 'transition';
-}
+};
 
 /**
  * Универсальный Lottie прелоадер с поддержкой тем и типов анимации
@@ -72,13 +72,13 @@ interface LottiePreloaderProps {
  * ```
  */
 export function LottiePreloader({
-  message = "Загрузка...",
+  message = 'Загрузка...',
   minDuration = 5000,
   showMessage = true,
   size = 'md',
   className = '',
   onMinDurationComplete,
-  animationType: _animationType = 'initial' // Deprecated parameter, kept for backwards compatibility
+  animationType: _animationType = 'initial', // Deprecated parameter, kept for backwards compatibility
 }: LottiePreloaderProps) {
   const { theme } = useTheme();
   const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
@@ -91,54 +91,47 @@ export function LottiePreloader({
   // Для component-level loading используйте Skeleton компоненты
   useEffect(() => {
     const loadAnimation = async () => {
-      const data = theme === 'dark'
-        ? (await import('@/components/preloader/Black-2.json')).default
-        : (await import('@/components/preloader/White-2.json')).default;
+      const data =
+        theme === 'dark'
+          ? (await import('@/components/preloader/Black-2.json')).default
+          : (await import('@/components/preloader/White-2.json')).default;
       setAnimationData(data);
     };
     loadAnimation();
   }, [theme]);
-  
+
   // Размеры анимации
   const sizeClasses = {
     sm: 'w-24 h-24',
     md: 'w-32 h-32',
     lg: 'w-48 h-48',
-    xl: 'w-64 h-64'
+    xl: 'w-64 h-64',
   };
-  
+
   // Отслеживаем минимальное время показа
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinDurationElapsed(true);
       onMinDurationComplete?.();
     }, minDuration);
-    
+
     return () => clearTimeout(timer);
   }, [minDuration, onMinDurationComplete]);
-  
+
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-background ${className}`}>
+    <div className={`flex min-h-screen items-center justify-center bg-background ${className}`}>
       <div className="text-center">
         {/* Lottie Animation with Suspense for lazy loading */}
         <div className={`${sizeClasses[size]} mx-auto mb-4`}>
           {animationData && (
             <Suspense fallback={<div className={sizeClasses[size]} />}>
-              <Lottie
-                animationData={animationData}
-                loop={true}
-                autoplay={true}
-              />
+              <Lottie animationData={animationData} autoplay={true} loop={true} />
             </Suspense>
           )}
         </div>
 
         {/* Message */}
-        {showMessage && (
-          <p className="text-muted-foreground text-sm md:text-base">
-            {message}
-          </p>
-        )}
+        {showMessage && <p className="text-muted-foreground text-sm md:text-base">{message}</p>}
       </div>
     </div>
   );
@@ -150,13 +143,13 @@ export function LottiePreloader({
  * Используется для переходов между страницами (animationType="transition")
  */
 export function LottiePreloaderCompact({
-  message = "Загрузка...",
+  message = 'Загрузка...',
   size = 'sm',
   showMessage = false,
   minDuration,
   onMinDurationComplete,
   className = '',
-  animationType: _animationType = 'transition' // Deprecated parameter, kept for backwards compatibility
+  animationType: _animationType = 'transition', // Deprecated parameter, kept for backwards compatibility
 }: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
   minDuration?: number;
   onMinDurationComplete?: () => void;
@@ -169,9 +162,10 @@ export function LottiePreloaderCompact({
   // Динамически загружаем анимацию page-level loading (Black-2.json/White-2.json)
   useEffect(() => {
     const loadAnimation = async () => {
-      const data = theme === 'dark'
-        ? (await import('@/components/preloader/Black-2.json')).default
-        : (await import('@/components/preloader/White-2.json')).default;
+      const data =
+        theme === 'dark'
+          ? (await import('@/components/preloader/Black-2.json')).default
+          : (await import('@/components/preloader/White-2.json')).default;
       setAnimationData(data);
     };
     loadAnimation();
@@ -193,7 +187,7 @@ export function LottiePreloaderCompact({
     sm: 'w-12 h-12',
     md: 'w-16 h-16',
     lg: 'w-24 h-24',
-    xl: 'w-32 h-32'
+    xl: 'w-32 h-32',
   };
 
   return (
@@ -201,19 +195,11 @@ export function LottiePreloaderCompact({
       <div className={`${sizeClasses[size]}`}>
         {animationData && (
           <Suspense fallback={<div className={sizeClasses[size]} />}>
-            <Lottie
-              animationData={animationData}
-              loop={true}
-              autoplay={true}
-            />
+            <Lottie animationData={animationData} autoplay={true} loop={true} />
           </Suspense>
         )}
       </div>
-      {showMessage && (
-        <p className="text-muted-foreground text-xs md:text-sm">
-          {message}
-        </p>
-      )}
+      {showMessage && <p className="text-muted-foreground text-xs md:text-sm">{message}</p>}
     </div>
   );
 }
@@ -225,7 +211,7 @@ export function LottiePreloaderCompact({
 export function LottiePreloaderInline({
   size = 'sm',
   className = '',
-  animationType: _animationType = 'transition' // Deprecated parameter, kept for backwards compatibility
+  animationType: _animationType = 'transition', // Deprecated parameter, kept for backwards compatibility
 }: Pick<LottiePreloaderProps, 'size' | 'className' | 'animationType'>) {
   const { theme } = useTheme();
   const [animationData, setAnimationData] = useState<any>(null);
@@ -235,30 +221,27 @@ export function LottiePreloaderInline({
   // Инвертируем цвета для inline элементов (светлая анимация на темном фоне и наоборот)
   useEffect(() => {
     const loadAnimation = async () => {
-      const data = theme === 'dark'
-        ? (await import('@/components/preloader/White-2.json')).default
-        : (await import('@/components/preloader/Black-2.json')).default;
+      const data =
+        theme === 'dark'
+          ? (await import('@/components/preloader/White-2.json')).default
+          : (await import('@/components/preloader/Black-2.json')).default;
       setAnimationData(data);
     };
     loadAnimation();
   }, [theme]);
-  
+
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
     lg: 'w-8 h-8',
-    xl: 'w-12 h-12'
+    xl: 'w-12 h-12',
   };
-  
+
   return (
     <div className={`inline-block ${sizeClasses[size]} ${className}`}>
       {animationData && (
         <Suspense fallback={<div className={sizeClasses[size]} />}>
-          <Lottie
-            animationData={animationData}
-            loop={true}
-            autoplay={true}
-          />
+          <Lottie animationData={animationData} autoplay={true} loop={true} />
         </Suspense>
       )}
     </div>
@@ -266,4 +249,3 @@ export function LottiePreloaderInline({
 }
 
 export default LottiePreloader;
-

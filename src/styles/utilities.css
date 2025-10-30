@@ -1,7 +1,7 @@
 /**
  * Custom Utilities - Helper classes
  * Scrollbar hiding and other utility classes
- * 
+ *
  * AI-Friendly: Only utility classes (~20 lines)
  */
 
@@ -27,4 +27,3 @@
 ::-webkit-scrollbar-thumb {
   background: none;
 }
-

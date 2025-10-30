@@ -27,10 +27,10 @@ export async function uploadFileInChunks({
   chunkSize = 1024 * 1024, // 1MB default
   headers = {},
   onProgress,
-  onChunkComplete
+  onChunkComplete,
 }: ChunkUploadOptions): Promise<ChunkUploadResult> {
   const totalChunks = Math.ceil(file.size / chunkSize);
-  
+
   console.log(`📤 [CHUNK] Starting chunked upload: ${file.name}`);
   console.log(`📤 [CHUNK] File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
   console.log(`📤 [CHUNK] Chunk size: ${(chunkSize / 1024).toFixed(0)}KB`);
@@ -43,7 +43,9 @@ export async function uploadFileInChunks({
       const end = Math.min(start + chunkSize, file.size);
       const chunk = file.slice(start, end);
 
-      console.log(`📤 [CHUNK] Uploading chunk ${chunkIndex + 1}/${totalChunks} (${(chunk.size / 1024).toFixed(0)}KB)`);
+      console.log(
+        `📤 [CHUNK] Uploading chunk ${chunkIndex + 1}/${totalChunks} (${(chunk.size / 1024).toFixed(0)}KB)`
+      );
 
       // Create FormData for chunk
       const formData = new FormData();
@@ -60,7 +62,7 @@ export async function uploadFileInChunks({
           ...headers,
           // Don't set Content-Type - let browser set it with boundary
         },
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -72,21 +74,22 @@ export async function uploadFileInChunks({
       onProgress?.(progress);
       onChunkComplete?.(chunkIndex, totalChunks);
 
-      console.log(`📤 [CHUNK] ✅ Chunk ${chunkIndex + 1}/${totalChunks} uploaded (${progress.toFixed(0)}%)`);
+      console.log(
+        `📤 [CHUNK] ✅ Chunk ${chunkIndex + 1}/${totalChunks} uploaded (${progress.toFixed(0)}%)`
+      );
     }
 
-    console.log(`📤 [CHUNK] 🎉 All chunks uploaded successfully`);
+    console.log('📤 [CHUNK] 🎉 All chunks uploaded successfully');
 
     return {
       success: true,
-      url: url
+      url,
     };
-
   } catch (error) {
     console.error('📤 [CHUNK] ❌ Upload failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -99,7 +102,7 @@ export async function smartUpload({
   url,
   threshold = 5 * 1024 * 1024, // 5MB threshold
   headers = {},
-  onProgress
+  onProgress,
 }: {
   file: File;
   url: string;
@@ -109,18 +112,22 @@ export async function smartUpload({
 }): Promise<ChunkUploadResult> {
   // Use chunked upload for large files
   if (file.size > threshold) {
-    console.log(`📤 [SMART] File is large (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload`);
+    console.log(
+      `📤 [SMART] File is large (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload`
+    );
     return uploadFileInChunks({
       file,
       url,
       headers,
-      onProgress
+      onProgress,
     });
   }
 
   // Use regular upload for small files
-  console.log(`📤 [SMART] File is small (${(file.size / 1024 / 1024).toFixed(2)}MB), using regular upload`);
-  
+  console.log(
+    `📤 [SMART] File is small (${(file.size / 1024 / 1024).toFixed(2)}MB), using regular upload`
+  );
+
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -128,7 +135,7 @@ export async function smartUpload({
     const response = await fetch(url, {
       method: 'POST',
       headers,
-      body: formData
+      body: formData,
     });
 
     if (!response.ok) {
@@ -139,13 +146,12 @@ export async function smartUpload({
 
     return {
       success: true,
-      url: url
+      url,
     };
-
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -159,7 +165,7 @@ export async function resumeUpload({
   uploadedChunks,
   chunkSize = 1024 * 1024,
   headers = {},
-  onProgress
+  onProgress,
 }: {
   file: File;
   url: string;
@@ -169,7 +175,7 @@ export async function resumeUpload({
   onProgress?: (progress: number) => void;
 }): Promise<ChunkUploadResult> {
   const totalChunks = Math.ceil(file.size / chunkSize);
-  
+
   console.log(`📤 [RESUME] Resuming upload: ${file.name}`);
   console.log(`📤 [RESUME] Already uploaded: ${uploadedChunks.length}/${totalChunks} chunks`);
 
@@ -178,7 +184,9 @@ export async function resumeUpload({
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
       // Skip already uploaded chunks
       if (uploadedChunks.includes(chunkIndex)) {
-        console.log(`📤 [RESUME] Skipping chunk ${chunkIndex + 1}/${totalChunks} (already uploaded)`);
+        console.log(
+          `📤 [RESUME] Skipping chunk ${chunkIndex + 1}/${totalChunks} (already uploaded)`
+        );
         continue;
       }
 
@@ -198,7 +206,7 @@ export async function resumeUpload({
       const response = await fetch(url, {
         method: 'POST',
         headers,
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -209,19 +217,17 @@ export async function resumeUpload({
       onProgress?.(progress);
     }
 
-    console.log(`📤 [RESUME] 🎉 Upload resumed and completed`);
+    console.log('📤 [RESUME] 🎉 Upload resumed and completed');
 
     return {
       success: true,
-      url: url
+      url,
     };
-
   } catch (error) {
     console.error('📤 [RESUME] ❌ Resume failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
-

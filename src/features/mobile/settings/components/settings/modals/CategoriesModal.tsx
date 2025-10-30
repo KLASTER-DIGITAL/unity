@@ -3,42 +3,60 @@
  * Simplified design matching LanguageModal
  */
 
-import { motion } from "motion/react";
-import { X, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { useCategories } from "@/shared/hooks/useCategories";
-import { toast } from "sonner";
+import { Plus, Trash2, X } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useCategories } from '@/shared/hooks/useCategories';
 
-interface CategoriesModalProps {
+type CategoriesModalProps = {
   isOpen: boolean;
   onClose: () => void;
   userId: string | undefined;
   t: any;
-}
+};
 
 // Emoji picker - 21 emojis (3 rows x 7 columns)
 const EMOJI_OPTIONS = [
-  "✨", "💼", "🎯", "💪", "📚", "🎨", "🏃",
-  "🧘", "🍎", "💰", "🎵", "🎮", "📱", "✈️",
-  "🏠", "👨‍👩‍👧", "🐕", "🌱", "🔧", "🎓", "❤️"
+  '✨',
+  '💼',
+  '🎯',
+  '💪',
+  '📚',
+  '🎨',
+  '🏃',
+  '🧘',
+  '🍎',
+  '💰',
+  '🎵',
+  '🎮',
+  '📱',
+  '✈️',
+  '🏠',
+  '👨‍👩‍👧',
+  '🐕',
+  '🌱',
+  '🔧',
+  '🎓',
+  '❤️',
 ];
 
 export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalProps) {
   const { categories, isLoading, addCategory, removeCategory } = useCategories(userId);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    icon: "✨",
-    color: "var(--gradient-neutral-1-start)" // Default color (not used in UI)
+    name: '',
+    icon: '✨',
+    color: 'var(--gradient-neutral-1-start)', // Default color (not used in UI)
   });
 
-  const customCategories = categories.filter(c => !c.is_default);
+  const customCategories = categories.filter((c) => !c.is_default);
   const customCount = customCategories.length;
   const maxCategories = 20;
 
   const handleAdd = async () => {
     if (!formData.name.trim()) {
-      toast.error("Введите название категории");
+      toast.error('Введите название категории');
       return;
     }
 
@@ -49,105 +67,107 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 
     try {
       await addCategory(formData);
-      toast.success("Категория добавлена");
+      toast.success('Категория добавлена');
       setShowAddForm(false);
-      setFormData({ name: "", icon: "✨", color: "var(--gradient-blue-1-start)" });
+      setFormData({ name: '', icon: '✨', color: 'var(--gradient-blue-1-start)' });
     } catch (error: any) {
-      toast.error(error.message || "Ошибка при добавлении категории");
+      toast.error(error.message || 'Ошибка при добавлении категории');
     }
   };
 
   const handleDelete = async (categoryId: string, isDefault: boolean) => {
     if (isDefault) {
-      toast.error("Нельзя удалить системную категорию");
+      toast.error('Нельзя удалить системную категорию');
       return;
     }
 
-    if (!confirm("Удалить категорию? Это действие нельзя отменить.")) {
+    if (!confirm('Удалить категорию? Это действие нельзя отменить.')) {
       return;
     }
 
     try {
       await removeCategory(categoryId);
-      toast.success("Категория удалена");
+      toast.success('Категория удалена');
     } catch (error: any) {
-      toast.error(error.message || "Ошибка при удалении категории");
+      toast.error(error.message || 'Ошибка при удалении категории');
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <>
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
         exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
+        className="modal-bottom-sheet z-modal mx-auto max-w-md overflow-y-auto border-border border-t bg-card p-modal transition-colors duration-300"
         exit={{ opacity: 0, y: 100 }}
-        className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+        initial={{ opacity: 0, y: 100 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-title-3 text-foreground">{t.categories || "Мои категории"}</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-foreground text-title-3">{t.categories || 'Мои категории'}</h3>
           <button
+            className="rounded-full p-1 transition-colors hover:bg-accent/10"
             onClick={onClose}
-            className="p-1 hover:bg-accent/10 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-foreground" />
+            <X className="h-5 w-5 text-foreground" />
           </button>
         </div>
 
-        <p className="text-footnote text-muted-foreground mb-4">
+        <p className="mb-4 text-footnote text-muted-foreground">
           Управляйте категориями для ваших записей ({customCount}/{maxCategories})
         </p>
 
         {/* Add Category Button */}
         {!showAddForm && customCount < maxCategories && (
           <button
+            className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-border border-dashed p-4 transition-all hover:border-primary hover:bg-primary/5"
             onClick={() => setShowAddForm(true)}
-            className="w-full flex items-center justify-center gap-2 p-4 mb-4 rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 transition-all"
           >
-            <Plus className="w-5 h-5 text-primary" />
+            <Plus className="h-5 w-5 text-primary" />
             <span className="font-medium text-foreground">Добавить категорию</span>
           </button>
         )}
 
         {/* Add Form */}
         {showAddForm && (
-          <div className="mb-4 p-4 bg-muted/50 rounded-xl border border-border">
+          <div className="mb-4 rounded-xl border border-border bg-muted/50 p-4">
             <input
-              type="text"
-              placeholder="Название категории"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="mb-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               maxLength={30}
-              className="w-full px-4 py-3 mb-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Название категории"
+              type="text"
+              value={formData.name}
             />
 
             {/* Emoji Picker - 3 rows x 7 columns */}
             <div className="mb-3">
-              <p className="text-footnote text-muted-foreground mb-2">Выберите иконку</p>
+              <p className="mb-2 text-footnote text-muted-foreground">Выберите иконку</p>
               <div
                 className="w-full gap-1"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(7, 1fr)'
+                  gridTemplateColumns: 'repeat(7, 1fr)',
                 }}
               >
                 {EMOJI_OPTIONS.map((emoji) => (
                   <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, icon: emoji })}
-                    className={`text-3xl p-2 rounded-lg transition-colors ${
+                    className={`rounded-lg p-2 text-3xl transition-colors ${
                       formData.icon === emoji ? 'bg-primary/20' : 'hover:bg-muted'
                     }`}
+                    key={emoji}
+                    onClick={() => setFormData({ ...formData, icon: emoji })}
+                    type="button"
                   >
                     {emoji}
                   </button>
@@ -157,18 +177,18 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 
             <div className="flex gap-2">
               <button
-                onClick={handleAdd}
+                className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
                 disabled={isLoading}
-                className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+                onClick={handleAdd}
               >
                 Сохранить
               </button>
               <button
+                className="flex-1 rounded-xl bg-muted px-4 py-2.5 font-medium text-foreground transition-all hover:bg-muted/80"
                 onClick={() => {
                   setShowAddForm(false);
-                  setFormData({ name: "", icon: "✨", color: "var(--gradient-neutral-1-start)" });
+                  setFormData({ name: '', icon: '✨', color: 'var(--gradient-neutral-1-start)' });
                 }}
-                className="flex-1 px-4 py-2.5 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/80 transition-all"
               >
                 Отмена
               </button>
@@ -179,19 +199,19 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
         {/* Categories List - Only custom categories */}
         <div className="space-y-2">
           {customCategories.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-footnote">
+            <div className="py-8 text-center">
+              <p className="text-footnote text-muted-foreground">
                 У вас пока нет пользовательских категорий
               </p>
-              <p className="text-muted-foreground text-footnote mt-1">
+              <p className="mt-1 text-footnote text-muted-foreground">
                 Нажмите "Добавить категорию" чтобы создать свою
               </p>
             </div>
           ) : (
             customCategories.map((category) => (
               <div
+                className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-all hover:bg-accent/5"
                 key={category.id}
-                className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:bg-accent/5 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{category.icon}</span>
@@ -200,10 +220,10 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
                   </div>
                 </div>
                 <button
+                  className="rounded-lg p-2 transition-colors hover:bg-destructive/10"
                   onClick={() => handleDelete(category.id, category.is_default)}
-                  className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                 >
-                  <Trash2 className="w-4 h-4 text-destructive" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </button>
               </div>
             ))
@@ -213,4 +233,3 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
     </>
   );
 }
-

@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -12,7 +12,7 @@ const corsHeaders = {
 async function verifySuperAdmin(req: Request) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  
+
   // Get access token from Authorization header
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
@@ -20,7 +20,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Missing authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -30,14 +30,17 @@ async function verifySuperAdmin(req: Request) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
   // Verify user JWT token
-  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAdmin.auth.getUser(accessToken);
   if (authError || !user) {
     console.error('[AUTH] User verification failed:', authError);
     return {
-      error: new Response(
-        JSON.stringify({ success: false, error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      error: new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }),
     };
   }
 
@@ -56,7 +59,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Failed to verify admin role' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -68,7 +71,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Forbidden: Super admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -147,7 +150,7 @@ Deno.serve(async (req) => {
     }
 
     // Count premium users
-    const premiumUsers = profiles?.filter(p => p.is_premium).length || 0;
+    const premiumUsers = profiles?.filter((p) => p.is_premium).length || 0;
 
     // Calculate revenue (estimate: 499 RUB/month per premium user)
     const totalRevenue = premiumUsers * 499;
@@ -160,22 +163,19 @@ Deno.serve(async (req) => {
       activeToday: activeTodaySet.size,
       premiumUsers,
       totalRevenue,
-      pwaInstalls: 0
+      pwaInstalls: 0,
     };
 
     console.log('[ADMIN-STATS-API] ✅ Stats:', stats);
-    
-    return new Response(
-      JSON.stringify({ success: true, ...stats }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
 
+    return new Response(JSON.stringify({ success: true, ...stats }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('[ADMIN-STATS-API] ❌ Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

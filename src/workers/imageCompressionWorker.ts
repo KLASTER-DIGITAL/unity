@@ -40,14 +40,14 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
           onProgress: (progress) => {
             self.postMessage({
               type: 'progress',
-              progress
+              progress,
             } as CompressResponse);
-          }
+          },
         });
 
         self.postMessage({
           type: 'success',
-          data: compressedFile
+          data: compressedFile,
         } as CompressResponse);
         break;
       }
@@ -58,34 +58,36 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
           maxWidthOrHeight: 200,
           useWebWorker: false,
           initialQuality: 0.7,
-          fileType: 'image/jpeg'
+          fileType: 'image/jpeg',
         });
 
         self.postMessage({
           type: 'success',
-          data: thumbnail
+          data: thumbnail,
         } as CompressResponse);
         break;
       }
 
       case 'dimensions': {
-        const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              resolve({ width: img.width, height: img.height });
+        const dimensions = await new Promise<{ width: number; height: number }>(
+          (resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const img = new Image();
+              img.onload = () => {
+                resolve({ width: img.width, height: img.height });
+              };
+              img.onerror = reject;
+              img.src = e.target?.result as string;
             };
-            img.onerror = reject;
-            img.src = e.target?.result as string;
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          }
+        );
 
         self.postMessage({
           type: 'success',
-          data: dimensions
+          data: dimensions,
         } as CompressResponse);
         break;
       }
@@ -96,10 +98,7 @@ self.onmessage = async (e: MessageEvent<CompressMessage>) => {
   } catch (error) {
     self.postMessage({
       type: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     } as CompressResponse);
   }
 };
-
-export {};
-

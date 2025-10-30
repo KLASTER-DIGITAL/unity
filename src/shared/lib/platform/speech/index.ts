@@ -1,10 +1,10 @@
 /**
  * Speech Recognition Platform Adapter
- * 
+ *
  * Provides cross-platform speech recognition functionality:
  * - Web: Web Speech API (SpeechRecognition)
  * - Native: expo-speech (placeholder)
- * 
+ *
  * @module platform/speech
  */
 
@@ -12,7 +12,7 @@
 // TYPES
 // ============================================================================
 
-export interface SpeechRecognitionOptions {
+export type SpeechRecognitionOptions = {
   /** Language code (e.g., 'ru-RU', 'en-US') */
   language?: string;
   /** Enable continuous recognition (default: false) */
@@ -21,48 +21,48 @@ export interface SpeechRecognitionOptions {
   interimResults?: boolean;
   /** Maximum number of alternatives (default: 1) */
   maxAlternatives?: number;
-}
+};
 
-export interface SpeechRecognitionResult {
+export type SpeechRecognitionResult = {
   /** Recognized transcript */
   transcript: string;
   /** Confidence score (0-1) */
   confidence: number;
   /** Is this a final result? */
   isFinal: boolean;
-}
+};
 
-export interface SpeechAdapter {
+export type SpeechAdapter = {
   /** Check if speech recognition is supported */
   isSupported(): boolean;
-  
+
   /** Request microphone permissions */
   requestPermissions(): Promise<boolean>;
-  
+
   /** Start listening */
   startListening(options?: SpeechRecognitionOptions): void;
-  
+
   /** Stop listening */
   stopListening(): void;
-  
+
   /** Abort listening */
   abort(): void;
-  
+
   /** Check if currently listening */
   isListening(): boolean;
-  
+
   /** Set result callback */
   onResult(callback: (result: SpeechRecognitionResult) => void): void;
-  
+
   /** Set error callback */
   onError(callback: (error: Error) => void): void;
-  
+
   /** Set start callback */
   onStart(callback: () => void): void;
-  
+
   /** Set end callback */
   onEnd(callback: () => void): void;
-}
+};
 
 // ============================================================================
 // WEB IMPLEMENTATION
@@ -70,7 +70,7 @@ export interface SpeechAdapter {
 
 class WebSpeechAdapter implements SpeechAdapter {
   private recognition: any = null;
-  private listening: boolean = false;
+  private listening = false;
   private resultCallback: ((result: SpeechRecognitionResult) => void) | null = null;
   private errorCallback: ((error: Error) => void) | null = null;
   private startCallback: (() => void) | null = null;
@@ -131,7 +131,7 @@ class WebSpeechAdapter implements SpeechAdapter {
   }
 
   stopListening(): void {
-    if (!this.recognition || !this.listening) {
+    if (!(this.recognition && this.listening)) {
       return;
     }
 
@@ -176,7 +176,8 @@ class WebSpeechAdapter implements SpeechAdapter {
   }
 
   private initializeRecognition(): void {
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const SpeechRecognition =
+      (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     this.recognition = new SpeechRecognition();
 
     this.recognition.onstart = () => {
@@ -187,10 +188,12 @@ class WebSpeechAdapter implements SpeechAdapter {
     };
 
     this.recognition.onresult = (event: any) => {
-      if (!this.resultCallback) return;
+      if (!this.resultCallback) {
+        return;
+      }
 
       const results = event.results;
-      const lastResult = results[results.length - 1];
+      const lastResult = results.at(-1);
       const alternative = lastResult[0];
 
       this.resultCallback({
@@ -209,10 +212,10 @@ class WebSpeechAdapter implements SpeechAdapter {
 
     this.recognition.onerror = (event: any) => {
       this.listening = false;
-      
+
       if (this.errorCallback) {
         let errorMessage = 'Speech recognition error';
-        
+
         switch (event.error) {
           case 'no-speech':
             errorMessage = 'No speech detected';
@@ -232,7 +235,7 @@ class WebSpeechAdapter implements SpeechAdapter {
           default:
             errorMessage = `Speech recognition error: ${event.error}`;
         }
-        
+
         this.errorCallback(new Error(errorMessage));
       }
     };
@@ -246,4 +249,3 @@ class WebSpeechAdapter implements SpeechAdapter {
 // ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
 // React Native implementation is in /app/shared/lib/platform/speech.native.ts
 export const speech: SpeechAdapter = new WebSpeechAdapter();
-

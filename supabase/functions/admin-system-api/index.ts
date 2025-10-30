@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -12,7 +12,7 @@ const corsHeaders = {
 async function verifySuperAdmin(req: Request) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  
+
   // Get access token from Authorization header
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
@@ -20,7 +20,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Missing authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -30,14 +30,17 @@ async function verifySuperAdmin(req: Request) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
   // Verify user JWT token
-  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAdmin.auth.getUser(accessToken);
   if (authError || !user) {
     console.error('[AUTH] User verification failed:', authError);
     return {
-      error: new Response(
-        JSON.stringify({ success: false, error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      error: new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }),
     };
   }
 
@@ -54,7 +57,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Failed to verify admin role' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -63,7 +66,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Forbidden: Super admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -91,8 +94,10 @@ Deno.serve(async (req) => {
 
     // Parse URL path
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(p => p);
-    const relevantParts = pathParts.filter(p => !['functions', 'v1', 'admin-system-api'].includes(p));
+    const pathParts = url.pathname.split('/').filter((p) => p);
+    const relevantParts = pathParts.filter(
+      (p) => !['functions', 'v1', 'admin-system-api'].includes(p)
+    );
     const endpoint = relevantParts.join('/') || 'status';
 
     console.log('[ADMIN-SYSTEM-API] Request:', req.method, endpoint);
@@ -102,7 +107,7 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const { title, body: notificationBody, icon, badge } = body;
 
-      if (!title || !notificationBody) {
+      if (!(title && notificationBody)) {
         return new Response(
           JSON.stringify({ success: false, error: 'Title and body are required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -121,7 +126,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           message: 'Push notification sent to all users',
-          notification: { title, body: notificationBody, icon, badge }
+          notification: { title, body: notificationBody, icon, badge },
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -138,7 +143,7 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({
             success: false,
-            error: `Invalid service: ${service}. Valid services: ${validServices.join(', ')}`
+            error: `Invalid service: ${service}. Valid services: ${validServices.join(', ')}`,
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -155,7 +160,7 @@ Deno.serve(async (req) => {
           success: true,
           message: `Service ${service} restart initiated`,
           service,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -166,10 +171,7 @@ Deno.serve(async (req) => {
       console.log('[ADMIN-SYSTEM-API] Getting system status...');
 
       // Get database status
-      const { error: dbError } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .limit(1);
+      const { error: dbError } = await supabaseAdmin.from('profiles').select('id').limit(1);
 
       const systemStatus = {
         database: dbError ? 'error' : 'healthy',
@@ -177,15 +179,14 @@ Deno.serve(async (req) => {
         auth: 'healthy', // TODO: Add actual auth health check
         functions: 'healthy',
         realtime: 'healthy', // TODO: Add actual realtime health check
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       console.log('[ADMIN-SYSTEM-API] System status:', systemStatus);
 
-      return new Response(
-        JSON.stringify({ success: true, status: systemStatus }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, status: systemStatus }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Unknown endpoint
@@ -193,13 +194,11 @@ Deno.serve(async (req) => {
       JSON.stringify({ success: false, error: `Unknown endpoint: ${endpoint}` }),
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error: any) {
     console.error('[ADMIN-SYSTEM-API] Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

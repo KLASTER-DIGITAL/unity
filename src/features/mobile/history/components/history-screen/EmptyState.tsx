@@ -1,9 +1,9 @@
-import { Calendar } from "lucide-react";
-import { useTranslation } from "@/shared/lib/i18n";
+import { Calendar } from 'lucide-react';
+import { useTranslation } from '@/shared/lib/i18n';
 
-interface EmptyStateProps {
+type EmptyStateProps = {
   hasFilters: boolean;
-}
+};
 
 /**
  * Empty State Component
@@ -13,11 +13,11 @@ export function EmptyState({ hasFilters }: EmptyStateProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="text-center py-12">
-      <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div className="py-12 text-center">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
         <Calendar className="h-8 w-8 text-accent" strokeWidth={2} />
       </div>
-      <h3 className="text-[18px]! font-semibold! text-foreground mb-2">
+      <h3 className="mb-2 font-semibold! text-[18px]! text-foreground">
         {t('no_entries_found', 'Записей не найдено')}
       </h3>
       <p className="text-[14px]! text-muted-foreground">
@@ -28,4 +28,3 @@ export function EmptyState({ hasFilters }: EmptyStateProps) {
     </div>
   );
 }
-

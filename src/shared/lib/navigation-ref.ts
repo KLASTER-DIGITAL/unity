@@ -1,9 +1,9 @@
 /**
  * React Navigation Reference
- * 
+ *
  * Global navigation reference for React Native
  * This allows navigation from outside React components
- * 
+ *
  * @module lib/navigation-ref
  */
 
@@ -37,7 +37,7 @@ export function navigate(name: string, params?: any): void {
  * Go back
  */
 export function goBack(): void {
-  if (navigationRef.current && navigationRef.current.canGoBack()) {
+  if (navigationRef.current?.canGoBack()) {
     navigationRef.current.goBack();
   } else {
     console.warn('Cannot go back');
@@ -54,4 +54,3 @@ export function reset(state: any): void {
     console.warn('Navigation ref is not ready');
   }
 }
-

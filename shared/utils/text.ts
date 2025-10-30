@@ -1,6 +1,6 @@
 /**
  * Text Utils - Shared between PWA and React Native
- * 
+ *
  * TRULY shared code - NO platform-specific imports
  * Pure functions only
  */
@@ -27,14 +27,17 @@ export function capitalize(text: string): string {
 export function extractHashtags(text: string): string[] {
   const regex = /#[\wа-яА-ЯёЁ]+/g;
   const matches = text.match(regex);
-  return matches ? matches.map(tag => tag.slice(1)) : [];
+  return matches ? matches.map((tag) => tag.slice(1)) : [];
 }
 
 /**
  * Count words in text
  */
 export function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 }
 
 /**
@@ -62,6 +65,5 @@ export function escapeHtml(text: string): string {
     '"': '&quot;',
     "'": '&#039;',
   };
-  return text.replace(/[&<>"']/g, char => map[char]);
+  return text.replace(/[&<>"']/g, (char) => map[char]);
 }
-

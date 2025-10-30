@@ -1,10 +1,10 @@
 /**
  * Universal Checkbox Component
- * 
+ *
  * Cross-platform checkbox component
  * - Web: Radix UI Checkbox
  * - Native: Custom TouchableOpacity with checkmark
- * 
+ *
  * @module components/ui/universal/UniversalCheckbox
  */
 
@@ -39,4 +39,3 @@ export default {
   Checkbox: UniversalCheckbox,
   CheckboxUtils,
 };
-

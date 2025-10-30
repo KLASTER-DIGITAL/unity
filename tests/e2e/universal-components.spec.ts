@@ -8,7 +8,7 @@
  * @playwright
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Test credentials
 const TEST_EMAIL = 'rustam@leadshunter.biz';
@@ -24,7 +24,7 @@ async function login(page: any) {
 
   // Click "У меня уже есть аккаунт"
   const loginButton = page.getByText(/У меня уже есть аккаунт/i);
-  if (await loginButton.count() > 0) {
+  if ((await loginButton.count()) > 0) {
     await loginButton.click();
     await page.waitForTimeout(500);
   }
@@ -135,7 +135,7 @@ test.describe('Modal Component E2E - Home Page', () => {
     // Find first entry card
     const entryCard = page.locator('[data-testid="entry-card"]').first();
 
-    if (await entryCard.count() > 0) {
+    if ((await entryCard.count()) > 0) {
       // Click entry card to open modal
       await entryCard.click();
 
@@ -146,7 +146,7 @@ test.describe('Modal Component E2E - Home Page', () => {
       // Find close button
       const closeButton = modal.getByRole('button', { name: /закрыть|close/i });
 
-      if (await closeButton.count() > 0) {
+      if ((await closeButton.count()) > 0) {
         // Click to close modal
         await closeButton.click();
 
@@ -160,7 +160,7 @@ test.describe('Modal Component E2E - Home Page', () => {
     // Find first entry card
     const entryCard = page.locator('[data-testid="entry-card"]').first();
 
-    if (await entryCard.count() > 0) {
+    if ((await entryCard.count()) > 0) {
       // Click entry card to open modal
       await entryCard.click();
 
@@ -187,7 +187,7 @@ test.describe('Modal Component E2E - Home Page', () => {
     // Find first entry card
     const entryCard = page.locator('[data-testid="entry-card"]').first();
 
-    if (await entryCard.count() > 0) {
+    if ((await entryCard.count()) > 0) {
       // Tap entry card to open modal
       await entryCard.tap();
 
@@ -221,7 +221,7 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     // Find language radiogroup (theme selector uses radiogroup)
     const radioGroup = page.getByRole('radiogroup').first();
 
-    if (await radioGroup.count() > 0) {
+    if ((await radioGroup.count()) > 0) {
       // Check visibility
       await expect(radioGroup).toBeVisible();
 
@@ -237,7 +237,7 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     // Find theme radiogroup
     const radioGroup = page.getByRole('radiogroup').first();
 
-    if (await radioGroup.count() > 0) {
+    if ((await radioGroup.count()) > 0) {
       // Find first radio button (Light theme)
       const firstRadio = radioGroup.getByRole('radio').first();
 
@@ -253,7 +253,7 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     // Find theme radiogroup
     const radioGroup = page.getByRole('radiogroup').first();
 
-    if (await radioGroup.count() > 0) {
+    if ((await radioGroup.count()) > 0) {
       const radios = radioGroup.getByRole('radio');
       const count = await radios.count();
 
@@ -276,7 +276,7 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     // Find theme radiogroup
     const radioGroup = page.getByRole('radiogroup').first();
 
-    if (await radioGroup.count() > 0) {
+    if ((await radioGroup.count()) > 0) {
       // Focus first radio
       const firstRadio = radioGroup.getByRole('radio').first();
       await firstRadio.focus();
@@ -303,7 +303,7 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     // Find theme radiogroup
     const radioGroup = page.getByRole('radiogroup').first();
 
-    if (await radioGroup.count() > 0) {
+    if ((await radioGroup.count()) > 0) {
       // Check visibility
       await expect(radioGroup).toBeVisible();
 
@@ -318,4 +318,3 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
     }
   });
 });
-

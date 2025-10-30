@@ -1,10 +1,10 @@
 /**
  * Voice Recording Platform Adapter
- * 
+ *
  * Provides cross-platform voice recording functionality:
  * - Web: MediaRecorder + AudioContext
  * - Native: expo-av Audio.Recording
- * 
+ *
  * @module platform/voice
  */
 
@@ -12,7 +12,7 @@
 // TYPES
 // ============================================================================
 
-export interface VoiceRecordingOptions {
+export type VoiceRecordingOptions = {
   /** Enable echo cancellation (default: true) */
   echoCancellation?: boolean;
   /** Enable noise suppression (default: true) */
@@ -21,51 +21,51 @@ export interface VoiceRecordingOptions {
   autoGainControl?: boolean;
   /** Audio quality: 'low' | 'medium' | 'high' (default: 'medium') */
   quality?: 'low' | 'medium' | 'high';
-}
+};
 
-export interface VoiceRecordingResult {
+export type VoiceRecordingResult = {
   /** Audio data as Blob (web) or URI (native) */
   data: Blob | string;
   /** Duration in seconds */
   duration: number;
   /** MIME type */
   mimeType: string;
-}
+};
 
-export interface VoiceAdapter {
+export type VoiceAdapter = {
   /** Check if voice recording is supported */
   isSupported(): boolean;
-  
+
   /** Request microphone permissions */
   requestPermissions(): Promise<boolean>;
-  
+
   /** Start recording */
   startRecording(options?: VoiceRecordingOptions): Promise<void>;
-  
+
   /** Stop recording and return result */
   stopRecording(): Promise<VoiceRecordingResult | null>;
-  
+
   /** Pause recording */
   pauseRecording(): Promise<void>;
-  
+
   /** Resume recording */
   resumeRecording(): Promise<void>;
-  
+
   /** Cancel recording */
   cancelRecording(): void;
-  
+
   /** Get current audio level (0-1) */
   getAudioLevel(): number;
-  
+
   /** Get recording duration in seconds */
   getDuration(): number;
-  
+
   /** Check if currently recording */
   isRecording(): boolean;
-  
+
   /** Check if currently paused */
   isPaused(): boolean;
-}
+};
 
 // ============================================================================
 // WEB IMPLEMENTATION
@@ -78,15 +78,17 @@ class WebVoiceAdapter implements VoiceAdapter {
   private analyser: AnalyserNode | null = null;
   private stream: MediaStream | null = null;
   private animationFrame: number | null = null;
-  private startTime: number = 0;
-  private pauseTime: number = 0;
-  private totalPausedTime: number = 0;
-  private audioLevel: number = 0;
-  private recording: boolean = false;
-  private paused: boolean = false;
+  private startTime = 0;
+  private pauseTime = 0;
+  private totalPausedTime = 0;
+  private audioLevel = 0;
+  private recording = false;
+  private paused = false;
 
   isSupported(): boolean {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {
+      return false;
+    }
     return !!(
       navigator.mediaDevices &&
       typeof navigator.mediaDevices.getUserMedia === 'function' &&
@@ -101,7 +103,7 @@ class WebVoiceAdapter implements VoiceAdapter {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
       console.error('Permission denied:', error);
@@ -118,11 +120,7 @@ class WebVoiceAdapter implements VoiceAdapter {
       throw new Error('Already recording');
     }
 
-    const {
-      echoCancellation = true,
-      noiseSuppression = true,
-      autoGainControl = true,
-    } = options;
+    const { echoCancellation = true, noiseSuppression = true, autoGainControl = true } = options;
 
     try {
       // Request microphone access
@@ -144,9 +142,7 @@ class WebVoiceAdapter implements VoiceAdapter {
       this.analyzeAudio();
 
       // Create MediaRecorder
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : 'audio/mp4';
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
 
       this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
       this.audioChunks = [];
@@ -164,23 +160,24 @@ class WebVoiceAdapter implements VoiceAdapter {
       this.totalPausedTime = 0;
     } catch (error: any) {
       this.cleanup();
-      
+
       // Handle specific errors
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         throw new Error('Microphone access denied');
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        throw new Error('Microphone not found');
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        throw new Error('Microphone is being used by another application');
-      } else {
-        throw new Error(`Failed to start recording: ${error.message}`);
       }
+      if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        throw new Error('Microphone not found');
+      }
+      if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        throw new Error('Microphone is being used by another application');
+      }
+      throw new Error(`Failed to start recording: ${error.message}`);
     }
   }
 
   async stopRecording(): Promise<VoiceRecordingResult | null> {
     return new Promise((resolve) => {
-      if (!this.mediaRecorder || !this.recording) {
+      if (!(this.mediaRecorder && this.recording)) {
         resolve(null);
         return;
       }
@@ -207,7 +204,7 @@ class WebVoiceAdapter implements VoiceAdapter {
   }
 
   async pauseRecording(): Promise<void> {
-    if (!this.mediaRecorder || !this.recording || this.paused) {
+    if (!(this.mediaRecorder && this.recording) || this.paused) {
       return;
     }
 
@@ -217,7 +214,7 @@ class WebVoiceAdapter implements VoiceAdapter {
   }
 
   async resumeRecording(): Promise<void> {
-    if (!this.mediaRecorder || !this.recording || !this.paused) {
+    if (!(this.mediaRecorder && this.recording && this.paused)) {
       return;
     }
 
@@ -254,8 +251,10 @@ class WebVoiceAdapter implements VoiceAdapter {
     return this.paused;
   }
 
-  private analyzeAudio = () => {
-    if (!this.analyser) return;
+  private readonly analyzeAudio = () => {
+    if (!this.analyser) {
+      return;
+    }
 
     const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
     this.analyser.getByteFrequencyData(dataArray);
@@ -282,7 +281,7 @@ class WebVoiceAdapter implements VoiceAdapter {
     }
 
     if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
+      this.stream.getTracks().forEach((track) => track.stop());
       this.stream = null;
     }
 
@@ -299,4 +298,3 @@ class WebVoiceAdapter implements VoiceAdapter {
 // ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
 // React Native implementation is in /app/shared/lib/platform/voice.native.ts
 export const voice: VoiceAdapter = new WebVoiceAdapter();
-

@@ -4,7 +4,7 @@
 // Endpoints: POST /upload, GET /health
 // Date: 2025-10-24
 
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
 console.log('[MEDIA-UPLOAD v1] 🚀 Starting microservice...');
 
@@ -22,7 +22,7 @@ function getEnvVars() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!(supabaseUrl && supabaseServiceKey)) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 
@@ -71,7 +71,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     console.log('[MEDIA-UPLOAD v1] ✅ OPTIONS handled');
     return new Response(null, {
       status: 204,
-      headers: corsHeaders()
+      headers: corsHeaders(),
     });
   }
 
@@ -85,11 +85,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
           version: 'v1',
           service: 'media-upload-api',
           message: 'Media upload microservice is running',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         }
       );
     }
@@ -97,14 +97,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // Route: POST /upload
     if (method === 'POST' && url.pathname.includes('/upload')) {
       const body = await req.json();
-      const { file, fileName, mimeType, userId, entryId, thumbnail, width, height, duration } = body;
+      const { file, fileName, mimeType, userId, entryId, thumbnail, width, height, duration } =
+        body;
 
-      if (!file || !fileName || !userId) {
+      if (!(file && fileName && userId)) {
         return new Response(
           JSON.stringify({ success: false, error: 'file, fileName, and userId are required' }),
           {
             status: 400,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
           }
         );
       }
@@ -128,42 +129,45 @@ Deno.serve(async (req: Request): Promise<Response> => {
       console.log(`[MEDIA-UPLOAD v1] 📝 Storage path: ${uniqueFileName}`);
 
       // ШАГ 1: Загружаем файл в Supabase Storage через REST API
-      console.log(`[MEDIA-UPLOAD v1] ⬆️ Step 1: Uploading main file to Storage...`);
+      console.log('[MEDIA-UPLOAD v1] ⬆️ Step 1: Uploading main file to Storage...');
       const uploadResponse = await fetch(
         `${supabaseUrl}/storage/v1/object/${MEDIA_BUCKET_NAME}/${uniqueFileName}`,
         {
           method: 'POST',
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
             'Content-Type': mimeType || 'application/octet-stream',
-            'x-upsert': 'false'
+            'x-upsert': 'false',
           },
-          body: fileBuffer
+          body: fileBuffer,
         }
       );
 
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error(`[MEDIA-UPLOAD v1] ❌ Storage upload failed: ${uploadResponse.status}`, errorText);
+        console.error(
+          `[MEDIA-UPLOAD v1] ❌ Storage upload failed: ${uploadResponse.status}`,
+          errorText
+        );
         return new Response(
           JSON.stringify({
             success: false,
-            error: `Failed to upload to Storage: ${uploadResponse.status} ${errorText}`
+            error: `Failed to upload to Storage: ${uploadResponse.status} ${errorText}`,
           }),
           {
             status: 500,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
           }
         );
       }
 
-      console.log(`[MEDIA-UPLOAD v1] ✅ Step 1 complete: Main file uploaded to Storage`);
+      console.log('[MEDIA-UPLOAD v1] ✅ Step 1 complete: Main file uploaded to Storage');
 
       // ШАГ 1.5: Загружаем thumbnail (если есть)
       let thumbnailPath = '';
       if (thumbnail) {
-        console.log(`[MEDIA-UPLOAD v1] 🖼️ Step 1.5: Uploading thumbnail...`);
+        console.log('[MEDIA-UPLOAD v1] 🖼️ Step 1.5: Uploading thumbnail...');
         const thumbnailBase64 = thumbnail.includes(',') ? thumbnail.split(',')[1] : thumbnail;
         const thumbnailBuffer = base64ToUint8Array(thumbnailBase64);
         const thumbnailFileName = `${userId}/thumbnails/${timestamp}_thumb_${fileName}`;
@@ -173,42 +177,47 @@ Deno.serve(async (req: Request): Promise<Response> => {
           {
             method: 'POST',
             headers: {
-              'apikey': supabaseServiceKey,
-              'Authorization': `Bearer ${supabaseServiceKey}`,
+              apikey: supabaseServiceKey,
+              Authorization: `Bearer ${supabaseServiceKey}`,
               'Content-Type': 'image/jpeg',
-              'x-upsert': 'false'
+              'x-upsert': 'false',
             },
-            body: thumbnailBuffer
+            body: thumbnailBuffer,
           }
         );
 
         if (thumbnailUploadResponse.ok) {
           thumbnailPath = thumbnailFileName;
-          console.log(`[MEDIA-UPLOAD v1] ✅ Step 1.5 complete: Thumbnail uploaded (${thumbnailBuffer.length} bytes)`);
+          console.log(
+            `[MEDIA-UPLOAD v1] ✅ Step 1.5 complete: Thumbnail uploaded (${thumbnailBuffer.length} bytes)`
+          );
         } else {
-          console.warn(`[MEDIA-UPLOAD v1] ⚠️ Step 1.5 warning: Thumbnail upload failed, continuing...`);
+          console.warn(
+            '[MEDIA-UPLOAD v1] ⚠️ Step 1.5 warning: Thumbnail upload failed, continuing...'
+          );
         }
       }
 
       // ШАГ 2: Создаем signed URL (действителен 1 год = 31536000 секунд)
-      console.log(`[MEDIA-UPLOAD v1] 🔗 Step 2: Creating signed URL...`);
+      console.log('[MEDIA-UPLOAD v1] 🔗 Step 2: Creating signed URL...');
       const signedUrlResponse = await fetch(
         `${supabaseUrl}/storage/v1/object/sign/${MEDIA_BUCKET_NAME}/${uniqueFileName}`,
         {
           method: 'POST',
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ expiresIn: 31536000 })
+          body: JSON.stringify({ expiresIn: 31_536_000 }),
         }
       );
 
       let signedUrl = '';
       if (signedUrlResponse.ok) {
         const signedUrlData = await signedUrlResponse.json();
-        const relativePath = signedUrlData.signedURL || signedUrlData.signed_url || signedUrlData.url || '';
+        const relativePath =
+          signedUrlData.signedURL || signedUrlData.signed_url || signedUrlData.url || '';
 
         if (relativePath) {
           if (relativePath.startsWith('http')) {
@@ -218,47 +227,52 @@ Deno.serve(async (req: Request): Promise<Response> => {
           }
         }
 
-        console.log(`[MEDIA-UPLOAD v1] ✅ Step 2 complete: Signed URL created`);
+        console.log('[MEDIA-UPLOAD v1] ✅ Step 2 complete: Signed URL created');
       } else {
         const errorText = await signedUrlResponse.text();
-        console.warn(`[MEDIA-UPLOAD v1] ⚠️ Step 2 warning: Signed URL creation failed (${signedUrlResponse.status}):`, errorText);
+        console.warn(
+          `[MEDIA-UPLOAD v1] ⚠️ Step 2 warning: Signed URL creation failed (${signedUrlResponse.status}):`,
+          errorText
+        );
         signedUrl = `${supabaseUrl}/storage/v1/object/public/${MEDIA_BUCKET_NAME}/${uniqueFileName}`;
         console.log(`[MEDIA-UPLOAD v1] 🔗 Using fallback public URL: ${signedUrl}`);
       }
 
       // ШАГ 3: Сохраняем метаданные в PostgreSQL
-      console.log(`[MEDIA-UPLOAD v1] 💾 Step 3: Saving metadata to database...`);
-      const insertResponse = await fetch(
-        `${supabaseUrl}/rest/v1/media_files`,
-        {
-          method: 'POST',
-          headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify({
-            user_id: userId,
-            entry_id: entryId || null,
-            storage_path: uniqueFileName,
-            thumbnail_path: thumbnailPath || null,
-            width: width || null,
-            height: height || null,
-            duration: duration || null,
-            file_name: fileName,
-            mime_type: mimeType || 'application/octet-stream',
-            file_size: fileSize
-          })
-        }
-      );
+      console.log('[MEDIA-UPLOAD v1] 💾 Step 3: Saving metadata to database...');
+      const insertResponse = await fetch(`${supabaseUrl}/rest/v1/media_files`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          entry_id: entryId || null,
+          storage_path: uniqueFileName,
+          thumbnail_path: thumbnailPath || null,
+          width: width || null,
+          height: height || null,
+          duration: duration || null,
+          file_name: fileName,
+          mime_type: mimeType || 'application/octet-stream',
+          file_size: fileSize,
+        }),
+      });
 
       if (!insertResponse.ok) {
         const errorText = await insertResponse.text();
-        console.error(`[MEDIA-UPLOAD v1] ⚠️ Database insert failed: ${insertResponse.status}`, errorText);
+        console.error(
+          `[MEDIA-UPLOAD v1] ⚠️ Database insert failed: ${insertResponse.status}`,
+          errorText
+        );
       } else {
         const dbRecord = await insertResponse.json();
-        console.log(`[MEDIA-UPLOAD v1] ✅ Step 3 complete: Metadata saved (ID: ${dbRecord[0]?.id})`);
+        console.log(
+          `[MEDIA-UPLOAD v1] ✅ Step 3 complete: Metadata saved (ID: ${dbRecord[0]?.id})`
+        );
       }
 
       console.log(`[MEDIA-UPLOAD v1] 🎉 Upload complete: ${uniqueFileName}`);
@@ -267,40 +281,32 @@ Deno.serve(async (req: Request): Promise<Response> => {
         JSON.stringify({
           success: true,
           path: uniqueFileName,
-          thumbnailPath: thumbnailPath,
+          thumbnailPath,
           url: signedUrl,
           mimeType: mimeType || 'application/octet-stream',
           width: width || null,
           height: height || null,
-          duration: duration || null
+          duration: duration || null,
         }),
         {
           status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         }
       );
     }
 
     // 404 Not Found
-    return new Response(
-      JSON.stringify({ success: false, error: 'Not Found' }),
-      {
-        status: 404,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify({ success: false, error: 'Not Found' }), {
+      status: 404,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[MEDIA-UPLOAD v1] ❌ Error:', error.message);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   }
 });
 
 console.log('[MEDIA-UPLOAD v1] ✅ Server started successfully!');
-

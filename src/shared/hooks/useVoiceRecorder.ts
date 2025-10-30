@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { voice } from '../lib/platform/voice';
 
-interface VoiceRecorderHook {
+type VoiceRecorderHook = {
   isRecording: boolean;
   audioLevel: number;
   recordingTime: number;
@@ -9,7 +9,7 @@ interface VoiceRecorderHook {
   stopRecording: () => Promise<Blob | null>;
   cancelRecording: () => void;
   isSupported: boolean;
-}
+};
 
 export function useVoiceRecorder(): VoiceRecorderHook {
   const [isRecording, setIsRecording] = useState(false);
@@ -20,6 +20,23 @@ export function useVoiceRecorder(): VoiceRecorderHook {
   const audioLevelIntervalRef = useRef<number | null>(null);
 
   const isSupported = voice.isSupported();
+
+  // Очистка ресурсов
+  const cleanup = useCallback(() => {
+    setIsRecording(false);
+    setAudioLevel(0);
+    setRecordingTime(0);
+
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
+    if (audioLevelIntervalRef.current) {
+      clearInterval(audioLevelIntervalRef.current);
+      audioLevelIntervalRef.current = null;
+    }
+  }, []);
 
   // Начать запись
   const startRecording = useCallback(async () => {
@@ -71,50 +88,33 @@ export function useVoiceRecorder(): VoiceRecorderHook {
       // Return Blob (web) or convert URI to Blob (native)
       if (result.data instanceof Blob) {
         return result.data;
-      } else {
-        // TODO: Convert native URI to Blob when implementing native
-        console.warn('Native audio URI not converted to Blob yet');
-        return null;
       }
+      // TODO: Convert native URI to Blob when implementing native
+      console.warn('Native audio URI not converted to Blob yet');
+      return null;
     } catch (error) {
       console.error('Error stopping recording:', error);
       cleanup();
       return null;
     }
-  }, [isRecording]);
+  }, [isRecording, cleanup]);
 
   // Отменить запись
   const cancelRecording = useCallback(() => {
     voice.cancelRecording();
     cleanup();
-  }, []);
-
-  // Очистка ресурсов
-  const cleanup = () => {
-    setIsRecording(false);
-    setAudioLevel(0);
-    setRecordingTime(0);
-
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-    }
-
-    if (audioLevelIntervalRef.current) {
-      clearInterval(audioLevelIntervalRef.current);
-      audioLevelIntervalRef.current = null;
-    }
-  };
+  }, [cleanup]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (isRecording) {
         voice.cancelRecording();
       }
       cleanup();
-    };
-  }, [isRecording]);
+    },
+    [isRecording, cleanup]
+  );
 
   return {
     isRecording,
@@ -123,6 +123,6 @@ export function useVoiceRecorder(): VoiceRecorderHook {
     startRecording,
     stopRecording,
     cancelRecording,
-    isSupported
+    isSupported,
   };
 }

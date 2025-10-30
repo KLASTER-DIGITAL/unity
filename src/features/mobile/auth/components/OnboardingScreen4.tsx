@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { motion } from "motion/react";
-import { TimePickerModal } from "@/components/TimePickerModal";
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import { TimePickerModal } from '@/components/TimePickerModal';
 
 // Import modular components and types
 import {
-  ChatGPTInput,
-  NotificationSettings,
-  PermissionModal,
-  SuccessModal,
-  Sliedbar,
-  NextButton,
   BackgroundElements,
-  onboarding4Translations as translations,
+  ChatGPTInput,
+  NextButton,
+  NotificationSettings,
+  type NotificationSettingsType,
   type OnboardingScreen4Props,
-  type NotificationSettingsType
-} from "./onboarding4";
+  PermissionModal,
+  Sliedbar,
+  SuccessModal,
+  onboarding4Translations as translations,
+} from './onboarding4';
 
 // Re-export types for backward compatibility
 export type { OnboardingScreen4Props, NotificationSettingsType };
@@ -27,7 +27,7 @@ export type { OnboardingScreen4Props, NotificationSettingsType };
 function HabitsAndEntryForm({
   currentTranslations,
   onNext,
-  onUpdate
+  onUpdate,
 }: {
   currentTranslations: any;
   onNext: (entry: string, settings: NotificationSettingsType) => void;
@@ -37,9 +37,9 @@ function HabitsAndEntryForm({
     selectedTime: 'none',
     morningTime: '08:00',
     eveningTime: '21:00',
-    permissionGranted: false
+    permissionGranted: false,
   });
-  const [firstEntry, setFirstEntry] = useState("");
+  const [firstEntry, setFirstEntry] = useState('');
   const [showPermissionRequest, setShowPermissionRequest] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState<{
     show: boolean;
@@ -48,18 +48,18 @@ function HabitsAndEntryForm({
   }>({
     show: false,
     type: 'morning',
-    title: ''
+    title: '',
   });
 
   const handleNotificationSelect = (type: 'none' | 'morning' | 'evening' | 'both') => {
     const newSettings = {
       ...notificationSettings,
-      selectedTime: type
+      selectedTime: type,
     };
-    
+
     setNotificationSettings(newSettings);
     onUpdate?.(firstEntry, newSettings);
-    
+
     if (type !== 'none' && !notificationSettings.permissionGranted) {
       setShowPermissionRequest(true);
     }
@@ -69,29 +69,29 @@ function HabitsAndEntryForm({
     setShowTimePicker({
       show: true,
       type,
-      title: type === 'morning' ? 'Утреннее напоминание' : 'Вечернее напоминание'
+      title: type === 'morning' ? 'Утреннее напоминание' : 'Вечернее напоминание',
     });
   };
 
   const handleTimeSelect = (time: string) => {
     const newSettings = {
       ...notificationSettings,
-      [showTimePicker.type === 'morning' ? 'morningTime' : 'eveningTime']: time
+      [showTimePicker.type === 'morning' ? 'morningTime' : 'eveningTime']: time,
     };
-    
+
     setNotificationSettings(newSettings);
     onUpdate?.(firstEntry, newSettings);
   };
 
   const handlePermissionRequest = async (allow: boolean) => {
     setShowPermissionRequest(false);
-    
+
     if (allow) {
       try {
         const permission = await Notification.requestPermission();
         const newSettings = {
           ...notificationSettings,
-          permissionGranted: permission === 'granted'
+          permissionGranted: permission === 'granted',
         };
         setNotificationSettings(newSettings);
         onUpdate?.(firstEntry, newSettings);
@@ -101,7 +101,7 @@ function HabitsAndEntryForm({
     } else {
       const newSettings: NotificationSettingsType = {
         ...notificationSettings,
-        selectedTime: 'none' as const
+        selectedTime: 'none' as const,
       };
       setNotificationSettings(newSettings);
       onUpdate?.(firstEntry, newSettings);
@@ -118,90 +118,100 @@ function HabitsAndEntryForm({
   };
 
   return (
-    <motion.div 
-      className="absolute gap-6 grid grid-cols-[repeat(1,_minmax(0px,_1fr))] h-auto leading-[0] translate-x-[-50%] w-[335px] max-w-[calc(100%-32px)] px-4" 
-      data-name="HabitsAndEntryForm" 
-      style={{ 
-        left: "50%",
-        top: "min(120px, calc(50vh - 200px))"
-      }}
-      initial={{ opacity: 0, y: 30 }}
+    <motion.div
       animate={{ opacity: 1, y: 0 }}
+      className="absolute grid h-auto w-[335px] max-w-[calc(100%-32px)] translate-x-[-50%] grid-cols-[repeat(1,_minmax(0px,_1fr))] gap-6 px-4 leading-[0]"
+      data-name="HabitsAndEntryForm"
+      initial={{ opacity: 0, y: 30 }}
+      style={{
+        left: '50%',
+        top: 'min(120px, calc(50vh - 200px))',
+      }}
       transition={{ delay: 0.4, duration: 0.7 }}
     >
       {/* Subtitle */}
-      <motion.div 
-        className="font-['Poppins:Medium',_'Noto_Sans:Regular',_sans-serif] relative shrink-0 text-[#756ef3] text-[14px]" 
-        style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
-        key={currentTranslations.subtitle}
-        initial={{ opacity: 0 }}
+      <motion.div
         animate={{ opacity: 1 }}
+        className="relative shrink-0 font-['Poppins:Medium',_'Noto_Sans:Regular',_sans-serif] text-[#756ef3] text-[14px]"
+        initial={{ opacity: 0 }}
+        key={currentTranslations.subtitle}
+        style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
-        <p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">{currentTranslations.subtitle}</p>
+        <p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">
+          {currentTranslations.subtitle}
+        </p>
       </motion.div>
 
       {/* Main Title */}
       <motion.div
-        className="font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] relative self-start shrink-0 text-[#002055] dark:text-[#1a1a1a] text-[28px] tracking-[-1px] w-full"
-        style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
-        key={currentTranslations.title}
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        className="relative w-full shrink-0 self-start font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] text-[#002055] text-[28px] tracking-[-1px] dark:text-[#1a1a1a]"
+        initial={{ opacity: 0 }}
+        key={currentTranslations.title}
+        style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
         transition={{ duration: 0.3 }}
       >
-        <p className="!leading-[28px] text-[20px]! font-semibold! font-![Days_One]">{currentTranslations.title}</p>
+        <p className="!leading-[28px] font-![Days_One] font-semibold! text-[20px]!">
+          {currentTranslations.title}
+        </p>
       </motion.div>
 
       <NotificationSettings
-        selectedTime={notificationSettings.selectedTime}
-        morningTime={notificationSettings.morningTime}
-        eveningTime={notificationSettings.eveningTime}
-        reminderTitle={currentTranslations.reminderTitle}
-        morningLabel={currentTranslations.morning}
-        eveningLabel={currentTranslations.evening}
         bothLabel={currentTranslations.both}
+        eveningLabel={currentTranslations.evening}
+        eveningTime={notificationSettings.eveningTime}
+        morningLabel={currentTranslations.morning}
+        morningTime={notificationSettings.morningTime}
         onSelect={handleNotificationSelect}
         onTimeClick={handleTimeClick}
+        reminderTitle={currentTranslations.reminderTitle}
+        selectedTime={notificationSettings.selectedTime}
       />
 
       {/* First Entry Section */}
       <motion.div
+        animate={{ opacity: 1, y: 0 }}
         className="space-y-3"
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.5 }}
       >
         <div>
-          <h3 className="!text-[#756ef3] text-[14px]! font-semibold! mb-1">{currentTranslations.firstEntryTitle}</h3>
-          <p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 text-[12px]!">{currentTranslations.firstEntrySubtitle}</p>
+          <h3 className="!text-[#756ef3] mb-1 font-semibold! text-[14px]!">
+            {currentTranslations.firstEntryTitle}
+          </h3>
+          <p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 text-[12px]!">
+            {currentTranslations.firstEntrySubtitle}
+          </p>
         </div>
 
         <ChatGPTInput
-          value={firstEntry}
           onChange={handleEntryChange}
           onSubmit={handleNext}
           placeholder={currentTranslations.placeholder}
+          value={firstEntry}
         />
       </motion.div>
 
-
-
       <PermissionModal
-        isOpen={showPermissionRequest}
-        title={currentTranslations.permissionRequest}
-        laterLabel={currentTranslations.later}
         allowLabel={currentTranslations.allow}
+        isOpen={showPermissionRequest}
+        laterLabel={currentTranslations.later}
         onAllow={() => handlePermissionRequest(true)}
         onLater={() => handlePermissionRequest(false)}
+        title={currentTranslations.permissionRequest}
       />
 
       {/* Time Picker Modal */}
       <TimePickerModal
+        initialTime={
+          showTimePicker.type === 'morning'
+            ? notificationSettings.morningTime
+            : notificationSettings.eveningTime
+        }
         isOpen={showTimePicker.show}
         onClose={() => setShowTimePicker({ ...showTimePicker, show: false })}
         onTimeSelect={handleTimeSelect}
-        initialTime={showTimePicker.type === 'morning' ? notificationSettings.morningTime : notificationSettings.eveningTime}
         title={showTimePicker.title}
       />
     </motion.div>
@@ -210,17 +220,24 @@ function HabitsAndEntryForm({
 
 // NOTE: Sliedbar, NextButton components moved to ./onboarding4/
 
-function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
-  const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
+function Frame2087324620({
+  selectedLanguage,
+  onNext,
+  currentStep,
+  totalSteps,
+  onStepClick,
+}: OnboardingScreen4Props) {
+  const currentTranslations =
+    translations[selectedLanguage as keyof typeof translations] || translations.ru;
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [formData, setFormData] = useState<{ entry: string; settings: NotificationSettingsType }>({
-    entry: "",
+    entry: '',
     settings: {
       selectedTime: 'none',
       morningTime: '08:00',
       eveningTime: '21:00',
-      permissionGranted: false
-    }
+      permissionGranted: false,
+    },
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -233,7 +250,7 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
     if (entry.trim()) {
       console.log('[OnboardingScreen4] Showing success animation...');
       setShowSuccess(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log('[OnboardingScreen4] Success animation complete');
     }
 
@@ -244,9 +261,9 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
 
   const handleFormUpdate = (entry: string, settings: NotificationSettingsType) => {
     console.log('[OnboardingScreen4] handleFormUpdate called:', {
-      entry: entry.substring(0, 50) + '...',
+      entry: `${entry.substring(0, 50)}...`,
       entryLength: entry.length,
-      settings
+      settings,
     });
     setFormData({ entry, settings });
     // Форма считается завершенной, если есть текст ИЛИ настроены уведомления
@@ -256,21 +273,21 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
   };
 
   return (
-    <motion.div 
-      className="content-center flex flex-wrap gap-0 h-screen items-center justify-center relative shrink-0 w-full max-w-[444px] mx-auto overflow-hidden scrollbar-hide"
-      initial={{ opacity: 0 }}
+    <motion.div
       animate={{ opacity: 1 }}
+      className="scrollbar-hide relative mx-auto flex h-screen w-full max-w-[444px] shrink-0 flex-wrap content-center items-center justify-center gap-0 overflow-hidden"
+      initial={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <HabitsAndEntryForm 
-        currentTranslations={currentTranslations} 
+      <HabitsAndEntryForm
+        currentTranslations={currentTranslations}
         onNext={handleFormNext}
         onUpdate={handleFormUpdate}
       />
-      <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
+      <Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
       <NextButton
-        onNext={() => handleFormNext(formData.entry, formData.settings)}
         disabled={!isFormComplete}
+        onNext={() => handleFormNext(formData.entry, formData.settings)}
       />
 
       <SuccessModal isOpen={showSuccess} message={currentTranslations.successMessage} />
@@ -278,23 +295,29 @@ function Frame2087324620({ selectedLanguage, onNext, currentStep, totalSteps, on
   );
 }
 
-export function OnboardingScreen4({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen4Props) {
+export function OnboardingScreen4({
+  selectedLanguage,
+  onNext,
+  currentStep,
+  totalSteps,
+  onStepClick,
+}: OnboardingScreen4Props) {
   return (
     <motion.div
-      className="bg-card content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide transition-colors duration-300"
+      animate={{ opacity: 1 }}
+      className="scrollbar-hide relative flex size-full h-screen content-stretch items-center justify-center gap-2.5 overflow-hidden bg-card transition-colors duration-300"
       data-name="Onboard 4"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       <BackgroundElements />
 
       <Frame2087324620
-        selectedLanguage={selectedLanguage}
-        onNext={onNext}
         currentStep={currentStep}
-        totalSteps={totalSteps}
+        onNext={onNext}
         onStepClick={onStepClick}
+        selectedLanguage={selectedLanguage}
+        totalSteps={totalSteps}
       />
     </motion.div>
   );

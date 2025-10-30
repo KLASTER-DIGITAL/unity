@@ -1,8 +1,8 @@
 /**
  * Offline Platform Adapter Types
- * 
+ *
  * Defines interfaces for offline storage across Web and React Native platforms.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-28
  */
@@ -10,7 +10,7 @@
 /**
  * Pending entry for offline storage
  */
-export interface PendingEntry {
+export type PendingEntry = {
   id: string;
   userId: string;
   text: string;
@@ -23,40 +23,40 @@ export interface PendingEntry {
   syncStatus: 'pending' | 'syncing' | 'failed';
   retryCount: number;
   lastError?: string;
-}
+};
 
 /**
  * Cached entry for offline access
  */
-export interface CachedEntry {
+export type CachedEntry = {
   id: string;
   userId: string;
   data: any;
   cachedAt: string;
   expiresAt?: string;
-}
+};
 
 /**
  * Sync queue item
  */
-export interface SyncQueueItem {
+export type SyncQueueItem = {
   id: string;
   type: 'create' | 'update' | 'delete';
   resource: string;
   data: any;
   createdAt: string;
   retryCount: number;
-}
+};
 
 /**
  * Offline storage adapter interface
- * 
+ *
  * Platform-agnostic interface for offline storage operations.
  * Implementations:
  * - Web: IndexedDB
  * - React Native: SQLite + AsyncStorage
  */
-export interface OfflineStorageAdapter {
+export type OfflineStorageAdapter = {
   /**
    * Initialize storage
    */
@@ -101,21 +101,24 @@ export interface OfflineStorageAdapter {
    * Get storage size (in bytes)
    */
   getStorageSize(): Promise<number>;
-}
+};
 
 /**
  * Media storage adapter interface
- * 
+ *
  * Platform-agnostic interface for media file storage.
  * Implementations:
  * - Web: Cache API / IndexedDB
  * - React Native: File System (Expo FileSystem)
  */
-export interface MediaStorageAdapter {
+export type MediaStorageAdapter = {
   /**
    * Save media file
    */
-  saveMedia(userId: string, file: File | { uri: string; type: string; name: string }): Promise<string>;
+  saveMedia(
+    userId: string,
+    file: File | { uri: string; type: string; name: string }
+  ): Promise<string>;
 
   /**
    * Get media file
@@ -136,17 +139,17 @@ export interface MediaStorageAdapter {
    * Clear all media
    */
   clearAllMedia(): Promise<void>;
-}
+};
 
 /**
  * Network detection adapter interface
- * 
+ *
  * Platform-agnostic interface for network status detection.
  * Implementations:
  * - Web: navigator.onLine + online/offline events
  * - React Native: NetInfo
  */
-export interface NetworkAdapter {
+export type NetworkAdapter = {
   /**
    * Check if online
    */
@@ -156,5 +159,4 @@ export interface NetworkAdapter {
    * Add network status listener
    */
   addListener(callback: (isOnline: boolean) => void): () => void;
-}
-
+};

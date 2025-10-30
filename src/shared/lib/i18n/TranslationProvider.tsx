@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, type ReactNode, useContext, useEffect, useReducer } from 'react';
 import { TranslationCacheManager } from './cache';
-import { TranslationLoader } from './loader';
-import { I18nState, Translations } from './types';
 import { getFallbackTranslation } from './fallback';
-import { SmartCache, LazyLoader, initializeOptimizations } from './optimizations';
+import { getPreferredLanguage, savePreferredLanguage } from './language-detection';
+import { TranslationLoader } from './loader';
+import { initializeOptimizations, LazyLoader, SmartCache } from './optimizations';
+import type { I18nState, Translations } from './types';
 
-interface TranslationContextValue {
+type TranslationContextValue = {
   state: I18nState;
   changeLanguage: (language: string) => Promise<void>;
   refreshTranslations: () => Promise<void>;
@@ -14,7 +15,7 @@ interface TranslationContextValue {
   error: string | null;
   currentLanguage: string;
   isLoaded: boolean;
-}
+};
 
 const TranslationContext = createContext<TranslationContextValue | null>(null);
 
@@ -23,7 +24,10 @@ type I18nAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_LANGUAGE'; payload: string }
-  | { type: 'SET_TRANSLATIONS'; payload: { language: string; translations: Record<string, string> } }
+  | {
+      type: 'SET_TRANSLATIONS';
+      payload: { language: string; translations: Record<string, string> };
+    }
   | { type: 'CLEAR_CACHE' }
   | { type: 'SET_LOADED'; payload: boolean };
 
@@ -42,8 +46,8 @@ const i18nReducer = (state: I18nState, action: I18nAction): I18nState => {
           language: action.payload.language,
           translations: action.payload.translations,
           version: Date.now().toString(),
-          lastUpdated: new Date().toISOString()
-        })
+          lastUpdated: new Date().toISOString(),
+        }),
       };
     case 'CLEAR_CACHE':
       return { ...state, cache: new Map() };
@@ -54,24 +58,35 @@ const i18nReducer = (state: I18nState, action: I18nAction): I18nState => {
   }
 };
 
-interface TranslationProviderProps {
+type TranslationProviderProps = {
   children: ReactNode;
   defaultLanguage?: string;
   fallbackLanguage?: string;
-}
+};
 
 export const TranslationProvider: React.FC<TranslationProviderProps> = ({
   children,
-  defaultLanguage = 'ru',
-  fallbackLanguage = 'ru'
+  defaultLanguage,
+  fallbackLanguage = 'ru',
 }) => {
+  const [initialLanguage, setInitialLanguage] = React.useState<string | null>(null);
+
+  // Determine initial language on mount
+  React.useEffect(() => {
+    const detectLanguage = async () => {
+      const preferred = defaultLanguage || (await getPreferredLanguage());
+      setInitialLanguage(preferred);
+    };
+    detectLanguage();
+  }, [defaultLanguage]);
+
   const [state, dispatch] = useReducer(i18nReducer, {
-    currentLanguage: defaultLanguage,
+    currentLanguage: initialLanguage || fallbackLanguage,
     isLoading: false,
     error: null,
     isLoaded: false,
     cache: new Map(),
-    fallbackLanguage
+    fallbackLanguage,
   });
 
   // Загрузка переводов для языка
@@ -95,16 +110,15 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
       // Обновляем состояние
       dispatch({
         type: 'SET_TRANSLATIONS',
-        payload: { language, translations }
+        payload: { language, translations },
       });
 
       dispatch({ type: 'SET_LOADED', payload: true });
-      
     } catch (error) {
       console.error('Failed to load translations:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
-      
+
       // Используем fallback язык
       if (language !== fallbackLanguage) {
         console.log(`Loading fallback language: ${fallbackLanguage}`);
@@ -117,8 +131,8 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
           type: 'SET_TRANSLATIONS',
           payload: {
             language: fallbackLanguage,
-            translations: fallbackTranslations as unknown as Record<string, string>
-          }
+            translations: fallbackTranslations as unknown as Record<string, string>,
+          },
         });
         dispatch({ type: 'SET_LOADED', payload: true });
       }
@@ -133,8 +147,12 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
       console.log(`Language ${language} is already active`);
       return;
     }
-    
+
     console.log(`Changing language from ${state.currentLanguage} to ${language}`);
+
+    // Save user's language preference
+    await savePreferredLanguage(language);
+
     dispatch({ type: 'SET_LANGUAGE', payload: language });
     dispatch({ type: 'SET_LOADED', payload: false });
     await loadTranslations(language);
@@ -143,7 +161,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
   // Обновление переводов
   const refreshTranslations = async (): Promise<void> => {
     console.log(`Refreshing translations for current language: ${state.currentLanguage}`);
-    
+
     // Очищаем кэш для текущего языка
     TranslationCacheManager.removeCache(state.currentLanguage);
     dispatch({ type: 'SET_LOADED', payload: false });
@@ -153,11 +171,11 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
   // Получение перевода
   const t = (key: keyof Translations, fallback?: string): string => {
     const currentCache = state.cache.get(state.currentLanguage);
-    
+
     if (currentCache?.translations[key]) {
       return currentCache.translations[key];
     }
-    
+
     // Проверяем fallback язык
     if (state.currentLanguage !== state.fallbackLanguage) {
       const fallbackCache = state.cache.get(state.fallbackLanguage);
@@ -166,18 +184,18 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
         return fallbackCache.translations[key];
       }
     }
-    
+
     // Используем встроенные fallback переводы
     const fallbackTranslations = getFallbackTranslation(state.currentLanguage);
     if (fallbackTranslations[key]) {
       console.warn(`Using builtin fallback translation for key: ${key}`);
       return fallbackTranslations[key];
     }
-    
+
     // Возвращаем fallback или ключ
     const result = fallback || key;
     console.warn(`Translation missing for key: ${key}, returning: ${result}`);
-    
+
     // Сообщаем об отсутствующем переводе
     TranslationLoader.loadTranslations({ language: state.currentLanguage })
       .then(() => {
@@ -187,33 +205,43 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
           console.log(`Translation loaded on retry for key: ${key}`);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load translations for missing key:', error);
       });
-    
+
     return result;
   };
 
   // Инициализация при монтировании
   useEffect(() => {
+    // Wait for initial language detection
+    if (!initialLanguage) {
+      return;
+    }
+
     const initialize = async () => {
       try {
         // Initialize optimizations
         await initializeOptimizations({
           enablePrefetch: true,
           maxCachedLanguages: 3,
-          prefetchLanguages: ['ru', 'en'] // Popular languages
+          prefetchLanguages: ['ru', 'en'], // Popular languages
         });
 
+        // Update state with detected language
+        if (state.currentLanguage !== initialLanguage) {
+          dispatch({ type: 'SET_LANGUAGE', payload: initialLanguage });
+        }
+
         // Загружаем переводы для текущего языка
-        await loadTranslations(state.currentLanguage);
+        await loadTranslations(initialLanguage);
       } catch (error) {
         console.error('Translation provider initialization error:', error);
       }
     };
 
     initialize();
-  }, []);
+  }, [initialLanguage, loadTranslations, state.currentLanguage]);
 
   // Значение контекста
   const value: TranslationContextValue = {
@@ -224,14 +252,10 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
     isLoading: state.isLoading,
     error: state.error,
     currentLanguage: state.currentLanguage,
-    isLoaded: state.isLoaded
+    isLoaded: state.isLoaded,
   };
 
-  return (
-    <TranslationContext.Provider value={value}>
-      {children}
-    </TranslationContext.Provider>
-  );
+  return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
 };
 
 // Хук для использования контекста переводов
@@ -246,12 +270,10 @@ export const useTranslationContext = (): TranslationContextValue => {
 // Хук для отладки
 export const useTranslationDebug = () => {
   const { state, changeLanguage, refreshTranslations } = useTranslationContext();
-  
+
   return {
     currentState: state,
-    debugInfo: async () => {
-      return await TranslationLoader.debugInfo();
-    },
+    debugInfo: async () => await TranslationLoader.debugInfo(),
     clearCache: () => {
       TranslationCacheManager.clearCache();
       refreshTranslations();
@@ -262,6 +284,6 @@ export const useTranslationDebug = () => {
     switchLanguage: (language: string) => {
       changeLanguage(language);
     },
-    cacheStats: TranslationCacheManager.getCacheStats()
+    cacheStats: TranslationCacheManager.getCacheStats(),
   };
 };

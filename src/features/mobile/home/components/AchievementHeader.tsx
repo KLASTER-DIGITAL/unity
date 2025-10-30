@@ -1,36 +1,49 @@
-import { memo } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
-import { NetworkStatusIndicator } from "@/shared/components/offline/NetworkStatusIndicator";
-import { Pressable } from "@/shared/components/ui/universal";
+import { memo } from 'react';
+import { NetworkStatusIndicator } from '@/shared/components/offline/NetworkStatusIndicator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Pressable } from '@/shared/components/ui/universal';
 
-interface AchievementHeaderProps {
+type AchievementHeaderProps = {
   userName?: string;
   daysInApp?: number;
   userEmail?: string;
   avatarUrl?: string;
   onNavigateToSettings?: () => void;
   onNavigateToHistory?: () => void;
-}
+};
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
 // Компонент аватарки с пульсацией онлайн-статуса - memoized
-const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { userName?: string; userEmail?: string; avatarUrl?: string; onClick?: () => void }) {
+const UserAvatar = memo(function UserAvatar({
+  userName,
+  avatarUrl,
+  onClick,
+}: {
+  userName?: string;
+  userEmail?: string;
+  avatarUrl?: string;
+  onClick?: () => void;
+}) {
   // Используем дефолтное фото если нет аватара
   const displayAvatarUrl = avatarUrl || DEFAULT_AVATAR_URL;
 
   return (
     <Pressable
+      aria-label="Перейти в настройки профиля"
       className="relative shrink-0"
       onPress={onClick}
       pressScale={0.95}
-      aria-label="Перейти в настройки профиля"
     >
       <Avatar className="h-[46px] w-[46px] ring-1 ring-border">
-        <AvatarImage src={displayAvatarUrl} alt={userName} className="object-cover" />
+        <AvatarImage alt={userName} className="object-cover" src={displayAvatarUrl} />
         <AvatarFallback className="bg-muted">
-          <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
+          <img
+            alt="Default avatar"
+            className="h-full w-full object-cover"
+            src={DEFAULT_AVATAR_URL}
+          />
         </AvatarFallback>
       </Avatar>
 
@@ -41,58 +54,74 @@ const UserAvatar = memo(function UserAvatar({ userName, avatarUrl, onClick }: { 
 });
 
 export const AchievementHeader = memo(function AchievementHeader({
-  userName = "Пользователь",
+  userName = 'Пользователь',
   daysInApp = 1,
   avatarUrl,
-  onNavigateToSettings
+  onNavigateToSettings,
 }: AchievementHeaderProps) {
-
   return (
     <>
-      <div className="relative p-section bg-background transition-colors duration-300">
+      <div className="relative bg-background p-section transition-colors duration-300">
         {/* Top Bar - аватарка, приветствие и счетчик дней */}
         <div className="flex items-center justify-between gap-3">
           {/* Left: Avatar + Greeting */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             {/* Avatar with online pulse - клик переходит в настройки */}
-            <UserAvatar
-              userName={userName}
-              avatarUrl={avatarUrl}
-              onClick={onNavigateToSettings}
-            />
+            <UserAvatar avatarUrl={avatarUrl} onClick={onNavigateToSettings} userName={userName} />
 
             {/* Greeting - адаптивный размер шрифта для узких экранов (340px Telegram) */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {/* Приветствие - увеличено на 2px (20-26px вместо 18-24px) */}
-              <h1 className="font-semibold! text-foreground tracking-[-0.5px] leading-[1.2] flex items-center gap-1">
-                <span className="text-[clamp(20px,5.5vw,26px)] shrink-0">🙌</span>
-                <span className="text-[clamp(20px,5.5vw,26px)]! whitespace-nowrap">Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},</span>
+              <h1 className="flex items-center gap-1 font-semibold! text-foreground leading-[1.2] tracking-[-0.5px]">
+                <span className="shrink-0 text-[clamp(20px,5.5vw,26px)]">🙌</span>
+                <span className="whitespace-nowrap text-[clamp(20px,5.5vw,26px)]!">
+                  Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},
+                </span>
               </h1>
               {/* Вопрос - увеличен до 15px для читаемости */}
-              <p className="text-muted-foreground text-[15px]! leading-[1.3]! mt-0.5 whitespace-nowrap">
+              <p className="mt-0.5 whitespace-nowrap text-[15px]! text-muted-foreground leading-[1.3]!">
                 Какие твои победы сегодня?
               </p>
             </div>
           </div>
 
           {/* Right: Days Counter - оптимальный размер кружка (130x130px) */}
-          <div className="relative w-[130px] h-[130px] shrink-0 flex items-center justify-center">
+          <div className="relative flex h-[130px] w-[130px] shrink-0 items-center justify-center">
             {/* Кружок с обводкой - видна на обоих режимах */}
-            <svg className="absolute w-[130px] h-[130px]" fill="none" preserveAspectRatio="xMidYMid meet" viewBox="0 0 130 130">
+            <svg
+              className="absolute h-[130px] w-[130px]"
+              fill="none"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 130 130"
+            >
               {/* Обводка для светлого режима - темная */}
-              <circle cx="65" cy="65" r="60" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" className="dark:hidden block" />
+              <circle
+                className="block dark:hidden"
+                cx="65"
+                cy="65"
+                fill="none"
+                r="60"
+                stroke="rgba(0,0,0,0.3)"
+                strokeWidth="2"
+              />
               {/* Обводка для темного режима - белая с прозрачностью 80% */}
-              <circle cx="65" cy="65" r="60" stroke="rgba(255,255,255,0.8)" strokeWidth="2" fill="none" className="dark:block hidden" />
+              <circle
+                className="hidden dark:block"
+                cx="65"
+                cy="65"
+                fill="none"
+                r="60"
+                stroke="rgba(255,255,255,0.8)"
+                strokeWidth="2"
+              />
             </svg>
 
             {/* Текст внутри кружка - центрирован с минимальным отступом */}
             <div className="relative flex flex-col items-center justify-center gap-0">
-              <p className="text-[44px]! font-semibold! text-(--ios-green) leading-none">
+              <p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
                 {daysInApp}
               </p>
-              <p className="text-[10px]! text-muted-foreground leading-none">
-                День
-              </p>
+              <p className="text-[10px]! text-muted-foreground leading-none">День</p>
             </div>
           </div>
         </div>

@@ -1,22 +1,21 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
-import { generateBookDraft, type BookGenerationRequest } from "../../utils/api";
-import { toast } from "sonner";
-import { 
-  ArrowLeft, 
-  ArrowRight, 
+import {
+  ArrowLeft,
+  ArrowRight,
   Calendar,
-  Users,
-  Palette,
   FileText,
   Image,
+  Loader2,
+  Palette,
   Sparkles,
-  Loader2
-} from "lucide-react";
+  Users,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { type BookGenerationRequest, generateBookDraft } from '../../utils/api';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
+import { Progress } from '../ui/progress';
 
 interface BookCreationWizardProps {
   userData?: any;
@@ -42,22 +41,22 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
   const [settings, setSettings] = useState<BookSettings>({
     period: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 дней назад
-      end: new Date().toISOString().split('T')[0] // сегодня
+      end: new Date().toISOString().split('T')[0], // сегодня
     },
     contexts: [],
     style: 'warm_family',
     layout: 'photo_text',
-    theme: 'light'
+    theme: 'light',
   });
   const [isGenerating, setIsGenerating] = useState(false);
 
   const steps = [
     { id: 'period', title: 'Период', icon: Calendar },
     { id: 'contexts', title: 'Контексты', icon: Users },
-    { id: 'style', title: 'Стиль', icon: Palette }
+    { id: 'style', title: 'Стиль', icon: Palette },
   ];
 
-  const currentStepIndex = steps.findIndex(step => step.id === currentStep);
+  const currentStepIndex = steps.findIndex((step) => step.id === currentStep);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const periodPresets = [
@@ -70,9 +69,9 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
         start.setMonth(start.getMonth() - 1);
         return {
           start: start.toISOString().split('T')[0],
-          end: end.toISOString().split('T')[0]
+          end: end.toISOString().split('T')[0],
         };
-      }
+      },
     },
     {
       id: 'quarter',
@@ -83,9 +82,9 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
         start.setMonth(start.getMonth() - 3);
         return {
           start: start.toISOString().split('T')[0],
-          end: end.toISOString().split('T')[0]
+          end: end.toISOString().split('T')[0],
         };
-      }
+      },
     },
     {
       id: 'year',
@@ -96,10 +95,10 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
         start.setFullYear(start.getFullYear() - 1);
         return {
           start: start.toISOString().split('T')[0],
-          end: end.toISOString().split('T')[0]
+          end: end.toISOString().split('T')[0],
         };
-      }
-    }
+      },
+    },
   ];
 
   const contextOptions = [
@@ -110,7 +109,7 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
     'Здоровье',
     'Творчество',
     'Путешествия',
-    'Обучение'
+    'Обучение',
   ];
 
   const styleOptions = [
@@ -118,20 +117,20 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
       id: 'warm_family',
       name: 'Теплый семейный',
       description: 'Добрые истории о близких людях и важных моментах',
-      icon: Users
+      icon: Users,
     },
     {
       id: 'biographical',
       name: 'Биографический',
       description: 'Хронологический рассказ о вашем пути и развитии',
-      icon: FileText
+      icon: FileText,
     },
     {
       id: 'motivational',
       name: 'Мотивационный',
       description: 'Вдохновляющие истории о достижениях и целях',
-      icon: Sparkles
-    }
+      icon: Sparkles,
+    },
   ];
 
   const layoutOptions = [
@@ -139,25 +138,25 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
       id: 'photo_text',
       name: 'Фото + текст',
       description: 'Красивые фотографии с текстом',
-      icon: Image
+      icon: Image,
     },
     {
       id: 'text_only',
       name: 'Только текст',
       description: 'Минималистичный дизайн',
-      icon: FileText
+      icon: FileText,
     },
     {
       id: 'minimal',
       name: 'Минимальный',
       description: 'Простой и чистый стиль',
-      icon: FileText
-    }
+      icon: FileText,
+    },
   ];
 
   const themeOptions = [
     { id: 'light', name: 'Светлая', color: 'bg-white' },
-    { id: 'dark', name: 'Темная', color: 'bg-gray-900' }
+    { id: 'dark', name: 'Темная', color: 'bg-gray-900' },
   ];
 
   const handleNext = () => {
@@ -181,28 +180,27 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
-      
+
       const request: BookGenerationRequest = {
         period: settings.period,
         contexts: settings.contexts,
         style: settings.style,
         layout: settings.layout,
         theme: settings.theme,
-        userId: userData?.id || "anonymous"
+        userId: userData?.id || 'anonymous',
       };
 
       const result = await generateBookDraft(request);
-      
-      toast.success("Черновик книги создан! 🎉", {
-        description: `Примерно ${result.estimatedPages} страниц`
+
+      toast.success('Черновик книги создан! 🎉', {
+        description: `Примерно ${result.estimatedPages} страниц`,
       });
 
       onComplete(result.draftId);
-      
     } catch (error) {
-      console.error("Error generating book:", error);
-      toast.error("Не удалось создать книгу", {
-        description: "Попробуйте еще раз"
+      console.error('Error generating book:', error);
+      toast.error('Не удалось создать книгу', {
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsGenerating(false);
@@ -212,24 +210,24 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
   const renderPeriodStep = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Выберите период</h3>
-        
+        <h3 className="mb-4 font-semibold text-lg">Выберите период</h3>
+
         {/* Presets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
           {periodPresets.map((preset) => (
-            <Card 
+            <Card
+              className="cursor-pointer transition-shadow hover:shadow-md"
               key={preset.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => {
                 const dates = preset.getDates();
-                setSettings(prev => ({
+                setSettings((prev) => ({
                   ...prev,
-                  period: dates
+                  period: dates,
                 }));
               }}
             >
               <CardContent className="p-4 text-center">
-                <Calendar className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <Calendar className="mx-auto mb-2 h-8 w-8 text-primary" />
                 <h4 className="font-medium">{preset.label}</h4>
               </CardContent>
             </Card>
@@ -237,29 +235,33 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
         </div>
 
         {/* Custom dates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-2">От</label>
+            <label className="mb-2 block font-medium text-sm">От</label>
             <input
+              className="w-full rounded-lg border border-border bg-background p-3"
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  period: { ...prev.period, start: e.target.value },
+                }))
+              }
               type="date"
               value={settings.period.start}
-              onChange={(e) => setSettings(prev => ({
-                ...prev,
-                period: { ...prev.period, start: e.target.value }
-              }))}
-              className="w-full p-3 border border-border rounded-lg bg-background"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">До</label>
+            <label className="mb-2 block font-medium text-sm">До</label>
             <input
+              className="w-full rounded-lg border border-border bg-background p-3"
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  period: { ...prev.period, end: e.target.value },
+                }))
+              }
               type="date"
               value={settings.period.end}
-              onChange={(e) => setSettings(prev => ({
-                ...prev,
-                period: { ...prev.period, end: e.target.value }
-              }))}
-              className="w-full p-3 border border-border rounded-lg bg-background"
             />
           </div>
         </div>
@@ -270,26 +272,26 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
   const renderContextsStep = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">О ком эта книга?</h3>
-        <p className="text-muted-foreground mb-6">
+        <h3 className="mb-4 font-semibold text-lg">О ком эта книга?</h3>
+        <p className="mb-6 text-muted-foreground">
           Выберите контексты, которые будут включены в книгу
         </p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {contextOptions.map((context) => (
             <Card
-              key={context}
               className={`cursor-pointer transition-all ${
                 settings.contexts.includes(context)
-                  ? 'ring-2 ring-primary bg-primary/5'
+                  ? 'bg-primary/5 ring-2 ring-primary'
                   : 'hover:shadow-md'
               }`}
+              key={context}
               onClick={() => {
-                setSettings(prev => ({
+                setSettings((prev) => ({
                   ...prev,
                   contexts: prev.contexts.includes(context)
-                    ? prev.contexts.filter(c => c !== context)
-                    : [...prev.contexts, context]
+                    ? prev.contexts.filter((c) => c !== context)
+                    : [...prev.contexts, context],
                 }));
               }}
             >
@@ -306,25 +308,23 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
   const renderStyleStep = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Стиль рассказа</h3>
-        
-        <div className="space-y-4 mb-6">
+        <h3 className="mb-4 font-semibold text-lg">Стиль рассказа</h3>
+
+        <div className="mb-6 space-y-4">
           {styleOptions.map((style) => (
             <Card
-              key={style.id}
               className={`cursor-pointer transition-all ${
-                settings.style === style.id
-                  ? 'ring-2 ring-primary bg-primary/5'
-                  : 'hover:shadow-md'
+                settings.style === style.id ? 'bg-primary/5 ring-2 ring-primary' : 'hover:shadow-md'
               }`}
-              onClick={() => setSettings(prev => ({ ...prev, style: style.id }))}
+              key={style.id}
+              onClick={() => setSettings((prev) => ({ ...prev, style: style.id }))}
             >
               <CardContent className="p-4">
                 <div className="flex items-start space-x-3">
-                  <style.icon className="w-6 h-6 text-primary mt-1" />
+                  <style.icon className="mt-1 h-6 w-6 text-primary" />
                   <div>
                     <h4 className="font-medium">{style.name}</h4>
-                    <p className="text-sm text-muted-foreground">{style.description}</p>
+                    <p className="text-muted-foreground text-sm">{style.description}</p>
                   </div>
                 </div>
               </CardContent>
@@ -332,27 +332,27 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Layout */}
           <div>
-            <h4 className="font-medium mb-3">Макет</h4>
+            <h4 className="mb-3 font-medium">Макет</h4>
             <div className="space-y-2">
               {layoutOptions.map((layout) => (
                 <Card
-                  key={layout.id}
                   className={`cursor-pointer transition-all ${
                     settings.layout === layout.id
-                      ? 'ring-2 ring-primary bg-primary/5'
+                      ? 'bg-primary/5 ring-2 ring-primary'
                       : 'hover:shadow-md'
                   }`}
-                  onClick={() => setSettings(prev => ({ ...prev, layout: layout.id }))}
+                  key={layout.id}
+                  onClick={() => setSettings((prev) => ({ ...prev, layout: layout.id }))}
                 >
                   <CardContent className="p-3">
                     <div className="flex items-center space-x-2">
-                      <layout.icon className="w-4 h-4 text-primary" />
+                      <layout.icon className="h-4 w-4 text-primary" />
                       <div>
                         <h5 className="font-medium text-sm">{layout.name}</h5>
-                        <p className="text-xs text-muted-foreground">{layout.description}</p>
+                        <p className="text-muted-foreground text-xs">{layout.description}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -363,21 +363,21 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
 
           {/* Theme */}
           <div>
-            <h4 className="font-medium mb-3">Тема</h4>
+            <h4 className="mb-3 font-medium">Тема</h4>
             <div className="space-y-2">
               {themeOptions.map((theme) => (
                 <Card
-                  key={theme.id}
                   className={`cursor-pointer transition-all ${
                     settings.theme === theme.id
-                      ? 'ring-2 ring-primary bg-primary/5'
+                      ? 'bg-primary/5 ring-2 ring-primary'
                       : 'hover:shadow-md'
                   }`}
-                  onClick={() => setSettings(prev => ({ ...prev, theme: theme.id }))}
+                  key={theme.id}
+                  onClick={() => setSettings((prev) => ({ ...prev, theme: theme.id }))}
                 >
                   <CardContent className="p-3">
                     <div className="flex items-center space-x-2">
-                      <div className={`w-4 h-4 rounded-full ${theme.color} border border-border`} />
+                      <div className={`h-4 w-4 rounded-full ${theme.color} border border-border`} />
                       <span className="font-medium text-sm">{theme.name}</span>
                     </div>
                   </CardContent>
@@ -392,27 +392,23 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+          <div className="mb-4 flex items-center justify-between">
+            <Button onClick={onBack} variant="ghost">
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Шаг {currentStepIndex + 1} из {steps.length}
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Создание книги
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            Создайте персональную книгу ваших достижений
-          </p>
-          
-          <Progress value={progress} className="h-2" />
+
+          <h1 className="mb-2 font-bold text-3xl text-foreground">Создание книги</h1>
+          <p className="mb-4 text-muted-foreground">Создайте персональную книгу ваших достижений</p>
+
+          <Progress className="h-2" value={progress} />
         </div>
 
         {/* Step Content */}
@@ -420,10 +416,10 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
           <CardContent className="p-6">
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: 20 }}
+                key={currentStep}
                 transition={{ duration: 0.3 }}
               >
                 {currentStep === 'period' && renderPeriodStep()}
@@ -435,31 +431,31 @@ export function BookCreationWizard({ userData, onBack, onComplete }: BookCreatio
         </Card>
 
         {/* Navigation */}
-        <div className="flex justify-between mt-6">
-          <Button variant="outline" onClick={handleBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+        <div className="mt-6 flex justify-between">
+          <Button onClick={handleBack} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Назад
           </Button>
-          
-          <Button 
-            onClick={handleNext}
-            disabled={isGenerating}
+
+          <Button
             className="bg-primary hover:bg-primary/90"
+            disabled={isGenerating}
+            onClick={handleNext}
           >
             {isGenerating ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Создание...
               </>
             ) : currentStepIndex === steps.length - 1 ? (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Создать книгу
               </>
             ) : (
               <>
                 Далее
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>

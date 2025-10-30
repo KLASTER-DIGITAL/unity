@@ -1,6 +1,6 @@
 /**
  * Push Notifications Analytics
- * 
+ *
  * Отслеживание эффективности push уведомлений:
  * - Delivered rate (доставлено)
  * - Open rate (открыто)
@@ -11,7 +11,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 
-export interface PushAnalyticsEvent {
+export type PushAnalyticsEvent = {
   notification_id?: string;
   user_id: string;
   event_type: 'delivered' | 'opened' | 'closed' | 'subscribed' | 'unsubscribed';
@@ -22,9 +22,9 @@ export interface PushAnalyticsEvent {
   };
   metadata?: Record<string, any>;
   timestamp: string;
-}
+};
 
-export interface PushAnalyticsStats {
+export type PushAnalyticsStats = {
   total_sent: number;
   total_delivered: number;
   total_opened: number;
@@ -52,7 +52,7 @@ export interface PushAnalyticsStats {
     delivered: number;
     opened: number;
   }[];
-}
+};
 
 /**
  * Отслеживает событие push уведомления
@@ -334,4 +334,3 @@ export async function getPushAnalytics(
     return null;
   }
 }
-

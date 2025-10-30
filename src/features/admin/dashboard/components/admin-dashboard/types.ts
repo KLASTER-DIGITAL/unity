@@ -1,15 +1,15 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * AdminDashboard - Type definitions
  */
 
-export interface AdminDashboardProps {
+export type AdminDashboardProps = {
   userData?: any;
   onLogout: () => void;
-}
+};
 
-export interface AdminStats {
+export type AdminStats = {
   totalUsers: number;
   activeUsers: number;
   premiumUsers: number;
@@ -18,32 +18,40 @@ export interface AdminStats {
   activeToday: number;
   totalEntries: number;
   pwaInstalls: number;
-}
+};
 
-export type TabId = "overview" | "users" | "subscriptions" | "ai-analytics" | "pwa" | "developer" | "settings" | "test-lab";
-export type PWASubTab = "overview" | "settings" | "push" | "analytics" | "cache";
+export type TabId =
+  | 'overview'
+  | 'users'
+  | 'subscriptions'
+  | 'ai-analytics'
+  | 'pwa'
+  | 'developer'
+  | 'settings'
+  | 'test-lab';
+export type PWASubTab = 'overview' | 'settings' | 'push' | 'analytics' | 'cache';
 
-export interface MenuItem {
+export type MenuItem = {
   id: TabId;
   label: string;
   icon: LucideIcon;
-}
+};
 
-export interface SidebarProps {
+export type SidebarProps = {
   menuItems: MenuItem[];
   activeTab: TabId;
   userData?: any;
   onTabChange: (tab: TabId) => void;
   onLogout: () => void;
-}
+};
 
 export interface MobileSidebarProps extends SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export interface OverviewTabProps {
+export type OverviewTabProps = {
   stats: AdminStats;
   isLoading: boolean;
   onRefresh: () => void;
-}
+};

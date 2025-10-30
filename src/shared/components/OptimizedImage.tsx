@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
-interface OptimizedImageProps {
+type OptimizedImageProps = {
   src: string;
   alt: string;
   className?: string;
@@ -12,17 +12,17 @@ interface OptimizedImageProps {
   blurDataURL?: string; // Base64 blur placeholder
   onLoad?: () => void;
   onError?: () => void;
-}
+};
 
 /**
  * OptimizedImage Component
- * 
+ *
  * Автоматически использует WebP формат с fallback на оригинальный формат.
  * Поддерживает lazy loading и responsive images.
- * 
+ *
  * @example
- * <OptimizedImage 
- *   src="/assets/image.png" 
+ * <OptimizedImage
+ *   src="/assets/image.png"
  *   alt="Description"
  *   loading="lazy"
  *   className="w-full h-auto"
@@ -77,8 +77,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const loadingStrategy = priority ? 'eager' : loading;
 
   // Если браузер не поддерживает <picture>, используем обычный <img>
-  const supportsWebP = typeof window !== 'undefined' && 
-    window.HTMLPictureElement !== undefined;
+  const supportsWebP = typeof window !== 'undefined' && window.HTMLPictureElement !== undefined;
 
   if (!supportsWebP || webpError) {
     return (
@@ -86,10 +85,10 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         {/* Blur placeholder */}
         {blurDataURL && !isLoaded && (
           <img
-            src={blurDataURL}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover blur-sm"
+            className="absolute inset-0 h-full w-full object-cover blur-sm"
+            src={blurDataURL}
             style={{
               filter: 'blur(20px)',
               transform: 'scale(1.1)',
@@ -99,21 +98,21 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
         {/* Actual image */}
         <img
-          src={src}
           alt={alt}
           className={`${blurDataURL ? 'relative z-10' : ''}`}
-          width={width}
           height={height}
           loading={loadingStrategy}
-          sizes={sizes}
-          onLoad={handleLoad}
           onError={handleImageError}
+          onLoad={handleLoad}
+          sizes={sizes}
+          src={src}
           style={{
             maxWidth: '100%',
             height: 'auto',
             opacity: blurDataURL && !isLoaded ? 0 : 1,
             transition: 'opacity 0.3s ease-in-out',
           }}
+          width={width}
         />
       </div>
     );
@@ -124,10 +123,10 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Blur placeholder */}
       {blurDataURL && !isLoaded && (
         <img
-          src={blurDataURL}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover blur-sm"
+          className="absolute inset-0 h-full w-full object-cover blur-sm"
+          src={blurDataURL}
           style={{
             filter: 'blur(20px)',
             transform: 'scale(1.1)',
@@ -138,28 +137,24 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Picture element with WebP support */}
       <picture className={blurDataURL ? 'relative z-10' : ''}>
         {/* WebP версия для современных браузеров */}
-        <source
-          srcSet={webpSrc}
-          type="image/webp"
-          sizes={sizes}
-        />
+        <source sizes={sizes} srcSet={webpSrc} type="image/webp" />
 
         {/* Fallback для браузеров без поддержки WebP */}
         <img
-          src={src}
           alt={alt}
-          width={width}
           height={height}
           loading={loadingStrategy}
-          sizes={sizes}
-          onLoad={handleLoad}
           onError={handleWebPError}
+          onLoad={handleLoad}
+          sizes={sizes}
+          src={src}
           style={{
             maxWidth: '100%',
             height: 'auto',
             opacity: blurDataURL && !isLoaded ? 0 : 1,
             transition: 'opacity 0.3s ease-in-out',
           }}
+          width={width}
         />
       </picture>
     </div>
@@ -168,27 +163,27 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
 /**
  * LazyOptimizedImage Component
- * 
+ *
  * Версия OptimizedImage с принудительным lazy loading
  * и intersection observer для лучшей производительности.
  */
-export const LazyOptimizedImage: React.FC<OptimizedImageProps> = (props) => {
-  return <OptimizedImage {...props} loading="lazy" />;
-};
+export const LazyOptimizedImage: React.FC<OptimizedImageProps> = (props) => (
+  <OptimizedImage {...props} loading="lazy" />
+);
 
 /**
  * PriorityOptimizedImage Component
- * 
+ *
  * Версия OptimizedImage для критических изображений
  * (above the fold), которые должны загружаться немедленно.
  */
-export const PriorityOptimizedImage: React.FC<OptimizedImageProps> = (props) => {
-  return <OptimizedImage {...props} loading="eager" priority={true} />;
-};
+export const PriorityOptimizedImage: React.FC<OptimizedImageProps> = (props) => (
+  <OptimizedImage {...props} loading="eager" priority={true} />
+);
 
 /**
  * ResponsiveOptimizedImage Component
- * 
+ *
  * Версия OptimizedImage с предустановленными responsive размерами
  * для мобильных устройств.
  */
@@ -203,8 +198,8 @@ interface ResponsiveOptimizedImageProps extends Omit<OptimizedImageProps, 'sizes
 export const ResponsiveOptimizedImage: React.FC<ResponsiveOptimizedImageProps> = ({
   breakpoints = {
     mobile: '100vw',
-    tablet: '50vw', 
-    desktop: '33vw'
+    tablet: '50vw',
+    desktop: '33vw',
   },
   ...props
 }) => {
@@ -212,7 +207,9 @@ export const ResponsiveOptimizedImage: React.FC<ResponsiveOptimizedImageProps> =
     (max-width: 768px) ${breakpoints.mobile},
     (max-width: 1024px) ${breakpoints.tablet},
     ${breakpoints.desktop}
-  `.replace(/\s+/g, ' ').trim();
+  `
+    .replace(/\s+/g, ' ')
+    .trim();
 
   return <OptimizedImage {...props} sizes={sizes} />;
 };
@@ -220,8 +217,8 @@ export const ResponsiveOptimizedImage: React.FC<ResponsiveOptimizedImageProps> =
 /**
  * Utility function для проверки поддержки WebP
  */
-export const checkWebPSupport = (): Promise<boolean> => {
-  return new Promise((resolve) => {
+export const checkWebPSupport = (): Promise<boolean> =>
+  new Promise((resolve) => {
     if (typeof window === 'undefined') {
       resolve(false);
       return;
@@ -231,9 +228,9 @@ export const checkWebPSupport = (): Promise<boolean> => {
     webP.onload = webP.onerror = () => {
       resolve(webP.height === 2);
     };
-    webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+    webP.src =
+      'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
   });
-};
 
 /**
  * Hook для проверки поддержки WebP

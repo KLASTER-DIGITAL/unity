@@ -1,21 +1,21 @@
-import React from 'react';
+import type React from 'react';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-interface LoadingIndicatorProps {
+type LoadingIndicatorProps = {
   size?: 'sm' | 'md' | 'lg';
   text?: string;
   className?: string;
-}
+};
 
 export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   size = 'md',
   text,
-  className = ''
+  className = '',
 }) => {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
-    lg: 'w-8 h-8'
+    lg: 'w-8 h-8',
   };
 
   // Если есть текст, показываем skeleton с текстом

@@ -1,10 +1,10 @@
 /**
  * Media Picker Platform Adapter
- * 
+ *
  * Provides cross-platform media picking functionality:
  * - Web: HTML input[type="file"]
  * - Native: expo-image-picker
- * 
+ *
  * @module platform/media-picker
  */
 
@@ -16,7 +16,7 @@ import { WebMediaPickerAdapter } from './media-picker.web';
 // TYPES
 // ============================================================================
 
-export interface MediaFile {
+export type MediaFile = {
   /** File URI (web: blob URL, native: file:// or content://) */
   uri: string;
   /** Media type */
@@ -33,9 +33,9 @@ export interface MediaFile {
   height?: number;
   /** Duration in seconds (for videos) */
   duration?: number;
-}
+};
 
-export interface MediaPickerOptions {
+export type MediaPickerOptions = {
   /** Allow multiple file selection */
   multiple?: boolean;
   /** Maximum number of files to select */
@@ -46,9 +46,9 @@ export interface MediaPickerOptions {
   allowsEditing?: boolean;
   /** Aspect ratio for editing (native only) */
   aspect?: [number, number];
-}
+};
 
-export interface CameraOptions {
+export type CameraOptions = {
   /** Image quality (0-1, native only) */
   quality?: number;
   /** Allow editing (native only) */
@@ -57,9 +57,9 @@ export interface CameraOptions {
   aspect?: [number, number];
   /** Camera type (front/back, native only) */
   cameraType?: 'front' | 'back';
-}
+};
 
-export interface MediaPickerAdapter {
+export type MediaPickerAdapter = {
   /**
    * Check if media picker is supported
    */
@@ -94,7 +94,7 @@ export interface MediaPickerAdapter {
    * Record a video with camera
    */
   recordVideo(options?: CameraOptions): Promise<MediaFile | null>;
-}
+};
 
 // ============================================================================
 // EXPORT
@@ -106,4 +106,3 @@ export interface MediaPickerAdapter {
  * React Native build: Uses /app/shared/lib/platform/media-picker.native.ts
  */
 export const mediaPicker: MediaPickerAdapter = new WebMediaPickerAdapter();
-

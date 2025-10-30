@@ -17,7 +17,8 @@ const importMappings = {
   'from "../../components/MobileHeader"': 'from "@/shared/components/layout/MobileHeader"',
   'from "./components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
   'from "../components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
-  'from "../../components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
+  'from "../../components/AchievementHeader"':
+    'from "@/shared/components/layout/AchievementHeader"',
 
   // PWA
   'from "./components/PWAHead"': 'from "@/shared/components/pwa/PWAHead"',
@@ -163,10 +164,12 @@ function processDirectory(dirPath) {
         continue;
       }
       updatedCount += processDirectory(fullPath);
-    } else if (stat.isFile() && (entry.endsWith('.ts') || entry.endsWith('.tsx'))) {
-      if (updateImportsInFile(fullPath)) {
-        updatedCount++;
-      }
+    } else if (
+      stat.isFile() &&
+      (entry.endsWith('.ts') || entry.endsWith('.tsx')) &&
+      updateImportsInFile(fullPath)
+    ) {
+      updatedCount++;
     }
   }
 
@@ -178,4 +181,3 @@ const srcPath = path.join(process.cwd(), 'src');
 console.log('🔄 Starting import updates...\n');
 const updatedFiles = processDirectory(srcPath);
 console.log(`\n✅ Updated ${updatedFiles} files`);
-

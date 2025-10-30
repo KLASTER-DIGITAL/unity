@@ -1,16 +1,22 @@
-import { useState, useEffect } from "react";
-import { Search, MoreVertical, Mail, Ban, CheckCircle, RefreshCw } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
-import { toast } from "sonner";
+import { Ban, CheckCircle, Mail, MoreVertical, RefreshCw, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+} from '@/shared/components/ui/dropdown-menu';
+import { Input } from '@/shared/components/ui/input';
 import {
   Table,
   TableBody,
@@ -18,41 +24,44 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/shared/components/ui/table";
-import { createClient } from "@/utils/supabase/client";
+} from '@/shared/components/ui/table';
+import { createClient } from '@/utils/supabase/client';
 
 export function UsersManagementTab() {
   const [users, setUsers] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "premium" | "blocked">("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'premium' | 'blocked'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     loadUsers();
-  }, [currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadUsers = async () => {
     try {
       setIsLoading(true);
-      
+
       // Получаем токен авторизации
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error('No session');
       }
-      
+
       // Загружаем реальных пользователей (admin-users-api microservice)
       const response = await fetch(
-        `https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-users-api`,
+        'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-users-api',
         {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -61,22 +70,22 @@ export function UsersManagementTab() {
       }
 
       const result = await response.json();
-      
+
       // Преобразуем данные к нужному формату
       const formattedUsers = result.users.map((user: any) => ({
         id: user.id,
         name: user.name,
         email: user.email,
-        status: user.isPremium ? "premium" : "active",
+        status: user.isPremium ? 'premium' : 'active',
         registeredAt: user.createdAt,
         lastActive: user.lastActivity,
         entriesCount: user.entriesCount,
-        streak: user.currentStreak || 0 // ✅ FIXED: Use currentStreak from API
+        streak: user.currentStreak || 0, // ✅ FIXED: Use currentStreak from API
       }));
-      
+
       setUsers(formattedUsers);
       setTotalPages(Math.ceil(result.total / 50));
-      
+
       console.log(`Loaded ${formattedUsers.length} users`);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -92,7 +101,7 @@ export function UsersManagementTab() {
       const newIsPremium = currentStatus !== 'premium';
       // await updateUserSubscription(userId, newIsPremium);
       // Заглушка - будет заменено на работу с Edge Function
-      
+
       toast.success(`Подписка ${newIsPremium ? 'активирована' : 'деактивирована'}`);
       loadUsers(); // Перезагружаем список
     } catch (error) {
@@ -101,20 +110,25 @@ export function UsersManagementTab() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || user.status === filterStatus;
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || user.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "premium":
-        return <Badge className="bg-accent/10 text-accent border-accent">Premium</Badge>;
-      case "active":
-        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">Активный</Badge>;
-      case "blocked":
+      case 'premium':
+        return <Badge className="border-accent bg-accent/10 text-accent">Premium</Badge>;
+      case 'active':
+        return (
+          <Badge className="border-green-500/20 bg-green-500/10 text-green-600" variant="outline">
+            Активный
+          </Badge>
+        );
+      case 'blocked':
         return <Badge variant="destructive">Заблокирован</Badge>;
       default:
         return <Badge variant="outline">Неактивный</Badge>;
@@ -131,49 +145,49 @@ export function UsersManagementTab() {
               <CardDescription>Просмотр и управление аккаунтами пользователей</CardDescription>
             </div>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={loadUsers}
-              disabled={isLoading}
               className="gap-2"
+              disabled={isLoading}
+              onClick={loadUsers}
+              size="sm"
+              variant="outline"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Обновить
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
               <Input
+                autoComplete="off"
+                className="pl-10"
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Поиск по имени или email..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                autoComplete="off"
               />
             </div>
             <div className="flex gap-2">
               <Button
-                variant={filterStatus === "all" ? "default" : "outline"}
-                onClick={() => setFilterStatus("all")}
                 className="text-[13px]!"
+                onClick={() => setFilterStatus('all')}
+                variant={filterStatus === 'all' ? 'default' : 'outline'}
               >
                 Все
               </Button>
               <Button
-                variant={filterStatus === "active" ? "default" : "outline"}
-                onClick={() => setFilterStatus("active")}
                 className="text-[13px]!"
+                onClick={() => setFilterStatus('active')}
+                variant={filterStatus === 'active' ? 'default' : 'outline'}
               >
                 Активные
               </Button>
               <Button
-                variant={filterStatus === "premium" ? "default" : "outline"}
-                onClick={() => setFilterStatus("premium")}
                 className="text-[13px]!"
+                onClick={() => setFilterStatus('premium')}
+                variant={filterStatus === 'premium' ? 'default' : 'outline'}
               >
                 Premium
               </Button>
@@ -181,7 +195,7 @@ export function UsersManagementTab() {
           </div>
 
           {/* Users Table */}
-          <div className="border rounded-lg overflow-hidden">
+          <div className="overflow-hidden rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -198,38 +212,46 @@ export function UsersManagementTab() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
-                        <div className="text-[14px]! font-semibold! text-foreground">{user.name}</div>
-                        <div className="text-[12px]! font-normal! text-muted-foreground">{user.email}</div>
+                        <div className="font-semibold! text-[14px]! text-foreground">
+                          {user.name}
+                        </div>
+                        <div className="font-normal! text-[12px]! text-muted-foreground">
+                          {user.email}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
                     <TableCell className="text-[13px]!">
-                      {user.registeredAt ? new Date(user.registeredAt).toLocaleDateString('ru-RU') : '-'}
+                      {user.registeredAt
+                        ? new Date(user.registeredAt).toLocaleDateString('ru-RU')
+                        : '-'}
                     </TableCell>
                     <TableCell className="text-[13px]!">{user.entriesCount}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-accent/10 text-accent">
+                      <Badge className="bg-accent/10 text-accent" variant="outline">
                         🔥 {user.streak}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
+                          <Button size="sm" variant="ghost">
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
-                            <Mail className="w-4 h-4 mr-2" />
+                            <Mail className="mr-2 h-4 w-4" />
                             Отправить email
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleTogglePremium(user.id, user.status)}>
-                            <CheckCircle className="w-4 h-4 mr-2" />
+                          <DropdownMenuItem
+                            onClick={() => handleTogglePremium(user.id, user.status)}
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             {user.status === 'premium' ? 'Отменить Premium' : 'Выдать Premium'}
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
-                            <Ban className="w-4 h-4 mr-2" />
+                            <Ban className="mr-2 h-4 w-4" />
                             Заблокировать
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -242,14 +264,14 @@ export function UsersManagementTab() {
           </div>
 
           {isLoading && (
-            <div className="text-center py-8">
-              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-muted-foreground" />
+            <div className="py-8 text-center">
+              <RefreshCw className="mx-auto mb-2 h-8 w-8 animate-spin text-muted-foreground" />
               <p className="text-muted-foreground">Загрузка...</p>
             </div>
           )}
 
           {!isLoading && filteredUsers.length === 0 && (
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <p className="text-muted-foreground">Пользователи не найдены</p>
             </div>
           )}
@@ -262,18 +284,18 @@ export function UsersManagementTab() {
               </p>
               <div className="flex gap-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  size="sm"
+                  variant="outline"
                 >
                   Назад
                 </Button>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  size="sm"
+                  variant="outline"
                 >
                   Вперёд
                 </Button>

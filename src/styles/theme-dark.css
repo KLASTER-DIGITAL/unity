@@ -1,21 +1,23 @@
 /**
  * Dark Theme - shadcn/ui iOS Style
  * OKLCH color space for proper contrast in dark mode
- * 
+ *
  * Color Philosophy:
  * - background: Dark gray, not pure black (#1a1a1e)
  * - foreground: Almost white text (#fafafa)
  * - card: Medium gray blocks visible on dark background (#2a2a2e)
  * - primary: Bright iOS blue for dark mode (#0a84ff)
  * - muted: Dark gray for secondary elements (#3a3a3e)
- * 
+ *
  * AI-Friendly: Only dark theme variables (~60 lines)
  */
 
 .dark {
   /* ===== iOS Typography System (same as light mode) ===== */
   /* Font Family - San Francisco (SF Pro) */
-  --font-family-ios: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-ios:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+    Helvetica, Arial, sans-serif;
   --font-family-primary: var(--font-family-ios);
 
   /* Font Weights */
@@ -48,29 +50,29 @@
   /* ===== iOS UIKit Dynamic Colors - Dark Mode ===== */
 
   /* Backgrounds (iOS systemBackground hierarchy) */
-  --ios-bg-primary: #000000;           /* systemBackground */
-  --ios-bg-secondary: #1C1C1E;         /* secondarySystemBackground */
-  --ios-bg-tertiary: #2C2C2E;          /* tertiarySystemBackground */
-  --ios-bg-grouped: #000000;           /* systemGroupedBackground */
-  --ios-bg-grouped-secondary: #1C1C1E; /* secondarySystemGroupedBackground */
+  --ios-bg-primary: #000000; /* systemBackground */
+  --ios-bg-secondary: #1c1c1e; /* secondarySystemBackground */
+  --ios-bg-tertiary: #2c2c2e; /* tertiarySystemBackground */
+  --ios-bg-grouped: #000000; /* systemGroupedBackground */
+  --ios-bg-grouped-secondary: #1c1c1e; /* secondarySystemGroupedBackground */
 
   /* Text Colors (iOS label hierarchy) */
-  --ios-text-primary: #FFFFFF;                /* label */
-  --ios-text-secondary: rgba(235,235,245,0.6); /* secondaryLabel */
-  --ios-text-tertiary: rgba(235,235,245,0.3);  /* tertiaryLabel */
+  --ios-text-primary: #ffffff; /* label */
+  --ios-text-secondary: rgba(235, 235, 245, 0.6); /* secondaryLabel */
+  --ios-text-tertiary: rgba(235, 235, 245, 0.3); /* tertiaryLabel */
 
   /* Borders & Separators */
-  --ios-separator: #38383A;            /* separator */
+  --ios-separator: #38383a; /* separator */
 
   /* System Colors */
-  --ios-blue: #0A84FF;                 /* systemBlue */
-  --ios-green: #30D158;                /* systemGreen */
-  --ios-red: #FF453A;                  /* systemRed */
-  --ios-orange: #FF9F0A;               /* systemOrange */
-  --ios-yellow: #FFD60A;               /* systemYellow */
-  --ios-pink: #FF375F;                 /* systemPink */
-  --ios-purple: #BF5AF2;               /* systemPurple */
-  --ios-gray: #98989D;                 /* systemGray */
+  --ios-blue: #0a84ff; /* systemBlue */
+  --ios-green: #30d158; /* systemGreen */
+  --ios-red: #ff453a; /* systemRed */
+  --ios-orange: #ff9f0a; /* systemOrange */
+  --ios-yellow: #ffd60a; /* systemYellow */
+  --ios-pink: #ff375f; /* systemPink */
+  --ios-purple: #bf5af2; /* systemPurple */
+  --ios-gray: #98989d; /* systemGray */
 
   /* ===== shadcn/ui Colors (mapped to iOS) ===== */
 
@@ -79,7 +81,9 @@
   --foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
   /* Cards */
-  --card: oklch(0.22 0 0); /* #2b2b2b - Gray 3 для модальных окон (более светлый) */
+  --card: oklch(
+    0.22 0 0
+  ); /* #2b2b2b - Gray 3 для модальных окон (более светлый) */
   --card-foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
   /* Popovers */
@@ -91,12 +95,18 @@
   --primary-foreground: oklch(1 0 0); /* #ffffff */
 
   /* Secondary */
-  --secondary: oklch(0.18 0.005 286.75); /* #1c1c1e - iOS secondarySystemBackground */
+  --secondary: oklch(
+    0.18 0.005 286.75
+  ); /* #1c1c1e - iOS secondarySystemBackground */
   --secondary-foreground: oklch(1 0 0); /* #ffffff - iOS label */
 
   /* Muted - для неактивных элементов */
-  --muted: oklch(0.22 0.005 286.75); /* #2c2c2e - iOS tertiarySystemBackground */
-  --muted-foreground: oklch(0.92 0.005 286.75); /* rgba(235,235,245,0.6) - iOS secondaryLabel */
+  --muted: oklch(
+    0.22 0.005 286.75
+  ); /* #2c2c2e - iOS tertiarySystemBackground */
+  --muted-foreground: oklch(
+    0.92 0.005 286.75
+  ); /* rgba(235,235,245,0.6) - iOS secondaryLabel */
 
   /* Accent */
   --accent: oklch(0.696 0.17 254.604); /* #0a84ff - iOS systemBlue */
@@ -132,4 +142,3 @@
   --sidebar-border: oklch(1 0 0 / 10%); /* белый 10% */
   --sidebar-ring: oklch(0.527 0.154 150.069); /* ~#0066cc */
 }
-

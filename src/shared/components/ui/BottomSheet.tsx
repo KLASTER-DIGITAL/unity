@@ -1,6 +1,6 @@
 /**
  * Universal BottomSheet Component for UNITY-v2
- * 
+ *
  * Features:
  * - Slide-up animation from bottom
  * - Backdrop with blur effect
@@ -9,7 +9,7 @@
  * - iOS-style design
  * - z-index hierarchy (above navigation)
  * - React Native ready (90%+ compatibility)
- * 
+ *
  * Usage:
  * ```tsx
  * <BottomSheet
@@ -20,59 +20,60 @@
  *   <div>Your content here</div>
  * </BottomSheet>
  * ```
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-19
  */
 
-import React, { useEffect, useRef, ReactNode } from 'react';
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'motion/react';
 import { X } from 'lucide-react';
+import { AnimatePresence, motion, type PanInfo, useMotionValue, useTransform } from 'motion/react';
+import type React from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { cn } from './utils';
 
-export interface BottomSheetProps {
+export type BottomSheetProps = {
   /** Controls visibility of the bottom sheet */
   isOpen: boolean;
-  
+
   /** Callback when bottom sheet should close */
   onClose: () => void;
-  
+
   /** Optional title */
   title?: string;
-  
+
   /** Optional description */
   description?: string;
-  
+
   /** Content to display */
   children: ReactNode;
-  
+
   /** Show close button in header */
   showCloseButton?: boolean;
-  
+
   /** Enable swipe-down to close */
   enableSwipeDown?: boolean;
-  
+
   /** Close on backdrop click */
   closeOnBackdrop?: boolean;
-  
+
   /** Close on Escape key */
   closeOnEscape?: boolean;
-  
+
   /** Custom className for content */
   className?: string;
-  
+
   /** Custom header content */
   header?: ReactNode;
-  
+
   /** Custom footer content */
   footer?: ReactNode;
-  
+
   /** Maximum height (default: 90vh) */
   maxHeight?: string;
-  
+
   /** Test ID for testing */
   testID?: string;
-}
+};
 
 export function BottomSheet({
   isOpen,
@@ -96,7 +97,9 @@ export function BottomSheet({
 
   // Handle Escape key
   useEffect(() => {
-    if (!isOpen || !closeOnEscape) return;
+    if (!(isOpen && closeOnEscape)) {
+      return;
+    }
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -123,7 +126,9 @@ export function BottomSheet({
 
   // Handle swipe down
   const handleDragEnd = (_: any, info: PanInfo) => {
-    if (!enableSwipeDown) return;
+    if (!enableSwipeDown) {
+      return;
+    }
 
     // Close if dragged down more than 100px or velocity is high
     if (info.offset.y > 100 || info.velocity.y > 500) {
@@ -144,62 +149,58 @@ export function BottomSheet({
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={handleBackdropClick}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[var(--z-modal-backdrop)]"
+            className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/40 backdrop-blur-sm"
             data-testid={`${testID}-backdrop`}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            onClick={handleBackdropClick}
             style={{
               WebkitBackdropFilter: 'blur(8px)',
               backdropFilter: 'blur(8px)',
             }}
+            transition={{ duration: 0.2 }}
           />
 
           {/* Bottom Sheet */}
           <motion.div
-            ref={sheetRef}
-            initial={{ y: '100%' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            drag={enableSwipeDown ? 'y' : false}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
-            onDragEnd={handleDragEnd}
-            style={{ y, opacity }}
             className={cn(
-              'fixed bottom-0 left-0 right-0 z-[var(--z-modal)]',
-              'bg-card border-t border-border',
+              'fixed right-0 bottom-0 left-0 z-[var(--z-modal)]',
+              'border-border border-t bg-card',
               'rounded-t-3xl shadow-2xl',
-              'max-w-md mx-auto',
+              'mx-auto max-w-md',
               'flex flex-col',
               'transition-colors duration-300',
               className
             )}
             data-testid={testID}
+            drag={enableSwipeDown ? 'y' : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            exit={{ y: '100%' }}
+            initial={{ y: '100%' }}
+            onDragEnd={handleDragEnd}
+            ref={sheetRef}
+            style={{ y, opacity }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
             {/* Drag Handle */}
             {enableSwipeDown && (
               <div className="flex justify-center pt-3 pb-2">
-                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+                <div className="h-1 w-12 rounded-full bg-muted-foreground/30" />
               </div>
             )}
 
             {/* Header */}
             {(title || description || header || showCloseButton) && (
-              <div className="flex items-start justify-between px-6 py-4 border-b border-border">
+              <div className="flex items-start justify-between border-border border-b px-6 py-4">
                 <div className="flex-1">
                   {header || (
                     <>
-                      {title && (
-                        <h2 className="text-lg font-semibold text-foreground">
-                          {title}
-                        </h2>
-                      )}
+                      {title && <h2 className="font-semibold text-foreground text-lg">{title}</h2>}
                       {description && (
-                        <p className="text-sm font-normal text-muted-foreground mt-1">
+                        <p className="mt-1 font-normal text-muted-foreground text-sm">
                           {description}
                         </p>
                       )}
@@ -209,15 +210,15 @@ export function BottomSheet({
 
                 {showCloseButton && (
                   <button
-                    onClick={onClose}
+                    aria-label="Close"
                     className={cn(
-                      'ml-4 p-2 rounded-full',
+                      'ml-4 rounded-full p-2',
                       'text-muted-foreground hover:text-foreground',
                       'hover:bg-muted/50 active:bg-muted',
                       'transition-colors duration-200'
                     )}
-                    aria-label="Close"
                     data-testid={`${testID}-close-button`}
+                    onClick={onClose}
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -226,19 +227,12 @@ export function BottomSheet({
             )}
 
             {/* Content */}
-            <div
-              className="flex-1 overflow-y-auto px-6 py-4 scrollbar-hide"
-              style={{ maxHeight }}
-            >
+            <div className="scrollbar-hide flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight }}>
               {children}
             </div>
 
             {/* Footer */}
-            {footer && (
-              <div className="px-6 py-4 border-t border-border">
-                {footer}
-              </div>
-            )}
+            {footer && <div className="border-border border-t px-6 py-4">{footer}</div>}
           </motion.div>
         </>
       )}
@@ -250,23 +244,23 @@ export function BottomSheet({
  * BottomSheet Trigger Button
  * Helper component for opening bottom sheet
  */
-export interface BottomSheetTriggerProps {
+export type BottomSheetTriggerProps = {
   onClick: () => void;
   children: ReactNode;
   className?: string;
-}
+};
 
 export function BottomSheetTrigger({ onClick, children, className }: BottomSheetTriggerProps) {
   return (
     <button
-      onClick={onClick}
       className={cn(
-        'px-4 py-2 rounded-lg',
+        'rounded-lg px-4 py-2',
         'bg-primary text-primary-foreground',
         'hover:bg-primary/90 active:bg-primary/80',
         'transition-colors duration-200',
         className
       )}
+      onClick={onClick}
     >
       {children}
     </button>
@@ -277,14 +271,14 @@ export function BottomSheetTrigger({ onClick, children, className }: BottomSheet
  * BottomSheet Footer Actions
  * Helper component for footer buttons
  */
-export interface BottomSheetFooterProps {
+export type BottomSheetFooterProps = {
   onCancel?: () => void;
   onConfirm?: () => void;
   cancelText?: string;
   confirmText?: string;
   confirmDisabled?: boolean;
   className?: string;
-}
+};
 
 export function BottomSheetFooter({
   onCancel,
@@ -298,30 +292,30 @@ export function BottomSheetFooter({
     <div className={cn('flex gap-3', className)}>
       {onCancel && (
         <button
-          onClick={onCancel}
           className={cn(
-            'flex-1 px-4 py-3 rounded-lg',
+            'flex-1 rounded-lg px-4 py-3',
             'bg-muted text-foreground',
             'hover:bg-muted/80 active:bg-muted/60',
             'transition-colors duration-200',
             'font-medium'
           )}
+          onClick={onCancel}
         >
           {cancelText}
         </button>
       )}
       {onConfirm && (
         <button
-          onClick={onConfirm}
-          disabled={confirmDisabled}
           className={cn(
-            'flex-1 px-4 py-3 rounded-lg',
+            'flex-1 rounded-lg px-4 py-3',
             'bg-primary text-primary-foreground',
             'hover:bg-primary/90 active:bg-primary/80',
             'transition-colors duration-200',
             'font-medium',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+            'disabled:cursor-not-allowed disabled:opacity-50'
           )}
+          disabled={confirmDisabled}
+          onClick={onConfirm}
         >
           {confirmText}
         </button>
@@ -329,4 +323,3 @@ export function BottomSheetFooter({
     </div>
   );
 }
-

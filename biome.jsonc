@@ -1,0 +1,172 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/core", "ultracite/react"],
+  // UNITY-v2 Custom Configuration
+  // Optimized for: React Native готовность, PWA, Accessibility, AI-friendly code
+  "files": {
+    "ignoreUnknown": true,
+    "maxSize": 5242880 // 5MB - для больших файлов (Lottie animations, etc)
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100, // AI-friendly: не слишком длинные строки
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      // React Native готовность
+      "correctness": {
+        "useExhaustiveDependencies": "warn", // React hooks dependencies
+        "noUnusedVariables": "warn" // Разрешаем неиспользуемые переменные (Platform Adapters)
+      },
+      // Accessibility (критично для PWA)
+      "a11y": {
+        "noAccessKey": "error",
+        "noAriaHiddenOnFocusable": "error",
+        "noDistractingElements": "error",
+        "noHeaderScope": "error",
+        "noInteractiveElementToNoninteractiveRole": "error",
+        "noNoninteractiveElementToInteractiveRole": "error",
+        "noNoninteractiveTabindex": "error",
+        "noPositiveTabindex": "error",
+        "noRedundantAlt": "error",
+        "noRedundantRoles": "warn",
+        "useAltText": "error",
+        "useAnchorContent": "error",
+        "useAriaActivedescendantWithTabindex": "error",
+        "useAriaPropsForRole": "error",
+        "useButtonType": "error",
+        "useHeadingContent": "error",
+        "useHtmlLang": "error",
+        "useIframeTitle": "error",
+        "useKeyWithClickEvents": "warn",
+        "useKeyWithMouseEvents": "warn",
+        "useMediaCaption": "warn",
+        "useSemanticElements": "warn",
+        "useValidAnchor": "error"
+      },
+      // Performance (критично для 100K пользователей)
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noDelete": "warn"
+      },
+      // Security
+      "security": {
+        "noDangerouslySetInnerHtml": "warn",
+        "noDangerouslySetInnerHtmlWithChildren": "error",
+        "noGlobalEval": "error"
+      },
+      // Style (AI-friendly code)
+      "style": {
+        "noNegationElse": "off", // Разрешаем if-else с отрицанием
+        "useConst": "error",
+        "useExportType": "warn",
+        "useImportType": "warn",
+        "useNumberNamespace": "warn",
+        "useSelfClosingElements": "error",
+        "useTemplate": "warn"
+      },
+      // Suspicious (потенциальные баги)
+      "suspicious": {
+        "noArrayIndexKey": "warn", // React Native: разрешаем array index как key (иногда нужно)
+        "noConsole": "off", // Разрешаем console (используем для debugging)
+        "noDebugger": "warn",
+        "noDuplicateJsxProps": "error",
+        "noExplicitAny": "warn", // Разрешаем any (иногда нужно для Platform Adapters)
+        "noShadowRestrictedNames": "error"
+      },
+      // Complexity (AI-friendly: простой код)
+      "complexity": {
+        "noBannedTypes": "off", // Разрешаем {} и Object (используем в типах)
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 15 // AI-friendly: не слишком сложные функции
+          }
+        },
+        "noForEach": "off", // Разрешаем forEach (читабельнее для AI)
+        "noStaticOnlyClass": "off", // Разрешаем static-only классы (Utils)
+        "noUselessFragments": "warn"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteProperties": "asNeeded"
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "indentWidth": 2
+    }
+  },
+  "overrides": [
+    {
+      // React Native файлы: более мягкие правила
+      "includes": [
+        "**/*.native.ts",
+        "**/*.native.tsx",
+        "app/**/*.tsx",
+        "app/**/*.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off" // React Native: разрешаем any для native modules
+          },
+          "performance": {
+            "noNamespaceImport": "off" // React Native: разрешаем namespace imports для Expo (import * as Haptics)
+          }
+        }
+      }
+    },
+    {
+      // Test файлы: более мягкие правила
+      "includes": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          }
+        }
+      }
+    },
+    {
+      // Config файлы: разрешаем require и module.exports
+      "includes": ["*.config.js", "*.config.ts", "scripts/**/*.js"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNodejsImportProtocol": "off"
+          }
+        }
+      }
+    }
+  ]
+}

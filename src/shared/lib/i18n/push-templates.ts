@@ -1,6 +1,6 @@
 /**
  * Push Notification Templates
- * 
+ *
  * Мультиязычные шаблоны для push уведомлений
  * Поддерживаемые языки: ru, en, es, de, fr, zh, ja
  */
@@ -13,14 +13,14 @@ export type PushTemplateType =
   | 'streak_milestone'
   | 'custom';
 
-export interface PushTemplate {
+export type PushTemplate = {
   title: string;
   body: string;
   icon?: string;
   badge?: string;
-}
+};
 
-export interface PushTemplateVariables {
+export type PushTemplateVariables = {
   userName?: string;
   streakDays?: number;
   achievementName?: string;
@@ -29,7 +29,7 @@ export interface PushTemplateVariables {
     successRate: number;
   };
   customMessage?: string;
-}
+};
 
 /**
  * Шаблоны push уведомлений на всех языках
@@ -198,8 +198,8 @@ const PUSH_TEMPLATES: Record<string, Record<PushTemplateType, PushTemplate>> = {
   // Français
   fr: {
     daily_reminder: {
-      title: '📝 Temps d\'écrire!',
-      body: 'N\'oubliez pas d\'enregistrer vos réalisations aujourd\'hui',
+      title: "📝 Temps d'écrire!",
+      body: "N'oubliez pas d'enregistrer vos réalisations aujourd'hui",
       icon: '/icon-192.png',
       badge: '/badge-72.png',
     },
@@ -217,13 +217,13 @@ const PUSH_TEMPLATES: Record<string, Record<PushTemplateType, PushTemplate>> = {
     },
     motivational: {
       title: '💪 Motivation du Jour',
-      body: 'Chaque jour est une nouvelle opportunité de s\'améliorer!',
+      body: "Chaque jour est une nouvelle opportunité de s'améliorer!",
       icon: '/icon-192.png',
       badge: '/badge-72.png',
     },
     streak_milestone: {
       title: '🔥 La série continue!',
-      body: 'Vous écrivez depuis {streakDays} jours d\'affilée!',
+      body: "Vous écrivez depuis {streakDays} jours d'affilée!",
       icon: '/icon-192.png',
       badge: '/badge-72.png',
     },
@@ -321,7 +321,7 @@ const PUSH_TEMPLATES: Record<string, Record<PushTemplateType, PushTemplate>> = {
  */
 export function getPushTemplate(
   type: PushTemplateType,
-  language: string = 'ru',
+  language = 'ru',
   variables?: PushTemplateVariables
 ): PushTemplate {
   // Fallback to Russian if language not supported
@@ -389,4 +389,3 @@ export function getAvailableTemplateTypes(): PushTemplateType[] {
 export function getSupportedLanguages(): string[] {
   return Object.keys(PUSH_TEMPLATES);
 }
-

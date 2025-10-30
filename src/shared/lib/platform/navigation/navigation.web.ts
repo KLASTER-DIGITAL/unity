@@ -1,20 +1,20 @@
 /**
  * Web Navigation Adapter
- * 
+ *
  * Uses window.history API for navigation
- * 
+ *
  * @module platform/navigation/web
  */
 
-import type { NavigationAdapter, NavigationOptions, RouteParams } from '../navigation';
 import { Platform } from '../detection';
+import type { NavigationAdapter, NavigationOptions, RouteParams } from '../navigation';
 
 /**
  * Web navigation adapter using browser History API
  */
 export class WebNavigationAdapter implements NavigationAdapter {
-  private history: any = null;
-  private location: any = null;
+  private readonly history: any = null;
+  private readonly location: any = null;
 
   constructor() {
     // Initialize with browser history if available
@@ -32,7 +32,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
     try {
       const url = this.buildUrl(route, options?.params);
-      
+
       if (options?.replace) {
         this.history?.replaceState(null, '', url);
       } else {
@@ -71,10 +71,10 @@ export class WebNavigationAdapter implements NavigationAdapter {
 
     try {
       const url = this.buildUrl(route, options?.params);
-      
+
       // Clear history by replacing current state
       this.history?.replaceState(null, '', url);
-      
+
       // Dispatch popstate event
       window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (error) {
@@ -83,7 +83,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
   }
 
   getCurrentRoute(): string {
-    if (!Platform.isBrowser || !this.location) {
+    if (!(Platform.isBrowser && this.location)) {
       return '/';
     }
 
@@ -106,19 +106,19 @@ export class WebNavigationAdapter implements NavigationAdapter {
     }
 
     const eventMap: { [key: string]: string } = {
-      'focus': 'focus',
-      'blur': 'blur',
-      'beforeRemove': 'beforeunload',
-      'state': 'popstate'
+      focus: 'focus',
+      blur: 'blur',
+      beforeRemove: 'beforeunload',
+      state: 'popstate',
     };
 
     const browserEvent = eventMap[event] || event;
-    
+
     const wrappedCallback = (e: Event) => {
       callback({
         type: event,
         target: e.target,
-        data: (e as any).state
+        data: (e as any).state,
       });
     };
 
@@ -135,7 +135,7 @@ export class WebNavigationAdapter implements NavigationAdapter {
     }
 
     const url = new URL(route, window.location.origin);
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
         url.searchParams.set(key, String(value));
@@ -145,4 +145,3 @@ export class WebNavigationAdapter implements NavigationAdapter {
     return url.pathname + url.search + url.hash;
   }
 }
-

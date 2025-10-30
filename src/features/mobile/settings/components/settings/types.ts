@@ -2,24 +2,23 @@
  * Types for Settings Screen
  */
 
-export interface SettingsScreenProps {
+export type SettingsScreenProps = {
   userData?: any;
   onLogout?: () => void;
   onProfileUpdate?: (updatedProfile: any) => void;
-}
+};
 
-export interface NotificationSettings {
+export type NotificationSettings = {
   dailyReminder: boolean;
   weeklyReport: boolean;
   achievements: boolean;
   motivational: boolean;
-}
+};
 
-export interface Language {
+export type Language = {
   code: string;
   name: string;
   native_name: string;
   flag: string;
   is_active: boolean;
-}
-
+};

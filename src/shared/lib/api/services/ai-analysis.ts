@@ -16,7 +16,9 @@ export async function analyzeTextWithAI(
 ): Promise<AIAnalysisResult> {
   try {
     const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
     if (!session?.access_token) {
       throw new Error('No active session. Please log in.');
@@ -26,9 +28,9 @@ export async function analyzeTextWithAI(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
+        Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ text, userName, userId })
+      body: JSON.stringify({ text, userName, userId }),
     });
 
     if (!response.ok) {
@@ -48,13 +50,12 @@ export async function analyzeTextWithAI(
       category: result.category || 'Другое',
       tags: result.tags || [],
       confidence: result.confidence || 0,
-      isAchievement: result.isAchievement || false,
+      isAchievement: result.isAchievement,
       mood: result.mood || 'нормальное',
-      entrySummaryId: result.entrySummaryId
+      entrySummaryId: result.entrySummaryId,
     };
   } catch (error) {
     console.error('[AI ANALYSIS] Error:', error);
     throw error;
   }
 }
-

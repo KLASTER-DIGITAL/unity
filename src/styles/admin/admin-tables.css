@@ -1,10 +1,10 @@
 /**
  * Admin Tables - Table Components
  * AI-Friendly: 40 lines, < 200 lines target
- * 
+ *
  * Purpose: Table styles for admin panel
  * Includes: .admin-table, .admin-table-row, .admin-table-cell
- * 
+ *
  * Why needed: Consistent table styling for data display
  */
 
@@ -40,4 +40,3 @@
 .admin-table tbody tr:last-child td {
   border-bottom: none;
 }
-

@@ -1,10 +1,10 @@
 /**
  * Universal Toast Component - Web Implementation
- * 
+ *
  * Uses sonner for React Web (PWA)
  */
 
-import { toast as sonnerToast, Toaster as SonnerToaster } from 'sonner';
+import { Toaster as SonnerToaster, toast as sonnerToast } from 'sonner';
 import type { ToastProps } from './types';
 
 /**
@@ -14,82 +14,87 @@ export const toast = {
   /**
    * Show success toast
    */
-  success: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast.success(title, {
+  success: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast.success(title, {
       description: options?.description,
       duration: options?.duration ?? 4000,
-      action: options?.action ? {
-        label: options.action.label,
-        onClick: options.action.onClick,
-      } : undefined,
+      action: options?.action
+        ? {
+            label: options.action.label,
+            onClick: options.action.onClick,
+          }
+        : undefined,
       onDismiss: options?.onDismiss,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Show error toast
    */
-  error: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast.error(title, {
+  error: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast.error(title, {
       description: options?.description,
       duration: options?.duration ?? 4000,
-      action: options?.action ? {
-        label: options.action.label,
-        onClick: options.action.onClick,
-      } : undefined,
+      action: options?.action
+        ? {
+            label: options.action.label,
+            onClick: options.action.onClick,
+          }
+        : undefined,
       onDismiss: options?.onDismiss,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Show info toast
    */
-  info: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast.info(title, {
+  info: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast.info(title, {
       description: options?.description,
       duration: options?.duration ?? 4000,
-      action: options?.action ? {
-        label: options.action.label,
-        onClick: options.action.onClick,
-      } : undefined,
+      action: options?.action
+        ? {
+            label: options.action.label,
+            onClick: options.action.onClick,
+          }
+        : undefined,
       onDismiss: options?.onDismiss,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Show warning toast
    */
-  warning: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast.warning(title, {
+  warning: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast.warning(title, {
       description: options?.description,
       duration: options?.duration ?? 4000,
-      action: options?.action ? {
-        label: options.action.label,
-        onClick: options.action.onClick,
-      } : undefined,
+      action: options?.action
+        ? {
+            label: options.action.label,
+            onClick: options.action.onClick,
+          }
+        : undefined,
       onDismiss: options?.onDismiss,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Show default toast
    */
-  default: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast(title, {
+  default: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast(title, {
       description: options?.description,
       duration: options?.duration ?? 4000,
-      action: options?.action ? {
-        label: options.action.label,
-        onClick: options.action.onClick,
-      } : undefined,
+      action: options?.action
+        ? {
+            label: options.action.label,
+            onClick: options.action.onClick,
+          }
+        : undefined,
       onDismiss: options?.onDismiss,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Dismiss a toast by ID
@@ -105,13 +110,12 @@ export const toast = {
   /**
    * Show loading toast
    */
-  loading: (title: string, options?: Partial<ToastProps>) => {
-    return sonnerToast.loading(title, {
+  loading: (title: string, options?: Partial<ToastProps>) =>
+    sonnerToast.loading(title, {
       description: options?.description,
-      duration: options?.duration ?? Infinity,
+      duration: options?.duration ?? Number.POSITIVE_INFINITY,
       id: options?.id,
-    });
-  },
+    }),
 
   /**
    * Show promise toast
@@ -123,22 +127,26 @@ export const toast = {
       success: string | ((data: T) => string);
       error: string | ((error: any) => string);
     }
-  ) => {
-    return sonnerToast.promise(promise, options);
-  },
+  ) => sonnerToast.promise(promise, options),
 };
 
 /**
  * Toast Container Component for Web
  */
-export interface ToasterProps {
-  position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+export type ToasterProps = {
+  position?:
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right';
   theme?: 'light' | 'dark' | 'system';
   richColors?: boolean;
   expand?: boolean;
   visibleToasts?: number;
   closeButton?: boolean;
-}
+};
 
 export function Toaster({
   position = 'top-center',
@@ -150,13 +158,11 @@ export function Toaster({
 }: ToasterProps = {}) {
   return (
     <SonnerToaster
-      position={position}
-      theme={theme}
-      richColors={richColors}
-      expand={expand}
-      visibleToasts={visibleToasts}
-      closeButton={closeButton}
       className="toaster group"
+      closeButton={closeButton}
+      expand={expand}
+      position={position}
+      richColors={richColors}
       style={
         {
           '--normal-bg': 'var(--popover)',
@@ -164,7 +170,8 @@ export function Toaster({
           '--normal-border': 'var(--border)',
         } as React.CSSProperties
       }
+      theme={theme}
+      visibleToasts={visibleToasts}
     />
   );
 }
-

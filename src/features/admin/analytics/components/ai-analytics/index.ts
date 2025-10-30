@@ -2,15 +2,14 @@
  * AI Analytics Tab - Modular exports
  */
 
-export { StatsCards } from "./StatsCards";
-export { RecommendationsCard } from "./RecommendationsCard";
-export { ForecastCard } from "./ForecastCard";
-export { generateRecommendations, calculateForecast, exportToCSV } from "./utils";
+export { ForecastCard } from './ForecastCard';
+export { RecommendationsCard } from './RecommendationsCard';
+export { StatsCards } from './StatsCards';
 export type {
-  AIUsageLog,
-  AIStats,
   AIRecommendation,
+  AIStats,
+  AIUsageLog,
   CostForecast,
-  PeriodType
-} from "./types";
-
+  PeriodType,
+} from './types';
+export { calculateForecast, exportToCSV, generateRecommendations } from './utils';

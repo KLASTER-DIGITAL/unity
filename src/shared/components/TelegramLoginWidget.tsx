@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export interface TelegramUser {
+export type TelegramUser = {
   id: number;
   first_name: string;
   last_name?: string;
@@ -8,9 +8,9 @@ export interface TelegramUser {
   photo_url?: string;
   auth_date: number;
   hash: string;
-}
+};
 
-interface TelegramLoginWidgetProps {
+type TelegramLoginWidgetProps = {
   botName: string;
   buttonSize?: 'large' | 'medium' | 'small';
   cornerRadius?: number;
@@ -18,13 +18,13 @@ interface TelegramLoginWidgetProps {
   usePic?: boolean;
   lang?: string;
   onAuth: (user: TelegramUser) => void;
-}
+};
 
 /**
  * Native Telegram Login Widget component
  * Uses official Telegram Login Widget script instead of react-telegram-login
  * to avoid React version conflicts (react-telegram-login uses React 16)
- * 
+ *
  * Documentation: https://core.telegram.org/widgets/login
  */
 export function TelegramLoginWidget({
@@ -73,4 +73,3 @@ export function TelegramLoginWidget({
 
   return <div ref={containerRef} />;
 }
-

@@ -1,16 +1,16 @@
-import { useEffect, useRef } from "react";
-import { Iphone15Pro } from "@/shared/components/ui/shadcn-io/iphone-15-pro";
-import { Android } from "@/shared/components/ui/shadcn-io/android";
-import { Safari } from "@/shared/components/ui/shadcn-io/safari";
-import { ChromeMobile } from "@/shared/components/ui/shadcn-io/chrome-mobile";
-import { YandexBrowser } from "@/shared/components/ui/shadcn-io/yandex-browser";
-import { DeviceType, DEVICES, PlatformMode } from "./types";
+import { useEffect, useRef } from 'react';
+import { Android } from '@/shared/components/ui/shadcn-io/android';
+import { ChromeMobile } from '@/shared/components/ui/shadcn-io/chrome-mobile';
+import { Iphone15Pro } from '@/shared/components/ui/shadcn-io/iphone-15-pro';
+import { Safari } from '@/shared/components/ui/shadcn-io/safari';
+import { YandexBrowser } from '@/shared/components/ui/shadcn-io/yandex-browser';
+import { DEVICES, type DeviceType, type PlatformMode } from './types';
 
-interface LivePreviewProps {
+type LivePreviewProps = {
   selectedDevice: DeviceType;
   platformMode: PlatformMode;
   previewUrl: string;
-}
+};
 
 export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -21,8 +21,8 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
     const sendPlatformMode = () => {
       if (iframeRef.current?.contentWindow) {
         iframeRef.current.contentWindow.postMessage(
-          { type: "PLATFORM_MODE_CHANGE", mode: platformMode },
-          "*"
+          { type: 'PLATFORM_MODE_CHANGE', mode: platformMode },
+          '*'
         );
       }
     };
@@ -35,11 +35,11 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
   // Render iframe content
   const renderIframe = () => (
     <iframe
+      className="h-full w-full border-0"
       ref={iframeRef}
-      src={previewUrl}
-      className="w-full h-full border-0"
-      title="PWA Preview"
       sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+      src={previewUrl}
+      title="PWA Preview"
     />
   );
 
@@ -48,18 +48,22 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
     const iframeContent = renderIframe();
 
     switch (selectedDevice) {
-      case "iphone-15-pro":
+      case 'iphone-15-pro':
         return (
           <div className="flex items-center justify-center p-8">
             <div className="relative" style={{ width: device.width, height: device.height }}>
-              <Iphone15Pro width={device.width} height={device.height} className="absolute inset-0" />
-              <div 
+              <Iphone15Pro
+                className="absolute inset-0"
+                height={device.height}
+                width={device.width}
+              />
+              <div
                 className="absolute overflow-hidden rounded-[40px]"
                 style={{
-                  top: "60px",
-                  left: "20px",
+                  top: '60px',
+                  left: '20px',
                   width: device.width - 40,
-                  height: device.height - 120
+                  height: device.height - 120,
                 }}
               >
                 {iframeContent}
@@ -68,18 +72,18 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
           </div>
         );
 
-      case "android":
+      case 'android':
         return (
           <div className="flex items-center justify-center p-8">
             <div className="relative" style={{ width: device.width, height: device.height }}>
-              <Android width={device.width} height={device.height} className="absolute inset-0" />
-              <div 
+              <Android className="absolute inset-0" height={device.height} width={device.width} />
+              <div
                 className="absolute overflow-hidden rounded-[30px]"
                 style={{
-                  top: "50px",
-                  left: "15px",
+                  top: '50px',
+                  left: '15px',
                   width: device.width - 30,
-                  height: device.height - 100
+                  height: device.height - 100,
                 }}
               >
                 {iframeContent}
@@ -88,23 +92,23 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
           </div>
         );
 
-      case "safari":
+      case 'safari':
         return (
           <div className="flex items-center justify-center p-8">
             <div className="relative" style={{ width: device.width, height: device.height }}>
-              <Safari 
-                url={previewUrl} 
-                width={device.width} 
-                height={device.height} 
-                className="absolute inset-0" 
+              <Safari
+                className="absolute inset-0"
+                height={device.height}
+                url={previewUrl}
+                width={device.width}
               />
-              <div 
+              <div
                 className="absolute overflow-hidden"
                 style={{
-                  top: "52px",
-                  left: "1px",
+                  top: '52px',
+                  left: '1px',
                   width: device.width - 2,
-                  height: device.height - 52
+                  height: device.height - 52,
                 }}
               >
                 {iframeContent}
@@ -113,23 +117,23 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
           </div>
         );
 
-      case "chrome-mobile":
+      case 'chrome-mobile':
         return (
           <div className="flex items-center justify-center p-8">
             <div className="relative" style={{ width: device.width, height: device.height }}>
-              <ChromeMobile 
-                url={previewUrl} 
-                width={device.width} 
-                height={device.height} 
-                className="absolute inset-0" 
+              <ChromeMobile
+                className="absolute inset-0"
+                height={device.height}
+                url={previewUrl}
+                width={device.width}
               />
-              <div 
+              <div
                 className="absolute overflow-hidden"
                 style={{
-                  top: "52px",
-                  left: "1px",
+                  top: '52px',
+                  left: '1px',
                   width: device.width - 2,
-                  height: device.height - 52
+                  height: device.height - 52,
                 }}
               >
                 {iframeContent}
@@ -138,23 +142,23 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
           </div>
         );
 
-      case "yandex-browser":
+      case 'yandex-browser':
         return (
           <div className="flex items-center justify-center p-8">
             <div className="relative" style={{ width: device.width, height: device.height }}>
-              <YandexBrowser 
-                url={previewUrl} 
-                width={device.width} 
-                height={device.height} 
-                className="absolute inset-0" 
+              <YandexBrowser
+                className="absolute inset-0"
+                height={device.height}
+                url={previewUrl}
+                width={device.width}
               />
-              <div 
+              <div
                 className="absolute overflow-hidden"
                 style={{
-                  top: "52px",
-                  left: "1px",
+                  top: '52px',
+                  left: '1px',
                   width: device.width - 2,
-                  height: device.height - 52
+                  height: device.height - 52,
                 }}
               >
                 {iframeContent}
@@ -169,9 +173,8 @@ export function LivePreview({ selectedDevice, platformMode, previewUrl }: LivePr
   };
 
   return (
-    <div className="flex-1 bg-muted/30 rounded-lg overflow-auto transition-colors duration-300">
+    <div className="flex-1 overflow-auto rounded-lg bg-muted/30 transition-colors duration-300">
       {renderDeviceMock()}
     </div>
   );
 }
-

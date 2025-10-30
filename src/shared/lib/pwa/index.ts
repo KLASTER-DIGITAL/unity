@@ -3,6 +3,5 @@
  * Migrated from utils/ to shared/lib/api/ for better organization
  */
 
-export * from '../api/pwaUtils';
 export * from '../api/generatePWAIcons';
-
+export * from '../api/pwaUtils';

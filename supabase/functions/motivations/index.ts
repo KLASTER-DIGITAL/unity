@@ -13,7 +13,7 @@ function getEnvVars() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!(supabaseUrl && supabaseServiceKey)) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 
@@ -28,20 +28,14 @@ console.log('[MOTIVATIONS v9] ✅ Environment ready');
 
 function getGradientBySentiment(sentiment: string): string {
   const gradients: Record<string, string[]> = {
-    'positive': [
+    positive: [
       'from-[#FE7669] to-[#ff8969]',
       'from-[#ff7769] to-[#ff6b9d]',
       'from-[#ff6b9d] to-[#c471ed]',
-      'from-[#c471ed] to-[#8B78FF]'
+      'from-[#c471ed] to-[#8B78FF]',
     ],
-    'neutral': [
-      'from-[#4facfe] to-[#00f2fe]',
-      'from-[#43e97b] to-[#38f9d7]'
-    ],
-    'negative': [
-      'from-[#f093fb] to-[#f5576c]',
-      'from-[#fa709a] to-[#fee140]'
-    ]
+    neutral: ['from-[#4facfe] to-[#00f2fe]', 'from-[#43e97b] to-[#38f9d7]'],
+    negative: ['from-[#f093fb] to-[#f5576c]', 'from-[#fa709a] to-[#fee140]'],
   };
 
   const gradientList = gradients[sentiment] || gradients['positive'];
@@ -50,26 +44,28 @@ function getGradientBySentiment(sentiment: string): string {
 
 function getDefaultMotivations(language: string): any[] {
   const defaults: Record<string, any[]> = {
-    'ru': [
+    ru: [
       {
         id: 'default-1',
         date: new Date().toLocaleDateString('ru-RU'),
         title: 'Запиши момент благодарности',
-        description: 'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
+        description:
+          'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
         gradient: 'from-[#c471ed] to-[#8B78FF]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'grateful'
+        sentiment: 'grateful',
       },
       {
         id: 'default-2',
         date: new Date().toLocaleDateString('ru-RU'),
         title: 'Даже одна мысль делает день осмысленным',
-        description: 'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
+        description:
+          'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
         gradient: 'from-[#ff6b9d] to-[#c471ed]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'calm'
+        sentiment: 'calm',
       },
       {
         id: 'default-3',
@@ -79,41 +75,43 @@ function getDefaultMotivations(language: string): any[] {
         gradient: 'from-[#43e97b] to-[#38f9d7]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'excited'
-      }
+        sentiment: 'excited',
+      },
     ],
-    'en': [
+    en: [
       {
         id: 'default-1',
         date: new Date().toLocaleDateString('en-US'),
         title: 'Write a moment of gratitude',
-        description: 'Feel the lightness when you notice the good in your life. This is the path to happiness.',
+        description:
+          'Feel the lightness when you notice the good in your life. This is the path to happiness.',
         gradient: 'from-[#c471ed] to-[#8B78FF]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'grateful'
+        sentiment: 'grateful',
       },
       {
         id: 'default-2',
         date: new Date().toLocaleDateString('en-US'),
         title: 'Even one thought makes the day meaningful',
-        description: 'You don\'t have to write a lot — one phrase can change your view of the day.',
+        description: "You don't have to write a lot — one phrase can change your view of the day.",
         gradient: 'from-[#ff6b9d] to-[#c471ed]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'calm'
+        sentiment: 'calm',
       },
       {
         id: 'default-3',
         date: new Date().toLocaleDateString('en-US'),
         title: 'Today is a great time',
-        description: 'Write down a small victory — it\'s the first step to realizing your achievements.',
+        description:
+          "Write down a small victory — it's the first step to realizing your achievements.",
         gradient: 'from-[#43e97b] to-[#38f9d7]',
         isMarked: false,
         isDefault: true,
-        sentiment: 'excited'
-      }
-    ]
+        sentiment: 'excited',
+      },
+    ],
   };
 
   return defaults[language] || defaults['en'];
@@ -146,7 +144,7 @@ async function handleRequest(req: Request): Promise<Response> {
     console.log('[MOTIVATIONS v9] ✅ OPTIONS handled');
     return new Response(null, {
       status: 204,
-      headers: corsHeaders()
+      headers: corsHeaders(),
     });
   }
 
@@ -159,11 +157,11 @@ async function handleRequest(req: Request): Promise<Response> {
           success: true,
           version: 'v9-pure-deno',
           message: 'Motivations microservice is running (Pure Deno, no Hono)',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         }
       );
     }
@@ -173,13 +171,10 @@ async function handleRequest(req: Request): Promise<Response> {
       const userId = url.pathname.split('/').pop();
 
       if (!userId) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Missing userId' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-          }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'Missing userId' }), {
+          status: 400,
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+        });
       }
 
       console.log(`[MOTIVATIONS v9] Fetching cards for user: ${userId}`);
@@ -191,10 +186,10 @@ async function handleRequest(req: Request): Promise<Response> {
         `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=language`,
         {
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
-          }
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -212,10 +207,10 @@ async function handleRequest(req: Request): Promise<Response> {
         `${supabaseUrl}/rest/v1/entries?user_id=eq.${userId}&created_at=gte.${yesterday.toISOString()}&order=created_at.desc&limit=10`,
         {
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
-          }
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -231,10 +226,10 @@ async function handleRequest(req: Request): Promise<Response> {
         `${supabaseUrl}/rest/v1/motivation_cards?user_id=eq.${userId}&is_read=eq.true&created_at=gte.${yesterday.toISOString()}&select=entry_id`,
         {
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
-          }
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -254,16 +249,20 @@ async function handleRequest(req: Request): Promise<Response> {
       const cards = unviewedEntries.slice(0, 3).map((entry: any) => ({
         id: entry.id,
         entryId: entry.id,
-        date: new Date(entry.created_at).toLocaleDateString(userLanguage === 'ru' ? 'ru-RU' : 'en-US'),
+        date: new Date(entry.created_at).toLocaleDateString(
+          userLanguage === 'ru' ? 'ru-RU' : 'en-US'
+        ),
         title: entry.ai_summary
-          ? entry.ai_summary.split(' ').slice(0, 8).join(' ') + (entry.ai_summary.split(' ').length > 8 ? '...' : '')
-          : entry.text.split(' ').slice(0, 8).join(' ') + (entry.text.split(' ').length > 8 ? '...' : ''),
+          ? entry.ai_summary.split(' ').slice(0, 8).join(' ') +
+            (entry.ai_summary.split(' ').length > 8 ? '...' : '')
+          : entry.text.split(' ').slice(0, 8).join(' ') +
+            (entry.text.split(' ').length > 8 ? '...' : ''),
         description: entry.ai_insight || entry.ai_summary || entry.text,
         gradient: getGradientBySentiment(entry.sentiment || 'positive'),
         isMarked: false,
         isDefault: false,
         sentiment: entry.sentiment || 'positive',
-        mood: entry.mood || 'хорошее'
+        mood: entry.mood || 'хорошее',
       }));
 
       // Step 6: Add default cards if needed
@@ -276,13 +275,10 @@ async function handleRequest(req: Request): Promise<Response> {
 
       console.log(`[MOTIVATIONS v9] ✅ Returning ${cards.length} cards`);
 
-      return new Response(
-        JSON.stringify({ success: true, cards }),
-        {
-          status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-        }
-      );
+      return new Response(JSON.stringify({ success: true, cards }), {
+        status: 200,
+        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: POST /motivations/mark-read
@@ -290,12 +286,12 @@ async function handleRequest(req: Request): Promise<Response> {
       const body = await req.json();
       const { userId, cardId } = body;
 
-      if (!userId || !cardId) {
+      if (!(userId && cardId)) {
         return new Response(
           JSON.stringify({ success: false, error: 'userId and cardId are required' }),
           {
             status: 400,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
           }
         );
       }
@@ -305,58 +301,45 @@ async function handleRequest(req: Request): Promise<Response> {
       const { supabaseUrl, supabaseServiceKey } = getEnvVars();
 
       // Insert into motivation_cards via REST API
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/motivation_cards`,
-        {
-          method: 'POST',
-          headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({
-            user_id: userId,
-            entry_id: cardId,
-            is_read: true,
-            created_at: new Date().toISOString()
-          })
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/rest/v1/motivation_cards`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          entry_id: cardId,
+          is_read: true,
+          created_at: new Date().toISOString(),
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to mark card as read: ${response.status}`);
       }
 
-      console.log(`[MOTIVATIONS v9] ✅ Card marked as read`);
+      console.log('[MOTIVATIONS v9] ✅ Card marked as read');
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        {
-          status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-        }
-      );
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+      });
     }
 
     // 404 Not Found
-    return new Response(
-      JSON.stringify({ success: false, error: 'Not Found' }),
-      {
-        status: 404,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify({ success: false, error: 'Not Found' }), {
+      status: 404,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[MOTIVATIONS v9] ❌ Error:', error.message);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   }
 }
 

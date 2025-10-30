@@ -1,7 +1,7 @@
 // Hooks exports
+
+export { useImageCompressionWorker } from './useImageCompressionWorker';
 export { useKeyboardVisible } from './useKeyboardVisible';
-export { useVoiceRecorder } from './useVoiceRecorder';
 export { useMediaUploader } from './useMediaUploader';
 export { useSpeechRecognition } from './useSpeechRecognition';
-export { useImageCompressionWorker } from './useImageCompressionWorker';
-
+export { useVoiceRecorder } from './useVoiceRecorder';

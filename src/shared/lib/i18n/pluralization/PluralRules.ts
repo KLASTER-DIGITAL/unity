@@ -1,9 +1,9 @@
 /**
  * Pluralization rules for different languages
- * 
+ *
  * Based on Unicode CLDR plural rules:
  * https://cldr.unicode.org/index/cldr-spec/plural-rules
- * 
+ *
  * Plural forms:
  * - zero: 0 items (Arabic, Welsh)
  * - one: 1 item (most languages)
@@ -21,13 +21,15 @@ export type PluralRule = (count: number) => PluralForm;
  * English plural rules (simple: one/other)
  */
 const englishRule: PluralRule = (count: number): PluralForm => {
-  if (count === 1) return 'one';
+  if (count === 1) {
+    return 'one';
+  }
   return 'other';
 };
 
 /**
  * Russian plural rules (complex: one/few/many)
- * 
+ *
  * Examples:
  * - 1, 21, 31... → one (1 день)
  * - 2-4, 22-24, 32-34... → few (2 дня)
@@ -36,9 +38,13 @@ const englishRule: PluralRule = (count: number): PluralForm => {
 const russianRule: PluralRule = (count: number): PluralForm => {
   const mod10 = count % 10;
   const mod100 = count % 100;
-  
-  if (mod10 === 1 && mod100 !== 11) return 'one';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'few';
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return 'one';
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return 'few';
+  }
   return 'many';
 };
 
@@ -46,7 +52,9 @@ const russianRule: PluralRule = (count: number): PluralForm => {
  * Spanish plural rules (simple: one/other)
  */
 const spanishRule: PluralRule = (count: number): PluralForm => {
-  if (count === 1) return 'one';
+  if (count === 1) {
+    return 'one';
+  }
   return 'other';
 };
 
@@ -54,7 +62,9 @@ const spanishRule: PluralRule = (count: number): PluralForm => {
  * German plural rules (simple: one/other)
  */
 const germanRule: PluralRule = (count: number): PluralForm => {
-  if (count === 1) return 'one';
+  if (count === 1) {
+    return 'one';
+  }
   return 'other';
 };
 
@@ -62,35 +72,35 @@ const germanRule: PluralRule = (count: number): PluralForm => {
  * French plural rules (one for 0 and 1, other for rest)
  */
 const frenchRule: PluralRule = (count: number): PluralForm => {
-  if (count === 0 || count === 1) return 'one';
+  if (count === 0 || count === 1) {
+    return 'one';
+  }
   return 'other';
 };
 
 /**
  * Chinese plural rules (no plurals, always other)
  */
-const chineseRule: PluralRule = (_count: number): PluralForm => {
-  return 'other';
-};
+const chineseRule: PluralRule = (_count: number): PluralForm => 'other';
 
 /**
  * Japanese plural rules (no plurals, always other)
  */
-const japaneseRule: PluralRule = (_count: number): PluralForm => {
-  return 'other';
-};
+const japaneseRule: PluralRule = (_count: number): PluralForm => 'other';
 
 /**
  * Georgian plural rules (simple: one/other)
  */
 const georgianRule: PluralRule = (count: number): PluralForm => {
-  if (count === 1) return 'one';
+  if (count === 1) {
+    return 'one';
+  }
   return 'other';
 };
 
 /**
  * Arabic plural rules (complex: zero/one/two/few/many/other)
- * 
+ *
  * Examples:
  * - 0 → zero
  * - 1 → one
@@ -100,11 +110,21 @@ const georgianRule: PluralRule = (count: number): PluralForm => {
  * - 100+ → other
  */
 const arabicRule: PluralRule = (count: number): PluralForm => {
-  if (count === 0) return 'zero';
-  if (count === 1) return 'one';
-  if (count === 2) return 'two';
-  if (count >= 3 && count <= 10) return 'few';
-  if (count >= 11 && count <= 99) return 'many';
+  if (count === 0) {
+    return 'zero';
+  }
+  if (count === 1) {
+    return 'one';
+  }
+  if (count === 2) {
+    return 'two';
+  }
+  if (count >= 3 && count <= 10) {
+    return 'few';
+  }
+  if (count >= 11 && count <= 99) {
+    return 'many';
+  }
   return 'other';
 };
 
@@ -114,9 +134,13 @@ const arabicRule: PluralRule = (count: number): PluralForm => {
 const polishRule: PluralRule = (count: number): PluralForm => {
   const mod10 = count % 10;
   const mod100 = count % 100;
-  
-  if (count === 1) return 'one';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'few';
+
+  if (count === 1) {
+    return 'one';
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return 'few';
+  }
   return 'many';
 };
 
@@ -125,34 +149,34 @@ const polishRule: PluralRule = (count: number): PluralForm => {
  */
 const PLURAL_RULES: Record<string, PluralRule> = {
   // English
-  'en': englishRule,
-  
+  en: englishRule,
+
   // Russian
-  'ru': russianRule,
-  
+  ru: russianRule,
+
   // Spanish
-  'es': spanishRule,
-  
+  es: spanishRule,
+
   // German
-  'de': germanRule,
-  
+  de: germanRule,
+
   // French
-  'fr': frenchRule,
-  
+  fr: frenchRule,
+
   // Chinese
-  'zh': chineseRule,
-  
+  zh: chineseRule,
+
   // Japanese
-  'ja': japaneseRule,
-  
+  ja: japaneseRule,
+
   // Georgian
-  'ka': georgianRule,
-  
+  ka: georgianRule,
+
   // Arabic
-  'ar': arabicRule,
-  
+  ar: arabicRule,
+
   // Polish
-  'pl': polishRule
+  pl: polishRule,
 };
 
 /**
@@ -202,7 +226,7 @@ export function getPluralExamples(language: string): Record<PluralForm, number[]
         many: [5, 6, 10, 11, 20, 25, 100],
         zero: [],
         two: [],
-        other: []
+        other: [],
       };
     case 'ar':
       return {
@@ -211,7 +235,7 @@ export function getPluralExamples(language: string): Record<PluralForm, number[]
         two: [2],
         few: [3, 4, 5, 10],
         many: [11, 20, 50, 99],
-        other: [100, 200, 1000]
+        other: [100, 200, 1000],
       };
     case 'zh':
     case 'ja':
@@ -221,7 +245,7 @@ export function getPluralExamples(language: string): Record<PluralForm, number[]
         one: [],
         two: [],
         few: [],
-        many: []
+        many: [],
       };
     default:
       return {
@@ -230,14 +254,14 @@ export function getPluralExamples(language: string): Record<PluralForm, number[]
         zero: [],
         two: [],
         few: [],
-        many: []
+        many: [],
       };
   }
 }
 
 /**
  * Format a plural translation key
- * 
+ *
  * Examples:
  * - formatPluralKey('items', 'one') → 'items_one'
  * - formatPluralKey('items', 'few') → 'items_few'
@@ -248,23 +272,23 @@ export function formatPluralKey(baseKey: string, form: PluralForm): string {
 
 /**
  * Parse a plural translation key
- * 
+ *
  * Examples:
  * - parsePluralKey('items_one') → { baseKey: 'items', form: 'one' }
  * - parsePluralKey('items_few') → { baseKey: 'items', form: 'few' }
  */
 export function parsePluralKey(key: string): { baseKey: string; form: PluralForm | null } {
   const forms: PluralForm[] = ['zero', 'one', 'two', 'few', 'many', 'other'];
-  
+
   for (const form of forms) {
     if (key.endsWith(`_${form}`)) {
       return {
         baseKey: key.slice(0, -form.length - 1),
-        form
+        form,
       };
     }
   }
-  
+
   return { baseKey: key, form: null };
 }
 
@@ -275,4 +299,3 @@ export function isPluralKey(key: string): boolean {
   const { form } = parsePluralKey(key);
   return form !== null;
 }
-

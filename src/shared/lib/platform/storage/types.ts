@@ -7,7 +7,7 @@
 /**
  * Universal storage interface
  */
-export interface StorageAdapter {
+export type StorageAdapter = {
   /**
    * Get item from storage
    * @param key - Storage key
@@ -62,5 +62,4 @@ export interface StorageAdapter {
    * @returns Promise resolving when operation completes
    */
   multiRemove(keys: string[]): Promise<void>;
-}
-
+};

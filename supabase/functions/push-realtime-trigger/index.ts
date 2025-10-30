@@ -1,16 +1,16 @@
 /**
  * Push Realtime Trigger Edge Function
- * 
+ *
  * Автоматически отправляет push уведомления при событиях в БД:
  * - Новая запись создана (entries INSERT)
  * - Новое достижение (achievements INSERT)
  * - AI-анализ готов (entry_summaries INSERT)
- * 
+ *
  * Вызывается через Database Webhooks или Supabase Realtime
- * 
+ *
  * Endpoints:
  * - POST /push-realtime-trigger - Обработать событие и отправить push
- * 
+ *
  * Body:
  * {
  *   "type": "INSERT",
@@ -62,23 +62,20 @@ async function sendPushNotification(
   data?: Record<string, any>
 ) {
   try {
-    const response = await fetch(
-      `${supabaseUrl}/functions/v1/push-sender`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-        },
-        body: JSON.stringify({
-          user_ids: [userId],
-          title,
-          body,
-          icon: icon || '/icon-192.png',
-          data: data || {},
-        }),
-      }
-    );
+    const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify({
+        user_ids: [userId],
+        title,
+        body,
+        icon: icon || '/icon-192.png',
+        data: data || {},
+      }),
+    });
 
     const result = await response.json();
     console.log('[PUSH-REALTIME] Push sent:', result);
@@ -94,7 +91,7 @@ async function sendPushNotification(
  */
 async function handleEntryInsert(record: any) {
   const userId = record.user_id;
-  
+
   // Проверяем есть ли активные subscriptions
   const subscriptions = await getUserPushSubscriptions(userId);
   if (subscriptions.length === 0) {
@@ -121,7 +118,7 @@ async function handleEntryInsert(record: any) {
  */
 async function handleAchievementInsert(record: any) {
   const userId = record.user_id;
-  
+
   // Проверяем есть ли активные subscriptions
   const subscriptions = await getUserPushSubscriptions(userId);
   if (subscriptions.length === 0) {
@@ -160,7 +157,7 @@ async function handleSummaryInsert(record: any) {
   }
 
   const userId = entry.user_id;
-  
+
   // Проверяем есть ли активные subscriptions
   const subscriptions = await getUserPushSubscriptions(userId);
   if (subscriptions.length === 0) {
@@ -199,10 +196,10 @@ Deno.serve(async (req) => {
     // Обрабатываем только INSERT события
     if (type !== 'INSERT') {
       console.log('[PUSH-REALTIME] Ignoring non-INSERT event:', type);
-      return new Response(
-        JSON.stringify({ success: true, message: 'Event ignored' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, message: 'Event ignored' }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Обрабатываем события по таблицам
@@ -224,16 +221,15 @@ Deno.serve(async (req) => {
         console.log('[PUSH-REALTIME] Unknown table:', table);
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('[PUSH-REALTIME] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

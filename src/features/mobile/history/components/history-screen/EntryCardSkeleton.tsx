@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 /**
  * Entry Card Skeleton Component
@@ -7,13 +7,13 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
  */
 export function EntryCardSkeleton() {
   return (
-    <div className="bg-card rounded-[16px] p-4 border border-border">
+    <div className="rounded-[16px] border border-border bg-card p-4">
       {/* Header: Category icon + name + date + actions button */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-2">
           {/* Category icon skeleton */}
-          <Skeleton className="w-8 h-8 rounded-[8px]" />
-          
+          <Skeleton className="h-8 w-8 rounded-[8px]" />
+
           <div className="space-y-1.5">
             {/* Category name skeleton */}
             <Skeleton className="h-[14px] w-20" />
@@ -23,18 +23,18 @@ export function EntryCardSkeleton() {
         </div>
 
         {/* Actions button skeleton */}
-        <Skeleton className="w-6 h-6 rounded-[6px]" />
+        <Skeleton className="h-6 w-6 rounded-[6px]" />
       </div>
 
       {/* Entry text skeleton - 2-3 lines */}
-      <div className="space-y-2 mb-3">
+      <div className="mb-3 space-y-2">
         <Skeleton className="h-[15px] w-full" />
         <Skeleton className="h-[15px] w-full" />
         <Skeleton className="h-[15px] w-3/4" />
       </div>
 
       {/* Tags skeleton - sentiment + 2 tags */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         <Skeleton className="h-6 w-20 rounded-[6px]" />
         <Skeleton className="h-6 w-16 rounded-[6px]" />
         <Skeleton className="h-6 w-24 rounded-[6px]" />
@@ -42,4 +42,3 @@ export function EntryCardSkeleton() {
     </div>
   );
 }
-

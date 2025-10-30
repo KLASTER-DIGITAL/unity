@@ -1,6 +1,6 @@
 /**
  * User Types - Shared between PWA and React Native
- * 
+ *
  * TRULY shared code - NO platform-specific imports
  */
 
@@ -30,4 +30,3 @@ export interface UserData {
   email: string; // Alias for user.email
   role: 'user' | 'super_admin'; // Alias for user.role
 }
-

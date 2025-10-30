@@ -4,29 +4,27 @@
  */
 
 export {
-  prefetchComponent,
-  prefetchComponents,
-  createHoverPrefetch,
-  prefetchOnIdle,
-  prefetchOnInteraction,
-  prefetchOnVisible,
-  smartPrefetch,
-  RoutePrefetcher,
-  routePrefetcher,
-} from './prefetch';
-
-export {
+  type CustomMetrics,
+  PERFORMANCE_THRESHOLDS,
+  type PerformanceEntry,
   PerformanceMonitor,
   performanceMonitor,
   reportWebVitals,
-  PERFORMANCE_THRESHOLDS,
   type WebVitalsMetrics,
-  type CustomMetrics,
-  type PerformanceEntry
 } from './monitoring';
+export {
+  createHoverPrefetch,
+  prefetchComponent,
+  prefetchComponents,
+  prefetchOnIdle,
+  prefetchOnInteraction,
+  prefetchOnVisible,
+  RoutePrefetcher,
+  routePrefetcher,
+  smartPrefetch,
+} from './prefetch';
 
 export {
   initSentryPerformanceIntegration,
-  reportPerformanceSummary
+  reportPerformanceSummary,
 } from './sentry-integration';
-

@@ -1,7 +1,7 @@
 /**
  * User profile interface
  */
-export interface UserProfile {
+export type UserProfile = {
   id: string;
   email: string;
   name: string;
@@ -20,12 +20,12 @@ export interface UserProfile {
   offlineEnabled?: boolean;
   firstDayOfWeek?: string;
   privacySettings?: any;
-}
+};
 
 /**
  * Media file interface
  */
-export interface MediaFile {
+export type MediaFile = {
   id: string;
   userId: string;
   fileName: string;
@@ -37,12 +37,12 @@ export interface MediaFile {
   path?: string;
   type?: string;
   mimeType?: string;
-}
+};
 
 /**
  * AI analysis result interface
  */
-export interface AIAnalysisResult {
+export type AIAnalysisResult = {
   reply: string;
   summary: string;
   insight: string;
@@ -53,12 +53,12 @@ export interface AIAnalysisResult {
   isAchievement?: boolean;
   mood?: string;
   entrySummaryId?: string;
-}
+};
 
 /**
  * Diary entry interface
  */
-export interface DiaryEntry {
+export type DiaryEntry = {
   id: string;
   userId: string;
   text: string;
@@ -76,12 +76,12 @@ export interface DiaryEntry {
   createdAt: string;
   streakDay: number;
   focusArea: string;
-}
+};
 
 /**
  * User statistics interface
  */
-export interface UserStats {
+export type UserStats = {
   totalEntries: number;
   currentStreak: number;
   longestStreak: number;
@@ -92,22 +92,22 @@ export interface UserStats {
     neutral: number;
     negative: number;
   };
-}
+};
 
 /**
  * Upload media options
  */
-export interface UploadMediaOptions {
+export type UploadMediaOptions = {
   thumbnail?: File;
   width?: number;
   height?: number;
   duration?: number;
-}
+};
 
 /**
  * Motivation card interface
  */
-export interface MotivationCard {
+export type MotivationCard = {
   id: string;
   entryId?: string;
   date: string;
@@ -118,12 +118,12 @@ export interface MotivationCard {
   isDefault?: boolean;
   sentiment?: string;
   mood?: string;
-}
+};
 
 /**
  * Book draft interface
  */
-export interface BookDraft {
+export type BookDraft = {
   id: string;
   userId: string;
   periodStart: string;
@@ -139,12 +139,12 @@ export interface BookDraft {
   isFinal: boolean;
   createdAt: string;
   updatedAt: string;
-}
+};
 
 /**
  * Book generation request
  */
-export interface BookGenerationRequest {
+export type BookGenerationRequest = {
   period: {
     start: string;
     end: string;
@@ -154,5 +154,4 @@ export interface BookGenerationRequest {
   layout: string;
   theme: string;
   userId: string;
-}
-
+};

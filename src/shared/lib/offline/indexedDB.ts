@@ -1,6 +1,6 @@
 /**
  * IndexedDB Utilities for Offline Storage
- * 
+ *
  * Provides a simple API for storing and retrieving data in IndexedDB.
  * Used for offline entries, pending syncs, and cached data.
  */
@@ -15,7 +15,7 @@ export const STORES = {
   SYNC_QUEUE: 'sync_queue',
 } as const;
 
-export interface PendingEntry {
+export type PendingEntry = {
   id: string;
   userId: string;
   text: string;
@@ -28,9 +28,9 @@ export interface PendingEntry {
   syncStatus: 'pending' | 'syncing' | 'failed';
   retryCount: number;
   lastError?: string;
-}
+};
 
-export interface SyncQueueItem {
+export type SyncQueueItem = {
   id: string;
   type: 'create' | 'update' | 'delete';
   storeName: string;
@@ -38,7 +38,7 @@ export interface SyncQueueItem {
   timestamp: number;
   retryCount: number;
   lastError?: string;
-}
+};
 
 /**
  * Initialize IndexedDB database
@@ -272,4 +272,3 @@ export async function clearStore(storeName: string): Promise<void> {
     };
   });
 }
-

@@ -1,25 +1,19 @@
-import {
-  Heart,
-  Briefcase,
-  DollarSign,
-  Users,
-  Sparkles
-} from "lucide-react";
+import { Briefcase, DollarSign, Heart, Sparkles, Users } from 'lucide-react';
 
 /**
  * Category icons mapping
  */
 export const CATEGORY_ICONS: { [key: string]: any } = {
-  'Другое': Sparkles,
-  'Семья': Users,
-  'Работа': Briefcase,
-  'Финансы': DollarSign,
-  'Благодарность': Heart,
-  'Здоровье': Sparkles,
+  Другое: Sparkles,
+  Семья: Users,
+  Работа: Briefcase,
+  Финансы: DollarSign,
+  Благодарность: Heart,
+  Здоровье: Sparkles,
   'Личное развитие': Sparkles,
-  'Обучение': Sparkles,
-  'Творчество': Sparkles,
-  'Отношения': Heart
+  Обучение: Sparkles,
+  Творчество: Sparkles,
+  Отношения: Heart,
 };
 
 /**
@@ -28,7 +22,7 @@ export const CATEGORY_ICONS: { [key: string]: any } = {
 export const SENTIMENT_COLORS = {
   positive: 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]',
   neutral: 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]',
-  negative: 'bg-[var(--ios-orange)]/10 text-[var(--ios-orange)]'
+  negative: 'bg-[var(--ios-orange)]/10 text-[var(--ios-orange)]',
 };
 
 /**
@@ -43,6 +37,5 @@ export const CATEGORIES = [
   'Здоровье',
   'Личное развитие',
   'Творчество',
-  'Отношения'
+  'Отношения',
 ];
-

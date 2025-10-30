@@ -2,7 +2,6 @@
  * Types for History Screen
  */
 
-export interface HistoryScreenProps {
+export type HistoryScreenProps = {
   userData?: any;
-}
-
+};

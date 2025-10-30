@@ -2,7 +2,7 @@
  * Constants for Settings Screen
  */
 
-import type { Language } from "./types";
+import type { Language } from './types';
 
 // Default avatar URL
 export const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
@@ -17,4 +17,3 @@ export const DEFAULT_LANGUAGES: Language[] = [
   { code: 'zh', name: 'Chinese', native_name: '中文', flag: '🇨🇳', is_active: true },
   { code: 'ja', name: 'Japanese', native_name: '日本語', flag: '🇯🇵', is_active: true },
 ];
-

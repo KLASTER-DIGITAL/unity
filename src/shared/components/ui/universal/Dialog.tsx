@@ -1,15 +1,16 @@
 /**
  * Universal Dialog Component
- * 
+ *
  * Cross-platform dialog/modal component
  * - Web: Radix UI Dialog
  * - Native: React Native Modal
- * 
+ *
  * @module components/ui/universal/Dialog
  */
 
 // Import implementations
 import * as WebDialog from './Dialog.web';
+
 // Note: NativeDialog is NOT imported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed
 
@@ -41,12 +42,12 @@ export const DialogDescription = DialogComponents.DialogDescription;
 
 // Export types
 export type {
-  DialogProps,
   DialogContentProps,
-  DialogHeaderProps,
-  DialogFooterProps,
-  DialogTitleProps,
   DialogDescriptionProps,
+  DialogFooterProps,
+  DialogHeaderProps,
+  DialogProps,
+  DialogTitleProps,
 } from './Dialog.web';
 
 export default {
@@ -61,4 +62,3 @@ export default {
   DialogTitle,
   DialogDescription,
 };
-

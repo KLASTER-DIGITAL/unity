@@ -1,10 +1,10 @@
 /**
  * Admin Buttons - Button Components
  * AI-Friendly: 120 lines, < 200 lines target
- * 
+ *
  * Purpose: Button component styles for admin panel
  * Includes: .admin-btn variants (primary, secondary, outline, ghost, success, warning, error)
- * 
+ *
  * Why needed: Consistent button styling across admin interface
  */
 
@@ -130,4 +130,3 @@
   background-color: var(--admin-error-hover);
   border-color: var(--admin-error-hover);
 }
-

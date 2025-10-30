@@ -2,19 +2,19 @@
  * Achievement Home Screen - Type definitions
  */
 
-export interface DiaryData {
+export type DiaryData = {
   name: string;
   emoji: string;
-}
+};
 
-export interface AchievementHomeScreenProps {
+export type AchievementHomeScreenProps = {
   diaryData?: DiaryData;
   userData?: any;
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
-}
+};
 
-export interface AchievementCard {
+export type AchievementCard = {
   id: string;
   entryId?: string;
   date: string;
@@ -26,13 +26,12 @@ export interface AchievementCard {
   sentiment?: string;
   mood?: string;
   category?: string;
-}
+};
 
-export interface SwipeCardProps {
+export type SwipeCardProps = {
   card: AchievementCard;
   index: number;
   totalCards: number;
   onSwipe: (direction: 'left' | 'right') => void;
   isTop: boolean;
-}
-
+};

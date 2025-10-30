@@ -1,26 +1,21 @@
-import React from 'react';
+import type React from 'react';
 import { cn } from '../../utils';
 
-interface ColorPickerProps {
+type ColorPickerProps = {
   value?: string;
   onChange?: (value: string) => void;
   className?: string;
-}
+};
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
   value = '#3b82f6',
   onChange,
-  className
-}) => {
-  return (
-    <input
-      type="color"
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
-      className={cn(
-        'w-10 h-10 rounded border border-border cursor-pointer',
-        className
-      )}
-    />
-  );
-};
+  className,
+}) => (
+  <input
+    className={cn('h-10 w-10 cursor-pointer rounded border border-border', className)}
+    onChange={(e) => onChange?.(e.target.value)}
+    type="color"
+    value={value}
+  />
+);

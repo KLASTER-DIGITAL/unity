@@ -32,10 +32,10 @@ Deno.serve(async (req) => {
     // Get access token from Authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const accessToken = authHeader.replace('Bearer ', '');
@@ -44,13 +44,16 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify user with access token
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(accessToken);
     if (authError || !user) {
       console.error('[AUTH] User verification failed:', authError);
-      return new Response(
-        JSON.stringify({ error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Check if user is super admin
@@ -62,10 +65,10 @@ Deno.serve(async (req) => {
 
     if (profileError || profile?.role !== 'super_admin') {
       console.error('[AUTH] User is not super admin:', profile?.role);
-      return new Response(
-        JSON.stringify({ error: 'Access denied. Super admin only.' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Access denied. Super admin only.' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('[AUTH] ✅ Super admin verified:', user.id);
@@ -82,10 +85,9 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ translations }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ translations }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // GET /translations-management/languages - Get all languages with statistics
@@ -106,26 +108,25 @@ Deno.serve(async (req) => {
       if (transError) throw transError;
 
       // Get unique keys
-      const uniqueKeys = [...new Set(allTranslations.map(t => t.translation_key))];
+      const uniqueKeys = [...new Set(allTranslations.map((t) => t.translation_key))];
       const totalKeys = uniqueKeys.length;
 
       // Calculate statistics for each language
-      const languagesWithStats = languages.map(lang => {
-        const translationCount = allTranslations.filter(t => t.lang_code === lang.code).length;
+      const languagesWithStats = languages.map((lang) => {
+        const translationCount = allTranslations.filter((t) => t.lang_code === lang.code).length;
         const progress = totalKeys > 0 ? Math.round((translationCount / totalKeys) * 100) : 0;
 
         return {
           ...lang,
           translation_count: translationCount,
           total_keys: totalKeys,
-          progress
+          progress,
         };
       });
 
-      return new Response(
-        JSON.stringify({ languages: languagesWithStats }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ languages: languagesWithStats }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // GET /translations-management/missing - Get missing translation keys
@@ -146,7 +147,7 @@ Deno.serve(async (req) => {
 
       if (keysError) throw keysError;
 
-      const uniqueKeys = [...new Set(allKeys.map(k => k.translation_key))];
+      const uniqueKeys = [...new Set(allKeys.map((k) => k.translation_key))];
 
       // Get all existing translations
       const { data: translations, error: transError } = await supabaseAdmin
@@ -157,25 +158,24 @@ Deno.serve(async (req) => {
 
       // Find missing translations
       const missing: { key: string; languages: string[] }[] = [];
-      
+
       for (const key of uniqueKeys) {
         const existingLangs = translations
-          .filter(t => t.translation_key === key)
-          .map(t => t.lang_code);
-        
+          .filter((t) => t.translation_key === key)
+          .map((t) => t.lang_code);
+
         const missingLangs = languages
-          .map(l => l.code)
-          .filter(code => !existingLangs.includes(code));
+          .map((l) => l.code)
+          .filter((code) => !existingLangs.includes(code));
 
         if (missingLangs.length > 0) {
           missing.push({ key, languages: missingLangs });
         }
       }
 
-      return new Response(
-        JSON.stringify({ missing, total: missing.length }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ missing, total: missing.length }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // POST /translations-management - Update translation
@@ -183,33 +183,35 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const { translation_key, lang_code, translation_value, category } = body;
 
-      if (!translation_key || !lang_code || !translation_value) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!(translation_key && lang_code && translation_value)) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const { data, error } = await supabaseAdmin
         .from('translations')
-        .upsert({
-          translation_key,
-          lang_code,
-          translation_value,
-          category: category || null,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'translation_key,lang_code'
-        })
+        .upsert(
+          {
+            translation_key,
+            lang_code,
+            translation_value,
+            category: category || null,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'translation_key,lang_code',
+          }
+        )
         .select()
         .single();
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ success: true, translation: data }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, translation: data }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // POST /translations-management/language - Add/update language
@@ -217,32 +219,34 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const { code, name, native_name, is_active } = body;
 
-      if (!code || !name || !native_name) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!(code && name && native_name)) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const { data, error } = await supabaseAdmin
         .from('languages')
-        .upsert({
-          code,
-          name,
-          native_name,
-          is_active: is_active ?? true
-        }, {
-          onConflict: 'code'
-        })
+        .upsert(
+          {
+            code,
+            name,
+            native_name,
+            is_active: is_active ?? true,
+          },
+          {
+            onConflict: 'code',
+          }
+        )
         .select()
         .single();
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ success: true, language: data }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, language: data }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // DELETE /translations-management - Delete translation
@@ -250,11 +254,11 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const { translation_key, lang_code } = body;
 
-      if (!translation_key || !lang_code) {
-        return new Response(
-          JSON.stringify({ error: 'Missing required fields' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!(translation_key && lang_code)) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const { error } = await supabaseAdmin
@@ -265,23 +269,20 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ error: 'Not found' }),
-      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

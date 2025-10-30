@@ -23,18 +23,17 @@
 
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native implementation is in /app/shared/lib/platform/offline.native.ts
-import { offlineStorage, mediaStorage, networkAdapter } from './offline.web';
+import { mediaStorage, networkAdapter, offlineStorage } from './offline.web';
 
 // Export types
 export type {
-  OfflineStorageAdapter,
+  CachedEntry,
   MediaStorageAdapter,
   NetworkAdapter,
+  OfflineStorageAdapter,
   PendingEntry,
-  CachedEntry,
   SyncQueueItem,
 } from './types';
 
 // Export web implementations (PWA build)
 export { offlineStorage, mediaStorage, networkAdapter };
-

@@ -2,34 +2,31 @@
  * Settings Screen - Modular exports
  */
 
-export { DEFAULT_AVATAR_URL, DEFAULT_LANGUAGES } from "./constants";
-export { NotificationsSection } from "./NotificationsSection";
-export { SecuritySection } from "./SecuritySection";
-export { OfflineSection } from "./OfflineSection";
-export { ProfileHeader } from "./ProfileHeader";
-export { AdditionalSection } from "./AdditionalSection";
-export { SupportSection } from "./SupportSection";
-export { CategoriesSection } from "./CategoriesSection";
-export type { SettingsScreenProps, NotificationSettings, Language } from "./types";
-
+export { AdditionalSection } from './AdditionalSection';
+export { CategoriesSection } from './CategoriesSection';
+export { DEFAULT_AVATAR_URL, DEFAULT_LANGUAGES } from './constants';
 // Modals
 export {
-  FAQModal,
-  SupportModal,
-  RateAppModal,
-  LanguageModal,
-  PWAInstallModal,
   CategoriesModal,
-  OfflineSettingsModal
-} from "./modals";
-
+  FAQModal,
+  LanguageModal,
+  OfflineSettingsModal,
+  PWAInstallModal,
+  RateAppModal,
+  SupportModal,
+} from './modals';
+export { NotificationsSection } from './NotificationsSection';
+export { OfflineSection } from './OfflineSection';
+export { ProfileHeader } from './ProfileHeader';
+export { SecuritySection } from './SecuritySection';
+export { SupportSection } from './SupportSection';
 // Handlers
 export {
-  loadLanguages,
   checkBiometricAvailability,
+  handleLanguageChange,
+  loadLanguages,
   saveNotificationSettings,
-  saveSecuritySettings,
   saveOfflineSettings,
-  handleLanguageChange
-} from "./settingsHandlers";
-
+  saveSecuritySettings,
+} from './settingsHandlers';
+export type { Language, NotificationSettings, SettingsScreenProps } from './types';

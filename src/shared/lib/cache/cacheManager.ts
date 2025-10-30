@@ -1,15 +1,15 @@
 /**
  * Cache Manager
- * 
+ *
  * Utilities for managing Service Worker caches.
  * Provides functions for cache invalidation, clearing, and inspection.
  */
 
-export interface CacheInfo {
+export type CacheInfo = {
   name: string;
   size: number;
   entries: number;
-}
+};
 
 /**
  * Get all caches and their info
@@ -27,7 +27,7 @@ export async function getAllCaches(): Promise<CacheInfo[]> {
     for (const name of cacheNames) {
       const cache = await caches.open(name);
       const keys = await cache.keys();
-      
+
       let totalSize = 0;
       for (const request of keys) {
         const response = await cache.match(request);
@@ -40,7 +40,7 @@ export async function getAllCaches(): Promise<CacheInfo[]> {
       cacheInfos.push({
         name,
         size: totalSize,
-        entries: keys.length
+        entries: keys.length,
       });
     }
 
@@ -150,13 +150,15 @@ export async function invalidateURL(url: string): Promise<boolean> {
  * Get cache size in human-readable format
  */
 export function formatCacheSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  
+  if (bytes === 0) {
+    return '0 B';
+  }
+
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+
+  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 }
 
 /**
@@ -177,7 +179,7 @@ export async function isURLCached(url: string): Promise<boolean> {
 
   try {
     const cacheNames = await caches.keys();
-    
+
     for (const name of cacheNames) {
       const cache = await caches.open(name);
       const response = await cache.match(url);
@@ -185,10 +187,10 @@ export async function isURLCached(url: string): Promise<boolean> {
         return true;
       }
     }
-    
+
     return false;
   } catch (error) {
-    console.error(`[CacheManager] Failed to check if URL is cached:`, error);
+    console.error('[CacheManager] Failed to check if URL is cached:', error);
     return false;
   }
 }
@@ -196,7 +198,10 @@ export async function isURLCached(url: string): Promise<boolean> {
 /**
  * Preload URLs into cache
  */
-export async function preloadURLs(urls: string[], cacheName: string = 'achievement-diary-static-v1'): Promise<number> {
+export async function preloadURLs(
+  urls: string[],
+  cacheName = 'achievement-diary-static-v1'
+): Promise<number> {
   if (!('caches' in window)) {
     console.warn('[CacheManager] Cache API not supported');
     return 0;
@@ -236,12 +241,11 @@ export async function getCacheStats(): Promise<{
   caches: CacheInfo[];
 }> {
   const caches = await getAllCaches();
-  
+
   return {
     totalCaches: caches.length,
     totalEntries: caches.reduce((total, cache) => total + cache.entries, 0),
     totalSize: caches.reduce((total, cache) => total + cache.size, 0),
-    caches
+    caches,
   };
 }
-

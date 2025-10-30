@@ -1,29 +1,36 @@
 /**
  * Push Subscription Manager
- * 
+ *
  * Компонент для управления push подписками в PWA (для пользователей)
  * - Запрос разрешения на уведомления
  * - Подписка/отписка от push
  * - Отображение статуса подписки
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  isPushSupported,
+  trackPushDenied,
+  trackPushSubscribed,
+  trackPushUnsubscribed,
+} from '@/shared/lib/analytics/pwa-tracking';
+import {
   getNotificationPermission,
+  initWebPush,
+  isPushSubscribed,
+  isPushSupported,
   subscribeToPush,
   unsubscribeFromPush,
-  isPushSubscribed,
-  initWebPush,
 } from '@/shared/lib/notifications/webPush';
-import { trackPushDenied, trackPushSubscribed, trackPushUnsubscribed } from '@/shared/lib/analytics/pwa-tracking';
 
-interface PushSubscriptionManagerProps {
+type PushSubscriptionManagerProps = {
   userId: string;
   onSubscriptionChange?: (isSubscribed: boolean) => void;
-}
+};
 
-export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSubscriptionManagerProps) {
+export function PushSubscriptionManager({
+  userId,
+  onSubscriptionChange,
+}: PushSubscriptionManagerProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -33,6 +40,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
     checkSupport();
     checkSubscription();
     initWebPush(userId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   /**
@@ -41,7 +49,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
   const checkSupport = () => {
     const supported = isPushSupported();
     setIsSupported(supported);
-    
+
     if (supported) {
       const currentPermission = getNotificationPermission();
       setPermission(currentPermission);
@@ -64,7 +72,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
     setIsLoading(true);
     try {
       const subscription = await subscribeToPush(userId);
-      
+
       if (subscription) {
         setIsSubscribed(true);
         setPermission('granted');
@@ -74,7 +82,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
       } else {
         const currentPermission = getNotificationPermission();
         setPermission(currentPermission);
-        
+
         if (currentPermission === 'denied') {
           trackPushDenied(userId);
           alert('❌ Вы запретили уведомления. Разрешите их в настройках браузера.');
@@ -97,7 +105,7 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
     setIsLoading(true);
     try {
       const success = await unsubscribeFromPush(userId);
-      
+
       if (success) {
         setIsSubscribed(false);
         trackPushUnsubscribed(userId);
@@ -120,37 +128,33 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
   }
 
   return (
-    <div className="bg-card rounded-xl p-4 border border-border transition-colors duration-300">
+    <div className="rounded-xl border border-border bg-card p-4 transition-colors duration-300">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-callout font-semibold text-foreground mb-2">
-            🔔 Push Уведомления
-          </h3>
+          <h3 className="mb-2 font-semibold text-callout text-foreground">🔔 Push Уведомления</h3>
 
           {permission === 'denied' && (
-            <div className="mb-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg transition-colors duration-300">
-              <p className="text-footnote text-destructive">
+            <div className="mb-3 rounded-lg border border-destructive/20 bg-destructive/10 p-3 transition-colors duration-300">
+              <p className="text-destructive text-footnote">
                 ❌ Уведомления запрещены. Разрешите их в настройках браузера.
               </p>
             </div>
           )}
 
           {permission === 'granted' && isSubscribed && (
-            <div className="mb-3 p-3 bg-(--ios-green)/10 border border-(--ios-green)/20 rounded-lg transition-colors duration-300">
-              <p className="text-footnote text-(--ios-green)">
-                ✅ Вы подписаны на уведомления
-              </p>
+            <div className="mb-3 rounded-lg border border-(--ios-green)/20 bg-(--ios-green)/10 p-3 transition-colors duration-300">
+              <p className="text-(--ios-green) text-footnote">✅ Вы подписаны на уведомления</p>
             </div>
           )}
 
           {permission === 'default' && (
-            <p className="text-footnote text-muted-foreground mb-3">
+            <p className="mb-3 text-footnote text-muted-foreground">
               Получайте уведомления о новых достижениях и напоминания
             </p>
           )}
 
           {permission === 'granted' && !isSubscribed && (
-            <p className="text-footnote text-muted-foreground mb-3">
+            <p className="mb-3 text-footnote text-muted-foreground">
               Подпишитесь на уведомления, чтобы не пропустить важные события
             </p>
           )}
@@ -160,17 +164,17 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
       <div className="flex gap-2">
         {!isSubscribed ? (
           <button
-            onClick={handleSubscribe}
+            className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isLoading || permission === 'denied'}
-            className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            onClick={handleSubscribe}
           >
             {isLoading ? 'Подписка...' : '🔔 Подписаться'}
           </button>
         ) : (
           <button
-            onClick={handleUnsubscribe}
+            className="flex-1 rounded-xl bg-muted px-4 py-2.5 font-medium text-foreground transition-all duration-200 hover:bg-muted/80 disabled:opacity-50"
             disabled={isLoading}
-            className="flex-1 px-4 py-2.5 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/80 disabled:opacity-50 transition-all duration-200"
+            onClick={handleUnsubscribe}
           >
             {isLoading ? 'Отписка...' : '🔕 Отписаться'}
           </button>
@@ -179,8 +183,8 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
 
       {permission === 'denied' && (
         <div className="mt-3 text-caption-2 text-muted-foreground">
-          <p className="font-semibold mb-1">Как разрешить уведомления:</p>
-          <ul className="list-disc list-inside space-y-1">
+          <p className="mb-1 font-semibold">Как разрешить уведомления:</p>
+          <ul className="list-inside list-disc space-y-1">
             <li>Chrome: Настройки → Конфиденциальность → Уведомления</li>
             <li>Firefox: Настройки → Приватность → Разрешения</li>
             <li>Safari: Настройки → Веб-сайты → Уведомления</li>
@@ -190,4 +194,3 @@ export function PushSubscriptionManager({ userId, onSubscriptionChange }: PushSu
     </div>
   );
 }
-

@@ -1,8 +1,8 @@
 /**
  * Universal Checkbox Component - Web Implementation
- * 
+ *
  * Uses Radix UI Checkbox for web platform
- * 
+ *
  * @module components/ui/universal/Checkbox.web
  */
 
@@ -14,7 +14,7 @@ import { cn } from '../utils';
 // TYPES
 // ============================================================================
 
-export interface CheckboxProps {
+export type CheckboxProps = {
   /** Checked state */
   checked?: boolean | 'indeterminate';
   /** Callback when checked state changes */
@@ -27,7 +27,7 @@ export interface CheckboxProps {
   className?: string;
   /** Accessibility label */
   'aria-label'?: string;
-}
+};
 
 // ============================================================================
 // COMPONENTS
@@ -43,15 +43,15 @@ export function Checkbox({
 }: CheckboxProps) {
   return (
     <CheckboxPrimitive.Root
-      checked={checked}
-      onCheckedChange={onCheckedChange}
-      defaultChecked={defaultChecked}
-      disabled={disabled}
       aria-label={ariaLabel}
+      checked={checked}
       className={cn(
-        'peer bg-input-background dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 size-4 shrink-0 rounded-[4px] border shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
+        'peer size-4 shrink-0 rounded-[4px] border bg-input-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:data-[state=checked]:bg-primary',
         className
       )}
+      defaultChecked={defaultChecked}
+      disabled={disabled}
+      onCheckedChange={onCheckedChange}
     >
       <CheckboxPrimitive.Indicator className="flex items-center justify-center text-current transition-none">
         <CheckIcon className="size-3.5" />
@@ -90,4 +90,3 @@ export default {
   Checkbox,
   CheckboxUtils,
 };
-

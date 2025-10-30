@@ -2,17 +2,14 @@
  * Chat Input Section - Modular exports
  */
 
-export { CATEGORIES } from "./constants";
-export { RecordingIndicator } from "./RecordingIndicator";
-export { SuccessModal } from "./SuccessModal";
-export { AIHintSection } from "./AIHintSection";
-export { InputArea } from "./InputArea";
-export { checkMicrophonePermission, triggerHapticFeedback } from "./PermissionUtils";
-
+export { AIHintSection } from './AIHintSection';
+export { CATEGORIES } from './constants';
+export { InputArea } from './InputArea';
+export { handleFilesDropped, handleMediaUpload } from './mediaHandlers';
 // Export handlers
-export { handleSendMessage } from "./messageHandlers";
-export { handleVoiceInput } from "./voiceHandlers";
-export { handleMediaUpload, handleFilesDropped } from "./mediaHandlers";
-
-export type { ChatMessage, ChatInputSectionProps, Category } from "./types";
-
+export { handleSendMessage } from './messageHandlers';
+export { checkMicrophonePermission, triggerHapticFeedback } from './PermissionUtils';
+export { RecordingIndicator } from './RecordingIndicator';
+export { SuccessModal } from './SuccessModal';
+export type { Category, ChatInputSectionProps, ChatMessage } from './types';
+export { handleVoiceInput } from './voiceHandlers';

@@ -1,6 +1,6 @@
 /**
  * Web Push API Client Library
- * 
+ *
  * Handles:
  * - Push notification permissions
  * - Service Worker registration
@@ -8,8 +8,8 @@
  * - Subscription storage in Supabase
  */
 
-import { createClient } from '@/utils/supabase/client';
 import { getBrowserInfo } from '@/shared/lib/pwa/pushNotificationSupport';
+import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
@@ -49,9 +49,7 @@ async function loadVapidPublicKey(): Promise<string> {
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -66,11 +64,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
  * Проверяет поддержку Web Push API
  */
 export function isPushSupported(): boolean {
-  return (
-    'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window
-  );
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
 /**
@@ -191,10 +185,7 @@ export async function subscribeToPush(userId: string): Promise<PushSubscription 
 /**
  * Сохраняет push subscription в Supabase
  */
-async function savePushSubscription(
-  userId: string,
-  subscription: PushSubscription
-): Promise<void> {
+async function savePushSubscription(userId: string, subscription: PushSubscription): Promise<void> {
   try {
     const subscriptionJson = subscription.toJSON();
     const browserInfo = getBrowserInfo();
@@ -203,8 +194,8 @@ async function savePushSubscription(
       {
         user_id: userId,
         endpoint: subscriptionJson.endpoint!,
-        p256dh: subscriptionJson.keys!.p256dh!,
-        auth: subscriptionJson.keys!.auth!,
+        p256dh: subscriptionJson.keys?.p256dh!,
+        auth: subscriptionJson.keys?.auth!,
         user_agent: navigator.userAgent,
         browser_info: browserInfo,
         is_active: true,
@@ -306,7 +297,7 @@ export async function initWebPush(userId: string): Promise<void> {
   try {
     // Проверяем есть ли уже subscription
     const existingSubscription = await getPushSubscription();
-    
+
     if (existingSubscription) {
       console.log('[Web Push] Existing subscription found');
       // Обновляем last_used_at
@@ -318,4 +309,3 @@ export async function initWebPush(userId: string): Promise<void> {
     console.error('[Web Push] Error initializing Web Push:', error);
   }
 }
-

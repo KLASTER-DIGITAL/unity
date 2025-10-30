@@ -1,18 +1,18 @@
 /**
  * Web Offline Storage Adapter
- * 
+ *
  * Uses IndexedDB for offline storage on web platform.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-28
  */
 
 import type {
-  OfflineStorageAdapter,
+  CachedEntry,
   MediaStorageAdapter,
   NetworkAdapter,
+  OfflineStorageAdapter,
   PendingEntry,
-  CachedEntry,
 } from './types';
 
 const DB_NAME = 'unity-diary-offline';
@@ -68,8 +68,14 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async addPendingEntry(entry: PendingEntry): Promise<void> {
-    if (!this.db) await this.initialize();
-    
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
       const store = transaction.objectStore(STORES.PENDING_ENTRIES);
@@ -81,7 +87,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async getPendingEntries(userId: string): Promise<PendingEntry[]> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readonly');
@@ -95,7 +107,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async updatePendingEntry(entry: PendingEntry): Promise<void> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
@@ -108,7 +126,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async deletePendingEntry(id: string): Promise<void> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
@@ -121,7 +145,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async addCachedEntry(entry: CachedEntry): Promise<void> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.CACHED_ENTRIES], 'readwrite');
@@ -134,7 +164,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async getCachedEntries(userId: string): Promise<CachedEntry[]> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([STORES.CACHED_ENTRIES], 'readonly');
@@ -148,7 +184,13 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async clearAll(): Promise<void> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
+
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(
@@ -167,7 +209,9 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
   }
 
   async getStorageSize(): Promise<number> {
-    if (!this.db) await this.initialize();
+    if (!this.db) {
+      await this.initialize();
+    }
 
     // Estimate storage size by counting entries
     const pendingEntries = await this.getPendingEntries('');
@@ -182,12 +226,12 @@ export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
  * Web Media Storage Adapter (Cache API)
  */
 export class WebMediaStorageAdapter implements MediaStorageAdapter {
-  private cacheName = 'unity-media-cache';
+  private readonly cacheName = 'unity-media-cache';
 
   async saveMedia(userId: string, file: File): Promise<string> {
     const cache = await caches.open(this.cacheName);
     const url = `/offline-media/${userId}/${file.name}`;
-    
+
     const response = new Response(file, {
       headers: { 'Content-Type': file.type },
     });
@@ -200,7 +244,9 @@ export class WebMediaStorageAdapter implements MediaStorageAdapter {
     const cache = await caches.open(this.cacheName);
     const response = await cache.match(path);
 
-    if (!response) return null;
+    if (!response) {
+      return null;
+    }
 
     const blob = await response.blob();
     return URL.createObjectURL(blob);
@@ -214,7 +260,7 @@ export class WebMediaStorageAdapter implements MediaStorageAdapter {
   async getMediaSize(): Promise<number> {
     const cache = await caches.open(this.cacheName);
     const keys = await cache.keys();
-    
+
     let totalSize = 0;
     for (const request of keys) {
       const response = await cache.match(request);
@@ -259,4 +305,3 @@ export class WebNetworkAdapter implements NetworkAdapter {
 export const offlineStorage = new WebOfflineStorageAdapter();
 export const mediaStorage = new WebMediaStorageAdapter();
 export const networkAdapter = new WebNetworkAdapter();
-

@@ -1,10 +1,10 @@
 /**
  * Admin Forms - Form Components
  * AI-Friendly: 158 lines, < 200 lines target
- * 
+ *
  * Purpose: Form input styles for admin panel
  * Includes: inputs, textareas, selects, checkboxes, radios, switches
- * 
+ *
  * Why needed: Consistent form styling across admin interface
  */
 
@@ -20,7 +20,9 @@
   background-color: var(--admin-white);
   border: 1px solid var(--admin-gray-300);
   border-radius: var(--admin-radius);
-  transition: border-color var(--admin-transition), box-shadow var(--admin-transition);
+  transition:
+    border-color var(--admin-transition),
+    box-shadow var(--admin-transition);
 }
 
 .admin-input:focus {
@@ -77,7 +79,7 @@
 }
 
 .admin-checkbox:checked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -108,7 +110,7 @@
 }
 
 .admin-radio:checked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -165,4 +167,3 @@
 .admin-switch input:checked + .admin-switch-slider:before {
   transform: translateX(1.25rem);
 }
-

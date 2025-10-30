@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { AnimatedView } from "@/shared/lib/platform/animation";
-import { imgMicrophone, imgPaperPlaneRight } from "@/imports/svg-w5pu5";
-import { useSpeechRecognition } from "@/shared/hooks/useSpeechRecognition";
+import { useEffect, useState } from 'react';
+import { imgMicrophone, imgPaperPlaneRight } from '@/imports/svg-w5pu5';
+import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { AnimatedView } from '@/shared/lib/platform/animation';
 
-interface ChatGPTInputProps {
+type ChatGPTInputProps = {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   placeholder: string;
   disabled?: boolean;
-}
+};
 
 /**
  * ChatGPT-style input component with voice recognition
@@ -19,14 +19,15 @@ interface ChatGPTInputProps {
  * - Send button (enabled when text is present)
  * - Smooth animations
  */
-export function ChatGPTInput({ 
-  value, 
-  onChange, 
-  onSubmit, 
+export function ChatGPTInput({
+  value,
+  onChange,
+  onSubmit,
   placeholder,
-  disabled = false 
+  disabled = false,
 }: ChatGPTInputProps) {
-  const { isListening, transcript, startListening, stopListening, isSupported } = useSpeechRecognition();
+  const { isListening, transcript, startListening, stopListening, isSupported } =
+    useSpeechRecognition();
   const [textareaHeight, setTextareaHeight] = useState(52); // Initial height for 2 lines
   const [lastTranscript, setLastTranscript] = useState(''); // Track processed transcript
 
@@ -48,7 +49,7 @@ export function ChatGPTInput({
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
-    
+
     // Auto-resize textarea (2-5 lines)
     const textarea = e.target;
     textarea.style.height = 'auto';
@@ -75,16 +76,18 @@ export function ChatGPTInput({
   };
 
   useEffect(() => {
-    if (transcript && transcript.trim() && transcript !== lastTranscript) {
+    if (transcript?.trim() && transcript !== lastTranscript) {
       // Add space only if there's existing text
-      const newValue = value && value.trim() ? `${value.trim()} ${transcript.trim()}` : transcript.trim();
+      const newValue = value?.trim() ? `${value.trim()} ${transcript.trim()}` : transcript.trim();
       onChange(newValue);
       setLastTranscript(transcript);
-      
+
       // Update height after adding text from dictation
       setTimeout(() => {
         const textareas = document.querySelectorAll('textarea');
-        const textarea = Array.from(textareas).find(ta => ta.value === newValue) as HTMLTextAreaElement;
+        const textarea = Array.from(textareas).find(
+          (ta) => ta.value === newValue
+        ) as HTMLTextAreaElement;
         if (textarea) {
           textarea.style.height = 'auto';
           const lineHeight = 18;
@@ -101,37 +104,43 @@ export function ChatGPTInput({
 
   return (
     <AnimatedView
-      className="bg-card relative rounded-xl w-full border-2 border-border focus-within:border-[#756ef3] focus-within:shadow-[0_4px_20px_rgba(117,110,243,0.2)] transition-all duration-300"
-      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
+      className="relative w-full rounded-xl border-2 border-border bg-card transition-all duration-300 focus-within:border-[#756ef3] focus-within:shadow-[0_4px_20px_rgba(117,110,243,0.2)]"
+      initial={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 } as any}
     >
       <div className="flex items-start gap-2 p-3">
         {/* Microphone Button */}
         <button
-          onClick={toggleRecording}
+          className={`mt-0 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200 active:scale-95 ${
+            isListening
+              ? 'animate-pulse bg-red-100 text-red-600'
+              : 'text-[#756ef3] hover:bg-[#756ef3]/10'
+          } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
           disabled={disabled}
-          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0 mt-0 active:scale-95 ${
-            isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'hover:bg-[#756ef3]/10 text-[#756ef3]'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={toggleRecording}
         >
-          <div className="w-4 h-4">
+          <div className="h-4 w-4">
             <img
-              className="w-full h-full"
+              className="h-full w-full"
               src={imgMicrophone}
-              style={{ filter: isListening ? 'sepia(1) saturate(5) hue-rotate(300deg)' : 'sepia(1) saturate(5) hue-rotate(240deg)' }}
+              style={{
+                filter: isListening
+                  ? 'sepia(1) saturate(5) hue-rotate(300deg)'
+                  : 'sepia(1) saturate(5) hue-rotate(240deg)',
+              }}
             />
           </div>
         </button>
 
         {/* Text Input */}
         <textarea
-          value={value}
+          className="flex-1 resize-none overflow-hidden border-0 bg-transparent text-[#002055] outline-none placeholder:font-normal placeholder:text-[#8d8d8d] placeholder:text-[11px] dark:text-[#1a1a1a]"
+          disabled={disabled}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          disabled={disabled}
-          className="flex-1 bg-transparent border-0 outline-none resize-none overflow-hidden placeholder:text-[#8d8d8d] placeholder:text-[11px] placeholder:font-normal text-[#002055] dark:text-[#1a1a1a]"
+          rows={2}
           style={{
             height: `${textareaHeight}px`,
             fontSize: '13px',
@@ -140,24 +149,24 @@ export function ChatGPTInput({
             color: '#002055',
             fontFamily: 'var(--font-family-primary)',
             minHeight: '52px', // 2 lines
-            maxHeight: '106px' // 5 lines
+            maxHeight: '106px', // 5 lines
           }}
-          rows={2}
+          value={value}
         />
 
         {/* Send Button */}
         <button
-          onClick={onSubmit}
-          disabled={!value.trim() || disabled}
-          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0 mt-0 active:scale-95 ${
+          className={`mt-0 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200 active:scale-95 ${
             value.trim() && !disabled
               ? 'bg-primary text-white hover:bg-primary/90'
-              : 'bg-[#e5e5e5] text-[#8d8d8d] cursor-not-allowed'
+              : 'cursor-not-allowed bg-[#e5e5e5] text-[#8d8d8d]'
           }`}
+          disabled={!value.trim() || disabled}
+          onClick={onSubmit}
         >
-          <div className="w-4 h-4">
+          <div className="h-4 w-4">
             <img
-              className="w-full h-full"
+              className="h-full w-full"
               src={imgPaperPlaneRight}
               style={{ filter: value.trim() && !disabled ? 'brightness(0) invert(1)' : undefined }}
             />
@@ -167,4 +176,3 @@ export function ChatGPTInput({
     </AnimatedView>
   );
 }
-

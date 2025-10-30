@@ -1,22 +1,25 @@
-import { updateUserProfile } from "@/shared/lib/api";
-import { toast } from "sonner";
-import type { NotificationSettings } from "./types";
+import { toast } from 'sonner';
+import { updateUserProfile } from '@/shared/lib/api';
+import type { NotificationSettings } from './types';
 
 /**
  * Load active languages from API
  */
 export async function loadLanguages() {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-api/languages`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
       }
-    });
+    );
     if (response.ok) {
       const data = await response.json();
-      const loadedLanguages = Array.isArray(data) ? data : (data.languages || []);
+      const loadedLanguages = Array.isArray(data) ? data : data.languages || [];
       // Фильтруем только активные языки
       const activeLanguages = loadedLanguages.filter((lang: any) => lang.is_active || lang.enabled);
       if (activeLanguages.length > 0) {
@@ -38,7 +41,7 @@ export async function checkBiometricAvailability(): Promise<boolean> {
     try {
       const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       return available;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -57,8 +60,8 @@ export async function saveNotificationSettings(
     await updateUserProfile(userId, {
       notificationSettings: {
         ...currentSettings,
-        ...newSettings
-      }
+        ...newSettings,
+      },
     });
     console.log('✅ Notifications saved:', newSettings);
   } catch (error) {
@@ -76,8 +79,8 @@ export async function saveSecuritySettings(
 ) {
   try {
     await updateUserProfile(userId, {
-      biometricEnabled: biometricEnabled,
-      backupEnabled: autoBackupEnabled
+      biometricEnabled,
+      backupEnabled: autoBackupEnabled,
     });
     console.log('✅ Security settings saved');
   } catch (error) {
@@ -88,13 +91,10 @@ export async function saveSecuritySettings(
 /**
  * Save offline mode setting to database
  */
-export async function saveOfflineSettings(
-  userId: string,
-  offlineEnabled: boolean
-) {
+export async function saveOfflineSettings(userId: string, offlineEnabled: boolean) {
   try {
     await updateUserProfile(userId, {
-      offlineEnabled: offlineEnabled
+      offlineEnabled,
     });
     console.log('✅ Offline settings saved:', offlineEnabled);
   } catch (error) {
@@ -102,7 +102,7 @@ export async function saveOfflineSettings(
   }
 }
 
-interface LanguageChangeParams {
+type LanguageChangeParams = {
   languageCode: string;
   userId?: string;
   profile: any;
@@ -111,7 +111,7 @@ interface LanguageChangeParams {
   changeLanguage: (code: string) => Promise<void>;
   t: any;
   setShowLanguage: (show: boolean) => void;
-}
+};
 
 /**
  * Handle language change
@@ -124,7 +124,7 @@ export async function handleLanguageChange({
   onProfileUpdate,
   changeLanguage,
   t,
-  setShowLanguage
+  setShowLanguage,
 }: LanguageChangeParams) {
   try {
     if (userId) {
@@ -151,4 +151,3 @@ export async function handleLanguageChange({
     toast.error(t('languageChangeError', 'Ошибка при изменении языка'));
   }
 }
-

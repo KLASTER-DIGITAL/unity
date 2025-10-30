@@ -1,6 +1,6 @@
 /**
  * Entry Types - Shared between PWA and React Native
- * 
+ *
  * TRULY shared code - NO platform-specific imports
  */
 
@@ -37,4 +37,3 @@ export interface Category {
   color: string;
   created_at: string;
 }
-

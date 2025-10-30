@@ -1,6 +1,6 @@
 /**
  * RTL (Right-to-Left) detection and utilities
- * 
+ *
  * Provides utilities for detecting and handling RTL languages
  * like Arabic, Hebrew, Persian, Urdu, etc.
  */
@@ -11,38 +11,40 @@ export type TextDirection = 'ltr' | 'rtl';
  * List of RTL language codes
  */
 const RTL_LANGUAGES = [
-  'ar',  // Arabic
-  'he',  // Hebrew
-  'fa',  // Persian (Farsi)
-  'ur',  // Urdu
-  'yi',  // Yiddish
-  'ji',  // Yiddish (alternative code)
-  'iw',  // Hebrew (alternative code)
-  'ps',  // Pashto
-  'sd',  // Sindhi
-  'ug',  // Uyghur
-  'ku',  // Kurdish (Sorani)
+  'ar', // Arabic
+  'he', // Hebrew
+  'fa', // Persian (Farsi)
+  'ur', // Urdu
+  'yi', // Yiddish
+  'ji', // Yiddish (alternative code)
+  'iw', // Hebrew (alternative code)
+  'ps', // Pashto
+  'sd', // Sindhi
+  'ug', // Uyghur
+  'ku', // Kurdish (Sorani)
   'arc', // Aramaic
   'bcc', // Balochi
   'bqi', // Bakhtiari
   'ckb', // Central Kurdish
-  'dv',  // Dhivehi
+  'dv', // Dhivehi
   'glk', // Gilaki
   'lrc', // Northern Luri
   'mzn', // Mazanderani
   'pnb', // Western Punjabi
-  'ydd'  // Eastern Yiddish
+  'ydd', // Eastern Yiddish
 ];
 
 /**
  * Check if a language code is RTL
  */
 export function isRTL(languageCode: string): boolean {
-  if (!languageCode) return false;
-  
+  if (!languageCode) {
+    return false;
+  }
+
   // Extract base language code (e.g., 'ar' from 'ar-SA')
   const baseCode = languageCode.toLowerCase().split('-')[0];
-  
+
   return RTL_LANGUAGES.includes(baseCode);
 }
 
@@ -57,27 +59,31 @@ export function getTextDirection(languageCode: string): TextDirection {
  * Check if a string contains RTL characters
  */
 export function containsRTLCharacters(text: string): boolean {
-  if (!text) return false;
-  
+  if (!text) {
+    return false;
+  }
+
   // RTL Unicode ranges
   const rtlRanges = [
-    /[\u0591-\u07FF]/,  // Hebrew, Arabic
-    /[\uFB1D-\uFDFD]/,  // Hebrew and Arabic presentation forms
-    /[\uFE70-\uFEFC]/   // Arabic presentation forms
+    /[\u0591-\u07FF]/, // Hebrew, Arabic
+    /[\uFB1D-\uFDFD]/, // Hebrew and Arabic presentation forms
+    /[\uFE70-\uFEFC]/, // Arabic presentation forms
   ];
-  
-  return rtlRanges.some(range => range.test(text));
+
+  return rtlRanges.some((range) => range.test(text));
 }
 
 /**
  * Get the dominant text direction of a string
  */
 export function detectTextDirection(text: string): TextDirection {
-  if (!text) return 'ltr';
-  
+  if (!text) {
+    return 'ltr';
+  }
+
   let rtlCount = 0;
   let ltrCount = 0;
-  
+
   for (const char of text) {
     if (containsRTLCharacters(char)) {
       rtlCount++;
@@ -85,17 +91,14 @@ export function detectTextDirection(text: string): TextDirection {
       ltrCount++;
     }
   }
-  
+
   return rtlCount > ltrCount ? 'rtl' : 'ltr';
 }
 
 /**
  * Apply text direction to HTML element
  */
-export function applyTextDirection(
-  element: HTMLElement,
-  direction: TextDirection
-): void {
+export function applyTextDirection(element: HTMLElement, direction: TextDirection): void {
   element.dir = direction;
   element.style.direction = direction;
 }
@@ -106,7 +109,7 @@ export function applyTextDirection(
 export function applyDocumentDirection(direction: TextDirection): void {
   document.documentElement.dir = direction;
   document.documentElement.style.direction = direction;
-  
+
   // Update body as well for better compatibility
   document.body.dir = direction;
   document.body.style.direction = direction;
@@ -121,33 +124,32 @@ export function getDirectionClass(direction: TextDirection): string {
 
 /**
  * Mirror a value for RTL (useful for margins, paddings, etc.)
- * 
+ *
  * @example
  * mirrorValue('left', 'rtl') // → 'right'
  * mirrorValue('right', 'rtl') // → 'left'
  * mirrorValue('left', 'ltr') // → 'left'
  */
-export function mirrorValue(
-  value: string,
-  direction: TextDirection
-): string {
-  if (direction === 'ltr') return value;
-  
+export function mirrorValue(value: string, direction: TextDirection): string {
+  if (direction === 'ltr') {
+    return value;
+  }
+
   const mirrorMap: Record<string, string> = {
-    'left': 'right',
-    'right': 'left',
-    'start': 'end',
-    'end': 'start',
+    left: 'right',
+    right: 'left',
+    start: 'end',
+    end: 'start',
     'flex-start': 'flex-end',
-    'flex-end': 'flex-start'
+    'flex-end': 'flex-start',
   };
-  
+
   return mirrorMap[value] || value;
 }
 
 /**
  * Get logical property name for RTL support
- * 
+ *
  * @example
  * getLogicalProperty('margin-left') // → 'margin-inline-start'
  * getLogicalProperty('padding-right') // → 'padding-inline-end'
@@ -160,23 +162,19 @@ export function getLogicalProperty(property: string): string {
     'padding-right': 'padding-inline-end',
     'border-left': 'border-inline-start',
     'border-right': 'border-inline-end',
-    'left': 'inset-inline-start',
-    'right': 'inset-inline-end',
+    left: 'inset-inline-start',
+    right: 'inset-inline-end',
     'text-align-left': 'text-align-start',
-    'text-align-right': 'text-align-end'
+    'text-align-right': 'text-align-end',
   };
-  
+
   return logicalMap[property] || property;
 }
 
 /**
  * RTL-aware class names helper
  */
-export function rtlClass(
-  ltrClass: string,
-  rtlClass: string,
-  direction: TextDirection
-): string {
+export function rtlClass(ltrClass: string, rtlClass: string, direction: TextDirection): string {
   return direction === 'rtl' ? rtlClass : ltrClass;
 }
 
@@ -193,35 +191,31 @@ export function rtlStyle(
 
 /**
  * Flip horizontal value for RTL
- * 
+ *
  * @example
  * flipHorizontal(10, 'rtl') // → -10
  * flipHorizontal(10, 'ltr') // → 10
  */
-export function flipHorizontal(
-  value: number,
-  direction: TextDirection
-): number {
+export function flipHorizontal(value: number, direction: TextDirection): number {
   return direction === 'rtl' ? -value : value;
 }
 
 /**
  * Get transform for RTL (useful for animations)
- * 
+ *
  * @example
  * getTransform('translateX(100px)', 'rtl') // → 'translateX(-100px)'
  */
-export function getTransform(
-  transform: string,
-  direction: TextDirection
-): string {
-  if (direction === 'ltr') return transform;
-  
+export function getTransform(transform: string, direction: TextDirection): string {
+  if (direction === 'ltr') {
+    return transform;
+  }
+
   // Flip translateX values
   return transform.replace(
     /translateX\((-?\d+(?:\.\d+)?)(px|%|em|rem)\)/g,
     (_match, value, unit) => {
-      const flipped = -parseFloat(value);
+      const flipped = -Number.parseFloat(value);
       return `translateX(${flipped}${unit})`;
     }
   );
@@ -230,24 +224,24 @@ export function getTransform(
 /**
  * RTL configuration for a language
  */
-export interface RTLConfig {
+export type RTLConfig = {
   isRTL: boolean;
   direction: TextDirection;
   languageCode: string;
   directionClass: string;
-}
+};
 
 /**
  * Get RTL configuration for a language
  */
 export function getRTLConfig(languageCode: string): RTLConfig {
   const direction = getTextDirection(languageCode);
-  
+
   return {
     isRTL: direction === 'rtl',
     direction,
     languageCode,
-    directionClass: getDirectionClass(direction)
+    directionClass: getDirectionClass(direction),
   };
 }
 
@@ -268,6 +262,5 @@ export const RTL = {
   rtlStyle,
   flipHorizontal,
   getTransform,
-  getRTLConfig
+  getRTLConfig,
 };
-

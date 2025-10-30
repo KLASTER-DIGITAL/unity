@@ -20,4 +20,3 @@ export type { StorageAdapter } from './types';
  * React Native build: Uses AsyncStorage from /app/shared/lib/platform/storage.native.ts
  */
 export const storage: StorageAdapter = new WebStorageAdapter();
-

@@ -1,4 +1,4 @@
-import type { DiaryEntry } from "@/shared/lib/api";
+import type { DiaryEntry } from '@/shared/lib/api';
 
 /**
  * Filter entries by search query, category, and sentiment
@@ -13,21 +13,22 @@ export function filterEntries(
 
   // Поиск по тексту
   if (searchQuery.trim()) {
-    filtered = filtered.filter(entry =>
-      entry.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (entry.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    filtered = filtered.filter(
+      (entry) =>
+        entry.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (entry.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }
 
   // Фильтр по категории
   if (selectedCategory) {
-    filtered = filtered.filter(entry => entry.category === selectedCategory);
+    filtered = filtered.filter((entry) => entry.category === selectedCategory);
   }
 
   // Фильтр по sentiment
   if (selectedSentiment) {
-    filtered = filtered.filter(entry => entry.sentiment === selectedSentiment);
+    filtered = filtered.filter((entry) => entry.sentiment === selectedSentiment);
   }
 
   return filtered;
@@ -41,7 +42,6 @@ export function formatEntryDate(date: Date): string {
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date);
 }
-

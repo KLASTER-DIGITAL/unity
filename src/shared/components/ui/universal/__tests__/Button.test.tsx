@@ -1,6 +1,6 @@
 /**
  * Button Component Tests
- * 
+ *
  * Tests for Universal Button component
  * - Rendering
  * - Props
@@ -8,12 +8,12 @@
  * - Accessibility
  * - Variants
  * - Sizes
- * 
+ *
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { Button, ButtonUtils } from '../Button';
 
 describe('Button Component', () => {
@@ -40,20 +40,12 @@ describe('Button Component', () => {
     });
 
     it('should render button with left icon', () => {
-      render(
-        <Button leftIcon={<span data-testid="left-icon">←</span>}>
-          Click me
-        </Button>
-      );
+      render(<Button leftIcon={<span data-testid="left-icon">←</span>}>Click me</Button>);
       expect(screen.getByTestId('left-icon')).toBeInTheDocument();
     });
 
     it('should render button with right icon', () => {
-      render(
-        <Button rightIcon={<span data-testid="right-icon">→</span>}>
-          Click me
-        </Button>
-      );
+      render(<Button rightIcon={<span data-testid="right-icon">→</span>}>Click me</Button>);
       expect(screen.getByTestId('right-icon')).toBeInTheDocument();
     });
   });
@@ -149,9 +141,9 @@ describe('Button Component', () => {
 
     it('should hide icons when loading', () => {
       render(
-        <Button 
-          loading 
+        <Button
           leftIcon={<span data-testid="left-icon">←</span>}
+          loading
           rightIcon={<span data-testid="right-icon">→</span>}
         >
           Loading
@@ -170,7 +162,7 @@ describe('Button Component', () => {
     it('should call onClick handler when clicked', () => {
       const handleClick = vi.fn();
       render(<Button onClick={handleClick}>Click me</Button>);
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
@@ -178,7 +170,7 @@ describe('Button Component', () => {
     it('should call onPress handler when clicked', () => {
       const handlePress = vi.fn();
       render(<Button onPress={handlePress}>Press me</Button>);
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(handlePress).toHaveBeenCalledTimes(1);
     });
@@ -191,7 +183,7 @@ describe('Button Component', () => {
           Click me
         </Button>
       );
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).toHaveBeenCalledTimes(1);
       expect(handlePress).toHaveBeenCalledTimes(1);
@@ -199,16 +191,24 @@ describe('Button Component', () => {
 
     it('should not call onClick when disabled', () => {
       const handleClick = vi.fn();
-      render(<Button onClick={handleClick} disabled>Disabled</Button>);
-      
+      render(
+        <Button disabled onClick={handleClick}>
+          Disabled
+        </Button>
+      );
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).not.toHaveBeenCalled();
     });
 
     it('should not call onClick when loading', () => {
       const handleClick = vi.fn();
-      render(<Button onClick={handleClick} loading>Loading</Button>);
-      
+      render(
+        <Button loading onClick={handleClick}>
+          Loading
+        </Button>
+      );
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).not.toHaveBeenCalled();
     });
@@ -271,10 +271,10 @@ describe('Button Component', () => {
 
       it('should return outline variant styles', () => {
         const styles = ButtonUtils.getVariantStyles('outline');
-        expect(styles).toEqual({ 
-          backgroundColor: 'transparent', 
-          borderColor: '#C7C7CC', 
-          color: '#000' 
+        expect(styles).toEqual({
+          backgroundColor: 'transparent',
+          borderColor: '#C7C7CC',
+          color: '#000',
         });
       });
     });
@@ -322,4 +322,3 @@ describe('Button Component', () => {
     });
   });
 });
-

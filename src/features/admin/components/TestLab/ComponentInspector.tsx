@@ -1,34 +1,36 @@
-import { Info, X } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { DeviceType, PlatformMode, DEVICES } from "./types";
+import { Info, X } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import { DEVICES, type DeviceType, type PlatformMode } from './types';
 
-interface ComponentInspectorProps {
+type ComponentInspectorProps = {
   isOpen: boolean;
   onClose: () => void;
   selectedDevice: DeviceType;
   platformMode: PlatformMode;
   previewUrl: string;
-}
+};
 
 export function ComponentInspector({
   isOpen,
   onClose,
   selectedDevice,
   platformMode,
-  previewUrl
+  previewUrl,
 }: ComponentInspectorProps) {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const device = DEVICES[selectedDevice];
 
   return (
-    <div className="w-80 bg-card border-l border-border p-4 overflow-auto transition-colors duration-300">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-80 overflow-auto border-border border-l bg-card p-4 transition-colors duration-300">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Info className="h-5 w-5 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">Inspector</h3>
+          <h3 className="font-semibold text-foreground text-sm">Inspector</h3>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button onClick={onClose} size="icon" variant="ghost">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -36,18 +38,18 @@ export function ComponentInspector({
       <div className="space-y-4">
         {/* Device Info */}
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase">Device</h4>
-          <div className="bg-muted/50 rounded-lg p-3 space-y-1 transition-colors duration-300">
-            <p className="text-sm font-medium text-foreground">{device.name}</p>
-            <p className="text-xs text-muted-foreground">{device.description}</p>
-            <div className="flex gap-4 mt-2">
+          <h4 className="font-medium text-muted-foreground text-xs uppercase">Device</h4>
+          <div className="space-y-1 rounded-lg bg-muted/50 p-3 transition-colors duration-300">
+            <p className="font-medium text-foreground text-sm">{device.name}</p>
+            <p className="text-muted-foreground text-xs">{device.description}</p>
+            <div className="mt-2 flex gap-4">
               <div>
-                <p className="text-xs text-muted-foreground">Width</p>
-                <p className="text-sm font-mono text-foreground">{device.width}px</p>
+                <p className="text-muted-foreground text-xs">Width</p>
+                <p className="font-mono text-foreground text-sm">{device.width}px</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Height</p>
-                <p className="text-sm font-mono text-foreground">{device.height}px</p>
+                <p className="text-muted-foreground text-xs">Height</p>
+                <p className="font-mono text-foreground text-sm">{device.height}px</p>
               </div>
             </div>
           </div>
@@ -55,70 +57,61 @@ export function ComponentInspector({
 
         {/* Platform Mode */}
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase">Platform</h4>
-          <div className="bg-muted/50 rounded-lg p-3 transition-colors duration-300">
-            <p className="text-sm font-medium text-foreground">
-              {platformMode === "web" ? "Web (PWA)" : "React Native"}
+          <h4 className="font-medium text-muted-foreground text-xs uppercase">Platform</h4>
+          <div className="rounded-lg bg-muted/50 p-3 transition-colors duration-300">
+            <p className="font-medium text-foreground text-sm">
+              {platformMode === 'web' ? 'Web (PWA)' : 'React Native'}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {platformMode === "web" 
-                ? "Current PWA implementation" 
-                : "Simulated React Native mode"}
+            <p className="mt-1 text-muted-foreground text-xs">
+              {platformMode === 'web'
+                ? 'Current PWA implementation'
+                : 'Simulated React Native mode'}
             </p>
           </div>
         </div>
 
         {/* Preview URL */}
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase">Preview URL</h4>
-          <div className="bg-muted/50 rounded-lg p-3 transition-colors duration-300">
-            <p className="text-xs font-mono text-foreground break-all">{previewUrl}</p>
+          <h4 className="font-medium text-muted-foreground text-xs uppercase">Preview URL</h4>
+          <div className="rounded-lg bg-muted/50 p-3 transition-colors duration-300">
+            <p className="break-all font-mono text-foreground text-xs">{previewUrl}</p>
           </div>
         </div>
 
         {/* Breakpoints */}
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase">Breakpoints</h4>
-          <div className="bg-muted/50 rounded-lg p-3 space-y-2 transition-colors duration-300">
+          <h4 className="font-medium text-muted-foreground text-xs uppercase">Breakpoints</h4>
+          <div className="space-y-2 rounded-lg bg-muted/50 p-3 transition-colors duration-300">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">320px</span>
-              <span className="text-foreground font-mono">iPhone SE</span>
+              <span className="font-mono text-foreground">iPhone SE</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">375px</span>
-              <span className="text-foreground font-mono">iPhone 13/14</span>
+              <span className="font-mono text-foreground">iPhone 13/14</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">390px</span>
-              <span className="text-foreground font-mono">iPhone 14 Pro</span>
+              <span className="font-mono text-foreground">iPhone 14 Pro</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">430px</span>
-              <span className="text-foreground font-mono">iPhone 14 Pro Max</span>
+              <span className="font-mono text-foreground">iPhone 14 Pro Max</span>
             </div>
           </div>
         </div>
 
         {/* Testing Tips */}
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase">Testing Tips</h4>
-          <div className="bg-muted/50 rounded-lg p-3 space-y-2 transition-colors duration-300">
-            <p className="text-xs text-foreground">
-              • Test touch targets (min 44x44px)
-            </p>
-            <p className="text-xs text-foreground">
-              • Check responsive typography
-            </p>
-            <p className="text-xs text-foreground">
-              • Verify dark mode transitions
-            </p>
-            <p className="text-xs text-foreground">
-              • Test iOS safe areas
-            </p>
+          <h4 className="font-medium text-muted-foreground text-xs uppercase">Testing Tips</h4>
+          <div className="space-y-2 rounded-lg bg-muted/50 p-3 transition-colors duration-300">
+            <p className="text-foreground text-xs">• Test touch targets (min 44x44px)</p>
+            <p className="text-foreground text-xs">• Check responsive typography</p>
+            <p className="text-foreground text-xs">• Verify dark mode transitions</p>
+            <p className="text-foreground text-xs">• Test iOS safe areas</p>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

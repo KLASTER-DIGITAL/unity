@@ -2,7 +2,7 @@
  * Types for AuthScreen components
  */
 
-export interface OnboardingData {
+export type OnboardingData = {
   language: string;
   diaryName: string;
   diaryEmoji: string;
@@ -13,9 +13,9 @@ export interface OnboardingData {
     permissionGranted: boolean;
   };
   firstEntry: string;
-}
+};
 
-export interface AuthScreenProps {
+export type AuthScreenProps = {
   onComplete?: (userData: any) => void;
   onAuthComplete?: (userData: any) => void;
   onBack?: () => void;
@@ -24,9 +24,9 @@ export interface AuthScreenProps {
   selectedLanguage?: string;
   initialMode?: 'login' | 'register';
   onboardingData?: OnboardingData;
-}
+};
 
-export interface UserData {
+export type UserData = {
   id: string;
   email: string | null;
   name: string;
@@ -51,5 +51,4 @@ export interface UserData {
     username?: string;
     photo_url?: string;
   };
-}
-
+};

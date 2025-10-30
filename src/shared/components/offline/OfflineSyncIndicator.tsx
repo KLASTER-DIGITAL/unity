@@ -1,24 +1,24 @@
 /**
  * Offline Sync Indicator
- * 
+ *
  * Shows pending offline entries and sync status.
  * Displays at the top of the screen when there are pending syncs.
  */
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Cloud, CloudOff, RefreshCw, AlertCircle, X } from 'lucide-react';
+import { AlertCircle, Cloud, CloudOff, RefreshCw, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import {
-  getPendingEntries,
-  syncPendingEntries,
-  retryFailedEntry,
   deleteFailedEntry,
+  getPendingEntries,
+  retryFailedEntry,
+  syncPendingEntries,
 } from '@/shared/lib/offline/backgroundSync';
 import type { PendingEntry } from '@/shared/lib/offline/indexedDB';
 
-interface OfflineSyncIndicatorProps {
+type OfflineSyncIndicatorProps = {
   userId: string;
-}
+};
 
 export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -66,7 +66,10 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [userId]);
+  }, [
+    // Load initial pending entries
+    loadPendingEntries,
+  ]);
 
   // Manual sync
   const handleManualSync = async () => {
@@ -105,9 +108,9 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
     }
   };
 
-  const pendingCount = pendingEntries.filter(e => e.syncStatus === 'pending').length;
-  const failedCount = pendingEntries.filter(e => e.syncStatus === 'failed').length;
-  const syncingCount = pendingEntries.filter(e => e.syncStatus === 'syncing').length;
+  const pendingCount = pendingEntries.filter((e) => e.syncStatus === 'pending').length;
+  const failedCount = pendingEntries.filter((e) => e.syncStatus === 'failed').length;
+  const syncingCount = pendingEntries.filter((e) => e.syncStatus === 'syncing').length;
 
   // Don't show if no pending entries
   if (pendingEntries.length === 0) {
@@ -117,22 +120,18 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="fixed top-0 right-0 left-0 z-50 bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg"
         exit={{ opacity: 0, y: -20 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+        initial={{ opacity: 0, y: -20 }}
       >
-        <div className="max-w-md mx-auto px-4 py-3">
+        <div className="mx-auto max-w-md px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {isOnline ? (
-                <Cloud className="w-5 h-5" />
-              ) : (
-                <CloudOff className="w-5 h-5" />
-              )}
-              
+              {isOnline ? <Cloud className="h-5 w-5" /> : <CloudOff className="h-5 w-5" />}
+
               <div className="flex flex-col">
-                <span className="text-sm font-medium">
+                <span className="font-medium text-sm">
                   {isOnline ? 'Синхронизация...' : 'Вы офлайн'}
                 </span>
                 <span className="text-xs opacity-90">
@@ -146,19 +145,19 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
             <div className="flex items-center gap-2">
               {isOnline && (
                 <button
-                  onClick={handleManualSync}
+                  className="rounded-lg p-2 transition-colors duration-300 hover:bg-muted/20 disabled:opacity-50"
                   disabled={isSyncing}
-                  className="p-2 hover:bg-muted/20 rounded-lg transition-colors duration-300 disabled:opacity-50"
+                  onClick={handleManualSync}
                 >
-                  <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
                 </button>
               )}
 
               <button
+                className="rounded-lg p-2 transition-colors duration-300 hover:bg-muted/20"
                 onClick={() => setShowDetails(!showDetails)}
-                className="p-2 hover:bg-muted/20 rounded-lg transition-colors duration-300"
               >
-                {showDetails ? <X className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                {showDetails ? <X className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -167,64 +166,62 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
           <AnimatePresence>
             {showDetails && (
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
                 className="mt-3 space-y-2 overflow-hidden"
+                exit={{ height: 0, opacity: 0 }}
+                initial={{ height: 0, opacity: 0 }}
               >
                 {pendingEntries.map((entry) => (
                   <div
+                    className="rounded-lg bg-muted/10 p-3 backdrop-blur-sm transition-colors duration-300"
                     key={entry.id}
-                    className="bg-muted/10 rounded-lg p-3 backdrop-blur-sm transition-colors duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-sm">
                           {entry.text.substring(0, 50)}
                           {entry.text.length > 50 && '...'}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="mt-1 flex items-center gap-2">
                           {entry.syncStatus === 'pending' && (
-                            <span className="text-xs opacity-75 flex items-center gap-1">
-                              <Cloud className="w-3 h-3" />
+                            <span className="flex items-center gap-1 text-xs opacity-75">
+                              <Cloud className="h-3 w-3" />
                               Ожидает
                             </span>
                           )}
                           {entry.syncStatus === 'syncing' && (
-                            <span className="text-xs opacity-75 flex items-center gap-1">
-                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            <span className="flex items-center gap-1 text-xs opacity-75">
+                              <RefreshCw className="h-3 w-3 animate-spin" />
                               Синхронизация...
                             </span>
                           )}
                           {entry.syncStatus === 'failed' && (
-                            <span className="text-xs opacity-75 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" />
+                            <span className="flex items-center gap-1 text-xs opacity-75">
+                              <AlertCircle className="h-3 w-3" />
                               Ошибка ({entry.retryCount}/3)
                             </span>
                           )}
                         </div>
                         {entry.lastError && (
-                          <p className="text-xs opacity-75 mt-1">
-                            {entry.lastError}
-                          </p>
+                          <p className="mt-1 text-xs opacity-75">{entry.lastError}</p>
                         )}
                       </div>
 
                       {entry.syncStatus === 'failed' && (
                         <div className="flex gap-1">
                           <button
+                            className="rounded p-1.5 transition-colors duration-300 hover:bg-muted/20"
                             onClick={() => handleRetry(entry.id)}
-                            className="p-1.5 hover:bg-muted/20 rounded transition-colors duration-300"
                             title="Повторить"
                           >
-                            <RefreshCw className="w-3.5 h-3.5" />
+                            <RefreshCw className="h-3.5 w-3.5" />
                           </button>
                           <button
+                            className="rounded p-1.5 transition-colors duration-300 hover:bg-muted/20"
                             onClick={() => handleDelete(entry.id)}
-                            className="p-1.5 hover:bg-muted/20 rounded transition-colors duration-300"
                             title="Удалить"
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       )}

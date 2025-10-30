@@ -4,7 +4,7 @@
 // Endpoints: POST /signed-url, DELETE /:path, GET /health
 // Date: 2025-10-24
 
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
 console.log('[MEDIA-MANAGE v1] 🚀 Starting microservice...');
 
@@ -22,7 +22,7 @@ function getEnvVars() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!(supabaseUrl && supabaseServiceKey)) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
 
@@ -58,7 +58,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     console.log('[MEDIA-MANAGE v1] ✅ OPTIONS handled');
     return new Response(null, {
       status: 204,
-      headers: corsHeaders()
+      headers: corsHeaders(),
     });
   }
 
@@ -72,11 +72,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
           version: 'v1',
           service: 'media-manage-api',
           message: 'Media management microservice is running',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         }
       );
     }
@@ -87,13 +87,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const { path } = body;
 
       if (!path) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'path is required' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-          }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'path is required' }), {
+          status: 400,
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+        });
       }
 
       console.log(`[MEDIA-MANAGE v1] Creating signed URL for: ${path}`);
@@ -106,11 +103,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
         {
           method: 'POST',
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json'
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ expiresIn: 31536000 })
+          body: JSON.stringify({ expiresIn: 31_536_000 }),
         }
       );
 
@@ -118,13 +115,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
         const errorText = await signedUrlResponse.text();
         console.error('[MEDIA-MANAGE v1] Signed URL error:', errorText);
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `Failed to create signed URL: ${signedUrlResponse.status}` 
+          JSON.stringify({
+            success: false,
+            error: `Failed to create signed URL: ${signedUrlResponse.status}`,
           }),
           {
             status: 500,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
           }
         );
       }
@@ -136,11 +133,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({
           success: true,
-          url: signedUrlData.signedURL
+          url: signedUrlData.signedURL,
         }),
         {
           status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
         }
       );
     }
@@ -148,18 +145,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // Route: DELETE /:path
     if (method === 'DELETE') {
       // Extract path from URL (remove function name prefix)
-      const pathParts = url.pathname.split('/').filter(p => p);
-      const relevantParts = pathParts.filter(p => !['functions', 'v1', 'media-manage-api'].includes(p));
+      const pathParts = url.pathname.split('/').filter((p) => p);
+      const relevantParts = pathParts.filter(
+        (p) => !['functions', 'v1', 'media-manage-api'].includes(p)
+      );
       const path = decodeURIComponent(relevantParts.join('/'));
 
       if (!path) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'path is required' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-          }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'path is required' }), {
+          status: 400,
+          headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+        });
       }
 
       console.log(`[MEDIA-MANAGE v1] Deleting media: ${path}`);
@@ -172,9 +168,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
         {
           method: 'DELETE',
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`
-          }
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
         }
       );
 
@@ -182,48 +178,37 @@ Deno.serve(async (req: Request): Promise<Response> => {
         const errorText = await deleteResponse.text();
         console.error('[MEDIA-MANAGE v1] Delete error:', errorText);
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `Failed to delete: ${deleteResponse.status}` 
+          JSON.stringify({
+            success: false,
+            error: `Failed to delete: ${deleteResponse.status}`,
           }),
           {
             status: 500,
-            headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
           }
         );
       }
 
       console.log('[MEDIA-MANAGE v1] ✅ Media deleted');
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        {
-          status: 200,
-          headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-        }
-      );
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+      });
     }
 
     // 404 Not Found
-    return new Response(
-      JSON.stringify({ success: false, error: 'Not Found' }),
-      {
-        status: 404,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify({ success: false, error: 'Not Found' }), {
+      status: 404,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[MEDIA-MANAGE v1] ❌ Error:', error.message);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    });
   }
 });
 
 console.log('[MEDIA-MANAGE v1] ✅ Server started successfully!');
-

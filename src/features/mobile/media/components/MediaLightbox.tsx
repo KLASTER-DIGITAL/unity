@@ -1,21 +1,16 @@
-import { motion, AnimatePresence } from "motion/react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import type { MediaFile } from "@/shared/lib/api";
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import type { MediaFile } from '@/shared/lib/api';
 
-interface MediaLightboxProps {
+type MediaLightboxProps = {
   media: MediaFile[];
   initialIndex?: number;
   isOpen: boolean;
   onClose: () => void;
-}
+};
 
-export function MediaLightbox({ 
-  media, 
-  initialIndex = 0, 
-  isOpen, 
-  onClose 
-}: MediaLightboxProps) {
+export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: MediaLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const goToPrevious = () => {
@@ -32,24 +27,24 @@ export function MediaLightbox({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          className="scrollbar-hide fixed inset-0 z-50 flex items-center justify-center bg-black"
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black z-50 flex items-center justify-center scrollbar-hide"
+          initial={{ opacity: 0 }}
           onClick={onClose}
         >
           {/* Close Button */}
           <button
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-10 h-10 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="h-6 w-6 text-white" />
           </button>
 
           {/* Counter */}
           {media.length > 1 && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 bg-card/10 rounded-full">
-              <span className="text-[14px]! text-white font-semibold!">
+            <div className="-translate-x-1/2 absolute top-4 left-1/2 z-10 rounded-full bg-card/10 px-4 py-2">
+              <span className="font-semibold! text-[14px]! text-white">
                 {currentIndex + 1} / {media.length}
               </span>
             </div>
@@ -57,30 +52,30 @@ export function MediaLightbox({
 
           {/* Media Content */}
           <div
-            className="relative w-full h-full flex items-center justify-center p-4"
+            className="relative flex h-full w-full items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
+                className="flex max-h-full max-w-full items-center justify-center"
                 exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                key={currentIndex}
                 transition={{ duration: 0.2 }}
-                className="max-w-full max-h-full flex items-center justify-center"
               >
                 {currentMedia?.type === 'image' ? (
                   <img
-                    src={currentMedia.url}
                     alt=""
-                    className="max-w-full max-h-full object-contain rounded-[12px]"
+                    className="max-h-full max-w-full rounded-[12px] object-contain"
+                    src={currentMedia.url}
                   />
                 ) : currentMedia?.type === 'video' ? (
                   <video
-                    src={currentMedia.url}
-                    controls
                     autoPlay
-                    className="max-w-full max-h-full rounded-[12px]"
+                    className="max-h-full max-w-full rounded-[12px]"
+                    controls
+                    src={currentMedia.url}
                   />
                 ) : null}
               </motion.div>
@@ -91,55 +86,47 @@ export function MediaLightbox({
           {media.length > 1 && (
             <>
               <button
+                className="-translate-y-1/2 absolute top-1/2 left-4 flex h-12 w-12 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
                 onClick={(e) => {
                   e.stopPropagation();
                   goToPrevious();
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
               >
-                <ChevronLeft className="w-8 h-8 text-white" />
+                <ChevronLeft className="h-8 w-8 text-white" />
               </button>
 
               <button
+                className="-translate-y-1/2 absolute top-1/2 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
                 onClick={(e) => {
                   e.stopPropagation();
                   goToNext();
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/10 hover:bg-card/20 rounded-full flex items-center justify-center transition-colors"
               >
-                <ChevronRight className="w-8 h-8 text-white" />
+                <ChevronRight className="h-8 w-8 text-white" />
               </button>
             </>
           )}
 
           {/* Thumbnails */}
           {media.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-full overflow-x-auto scrollbar-hide px-4">
+            <div className="-translate-x-1/2 scrollbar-hide absolute bottom-4 left-1/2 flex max-w-full gap-2 overflow-x-auto px-4">
               {media.map((item, index) => (
                 <button
+                  className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-[8px] border-2 transition-all ${
+                    index === currentIndex
+                      ? 'scale-110 border-white'
+                      : 'border-white/30 opacity-60 hover:opacity-100'
+                  }`}
                   key={item.path}
                   onClick={(e) => {
                     e.stopPropagation();
                     setCurrentIndex(index);
                   }}
-                  className={`flex-shrink-0 w-16 h-16 rounded-[8px] overflow-hidden border-2 transition-all ${
-                    index === currentIndex
-                      ? 'border-white scale-110'
-                      : 'border-white/30 opacity-60 hover:opacity-100'
-                  }`}
                 >
                   {item.type === 'image' ? (
-                    <img
-                      src={item.url}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
+                    <img alt="" className="h-full w-full object-cover" src={item.url} />
                   ) : (
-                    <video
-                      src={item.url}
-                      className="w-full h-full object-cover"
-                      muted
-                    />
+                    <video className="h-full w-full object-cover" muted src={item.url} />
                   )}
                 </button>
               ))}

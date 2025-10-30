@@ -1,6 +1,6 @@
 /**
  * Push Notification Manager
- * 
+ *
  * Компонент для управления Web Push уведомлениями в админ-панели:
  * - Генерация VAPID keys
  * - Отправка push уведомлений всем пользователям
@@ -8,20 +8,16 @@
  * - История отправленных уведомлений
  */
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import {
-  getPushTemplate,
-
-  type PushTemplateType
-} from '@/shared/lib/i18n/push-templates';
+import { ChevronDown, Key } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/components/ui/collapsible';
-import { Button } from '@/shared/components/ui/button';
-import { ChevronDown, Key } from 'lucide-react';
+import { getPushTemplate, type PushTemplateType } from '@/shared/lib/i18n/push-templates';
+import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
@@ -100,7 +96,8 @@ export function PushNotificationManager() {
         .select('total_sent, total_delivered');
 
       const totalSent = historyData?.reduce((sum, row) => sum + (row.total_sent || 0), 0) || 0;
-      const totalDelivered = historyData?.reduce((sum, row) => sum + (row.total_delivered || 0), 0) || 0;
+      const totalDelivered =
+        historyData?.reduce((sum, row) => sum + (row.total_delivered || 0), 0) || 0;
 
       setStats({
         totalSubscriptions: totalCount || 0,
@@ -156,18 +153,21 @@ export function PushNotificationManager() {
       });
 
       // Сохраняем в admin_settings
-      await supabase.from('admin_settings').upsert([
-        {
-          key: 'vapid_public_key',
-          value: publicKey,
-          category: 'push_notifications',
-        },
-        {
-          key: 'vapid_private_key',
-          value: privateKey,
-          category: 'push_notifications',
-        },
-      ], { onConflict: 'key' });
+      await supabase.from('admin_settings').upsert(
+        [
+          {
+            key: 'vapid_public_key',
+            value: publicKey,
+            category: 'push_notifications',
+          },
+          {
+            key: 'vapid_private_key',
+            value: privateKey,
+            category: 'push_notifications',
+          },
+        ],
+        { onConflict: 'key' }
+      );
 
       setVapidPublicKey(publicKey);
       setVapidPrivateKey(privateKey);
@@ -185,19 +185,21 @@ export function PushNotificationManager() {
    * Отправляет push уведомление всем пользователям
    */
   const sendPushNotification = async () => {
-    if (!title || !body) {
+    if (!(title && body)) {
       alert('❌ Заполните заголовок и текст уведомления');
       return;
     }
 
-    if (!vapidPublicKey || !vapidPrivateKey) {
+    if (!(vapidPublicKey && vapidPrivateKey)) {
       alert('❌ Сначала сгенерируйте VAPID keys');
       return;
     }
 
     setIsSending(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         alert('❌ Не авторизован');
         return;
@@ -209,7 +211,7 @@ export function PushNotificationManager() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             user_ids: 'all',
@@ -227,11 +229,11 @@ export function PushNotificationManager() {
       }
 
       alert(`✅ Отправлено: ${result.sent} из ${result.total}`);
-      
+
       // Очищаем форму
       setTitle('');
       setBody('');
-      
+
       // Обновляем статистику
       loadStats();
     } catch (error) {
@@ -245,27 +247,29 @@ export function PushNotificationManager() {
   return (
     <div className="space-y-6">
       {/* VAPID Keys Section - Collapsible */}
-      <div className="bg-card dark:bg-card rounded-lg p-4 shadow">
-        <Collapsible open={isVapidOpen} onOpenChange={setIsVapidOpen}>
+      <div className="rounded-lg bg-card p-4 shadow dark:bg-card">
+        <Collapsible onOpenChange={setIsVapidOpen} open={isVapidOpen}>
           <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full justify-between">
+            <Button className="w-full justify-between" size="sm" variant="outline">
               <span className="flex items-center gap-2">
-                <Key className="w-4 h-4" />
+                <Key className="h-4 w-4" />
                 VAPID Keys {vapidPublicKey && vapidPrivateKey && '(настроены)'}
               </span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${isVapidOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${isVapidOpen ? 'rotate-180' : ''}`}
+              />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4">
-            {!vapidPublicKey || !vapidPrivateKey ? (
+            {!(vapidPublicKey && vapidPrivateKey) ? (
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+                <p className="text-muted-foreground text-sm dark:text-muted-foreground">
                   VAPID keys не настроены. Сгенерируйте их для работы Web Push API.
                 </p>
                 <button
-                  onClick={generateVapidKeys}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                   disabled={isGenerating}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  onClick={generateVapidKeys}
                 >
                   {isGenerating ? 'Генерация...' : 'Сгенерировать VAPID Keys'}
                 </button>
@@ -273,27 +277,27 @@ export function PushNotificationManager() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Public Key</label>
+                  <label className="mb-2 block font-medium text-sm">Public Key</label>
                   <input
+                    className="w-full rounded-lg border bg-muted px-3 py-2 font-mono text-xs dark:bg-muted"
+                    readOnly
                     type="text"
                     value={vapidPublicKey}
-                    readOnly
-                    className="w-full px-3 py-2 border rounded-lg bg-muted dark:bg-muted font-mono text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Private Key</label>
+                  <label className="mb-2 block font-medium text-sm">Private Key</label>
                   <input
+                    className="w-full rounded-lg border bg-muted px-3 py-2 font-mono text-xs dark:bg-muted"
+                    readOnly
                     type="password"
                     value={vapidPrivateKey}
-                    readOnly
-                    className="w-full px-3 py-2 border rounded-lg bg-muted dark:bg-muted font-mono text-xs"
                   />
                 </div>
                 <button
-                  onClick={generateVapidKeys}
+                  className="rounded-lg bg-muted px-4 py-2 text-sm text-white hover:bg-muted disabled:opacity-50"
                   disabled={isGenerating}
-                  className="px-4 py-2 bg-muted text-white rounded-lg hover:bg-muted disabled:opacity-50 text-sm"
+                  onClick={generateVapidKeys}
                 >
                   Перегенерировать
                 </button>
@@ -305,40 +309,40 @@ export function PushNotificationManager() {
 
       {/* Statistics */}
       {stats && (
-        <div className="bg-card dark:bg-card rounded-lg p-6 shadow">
-          <h3 className="text-lg font-semibold mb-4">Статистика</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 rounded-lg bg-muted/50">
-              <div className="text-3xl font-bold text-primary">{stats.totalSubscriptions}</div>
-              <p className="text-xs text-muted-foreground mt-1">Всего подписок</p>
+        <div className="rounded-lg bg-card p-6 shadow dark:bg-card">
+          <h3 className="mb-4 font-semibold text-lg">Статистика</h3>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="font-bold text-3xl text-primary">{stats.totalSubscriptions}</div>
+              <p className="mt-1 text-muted-foreground text-xs">Всего подписок</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
-              <div className="text-3xl font-bold text-green-600">{stats.activeSubscriptions}</div>
-              <p className="text-xs text-muted-foreground mt-1">Активных</p>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="font-bold text-3xl text-green-600">{stats.activeSubscriptions}</div>
+              <p className="mt-1 text-muted-foreground text-xs">Активных</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
-              <div className="text-3xl font-bold text-purple-600">{stats.totalSent}</div>
-              <p className="text-xs text-muted-foreground mt-1">Отправлено</p>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="font-bold text-3xl text-purple-600">{stats.totalSent}</div>
+              <p className="mt-1 text-muted-foreground text-xs">Отправлено</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
-              <div className="text-3xl font-bold text-orange-600">{stats.totalDelivered}</div>
-              <p className="text-xs text-muted-foreground mt-1">Доставлено</p>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="font-bold text-3xl text-orange-600">{stats.totalDelivered}</div>
+              <p className="mt-1 text-muted-foreground text-xs">Доставлено</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Send Push Notification */}
-      <div className="bg-card dark:bg-card rounded-lg p-6 shadow">
-        <h3 className="text-lg font-semibold mb-4">Отправить уведомление</h3>
+      <div className="rounded-lg bg-card p-6 shadow dark:bg-card">
+        <h3 className="mb-4 font-semibold text-lg">Отправить уведомление</h3>
 
         <div className="space-y-4">
           {/* Template Toggle */}
           <div className="flex items-center gap-2">
             <input
-              type="checkbox"
-              id="useTemplate"
               checked={useTemplate}
+              className="h-4 w-4"
+              id="useTemplate"
               onChange={(e) => {
                 setUseTemplate(e.target.checked);
                 if (e.target.checked) {
@@ -348,9 +352,9 @@ export function PushNotificationManager() {
                   setIcon(template.icon || '/icon-192.png');
                 }
               }}
-              className="w-4 h-4"
+              type="checkbox"
             />
-            <label htmlFor="useTemplate" className="text-sm font-medium">
+            <label className="font-medium text-sm" htmlFor="useTemplate">
               Использовать шаблон
             </label>
           </div>
@@ -359,9 +363,9 @@ export function PushNotificationManager() {
           {useTemplate && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-2">Язык</label>
+                <label className="mb-2 block font-medium text-sm">Язык</label>
                 <select
-                  value={selectedLanguage}
+                  className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
                   onChange={(e) => {
                     setSelectedLanguage(e.target.value);
                     const template = getPushTemplate(selectedTemplate, e.target.value);
@@ -369,7 +373,7 @@ export function PushNotificationManager() {
                     setBody(template.body);
                     setIcon(template.icon || '/icon-192.png');
                   }}
-                  className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
+                  value={selectedLanguage}
                 >
                   <option value="ru">🇷🇺 Русский</option>
                   <option value="en">🇬🇧 English</option>
@@ -382,9 +386,9 @@ export function PushNotificationManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Шаблон</label>
+                <label className="mb-2 block font-medium text-sm">Шаблон</label>
                 <select
-                  value={selectedTemplate}
+                  className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
                   onChange={(e) => {
                     const newTemplate = e.target.value as PushTemplateType;
                     setSelectedTemplate(newTemplate);
@@ -393,7 +397,7 @@ export function PushNotificationManager() {
                     setBody(template.body);
                     setIcon(template.icon || '/icon-192.png');
                   }}
-                  className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
+                  value={selectedTemplate}
                 >
                   <option value="daily_reminder">📝 Ежедневное напоминание</option>
                   <option value="weekly_report">📊 Еженедельный отчет</option>
@@ -407,43 +411,43 @@ export function PushNotificationManager() {
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-2">Заголовок</label>
+            <label className="mb-2 block font-medium text-sm">Заголовок</label>
             <input
-              type="text"
-              value={title}
+              className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
+              disabled={useTemplate && selectedTemplate !== 'custom'}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Новое достижение!"
-              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
-              disabled={useTemplate && selectedTemplate !== 'custom'}
+              type="text"
+              value={title}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Текст</label>
+            <label className="mb-2 block font-medium text-sm">Текст</label>
             <textarea
-              value={body}
+              className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
+              disabled={useTemplate && selectedTemplate !== 'custom'}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Поздравляем с новым достижением!"
               rows={3}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
-              disabled={useTemplate && selectedTemplate !== 'custom'}
+              value={body}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Иконка (URL)</label>
+            <label className="mb-2 block font-medium text-sm">Иконка (URL)</label>
             <input
+              className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
+              onChange={(e) => setIcon(e.target.value)}
               type="text"
               value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-muted"
             />
           </div>
 
           <button
-            onClick={sendPushNotification}
+            className="w-full rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
             disabled={isSending || !vapidPublicKey}
-            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            onClick={sendPushNotification}
           >
             {isSending ? 'Отправка...' : 'Отправить всем пользователям'}
           </button>
@@ -452,4 +456,3 @@ export function PushNotificationManager() {
     </div>
   );
 }
-

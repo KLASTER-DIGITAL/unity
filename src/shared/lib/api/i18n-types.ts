@@ -1,9 +1,9 @@
 /**
  * i18n Type Definitions
- * 
+ *
  * Type definitions for internationalization system.
  * Defines supported languages and translation interface.
- * 
+ *
  * @module i18n-types
  */
 
@@ -11,22 +11,22 @@
 export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja';
 
 // Translation keys interface
-export interface Translations {
+export type Translations = {
   // Приветствие
   greeting: string;
   todayQuestion: string;
-  
+
   // Навигация
   home: string;
   history: string;
   awards: string;
   reviews: string;
   settings: string;
-  
+
   // Плейсхолдеры
   inputPlaceholder: string;
   searchPlaceholder: string;
-  
+
   // Кнопки
   addPhoto: string;
   send: string;
@@ -36,10 +36,10 @@ export interface Translations {
   back: string;
   next: string;
   skip: string;
-  
+
   // WelcomeScreen
   alreadyHaveAccount: string;
-  
+
   // AuthScreen
   signIn: string;
   signUp: string;
@@ -52,7 +52,7 @@ export interface Translations {
   createAccount: string;
   notRegisteredYet: string;
   alreadyHaveAccountAuth: string;
-  
+
   // SettingsScreen
   notifications: string;
   dailyReminders: string;
@@ -77,7 +77,7 @@ export interface Translations {
   deleteAllData: string;
   appVersion: string;
   appSubtitle: string;
-  
+
   // Категории
   family: string;
   work: string;
@@ -87,7 +87,7 @@ export interface Translations {
   personalDevelopment: string;
   creativity: string;
   relationships: string;
-  
+
   // Карточки мотивации
   defaultCard1Title: string;
   defaultCard1Description: string;
@@ -95,22 +95,21 @@ export interface Translations {
   defaultCard2Description: string;
   defaultCard3Title: string;
   defaultCard3Description: string;
-  
+
   // Статусы
   connectedToAI: string;
   aiHelp: string;
   aiHelpDescription: string;
-  
+
   // История
   historyTitle: string;
   foundEntries: string;
   filters: string;
-  
+
   // Онбординг
   welcomeTitle: string;
   selectLanguage: string;
   diaryName: string;
   firstEntry: string;
   reminders: string;
-}
-
+};

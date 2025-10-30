@@ -1,8 +1,8 @@
 /**
  * Offline Mode Helpers
- * 
+ *
  * Helper functions for offline mode access control and validation.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-28
  */
@@ -10,39 +10,39 @@
 /**
  * Result of offline mode access check
  */
-export interface OfflineModeAccessCheck {
+export type OfflineModeAccessCheck = {
   allowed: boolean;
   reason?: 'premium_required' | 'disabled' | 'not_authenticated';
   message?: string;
-}
+};
 
 /**
  * User data interface for offline mode check
  */
-export interface UserDataForOfflineCheck {
+export type UserDataForOfflineCheck = {
   profile?: {
     isPremium?: boolean;
     offlineEnabled?: boolean;
   };
   isPremium?: boolean;
   offlineEnabled?: boolean;
-}
+};
 
 /**
  * Check if user can use offline mode
- * 
+ *
  * Requirements:
  * 1. User must be authenticated
  * 2. User must have Premium subscription
  * 3. User must have offline mode enabled in settings
- * 
+ *
  * @param userData - User data object
  * @returns Access check result
- * 
+ *
  * @example
  * ```typescript
  * const check = canUseOfflineMode(userData);
- * 
+ *
  * if (!check.allowed) {
  *   if (check.reason === 'premium_required') {
  *     // Show premium modal
@@ -53,7 +53,7 @@ export interface UserDataForOfflineCheck {
  *   }
  *   return;
  * }
- * 
+ *
  * // User can use offline mode
  * await saveEntryOffline(userId, text, options);
  * ```
@@ -101,7 +101,7 @@ export function canUseOfflineMode(
 
 /**
  * Get user-friendly message for offline mode access denial
- * 
+ *
  * @param check - Access check result
  * @returns User-friendly message
  */
@@ -115,11 +115,10 @@ export function getOfflineModeAccessMessage(check: OfflineModeAccessCheck): stri
 
 /**
  * Check if offline mode should show premium modal
- * 
+ *
  * @param check - Access check result
  * @returns True if should show premium modal
  */
 export function shouldShowPremiumModal(check: OfflineModeAccessCheck): boolean {
   return !check.allowed && check.reason === 'premium_required';
 }
-

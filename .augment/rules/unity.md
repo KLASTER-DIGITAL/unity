@@ -46,6 +46,22 @@ type: "always_apply"
 - **Языки**: 7 активных (ru/en/es/de/fr/zh/ja), возможность добавления неограниченного количества
 - **Автоперевод**: через AI GPT-4o-mini
 
+### Ultracite Linter/Formatter (НОВОЕ - 2025-10-30)
+- **Инструмент**: Biome (Rust-based) через Ultracite wrapper
+- **Версия**: @biomejs/biome 2.3.2, ultracite 6.1.0
+- **Конфигурация**: `biome.jsonc` (с комментариями)
+- **MCP**: `getRules_ultracite()` для изучения правил
+- **Команды**:
+  - `npm run lint` - проверка без исправлений
+  - `npm run lint:fix` - автоматическое исправление FIXABLE ошибок
+  - `npm run lint:unsafe` - исправление включая unsafe fixes
+- **Pre-commit hook**: автоматический lint:fix + type-check + build
+- **GitHub Actions**: автоматическая проверка в CI/CD
+- **React Native**: полная поддержка, специальные overrides для `.native.ts` файлов
+- **Правила**: см. `.augment/rules/ultracite.md` для детального описания
+- **ОБЯЗАТЕЛЬНО**: ВСЕГДА запускать `npm run lint:fix` после редактирования кода
+- **ЗАПРЕТ**: НИКОГДА не коммитить код с lint ошибками
+
 ### AI-Friendly Code принципы
 - **Модульность**: файлы < 300 строк (CSS < 200, компоненты < 250)
 - **Читаемость**: явные имена, избегать сокращений, комментарии для сложной логики
@@ -519,6 +535,183 @@ npm run start:expo --dev-client
 - **Email**: www.klaster.digital@gmail.com
 - **Account**: https://expo.dev/accounts/klastergital
 - **Password**: Qqq111www222!
+
+---
+
+## 📱 React Native Development Rules
+
+### Обязательные правила для React Native разработки
+
+#### 1. Идентичный дизайн (Visual Parity)
+- **ПРИНЦИП**: PWA и React Native ДОЛЖНЫ быть визуально идентичны
+- **МЕХАНИЗМ**: Использовать DesignTokens для цветов, spacing, typography, borderRadius
+- **ЗАПРЕТ**: НЕ хардкодить значения дизайна (цвета, размеры, отступы)
+- **ОБЯЗАТЕЛЬНО**: Все дизайн-токены из PWA ДОЛЖНЫ быть доступны в React Native через `app-shared/design-system/tokens.ts`
+
+#### 2. Dual-Platform Development
+- **ПРАВИЛО**: ВСЕГДА создавать .web.ts И .native.tsx для новых фич ОДНОВРЕМЕННО
+- **ЗАПРЕТ**: НЕ создавать фичи только для PWA без React Native адаптации
+- **СТРУКТУРА**:
+  ```
+  ✅ ПРАВИЛЬНО:
+  src/features/new-feature/
+  ├── NewFeature.tsx              # Web версия
+  └── NewFeature.native.tsx       # React Native версия
+
+  ❌ НЕПРАВИЛЬНО:
+  src/features/new-feature/
+  └── NewFeature.tsx              # Только web, нет native
+  ```
+
+#### 3. Universal Components ONLY
+- **ЗАПРЕТ**: НЕ использовать Radix UI напрямую в новых компонентах
+- **ОБЯЗАТЕЛЬНО**: ТОЛЬКО через Universal Components из `@/shared/components/ui/universal`
+- **СТАТУС**: Universal Components НЕ имеют .native.tsx версий (приоритет 1)
+- **ПРАВИЛО**: При создании нового UI компонента СРАЗУ создавать .web.tsx И .native.tsx версии
+
+#### 4. Platform Adapters обязательность
+- **КАТЕГОРИИ требующие Platform Adapters**:
+  - Анимации (Framer Motion → Reanimated)
+  - Storage (localStorage → AsyncStorage)
+  - Media (FileReader → expo-file-system)
+  - Navigation (window.history → Expo Router)
+  - i18n (navigator.language → expo-localization)
+  - Offline (IndexedDB → SQLite)
+  - Speech/Voice (Web APIs → React Native modules)
+- **СТРУКТУРА**:
+  ```typescript
+  src/shared/lib/platform/{feature}/
+  ├── index.ts              # Экспорт для PWA
+  ├── {feature}.web.ts      # Web реализация
+  ├── {feature}.native.ts   # Native реализация (в /app-shared/)
+  └── types.ts              # Shared TypeScript types
+  ```
+
+#### 5. Mobile Config Driven
+- **ПРИНЦИП**: Все настройки React Native управляются через админ-панель
+- **ТАБЛИЦА**: `mobile_settings` в Supabase
+- **НАСТРОЙКИ**: Splash screen, Onboarding, Auth, i18n, цвета, логотипы
+- **API**: Edge Function `mobile-config-api` для получения/обновления конфигурации
+- **OTA Updates**: Изменения применяются без публикации в App Store/Google Play
+
+#### 6. i18n Parity
+- **ПРАВИЛО**: React Native ДОЛЖЕН использовать ту же систему переводов что и PWA
+- **ЯЗЫКИ**: 7 активных (ru/en/es/de/fr/zh/ja), динамическая CRUD через Supabase
+- **OFFLINE**: Кэширование переводов в AsyncStorage
+- **AUTO-DETECT**: Определение языка устройства через expo-localization
+- **СТАТУС**: i18n НЕ адаптирован для React Native (приоритет 1, нужен Platform Adapter)
+
+#### 7. Testing Requirement
+- **ОБЯЗАТЕЛЬНО**: ВСЕГДА тестировать на обеих платформах перед коммитом
+- **PWA Testing**:
+  ```bash
+  npm run dev
+  # Проверить через Chrome MCP:
+  # - 0 errors в консоли
+  # - 0 warnings
+  # - Функционал работает
+  ```
+- **React Native Testing**:
+  ```bash
+  npm run start:expo
+  # Сканировать QR код в Expo Go app
+  # Проверить на iOS и Android
+  # Проверить консоль Metro bundler
+  ```
+- **ЗАПРЕТ**: НЕ коммитить без тестирования на обеих платформах
+
+#### 8. Context7 MCP Usage
+- **ОБЯЗАТЕЛЬНО**: Использовать Context7 MCP для документации библиотек
+- **БИБЛИОТЕКИ**:
+  - React Native: `/facebook/react-native`
+  - Expo SDK: `/expo/expo`
+  - React Native Reanimated: `/software-mansion/react-native-reanimated`
+  - React Navigation: `/react-navigation/react-navigation`
+  - Supabase JS: `/supabase/supabase-js`
+- **ПРИМЕР**:
+  ```typescript
+  get-library-docs_Context_7({
+    context7CompatibleLibraryID: "/facebook/react-native",
+    topic: "animations"
+  })
+  ```
+
+### Критические запреты
+
+#### ❌ НЕ создавать фичи только для PWA
+- Каждая новая фича ДОЛЖНА иметь React Native адаптацию
+- Если фича platform-specific → создать Platform Adapter
+- Если фича UI → создать Universal Component с .native.tsx версией
+
+#### ❌ НЕ использовать Shadcn MCP для React Native
+- Shadcn UI работает ТОЛЬКО для Web (Radix UI + Tailwind CSS)
+- Radix UI НЕ совместим с React Native
+- ТОЛЬКО собственная реализация Universal Components
+
+#### ❌ НЕ использовать Radix UI напрямую
+- ТОЛЬКО через Universal Components
+- Прямое использование Radix UI создает технический долг
+- При миграции на React Native придется переписывать
+
+#### ❌ НЕ коммитить без тестирования на обеих платформах
+- ВСЕГДА проверять PWA через Chrome MCP
+- ВСЕГДА проверять React Native через Expo Go
+- ВСЕГДА проверять консоль на ошибки
+
+#### ❌ НЕ хардкодить дизайн-токены
+- НЕ использовать `bg-white`, `bg-gray-*`, `text-black`
+- ТОЛЬКО CSS переменные: `bg-card`, `text-foreground`, `border-border`
+- ТОЛЬКО DesignTokens в React Native: `DesignTokens.colors.primary`
+
+### Workflow создания новой фичи
+
+#### Шаг 1: Планирование
+1. Определить требуется ли Platform Adapter (анимации, storage, media, etc.)
+2. Определить требуется ли Universal Component (UI элементы)
+3. Создать задачи в Task List для PWA И React Native версий
+
+#### Шаг 2: Разработка PWA версии
+1. Создать компонент в `src/features/{feature}/`
+2. Использовать Universal Components для UI
+3. Использовать Platform Adapters для platform-specific логики
+4. Использовать DesignTokens для дизайна
+5. Тестировать через `npm run dev` + Chrome MCP
+
+#### Шаг 3: Разработка React Native версии
+1. Создать `.native.tsx` версию компонента
+2. Адаптировать UI используя React Native компоненты
+3. Использовать те же Platform Adapters
+4. Использовать те же DesignTokens
+5. Тестировать через `npm run start:expo` + Expo Go
+
+#### Шаг 4: Проверка консистентности
+1. Визуально сравнить PWA и React Native версии
+2. Проверить что дизайн идентичен (цвета, spacing, typography)
+3. Проверить что функционал идентичен
+4. Проверить консоль на ошибки в обеих версиях
+
+#### Шаг 5: Коммит
+1. Проверить Supabase Advisors (security + performance)
+2. Проверить консоль браузера (0 errors)
+3. Проверить консоль Metro bundler (0 errors)
+4. Коммитить ОБЕИ версии (.web.ts И .native.tsx) одновременно
+
+### Приоритеты разработки
+
+#### Приоритет 1 (КРИТИЧНО):
+1. **i18n Platform Adapter** - без этого React Native не работает с переводами
+2. **Universal Components .native.tsx** - критично для UI консистентности
+3. **Mobile Config в админ-панели** - централизованное управление настройками
+
+#### Приоритет 2 (ВАЖНО):
+4. **Animation Platform Adapter** - для красивых анимаций (Reanimated)
+5. **Onboarding адаптация** - улучшит UX, визуальная консистентность
+6. **Auth улучшение** - parity с PWA (social auth, дизайн)
+
+#### Приоритет 3 (МОЖНО ОТЛОЖИТЬ):
+7. **Offline & Sync интеграция** - Platform Adapter готов, нужна интеграция
+8. **Push notifications** - настройка через Mobile Config
+9. **Dark Mode полная поддержка** - уже есть ThemeContext, нужна доработка
 
 ---
 

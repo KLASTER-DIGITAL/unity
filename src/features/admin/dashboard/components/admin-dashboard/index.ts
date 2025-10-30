@@ -2,22 +2,21 @@
  * AdminDashboard - Modular exports
  */
 
-export { DesktopSidebar } from "./DesktopSidebar";
-export { MobileSidebar } from "./MobileSidebar";
-export { OverviewTab } from "./OverviewTab";
-export { StatsCard } from "./StatsCard";
-export { QuickActions } from "./QuickActions";
-export { SystemStatus } from "./SystemStatus";
-export { loadAdminStats, isSuperAdmin } from "./utils";
-export { SUPER_ADMIN_EMAIL, INITIAL_STATS, PWA_SUB_TABS } from "./constants";
+export { INITIAL_STATS, PWA_SUB_TABS, SUPER_ADMIN_EMAIL } from './constants';
+export { DesktopSidebar } from './DesktopSidebar';
+export { MobileSidebar } from './MobileSidebar';
+export { OverviewTab } from './OverviewTab';
+export { QuickActions } from './QuickActions';
+export { StatsCard } from './StatsCard';
+export { SystemStatus } from './SystemStatus';
 export type {
   AdminDashboardProps,
   AdminStats,
   MenuItem,
-  SidebarProps,
   MobileSidebarProps,
   OverviewTabProps,
+  PWASubTab,
+  SidebarProps,
   TabId,
-  PWASubTab
-} from "./types";
-
+} from './types';
+export { isSuperAdmin, loadAdminStats } from './utils';

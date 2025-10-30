@@ -1,30 +1,25 @@
-import { useTranslationContext } from './TranslationProvider';
-import type { TranslationKey, LanguageCode } from './types/TranslationKeys';
-import { pluralize } from './pluralization';
 import {
-  formatDate,
-  formatTime,
-  formatRelativeTime,
   DATE_FORMATS,
   type DateFormatOptions,
-  type RelativeTimeOptions
+  formatDate,
+  formatRelativeTime,
+  formatTime,
+  type RelativeTimeOptions,
 } from './formatting/DateFormatter';
 import {
-  formatNumber,
-  formatCurrency,
-  formatPercent,
   formatCompact,
-  formatFileSize,
+  formatCurrency,
   formatDuration,
+  formatFileSize,
+  formatNumber,
+  formatPercent,
   NUMBER_FORMATS,
-  type NumberFormatOptions
+  type NumberFormatOptions,
 } from './formatting/NumberFormatter';
-import {
-  isRTL,
-  getTextDirection,
-  getRTLConfig,
-  type TextDirection
-} from './rtl/RTLDetector';
+import { pluralize } from './pluralization';
+import { getRTLConfig, getTextDirection, isRTL, type TextDirection } from './rtl/RTLDetector';
+import { useTranslationContext } from './TranslationProvider';
+import type { LanguageCode, TranslationKey } from './types/TranslationKeys';
 
 /**
  * Hook for accessing translation functionality with TypeScript autocomplete
@@ -47,7 +42,7 @@ export const useTranslation = () => {
     error,
     isLoaded,
     state,
-    refreshTranslations
+    refreshTranslations,
   } = useTranslationContext();
 
   return {
@@ -80,22 +75,18 @@ export const useTranslation = () => {
      */
     hasTranslation: (key: TranslationKey) => {
       const cache = state.cache.get(currentLanguage);
-      return !!(cache?.translations[key]);
+      return !!cache?.translations[key];
     },
 
     /**
      * Get all available language codes
      */
-    getAvailableLanguages: () => {
-      return Array.from(state.cache.keys()) as LanguageCode[];
-    },
+    getAvailableLanguages: () => Array.from(state.cache.keys()) as LanguageCode[],
 
     /**
      * Check if a language is loaded in cache
      */
-    isLanguageLoaded: (language: LanguageCode) => {
-      return state.cache.has(language);
-    },
+    isLanguageLoaded: (language: LanguageCode) => state.cache.has(language),
 
     /**
      * Pluralize a translation based on count
@@ -123,7 +114,7 @@ export const useTranslation = () => {
         language: currentLanguage,
         translations,
         baseKey,
-        fallback
+        fallback,
       });
     },
 
@@ -144,8 +135,7 @@ export const useTranslation = () => {
      * @example
      * t.formatTime(new Date()) // → "3:30 PM" (en) / "15:30" (ru)
      */
-    formatTime: (date: Date | string | number) =>
-      formatTime(date, currentLanguage),
+    formatTime: (date: Date | string | number) => formatTime(date, currentLanguage),
 
     /**
      * Format relative time (time ago)
@@ -181,8 +171,7 @@ export const useTranslation = () => {
      * @example
      * t.formatPercent(0.85) // → "85%" (en) / "85 %" (ru)
      */
-    formatPercent: (value: number) =>
-      formatPercent(value, currentLanguage),
+    formatPercent: (value: number) => formatPercent(value, currentLanguage),
 
     /**
      * Format number with compact notation
@@ -190,8 +179,7 @@ export const useTranslation = () => {
      * @example
      * t.formatCompact(1234567) // → "1.2M" (en) / "1,2 млн" (ru)
      */
-    formatCompact: (value: number) =>
-      formatCompact(value, currentLanguage),
+    formatCompact: (value: number) => formatCompact(value, currentLanguage),
 
     /**
      * Format file size
@@ -199,8 +187,7 @@ export const useTranslation = () => {
      * @example
      * t.formatFileSize(1024 * 1024) // → "1.00 MB"
      */
-    formatFileSize: (bytes: number) =>
-      formatFileSize(bytes, currentLanguage),
+    formatFileSize: (bytes: number) => formatFileSize(bytes, currentLanguage),
 
     /**
      * Format duration
@@ -208,8 +195,7 @@ export const useTranslation = () => {
      * @example
      * t.formatDuration(3665) // → "1h 1m 5s"
      */
-    formatDuration: (seconds: number) =>
-      formatDuration(seconds, currentLanguage),
+    formatDuration: (seconds: number) => formatDuration(seconds, currentLanguage),
 
     // Preset formats
     dateFormats: DATE_FORMATS,
@@ -240,6 +226,6 @@ export const useTranslation = () => {
      * @example
      * const { isRTL, direction, directionClass } = t.rtlConfig;
      */
-    rtlConfig: getRTLConfig(currentLanguage)
+    rtlConfig: getRTLConfig(currentLanguage),
   };
 };

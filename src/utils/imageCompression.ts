@@ -9,26 +9,28 @@ import { media } from '../shared/lib/platform/media';
  */
 export async function compressImage(
   file: File,
-  maxWidth: number = 1920,
+  maxWidth = 1920,
   // // maxHeight: number = 1920,
-  quality: number = 0.8
+  quality = 0.8
 ): Promise<File> {
   // Проверка типа файла
   if (!file.type.startsWith('image/')) {
     throw new Error('Файл не является изображением');
   }
 
-  console.log(`📸 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+  console.log(
+    `📸 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+  );
 
   try {
     const options = {
-      maxSizeMB: 0.5,              // Max 500KB
-      maxWidthOrHeight: maxWidth,  // Max 1920x1080
-      useWebWorker: true,          // Parallel processing
-      quality: quality,            // 80% quality
-      fileType: 'image/jpeg',      // Always JPEG (smaller)
-      initialQuality: quality,     // Initial quality
-      alwaysKeepResolution: false  // Allow resize
+      maxSizeMB: 0.5, // Max 500KB
+      maxWidthOrHeight: maxWidth, // Max 1920x1080
+      useWebWorker: true, // Parallel processing
+      quality, // 80% quality
+      fileType: 'image/jpeg', // Always JPEG (smaller)
+      initialQuality: quality, // Initial quality
+      alwaysKeepResolution: false, // Allow resize
     };
 
     const compressedFile = await imageCompression(file, options);
@@ -53,11 +55,11 @@ export async function generateThumbnail(file: File): Promise<File> {
 
   try {
     const options = {
-      maxSizeMB: 0.05,             // 50KB max
-      maxWidthOrHeight: 200,       // 200x200
+      maxSizeMB: 0.05, // 50KB max
+      maxWidthOrHeight: 200, // 200x200
       useWebWorker: true,
       quality: 0.7,
-      fileType: 'image/jpeg'
+      fileType: 'image/jpeg',
     };
 
     const thumbnail = await imageCompression(file, options);
@@ -83,10 +85,7 @@ export async function getImageDimensions(file: File): Promise<{ width: number; h
  * 🎨 CREATE THUMBNAIL DATA URL (for instant preview)
  * Returns base64 data URL for immediate display
  */
-export async function createThumbnail(
-  file: File,
-  maxSize: number = 200
-): Promise<string> {
+export async function createThumbnail(file: File, maxSize = 200): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
       const dataUrl = await media.readAsDataURL(file);
@@ -107,11 +106,7 @@ export async function createThumbnail(
         }
 
         // Рисуем квадратный crop
-        ctx.drawImage(
-          img,
-          x, y, size, size,
-          0, 0, maxSize, maxSize
-        );
+        ctx.drawImage(img, x, y, size, size, 0, 0, maxSize, maxSize);
 
         // Возвращаем data URL
         resolve(canvas.toDataURL('image/jpeg', 0.7));

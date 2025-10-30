@@ -9,7 +9,9 @@ import type { MotivationCard } from '../types';
  */
 export async function getMotivationCards(userId: string): Promise<MotivationCard[]> {
   const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
     throw new Error('No active session');
@@ -25,9 +27,9 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
+        Authorization: `Bearer ${session.access_token}`,
       },
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
@@ -39,8 +41,7 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
     const data = await response.json();
     console.log('[MOTIVATIONS] ✅ Microservice success');
     return data.cards || [];
-
-  } catch (microserviceError: any) {
+  } catch (_microserviceError: any) {
     console.error('[MOTIVATIONS] ❌ Microservice failed, using fallback...');
 
     // Fallback: Direct Supabase query
@@ -67,7 +68,9 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
  */
 export async function markCardAsRead(userId: string, cardId: string): Promise<void> {
   const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
     throw new Error('No active session');
@@ -83,10 +86,10 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ userId, cardId }),
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
@@ -103,8 +106,7 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
 
     console.log('[MOTIVATIONS] ✅ Card marked as read via microservice');
     return;
-
-  } catch (microserviceError: any) {
+  } catch (_microserviceError: any) {
     console.error('[MOTIVATIONS] ❌ Microservice failed, using fallback...');
 
     // Fallback: Direct Supabase update
@@ -122,4 +124,3 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
     console.log('[MOTIVATIONS] ✅ Card marked as read via fallback');
   }
 }
-

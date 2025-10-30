@@ -13,7 +13,7 @@ import { media as platformMedia } from './media/index';
 /**
  * Universal media interface
  */
-export interface MediaAdapter {
+export type MediaAdapter = {
   /**
    * Read file as data URL
    * @param file - File to read
@@ -85,7 +85,7 @@ export interface MediaAdapter {
    * @returns Video element or equivalent
    */
   createVideo(): HTMLVideoElement | any;
-}
+};
 
 /**
  * Universal media instance
@@ -115,13 +115,15 @@ export const MediaUtils = {
    * Get file size in human readable format
    */
   formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
 
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   },
 
   /**
@@ -137,5 +139,5 @@ export const MediaUtils = {
    */
   getFileExtension(filename: string): string {
     return filename.split('.').pop()?.toLowerCase() || '';
-  }
+  },
 };

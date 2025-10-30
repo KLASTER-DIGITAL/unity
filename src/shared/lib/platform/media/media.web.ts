@@ -1,8 +1,8 @@
 /**
  * Web Media Adapter
- * 
+ *
  * Uses browser APIs (FileReader, URL, Image, Video) for media operations
- * 
+ *
  * @module platform/media/web
  */
 
@@ -15,15 +15,15 @@ export class WebMediaAdapter implements MediaAdapter {
   async readAsDataURL(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         resolve(e.target?.result as string);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Failed to read file as data URL'));
       };
-      
+
       reader.readAsDataURL(file);
     });
   }
@@ -31,15 +31,15 @@ export class WebMediaAdapter implements MediaAdapter {
   async readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         resolve(e.target?.result as ArrayBuffer);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Failed to read file as array buffer'));
       };
-      
+
       reader.readAsArrayBuffer(file);
     });
   }
@@ -47,15 +47,15 @@ export class WebMediaAdapter implements MediaAdapter {
   async readAsText(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         resolve(e.target?.result as string);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Failed to read file as text'));
       };
-      
+
       reader.readAsText(file);
     });
   }
@@ -108,7 +108,7 @@ export class WebMediaAdapter implements MediaAdapter {
         resolve({
           duration: Math.round(video.duration),
           width: video.videoWidth,
-          height: video.videoHeight
+          height: video.videoHeight,
         });
       };
 
@@ -135,4 +135,3 @@ export class WebMediaAdapter implements MediaAdapter {
     return document.createElement('video');
   }
 }
-

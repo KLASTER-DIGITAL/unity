@@ -1,32 +1,40 @@
 /**
  * usePushAnalytics Hook
- * 
+ *
  * Отслеживает события push уведомлений от Service Worker
  * и сохраняет их в аналитику
  */
 
 import { useEffect } from 'react';
-import { trackPushOpened, trackPushClosed, trackPushDelivered } from '@/shared/lib/analytics/push-analytics';
+import {
+  trackPushClosed,
+  trackPushDelivered,
+  trackPushOpened,
+} from '@/shared/lib/analytics/push-analytics';
 
-interface PushEventData {
+type PushEventData = {
   type: 'PUSH_DELIVERED' | 'PUSH_CLICKED' | 'PUSH_CLOSED';
   data?: {
     notification_id?: string;
     url?: string;
     [key: string]: any;
   };
-}
+};
 
 /**
  * Hook для отслеживания push событий от Service Worker
  */
 export function usePushAnalytics(userId?: string) {
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     // Обработчик сообщений от Service Worker
     const handleMessage = async (event: MessageEvent<PushEventData>) => {
-      if (!event.data || !event.data.type) return;
+      if (!event.data?.type) {
+        return;
+      }
 
       const { type, data } = event.data;
       const notificationId = data?.notification_id;
@@ -79,7 +87,9 @@ export function useInitPushAnalytics(userId?: string) {
   usePushAnalytics(userId);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     // Проверяем поддержку Service Worker
     if (!('serviceWorker' in navigator)) {
@@ -88,11 +98,12 @@ export function useInitPushAnalytics(userId?: string) {
     }
 
     // Проверяем что Service Worker зарегистрирован
-    navigator.serviceWorker.ready.then((registration) => {
-      console.log('[Push Analytics] Service Worker ready:', registration);
-    }).catch((error) => {
-      console.error('[Push Analytics] Service Worker not ready:', error);
-    });
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        console.log('[Push Analytics] Service Worker ready:', registration);
+      })
+      .catch((error) => {
+        console.error('[Push Analytics] Service Worker not ready:', error);
+      });
   }, [userId]);
 }
-

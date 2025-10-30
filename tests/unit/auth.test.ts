@@ -4,19 +4,13 @@
  * Coverage target: 80%+
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  signUpWithEmail, 
-  signInWithEmail, 
-  signOut, 
-  checkSession,
-  type AuthResult 
-} from '@/utils/auth';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { checkSession, signInWithEmail, signOut, signUpWithEmail } from '@/utils/auth';
 import { createClient } from '@/utils/supabase/client';
 
 // Mock Supabase client
 vi.mock('@/utils/supabase/client', () => ({
-  createClient: vi.fn()
+  createClient: vi.fn(),
 }));
 
 // Mock API functions
@@ -24,7 +18,7 @@ vi.mock('@/shared/lib/api', () => ({
   createUserProfile: vi.fn(),
   getUserProfile: vi.fn(),
   createEntry: vi.fn(),
-  analyzeTextWithAI: vi.fn()
+  analyzeTextWithAI: vi.fn(),
 }));
 
 describe('Authentication System', () => {
@@ -41,8 +35,8 @@ describe('Authentication System', () => {
         signInWithPassword: vi.fn(),
         signOut: vi.fn(),
         getSession: vi.fn(),
-        signInWithOAuth: vi.fn()
-      }
+        signInWithOAuth: vi.fn(),
+      },
     };
 
     // Mock createClient to return our mock
@@ -57,7 +51,7 @@ describe('Authentication System', () => {
     it('should successfully sign in with valid credentials', async () => {
       const mockUser = {
         id: 'user-123',
-        email: 'test@example.com'
+        email: 'test@example.com',
       };
 
       const mockProfile = {
@@ -65,13 +59,13 @@ describe('Authentication System', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: 'user',
-        onboardingCompleted: true
+        onboardingCompleted: true,
       };
 
       // Mock successful sign in
       mockSupabase.auth.signInWithPassword.mockResolvedValue({
         data: { user: mockUser },
-        error: null
+        error: null,
       });
 
       // Mock getUserProfile
@@ -86,14 +80,14 @@ describe('Authentication System', () => {
       expect(result.needsOnboarding).toBe(false);
       expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       });
     });
 
     it('should return error for invalid credentials', async () => {
       mockSupabase.auth.signInWithPassword.mockResolvedValue({
         data: { user: null },
-        error: { message: 'Invalid login credentials' }
+        error: { message: 'Invalid login credentials' },
       });
 
       const result = await signInWithEmail('test@example.com', 'wrongpassword');
@@ -106,7 +100,7 @@ describe('Authentication System', () => {
     it('should detect users needing onboarding', async () => {
       const mockUser = {
         id: 'user-456',
-        email: 'newuser@example.com'
+        email: 'newuser@example.com',
       };
 
       const mockProfile = {
@@ -114,12 +108,12 @@ describe('Authentication System', () => {
         email: 'newuser@example.com',
         name: 'New User',
         role: 'user',
-        onboardingCompleted: false
+        onboardingCompleted: false,
       };
 
       mockSupabase.auth.signInWithPassword.mockResolvedValue({
         data: { user: mockUser },
-        error: null
+        error: null,
       });
 
       const { getUserProfile } = await import('@/shared/lib/api');
@@ -136,7 +130,7 @@ describe('Authentication System', () => {
     it('should successfully create new user account', async () => {
       const mockUser = {
         id: 'user-789',
-        email: 'newuser@example.com'
+        email: 'newuser@example.com',
       };
 
       const mockProfile = {
@@ -144,12 +138,12 @@ describe('Authentication System', () => {
         email: 'newuser@example.com',
         name: 'New User',
         role: 'user',
-        onboardingCompleted: false
+        onboardingCompleted: false,
       };
 
       mockSupabase.auth.signUp.mockResolvedValue({
         data: { user: mockUser },
-        error: null
+        error: null,
       });
 
       const { createUserProfile } = await import('@/shared/lib/api');
@@ -159,7 +153,7 @@ describe('Authentication System', () => {
         name: 'New User',
         diaryName: 'My Diary',
         diaryEmoji: '📔',
-        language: 'en'
+        language: 'en',
       });
 
       expect(result.success).toBe(true);
@@ -170,20 +164,20 @@ describe('Authentication System', () => {
         password: 'password123',
         options: {
           data: {
-            name: 'New User'
-          }
-        }
+            name: 'New User',
+          },
+        },
       });
     });
 
     it('should return error for duplicate email', async () => {
       mockSupabase.auth.signUp.mockResolvedValue({
         data: { user: null },
-        error: { message: 'User already registered' }
+        error: { message: 'User already registered' },
       });
 
       const result = await signUpWithEmail('existing@example.com', 'password123', {
-        name: 'Test User'
+        name: 'Test User',
       });
 
       expect(result.success).toBe(false);
@@ -207,8 +201,8 @@ describe('Authentication System', () => {
         id: 'user-123',
         email: 'test@example.com',
         user_metadata: {
-          name: 'Test User'
-        }
+          name: 'Test User',
+        },
       };
 
       const mockProfile = {
@@ -216,12 +210,12 @@ describe('Authentication System', () => {
         email: 'test@example.com',
         name: 'Test User',
         role: 'user',
-        onboardingCompleted: true
+        onboardingCompleted: true,
       };
 
       mockSupabase.auth.getSession.mockResolvedValue({
         data: { session: { user: mockUser } },
-        error: null
+        error: null,
       });
 
       const { getUserProfile } = await import('@/shared/lib/api');
@@ -237,7 +231,7 @@ describe('Authentication System', () => {
     it('should return failure for no session', async () => {
       mockSupabase.auth.getSession.mockResolvedValue({
         data: { session: null },
-        error: null
+        error: null,
       });
 
       const result = await checkSession();
@@ -251,8 +245,8 @@ describe('Authentication System', () => {
         id: 'user-999',
         email: 'noProfile@example.com',
         user_metadata: {
-          name: 'No Profile User'
-        }
+          name: 'No Profile User',
+        },
       };
 
       const mockNewProfile = {
@@ -260,12 +254,12 @@ describe('Authentication System', () => {
         email: 'noProfile@example.com',
         name: 'No Profile User',
         role: 'user',
-        onboardingCompleted: false
+        onboardingCompleted: false,
       };
 
       mockSupabase.auth.getSession.mockResolvedValue({
         data: { session: { user: mockUser } },
-        error: null
+        error: null,
       });
 
       const { getUserProfile, createUserProfile } = await import('@/shared/lib/api');
@@ -280,4 +274,3 @@ describe('Authentication System', () => {
     });
   });
 });
-

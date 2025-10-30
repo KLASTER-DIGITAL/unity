@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type HTMLMotionProps, type Transition } from 'motion/react';
+import { type HTMLMotionProps, motion, type Transition } from 'motion/react';
 
 import { cn } from '../../utils';
 
@@ -20,32 +20,32 @@ function Counter({
 }: CounterProps) {
   return (
     <motion.div
+      className={cn(
+        'flex items-center gap-x-2 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800',
+        className
+      )}
       data-slot="counter"
       layout
       transition={transition}
-      className={cn(
-        'flex items-center gap-x-2 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800',
-        className,
-      )}
       {...props}
     >
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <button
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-card pb-[3px] font-light text-2xl text-neutral-950 hover:bg-white/70 dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-950/70"
           onClick={() => setNumber(number - 1)}
-          className="bg-card dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
         >
           -
         </button>
       </motion.div>
 
-      <div className="text-lg font-semibold min-w-[2rem] text-center">
+      <div className="min-w-[2rem] text-center font-semibold text-lg">
         {number.toLocaleString()}
       </div>
 
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <button
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-card pb-[3px] font-light text-2xl text-neutral-950 hover:bg-white/70 dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-950/70"
           onClick={() => setNumber(number + 1)}
-          className="bg-card dark:bg-neutral-950 hover:bg-white/70 dark:hover:bg-neutral-950/70 text-neutral-950 dark:text-white text-2xl font-light pb-[3px] w-8 h-8 rounded-md flex items-center justify-center"
         >
           +
         </button>

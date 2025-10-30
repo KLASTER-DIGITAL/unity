@@ -2,68 +2,67 @@
  * SettingsScreen - Additional Section Component
  */
 
-import { Globe, Calendar, Download, Upload, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { SettingsRow, SettingsSection } from "../SettingsRow";
+import { Calendar, Download, Globe, Trash2, Upload } from 'lucide-react';
+import { toast } from 'sonner';
+import { SettingsRow, SettingsSection } from '../SettingsRow';
 
-interface AdditionalSectionProps {
+type AdditionalSectionProps = {
   currentLanguage?: string;
   languageName: string;
   firstDayOfWeek?: string;
   onLanguageClick: () => void;
   t: any;
-}
+};
 
 export function AdditionalSection({
   currentLanguage: _currentLanguage,
   languageName,
   firstDayOfWeek,
   onLanguageClick,
-  t
+  t,
 }: AdditionalSectionProps) {
   return (
-    <SettingsSection title={t.additional || "Дополнительно"}>
+    <SettingsSection title={t.additional || 'Дополнительно'}>
       <SettingsRow
-        icon={Globe}
-        iconColor="text-[var(--ios-indigo)]"
-        iconBgColor="bg-[var(--ios-indigo)]/10"
-        title={t.language || "Язык"}
         description={languageName}
+        icon={Globe}
+        iconBgColor="bg-[var(--ios-indigo)]/10"
+        iconColor="text-[var(--ios-indigo)]"
         onClick={onLanguageClick}
+        title={t.language || 'Язык'}
       />
       <SettingsRow
-        icon={Calendar}
-        iconColor="text-[var(--ios-blue)]"
-        iconBgColor="bg-[var(--ios-blue)]/10"
-        title={t.firstDayOfWeek || "Первый день недели"}
         description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
+        icon={Calendar}
+        iconBgColor="bg-[var(--ios-blue)]/10"
+        iconColor="text-[var(--ios-blue)]"
         onClick={() => toast.info('Feature coming soon')}
+        title={t.firstDayOfWeek || 'Первый день недели'}
       />
       <SettingsRow
-        icon={Download}
-        iconColor="text-[var(--ios-green)]"
-        iconBgColor="bg-[var(--ios-green)]/10"
-        title={t.exportData || "Экспортировать данные"}
         description="JSON, CSV, ZIP"
+        icon={Download}
+        iconBgColor="bg-[var(--ios-green)]/10"
+        iconColor="text-[var(--ios-green)]"
         onClick={() => toast.info('Feature coming soon')}
+        title={t.exportData || 'Экспортировать данные'}
       />
       <SettingsRow
-        icon={Upload}
-        iconColor="text-[var(--ios-purple)]"
-        iconBgColor="bg-[var(--ios-purple)]/10"
-        title={t.importData || "Импортировать данные"}
         description="Восстановить из файла"
+        icon={Upload}
+        iconBgColor="bg-[var(--ios-purple)]/10"
+        iconColor="text-[var(--ios-purple)]"
         onClick={() => toast.info('Feature coming soon')}
+        title={t.importData || 'Импортировать данные'}
       />
       <SettingsRow
-        icon={Trash2}
-        iconColor="text-[var(--ios-red)]"
-        iconBgColor="bg-[var(--ios-red)]/10"
-        title={t.deleteAllData || "Удалить все данные"}
         description="Необратимое действие"
+        icon={Trash2}
+        iconBgColor="bg-[var(--ios-red)]/10"
+        iconColor="text-[var(--ios-red)]"
         onClick={() => toast.error('Требуется подтверждение')}
+        title={t.deleteAllData || 'Удалить все данные'}
       />
     </SettingsSection>
   );
 }
-

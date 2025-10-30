@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 
-interface LazyImageProps {
+type LazyImageProps = {
   src: string;
   alt: string;
   className?: string;
@@ -9,7 +9,7 @@ interface LazyImageProps {
   threshold?: number;
   onLoad?: () => void;
   onError?: () => void;
-}
+};
 
 export function LazyImage({
   src,
@@ -18,7 +18,7 @@ export function LazyImage({
   placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3C/svg%3E',
   threshold = 0.1,
   onLoad,
-  onError
+  onError,
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -27,7 +27,9 @@ export function LazyImage({
 
   // Intersection Observer for lazy loading
   useEffect(() => {
-    if (!imgRef.current) return;
+    if (!imgRef.current) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -40,7 +42,7 @@ export function LazyImage({
       },
       {
         threshold,
-        rootMargin: '50px' // Start loading 50px before entering viewport
+        rootMargin: '50px', // Start loading 50px before entering viewport
       }
     );
 
@@ -64,26 +66,26 @@ export function LazyImage({
   return (
     <div className={`relative overflow-hidden ${className}`}>
       {/* Placeholder */}
-      {!isLoaded && !hasError && (
+      {!(isLoaded || hasError) && (
         <img
-          src={placeholder}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-sm"
+          className="absolute inset-0 h-full w-full object-cover blur-sm"
+          src={placeholder}
         />
       )}
 
       {/* Actual image */}
       <motion.img
-        ref={imgRef}
-        src={isInView ? src : placeholder}
         alt={alt}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        className={`h-full w-full object-cover transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
-        onLoad={handleLoad}
-        onError={handleError}
         initial={{ opacity: 0 }}
-        animate={{ opacity: isLoaded ? 1 : 0 }}
+        onError={handleError}
+        onLoad={handleLoad}
+        ref={imgRef}
+        src={isInView ? src : placeholder}
         transition={{ duration: 0.3 }}
       />
 
@@ -92,16 +94,16 @@ export function LazyImage({
         <div className="absolute inset-0 flex items-center justify-center bg-muted dark:bg-card">
           <div className="text-center text-muted-foreground">
             <svg
-              className="w-12 h-12 mx-auto mb-2"
+              className="mx-auto mb-2 h-12 w-12"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
             <p className="text-sm">Не удалось загрузить</p>
@@ -110,16 +112,15 @@ export function LazyImage({
       )}
 
       {/* Loading spinner */}
-      {!isLoaded && !hasError && isInView && (
+      {!(isLoaded || hasError) && isInView && (
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
-            className="w-8 h-8 border-4 border-border border-t-blue-500 rounded-full"
             animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+            className="h-8 w-8 rounded-full border-4 border-border border-t-blue-500"
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: 'linear' }}
           />
         </div>
       )}
     </div>
   );
 }
-

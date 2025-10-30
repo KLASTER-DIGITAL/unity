@@ -1,12 +1,12 @@
-import { EntryCardSkeleton } from "./EntryCardSkeleton";
+import { EntryCardSkeleton } from './EntryCardSkeleton';
 
-interface EntryListSkeletonProps {
+type EntryListSkeletonProps = {
   /**
    * Number of skeleton cards to display
    * @default 3
    */
   count?: number;
-}
+};
 
 /**
  * Entry List Skeleton Component
@@ -22,4 +22,3 @@ export function EntryListSkeleton({ count = 3 }: EntryListSkeletonProps) {
     </div>
   );
 }
-

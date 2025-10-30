@@ -26,14 +26,16 @@ function formatBytes(bytes) {
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
 }
 
 function analyzeBuildDirectory() {
   const buildDir = path.join(process.cwd(), 'build');
-  
+
   if (!fs.existsSync(buildDir)) {
-    console.log(`${colors.red}❌ Build directory not found. Run 'npm run build' first.${colors.reset}`);
+    console.log(
+      `${colors.red}❌ Build directory not found. Run 'npm run build' first.${colors.reset}`
+    );
     process.exit(1);
   }
 
@@ -43,21 +45,21 @@ function analyzeBuildDirectory() {
   const jsFiles = [];
   const cssFiles = [];
   const assetFiles = [];
-  
+
   function scanDirectory(dir, prefix = '') {
     const files = fs.readdirSync(dir);
-    
+
     for (const file of files) {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
-      
+
       if (stat.isDirectory()) {
         scanDirectory(filePath, prefix + file + '/');
       } else {
         const ext = path.extname(file);
         const size = stat.size;
         const relativePath = prefix + file;
-        
+
         if (ext === '.js') {
           jsFiles.push({ name: relativePath, size });
         } else if (ext === '.css') {
@@ -68,7 +70,7 @@ function analyzeBuildDirectory() {
       }
     }
   }
-  
+
   scanDirectory(buildDir);
 
   // Сортировка по размеру
@@ -79,71 +81,87 @@ function analyzeBuildDirectory() {
   // Отчет по JS файлам
   console.log(`${colors.yellow}📦 JavaScript Files:${colors.reset}`);
   let totalJSSize = 0;
-  jsFiles.forEach(file => {
+  jsFiles.forEach((file) => {
     totalJSSize += file.size;
     const sizeStr = formatBytes(file.size);
-    const color = file.size > 500000 ? colors.red : file.size > 100000 ? colors.yellow : colors.green;
+    const color =
+      file.size > 500_000 ? colors.red : file.size > 100_000 ? colors.yellow : colors.green;
     console.log(`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
   });
-  console.log(`  ${colors.bright}${formatBytes(totalJSSize).padStart(10)} TOTAL JS${colors.reset}\n`);
+  console.log(
+    `  ${colors.bright}${formatBytes(totalJSSize).padStart(10)} TOTAL JS${colors.reset}\n`
+  );
 
   // Отчет по CSS файлам
   console.log(`${colors.magenta}🎨 CSS Files:${colors.reset}`);
   let totalCSSSize = 0;
-  cssFiles.forEach(file => {
+  cssFiles.forEach((file) => {
     totalCSSSize += file.size;
     const sizeStr = formatBytes(file.size);
     console.log(`  ${colors.green}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
   });
-  console.log(`  ${colors.bright}${formatBytes(totalCSSSize).padStart(10)} TOTAL CSS${colors.reset}\n`);
+  console.log(
+    `  ${colors.bright}${formatBytes(totalCSSSize).padStart(10)} TOTAL CSS${colors.reset}\n`
+  );
 
   // Отчет по ассетам
   console.log(`${colors.blue}🖼️  Asset Files:${colors.reset}`);
   let totalAssetSize = 0;
-  assetFiles.forEach(file => {
+  assetFiles.forEach((file) => {
     totalAssetSize += file.size;
     const sizeStr = formatBytes(file.size);
-    const color = file.size > 1000000 ? colors.red : file.size > 500000 ? colors.yellow : colors.green;
+    const color =
+      file.size > 1_000_000 ? colors.red : file.size > 500_000 ? colors.yellow : colors.green;
     console.log(`  ${color}${sizeStr.padStart(10)}${colors.reset} ${file.name}`);
   });
-  console.log(`  ${colors.bright}${formatBytes(totalAssetSize).padStart(10)} TOTAL ASSETS${colors.reset}\n`);
+  console.log(
+    `  ${colors.bright}${formatBytes(totalAssetSize).padStart(10)} TOTAL ASSETS${colors.reset}\n`
+  );
 
   // Общий размер
   const totalSize = totalJSSize + totalCSSSize + totalAssetSize;
   console.log(`${colors.cyan}📊 Summary:${colors.reset}`);
-  console.log(`  JavaScript: ${formatBytes(totalJSSize)} (${((totalJSSize / totalSize) * 100).toFixed(1)}%)`);
-  console.log(`  CSS:        ${formatBytes(totalCSSSize)} (${((totalCSSSize / totalSize) * 100).toFixed(1)}%)`);
-  console.log(`  Assets:     ${formatBytes(totalAssetSize)} (${((totalAssetSize / totalSize) * 100).toFixed(1)}%)`);
+  console.log(
+    `  JavaScript: ${formatBytes(totalJSSize)} (${((totalJSSize / totalSize) * 100).toFixed(1)}%)`
+  );
+  console.log(
+    `  CSS:        ${formatBytes(totalCSSSize)} (${((totalCSSSize / totalSize) * 100).toFixed(1)}%)`
+  );
+  console.log(
+    `  Assets:     ${formatBytes(totalAssetSize)} (${((totalAssetSize / totalSize) * 100).toFixed(1)}%)`
+  );
   console.log(`  ${colors.bright}Total:      ${formatBytes(totalSize)}${colors.reset}\n`);
 
   // Рекомендации
   console.log(`${colors.green}💡 Recommendations:${colors.reset}`);
-  
-  const largeJSFiles = jsFiles.filter(f => f.size > 500000);
+
+  const largeJSFiles = jsFiles.filter((f) => f.size > 500_000);
   if (largeJSFiles.length > 0) {
     console.log(`  ${colors.yellow}⚠️  Large JS files detected (>500KB):${colors.reset}`);
-    largeJSFiles.forEach(file => {
+    largeJSFiles.forEach((file) => {
       console.log(`     - ${file.name} (${formatBytes(file.size)})`);
     });
-    console.log(`     Consider code splitting or lazy loading.`);
+    console.log('     Consider code splitting or lazy loading.');
   }
 
-  const largeAssets = assetFiles.filter(f => f.size > 1000000);
+  const largeAssets = assetFiles.filter((f) => f.size > 1_000_000);
   if (largeAssets.length > 0) {
     console.log(`  ${colors.yellow}⚠️  Large assets detected (>1MB):${colors.reset}`);
-    largeAssets.forEach(file => {
+    largeAssets.forEach((file) => {
       console.log(`     - ${file.name} (${formatBytes(file.size)})`);
     });
-    console.log(`     Consider image optimization or lazy loading.`);
+    console.log('     Consider image optimization or lazy loading.');
   }
 
-  if (totalJSSize < 2000000) {
+  if (totalJSSize < 2_000_000) {
     console.log(`  ${colors.green}✅ Good JS bundle size (<2MB)${colors.reset}`);
   } else {
     console.log(`  ${colors.red}❌ Large JS bundle size (>2MB)${colors.reset}`);
   }
 
-  console.log(`\n${colors.cyan}🔍 For detailed analysis, run: ANALYZE=true npm run build${colors.reset}`);
+  console.log(
+    `\n${colors.cyan}🔍 For detailed analysis, run: ANALYZE=true npm run build${colors.reset}`
+  );
 }
 
 // Запуск анализа

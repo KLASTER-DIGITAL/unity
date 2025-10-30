@@ -1,12 +1,13 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
-import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
-import { Sparkles, X } from "lucide-react";
 
-interface AIHintSectionProps {
+import { Sparkles, X } from 'lucide-react';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
+
+type AIHintSectionProps = {
   showHint: boolean;
   messagesCount: number;
   onClose: () => void;
-}
+};
 
 /**
  * AI Hint Section Component
@@ -17,30 +18,29 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
     <AnimatedPresence>
       {messagesCount === 0 && showHint && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ delay: 0.5 }}
           className="mt-6"
+          exit={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, y: 10 }}
+          transition={{ delay: 0.5 }}
         >
-          <div className="backdrop-blur-md bg-muted/10 rounded-[16px] p-card border border-border/20 relative transition-colors duration-300">
+          <div className="relative rounded-[16px] border border-border/20 bg-muted/10 p-card backdrop-blur-md transition-colors duration-300">
             {/* Close Button */}
             <button
-              onClick={onClose}
-              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-card/50 hover:bg-card transition-colors duration-300"
               aria-label="Закрыть"
+              className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-card/50 transition-colors duration-300 hover:bg-card"
+              onClick={onClose}
             >
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
+              <X className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
 
             <div className="flex items-start gap-responsive-sm pr-8">
-              <Sparkles className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+              <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
               <div>
-                <h4 className="text-[13px]! font-semibold! text-foreground mb-1">
-                  AI подскажет
-                </h4>
-                <p className="text-[11px]! font-normal! text-muted-foreground leading-[16px]">
-                  Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс
+                <h4 className="mb-1 font-semibold! text-[13px]! text-foreground">AI подскажет</h4>
+                <p className="font-normal! text-[11px]! text-muted-foreground leading-[16px]">
+                  Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и
+                  отметить прогресс
                 </p>
               </div>
             </div>
@@ -50,4 +50,3 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
     </AnimatedPresence>
   );
 }
-

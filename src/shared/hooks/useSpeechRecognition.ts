@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { speech } from '../lib/platform/speech';
 
-interface SpeechRecognitionHook {
+type SpeechRecognitionHook = {
   isListening: boolean;
   transcript: string;
   startListening: () => void;
   stopListening: () => void;
   isSupported: boolean;
-}
+};
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
@@ -16,7 +16,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
   const isSupported = speech.isSupported();
 
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported) {
+      return;
+    }
 
     // Set up callbacks
     speech.onStart(() => {
@@ -46,7 +48,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
   }, [isSupported]);
 
   const startListening = () => {
-    if (!isSupported) return;
+    if (!isSupported) {
+      return;
+    }
 
     setTranscript('');
     speech.startListening({
@@ -65,6 +69,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
     transcript,
     startListening,
     stopListening,
-    isSupported
+    isSupported,
   };
 }

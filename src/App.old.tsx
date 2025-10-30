@@ -1,42 +1,63 @@
-import { useState, useEffect, Suspense, lazy, useCallback } from "react";
-import { checkSession, signOut } from "@/shared/lib/auth";
-import { checkAccessAndRedirect, parseRouteParams, isAdminRoute as checkIsAdminRoute, isTestRoute as checkIsTestRoute, isPerformanceRoute as checkIsPerformanceRoute } from "@/shared/lib/auth";
-import { ThemeProvider } from "@/shared/components/theme-provider";
-import { setUser, addBreadcrumb } from "@/shared/lib/monitoring/lazy";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { reportWebVitals } from "@/shared/lib/performance";
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { ThemeProvider } from '@/shared/components/theme-provider';
+import {
+  checkAccessAndRedirect,
+  isAdminRoute as checkIsAdminRoute,
+  isPerformanceRoute as checkIsPerformanceRoute,
+  isTestRoute as checkIsTestRoute,
+  checkSession,
+  parseRouteParams,
+  signOut,
+} from '@/shared/lib/auth';
+import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
+import { reportWebVitals } from '@/shared/lib/performance';
 
 // Lazy load app-level components for code splitting
-const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
-const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
+const MobileApp = lazy(() =>
+  import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
+);
+const AdminApp = lazy(() => import('@/pwa/admin').then((module) => ({ default: module.AdminApp })));
 
 // PWA Components - Lazy loaded для улучшения производительности
-const PWAHead = lazy(() => import("@/shared/components/pwa/PWAHead"));
-const PWASplash = lazy(() => import("@/shared/components/pwa/PWASplash"));
-const PWAStatus = lazy(() => import("@/shared/components/pwa/PWAStatus"));
-const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa/PWAUpdatePrompt"));
-const InstallPrompt = lazy(() => import("@/shared/components/pwa/InstallPrompt"));
+const PWAHead = lazy(() => import('@/shared/components/pwa/PWAHead'));
+const PWASplash = lazy(() => import('@/shared/components/pwa/PWASplash'));
+const PWAStatus = lazy(() => import('@/shared/components/pwa/PWAStatus'));
+const PWAUpdatePrompt = lazy(() => import('@/shared/components/pwa/PWAUpdatePrompt'));
+const InstallPrompt = lazy(() => import('@/shared/components/pwa/InstallPrompt'));
 
 // Offline Components
-const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator"));
-const OfflineModeBadge = lazy(() => import("@/shared/components/offline/OfflineModeBadge").then(m => ({ default: m.OfflineModeBadge })));
-const SyncCompletionModal = lazy(() => import("@/shared/components/offline/SyncCompletionModal").then(m => ({ default: m.SyncCompletionModal })));
+const OfflineSyncIndicator = lazy(() => import('@/shared/components/offline/OfflineSyncIndicator'));
+const OfflineModeBadge = lazy(() =>
+  import('@/shared/components/offline/OfflineModeBadge').then((m) => ({
+    default: m.OfflineModeBadge,
+  }))
+);
+const SyncCompletionModal = lazy(() =>
+  import('@/shared/components/offline/SyncCompletionModal').then((m) => ({
+    default: m.SyncCompletionModal,
+  }))
+);
 
-import { usePWASettings, shouldShowInstallPrompt, incrementVisitCount } from "@/shared/hooks/usePWASettings";
-import { markInstallPromptAsShown } from "@/shared/lib/api/pwaUtils";
+import { useInitPushAnalytics } from '@/shared/hooks/usePushAnalytics';
+import {
+  incrementVisitCount,
+  shouldShowInstallPrompt,
+  usePWASettings,
+} from '@/shared/hooks/usePWASettings';
 import {
   initPWAAnalytics,
-  trackInstallPromptShown,
   trackInstallAccepted,
   trackInstallDismissed,
-} from "@/shared/lib/analytics/pwa-tracking";
-import { useInitPushAnalytics } from "@/shared/hooks/usePushAnalytics";
-import { initBackgroundSync } from "@/shared/lib/offline";
-import { getEntries, getUserStats } from "@/shared/lib/api";
-
+  trackInstallPromptShown,
+} from '@/shared/lib/analytics/pwa-tracking';
+import { getEntries, getUserStats } from '@/shared/lib/api';
+import { markInstallPromptAsShown } from '@/shared/lib/api/pwaUtils';
 // Import E2E test component (disabled - moved to .example.tsx)
 // import { I18nE2ETest } from "@/shared/lib/i18n/I18nE2ETest";
-import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
+import { PerformanceDashboard } from '@/shared/lib/i18n/monitoring/PerformanceDashboard';
+import { initBackgroundSync } from '@/shared/lib/offline';
+
 // import { ComponentShowcase } from "@/pages/ComponentShowcase";
 
 // Onboarding data interface
@@ -59,7 +80,7 @@ export default function App() {
   const [userData, setUserData] = useState<any>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [minLoadingTimeElapsed, setMinLoadingTimeElapsed] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("ru");
+  const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -83,9 +104,9 @@ export default function App() {
       selectedTime: 'none',
       morningTime: '08:00',
       eveningTime: '21:00',
-      permissionGranted: false
+      permissionGranted: false,
     },
-    firstEntry: ''
+    firstEntry: '',
   });
 
   // Check for test route
@@ -129,7 +150,12 @@ export default function App() {
         addBreadcrumb({
           category: 'performance',
           message: `${metric.name}: ${metric.value.toFixed(2)}ms`,
-          level: metric.rating === 'good' ? 'info' : metric.rating === 'needs-improvement' ? 'warning' : 'error',
+          level:
+            metric.rating === 'good'
+              ? 'info'
+              : metric.rating === 'needs-improvement'
+                ? 'warning'
+                : 'error',
           data: {
             name: metric.name,
             value: metric.value,
@@ -157,7 +183,7 @@ export default function App() {
     const initSession = async () => {
       try {
         const session = await checkSession();
-        console.log("🔍 Session check result:", session);
+        console.log('🔍 Session check result:', session);
 
         // Check if session is successful (has user data)
         if (session && session.success !== false && session.user) {
@@ -189,46 +215,46 @@ export default function App() {
 
             // Prefetch entries и stats параллельно (не блокируем UI)
             Promise.all([
-              getEntries(session.user.id, 10).catch(err => {
+              getEntries(session.user.id, 10).catch((err) => {
                 console.error('[PREFETCH] Failed to prefetch entries:', err);
                 return [];
               }),
-              getUserStats(session.user.id).catch(err => {
+              getUserStats(session.user.id).catch((err) => {
                 console.error('[PREFETCH] Failed to prefetch stats:', err);
                 return null;
-              })
+              }),
             ]).then(([entries, stats]) => {
               console.log('[PREFETCH] Critical data prefetched:', {
                 entriesCount: entries.length,
-                stats: stats ? 'loaded' : 'failed'
+                stats: stats ? 'loaded' : 'failed',
               });
             });
           }
 
           // ✅ Загружаем язык из профиля пользователя
           if (session.profile?.language) {
-            console.log("🌐 Loading user language from profile:", session.profile.language);
+            console.log('🌐 Loading user language from profile:', session.profile.language);
             setSelectedLanguage(session.profile.language);
             const language = session.profile.language || 'ru';
-            setOnboardingData(prev => ({ ...prev, language }));
+            setOnboardingData((prev) => ({ ...prev, language }));
           }
 
           // ✅ Проверяем onboardingCompleted из профиля
           if (session.profile?.onboardingCompleted) {
-            console.log("✅ Onboarding complete, going to step 5");
+            console.log('✅ Onboarding complete, going to step 5');
             setOnboardingComplete(true);
             setCurrentStep(5);
           } else {
-            console.log("⚠️ Session exists but onboarding not complete, going to step 2");
+            console.log('⚠️ Session exists but onboarding not complete, going to step 2');
             setCurrentStep(2);
           }
         } else {
-          console.log("ℹ️ No session found, staying at step 1 (WelcomeScreen)");
+          console.log('ℹ️ No session found, staying at step 1 (WelcomeScreen)');
           // Explicitly stay at step 1 for WelcomeScreen
           setCurrentStep(1);
         }
       } catch (error) {
-        console.error("Session check error:", error);
+        console.error('Session check error:', error);
         // On error, also stay at step 1
         setCurrentStep(1);
       } finally {
@@ -268,7 +294,13 @@ export default function App() {
         }
 
         const shouldShow = await shouldShowInstallPrompt(pwaSettings, currentLocation);
-        console.log('[PWA] Should show install prompt:', shouldShow, 'location:', currentLocation, pwaSettings);
+        console.log(
+          '[PWA] Should show install prompt:',
+          shouldShow,
+          'location:',
+          currentLocation,
+          pwaSettings
+        );
 
         if (shouldShow) {
           // Небольшая задержка для лучшего UX
@@ -286,7 +318,7 @@ export default function App() {
 
     // Инициализируем Background Sync
     if (userData?.id) {
-      initBackgroundSync().catch(error => {
+      initBackgroundSync().catch((error) => {
         console.error('[App] Failed to initialize Background Sync:', error);
       });
     }
@@ -361,7 +393,7 @@ export default function App() {
 
   const handleWelcomeComplete = (language: string) => {
     setSelectedLanguage(language);
-    setOnboardingData(prev => ({ ...prev, language }));
+    setOnboardingData((prev) => ({ ...prev, language }));
     setCurrentStep(2);
   };
 
@@ -375,19 +407,19 @@ export default function App() {
   };
 
   const handleOnboarding3Complete = (diaryName: string, emoji: string) => {
-    setOnboardingData(prev => ({
+    setOnboardingData((prev) => ({
       ...prev,
       diaryName,
-      diaryEmoji: emoji
+      diaryEmoji: emoji,
     }));
     setCurrentStep(4);
   };
 
   const handleOnboarding4Complete = (firstEntry: string, settings: any) => {
-    setOnboardingData(prev => ({
+    setOnboardingData((prev) => ({
       ...prev,
       firstEntry,
-      notificationSettings: settings
+      notificationSettings: settings,
     }));
     // Показываем AuthScreen с сохраненными данными
     setAuthMode('register'); // Пользователь прошел онбординг, нужна регистрация
@@ -422,18 +454,18 @@ export default function App() {
 
       // Prefetch entries и stats параллельно (не блокируем UI)
       Promise.all([
-        getEntries(userId, 10).catch(err => {
+        getEntries(userId, 10).catch((err) => {
           console.error('[PREFETCH] Failed to prefetch entries:', err);
           return [];
         }),
-        getUserStats(userId).catch(err => {
+        getUserStats(userId).catch((err) => {
           console.error('[PREFETCH] Failed to prefetch stats:', err);
           return null;
-        })
+        }),
       ]).then(([entries, stats]) => {
         console.log('[PREFETCH] Critical data prefetched after auth:', {
           entriesCount: entries.length,
-          stats: stats ? 'loaded' : 'failed'
+          stats: stats ? 'loaded' : 'failed',
         });
       });
     }
@@ -448,7 +480,7 @@ export default function App() {
 
   // PWA пользователь: ПОЛНЫЙ выход через настройки (показывает welcome screen)
   const handleLogout = async () => {
-    console.log("🚪 [App.tsx] PWA user full logout - clearing session for welcome screen");
+    console.log('🚪 [App.tsx] PWA user full logout - clearing session for welcome screen');
 
     addBreadcrumb({
       category: 'auth',
@@ -466,7 +498,7 @@ export default function App() {
 
   // Супер-админ: полный выход с очисткой сессии для безопасности
   const handleAdminLogout = async () => {
-    console.log("🔐 [App.tsx] Admin logout - clearing session for security");
+    console.log('🔐 [App.tsx] Admin logout - clearing session for security');
 
     addBreadcrumb({
       category: 'auth',
@@ -483,7 +515,7 @@ export default function App() {
   };
 
   const handleAdminAuthComplete = (adminUser: any) => {
-    console.log("🔐 [App.tsx] Admin auth complete:", adminUser.email, "role:", adminUser.role);
+    console.log('🔐 [App.tsx] Admin auth complete:', adminUser.email, 'role:', adminUser.role);
 
     // Устанавливаем админа в Sentry
     setUser({
@@ -510,7 +542,7 @@ export default function App() {
     console.log('🔄 [App.tsx] Updating userData with new profile:', updatedProfile);
     setUserData((prev: any) => ({
       ...prev,
-      profile: updatedProfile
+      profile: updatedProfile,
     }));
   };
 
@@ -521,9 +553,9 @@ export default function App() {
       return (
         <ThemeProvider defaultTheme="light" storageKey="unity-theme">
           <LottiePreloader
-            showMessage={false}
             minDuration={5000}
             onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
+            showMessage={false}
             size="lg"
           />
         </ThemeProvider>
@@ -533,13 +565,13 @@ export default function App() {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <AdminApp
-          userData={userData}
-          showAdminAuth={showAdminAuth}
           onAuthComplete={handleAdminAuthComplete}
-          onLogout={handleAdminLogout} // Используем handleAdminLogout для полной очистки сессии
           onBack={() => {
             window.location.href = '/';
           }}
+          onLogout={handleAdminLogout}
+          showAdminAuth={showAdminAuth} // Используем handleAdminLogout для полной очистки сессии
+          userData={userData}
         />
       </ThemeProvider>
     );
@@ -550,7 +582,7 @@ export default function App() {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <div className="p-8">
-          <h1 className="text-2xl font-bold">Test Route Disabled</h1>
+          <h1 className="font-bold text-2xl">Test Route Disabled</h1>
           <p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
         </div>
       </ThemeProvider>
@@ -566,18 +598,16 @@ export default function App() {
     );
   }
 
-
-
   // Mobile view - loading state
   // Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
   if (isCheckingSession || !minLoadingTimeElapsed) {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-        <div className="max-w-md mx-auto">
+        <div className="mx-auto max-w-md">
           <LottiePreloader
-            showMessage={false}
             minDuration={5000}
             onMinDurationComplete={() => setMinLoadingTimeElapsed(true)}
+            showMessage={false}
             size="lg"
           />
         </div>
@@ -604,10 +634,7 @@ export default function App() {
 
           {/* Install Prompt - настраиваемый через админ-панель */}
           {showInstallPrompt && (
-            <InstallPrompt
-              onClose={handleInstallClose}
-              onInstall={handleInstall}
-            />
+            <InstallPrompt onClose={handleInstallClose} onInstall={handleInstall} />
           )}
 
           {/* Offline Sync Indicator - показывает pending syncs */}
@@ -616,39 +643,36 @@ export default function App() {
           )}
 
           {/* Offline Mode Badge - показывает offline статус и pending count */}
-          {userData?.user?.id && !isAdminRoute && (
-            <OfflineModeBadge />
-          )}
+          {userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
 
           {/* Sync Completion Modal - показывается после успешной синхронизации */}
           {userData?.user?.id && !isAdminRoute && (
             <SyncCompletionModal
               isOpen={showSyncComplete}
-              syncedCount={syncedCount}
               onClose={() => setShowSyncComplete(false)}
+              syncedCount={syncedCount}
             />
           )}
         </Suspense>
 
         <MobileApp
-          userData={userData}
-          onboardingComplete={onboardingComplete}
-          currentStep={currentStep}
-          selectedLanguage={selectedLanguage}
-          showAuth={showAuth}
           authMode={authMode}
+          currentStep={currentStep}
+          onAuthComplete={handleAuthComplete}
+          onboardingComplete={onboardingComplete}
           onboardingData={onboardingData}
-          onWelcomeComplete={handleWelcomeComplete}
-          onWelcomeSkip={handleWelcomeSkip}
+          onLogout={handleLogout}
           onOnboarding2Complete={handleOnboarding2Complete}
           onOnboarding3Complete={handleOnboarding3Complete}
           onOnboarding4Complete={handleOnboarding4Complete}
-          onAuthComplete={handleAuthComplete}
-          onLogout={handleLogout}
           onProfileUpdate={handleProfileUpdate}
+          onWelcomeComplete={handleWelcomeComplete}
+          onWelcomeSkip={handleWelcomeSkip}
+          selectedLanguage={selectedLanguage}
+          showAuth={showAuth}
+          userData={userData}
         />
       </ThemeProvider>
     </>
   );
 }
-

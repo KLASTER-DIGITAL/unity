@@ -1,6 +1,6 @@
 import { LottiePreloader } from './LottiePreloader';
 
-interface LoadingScreenProps {
+type LoadingScreenProps = {
   message?: string;
   /**
    * Минимальное время показа прелоадера в миллисекундах
@@ -11,18 +11,18 @@ interface LoadingScreenProps {
    * Callback когда минимальное время истекло
    */
   onMinDurationComplete?: () => void;
-}
+};
 
 export function LoadingScreen({
-  message: _message = "Загрузка...",
+  message: _message = 'Загрузка...',
   minDuration = 5000,
-  onMinDurationComplete
+  onMinDurationComplete,
 }: LoadingScreenProps) {
   return (
     <LottiePreloader
-      showMessage={false}
       minDuration={minDuration}
       onMinDurationComplete={onMinDurationComplete}
+      showMessage={false}
       size="lg"
     />
   );

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Smartphone } from "lucide-react";
+import { Smartphone } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 /**
  * Компонент показывает статус PWA:
@@ -13,9 +13,10 @@ export function PWAStatus() {
 
   useEffect(() => {
     // Проверяем, запущено ли приложение в standalone режиме
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
-                      (window.navigator as any).standalone === true;
-    
+    const standalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true;
+
     setIsStandalone(standalone);
 
     // Показываем уведомление только при первом запуске в standalone
@@ -24,7 +25,7 @@ export function PWAStatus() {
       if (!standaloneShown) {
         setShowInstalled(true);
         sessionStorage.setItem('standaloneNotificationShown', 'true');
-        
+
         // Автоматически скрываем через 3 секунды
         setTimeout(() => {
           setShowInstalled(false);
@@ -45,18 +46,20 @@ export function PWAStatus() {
     <AnimatePresence>
       {showInstalled && isStandalone && (
         <motion.div
-          initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
+          className="-translate-x-1/2 fixed top-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
           exit={{ opacity: 0, y: -100 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)]"
+          initial={{ opacity: 0, y: -100 }}
         >
-          <div className="bg-accent text-accent-foreground rounded-xl shadow-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <Smartphone className="w-5 h-5" />
+          <div className="flex items-center gap-3 rounded-xl bg-accent p-4 text-accent-foreground shadow-2xl">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+              <Smartphone className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <p className="text-[14px]! font-semibold!">Приложение установлено!</p>
-              <p className="text-[12px]! font-normal! opacity-90">Теперь вы можете использовать его оффлайн</p>
+              <p className="font-semibold! text-[14px]!">Приложение установлено!</p>
+              <p className="font-normal! text-[12px]! opacity-90">
+                Теперь вы можете использовать его оффлайн
+              </p>
             </div>
           </div>
         </motion.div>

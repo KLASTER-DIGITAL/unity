@@ -1,34 +1,62 @@
-import { Suspense, lazy } from "react";
-import { Skeleton } from "@/shared/components/ui/skeleton";
+import { lazy, Suspense } from 'react';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 // Lazy load тяжелых UI компонентов для оптимизации производительности
 
 // 3D и анимированные компоненты (тяжелые для рендеринга)
-const Card3D = lazy(() => import("../shadcn-io/3d-card").then(module => ({ default: module.CardContainer })));
-const AnimatedModal = lazy(() => import("../shadcn-io/animated-modal").then(module => ({ default: module.Modal })));
-const AnimatedTooltip = lazy(() => import("../shadcn-io/animated-tooltip").then(module => ({ default: module.AnimatedTooltip })));
-const BackgroundGradient = lazy(() => import("../shadcn-io/background-gradient").then(module => ({ default: module.BackgroundGradient })));
-const MagneticButton = lazy(() => import("../shadcn-io/magnetic-button").then(module => ({ default: module.MagneticButton })));
-const MotionHighlight = lazy(() => import("../shadcn-io/motion-highlight").then(module => ({ default: module.MotionHighlight })));
-const ShimmeringText = lazy(() => import("../shadcn-io/shimmering-text").then(module => ({ default: module.ShimmeringText })));
-const Sparkles = lazy(() => import("../shadcn-io/sparkles").then(module => ({ default: module.SparklesCore })));
+const Card3D = lazy(() =>
+  import('../shadcn-io/3d-card').then((module) => ({ default: module.CardContainer }))
+);
+const AnimatedModal = lazy(() =>
+  import('../shadcn-io/animated-modal').then((module) => ({ default: module.Modal }))
+);
+const AnimatedTooltip = lazy(() =>
+  import('../shadcn-io/animated-tooltip').then((module) => ({ default: module.AnimatedTooltip }))
+);
+const BackgroundGradient = lazy(() =>
+  import('../shadcn-io/background-gradient').then((module) => ({
+    default: module.BackgroundGradient,
+  }))
+);
+const MagneticButton = lazy(() =>
+  import('../shadcn-io/magnetic-button').then((module) => ({ default: module.MagneticButton }))
+);
+const MotionHighlight = lazy(() =>
+  import('../shadcn-io/motion-highlight').then((module) => ({ default: module.MotionHighlight }))
+);
+const ShimmeringText = lazy(() =>
+  import('../shadcn-io/shimmering-text').then((module) => ({ default: module.ShimmeringText }))
+);
+const Sparkles = lazy(() =>
+  import('../shadcn-io/sparkles').then((module) => ({ default: module.SparklesCore }))
+);
 
 // Сложные интерактивные компоненты
-const ColorPicker = lazy(() => import("../shadcn-io/color-picker").then(module => ({ default: module.ColorPicker })));
-const Counter = lazy(() => import("../shadcn-io/counter").then(module => ({ default: module.Counter })));
-const Gantt = lazy(() => import("../shadcn-io/gantt").then(module => ({ default: module.Gantt })));
-const Rating = lazy(() => import("../shadcn-io/rating").then(module => ({ default: module.Rating })));
-const Terminal = lazy(() => import("../shadcn-io/terminal").then(module => ({ default: module.Terminal })));
+const ColorPicker = lazy(() =>
+  import('../shadcn-io/color-picker').then((module) => ({ default: module.ColorPicker }))
+);
+const Counter = lazy(() =>
+  import('../shadcn-io/counter').then((module) => ({ default: module.Counter }))
+);
+const Gantt = lazy(() =>
+  import('../shadcn-io/gantt').then((module) => ({ default: module.Gantt }))
+);
+const Rating = lazy(() =>
+  import('../shadcn-io/rating').then((module) => ({ default: module.Rating }))
+);
+const Terminal = lazy(() =>
+  import('../shadcn-io/terminal').then((module) => ({ default: module.Terminal }))
+);
 
 // Простые компоненты (можно загружать сразу)
-import { Pill } from "../shadcn-io/pill";
-import { Status } from "../shadcn-io/status";
-import { Tabs } from "../shadcn-io/tabs";
+import { Pill } from '../shadcn-io/pill';
+import { Status } from '../shadcn-io/status';
+import { Tabs } from '../shadcn-io/tabs';
 
 // Loading компонент для UI элементов с Skeleton
-const UILoadingFallback = ({ className = "" }: { className?: string }) => (
-  <div className={`flex items-center justify-center p-4 rounded-lg ${className}`}>
-    <Skeleton className="w-full h-full min-h-[40px]" />
+const UILoadingFallback = ({ className = '' }: { className?: string }) => (
+  <div className={`flex items-center justify-center rounded-lg p-4 ${className}`}>
+    <Skeleton className="h-full min-h-[40px] w-full" />
   </div>
 );
 
@@ -116,21 +144,19 @@ export const LazyTerminal = (props: any) => (
 
 // Preload функции для критических компонентов
 export const preloadComponents = {
-  card3d: () => import("../shadcn-io/3d-card"),
-  animatedModal: () => import("../shadcn-io/animated-modal"),
-  colorPicker: () => import("../shadcn-io/color-picker"),
-  gantt: () => import("../shadcn-io/gantt"),
-  terminal: () => import("../shadcn-io/terminal")
+  card3d: () => import('../shadcn-io/3d-card'),
+  animatedModal: () => import('../shadcn-io/animated-modal'),
+  colorPicker: () => import('../shadcn-io/color-picker'),
+  gantt: () => import('../shadcn-io/gantt'),
+  terminal: () => import('../shadcn-io/terminal'),
 };
 
 // Hook для preloading компонентов при hover
 export const useComponentPreload = () => {
-  const preloadOnHover = (componentType: keyof typeof preloadComponents) => {
-    return {
-      onMouseEnter: () => preloadComponents[componentType](),
-      onFocus: () => preloadComponents[componentType]()
-    };
-  };
+  const preloadOnHover = (componentType: keyof typeof preloadComponents) => ({
+    onMouseEnter: () => preloadComponents[componentType](),
+    onFocus: () => preloadComponents[componentType](),
+  });
 
   return { preloadOnHover };
 };
@@ -151,11 +177,10 @@ export {
   LazyGantt as Gantt,
   LazyRating as Rating,
   LazyTerminal as Terminal,
-  
   // Простые компоненты (не lazy)
   Pill,
   Status,
-  Tabs
+  Tabs,
 };
 
 // Экспорт для обратной совместимости
@@ -177,5 +202,5 @@ export default {
   Status,
   Tabs,
   preloadComponents,
-  useComponentPreload
+  useComponentPreload,
 };

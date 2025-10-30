@@ -1,13 +1,13 @@
-import { motion } from "motion/react";
-import type { AuthTranslations } from "./translations";
+import { motion } from 'motion/react';
+import type { AuthTranslations } from './translations';
 
-interface AuthToggleProps {
+type AuthToggleProps = {
   isLogin: boolean;
   isLoading: boolean;
   translations: AuthTranslations;
   onToggle: () => void;
   onBack?: () => void;
-}
+};
 
 /**
  * Auth Toggle Component
@@ -18,27 +18,29 @@ export function AuthToggle({
   isLoading,
   translations,
   onToggle,
-  onBack
+  onBack,
 }: AuthToggleProps) {
   return (
     <>
       {/* Toggle Login/Signup */}
       <motion.div
+        animate={{ opacity: 1 }}
         className="text-center"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
         <button
-          type="button"
-          onClick={onToggle}
+          className="text-[14px]! transition-opacity hover:opacity-80 disabled:opacity-50"
           disabled={isLoading}
-          className="text-[14px]! hover:opacity-80 transition-opacity disabled:opacity-50"
+          onClick={onToggle}
+          type="button"
         >
           <span className="text-[#868d95]">
-            {isLogin ? translations.notRegisteredYet + ' ' : translations.alreadyHaveAccountAuth + ' '}
+            {isLogin
+              ? `${translations.notRegisteredYet} `
+              : `${translations.alreadyHaveAccountAuth} `}
           </span>
-          <span className="text-[#756ef3] font-semibold!">
+          <span className="font-semibold! text-[#756ef3]">
             {isLogin ? translations.signUp : translations.signIn}
           </span>
         </button>
@@ -47,16 +49,16 @@ export function AuthToggle({
       {/* Back Button */}
       {onBack && (
         <motion.div
-          className="text-center mt-4"
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          className="mt-4 text-center"
+          initial={{ opacity: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <button
-            type="button"
-            onClick={onBack}
+            className="text-[#868d95] text-[13px]! transition-opacity hover:opacity-80 disabled:opacity-50"
             disabled={isLoading}
-            className="text-[#868d95] text-[13px]! hover:opacity-80 transition-opacity disabled:opacity-50"
+            onClick={onBack}
+            type="button"
           >
             ← {translations.back}
           </button>
@@ -65,4 +67,3 @@ export function AuthToggle({
     </>
   );
 }
-

@@ -1,6 +1,6 @@
-import { SVGProps } from "react";
+import type { SVGProps } from 'react';
 
-type SafariMode = "default" | "simple";
+type SafariMode = 'default' | 'simple';
 
 export interface SafariProps extends SVGProps<SVGSVGElement> {
   url?: string;
@@ -17,56 +17,41 @@ export function Safari({
   url,
   width = 1203,
   height = 753,
-  mode = "default",
+  mode = 'default',
   ...props
 }: SafariProps) {
   return (
     <svg
-      width={width}
+      fill="none"
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      fill="none"
+      width={width}
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <g clipPath="url(#path0)">
         <path
-          d="M0 52H1202V741C1202 747.627 1196.63 753 1190 753H12C5.37258 753 0 747.627 0 741V52Z"
           className="fill-[#E5E5E5] dark:fill-[#404040]"
+          d="M0 52H1202V741C1202 747.627 1196.63 753 1190 753H12C5.37258 753 0 747.627 0 741V52Z"
         />
         <path
-          fillRule="evenodd"
+          className="fill-[#E5E5E5] dark:fill-[#404040]"
           clipRule="evenodd"
           d="M0 12C0 5.37258 5.37258 0 12 0H1190C1196.63 0 1202 5.37258 1202 12V52H0L0 12Z"
-          className="fill-[#E5E5E5] dark:fill-[#404040]"
+          fillRule="evenodd"
         />
         <path
-          fillRule="evenodd"
+          className="fill-white dark:fill-[#262626]"
           clipRule="evenodd"
           d="M1.06738 12C1.06738 5.92487 5.99225 1 12.0674 1H1189.93C1196.01 1 1200.93 5.92487 1200.93 12V51H1.06738V12Z"
-          className="fill-white dark:fill-[#262626]"
+          fillRule="evenodd"
         />
-        <circle
-          cx="27"
-          cy="25"
-          r="6"
-          className="fill-[#E5E5E5] dark:fill-[#404040]"
-        />
-        <circle
-          cx="47"
-          cy="25"
-          r="6"
-          className="fill-[#E5E5E5] dark:fill-[#404040]"
-        />
-        <circle
-          cx="67"
-          cy="25"
-          r="6"
-          className="fill-[#E5E5E5] dark:fill-[#404040]"
-        />
+        <circle className="fill-[#E5E5E5] dark:fill-[#404040]" cx="27" cy="25" r="6" />
+        <circle className="fill-[#E5E5E5] dark:fill-[#404040]" cx="47" cy="25" r="6" />
+        <circle className="fill-[#E5E5E5] dark:fill-[#404040]" cx="67" cy="25" r="6" />
         <path
-          d="M286 17C286 13.6863 288.686 11 292 11H946C949.314 11 952 13.6863 952 17V35C952 38.3137 949.314 41 946 41H292C288.686 41 286 38.3137 286 35V17Z"
           className="fill-[#E5E5E5] dark:fill-[#404040]"
+          d="M286 17C286 13.6863 288.686 11 292 11H946C949.314 11 952 13.6863 952 17V35C952 38.3137 949.314 41 946 41H292C288.686 41 286 38.3137 286 35V17Z"
         />
         <g className="mix-blend-luminosity">
           <path
@@ -75,17 +60,11 @@ export function Safari({
           />
         </g>
         <g className="mix-blend-luminosity">
-          <text
-            x="580"
-            y="30"
-            fill="#A3A3A3"
-            fontSize="12"
-            fontFamily="Arial, sans-serif"
-          >
+          <text fill="#A3A3A3" fontFamily="Arial, sans-serif" fontSize="12" x="580" y="30">
             {url}
           </text>
         </g>
-        {mode === "default" ? (
+        {mode === 'default' ? (
           <>
             <g className="mix-blend-luminosity">
               <path
@@ -138,51 +117,51 @@ export function Safari({
           </>
         ) : null}
         {/* Default background when no image/video */}
-        {!imageSrc && !videoSrc && (
+        {!(imageSrc || videoSrc) && (
           <rect
-            x="1"
-            y="52"
-            width={width - 2}
-            height={height - 52}
-            fill="#f8f9fa"
             className="dark:fill-[#1a1a1a]"
             clipPath="url(#roundedBottom)"
+            fill="#f8f9fa"
+            height={height - 52}
+            width={width - 2}
+            x="1"
+            y="52"
           />
         )}
         {imageSrc && (
           <image
-            href={imageSrc}
-            width={width - 2}
+            clipPath="url(#roundedBottom)"
             height={height - 52}
+            href={imageSrc}
+            preserveAspectRatio="xMidYMid slice"
+            width={width - 2}
             x="1"
             y="52"
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#roundedBottom)"
           />
         )}
         {videoSrc && (
           <foreignObject
-            x="1"
-            y="52"
-            width={width - 2}
+            clipPath="url(#roundedBottom)"
             height={height - 52}
             preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#roundedBottom)"
+            width={width - 2}
+            x="1"
+            y="52"
           >
             <video
-              className="size-full overflow-hidden object-cover"
-              src={videoSrc}
               autoPlay
+              className="size-full overflow-hidden object-cover"
               loop
               muted
               playsInline
+              src={videoSrc}
             />
           </foreignObject>
         )}
       </g>
       <defs>
         <clipPath id="path0">
-          <rect width={width} height={height} fill="white" />
+          <rect fill="white" height={height} width={width} />
         </clipPath>
         <clipPath id="roundedBottom">
           <path

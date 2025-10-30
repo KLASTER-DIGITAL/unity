@@ -1,8 +1,8 @@
 /**
  * Sentry Integration for UNITY-v2
- * 
+ *
  * Мониторинг ошибок и производительности в production
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-21
  */
@@ -11,9 +11,9 @@ import * as Sentry from '@sentry/react';
 
 /**
  * Инициализация Sentry
- * 
+ *
  * Вызывается один раз при старте приложения в main.tsx
- * 
+ *
  * @example
  * import { initSentry } from '@/shared/lib/monitoring/sentry';
  * initSentry();
@@ -30,7 +30,7 @@ export function initSentry() {
 
     Sentry.init({
       dsn,
-      
+
       // Интеграции
       integrations: [
         // Browser Tracing для мониторинга производительности
@@ -42,7 +42,7 @@ export function initSentry() {
           //   /^https:\/\/.*\.supabase\.co/,
           // ],
         }),
-        
+
         // Session Replay для воспроизведения ошибок
         Sentry.replayIntegration({
           // Маскируем чувствительные данные
@@ -71,16 +71,18 @@ export function initSentry() {
 
       // Environment
       environment: import.meta.env.MODE,
-      
+
       // Release tracking
       release: `unity-v2@${import.meta.env.VITE_APP_VERSION || 'unknown'}`,
 
       // Фильтрация ошибок
       beforeSend(event, hint) {
         // Игнорируем ошибки от расширений браузера
-        if (event.exception?.values?.[0]?.stacktrace?.frames?.some(
-          frame => frame.filename?.includes('chrome-extension://')
-        )) {
+        if (
+          event.exception?.values?.[0]?.stacktrace?.frames?.some((frame) =>
+            frame.filename?.includes('chrome-extension://')
+          )
+        ) {
           return null;
         }
 
@@ -111,15 +113,15 @@ export function initSentry() {
         'canvas.contentDocument',
         'MyApp_RemoveAllHighlights',
         'atomicFindClose',
-        
+
         // Ошибки сети
         'NetworkError',
         'Failed to fetch',
         'Load failed',
-        
+
         // Ошибки от рекламных блокировщиков
         'adsbygoogle',
-        
+
         // Случайные ошибки браузера
         'ResizeObserver loop limit exceeded',
         'ResizeObserver loop completed with undelivered notifications',
@@ -134,7 +136,7 @@ export function initSentry() {
 
 /**
  * Захват исключения вручную
- * 
+ *
  * @example
  * try {
  *   riskyOperation();
@@ -142,10 +144,7 @@ export function initSentry() {
  *   captureException(error, { tags: { section: 'payment' } });
  * }
  */
-export function captureException(
-  error: Error,
-  context?: any
-) {
+export function captureException(error: Error, context?: any) {
   if (import.meta.env.PROD) {
     Sentry.captureException(error, context);
   } else {
@@ -155,17 +154,14 @@ export function captureException(
 
 /**
  * Захват сообщения вручную
- * 
+ *
  * @example
  * captureMessage('User completed onboarding', {
  *   level: 'info',
  *   tags: { flow: 'onboarding' }
  * });
  */
-export function captureMessage(
-  message: string,
-  context?: any
-) {
+export function captureMessage(message: string, context?: any) {
   if (import.meta.env.PROD) {
     Sentry.captureMessage(message, context);
   } else {
@@ -175,7 +171,7 @@ export function captureMessage(
 
 /**
  * Установка пользователя для Sentry
- * 
+ *
  * @example
  * setUser({
  *   id: user.id,
@@ -191,7 +187,7 @@ export function setUser(user: Sentry.User | null) {
 
 /**
  * Добавление breadcrumb (хлебная крошка) для отслеживания действий
- * 
+ *
  * @example
  * addBreadcrumb({
  *   category: 'auth',
@@ -207,7 +203,7 @@ export function addBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
 
 /**
  * Установка тега для группировки ошибок
- * 
+ *
  * @example
  * setTag('page', 'admin-dashboard');
  */
@@ -219,7 +215,7 @@ export function setTag(key: string, value: string) {
 
 /**
  * Установка контекста для дополнительной информации
- * 
+ *
  * @example
  * setContext('character', {
  *   name: 'Mighty Fighter',
@@ -275,9 +271,7 @@ export async function withSpan<T>(
   callback: () => Promise<T>
 ): Promise<T> {
   if (import.meta.env.PROD) {
-    return Sentry.startSpan({ name, op }, async () => {
-      return await callback();
-    });
+    return Sentry.startSpan({ name, op }, async () => await callback());
   }
   return callback();
 }
@@ -308,7 +302,7 @@ export const withProfiler = Sentry.withProfiler;
  *
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
-export function showFeedbackWidget(_openForm: boolean = false) {
+export function showFeedbackWidget(_openForm = false) {
   console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
   // if (import.meta.env.PROD) {
   //   const feedback = Sentry.getFeedback();
@@ -344,4 +338,3 @@ export function hideFeedbackWidget() {
 
 // Re-export Sentry для прямого использования если нужно
 export { Sentry };
-

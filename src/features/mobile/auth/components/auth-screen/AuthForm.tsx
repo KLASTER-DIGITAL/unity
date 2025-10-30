@@ -1,7 +1,7 @@
-import { motion } from "motion/react";
-import type { AuthTranslations } from "./translations";
+import { motion } from 'motion/react';
+import type { AuthTranslations } from './translations';
 
-interface AuthFormProps {
+type AuthFormProps = {
   isLogin: boolean;
   isLoading: boolean;
   name: string;
@@ -12,7 +12,7 @@ interface AuthFormProps {
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-}
+};
 
 /**
  * Auth Form Component
@@ -28,26 +28,26 @@ export function AuthForm({
   onNameChange,
   onEmailChange,
   onPasswordChange,
-  onSubmit
+  onSubmit,
 }: AuthFormProps) {
   return (
     <motion.form
-      onSubmit={onSubmit}
-      className="space-y-6 mb-8"
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      className="mb-8 space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      onSubmit={onSubmit}
       transition={{ duration: 0.5, delay: 0.1 }}
     >
       {/* Name (only for registration) */}
       {!isLogin && (
         <div className="relative">
           <input
-            type="text"
-            value={name}
+            className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
             onChange={(e) => onNameChange(e.target.value)}
             placeholder={translations.yourName}
-            className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
             required
+            type="text"
+            value={name}
           />
         </div>
       )}
@@ -55,42 +55,37 @@ export function AuthForm({
       {/* Email */}
       <div className="relative">
         <input
-          type="email"
-          value={email}
+          className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
           onChange={(e) => onEmailChange(e.target.value)}
           placeholder={translations.yourEmail}
-          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
           required
+          type="email"
+          value={email}
         />
       </div>
 
       {/* Password */}
       <div className="relative">
         <input
-          type="password"
-          value={password}
+          className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
+          minLength={6}
           onChange={(e) => onPasswordChange(e.target.value)}
           placeholder={translations.password}
-          className="w-full h-[60px] px-6 bg-input-background border-2 border-[#756ef3] rounded-(--radius) outline-none transition-all duration-200 placeholder:text-[#848a94] text-[#002055]"
           required
-          minLength={6}
+          type="password"
+          value={password}
         />
       </div>
 
       {/* Submit Button */}
       <motion.button
-        type="submit"
+        className="flex h-12 w-full items-center justify-center rounded-(--radius) bg-[#756ef3] text-white shadow-[0px_8px_24px_rgba(117,110,243,0.3)] transition-all duration-200 hover:bg-[#6b62e8] active:scale-98 disabled:opacity-50"
         disabled={isLoading}
-        className="w-full h-12 bg-[#756ef3] text-white rounded-(--radius) shadow-[0px_8px_24px_rgba(117,110,243,0.3)] hover:bg-[#6b62e8] transition-all duration-200 active:scale-98 flex items-center justify-center disabled:opacity-50"
+        type="submit"
         whileTap={{ scale: isLoading ? 1 : 0.98 }}
       >
-        {isLoading ? (
-          "Загрузка..."
-        ) : (
-          isLogin ? translations.signIn : translations.signUp
-        )}
+        {isLoading ? 'Загрузка...' : isLogin ? translations.signIn : translations.signUp}
       </motion.button>
     </motion.form>
   );
 }
-

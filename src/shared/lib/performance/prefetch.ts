@@ -20,7 +20,7 @@ export function prefetchComponent(importFn: () => Promise<any>): void {
  */
 export async function prefetchComponents(importFns: Array<() => Promise<any>>): Promise<void> {
   try {
-    await Promise.all(importFns.map(fn => fn()));
+    await Promise.all(importFns.map((fn) => fn()));
   } catch (error) {
     console.error('[Prefetch] Failed to prefetch components:', error);
   }
@@ -32,7 +32,7 @@ export async function prefetchComponents(importFns: Array<() => Promise<any>>): 
  */
 export function createHoverPrefetch(importFn: () => Promise<any>) {
   let prefetched = false;
-  
+
   return () => {
     if (!prefetched) {
       prefetched = true;
@@ -48,9 +48,12 @@ export function createHoverPrefetch(importFn: () => Promise<any>) {
  */
 export function prefetchOnIdle(importFn: () => Promise<any>, timeout = 2000): void {
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => {
-      prefetchComponent(importFn);
-    }, { timeout });
+    requestIdleCallback(
+      () => {
+        prefetchComponent(importFn);
+      },
+      { timeout }
+    );
   } else {
     // Fallback for browsers without requestIdleCallback
     setTimeout(() => {
@@ -68,10 +71,12 @@ export function prefetchOnInteraction(
   element: HTMLElement | null,
   importFn: () => Promise<any>
 ): () => void {
-  if (!element) return () => {};
+  if (!element) {
+    return () => {};
+  }
 
   let prefetched = false;
-  
+
   const handleInteraction = () => {
     if (!prefetched) {
       prefetched = true;
@@ -102,7 +107,7 @@ export function prefetchOnVisible(
   importFn: () => Promise<any>,
   options: IntersectionObserverInit = { rootMargin: '50px' }
 ): () => void {
-  if (!element || !('IntersectionObserver' in window)) {
+  if (!(element && 'IntersectionObserver' in window)) {
     return () => {};
   }
 
@@ -132,8 +137,11 @@ export function prefetchOnVisible(
  */
 export function smartPrefetch(importFn: () => Promise<any>): void {
   // Check if Network Information API is available
-  const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-  
+  const connection =
+    (navigator as any).connection ||
+    (navigator as any).mozConnection ||
+    (navigator as any).webkitConnection;
+
   if (!connection) {
     // No connection info, prefetch anyway
     prefetchOnIdle(importFn);
@@ -162,9 +170,9 @@ export function smartPrefetch(importFn: () => Promise<any>): void {
  * Predicts next route and prefetches it
  */
 export class RoutePrefetcher {
-  private routes: Map<string, () => Promise<any>> = new Map();
-  private navigationHistory: string[] = [];
-  private maxHistoryLength = 10;
+  private readonly routes: Map<string, () => Promise<any>> = new Map();
+  private readonly navigationHistory: string[] = [];
+  private readonly maxHistoryLength = 10;
 
   /**
    * Register a route for prefetching
@@ -178,7 +186,7 @@ export class RoutePrefetcher {
    */
   trackNavigation(path: string): void {
     this.navigationHistory.push(path);
-    
+
     // Keep history limited
     if (this.navigationHistory.length > this.maxHistoryLength) {
       this.navigationHistory.shift();
@@ -192,13 +200,15 @@ export class RoutePrefetcher {
    * Predict next route based on history and prefetch it
    */
   private predictAndPrefetch(): void {
-    if (this.navigationHistory.length < 2) return;
+    if (this.navigationHistory.length < 2) {
+      return;
+    }
 
     // Simple prediction: if user went A -> B multiple times, prefetch B when on A
-    const currentRoute = this.navigationHistory[this.navigationHistory.length - 1];
+    const currentRoute = this.navigationHistory.at(-1);
     const patterns = this.findPatterns();
 
-    const nextRoute = patterns.get(currentRoute);
+    const nextRoute = currentRoute ? patterns.get(currentRoute) : undefined;
     if (nextRoute) {
       const importFn = this.routes.get(nextRoute);
       if (importFn) {
@@ -252,4 +262,3 @@ export class RoutePrefetcher {
  * Global route prefetcher instance
  */
 export const routePrefetcher = new RoutePrefetcher();
-

@@ -49,11 +49,13 @@ async function loadFFmpeg(): Promise<any> {
  */
 export async function compressVideo(
   file: File,
-  maxDuration: number = 30,
-  maxWidth: number = 1280,
-  maxHeight: number = 720
+  maxDuration = 30,
+  maxWidth = 1280,
+  maxHeight = 720
 ): Promise<File> {
-  console.log(`🎥 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+  console.log(
+    `🎥 [COMPRESS] Starting compression: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+  );
 
   try {
     const ffmpeg = await loadFFmpeg();
@@ -75,15 +77,23 @@ export async function compressVideo(
     // -b:a 128k             : Audio bitrate
     // output.mp4            : Output file
     await ffmpeg.exec([
-      '-i', 'input.mp4',
-      '-t', maxDuration.toString(),
-      '-vf', `scale=${maxWidth}:${maxHeight}:force_original_aspect_ratio=decrease`,
-      '-c:v', 'libx264',
-      '-crf', '28',
-      '-preset', 'fast',
-      '-c:a', 'aac',
-      '-b:a', '128k',
-      'output.mp4'
+      '-i',
+      'input.mp4',
+      '-t',
+      maxDuration.toString(),
+      '-vf',
+      `scale=${maxWidth}:${maxHeight}:force_original_aspect_ratio=decrease`,
+      '-c:v',
+      'libx264',
+      '-crf',
+      '28',
+      '-preset',
+      'fast',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '128k',
+      'output.mp4',
     ]);
 
     console.log('🎥 [COMPRESS] Reading compressed video...');
@@ -93,7 +103,7 @@ export async function compressVideo(
     const blob = new Blob([data], { type: 'video/mp4' });
     const compressedFile = new File([blob], file.name, {
       type: 'video/mp4',
-      lastModified: Date.now()
+      lastModified: Date.now(),
     });
 
     // Cleanup
@@ -134,11 +144,15 @@ export async function generateVideoThumbnail(file: File): Promise<File> {
     // -vf scale=200:200     : Resize to 200x200
     // thumbnail.jpg         : Output file
     await ffmpeg.exec([
-      '-i', 'input.mp4',
-      '-ss', '00:00:01',
-      '-vframes', '1',
-      '-vf', 'scale=200:200:force_original_aspect_ratio=decrease',
-      'thumbnail.jpg'
+      '-i',
+      'input.mp4',
+      '-ss',
+      '00:00:01',
+      '-vframes',
+      '1',
+      '-vf',
+      'scale=200:200:force_original_aspect_ratio=decrease',
+      'thumbnail.jpg',
     ]);
 
     // Read output file
@@ -146,7 +160,7 @@ export async function generateVideoThumbnail(file: File): Promise<File> {
     const blob = new Blob([data], { type: 'image/jpeg' });
     const thumbnailFile = new File([blob], 'thumbnail.jpg', {
       type: 'image/jpeg',
-      lastModified: Date.now()
+      lastModified: Date.now(),
     });
 
     // Cleanup
@@ -178,7 +192,7 @@ export async function getVideoMetadata(file: File): Promise<{
  * 🎥 CHECK IF VIDEO IS TOO LONG
  * Returns true if video is longer than maxDuration
  */
-export async function isVideoTooLong(file: File, maxDuration: number = 30): Promise<boolean> {
+export async function isVideoTooLong(file: File, maxDuration = 30): Promise<boolean> {
   try {
     const metadata = await getVideoMetadata(file);
     return metadata.duration > maxDuration;
@@ -192,7 +206,7 @@ export async function isVideoTooLong(file: File, maxDuration: number = 30): Prom
  * 🎥 CHECK IF VIDEO IS TOO LARGE
  * Returns true if video is larger than maxSize (in MB)
  */
-export function isVideoTooLarge(file: File, maxSizeMB: number = 50): boolean {
+export function isVideoTooLarge(file: File, maxSizeMB = 50): boolean {
   const fileSizeMB = file.size / 1024 / 1024;
   return fileSizeMB > maxSizeMB;
 }
@@ -230,11 +244,10 @@ export async function validateVideo(file: File): Promise<{
       valid: true,
       metadata: {
         ...metadata,
-        sizeMB
-      }
+        sizeMB,
+      },
     };
   } catch (error) {
     return { valid: false, error: 'Не удалось прочитать метаданные видео' };
   }
 }
-

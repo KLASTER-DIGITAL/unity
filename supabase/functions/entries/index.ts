@@ -31,22 +31,25 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify user with JWT token
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(accessToken);
 
     if (authError || !user) {
       console.error('[ENTRIES] Auth error:', authError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('[ENTRIES] Authenticated user:', user.id);
 
     // Parse URL path
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(p => p);
-    const relevantParts = pathParts.filter(p => !['functions', 'v1', 'entries'].includes(p));
+    const pathParts = url.pathname.split('/').filter((p) => p);
+    const relevantParts = pathParts.filter((p) => !['functions', 'v1', 'entries'].includes(p));
     const endpoint = relevantParts.join('/');
 
     console.log('[ENTRIES] Endpoint:', endpoint || 'root', 'Method:', req.method);
@@ -57,17 +60,17 @@ Deno.serve(async (req) => {
       console.log('[ENTRIES] Creating entry:', entryData);
 
       if (!entryData.userId) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'userId is required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'userId is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
-      if (!entryData.text || !entryData.text.trim()) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'text is required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!(entryData.text && entryData.text.trim())) {
+        return new Response(JSON.stringify({ success: false, error: 'text is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       // Insert entry into database
@@ -79,26 +82,26 @@ Deno.serve(async (req) => {
           sentiment: entryData.sentiment || 'neutral',
           category: entryData.category || 'Другое',
           mood: entryData.mood || 'нормальное',
-          is_first_entry: entryData.isFirstEntry || false,
+          is_first_entry: entryData.isFirstEntry,
           media: entryData.media || null,
           ai_reply: entryData.aiReply || '',
           ai_summary: entryData.aiSummary || null,
           ai_insight: entryData.aiInsight || null,
-          is_achievement: entryData.isAchievement || false,
+          is_achievement: entryData.isAchievement,
           tags: entryData.tags || [],
           streak_day: entryData.streakDay || 1,
           focus_area: entryData.focusArea || entryData.category || 'Другое',
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         })
         .select()
         .single();
 
       if (error) {
         console.error('[ENTRIES] Error creating entry:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       // Convert to camelCase for frontend
@@ -120,14 +123,13 @@ Deno.serve(async (req) => {
         focusArea: data.focus_area,
         createdAt: data.created_at,
         voiceUrl: data.voice_url,
-        mediaUrl: data.media_url
+        mediaUrl: data.media_url,
       };
 
       console.log('[ENTRIES] Entry created successfully:', entry.id);
-      return new Response(
-        JSON.stringify({ success: true, entry }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, entry }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /:userId - Get user entries
@@ -143,14 +145,14 @@ Deno.serve(async (req) => {
 
       if (error) {
         console.error('[ENTRIES] Error fetching entries:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       // Convert to camelCase
-      const entries = data.map(entry => ({
+      const entries = data.map((entry) => ({
         id: entry.id,
         userId: entry.user_id,
         text: entry.text,
@@ -168,14 +170,13 @@ Deno.serve(async (req) => {
         focusArea: entry.focus_area,
         createdAt: entry.created_at,
         voiceUrl: entry.voice_url,
-        mediaUrl: entry.media_url
+        mediaUrl: entry.media_url,
       }));
 
       console.log(`[ENTRIES] Found ${entries.length} entries for user ${userId}`);
-      return new Response(
-        JSON.stringify({ success: true, entries }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, entries }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: PUT /:entryId - Update entry
@@ -200,10 +201,10 @@ Deno.serve(async (req) => {
 
       if (error) {
         console.error('[ENTRIES] Error updating entry:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       // Convert to camelCase
@@ -225,14 +226,13 @@ Deno.serve(async (req) => {
         focusArea: data.focus_area,
         createdAt: data.created_at,
         voiceUrl: data.voice_url,
-        mediaUrl: data.media_url
+        mediaUrl: data.media_url,
       };
 
       console.log('[ENTRIES] Entry updated successfully:', entry.id);
-      return new Response(
-        JSON.stringify({ success: true, entry }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, entry }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: DELETE /:entryId - Delete entry
@@ -240,24 +240,20 @@ Deno.serve(async (req) => {
       const entryId = endpoint;
       console.log('[ENTRIES] Deleting entry:', entryId);
 
-      const { error } = await supabaseAdmin
-        .from('entries')
-        .delete()
-        .eq('id', entryId);
+      const { error } = await supabaseAdmin.from('entries').delete().eq('id', entryId);
 
       if (error) {
         console.error('[ENTRIES] Error deleting entry:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       console.log('[ENTRIES] Entry deleted successfully:', entryId);
-      return new Response(
-        JSON.stringify({ success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Route: GET /health - Health check
@@ -269,17 +265,15 @@ Deno.serve(async (req) => {
     }
 
     // Unknown endpoint
-    return new Response(
-      JSON.stringify({ success: false, error: 'Unknown endpoint' }),
-      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ success: false, error: 'Unknown endpoint' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[ENTRIES] Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

@@ -7,11 +7,11 @@
  * Note: Standalone version with embedded utilities for Supabase MCP deployment
  */
 
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { Buffer } from 'node:buffer';
 import { Hono } from 'npm:hono';
 import { cors } from 'npm:hono/cors';
 import { logger } from 'npm:hono/logger';
-import { Buffer } from 'node:buffer';
-import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 console.log('[TRANSCRIPTION-API] 🚀 Starting standalone microservice...');
 
@@ -34,7 +34,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // Get OpenAI API key
 async function getOpenAIKey(headerKey?: string | null): Promise<string | null> {
   if (headerKey) return headerKey;
-  
+
   try {
     const { data } = await supabase
       .from('admin_settings')
@@ -45,10 +45,10 @@ async function getOpenAIKey(headerKey?: string | null): Promise<string | null> {
   } catch (error) {
     console.error('[AUTH] Error fetching OpenAI key:', error);
   }
-  
+
   const envKey = Deno.env.get('OPENAI_API_KEY');
   if (envKey) return envKey;
-  
+
   return null;
 }
 
@@ -57,7 +57,7 @@ async function logOpenAIUsage(userId: string, operationType: string, model: stri
   try {
     const totalTokens = usage.total_tokens || 0;
     const estimatedCost = (totalTokens / 60) * 0.006; // Whisper: $0.006/minute
-    
+
     await supabase.from('openai_usage').insert({
       user_id: userId,
       operation_type: operationType,
@@ -65,10 +65,12 @@ async function logOpenAIUsage(userId: string, operationType: string, model: stri
       prompt_tokens: 0,
       completion_tokens: 0,
       total_tokens: totalTokens,
-      estimated_cost: estimatedCost
+      estimated_cost: estimatedCost,
     });
-    
-    console.log(`[OPENAI-LOGGER] ✅ Logged: ${operationType}, ${totalTokens} tokens, $${estimatedCost.toFixed(6)}`);
+
+    console.log(
+      `[OPENAI-LOGGER] ✅ Logged: ${operationType}, ${totalTokens} tokens, $${estimatedCost.toFixed(6)}`
+    );
   } catch (error) {
     console.error('[OPENAI-LOGGER] Error logging usage:', error);
   }
@@ -84,14 +86,14 @@ app.use('*', corsMiddleware);
 app.use('*', logger(console.log));
 
 // Health check
-app.get('/health', (c) => {
-  return c.json({
+app.get('/health', (c) =>
+  c.json({
     success: true,
     status: 'ok',
     service: 'transcription-api',
-    timestamp: new Date().toISOString()
-  });
-});
+    timestamp: new Date().toISOString(),
+  })
+);
 
 // Single transcription
 app.post('/transcribe', async (c) => {
@@ -121,14 +123,17 @@ app.post('/transcribe', async (c) => {
 
     const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${openaiApiKey}` },
-      body: formData
+      headers: { Authorization: `Bearer ${openaiApiKey}` },
+      body: formData,
     });
 
     if (!whisperResponse.ok) {
       const error = await whisperResponse.text();
       console.error('[TRANSCRIPTION-API] Whisper API error:', error);
-      return c.json({ success: false, error: `Whisper API failed: ${whisperResponse.status}` }, 500);
+      return c.json(
+        { success: false, error: `Whisper API failed: ${whisperResponse.status}` },
+        500
+      );
     }
 
     const result = await whisperResponse.json();
@@ -137,18 +142,17 @@ app.post('/transcribe', async (c) => {
     console.log('[TRANSCRIPTION-API] ✅ Transcription successful');
 
     if (userId) {
-      const audioDurationSeconds = audioBuffer.length / (16000 * 2);
+      const audioDurationSeconds = audioBuffer.length / (16_000 * 2);
       await logOpenAIUsage(userId, 'transcription', 'whisper-1', {
-        total_tokens: Math.ceil(audioDurationSeconds * 60)
+        total_tokens: Math.ceil(audioDurationSeconds * 60),
       });
     }
 
     return c.json({
       success: true,
       text: transcribedText,
-      language: result.language || language
+      language: result.language || language,
     });
-
   } catch (error: any) {
     console.error('[TRANSCRIPTION-API] Error:', error);
     return c.json({ success: false, error: `Failed to transcribe: ${error.message}` }, 500);
@@ -160,7 +164,7 @@ app.post('/transcribe/batch', async (c) => {
   try {
     const { audios, userId, language = 'ru' } = await c.req.json();
 
-    if (!audios || !Array.isArray(audios) || audios.length === 0) {
+    if (!(audios && Array.isArray(audios)) || audios.length === 0) {
       return c.json({ success: false, error: 'Audios array is required' }, 400);
     }
 
@@ -189,21 +193,25 @@ app.post('/transcribe/batch', async (c) => {
 
         const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${openaiApiKey}` },
-          body: formData
+          headers: { Authorization: `Bearer ${openaiApiKey}` },
+          body: formData,
         });
 
         if (!whisperResponse.ok) {
-          results.push({ index: i, success: false, error: `Whisper API failed: ${whisperResponse.status}` });
+          results.push({
+            index: i,
+            success: false,
+            error: `Whisper API failed: ${whisperResponse.status}`,
+          });
           continue;
         }
 
         const result = await whisperResponse.json();
 
         if (userId) {
-          const audioDurationSeconds = audioBuffer.length / (16000 * 2);
+          const audioDurationSeconds = audioBuffer.length / (16_000 * 2);
           await logOpenAIUsage(userId, 'transcription', 'whisper-1', {
-            total_tokens: Math.ceil(audioDurationSeconds * 60)
+            total_tokens: Math.ceil(audioDurationSeconds * 60),
           });
         }
 
@@ -211,25 +219,25 @@ app.post('/transcribe/batch', async (c) => {
           index: i,
           success: true,
           text: result.text,
-          language: result.language || language
+          language: result.language || language,
         });
-
       } catch (error: any) {
         results.push({ index: i, success: false, error: error.message });
       }
     }
 
-    const successCount = results.filter(r => r.success).length;
-    console.log(`[TRANSCRIPTION-API] ✅ Batch complete: ${successCount}/${audios.length} successful`);
+    const successCount = results.filter((r) => r.success).length;
+    console.log(
+      `[TRANSCRIPTION-API] ✅ Batch complete: ${successCount}/${audios.length} successful`
+    );
 
     return c.json({
       success: true,
       total: audios.length,
       successful: successCount,
       failed: audios.length - successCount,
-      results
+      results,
     });
-
   } catch (error: any) {
     console.error('[TRANSCRIPTION-API] Batch error:', error);
     return c.json({ success: false, error: `Failed to batch transcribe: ${error.message}` }, 500);
@@ -237,4 +245,3 @@ app.post('/transcribe/batch', async (c) => {
 });
 
 Deno.serve(app.fetch);
-

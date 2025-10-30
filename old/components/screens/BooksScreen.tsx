@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { BooksLibraryScreen } from "./BooksLibraryScreen";
-import { BookCreationWizard } from "./BookCreationWizard";
-import { BookDraftEditor } from "./BookDraftEditor";
+import { useState } from 'react';
+import { BookCreationWizard } from './BookCreationWizard';
+import { BookDraftEditor } from './BookDraftEditor';
+import { BooksLibraryScreen } from './BooksLibraryScreen';
 
 interface BooksScreenProps {
   userData?: any;
@@ -43,9 +43,9 @@ export function BooksScreen({ userData }: BooksScreenProps) {
     case 'wizard':
       return (
         <BookCreationWizard
-          userData={userData}
           onBack={handleBackToLibrary}
           onComplete={handleWizardComplete}
+          userData={userData}
         />
       );
 
@@ -53,19 +53,14 @@ export function BooksScreen({ userData }: BooksScreenProps) {
       return (
         <BookDraftEditor
           draftId={currentDraftId!}
-          userData={userData}
           onBack={handleBackToLibrary}
           onPublish={handlePublishBook}
+          userData={userData}
         />
       );
 
     case 'library':
     default:
-      return (
-        <BooksLibraryScreen
-          userData={userData}
-          onCreateBook={handleCreateBook}
-        />
-      );
+      return <BooksLibraryScreen onCreateBook={handleCreateBook} userData={userData} />;
   }
 }

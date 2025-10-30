@@ -9,26 +9,22 @@
  * - I18nTestComponent: Test component for i18n
  */
 
-export * from './TranslationProvider';
-export * from './TranslationManager';
-export * from './useTranslation';
-export * from './LanguageSelector';
-export * from './I18nTestComponent';
-export * from './TranslationLoader';
+// Re-export formatting
+export * from './formatting';
 export * from './helpers';
-
+export * from './I18nTestComponent';
+export * from './LanguageSelector';
+export * from './language-detection';
+// Re-export optimizations
+export * from './optimizations';
+// Re-export pluralization
+export * from './pluralization';
+// Re-export RTL support
+export * from './rtl';
+export * from './TranslationLoader';
+export * from './TranslationManager';
+export * from './TranslationProvider';
 // Re-export types
 export type { Language, Translations } from './types';
 export * from './types/TranslationKeys';
-
-// Re-export optimizations
-export * from './optimizations';
-
-// Re-export pluralization
-export * from './pluralization';
-
-// Re-export formatting
-export * from './formatting';
-
-// Re-export RTL support
-export * from './rtl';
+export * from './useTranslation';

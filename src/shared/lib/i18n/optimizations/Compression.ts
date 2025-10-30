@@ -8,62 +8,64 @@
  * - Automatic compression/decompression
  */
 
-import type { Translations } from '../types/TranslationKeys';
 import { storage } from '../../platform/storage';
+import type { Translations } from '../types/TranslationKeys';
 
-interface CompressedData {
+type CompressedData = {
   data: string;
   compressed: boolean;
   originalSize: number;
   compressedSize: number;
   algorithm: 'lz' | 'none';
   version: number;
-}
+};
 
 export class Compression {
   private static readonly VERSION = 1;
   private static readonly MIN_SIZE_FOR_COMPRESSION = 1024; // 1KB
-  
+
   /**
    * Compress translations object
    */
   static compress(translations: Translations): CompressedData {
     const jsonString = JSON.stringify(translations);
     const originalSize = jsonString.length;
-    
+
     // Skip compression for small data
-    if (originalSize < this.MIN_SIZE_FOR_COMPRESSION) {
+    if (originalSize < Compression.MIN_SIZE_FOR_COMPRESSION) {
       return {
         data: jsonString,
         compressed: false,
         originalSize,
         compressedSize: originalSize,
         algorithm: 'none',
-        version: this.VERSION
+        version: Compression.VERSION,
       };
     }
-    
+
     try {
-      const compressed = this.lzCompress(jsonString);
+      const compressed = Compression.lzCompress(jsonString);
       const compressedSize = compressed.length;
-      
+
       // Only use compression if it actually reduces size
       if (compressedSize < originalSize * 0.9) {
-        console.log(`📦 Compression: ${originalSize} → ${compressedSize} bytes (${Math.round((1 - compressedSize / originalSize) * 100)}% saved)`);
-        
+        console.log(
+          `📦 Compression: ${originalSize} → ${compressedSize} bytes (${Math.round((1 - compressedSize / originalSize) * 100)}% saved)`
+        );
+
         return {
           data: compressed,
           compressed: true,
           originalSize,
           compressedSize,
           algorithm: 'lz',
-          version: this.VERSION
+          version: Compression.VERSION,
         };
       }
     } catch (error) {
       console.warn('⚠️ Compression failed, using uncompressed:', error);
     }
-    
+
     // Fallback to uncompressed
     return {
       data: jsonString,
@@ -71,10 +73,10 @@ export class Compression {
       originalSize,
       compressedSize: originalSize,
       algorithm: 'none',
-      version: this.VERSION
+      version: Compression.VERSION,
     };
   }
-  
+
   /**
    * Decompress translations data
    */
@@ -83,23 +85,23 @@ export class Compression {
       if (!compressedData.compressed) {
         return JSON.parse(compressedData.data);
       }
-      
-      const decompressed = this.lzDecompress(compressedData.data);
+
+      const decompressed = Compression.lzDecompress(compressedData.data);
       return JSON.parse(decompressed);
     } catch (error) {
       console.error('❌ Decompression failed:', error);
       throw new Error('Failed to decompress translation data');
     }
   }
-  
+
   /**
    * Get compression statistics
    */
   static getStats(compressedData: CompressedData) {
-    const ratio = compressedData.compressed 
-      ? compressedData.compressedSize / compressedData.originalSize 
+    const ratio = compressedData.compressed
+      ? compressedData.compressedSize / compressedData.originalSize
       : 1;
-    
+
     return {
       compressed: compressedData.compressed,
       algorithm: compressedData.algorithm,
@@ -107,24 +109,24 @@ export class Compression {
       compressedSize: compressedData.compressedSize,
       ratio: Math.round(ratio * 100) / 100,
       savedBytes: compressedData.originalSize - compressedData.compressedSize,
-      savedPercent: Math.round((1 - ratio) * 100)
+      savedPercent: Math.round((1 - ratio) * 100),
     };
   }
-  
+
   // LZ-based compression (simple implementation)
   // For production, consider using a library like lz-string or pako
-  
+
   private static lzCompress(str: string): string {
     // Simple LZ77-like compression
     const dict: Record<string, number> = {};
     let dictSize = 256;
     let result = '';
     let w = '';
-    
+
     for (let i = 0; i < str.length; i++) {
       const c = str.charAt(i);
       const wc = w + c;
-      
+
       if (dict[wc] !== undefined) {
         w = wc;
       } else {
@@ -133,28 +135,28 @@ export class Compression {
         w = c;
       }
     }
-    
+
     if (w !== '') {
       result += String.fromCharCode(dict[w] !== undefined ? dict[w] : w.charCodeAt(0));
     }
-    
+
     // Base64 encode to ensure safe storage
     return btoa(encodeURIComponent(result));
   }
-  
+
   private static lzDecompress(compressed: string): string {
     // Decode from base64
     const str = decodeURIComponent(atob(compressed));
-    
+
     const dict: Record<number, string> = {};
     let dictSize = 256;
     let w = String.fromCharCode(str.charCodeAt(0));
     let result = w;
-    
+
     for (let i = 1; i < str.length; i++) {
       const k = str.charCodeAt(i);
       let entry: string;
-      
+
       if (dict[k] !== undefined) {
         entry = dict[k];
       } else if (k === dictSize) {
@@ -162,12 +164,12 @@ export class Compression {
       } else {
         entry = String.fromCharCode(k);
       }
-      
+
       result += entry;
       dict[dictSize++] = w + entry.charAt(0);
       w = entry;
     }
-    
+
     return result;
   }
 }
@@ -177,7 +179,7 @@ export class Compression {
  */
 export class OptimizedStorage {
   private static readonly STORAGE_PREFIX = 'i18n_optimized_';
-  
+
   /**
    * Save translations with compression
    */
@@ -190,24 +192,24 @@ export class OptimizedStorage {
     const storageData = {
       ...compressed,
       language,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     try {
       await storage.setItem(
-        `${this.STORAGE_PREFIX}${language}`,
+        `${OptimizedStorage.STORAGE_PREFIX}${language}`,
         JSON.stringify(storageData)
       );
     } catch (error) {
       console.error(`❌ OptimizedStorage: Failed to save ${language}:`, error);
 
       // Try to free space by removing old data
-      await this.cleanup();
+      await OptimizedStorage.cleanup();
 
       // Retry
       try {
         await storage.setItem(
-          `${this.STORAGE_PREFIX}${language}`,
+          `${OptimizedStorage.STORAGE_PREFIX}${language}`,
           JSON.stringify(storageData)
         );
       } catch (retryError) {
@@ -216,13 +218,13 @@ export class OptimizedStorage {
       }
     }
   }
-  
+
   /**
    * Load translations with decompression
    */
   static async load(language: string): Promise<Translations | null> {
     try {
-      const stored = await storage.getItem(`${this.STORAGE_PREFIX}${language}`);
+      const stored = await storage.getItem(`${OptimizedStorage.STORAGE_PREFIX}${language}`);
       if (!stored) {
         return null;
       }
@@ -230,7 +232,9 @@ export class OptimizedStorage {
       const storageData = JSON.parse(stored);
       const translations = Compression.decompress(storageData);
 
-      console.log(`📂 OptimizedStorage: Loaded ${language} (${Object.keys(translations).length} keys)`);
+      console.log(
+        `📂 OptimizedStorage: Loaded ${language} (${Object.keys(translations).length} keys)`
+      );
       return translations;
     } catch (error) {
       console.error(`❌ OptimizedStorage: Failed to load ${language}:`, error);
@@ -242,7 +246,7 @@ export class OptimizedStorage {
    * Remove translations for a language
    */
   static async remove(language: string): Promise<void> {
-    await storage.removeItem(`${this.STORAGE_PREFIX}${language}`);
+    await storage.removeItem(`${OptimizedStorage.STORAGE_PREFIX}${language}`);
     console.log(`🗑️ OptimizedStorage: Removed ${language}`);
   }
 
@@ -252,13 +256,13 @@ export class OptimizedStorage {
   static async cleanup(): Promise<void> {
     console.log('🧹 OptimizedStorage: Cleaning up...');
 
-    const keys = (await storage.getAllKeys()).filter(key =>
-      key.startsWith(this.STORAGE_PREFIX)
+    const keys = (await storage.getAllKeys()).filter((key) =>
+      key.startsWith(OptimizedStorage.STORAGE_PREFIX)
     );
 
     // Sort by timestamp (oldest first)
     const entries = await Promise.all(
-      keys.map(async key => {
+      keys.map(async (key) => {
         try {
           const data = JSON.parse((await storage.getItem(key)) || '{}');
           return { key, timestamp: data.timestamp || 0 };
@@ -276,13 +280,13 @@ export class OptimizedStorage {
 
     console.log(`✅ OptimizedStorage: Cleaned up ${toRemove.length} entries`);
   }
-  
+
   /**
    * Get storage statistics
    */
   static async getStats() {
-    const keys = (await storage.getAllKeys()).filter(key =>
-      key.startsWith(this.STORAGE_PREFIX)
+    const keys = (await storage.getAllKeys()).filter((key) =>
+      key.startsWith(OptimizedStorage.STORAGE_PREFIX)
     );
 
     let totalOriginalSize = 0;
@@ -290,12 +294,14 @@ export class OptimizedStorage {
     let compressedCount = 0;
 
     await Promise.all(
-      keys.map(async key => {
+      keys.map(async (key) => {
         try {
           const data = JSON.parse((await storage.getItem(key)) || '{}');
           totalOriginalSize += data.originalSize || 0;
           totalCompressedSize += data.compressedSize || 0;
-          if (data.compressed) compressedCount++;
+          if (data.compressed) {
+            compressedCount++;
+          }
         } catch {
           // Skip invalid entries
         }
@@ -308,10 +314,8 @@ export class OptimizedStorage {
       totalOriginalSize,
       totalCompressedSize,
       savedBytes: totalOriginalSize - totalCompressedSize,
-      savedPercent: totalOriginalSize > 0
-        ? Math.round((1 - totalCompressedSize / totalOriginalSize) * 100)
-        : 0
+      savedPercent:
+        totalOriginalSize > 0 ? Math.round((1 - totalCompressedSize / totalOriginalSize) * 100) : 0,
     };
   }
 }
-

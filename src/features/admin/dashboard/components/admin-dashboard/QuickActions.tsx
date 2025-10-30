@@ -1,7 +1,13 @@
-import { Smartphone, Activity, Users, CreditCard } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { useTranslation } from "@/shared/lib/i18n";
+import { Activity, CreditCard, Smartphone, Users } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
+import { useTranslation } from '@/shared/lib/i18n';
 
 /**
  * Quick Actions Component
@@ -15,22 +21,28 @@ export function QuickActions() {
     <Card className="border-border">
       <CardHeader>
         <CardTitle className="text-[17px]!">{t('quick_actions', 'Быстрые действия')}</CardTitle>
-        <CardDescription className="text-[13px]! font-normal!">{t('quick_actions_desc', 'Управление ключевыми функциями приложения')}</CardDescription>
+        <CardDescription className="font-normal! text-[13px]!">
+          {t('quick_actions_desc', 'Управление ключевыми функциями приложения')}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Button
+            className="h-auto justify-start border-border py-4"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'settings' } })
+              )
+            }
             variant="outline"
-            className="justify-start h-auto py-4 border-border"
-            onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'settings' } }))}
           >
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
-                <Smartphone className="w-5 h-5 text-accent" />
+            <div className="flex w-full items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-accent/10">
+                <Smartphone className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-[15px]! text-foreground">{t('pwa_settings', 'Настройки PWA')}</p>
-                <p className="text-[13px]! text-muted-foreground font-normal!">
+                <p className="font-normal! text-[13px]! text-muted-foreground">
                   {t('pwa_settings_desc', 'Управление установкой и обновлениями')}
                 </p>
               </div>
@@ -38,17 +50,23 @@ export function QuickActions() {
           </Button>
 
           <Button
+            className="h-auto justify-start border-border py-4"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'push' } })
+              )
+            }
             variant="outline"
-            className="justify-start h-auto py-4 border-border"
-            onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'pwa', pwaSubTab: 'push' } }))}
           >
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
-                <Activity className="w-5 h-5 text-accent" />
+            <div className="flex w-full items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-accent/10">
+                <Activity className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-[15px]! text-foreground">{t('push_notifications', 'Push-уведомления')}</p>
-                <p className="text-[13px]! text-muted-foreground font-normal!">
+                <p className="text-[15px]! text-foreground">
+                  {t('push_notifications', 'Push-уведомления')}
+                </p>
+                <p className="font-normal! text-[13px]! text-muted-foreground">
                   {t('push_notifications_desc', 'Настройка уведомлений')}
                 </p>
               </div>
@@ -56,17 +74,21 @@ export function QuickActions() {
           </Button>
 
           <Button
+            className="h-auto justify-start border-border py-4"
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'users' } }))
+            }
             variant="outline"
-            className="justify-start h-auto py-4 border-border"
-            onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'users' } }))}
           >
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5 text-accent" />
+            <div className="flex w-full items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-accent/10">
+                <Users className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-[15px]! text-foreground">{t('user_management', 'Управление пользователями')}</p>
-                <p className="text-[13px]! text-muted-foreground font-normal!">
+                <p className="text-[15px]! text-foreground">
+                  {t('user_management', 'Управление пользователями')}
+                </p>
+                <p className="font-normal! text-[13px]! text-muted-foreground">
                   {t('user_management_desc', 'Просмотр и редактирование пользователей')}
                 </p>
               </div>
@@ -74,17 +96,23 @@ export function QuickActions() {
           </Button>
 
           <Button
+            className="h-auto justify-start border-border py-4"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent('admin-navigate', { detail: { tab: 'subscriptions' } })
+              )
+            }
             variant="outline"
-            className="justify-start h-auto py-4 border-border"
-            onClick={() => window.dispatchEvent(new CustomEvent('admin-navigate', { detail: { tab: 'subscriptions' } }))}
           >
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-(--radius) bg-accent/10 flex items-center justify-center shrink-0">
-                <CreditCard className="w-5 h-5 text-accent" />
+            <div className="flex w-full items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-accent/10">
+                <CreditCard className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-[15px]! text-foreground">{t('subscription_management', 'Управление подписками')}</p>
-                <p className="text-[13px]! text-muted-foreground font-normal!">
+                <p className="text-[15px]! text-foreground">
+                  {t('subscription_management', 'Управление подписками')}
+                </p>
+                <p className="font-normal! text-[13px]! text-muted-foreground">
                   {t('subscription_management_desc', 'Premium подписки и платежи')}
                 </p>
               </div>
@@ -95,4 +123,3 @@ export function QuickActions() {
     </Card>
   );
 }
-

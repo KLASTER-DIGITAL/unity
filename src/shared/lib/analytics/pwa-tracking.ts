@@ -1,13 +1,13 @@
 /**
  * PWA Analytics Tracking
- * 
+ *
  * Отслеживает все PWA события для аналитики:
  * - Показы install prompt
  * - Установки PWA
  * - Отказы от установки
  * - Использование в standalone режиме
  * - Push notifications разрешения
- * 
+ *
  * Все события сохраняются в таблицу `usage` для последующего анализа
  */
 
@@ -97,7 +97,7 @@ export async function trackInstallDismissed(userId: string | null, reason?: stri
  */
 export async function trackStandaloneUsage(userId: string | null): Promise<void> {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-  
+
   if (isStandalone) {
     await trackEvent(userId, 'pwa_standalone_usage', {
       location: window.location.pathname,
@@ -157,10 +157,7 @@ export async function trackServiceWorkerUpdate(userId: string | null): Promise<v
 /**
  * Отслеживает ошибку Service Worker
  */
-export async function trackServiceWorkerError(
-  userId: string | null,
-  error: string
-): Promise<void> {
+export async function trackServiceWorkerError(userId: string | null, error: string): Promise<void> {
   await trackEvent(userId, 'pwa_sw_error', {
     error,
     location: window.location.pathname,
@@ -211,11 +208,12 @@ export async function getPWAStats(userId: string): Promise<{
     }
 
     const stats = {
-      installPromptShown: data.filter(d => d.operation_type === 'pwa_install_prompt_shown').length,
-      installAccepted: data.filter(d => d.operation_type === 'pwa_install_accepted').length,
-      installDismissed: data.filter(d => d.operation_type === 'pwa_install_dismissed').length,
-      standaloneUsage: data.filter(d => d.operation_type === 'pwa_standalone_usage').length,
-      pushPermissions: data.filter(d => d.operation_type === 'pwa_push_permission').length,
+      installPromptShown: data.filter((d) => d.operation_type === 'pwa_install_prompt_shown')
+        .length,
+      installAccepted: data.filter((d) => d.operation_type === 'pwa_install_accepted').length,
+      installDismissed: data.filter((d) => d.operation_type === 'pwa_install_dismissed').length,
+      standaloneUsage: data.filter((d) => d.operation_type === 'pwa_standalone_usage').length,
+      pushPermissions: data.filter((d) => d.operation_type === 'pwa_push_permission').length,
     };
 
     return stats;
@@ -260,9 +258,11 @@ export async function getAdminPWAStats(): Promise<{
       };
     }
 
-    const totalPromptShown = data.filter(d => d.operation_type === 'pwa_install_prompt_shown').length;
-    const totalInstalls = data.filter(d => d.operation_type === 'pwa_install_accepted').length;
-    const totalDismissed = data.filter(d => d.operation_type === 'pwa_install_dismissed').length;
+    const totalPromptShown = data.filter(
+      (d) => d.operation_type === 'pwa_install_prompt_shown'
+    ).length;
+    const totalInstalls = data.filter((d) => d.operation_type === 'pwa_install_accepted').length;
+    const totalDismissed = data.filter((d) => d.operation_type === 'pwa_install_dismissed').length;
     const conversionRate = totalPromptShown > 0 ? (totalInstalls / totalPromptShown) * 100 : 0;
 
     return {
@@ -295,4 +295,3 @@ export async function initPWAAnalytics(userId: string | null): Promise<void> {
 
   console.log('[PWA Analytics] Initialized');
 }
-

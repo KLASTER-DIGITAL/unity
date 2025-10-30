@@ -1,9 +1,9 @@
 /**
  * Auto-generated TypeScript types for translation keys
- * 
+ *
  * This file is generated from the database translation keys.
  * DO NOT EDIT MANUALLY - use the generate-translation-types script instead.
- * 
+ *
  * Last updated: 2025-10-20
  * Total keys: 165
  */
@@ -210,7 +210,6 @@ export type TranslationKey =
   | 'yourEmail'
   | 'yourName';
 
-
 /**
  * Translation function type with autocomplete support
  */
@@ -229,7 +228,7 @@ export type LanguageCode = 'de' | 'en' | 'es' | 'fr' | 'ja' | 'ka' | 'ru' | 'zh'
 /**
  * Language object type
  */
-export interface Language {
+export type Language = {
   id?: string;
   code: LanguageCode;
   name: string;
@@ -239,36 +238,36 @@ export interface Language {
   enabled?: boolean;
   created_at?: string;
   updated_at?: string;
-}
+};
 
 /**
  * Translation entry in database
  */
-export interface TranslationEntry {
+export type TranslationEntry = {
   id?: string;
   translation_key: TranslationKey;
   lang_code: LanguageCode;
   translation_value: string;
   created_at?: string;
   updated_at?: string;
-}
+};
 
 /**
  * Translation cache entry
  */
-export interface TranslationCacheEntry {
+export type TranslationCacheEntry = {
   translations: Translations;
   timestamp: number;
   checksum: string;
-}
+};
 
 /**
  * Translation context for provider
  */
-export interface TranslationContextValue {
+export type TranslationContextValue = {
   t: TranslationFunction;
   currentLanguage: LanguageCode;
   changeLanguage: (language: LanguageCode) => Promise<void>;
   isLoaded: boolean;
   availableLanguages: Language[];
-}
+};

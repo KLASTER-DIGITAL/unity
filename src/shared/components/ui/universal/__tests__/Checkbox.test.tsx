@@ -1,18 +1,18 @@
 /**
  * Checkbox Component Tests
- * 
+ *
  * Tests for Universal Checkbox component
  * - Rendering
  * - Props
  * - Events
  * - Accessibility
  * - States (checked, unchecked, indeterminate)
- * 
+ *
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { UniversalCheckbox as Checkbox, CheckboxUtils } from '../UniversalCheckbox';
 
 describe('Checkbox Component', () => {
@@ -32,7 +32,7 @@ describe('Checkbox Component', () => {
     });
 
     it('should render checkbox with custom className', () => {
-      render(<Checkbox className="custom-class" aria-label="Test" />);
+      render(<Checkbox aria-label="Test" className="custom-class" />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toHaveClass('custom-class');
     });
@@ -50,25 +50,25 @@ describe('Checkbox Component', () => {
     });
 
     it('should render checked when checked prop is true', () => {
-      render(<Checkbox checked={true} aria-label="Test" />);
+      render(<Checkbox aria-label="Test" checked={true} />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeChecked();
     });
 
     it('should render unchecked when checked prop is false', () => {
-      render(<Checkbox checked={false} aria-label="Test" />);
+      render(<Checkbox aria-label="Test" checked={false} />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).not.toBeChecked();
     });
 
     it('should render with defaultChecked', () => {
-      render(<Checkbox defaultChecked={true} aria-label="Test" />);
+      render(<Checkbox aria-label="Test" defaultChecked={true} />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeChecked();
     });
 
     it('should be disabled when disabled prop is true', () => {
-      render(<Checkbox disabled aria-label="Test" />);
+      render(<Checkbox aria-label="Test" disabled />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeDisabled();
     });
@@ -87,8 +87,8 @@ describe('Checkbox Component', () => {
   describe('Events', () => {
     it('should call onCheckedChange when clicked', () => {
       const handleChange = vi.fn();
-      render(<Checkbox onCheckedChange={handleChange} aria-label="Test" />);
-      
+      render(<Checkbox aria-label="Test" onCheckedChange={handleChange} />);
+
       fireEvent.click(screen.getByRole('checkbox'));
       expect(handleChange).toHaveBeenCalledTimes(1);
       expect(handleChange).toHaveBeenCalledWith(true);
@@ -96,14 +96,14 @@ describe('Checkbox Component', () => {
 
     it('should toggle checked state when clicked (uncontrolled)', () => {
       const handleChange = vi.fn();
-      render(<Checkbox onCheckedChange={handleChange} aria-label="Test" />);
-      
+      render(<Checkbox aria-label="Test" onCheckedChange={handleChange} />);
+
       const checkbox = screen.getByRole('checkbox');
-      
+
       // First click - check
       fireEvent.click(checkbox);
       expect(handleChange).toHaveBeenCalledWith(true);
-      
+
       // Second click - uncheck
       fireEvent.click(checkbox);
       expect(handleChange).toHaveBeenCalledWith(false);
@@ -111,8 +111,8 @@ describe('Checkbox Component', () => {
 
     it('should not call onCheckedChange when disabled', () => {
       const handleChange = vi.fn();
-      render(<Checkbox onCheckedChange={handleChange} disabled aria-label="Test" />);
-      
+      render(<Checkbox aria-label="Test" disabled onCheckedChange={handleChange} />);
+
       fireEvent.click(screen.getByRole('checkbox'));
       expect(handleChange).not.toHaveBeenCalled();
     });
@@ -120,17 +120,17 @@ describe('Checkbox Component', () => {
     it('should work as controlled component', () => {
       const handleChange = vi.fn();
       const { rerender } = render(
-        <Checkbox checked={false} onCheckedChange={handleChange} aria-label="Test" />
+        <Checkbox aria-label="Test" checked={false} onCheckedChange={handleChange} />
       );
-      
+
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).not.toBeChecked();
-      
+
       fireEvent.click(checkbox);
       expect(handleChange).toHaveBeenCalledWith(true);
-      
+
       // Simulate parent updating checked prop
-      rerender(<Checkbox checked={true} onCheckedChange={handleChange} aria-label="Test" />);
+      rerender(<Checkbox aria-label="Test" checked={true} onCheckedChange={handleChange} />);
       expect(checkbox).toBeChecked();
     });
   });
@@ -147,25 +147,25 @@ describe('Checkbox Component', () => {
 
     it('should be keyboard accessible', () => {
       const handleChange = vi.fn();
-      render(<Checkbox onCheckedChange={handleChange} aria-label="Test" />);
-      
+      render(<Checkbox aria-label="Test" onCheckedChange={handleChange} />);
+
       const checkbox = screen.getByRole('checkbox');
       checkbox.focus();
       expect(checkbox).toHaveFocus();
-      
+
       // Space key should toggle
       fireEvent.keyDown(checkbox, { key: ' ', code: 'Space' });
       expect(handleChange).toHaveBeenCalled();
     });
 
     it('should not be focusable when disabled', () => {
-      render(<Checkbox disabled aria-label="Test" />);
+      render(<Checkbox aria-label="Test" disabled />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeDisabled();
     });
 
     it('should have proper ARIA attributes', () => {
-      render(<Checkbox checked={true} aria-label="Accept terms" />);
+      render(<Checkbox aria-label="Accept terms" checked={true} />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toHaveAttribute('aria-label', 'Accept terms');
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
@@ -191,9 +191,9 @@ describe('Checkbox Component', () => {
       });
 
       it('should invalidate both checked and defaultChecked', () => {
-        const result = CheckboxUtils.validateProps({ 
-          checked: true, 
-          defaultChecked: true 
+        const result = CheckboxUtils.validateProps({
+          checked: true,
+          defaultChecked: true,
         });
         expect(result.valid).toBe(false);
         expect(result.errors).toContain('Checkbox cannot have both checked and defaultChecked');
@@ -213,24 +213,17 @@ describe('Checkbox Component', () => {
 
   describe('Indeterminate State', () => {
     it('should support indeterminate state', () => {
-      render(<Checkbox checked="indeterminate" aria-label="Test" />);
+      render(<Checkbox aria-label="Test" checked="indeterminate" />);
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toHaveAttribute('data-state', 'indeterminate');
     });
 
     it('should call onCheckedChange with indeterminate', () => {
       const handleChange = vi.fn();
-      render(
-        <Checkbox 
-          checked="indeterminate" 
-          onCheckedChange={handleChange} 
-          aria-label="Test" 
-        />
-      );
-      
+      render(<Checkbox aria-label="Test" checked="indeterminate" onCheckedChange={handleChange} />);
+
       fireEvent.click(screen.getByRole('checkbox'));
       expect(handleChange).toHaveBeenCalled();
     });
   });
 });
-

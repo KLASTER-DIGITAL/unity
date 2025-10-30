@@ -7,13 +7,11 @@ export function PWACache() {
       {/* Заголовок */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Database className="w-6 h-6" />
+          <h2 className="flex items-center gap-2 font-bold text-2xl">
+            <Database className="h-6 w-6" />
             Cache Management
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Управление кэшем Service Worker
-          </p>
+          <p className="mt-1 text-muted-foreground text-sm">Управление кэшем Service Worker</p>
         </div>
       </div>
 
@@ -22,4 +20,3 @@ export function PWACache() {
     </div>
   );
 }
-

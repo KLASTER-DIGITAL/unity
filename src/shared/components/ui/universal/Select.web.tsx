@@ -1,8 +1,8 @@
 /**
  * Universal Select Component - Web Implementation
- * 
+ *
  * Uses Radix UI Select for web platform
- * 
+ *
  * @module components/ui/universal/Select.web
  */
 
@@ -14,16 +14,16 @@ import { cn } from '../utils';
 // TYPES
 // ============================================================================
 
-export interface SelectOption {
+export type SelectOption = {
   /** Option value */
   value: string;
   /** Option label */
   label: string;
   /** Option disabled state */
   disabled?: boolean;
-}
+};
 
-export interface SelectProps {
+export type SelectProps = {
   /** Selected value */
   value?: string;
   /** Callback when value changes */
@@ -40,7 +40,7 @@ export interface SelectProps {
   className?: string;
   /** Size variant */
   size?: 'sm' | 'default';
-}
+};
 
 // ============================================================================
 // COMPONENTS
@@ -58,14 +58,14 @@ export function Select({
 }: SelectProps) {
   return (
     <SelectPrimitive.Root
-      value={value}
-      onValueChange={onValueChange}
       defaultValue={defaultValue}
       disabled={disabled}
+      onValueChange={onValueChange}
+      value={value}
     >
       <SelectPrimitive.Trigger
         className={cn(
-          'border-input data-placeholder:text-muted-foreground [&_svg:not([class*=\'text-\'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
+          "flex w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-input-background px-3 py-2 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 [&_svg:not([class*='text-'])]:text-muted-foreground",
           size === 'default' && 'h-9',
           size === 'sm' && 'h-8',
           className
@@ -80,7 +80,7 @@ export function Select({
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           className={cn(
-            'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md transition-colors duration-300'
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md transition-colors duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in'
           )}
           position="popper"
           sideOffset={4}
@@ -88,12 +88,12 @@ export function Select({
           <SelectPrimitive.Viewport className="p-1">
             {options.map((option) => (
               <SelectPrimitive.Item
+                className={cn(
+                  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors duration-200 focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50'
+                )}
+                disabled={option.disabled}
                 key={option.value}
                 value={option.value}
-                disabled={option.disabled}
-                className={cn(
-                  'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-disabled:pointer-events-none data-disabled:opacity-50 transition-colors duration-200'
-                )}
               >
                 <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                   <SelectPrimitive.ItemIndicator>
@@ -126,7 +126,7 @@ export const SelectUtils = {
     }
 
     if (props.options) {
-      const values = props.options.map(opt => opt.value);
+      const values = props.options.map((opt) => opt.value);
       const uniqueValues = new Set(values);
       if (values.length !== uniqueValues.size) {
         errors.push('Select options must have unique values');
@@ -146,9 +146,8 @@ export const SelectUtils = {
   /**
    * Find option by value
    */
-  findOption: (options: SelectOption[], value: string) => {
-    return options.find(opt => opt.value === value);
-  },
+  findOption: (options: SelectOption[], value: string) =>
+    options.find((opt) => opt.value === value),
 
   /**
    * Get option label by value
@@ -167,4 +166,3 @@ export default {
   Select,
   SelectUtils,
 };
-

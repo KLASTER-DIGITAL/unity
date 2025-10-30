@@ -1,18 +1,16 @@
 #!/usr/bin/env ts-node
 /**
  * Query Performance Monitor
- * 
+ *
  * Мониторит производительность запросов в Supabase и отправляет алерты
  * при обнаружении медленных запросов.
- * 
+ *
  * Использование:
  * - Еженедельный мониторинг: npm run monitor:queries
  * - GitHub Action: автоматически каждую пятницу
- * 
+ *
  * @see docs/performance/QUERY_PERFORMANCE_MONITORING.md
  */
-
-import { createClient } from '@supabase/supabase-js';
 
 // Конфигурация
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
@@ -119,7 +117,9 @@ function analyzePerformance(report: PerformanceReport): void {
     report.alerts.push(alert);
     console.log(`${colors.red}${alert}${colors.reset}`);
   } else {
-    console.log(`${colors.green}✅ Cache Hit Rate: ${report.cacheHitRate}% (отлично!)${colors.reset}`);
+    console.log(
+      `${colors.green}✅ Cache Hit Rate: ${report.cacheHitRate}% (отлично!)${colors.reset}`
+    );
   }
 
   // Проверка медленных запросов
@@ -133,19 +133,19 @@ function analyzePerformance(report: PerformanceReport): void {
 
   // Проверка критичных запросов
   console.log(`\n${colors.cyan}🔍 Топ-5 самых медленных запросов:${colors.reset}\n`);
-  
+
   report.queries.forEach((q, index) => {
     const isCritical = q.timeConsumed > THRESHOLDS.CRITICAL_TIME_CONSUMED;
     const isSlow = q.maxTime > THRESHOLDS.SLOW_QUERY_TIME;
-    
+
     const color = isCritical ? colors.red : isSlow ? colors.yellow : colors.green;
     const status = isCritical ? '🚨 КРИТИЧНО' : isSlow ? '⚠️ МЕДЛЕННО' : '✅ OK';
-    
+
     console.log(`${color}${index + 1}. ${status}${colors.reset}`);
     console.log(`   Query: ${q.query.substring(0, 60)}...`);
     console.log(`   Time consumed: ${q.timeConsumed}%`);
     console.log(`   Count: ${q.count} | Max: ${q.maxTime}ms | Mean: ${q.meanTime}ms\n`);
-    
+
     if (isCritical) {
       const alert = `🚨 Критичный запрос потребляет ${q.timeConsumed}% времени БД: ${q.query.substring(0, 50)}...`;
       report.alerts.push(alert);
@@ -158,7 +158,9 @@ function analyzePerformance(report: PerformanceReport): void {
     report.alerts.push(alert);
     console.log(`${colors.yellow}${alert}${colors.reset}`);
   } else {
-    console.log(`${colors.green}✅ Avg Rows Per Call: ${report.avgRowsPerCall} (эффективно!)${colors.reset}`);
+    console.log(
+      `${colors.green}✅ Avg Rows Per Call: ${report.avgRowsPerCall} (эффективно!)${colors.reset}`
+    );
   }
 }
 
@@ -171,7 +173,7 @@ function generateRecommendations(report: PerformanceReport): void {
   const recommendations: string[] = [];
 
   // Рекомендации для pg_timezone_names
-  const timezoneQuery = report.queries.find(q => q.query.includes('pg_timezone_names'));
+  const timezoneQuery = report.queries.find((q) => q.query.includes('pg_timezone_names'));
   if (timezoneQuery && timezoneQuery.timeConsumed > 10) {
     recommendations.push(
       '1. 🕐 pg_timezone_names (48.5% времени):',
@@ -183,7 +185,7 @@ function generateRecommendations(report: PerformanceReport): void {
   }
 
   // Рекомендации для рекурсивных CTE
-  const cteQuery = report.queries.find(q => q.query.includes('Recursively'));
+  const cteQuery = report.queries.find((q) => q.query.includes('Recursively'));
   if (cteQuery && cteQuery.timeConsumed > 5) {
     recommendations.push(
       '2. 🔄 Рекурсивные CTE запросы (8.9% времени):',
@@ -202,7 +204,7 @@ function generateRecommendations(report: PerformanceReport): void {
     '   - Настройте алерты на критичные запросы\n'
   );
 
-  recommendations.forEach(r => console.log(r));
+  recommendations.forEach((r) => console.log(r));
 }
 
 /**
@@ -231,18 +233,22 @@ function saveReport(report: PerformanceReport): void {
 
 ## 🔍 Топ-5 запросов
 
-${report.queries.map((q, i) => `
+${report.queries
+  .map(
+    (q, i) => `
 ### ${i + 1}. ${q.query.substring(0, 60)}...
 
 - **Time consumed:** ${q.timeConsumed}%
 - **Count:** ${q.count}
 - **Max time:** ${q.maxTime}ms
 - **Mean time:** ${q.meanTime}ms
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 ## ⚠️ Алерты
 
-${report.alerts.length > 0 ? report.alerts.map(a => `- ${a}`).join('\n') : 'Нет алертов'}
+${report.alerts.length > 0 ? report.alerts.map((a) => `- ${a}`).join('\n') : 'Нет алертов'}
 
 ## 💡 Рекомендации
 
@@ -287,8 +293,10 @@ ${colors.reset}\n`);
     saveReport(report);
 
     // Вывести итоги
-    console.log(`${colors.blue}═══════════════════════════════════════════════════════════${colors.reset}\n`);
-    
+    console.log(
+      `${colors.blue}═══════════════════════════════════════════════════════════${colors.reset}\n`
+    );
+
     if (report.alerts.length > 0) {
       console.log(`${colors.yellow}⚠️ Обнаружено ${report.alerts.length} алертов${colors.reset}`);
       console.log(`${colors.yellow}📧 Рекомендуется проверить отчет${colors.reset}\n`);
@@ -305,4 +313,3 @@ ${colors.reset}\n`);
 
 // Запуск
 main();
-

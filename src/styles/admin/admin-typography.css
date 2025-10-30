@@ -1,10 +1,10 @@
 /**
  * Admin Typography - Text Styles
  * AI-Friendly: 60 lines, < 200 lines target
- * 
+ *
  * Purpose: Typography utility classes for admin panel
  * Includes: Font sizes (.admin-text-*), Font weights (.admin-font-*)
- * 
+ *
  * Why needed: Consistent text styling across admin interface
  */
 
@@ -66,4 +66,3 @@
 .admin-font-bold {
   font-weight: var(--admin-font-bold);
 }
-

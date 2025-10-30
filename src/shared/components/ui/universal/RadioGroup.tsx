@@ -1,32 +1,32 @@
 /**
  * Universal RadioGroup Component
- * 
+ *
  * Platform-agnostic radio group that works in both React Web and React Native.
- * 
+ *
  * Usage:
  * ```tsx
  * import { RadioGroup } from '@/shared/components/ui/universal/RadioGroup';
- * 
+ *
  * const options = [
  *   { value: 'option1', label: 'Option 1', description: 'First option' },
  *   { value: 'option2', label: 'Option 2', description: 'Second option' },
  *   { value: 'option3', label: 'Option 3', disabled: true },
  * ];
- * 
+ *
  * // Controlled
  * <RadioGroup
  *   value={selectedValue}
  *   onValueChange={setSelectedValue}
  *   options={options}
  * />
- * 
+ *
  * // Uncontrolled
  * <RadioGroup
  *   defaultValue="option1"
  *   onValueChange={(value) => console.log(value)}
  *   options={options}
  * />
- * 
+ *
  * // Horizontal orientation
  * <RadioGroup
  *   value={selectedValue}
@@ -61,5 +61,4 @@ export const RadioGroupUtils = platformRadioGroupUtils;
 /**
  * Re-export types
  */
-export type { RadioGroupProps, RadioGroupOption } from './RadioGroup.web';
-
+export type { RadioGroupOption, RadioGroupProps } from './RadioGroup.web';

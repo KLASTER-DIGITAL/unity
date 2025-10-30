@@ -1,33 +1,32 @@
 /**
  * ProfileEditModal Component for UNITY-v2
- * 
+ *
  * Features:
  * - Edit user name
  * - Upload avatar image
  * - Image preview with crop
  * - BottomSheet UI
  * - iOS Design System compliance
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-19
  */
 
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
-import { Input } from '@/shared/components/ui/input';
-import { Button } from '@/shared/components/ui/button';
 import { Camera, Loader2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { updateUserProfile } from '@/shared/lib/api';
-import { uploadMedia } from '@/shared/lib/api';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { updateUserProfile, uploadMedia } from '@/shared/lib/api';
 import { compressImage } from '@/utils/imageCompression';
 import { createClient } from '@/utils/supabase/client';
 
 // Дефолтное фото для аватара
 const DEFAULT_AVATAR_URL = 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png';
 
-interface ProfileEditModalProps {
+type ProfileEditModalProps = {
   isOpen: boolean;
   onClose: () => void;
   profile: {
@@ -37,7 +36,7 @@ interface ProfileEditModalProps {
     avatar?: string;
   };
   onProfileUpdated?: (updatedProfile: any) => void;
-}
+};
 
 export function ProfileEditModal({
   isOpen,
@@ -56,12 +55,14 @@ export function ProfileEditModal({
   // Handle avatar file selection
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Неверный формат файла', {
-        description: 'Пожалуйста, выберите изображение'
+        description: 'Пожалуйста, выберите изображение',
       });
       return;
     }
@@ -69,7 +70,7 @@ export function ProfileEditModal({
     // Validate file size (max 15MB - современные телефоны делают большие фото)
     if (file.size > 15 * 1024 * 1024) {
       toast.error('Файл слишком большой', {
-        description: 'Максимальный размер: 15 МБ'
+        description: 'Максимальный размер: 15 МБ',
       });
       return;
     }
@@ -77,7 +78,9 @@ export function ProfileEditModal({
     try {
       setIsUploading(true);
 
-      console.log(`📸 [AVATAR] Original file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      console.log(
+        `📸 [AVATAR] Original file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`
+      );
 
       // Compress image with aggressive settings for large files
       const compressedFile = await compressImage(
@@ -94,12 +97,12 @@ export function ProfileEditModal({
       setAvatarFile(compressedFile);
 
       toast.success('Фото выбрано', {
-        description: 'Нажмите "Сохранить" для применения изменений'
+        description: 'Нажмите "Сохранить" для применения изменений',
       });
     } catch (error) {
       console.error('Error processing avatar:', error);
       toast.error('Ошибка обработки фото', {
-        description: 'Попробуйте другое изображение'
+        description: 'Попробуйте другое изображение',
       });
     } finally {
       setIsUploading(false);
@@ -116,15 +119,15 @@ export function ProfileEditModal({
     // Validate name
     if (!name.trim()) {
       toast.error('Введите имя', {
-        description: 'Имя не может быть пустым'
+        description: 'Имя не может быть пустым',
       });
       return;
     }
 
     // Validate email
-    if (!email.trim() || !email.includes('@')) {
+    if (!(email.trim() && email.includes('@'))) {
       toast.error('Неверный email', {
-        description: 'Введите корректный email адрес'
+        description: 'Введите корректный email адрес',
       });
       return;
     }
@@ -141,19 +144,19 @@ export function ProfileEditModal({
           const mediaFile = await uploadMedia(avatarFile, profile.id);
           console.log('📸 [PROFILE] Upload response:', mediaFile);
 
-          if (mediaFile && mediaFile.url) {
+          if (mediaFile?.url) {
             uploadedAvatarUrl = mediaFile.url;
             console.log('📸 [PROFILE] Avatar URL set:', uploadedAvatarUrl);
           } else {
             console.warn('📸 [PROFILE] No URL in response:', mediaFile);
             toast.error('Ошибка загрузки фото', {
-              description: 'Не удалось получить URL фото. Профиль будет сохранен без нового фото'
+              description: 'Не удалось получить URL фото. Профиль будет сохранен без нового фото',
             });
           }
         } catch (uploadError: any) {
           console.error('📸 [PROFILE] Avatar upload error:', uploadError);
           toast.error('Ошибка загрузки фото', {
-            description: uploadError.message || 'Профиль будет сохранен без нового фото'
+            description: uploadError.message || 'Профиль будет сохранен без нового фото',
           });
         }
       }
@@ -164,7 +167,7 @@ export function ProfileEditModal({
         try {
           const supabase = createClient();
           const { error: emailError } = await supabase.auth.updateUser({
-            email: email.trim()
+            email: email.trim(),
           });
 
           if (emailError) {
@@ -172,12 +175,12 @@ export function ProfileEditModal({
           }
 
           toast.info('Подтвердите новый email', {
-            description: 'Мы отправили письмо для подтверждения на новый адрес'
+            description: 'Мы отправили письмо для подтверждения на новый адрес',
           });
         } catch (emailError) {
           console.error('Email update error:', emailError);
           toast.error('Ошибка смены email', {
-            description: 'Не удалось изменить email. Попробуйте позже'
+            description: 'Не удалось изменить email. Попробуйте позже',
           });
           // Don't return - continue with profile update
         }
@@ -193,7 +196,7 @@ export function ProfileEditModal({
       toast.success('Профиль обновлен', {
         description: emailChanged
           ? 'Изменения сохранены. Проверьте email для подтверждения'
-          : 'Изменения успешно сохранены'
+          : 'Изменения успешно сохранены',
       });
 
       // Notify parent component
@@ -205,7 +208,7 @@ export function ProfileEditModal({
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Ошибка сохранения', {
-        description: 'Попробуйте еще раз'
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsSaving(false);
@@ -239,12 +242,12 @@ export function ProfileEditModal({
       }
 
       toast.success('Фото удалено', {
-        description: 'Изменения сохранены'
+        description: 'Изменения сохранены',
       });
     } catch (error) {
       console.error('Error removing avatar:', error);
       toast.error('Ошибка удаления фото', {
-        description: 'Попробуйте еще раз'
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsSaving(false);
@@ -267,46 +270,46 @@ export function ProfileEditModal({
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
             exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
             onClick={!isSaving ? handleCancel : undefined}
-            className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
           />
 
           {/* Modal Content */}
           <motion.div
-            initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
+            className="modal-bottom-sheet z-modal mx-auto max-h-[95vh] max-w-md overflow-y-auto border-border border-t bg-card p-modal transition-colors duration-300"
             exit={{ opacity: 0, y: 100 }}
-            className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300 max-h-[95vh]"
+            initial={{ opacity: 0, y: 100 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-title-3 text-foreground">Редактировать профиль</h2>
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-foreground text-title-3">Редактировать профиль</h2>
               <button
-                onClick={handleCancel}
+                className="rounded-full p-1 transition-colors hover:bg-accent/10 disabled:opacity-50"
                 disabled={isSaving}
-                className="p-1 hover:bg-accent/10 rounded-full transition-colors disabled:opacity-50"
+                onClick={handleCancel}
               >
-                <X className="w-5 h-5 text-foreground" />
+                <X className="h-5 w-5 text-foreground" />
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Avatar Section - Improved Design from 21st.dev */}
               <div className="flex flex-col items-center gap-4">
-                <div className="relative group">
+                <div className="group relative">
                   {/* Remove Button (only if avatar exists) - MOVED TO TOP RIGHT */}
                   <AnimatePresence>
                     {avatarUrl && !isUploading && (
                       <motion.button
-                        initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        onClick={handleRemoveAvatar}
-                        className="absolute -top-2 -right-2 z-10 p-2 bg-destructive text-destructive-foreground rounded-full shadow-lg hover:bg-destructive/90 active:scale-95 transition-all ring-4 ring-background"
                         aria-label="Remove photo"
+                        className="-top-2 -right-2 absolute z-10 rounded-full bg-destructive p-2 text-destructive-foreground shadow-lg ring-4 ring-background transition-all hover:bg-destructive/90 active:scale-95"
+                        exit={{ scale: 0, opacity: 0 }}
+                        initial={{ scale: 0, opacity: 0 }}
+                        onClick={handleRemoveAvatar}
                         title="Удалить фото"
                       >
                         <X className="h-4 w-4" strokeWidth={2.5} />
@@ -317,19 +320,27 @@ export function ProfileEditModal({
                   {/* Avatar with hover effect */}
                   <div className="relative">
                     <Avatar className="h-32 w-32 border-4 border-border transition-all duration-300 group-hover:border-primary/50">
-                      <AvatarImage src={avatarUrl || DEFAULT_AVATAR_URL} alt={name} className="object-cover" />
+                      <AvatarImage
+                        alt={name}
+                        className="object-cover"
+                        src={avatarUrl || DEFAULT_AVATAR_URL}
+                      />
                       <AvatarFallback className="bg-muted">
-                        <img src={DEFAULT_AVATAR_URL} alt="Default avatar" className="h-full w-full object-cover" />
+                        <img
+                          alt="Default avatar"
+                          className="h-full w-full object-cover"
+                          src={DEFAULT_AVATAR_URL}
+                        />
                       </AvatarFallback>
                     </Avatar>
 
                     {/* Hover overlay - clickable to upload */}
                     <div
-                      className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
+                      className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                       onClick={() => !isUploading && fileInputRef.current?.click()}
                     >
                       {isUploading ? (
-                        <Loader2 className="h-8 w-8 text-white animate-spin" strokeWidth={2} />
+                        <Loader2 className="h-8 w-8 animate-spin text-white" strokeWidth={2} />
                       ) : (
                         <Camera className="h-8 w-8 text-white" strokeWidth={2} />
                       )}
@@ -337,11 +348,11 @@ export function ProfileEditModal({
                   </div>
                 </div>
 
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-medium text-foreground">
+                <div className="space-y-1 text-center">
+                  <p className="font-medium text-foreground text-sm">
                     {avatarUrl ? 'Изменить фото профиля' : 'Добавить фото профиля'}
                   </p>
-                  <p className="text-xs font-normal text-muted-foreground">
+                  <p className="font-normal text-muted-foreground text-xs">
                     JPG, PNG или GIF • Макс. 15 МБ
                   </p>
                 </div>
@@ -351,36 +362,30 @@ export function ProfileEditModal({
               <div className="space-y-4">
                 {/* Name Input */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">
-                    Имя
-                  </label>
+                  <label className="font-semibold text-foreground text-sm">Имя</label>
                   <Input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Введите ваше имя"
                     disabled={isSaving}
                     maxLength={50}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Введите ваше имя"
+                    type="text"
+                    value={name}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {name.length}/50 символов
-                  </p>
+                  <p className="text-muted-foreground text-xs">{name.length}/50 символов</p>
                 </div>
 
                 {/* Email (Editable) */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">
-                    Email
-                  </label>
+                  <label className="font-semibold text-foreground text-sm">Email</label>
                   <Input
-                    type="email"
-                    value={email}
+                    disabled={isSaving}
+                    maxLength={100}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    maxLength={100}
-                    disabled={isSaving}
+                    type="email"
+                    value={email}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {email !== profile?.email
                       ? 'После смены email потребуется подтверждение'
                       : 'Введите новый email для изменения'}
@@ -390,19 +395,19 @@ export function ProfileEditModal({
             </div>
 
             {/* Footer with action buttons */}
-            <div className="flex gap-3 mt-6 pt-4 border-t border-border">
+            <div className="mt-6 flex gap-3 border-border border-t pt-4">
               <Button
-                variant="outline"
-                onClick={handleCancel}
-                disabled={isSaving}
                 className="flex-1"
+                disabled={isSaving}
+                onClick={handleCancel}
+                variant="outline"
               >
                 Отмена
               </Button>
               <Button
-                onClick={handleSave}
-                disabled={isSaving || isUploading || !name.trim()}
                 className="flex-1"
+                disabled={isSaving || isUploading || !name.trim()}
+                onClick={handleSave}
               >
                 {isSaving ? 'Сохранение...' : 'Сохранить'}
               </Button>
@@ -410,12 +415,12 @@ export function ProfileEditModal({
 
             {/* Hidden File Input */}
             <input
+              accept="image/*"
+              aria-label="Select avatar image"
+              className="hidden"
+              onChange={handleAvatarSelect}
               ref={fileInputRef}
               type="file"
-              accept="image/*"
-              onChange={handleAvatarSelect}
-              className="hidden"
-              aria-label="Select avatar image"
             />
           </motion.div>
         </>
@@ -423,4 +428,3 @@ export function ProfileEditModal({
     </AnimatePresence>
   );
 }
-

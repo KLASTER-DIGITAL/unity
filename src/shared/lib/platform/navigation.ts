@@ -13,24 +13,24 @@ import { navigation as platformNavigation } from './navigation/index';
 /**
  * Navigation route parameters
  */
-export interface RouteParams {
+export type RouteParams = {
   [key: string]: string | number | boolean | undefined;
-}
+};
 
 /**
  * Navigation options
  */
-export interface NavigationOptions {
+export type NavigationOptions = {
   replace?: boolean;
   reset?: boolean;
   animate?: boolean;
   params?: RouteParams;
-}
+};
 
 /**
  * Universal navigation interface
  */
-export interface NavigationAdapter {
+export type NavigationAdapter = {
   /**
    * Navigate to a route
    * @param route - Route name or path
@@ -76,7 +76,7 @@ export interface NavigationAdapter {
    * @returns Unsubscribe function
    */
   addListener(event: string, callback: (data?: any) => void): () => void;
-}
+};
 
 /**
  * Universal navigation instance
@@ -105,7 +105,7 @@ const ROUTES = {
   ADMIN_DASHBOARD: '/admin/dashboard',
 
   // Utility routes
-  NOT_FOUND: '/404'
+  NOT_FOUND: '/404',
 } as const;
 
 type RouteKey = keyof typeof ROUTES;
@@ -130,9 +130,9 @@ export const NavigationUtils = {
   isCurrentRoute(route: RouteKey): boolean {
     const routePath = ROUTES[route];
     const currentRoute = navigation.getCurrentRoute();
-    
+
     // Handle exact match and path prefix match
-    return currentRoute === routePath || currentRoute.startsWith(routePath + '/');
+    return currentRoute === routePath || currentRoute.startsWith(`${routePath}/`);
   },
 
   /**
@@ -140,12 +140,12 @@ export const NavigationUtils = {
    */
   buildRoute(route: string, params: RouteParams): string {
     let builtRoute = route;
-    
+
     // Replace path parameters (e.g., /user/:id)
     Object.entries(params).forEach(([key, value]) => {
       builtRoute = builtRoute.replace(`:${key}`, String(value));
     });
-    
+
     return builtRoute;
   },
 
@@ -159,14 +159,14 @@ export const NavigationUtils = {
 
     const params: RouteParams = {};
     const searchParams = new URLSearchParams(window.location.search);
-    
+
     searchParams.forEach((value, key) => {
       // Try to parse as number or boolean
       if (value === 'true') {
         params[key] = true;
       } else if (value === 'false') {
         params[key] = false;
-      } else if (!isNaN(Number(value))) {
+      } else if (!Number.isNaN(Number(value))) {
         params[key] = Number(value);
       } else {
         params[key] = value;
@@ -174,5 +174,5 @@ export const NavigationUtils = {
     });
 
     return params;
-  }
+  },
 };

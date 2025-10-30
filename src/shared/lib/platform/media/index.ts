@@ -1,10 +1,10 @@
 /**
  * Media Platform Adapter
- * 
+ *
  * Provides cross-platform media functionality:
  * - Web: FileReader, URL, Image, Video APIs
  * - Native: expo-file-system, expo-image-manipulator, expo-av
- * 
+ *
  * @module platform/media
  */
 
@@ -26,4 +26,3 @@ export const media = new WebMediaAdapter();
 export { WebMediaAdapter };
 
 // ✅ PWA + React Native Architecture: Native types are in /app/shared/lib/platform/media.native.ts
-

@@ -4,7 +4,7 @@ const path = require('path');
 // Функция для анализа использования React в файле
 function analyzeReactUsage(content) {
   const reactUsages = new Set();
-  
+
   // Паттерны использования React
   const patterns = [
     /React\.useState/g,
@@ -31,39 +31,65 @@ function analyzeReactUsage(content) {
     /React\.ReactElement/g,
     /React\.ComponentProps/g,
     /React\.HTMLAttributes/g,
-    /React\.CSSProperties/g
+    /React\.CSSProperties/g,
   ];
-  
-  patterns.forEach(pattern => {
+
+  patterns.forEach((pattern) => {
     const matches = content.match(pattern);
     if (matches) {
-      matches.forEach(match => {
+      matches.forEach((match) => {
         const hook = match.replace('React.', '');
         reactUsages.add(hook);
       });
     }
   });
-  
+
   // Проверяем JSX (если есть JSX, нужен React)
   const hasJSX = /<[A-Z]/.test(content) || /<[a-z]/.test(content);
-  
+
   return { reactUsages: Array.from(reactUsages), hasJSX };
 }
 
 // Функция для создания оптимизированного импорта
 function createOptimizedImport(reactUsages, hasJSX) {
-  const hooks = reactUsages.filter(usage =>
-    ['useState', 'useEffect', 'useCallback', 'useMemo', 'useRef', 'useContext',
-     'useReducer', 'useImperativeHandle', 'useLayoutEffect'].includes(usage)
+  const hooks = reactUsages.filter((usage) =>
+    [
+      'useState',
+      'useEffect',
+      'useCallback',
+      'useMemo',
+      'useRef',
+      'useContext',
+      'useReducer',
+      'useImperativeHandle',
+      'useLayoutEffect',
+    ].includes(usage)
   );
 
-  const components = reactUsages.filter(usage =>
-    ['forwardRef', 'memo', 'lazy', 'Suspense', 'Fragment', 'createElement',
-     'cloneElement', 'isValidElement', 'Component', 'PureComponent'].includes(usage)
+  const components = reactUsages.filter((usage) =>
+    [
+      'forwardRef',
+      'memo',
+      'lazy',
+      'Suspense',
+      'Fragment',
+      'createElement',
+      'cloneElement',
+      'isValidElement',
+      'Component',
+      'PureComponent',
+    ].includes(usage)
   );
 
-  const types = reactUsages.filter(usage =>
-    ['FC', 'ReactNode', 'ReactElement', 'ComponentProps', 'HTMLAttributes', 'CSSProperties'].includes(usage)
+  const types = reactUsages.filter((usage) =>
+    [
+      'FC',
+      'ReactNode',
+      'ReactElement',
+      'ComponentProps',
+      'HTMLAttributes',
+      'CSSProperties',
+    ].includes(usage)
   );
 
   const namedImports = [...hooks, ...components];
@@ -104,38 +130,37 @@ function createOptimizedImport(reactUsages, hasJSX) {
 function optimizeReactImports(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    
+
     // Проверяем, есть ли import * as React
     if (!content.includes('import * as React')) {
       return false;
     }
-    
+
     console.log(`Оптимизируем: ${filePath}`);
-    
+
     // Анализируем использование React
     const { reactUsages, hasJSX } = analyzeReactUsage(content);
-    
+
     // Создаем оптимизированный импорт
     const optimizedImport = createOptimizedImport(reactUsages, hasJSX);
-    
+
     if (!optimizedImport) {
       // Удаляем импорт React, если он не нужен
       const updatedContent = content.replace(/import \* as React from ["']react["'];?\n?/g, '');
       fs.writeFileSync(filePath, updatedContent);
-      console.log(`  ✅ Удален неиспользуемый импорт React`);
+      console.log('  ✅ Удален неиспользуемый импорт React');
       return true;
     }
-    
+
     // Заменяем импорт
     const updatedContent = content.replace(
       /import \* as React from ["']react["'];?/g,
       optimizedImport
     );
-    
+
     fs.writeFileSync(filePath, updatedContent);
     console.log(`  ✅ Оптимизирован импорт: ${reactUsages.join(', ')}`);
     return true;
-    
   } catch (error) {
     console.error(`❌ Ошибка при обработке ${filePath}:`, error.message);
     return false;
@@ -146,24 +171,26 @@ function optimizeReactImports(filePath) {
 function processDirectory(dirPath) {
   let optimizedCount = 0;
   const entries = fs.readdirSync(dirPath);
-  
+
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry);
     const stat = fs.statSync(fullPath);
-    
+
     if (stat.isDirectory()) {
       // Пропускаем node_modules, build, dist, old
       if (['node_modules', 'build', 'dist', '.git', 'old'].includes(entry)) {
         continue;
       }
       optimizedCount += processDirectory(fullPath);
-    } else if (stat.isFile() && (entry.endsWith('.ts') || entry.endsWith('.tsx'))) {
-      if (optimizeReactImports(fullPath)) {
-        optimizedCount++;
-      }
+    } else if (
+      stat.isFile() &&
+      (entry.endsWith('.ts') || entry.endsWith('.tsx')) &&
+      optimizeReactImports(fullPath)
+    ) {
+      optimizedCount++;
     }
   }
-  
+
   return optimizedCount;
 }
 
@@ -176,13 +203,13 @@ const optimizedFiles = processDirectory('./src');
 const endTime = Date.now();
 const duration = ((endTime - startTime) / 1000).toFixed(2);
 
-console.log(`\n✅ Оптимизация завершена!`);
+console.log('\n✅ Оптимизация завершена!');
 console.log(`📊 Обработано файлов: ${optimizedFiles}`);
 console.log(`⏱️ Время выполнения: ${duration}s`);
 
 if (optimizedFiles > 0) {
-  console.log(`\n🔍 Рекомендуется проверить:`);
-  console.log(`   npx tsc --noEmit  # Проверить TypeScript ошибки`);
-  console.log(`   npm run build     # Проверить сборку`);
-  console.log(`   npm run dev       # Проверить работу приложения`);
+  console.log('\n🔍 Рекомендуется проверить:');
+  console.log('   npx tsc --noEmit  # Проверить TypeScript ошибки');
+  console.log('   npm run build     # Проверить сборку');
+  console.log('   npm run dev       # Проверить работу приложения');
 }

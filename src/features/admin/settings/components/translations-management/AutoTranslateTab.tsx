@@ -1,15 +1,21 @@
+import { AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { TabsContent } from '@/shared/components/ui/tabs';
 import { Select } from '@/shared/components/ui/universal/Select.web';
-import { AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import type { Language } from './types';
 
-interface AutoTranslateTabProps {
+type AutoTranslateTabProps = {
   languages: Language[];
   onAutoTranslate: (sourceLanguage: string, targetLanguages: string[]) => Promise<void>;
-}
+};
 
 /**
  * Auto Translate Tab Component
@@ -30,19 +36,17 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
   };
 
   const toggleTargetLanguage = (code: string) => {
-    setAutoTranslateTargets(prev =>
-      prev.includes(code)
-        ? prev.filter(c => c !== code)
-        : [...prev, code]
+    setAutoTranslateTargets((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
     );
   };
 
   return (
-    <TabsContent value="auto-translate" className="space-y-4">
+    <TabsContent className="space-y-4" value="auto-translate">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
+            <Sparkles className="h-5 w-5 text-yellow-500" />
             Автоматический перевод через AI
           </CardTitle>
           <CardDescription>
@@ -52,53 +56,53 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
         <CardContent className="space-y-6">
           {/* Source Language */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Исходный язык</label>
+            <label className="font-medium text-sm">Исходный язык</label>
             <Select
-              value={autoTranslateSource}
               onValueChange={setAutoTranslateSource}
-              placeholder="Выберите исходный язык"
               options={languages
-                .filter(l => l.enabled)
-                .map(lang => ({
+                .filter((l) => l.enabled)
+                .map((lang) => ({
                   value: lang.code,
                   label: `${lang.native_name} (${lang.code})`,
                 }))}
+              placeholder="Выберите исходный язык"
+              value={autoTranslateSource}
             />
           </div>
 
           {/* Target Languages */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Целевые языки</label>
+            <label className="font-medium text-sm">Целевые языки</label>
             <div className="flex flex-wrap gap-2">
               {languages
-                .filter(l => l.enabled && l.code !== autoTranslateSource)
-                .map(lang => (
+                .filter((l) => l.enabled && l.code !== autoTranslateSource)
+                .map((lang) => (
                   <Button
                     key={lang.code}
-                    variant={autoTranslateTargets.includes(lang.code) ? 'default' : 'outline'}
-                    size="sm"
                     onClick={() => toggleTargetLanguage(lang.code)}
+                    size="sm"
+                    variant={autoTranslateTargets.includes(lang.code) ? 'default' : 'outline'}
                   >
                     {lang.native_name}
                   </Button>
                 ))}
             </div>
             {autoTranslateTargets.length > 0 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Выбрано языков: {autoTranslateTargets.length}
               </p>
             )}
           </div>
 
           {/* Info */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
             <div className="flex gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
               <div className="space-y-1 text-sm">
                 <p className="font-medium text-blue-900 dark:text-blue-100">
                   Как работает автоперевод:
                 </p>
-                <ul className="list-disc list-inside text-blue-700 dark:text-blue-300 space-y-1">
+                <ul className="list-inside list-disc space-y-1 text-blue-700 dark:text-blue-300">
                   <li>Переводятся только пропущенные ключи (не перезаписывает существующие)</li>
                   <li>Используется модель GPT-4o-mini ($0.15/1M входных токенов)</li>
                   <li>Обработка батчами по 10 ключей за раз</li>
@@ -111,19 +115,19 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 
           {/* Action Button */}
           <Button
-            onClick={handleAutoTranslate}
-            disabled={isTranslating || !autoTranslateSource || autoTranslateTargets.length === 0}
             className="w-full"
+            disabled={isTranslating || !autoTranslateSource || autoTranslateTargets.length === 0}
+            onClick={handleAutoTranslate}
             size="lg"
           >
             {isTranslating ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Перевод в процессе...
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Запустить автоперевод
               </>
             )}
@@ -133,4 +137,3 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
     </TabsContent>
   );
 }
-

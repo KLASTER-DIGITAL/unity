@@ -1,8 +1,8 @@
-import { motion } from "motion/react";
-import { Bell } from "lucide-react";
-import { NotificationOption } from "./NotificationOption";
+import { Bell } from 'lucide-react';
+import { motion } from 'motion/react';
+import { NotificationOption } from './NotificationOption';
 
-interface NotificationSettingsProps {
+type NotificationSettingsProps = {
   selectedTime: 'none' | 'morning' | 'evening' | 'both';
   morningTime: string;
   eveningTime: string;
@@ -12,7 +12,7 @@ interface NotificationSettingsProps {
   bothLabel: string;
   onSelect: (type: 'none' | 'morning' | 'evening' | 'both') => void;
   onTimeClick: (type: 'morning' | 'evening') => void;
-}
+};
 
 /**
  * Notification Settings Component
@@ -27,51 +27,50 @@ export function NotificationSettings({
   eveningLabel,
   bothLabel,
   onSelect,
-  onTimeClick
+  onTimeClick,
 }: NotificationSettingsProps) {
   return (
     <motion.div
-      className="bg-[#756ef3]/10 rounded-xl p-4 space-y-3"
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      className="space-y-3 rounded-xl bg-[#756ef3]/10 p-4"
+      initial={{ opacity: 0, y: 20 }}
       transition={{ delay: 0.6, duration: 0.5 }}
     >
       <div className="flex items-center space-x-2">
-        <Bell className="w-4 h-4 text-[#756ef3]" />
-        <h3 className="!text-[#756ef3] text-[14px]! font-semibold!">{reminderTitle}</h3>
+        <Bell className="h-4 w-4 text-[#756ef3]" />
+        <h3 className="!text-[#756ef3] font-semibold! text-[14px]!">{reminderTitle}</h3>
       </div>
 
       <div className="space-y-2">
         <NotificationOption
-          type="morning"
-          label={morningLabel}
-          isSelected={selectedTime === 'morning'}
-          morningTime={morningTime}
           eveningTime={eveningTime}
+          isSelected={selectedTime === 'morning'}
+          label={morningLabel}
+          morningTime={morningTime}
           onSelect={() => onSelect('morning')}
           onTimeClick={onTimeClick}
+          type="morning"
         />
 
         <NotificationOption
-          type="evening"
-          label={eveningLabel}
-          isSelected={selectedTime === 'evening'}
-          morningTime={morningTime}
           eveningTime={eveningTime}
+          isSelected={selectedTime === 'evening'}
+          label={eveningLabel}
+          morningTime={morningTime}
           onSelect={() => onSelect('evening')}
           onTimeClick={onTimeClick}
+          type="evening"
         />
 
         <NotificationOption
-          type="both"
-          label={bothLabel}
-          isSelected={selectedTime === 'both'}
-          morningTime={morningTime}
           eveningTime={eveningTime}
+          isSelected={selectedTime === 'both'}
+          label={bothLabel}
+          morningTime={morningTime}
           onSelect={() => onSelect('both')}
+          type="both"
         />
       </div>
     </motion.div>
   );
 }
-

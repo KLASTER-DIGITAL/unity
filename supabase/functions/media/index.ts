@@ -16,7 +16,7 @@
  */
 
 const MEDIA_BUCKET_NAME = 'media';
-const SIGNED_URL_EXPIRY = 31536000; // 1 year in seconds
+const SIGNED_URL_EXPIRY = 31_536_000; // 1 year in seconds
 
 // ============================================================================
 // UTILITIES
@@ -25,7 +25,7 @@ const SIGNED_URL_EXPIRY = 31536000; // 1 year in seconds
 function getEnvVars() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!(supabaseUrl && supabaseServiceKey)) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
   }
   return { supabaseUrl, supabaseServiceKey };
@@ -51,7 +51,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
 function jsonResponse(data: any, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders(), 'Content-Type': 'application/json' }
+    headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
   });
 }
 
@@ -70,19 +70,16 @@ async function uploadToStorage(
   buffer: Uint8Array,
   mimeType: string
 ): Promise<boolean> {
-  const response = await fetch(
-    `${supabaseUrl}/storage/v1/object/${MEDIA_BUCKET_NAME}/${path}`,
-    {
-      method: 'POST',
-      headers: {
-        'apikey': supabaseServiceKey,
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'Content-Type': mimeType,
-        'x-upsert': 'false'
-      },
-      body: buffer
-    }
-  );
+  const response = await fetch(`${supabaseUrl}/storage/v1/object/${MEDIA_BUCKET_NAME}/${path}`, {
+    method: 'POST',
+    headers: {
+      apikey: supabaseServiceKey,
+      Authorization: `Bearer ${supabaseServiceKey}`,
+      'Content-Type': mimeType,
+      'x-upsert': 'false',
+    },
+    body: buffer,
+  });
   return response.ok;
 }
 
@@ -96,11 +93,11 @@ async function createSignedUrl(
     {
       method: 'POST',
       headers: {
-        'apikey': supabaseServiceKey,
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'Content-Type': 'application/json'
+        apikey: supabaseServiceKey,
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ expiresIn: SIGNED_URL_EXPIRY })
+      body: JSON.stringify({ expiresIn: SIGNED_URL_EXPIRY }),
     }
   );
 
@@ -126,12 +123,12 @@ async function saveMetadata(
   await fetch(`${supabaseUrl}/rest/v1/media_files`, {
     method: 'POST',
     headers: {
-      'apikey': supabaseServiceKey,
-      'Authorization': `Bearer ${supabaseServiceKey}`,
+      apikey: supabaseServiceKey,
+      Authorization: `Bearer ${supabaseServiceKey}`,
       'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
+      Prefer: 'return=representation',
     },
-    body: JSON.stringify(metadata)
+    body: JSON.stringify(metadata),
   });
 }
 
@@ -144,7 +141,7 @@ async function handleHealth(): Promise<Response> {
     success: true,
     version: 'v8-optimized',
     message: 'Media microservice is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -170,9 +167,10 @@ async function handleRequest(req: Request): Promise<Response> {
     // Route: POST /upload
     if (method === 'POST' && (url.pathname === '/media/upload' || url.pathname === '/upload')) {
       const body = await req.json();
-      const { file, fileName, mimeType, userId, entryId, thumbnail, width, height, duration } = body;
+      const { file, fileName, mimeType, userId, entryId, thumbnail, width, height, duration } =
+        body;
 
-      if (!file || !fileName || !userId) {
+      if (!(file && fileName && userId)) {
         return errorResponse('file, fileName, and userId are required', 400);
       }
 
@@ -231,7 +229,7 @@ async function handleRequest(req: Request): Promise<Response> {
         duration: duration || null,
         file_name: fileName,
         mime_type: mimeType || 'application/octet-stream',
-        file_size: fileBuffer.length
+        file_size: fileBuffer.length,
       });
 
       return jsonResponse({
@@ -242,7 +240,7 @@ async function handleRequest(req: Request): Promise<Response> {
         mimeType: mimeType || 'application/octet-stream',
         width: width || null,
         height: height || null,
-        duration: duration || null
+        duration: duration || null,
       });
     }
 
@@ -276,9 +274,9 @@ async function handleRequest(req: Request): Promise<Response> {
         {
           method: 'DELETE',
           headers: {
-            'apikey': supabaseServiceKey,
-            'Authorization': `Bearer ${supabaseServiceKey}`
-          }
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
         }
       );
 
@@ -291,7 +289,6 @@ async function handleRequest(req: Request): Promise<Response> {
 
     // 404 Not Found
     return errorResponse('Not Found', 404);
-
   } catch (error: any) {
     console.error('[MEDIA v8] Error:', error.message);
     return errorResponse(error.message);
@@ -303,4 +300,3 @@ async function handleRequest(req: Request): Promise<Response> {
 // ============================================================================
 
 Deno.serve(handleRequest);
-

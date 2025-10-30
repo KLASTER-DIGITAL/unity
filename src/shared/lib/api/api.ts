@@ -2,14 +2,14 @@ import { createClient } from '@/utils/supabase/client';
 
 // ✅ NEW: Import from modular API structure (2025-10-23)
 import { API_URLS } from './config/urls';
-import { apiRequest as _coreApiRequest, blobToBase64 } from './core/request';
 import type { ApiOptions } from './core/request';
+import { blobToBase64 } from './core/request';
 import type { MediaFile } from './types';
 
 // Re-export types for backward compatibility
 export type {
-  UserProfile,
   MediaFile,
+  UserProfile,
 } from './types';
 
 // NOTE: Profile functions are now in ./services/profiles
@@ -28,7 +28,9 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 
   // Получаем access token из сессии
   const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
     throw new Error('No active session. Please log in.');
@@ -39,9 +41,9 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 
   const requestHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
+    Authorization: `Bearer ${session.access_token}`,
     ...(openaiApiKey && { 'X-OpenAI-Key': openaiApiKey }), // Добавляем OpenAI ключ только если требуется
-    ...headers
+    ...headers,
   };
 
   const config: RequestInit = {
@@ -64,14 +66,16 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
     let jsonData;
     try {
       jsonData = JSON.parse(responseText);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error(`Failed to parse JSON response from ${endpoint}:`, responseText);
       throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
     }
 
     if (!response.ok) {
       console.error(`API Error [${endpoint}]:`, jsonData);
-      throw new Error(jsonData.error || `API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        jsonData.error || `API request failed: ${response.status} ${response.statusText}`
+      );
     }
 
     return jsonData;
@@ -85,18 +89,18 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 // CHAT & AI ANALYSIS
 // ==========================================
 
-export interface AIAnalysisResult {
+export type AIAnalysisResult = {
   reply: string;
-  summary: string;       // Краткое резюме (до 200 символов)
-  insight: string;       // Позитивный вывод (до 200 символов)
+  summary: string; // Краткое резюме (до 200 символов)
+  insight: string; // Позитивный вывод (до 200 символов)
   sentiment: 'positive' | 'neutral' | 'negative';
   category: string;
   tags: string[];
   confidence: number;
-  isAchievement?: boolean;  // Флаг достижения
-  mood?: string;           // Эмоция/настроение
+  isAchievement?: boolean; // Флаг достижения
+  mood?: string; // Эмоция/настроение
   entrySummaryId?: string; // ID summary для связи с записью
-}
+};
 
 // NOTE: AI Analysis function moved to ./services/ai-analysis.ts
 // It is re-exported from ./index.ts for backward compatibility
@@ -106,25 +110,25 @@ export interface AIAnalysisResult {
 // DIARY ENTRIES
 // ==========================================
 
-export interface DiaryEntry {
+export type DiaryEntry = {
   id: string;
   userId: string;
   text: string;
   voiceUrl?: string | null;
   mediaUrl?: string | null;
-  media?: MediaFile[];       // Массив медиафайлов (фото/видео)
+  media?: MediaFile[]; // Массив медиафайлов (фото/видео)
   sentiment: 'positive' | 'neutral' | 'negative';
   category: string;
   tags: string[];
   aiReply: string;
-  aiSummary?: string;        // Краткое резюме (до 200 символов)
-  aiInsight?: string;        // Позитивный вывод (до 200 символов)
-  isAchievement?: boolean;   // Флаг достижения
-  mood?: string;             // Эмоция/настроение
+  aiSummary?: string; // Краткое резюме (до 200 символов)
+  aiInsight?: string; // Позитивный вывод (до 200 символов)
+  isAchievement?: boolean; // Флаг достижения
+  mood?: string; // Эмоция/настроение
   createdAt: string;
   streakDay: number;
   focusArea: string;
-}
+};
 
 // NOTE: Entry functions moved to ./services/entries.ts
 // They are re-exported from ./index.ts for backward compatibility
@@ -134,13 +138,13 @@ export interface DiaryEntry {
 // USER STATISTICS
 // ==========================================
 
-export interface UserStats {
+export type UserStats = {
   totalEntries: number;
   currentStreak: number;
   categoryCounts: Record<string, number>;
   sentimentCounts: Record<string, number>;
   lastEntryDate: string | null;
-}
+};
 
 export async function getUserStats(userId: string): Promise<UserStats> {
   // ✅ TEMPORARY FIX: Read directly from Supabase until stats microservice is deployed
@@ -165,14 +169,14 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
   // Calculate category counts
   const categoryCounts: Record<string, number> = {};
-  entries?.forEach(entry => {
+  entries?.forEach((entry) => {
     const category = entry.category || 'Другое';
     categoryCounts[category] = (categoryCounts[category] || 0) + 1;
   });
 
   // Calculate sentiment counts
   const sentimentCounts: Record<string, number> = {};
-  entries?.forEach(entry => {
+  entries?.forEach((entry) => {
     const sentiment = entry.sentiment || 'neutral';
     sentimentCounts[sentiment] = (sentimentCounts[sentiment] || 0) + 1;
   });
@@ -181,7 +185,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
   let currentStreak = 0;
   if (entries && entries.length > 0) {
     const sortedDates = entries
-      .map(e => new Date(e.created_at).setHours(0, 0, 0, 0))
+      .map((e) => new Date(e.created_at).setHours(0, 0, 0, 0))
       .sort((a, b) => b - a);
 
     const today = new Date().setHours(0, 0, 0, 0);
@@ -192,12 +196,12 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 
       if (daysDiff <= 1) {
         currentStreak = 1;
-        let expectedDate = lastEntryDate - (1000 * 60 * 60 * 24);
+        let expectedDate = lastEntryDate - 1000 * 60 * 60 * 24;
 
         for (let i = 1; i < sortedDates.length; i++) {
           if (sortedDates[i] === expectedDate) {
             currentStreak++;
-            expectedDate -= (1000 * 60 * 60 * 24);
+            expectedDate -= 1000 * 60 * 60 * 24;
           } else {
             break;
           }
@@ -213,7 +217,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
     currentStreak,
     categoryCounts,
     sentimentCounts,
-    lastEntryDate
+    lastEntryDate,
   };
 
   console.log('[STATS] Stats calculated:', stats);
@@ -232,14 +236,20 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 // VOICE TRANSCRIPTION (Whisper API)
 // ==========================================
 
-export async function transcribeAudio(audioBlob: Blob, userId?: string, language?: string): Promise<string> {
+export async function transcribeAudio(
+  audioBlob: Blob,
+  userId?: string,
+  language?: string
+): Promise<string> {
   console.log('[TRANSCRIPTION] Transcribing audio with Whisper API...');
 
   // Конвертируем Blob в base64
   const base64Audio = await blobToBase64(audioBlob);
 
   const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
     throw new Error('No active session');
@@ -250,14 +260,14 @@ export async function transcribeAudio(audioBlob: Blob, userId?: string, language
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
+      Authorization: `Bearer ${session.access_token}`,
     },
     body: JSON.stringify({
       audio: base64Audio,
       mimeType: audioBlob.type,
       userId,
-      language: language || 'ru'
-    })
+      language: language || 'ru',
+    }),
   });
 
   if (!response.ok) {
@@ -281,13 +291,13 @@ export async function transcribeAudio(audioBlob: Blob, userId?: string, language
 // MEDIA UPLOAD
 // ==========================================
 
-export interface UploadMediaOptions {
+export type UploadMediaOptions = {
   thumbnail?: File;
   width?: number;
   height?: number;
   duration?: number;
   entryId?: string;
-}
+};
 
 // NOTE: Media functions moved to ./services/media.ts
 // They are re-exported from ./index.ts for backward compatibility
@@ -312,7 +322,7 @@ export interface UploadMediaOptions {
 // BOOKS MODULE API
 // ==========================================
 
-export interface BookDraft {
+export type BookDraft = {
   id: string;
   userId: string;
   periodStart: string;
@@ -328,9 +338,9 @@ export interface BookDraft {
   isFinal: boolean;
   createdAt: string;
   updatedAt: string;
-}
+};
 
-export interface BookGenerationRequest {
+export type BookGenerationRequest = {
   period: {
     start: string;
     end: string;
@@ -340,7 +350,7 @@ export interface BookGenerationRequest {
   layout: string;
   theme: string;
   userId: string;
-}
+};
 
 export async function generateBookDraft(request: BookGenerationRequest): Promise<{
   draftId: string;
@@ -351,7 +361,7 @@ export async function generateBookDraft(request: BookGenerationRequest): Promise
     const response = await apiRequest('/books/generate-draft', {
       method: 'POST',
       body: request,
-      requireOpenAI: true
+      requireOpenAI: true,
     });
 
     if (!response.success) {
@@ -361,7 +371,7 @@ export async function generateBookDraft(request: BookGenerationRequest): Promise
     return {
       draftId: response.draftId,
       storyJson: response.storyJson,
-      estimatedPages: response.estimatedPages
+      estimatedPages: response.estimatedPages,
     };
   } catch (error) {
     console.error('Error in generateBookDraft:', error);
@@ -388,7 +398,7 @@ export async function saveBookDraft(draftId: string, storyJson: any): Promise<vo
   try {
     const response = await apiRequest(`/books/${draftId}/save`, {
       method: 'POST',
-      body: { storyJson }
+      body: { storyJson },
     });
 
     if (!response.success) {
@@ -423,7 +433,7 @@ export async function renderBookPDF(draftId: string): Promise<{
   try {
     const response = await apiRequest(`/books/${draftId}/render-pdf`, {
       method: 'POST',
-      requireOpenAI: true
+      requireOpenAI: true,
     });
 
     if (!response.success) {
@@ -433,7 +443,7 @@ export async function renderBookPDF(draftId: string): Promise<{
     return {
       pdfUrl: response.pdfUrl,
       pages: response.pages,
-      wordCount: response.wordCount
+      wordCount: response.wordCount,
     };
   } catch (error) {
     console.error('Error in renderBookPDF:', error);

@@ -1,45 +1,41 @@
-import { useState, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
-import { Button } from "@/shared/components/ui/button";
-import { useTranslation } from "@/shared/lib/i18n";
-import { SettingsRow, SettingsSection } from "./SettingsRow";
-import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
-import { PremiumModal } from "./PremiumModal";
-import { ProfileEditModal } from "./ProfileEditModal";
-
+import { AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { ThemeToggle } from '@/shared/components/ui/ThemeToggle';
+import { useTranslation } from '@/shared/lib/i18n';
+import { PremiumModal } from './PremiumModal';
+import { ProfileEditModal } from './ProfileEditModal';
+import { SettingsRow, SettingsSection } from './SettingsRow';
+import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
 import {
-  DEFAULT_LANGUAGES,
-  NotificationsSection,
-  SecuritySection,
-  OfflineSection,
-  ProfileHeader,
   AdditionalSection,
-  SupportSection,
-  CategoriesSection,
-  FAQModal,
-  SupportModal,
-  RateAppModal,
-  LanguageModal,
-  PWAInstallModal,
   CategoriesModal,
-  OfflineSettingsModal,
-  loadLanguages,
+  CategoriesSection,
   checkBiometricAvailability,
+  DEFAULT_LANGUAGES,
+  FAQModal,
+  handleLanguageChange as handleLanguageChangeUtil,
+  LanguageModal,
+  loadLanguages,
+  NotificationsSection,
+  OfflineSection,
+  OfflineSettingsModal,
+  ProfileHeader,
+  PWAInstallModal,
+  RateAppModal,
+  SecuritySection,
+  SupportModal,
+  SupportSection,
   saveNotificationSettings,
-  saveSecuritySettings,
   saveOfflineSettings,
-  handleLanguageChange as handleLanguageChangeUtil
-} from "./settings";
-import type { SettingsScreenProps, NotificationSettings } from "./settings";
+  saveSecuritySettings,
+} from './settings';
 
 // Re-export types for backward compatibility
 export type { SettingsScreenProps };
 
-import {
-  LogOut,
-  Palette
-} from "lucide-react";
+import { LogOut, Palette } from 'lucide-react';
 
 export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
   // Extract profile from userData (userData = { success, user, profile })
@@ -52,19 +48,19 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
   // State для уведомлений
   const [notifications, setNotifications] = useState<NotificationSettings>({
-    dailyReminder: profile?.notificationSettings?.dailyReminder || false,
-    weeklyReport: profile?.notificationSettings?.weeklyReport || false,
-    achievements: profile?.notificationSettings?.achievements || false,
-    motivational: profile?.notificationSettings?.motivational || false,
+    dailyReminder: profile?.notificationSettings?.dailyReminder,
+    weeklyReport: profile?.notificationSettings?.weeklyReport,
+    achievements: profile?.notificationSettings?.achievements,
+    motivational: profile?.notificationSettings?.motivational,
   });
 
   // State для настроек безопасности
-  const [biometricEnabled, setBiometricEnabled] = useState(profile?.biometricEnabled || false);
-  const [autoBackupEnabled, setAutoBackupEnabled] = useState(profile?.backupEnabled || false);
+  const [biometricEnabled, setBiometricEnabled] = useState(profile?.biometricEnabled);
+  const [autoBackupEnabled, setAutoBackupEnabled] = useState(profile?.backupEnabled);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   // State для offline режима
-  const [offlineEnabled, setOfflineEnabled] = useState(profile?.offlineEnabled || false);
+  const [offlineEnabled, setOfflineEnabled] = useState(profile?.offlineEnabled);
 
   // State для модальных окон (Drawer - Bottom Sheets)
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -82,8 +78,10 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
   // Загрузка языков из API при монтировании
   useEffect(() => {
-    loadLanguages().then(langs => {
-      if (langs) setLanguages(langs);
+    loadLanguages().then((langs) => {
+      if (langs) {
+        setLanguages(langs);
+      }
     });
   }, []);
 
@@ -91,8 +89,6 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   useEffect(() => {
     checkBiometricAvailability().then(setBiometricAvailable);
   }, []);
-
-
 
   // Синхронизация локального профиля с userData
   useEffect(() => {
@@ -107,10 +103,10 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   useEffect(() => {
     if (profile?.notificationSettings) {
       setNotifications({
-        dailyReminder: profile.notificationSettings.dailyReminder || false,
-        weeklyReport: profile.notificationSettings.weeklyReport || false,
-        achievements: profile.notificationSettings.achievements || false,
-        motivational: profile.notificationSettings.motivational || false,
+        dailyReminder: profile.notificationSettings.dailyReminder,
+        weeklyReport: profile.notificationSettings.weeklyReport,
+        achievements: profile.notificationSettings.achievements,
+        motivational: profile.notificationSettings.motivational,
       });
     }
     if (profile?.biometricEnabled !== undefined) {
@@ -119,12 +115,21 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     if (profile?.backupEnabled !== undefined) {
       setAutoBackupEnabled(profile.backupEnabled);
     }
-  }, [profile?.id]); // Обновляем только при смене пользователя
+  }, [
+    profile.backupEnabled,
+    profile.biometricEnabled,
+    profile.notificationSettings.achievements,
+    profile.notificationSettings.motivational,
+    profile.notificationSettings.weeklyReport,
+    profile?.notificationSettings,
+  ]); // Обновляем только при смене пользователя
 
   // Автосохранение уведомлений (debounced)
   useEffect(() => {
     const userId = profile?.id;
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       saveNotificationSettings(userId, profile.notificationSettings, notifications);
@@ -135,7 +140,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   // Автосохранение настроек безопасности (debounced)
   useEffect(() => {
     const userId = profile?.id;
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       saveSecuritySettings(userId, biometricEnabled, autoBackupEnabled);
@@ -146,7 +153,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
   // Автосохранение настроек offline режима (debounced)
   useEffect(() => {
     const userId = profile?.id;
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       saveOfflineSettings(userId, offlineEnabled);
@@ -160,8 +169,6 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
     }
   };
 
-
-
   // Обработчик смены языка
   const handleLanguageChangeLocal = async (languageCode: string) => {
     await handleLanguageChangeUtil({
@@ -172,52 +179,52 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       onProfileUpdate,
       changeLanguage: changeLanguage as (code: string) => Promise<void>,
       t,
-      setShowLanguage
+      setShowLanguage,
     });
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Profile Section */}
-      <ProfileHeader profile={profile} onEditClick={() => setShowEditProfile(true)} />
+      <ProfileHeader onEditClick={() => setShowEditProfile(true)} profile={profile} />
 
       {/* Уведомления */}
       <NotificationsSection
         notifications={notifications}
         onNotificationsChange={setNotifications}
-        userId={profile?.id}
         t={t}
+        userId={profile?.id}
       />
 
       {/* Темы оформления - shadcn/ui стандарт */}
-      <SettingsSection title={t("themes", "Темы оформления")}>
+      <SettingsSection title={t('themes', 'Темы оформления')}>
         <SettingsRow
-          icon={Palette}
-          iconColor="text-[var(--ios-purple)]"
-          iconBgColor="bg-[var(--ios-purple)]/10"
-          title={t("appearance" as any, "Внешний вид")}
-          description={t("appearanceDescription" as any, "Переключение темы")}
-          rightElement="custom"
           customRightElement={<ThemeToggle />}
+          description={t('appearanceDescription' as any, 'Переключение темы')}
+          icon={Palette}
+          iconBgColor="bg-[var(--ios-purple)]/10"
+          iconColor="text-[var(--ios-purple)]"
+          rightElement="custom"
+          title={t('appearance' as any, 'Внешний вид')}
         />
       </SettingsSection>
 
       {/* Безопасность и приватность */}
       <SecuritySection
-        biometricEnabled={biometricEnabled}
-        biometricAvailable={biometricAvailable}
         autoBackupEnabled={autoBackupEnabled}
-        isPremium={userData?.isPremium || false}
-        onBiometricChange={setBiometricEnabled}
+        biometricAvailable={biometricAvailable}
+        biometricEnabled={biometricEnabled}
+        isPremium={userData?.isPremium}
         onAutoBackupChange={setAutoBackupEnabled}
+        onBiometricChange={setBiometricEnabled}
         onPremiumRequired={() => setShowPremium(true)}
         t={t}
       />
 
       {/* Offline режим */}
       <OfflineSection
+        isPremium={userData?.isPremium}
         offlineEnabled={offlineEnabled}
-        isPremium={userData?.isPremium || false}
         onOfflineChange={setOfflineEnabled}
         onOfflineSettingsClick={() => setShowOfflineSettings(true)}
         onPremiumRequired={() => setShowPremium(true)}
@@ -225,42 +232,37 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       />
 
       {/* Персонализация */}
-      <CategoriesSection
-        onCategoriesClick={() => setShowCategories(true)}
-        t={t}
-      />
+      <CategoriesSection onCategoriesClick={() => setShowCategories(true)} t={t} />
 
       {/* Дополнительно */}
       <AdditionalSection
         currentLanguage={profile?.language}
-        languageName={languages.find(l => l.code === profile?.language)?.native_name || 'Русский'}
         firstDayOfWeek={userData?.firstDayOfWeek}
+        languageName={languages.find((l) => l.code === profile?.language)?.native_name || 'Русский'}
         onLanguageClick={() => setShowLanguage(true)}
         t={t}
       />
 
       {/* Поддержка */}
       <SupportSection
-        onSupportClick={() => setShowSupport(true)}
-        onRateAppClick={() => setShowRateApp(true)}
         onFAQClick={() => setShowFAQ(true)}
         onPWAInstallClick={() => setShowPWAInstall(true)}
+        onRateAppClick={() => setShowRateApp(true)}
+        onSupportClick={() => setShowSupport(true)}
         t={t}
       />
 
       {/* Logout Button */}
       <div className="px-4 pt-6 pb-8">
         <Button
+          className="h-14 w-full border-red-200 font-medium text-red-600 hover:border-red-300 hover:bg-red-50"
           onClick={handleLogout}
           variant="outline"
-          className="w-full h-14 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 font-medium"
         >
-          <LogOut className="h-5 w-5 mr-2" strokeWidth={2} />
-          {t("logout", "Выйти")}
+          <LogOut className="mr-2 h-5 w-5" strokeWidth={2} />
+          {t('logout', 'Выйти')}
         </Button>
       </div>
-
-
 
       {/* FAQ Modal */}
       <AnimatePresence>
@@ -272,8 +274,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
         <SupportModal
           isOpen={showSupport}
           onClose={() => setShowSupport(false)}
-          userEmail={profile?.email}
           t={t}
+          userEmail={profile?.email}
         />
       </AnimatePresence>
 
@@ -285,10 +287,10 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       {/* Language Selection Modal */}
       <AnimatePresence>
         <LanguageModal
-          isOpen={showLanguage}
-          onClose={() => setShowLanguage(false)}
-          languages={languages}
           currentLanguage={profile?.language}
+          isOpen={showLanguage}
+          languages={languages}
+          onClose={() => setShowLanguage(false)}
           onLanguageChange={handleLanguageChangeLocal}
           t={t}
         />
@@ -303,8 +305,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       <CategoriesModal
         isOpen={showCategories}
         onClose={() => setShowCategories(false)}
-        userId={profile?.id}
         t={t}
+        userId={profile?.id}
       />
 
       {/* Offline Settings Modal */}
@@ -317,18 +319,12 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
       </AnimatePresence>
 
       {/* Premium Modal */}
-      <PremiumModal open={showPremium} onClose={() => setShowPremium(false)} />
+      <PremiumModal onClose={() => setShowPremium(false)} open={showPremium} />
 
       {/* Profile Edit Modal */}
       <ProfileEditModal
         isOpen={showEditProfile}
         onClose={() => setShowEditProfile(false)}
-        profile={{
-          id: profile?.id || '',
-          name: profile?.name || '',
-          email: profile?.email || '',
-          avatar: profile?.avatar || '',
-        }}
         onProfileUpdated={(updatedProfile) => {
           console.log('✅ Profile updated in SettingsScreen:', updatedProfile);
           // Update local state immediately for real-time display
@@ -338,10 +334,15 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
             onProfileUpdate(updatedProfile);
           }
         }}
+        profile={{
+          id: profile?.id || '',
+          name: profile?.name || '',
+          email: profile?.email || '',
+          avatar: profile?.avatar || '',
+        }}
       />
     </div>
   );
 }
-
 
 export default SettingsScreen;

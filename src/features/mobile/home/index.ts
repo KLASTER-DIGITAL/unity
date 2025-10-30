@@ -8,7 +8,7 @@
  * - RecentEntriesFeed: Feed of recent diary entries
  */
 
-export { AchievementHomeScreen } from './components/AchievementHomeScreen';
 export { AchievementHeader } from './components/AchievementHeader';
+export { AchievementHomeScreen } from './components/AchievementHomeScreen';
 export { ChatInputSection } from './components/ChatInputSection';
 export { RecentEntriesFeed } from './components/RecentEntriesFeed';

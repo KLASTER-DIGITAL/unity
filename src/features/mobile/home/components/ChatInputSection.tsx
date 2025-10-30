@@ -1,21 +1,20 @@
-import { useState, useRef, useEffect } from "react";
-import { AnimatedView, AnimatedPresence } from "@/shared/lib/platform/animation";
-import { toast } from "sonner";
-import { useVoiceRecorder, MediaLightbox, PermissionGuide } from "@/features/mobile/media";
-import { useMediaUploader } from "@/shared/hooks/useMediaUploader";
-
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { MediaLightbox, PermissionGuide, useVoiceRecorder } from '@/features/mobile/media';
+import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import type { ChatInputSectionProps, ChatMessage } from './chat-input';
 // Import modular components, handlers and types
 import {
+  AIHintSection,
+  handleFilesDropped as filesDropped,
+  InputArea,
+  handleMediaUpload as mediaUpload,
   RecordingIndicator,
   SuccessModal,
-  AIHintSection,
-  InputArea,
   handleSendMessage as sendMessage,
   handleVoiceInput as voiceInput,
-  handleMediaUpload as mediaUpload,
-  handleFilesDropped as filesDropped
-} from "./chat-input";
-import type { ChatMessage, ChatInputSectionProps } from "./chat-input";
+} from './chat-input';
 
 // Re-export types for backward compatibility
 export type { ChatMessage, ChatInputSectionProps };
@@ -23,17 +22,19 @@ export type { ChatMessage, ChatInputSectionProps };
 export function ChatInputSection({
   onMessageSent,
   onEntrySaved,
-  userName = "Анна",
-  userId = "anonymous"
+  userName = 'Анна',
+  userId = 'anonymous',
 }: ChatInputSectionProps) {
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
   const [messages, _setMessages] = useState<ChatMessage[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [_isProcessing, _setIsProcessing] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [showPermissionGuide, setShowPermissionGuide] = useState<'microphone' | 'camera' | null>(null);
+  const [showPermissionGuide, setShowPermissionGuide] = useState<'microphone' | 'camera' | null>(
+    null
+  );
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAiHint, setShowAiHint] = useState(true); // ✅ NEW: AI hint visibility
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -47,7 +48,7 @@ export function ChatInputSection({
     startRecording,
     stopRecording,
     cancelRecording,
-    isSupported: isVoiceSupported
+    isSupported: isVoiceSupported,
   } = useVoiceRecorder();
 
   // Медиа загрузчик
@@ -57,68 +58,70 @@ export function ChatInputSection({
     uploadProgress,
     selectAndUploadMedia,
     removeMedia,
-    clearMedia
+    clearMedia,
   } = useMediaUploader();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [inputText]);
+  }, []);
 
   // Обработка отправки сообщения
-  const handleSendMessage = () => sendMessage({
-    inputText,
-    uploadedMedia,
-    selectedCategory,
-    userName,
-    userId,
-    setShowSuccessModal,
-    setInputText,
-    setIsProcessing,
-    clearMedia,
-    onMessageSent,
-    onEntrySaved
-  });
-
-
+  const handleSendMessage = () =>
+    sendMessage({
+      inputText,
+      uploadedMedia,
+      selectedCategory,
+      userName,
+      userId,
+      setShowSuccessModal,
+      setInputText,
+      setIsProcessing: _setIsProcessing,
+      clearMedia,
+      onMessageSent,
+      onEntrySaved,
+    });
 
   // Обработка голосового ввода
-  const handleVoiceInput = () => voiceInput({
-    isRecording,
-    isVoiceSupported,
-    stopRecording,
-    startRecording,
-    setIsTranscribing,
-    setInputText,
-    setShowPermissionGuide
-  });
+  const handleVoiceInput = () =>
+    voiceInput({
+      isRecording,
+      isVoiceSupported,
+      stopRecording,
+      startRecording,
+      setIsTranscribing,
+      setInputText,
+      setShowPermissionGuide,
+    });
 
   // Отменить запись
   const handleCancelRecording = () => {
     cancelRecording();
-    toast.info("Запись отменена");
+    toast.info('Запись отменена');
   };
 
   // Обработка загрузки медиа
-  const handleMediaUpload = () => mediaUpload({
-    userId,
-    selectAndUploadMedia,
-    uploadedMedia
-  });
+  const handleMediaUpload = () =>
+    mediaUpload({
+      userId,
+      selectAndUploadMedia,
+      uploadedMedia,
+    });
 
   // Обработка drag & drop
-  const handleFilesDropped = (files: File[]) => filesDropped({
-    userId,
-    files
-  });
+  const handleFilesDropped = (files: File[]) =>
+    filesDropped({
+      userId,
+      files,
+    });
 
   // Открыть лайтбокс
   const handleMediaClick = (index: number) => {
@@ -135,118 +138,70 @@ export function ChatInputSection({
   };
 
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategory(prev => prev === categoryId ? null : categoryId);
+    setSelectedCategory((prev) => (prev === categoryId ? null : categoryId));
   };
 
   return (
     <div className="p-section pb-24">
       {/* Question Header */}
       <div className="mb-6">
-        <h2 className="text-center text-[20px]! font-semibold! text-black leading-[26px]">
-          Что сегодня получилось<br />лучше всего?
+        <h2 className="text-center font-semibold! text-[20px]! text-black leading-[26px]">
+          Что сегодня получилось
+          <br />
+          лучше всего?
         </h2>
       </div>
 
       {/* ✅ FIX #4: Скрыли Messages Area - больше не нужна история чата */}
       {/* Messages Area */}
-      {false && messages.length > 0 && (
-        <div className="mb-6 space-y-3 max-h-[300px] overflow-y-auto scrollbar-hide">
-          <AnimatedPresence>
-            {messages.map((message) => (
-              <AnimatedView
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 } as any}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-[16px] px-4 py-3 ${
-                    message.type === 'user'
-                      ? 'bg-accent text-white'
-                      : 'bg-card text-card-foreground'
-                  }`}
-                >
-                  <p className="text-[15px]! font-normal! leading-[20px]">
-                    {message.text}
-                  </p>
-                  {message.category && (
-                    <span className="text-[12px]! opacity-70 mt-1 block">
-                      #{message.category}
-                    </span>
-                  )}
-                </div>
-              </AnimatedView>
-            ))}
-          </AnimatedPresence>
-
-          {/* AI Processing Indicator */}
-          {isProcessing && (
-            <AnimatedView
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-start"
-            >
-              <div className="bg-muted rounded-[16px] px-4 py-3 flex items-center gap-2 transition-colors duration-300">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" />
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" />
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-[pulse_0.6s_ease-in-out_0.4s_infinite]" />
-                </div>
-              </div>
-            </AnimatedView>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      )}
+      {false}
 
       {/* Input Area */}
       <div className="relative">
         {/* Recording Indicator */}
         <RecordingIndicator
-          isRecording={isRecording}
-          recordingTime={recordingTime}
           audioLevel={audioLevel}
-          onStop={handleVoiceInput}
+          isRecording={isRecording}
           onCancel={handleCancelRecording}
+          onStop={handleVoiceInput}
+          recordingTime={recordingTime}
         />
 
         {/* Main Input Area */}
         <InputArea
           inputText={inputText}
-          selectedCategory={selectedCategory}
           isRecording={isRecording}
           isTranscribing={isTranscribing}
           isUploading={isUploading}
-          uploadProgress={uploadProgress}
-          uploadedMedia={uploadedMedia}
-          userId={userId}
-          textareaRef={textareaRef}
+          onCategoryToggle={toggleCategory}
+          onFilesDropped={handleFilesDropped}
           onInputChange={setInputText}
           onKeyPress={handleKeyPress}
-          onVoiceClick={handleVoiceInput}
-          onMediaUpload={handleMediaUpload}
-          onSendMessage={handleSendMessage}
-          onFilesDropped={handleFilesDropped}
-          onRemoveMedia={removeMedia}
           onMediaClick={handleMediaClick}
-          onCategoryToggle={toggleCategory}
+          onMediaUpload={handleMediaUpload}
+          onRemoveMedia={removeMedia}
+          onSendMessage={handleSendMessage}
+          onVoiceClick={handleVoiceInput}
+          selectedCategory={selectedCategory}
+          textareaRef={textareaRef}
+          uploadedMedia={uploadedMedia}
+          uploadProgress={uploadProgress}
+          userId={userId}
         />
       </div>
 
       {/* AI Hint Section */}
       <AIHintSection
-        showHint={showAiHint}
         messagesCount={messages.length}
         onClose={() => setShowAiHint(false)}
+        showHint={showAiHint}
       />
 
       {/* Media Lightbox */}
       <MediaLightbox
-        media={uploadedMedia}
         initialIndex={lightboxIndex}
         isOpen={lightboxOpen}
+        media={uploadedMedia}
         onClose={() => setLightboxOpen(false)}
       />
 
@@ -254,19 +209,15 @@ export function ChatInputSection({
       <AnimatedPresence>
         {showPermissionGuide && (
           <PermissionGuide
-            type={showPermissionGuide}
             isOpen={!!showPermissionGuide}
             onClose={() => setShowPermissionGuide(null)}
+            type={showPermissionGuide}
           />
         )}
       </AnimatedPresence>
 
       {/* Success Modal */}
-      <SuccessModal
-        isOpen={showSuccessModal}
-        userName={userName}
-        isOffline={!navigator.onLine}
-      />
+      <SuccessModal isOffline={!navigator.onLine} isOpen={showSuccessModal} userName={userName} />
     </div>
   );
 }

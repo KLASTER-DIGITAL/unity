@@ -1,43 +1,43 @@
-import { useState, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
-import { getEntries, deleteEntry, updateEntry, type DiaryEntry } from "@/shared/lib/api";
-import { toast } from "sonner";
-import { useTranslation } from "@/shared/lib/i18n";
+import { AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { type DiaryEntry, deleteEntry, getEntries, updateEntry } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 import {
-  SearchBar,
-  FiltersPanel,
+  EditEntryModal,
+  EmptyState,
+  EntryActionsModal,
   EntryCard,
   EntryListSkeleton,
-  EntryActionsModal,
-  EditEntryModal,
-  SuccessModal,
-  EmptyState,
+  FiltersPanel,
   filterEntries,
-  type HistoryScreenProps
-} from "./history-screen";
+  type HistoryScreenProps,
+  SearchBar,
+  SuccessModal,
+} from './history-screen';
 
 export function HistoryScreen({ userData }: HistoryScreenProps) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSentiment, setSelectedSentiment] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
-  const [editText, setEditText] = useState("");
-  const [editCategory, setEditCategory] = useState("");
+  const [editText, setEditText] = useState('');
+  const [editCategory, setEditCategory] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Получаем переводы для языка пользователя
   const { t } = useTranslation();
 
   useEffect(() => {
     loadEntries();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const filtered = filterEntries(entries, searchQuery, selectedCategory, selectedSentiment);
@@ -48,16 +48,16 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
     try {
       setIsLoading(true);
       // ✅ FIXED: userData has structure {user: {...}, profile: {...}}
-      const userId = userData?.user?.id || userData?.id || "anonymous";
-      console.log("[HISTORY] Loading entries for user:", userId);
+      const userId = userData?.user?.id || userData?.id || 'anonymous';
+      console.log('[HISTORY] Loading entries for user:', userId);
       const data = await getEntries(userId, 100);
 
-      console.log("Loaded entries for history:", data);
+      console.log('Loaded entries for history:', data);
       setEntries(data);
       setFilteredEntries(data);
     } catch (error) {
-      console.error("Error loading entries:", error);
-      toast.error("Не удалось загрузить записи");
+      console.error('Error loading entries:', error);
+      toast.error('Не удалось загрузить записи');
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +71,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
   };
 
   const handleSaveEdit = async () => {
-    if (!editingEntry || !editText.trim()) {
+    if (!(editingEntry && editText.trim())) {
       toast.error(t('entry_text_required', 'Текст записи не может быть пустым'));
       return;
     }
@@ -81,20 +81,22 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 
       const updates: Partial<DiaryEntry> = {
         text: editText.trim(),
-        category: editCategory
+        category: editCategory,
       };
 
       const updatedEntry = await updateEntry(editingEntry.id, updates);
 
       // Обновляем запись в списке
-      setEntries(prev => prev.map(e => e.id === editingEntry.id ? { ...e, ...updatedEntry } : e));
+      setEntries((prev) =>
+        prev.map((e) => (e.id === editingEntry.id ? { ...e, ...updatedEntry } : e))
+      );
 
       setEditingEntry(null);
-      setEditText("");
-      setEditCategory("");
+      setEditText('');
+      setEditCategory('');
 
       // Показываем success modal
-      setSuccessMessage("Запись успешно обновлена!");
+      setSuccessMessage('Запись успешно обновлена!');
       setShowSuccessModal(true);
 
       // Автоматически закрываем через 2 секунды
@@ -102,25 +104,27 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
         setShowSuccessModal(false);
       }, 2000);
     } catch (error) {
-      console.error("Error updating entry:", error);
-      toast.error("Не удалось обновить запись");
+      console.error('Error updating entry:', error);
+      toast.error('Не удалось обновить запись');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteEntry = async (entryId: string) => {
-    if (!confirm("Удалить эту запись?")) return;
+    if (!confirm('Удалить эту запись?')) {
+      return;
+    }
 
     try {
-      const userId = userData?.user?.id || userData?.id || "anonymous";
+      const userId = userData?.user?.id || userData?.id || 'anonymous';
       await deleteEntry(entryId, userId);
 
-      setEntries(prev => prev.filter(e => e.id !== entryId));
+      setEntries((prev) => prev.filter((e) => e.id !== entryId));
       setSelectedEntry(null);
 
       // Показываем success modal
-      setSuccessMessage("Запись успешно удалена!");
+      setSuccessMessage('Запись успешно удалена!');
       setShowSuccessModal(true);
 
       // Автоматически закрываем через 2 секунды
@@ -128,37 +132,37 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
         setShowSuccessModal(false);
       }, 2000);
     } catch (error) {
-      console.error("Error deleting entry:", error);
-      toast.error("Не удалось удалить запись");
+      console.error('Error deleting entry:', error);
+      toast.error('Не удалось удалить запись');
     }
   };
 
-  const categories = Array.from(new Set((entries || []).map(e => e.category)));
+  const categories = Array.from(new Set((entries || []).map((e) => e.category)));
 
   return (
-    <div className="min-h-screen bg-background pb-24 overflow-x-hidden scrollbar-hide">
+    <div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-24">
       {/* Header */}
-      <div className="bg-card border-b border-border px-6 pt-16 pb-4 transition-colors duration-300">
-        <h1 className="text-[28px]! font-semibold! text-foreground mb-4">
+      <div className="border-border border-b bg-card px-6 pt-16 pb-4 transition-colors duration-300">
+        <h1 className="mb-4 font-semibold! text-[28px]! text-foreground">
           {t('historyTitle', 'История')}
         </h1>
 
         <SearchBar
-          searchQuery={searchQuery}
-          showFilters={showFilters}
           activeFiltersCount={(selectedCategory ? 1 : 0) + (selectedSentiment ? 1 : 0)}
           onSearchChange={setSearchQuery}
           onToggleFilters={() => setShowFilters(!showFilters)}
+          searchQuery={searchQuery}
+          showFilters={showFilters}
         />
       </div>
 
       <FiltersPanel
-        showFilters={showFilters}
         categories={categories}
-        selectedCategory={selectedCategory}
-        selectedSentiment={selectedSentiment}
         onCategoryChange={setSelectedCategory}
         onSentimentChange={setSelectedSentiment}
+        selectedCategory={selectedCategory}
+        selectedSentiment={selectedSentiment}
+        showFilters={showFilters}
       />
 
       {/* Stats Bar - REMOVED per user request */}
@@ -174,9 +178,9 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
             <AnimatePresence>
               {filteredEntries.map((entry, index) => (
                 <EntryCard
-                  key={entry.id}
                   entry={entry}
                   index={index}
+                  key={entry.id}
                   onOpenActions={setSelectedEntry}
                 />
               ))}
@@ -188,19 +192,19 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
       <EntryActionsModal
         entry={selectedEntry}
         onClose={() => setSelectedEntry(null)}
-        onEdit={handleEditEntry}
         onDelete={handleDeleteEntry}
+        onEdit={handleEditEntry}
       />
 
       <EditEntryModal
-        isOpen={!!editingEntry}
-        editText={editText}
         editCategory={editCategory}
+        editText={editText}
+        isOpen={!!editingEntry}
         isSaving={isSaving}
-        onClose={() => setEditingEntry(null)}
-        onTextChange={setEditText}
         onCategoryChange={setEditCategory}
+        onClose={() => setEditingEntry(null)}
         onSave={handleSaveEdit}
+        onTextChange={setEditText}
       />
 
       <SuccessModal isOpen={showSuccessModal} message={successMessage} />

@@ -2,35 +2,34 @@
  * Types for Translations Management
  */
 
-export interface Translation {
+export type Translation = {
   translation_key: string;
   lang_code: string;
   translation_value: string;
   category?: string;
   created_at?: string;
   updated_at?: string;
-}
+};
 
-export interface Language {
+export type Language = {
   code: string;
   name: string;
   native_name: string;
   enabled: boolean;
-}
+};
 
-export interface MissingTranslation {
+export type MissingTranslation = {
   key: string;
   languages: string[];
-}
+};
 
-export interface TranslationsManagementTabProps {
+export type TranslationsManagementTabProps = {
   initialLanguage?: string;
-}
+};
 
-export interface TranslationStats {
+export type TranslationStats = {
   totalKeys: number;
   totalTranslations: number;
   missingCount: number;
   completeness: number;
-}
-
+};

@@ -1,27 +1,21 @@
 /**
  * Offline Status Banner
- * 
+ *
  * Modern banner showing offline status and sync progress.
  * Displays at the top of the screen when offline or when there are pending syncs.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { motion, AnimatePresence } from 'motion/react';
-import { CloudOff, RefreshCw, CheckCircle, AlertCircle, WifiOff } from 'lucide-react';
-import { useOfflineMode } from '@/shared/lib/offline';
+import { AlertCircle, CheckCircle, CloudOff, RefreshCw, WifiOff } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useOfflineMode } from '@/shared/lib/offline';
 
 export function OfflineStatusBanner() {
-  const {
-    isOnline,
-    lastOnline,
-    pendingCount,
-    syncInProgress,
-    sync,
-    lastSyncEvent,
-  } = useOfflineMode();
+  const { isOnline, lastOnline, pendingCount, syncInProgress, sync, lastSyncEvent } =
+    useOfflineMode();
 
   const [showBanner, setShowBanner] = useState(false);
   const [message, setMessage] = useState('');
@@ -84,35 +78,45 @@ export function OfflineStatusBanner() {
   const getIcon = () => {
     switch (variant) {
       case 'offline':
-        return <WifiOff className="w-5 h-5" />;
+        return <WifiOff className="h-5 w-5" />;
       case 'syncing':
-        return <RefreshCw className="w-5 h-5 animate-spin" />;
+        return <RefreshCw className="h-5 w-5 animate-spin" />;
       case 'success':
-        return <CheckCircle className="w-5 h-5" />;
+        return <CheckCircle className="h-5 w-5" />;
       case 'error':
-        return <AlertCircle className="w-5 h-5" />;
+        return <AlertCircle className="h-5 w-5" />;
       default:
-        return <CloudOff className="w-5 h-5" />;
+        return <CloudOff className="h-5 w-5" />;
     }
   };
 
   const handleManualSync = async () => {
-    if (!isOnline || syncInProgress) return;
+    if (!isOnline || syncInProgress) {
+      return;
+    }
     await sync();
   };
 
   const formatLastOnline = () => {
-    if (!lastOnline) return 'Никогда';
-    
+    if (!lastOnline) {
+      return 'Никогда';
+    }
+
     const now = new Date();
     const diff = now.getTime() - lastOnline.getTime();
-    const minutes = Math.floor(diff / 60000);
+    const minutes = Math.floor(diff / 60_000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return `${days}д назад`;
-    if (hours > 0) return `${hours}ч назад`;
-    if (minutes > 0) return `${minutes}м назад`;
+    if (days > 0) {
+      return `${days}д назад`;
+    }
+    if (hours > 0) {
+      return `${hours}ч назад`;
+    }
+    if (minutes > 0) {
+      return `${minutes}м назад`;
+    }
     return 'Только что';
   };
 
@@ -120,26 +124,22 @@ export function OfflineStatusBanner() {
     <AnimatePresence>
       {showBanner && (
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
+          className={`fixed top-0 right-0 left-0 z-50 ${getVariantStyles()} text-white shadow-lg`}
           exit={{ opacity: 0, y: -50 }}
+          initial={{ opacity: 0, y: -50 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className={`fixed top-0 left-0 right-0 z-50 ${getVariantStyles()} text-white shadow-lg`}
         >
-          <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="mx-auto max-w-7xl px-4 py-3">
             <div className="flex items-center justify-between gap-4">
               {/* Left: Icon + Message */}
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="flex-shrink-0">
-                  {getIcon()}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {message}
-                  </p>
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex-shrink-0">{getIcon()}</div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-sm">{message}</p>
                   {!isOnline && lastOnline && (
-                    <p className="text-xs opacity-75 mt-0.5">
+                    <p className="mt-0.5 text-xs opacity-75">
                       Последнее подключение: {formatLastOnline()}
                     </p>
                   )}
@@ -147,25 +147,30 @@ export function OfflineStatusBanner() {
               </div>
 
               {/* Right: Actions */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex flex-shrink-0 items-center gap-2">
                 {isOnline && pendingCount > 0 && !syncInProgress && (
                   <button
+                    className="flex items-center gap-2 rounded-lg bg-primary/20 px-3 py-1.5 font-medium text-sm transition-colors duration-300 hover:bg-primary/30"
                     onClick={handleManualSync}
-                    className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 rounded-lg transition-colors duration-300 text-sm font-medium flex items-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="h-4 w-4" />
                     Синхронизировать
                   </button>
                 )}
 
                 {variant === 'success' && (
                   <button
-                    onClick={() => setShowBanner(false)}
-                    className="p-1.5 hover:bg-muted/20 rounded-lg transition-colors duration-300"
                     aria-label="Закрыть"
+                    className="rounded-lg p-1.5 transition-colors duration-300 hover:bg-muted/20"
+                    onClick={() => setShowBanner(false)}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        d="M6 18L18 6M6 6l12 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
                     </svg>
                   </button>
                 )}
@@ -175,12 +180,12 @@ export function OfflineStatusBanner() {
             {/* Progress bar for syncing */}
             {syncInProgress && (
               <div className="mt-2">
-                <div className="w-full bg-muted/20 rounded-full h-1 overflow-hidden transition-colors duration-300">
+                <div className="h-1 w-full overflow-hidden rounded-full bg-muted/20 transition-colors duration-300">
                   <motion.div
+                    animate={{ width: '100%' }}
                     className="h-full bg-primary transition-colors duration-300"
                     initial={{ width: '0%' }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 2, ease: 'linear', repeat: Infinity }}
+                    transition={{ duration: 2, ease: 'linear', repeat: Number.POSITIVE_INFINITY }}
                   />
                 </div>
               </div>
@@ -191,4 +196,3 @@ export function OfflineStatusBanner() {
     </AnimatePresence>
   );
 }
-

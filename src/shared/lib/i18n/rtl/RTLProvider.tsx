@@ -1,28 +1,29 @@
 /**
  * RTL Provider component
- * 
+ *
  * Automatically applies RTL direction based on current language
  */
 
-import React, { createContext, useContext, useEffect, ReactNode } from 'react';
+import type React from 'react';
+import { createContext, type ReactNode, useContext, useEffect } from 'react';
 import { useTranslationContext } from '../TranslationProvider';
-import { 
-  getTextDirection, 
+import {
   applyDocumentDirection,
-  type TextDirection,
+  getRTLConfig,
+  getTextDirection,
   type RTLConfig,
-  getRTLConfig
+  type TextDirection,
 } from './RTLDetector';
 
-interface RTLContextValue {
+type RTLContextValue = {
   direction: TextDirection;
   isRTL: boolean;
   config: RTLConfig;
-}
+};
 
 const RTLContext = createContext<RTLContextValue | null>(null);
 
-interface RTLProviderProps {
+type RTLProviderProps = {
   children: ReactNode;
   /**
    * Override language (useful for testing)
@@ -32,13 +33,13 @@ interface RTLProviderProps {
    * Disable automatic document direction update
    */
   disableDocumentUpdate?: boolean;
-}
+};
 
 /**
  * RTL Provider component
- * 
+ *
  * Wraps the app and provides RTL context based on current language
- * 
+ *
  * @example
  * <TranslationProvider>
  *   <RTLProvider>
@@ -49,14 +50,14 @@ interface RTLProviderProps {
 export const RTLProvider: React.FC<RTLProviderProps> = ({
   children,
   language: overrideLanguage,
-  disableDocumentUpdate = false
+  disableDocumentUpdate = false,
 }) => {
   const { currentLanguage } = useTranslationContext();
   const language = overrideLanguage || currentLanguage;
-  
+
   const direction = getTextDirection(language);
   const config = getRTLConfig(language);
-  
+
   // Apply direction to document
   useEffect(() => {
     if (!disableDocumentUpdate) {
@@ -64,16 +65,16 @@ export const RTLProvider: React.FC<RTLProviderProps> = ({
       console.log(`📐 RTL: Applied ${direction} direction for language: ${language}`);
     }
   }, [direction, language, disableDocumentUpdate]);
-  
+
   const value: RTLContextValue = {
     direction,
     isRTL: direction === 'rtl',
-    config
+    config,
   };
-  
+
   return (
     <RTLContext.Provider value={value}>
-      <div dir={direction} className={config.directionClass}>
+      <div className={config.directionClass} dir={direction}>
         {children}
       </div>
     </RTLContext.Provider>
@@ -82,10 +83,10 @@ export const RTLProvider: React.FC<RTLProviderProps> = ({
 
 /**
  * Hook to access RTL context
- * 
+ *
  * @example
  * const { direction, isRTL } = useRTL();
- * 
+ *
  * return (
  *   <div className={isRTL ? 'text-right' : 'text-left'}>
  *     Content
@@ -94,17 +95,17 @@ export const RTLProvider: React.FC<RTLProviderProps> = ({
  */
 export const useRTL = (): RTLContextValue => {
   const context = useContext(RTLContext);
-  
+
   if (!context) {
     throw new Error('useRTL must be used within RTLProvider');
   }
-  
+
   return context;
 };
 
 /**
  * HOC to add RTL support to a component
- * 
+ *
  * @example
  * const MyComponent = withRTL(({ direction, isRTL }) => {
  *   return <div>Direction: {direction}</div>;
@@ -121,7 +122,7 @@ export function withRTL<P extends object>(
 
 /**
  * RTL-aware div component
- * 
+ *
  * @example
  * <RTLDiv className="p-4">
  *   Content automatically adjusts to RTL
@@ -133,13 +134,9 @@ export const RTLDiv: React.FC<{
   style?: React.CSSProperties;
 }> = ({ children, className = '', style = {} }) => {
   const { direction } = useRTL();
-  
+
   return (
-    <div 
-      dir={direction} 
-      className={className}
-      style={style}
-    >
+    <div className={className} dir={direction} style={style}>
       {children}
     </div>
   );
@@ -147,9 +144,9 @@ export const RTLDiv: React.FC<{
 
 /**
  * RTL-aware text component
- * 
+ *
  * Automatically detects text direction based on content
- * 
+ *
  * @example
  * <RTLText>مرحبا</RTLText> // Automatically RTL
  * <RTLText>Hello</RTLText> // Automatically LTR
@@ -164,18 +161,13 @@ export const RTLText: React.FC<{
   forceDirection?: TextDirection;
 }> = ({ children, className = '', style = {}, forceDirection }) => {
   const { direction: contextDirection } = useRTL();
-  
+
   // Use forced direction or context direction
   const direction = forceDirection || contextDirection;
-  
+
   return (
-    <span 
-      dir={direction}
-      className={className}
-      style={style}
-    >
+    <span className={className} dir={direction} style={style}>
       {children}
     </span>
   );
 };
-

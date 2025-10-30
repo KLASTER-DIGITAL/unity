@@ -1,44 +1,34 @@
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
-interface UploadProgressProps {
+type UploadProgressProps = {
   fileName: string;
   progress: number;
   status: 'processing' | 'uploading' | 'success' | 'error';
   error?: string;
-}
+};
 
 export function UploadProgress({ fileName, progress, status, error }: UploadProgressProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      className="rounded-lg border border-border bg-card p-4 shadow-lg dark:border-border dark:bg-card"
       exit={{ opacity: 0, y: -20 }}
-      className="bg-card dark:bg-card rounded-lg p-4 shadow-lg border border-border dark:border-border"
+      initial={{ opacity: 0, y: 20 }}
     >
       <div className="flex items-center gap-3">
         {/* Status Icon */}
         <div className="flex-shrink-0">
-          {status === 'processing' && (
-            <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-          )}
-          {status === 'uploading' && (
-            <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-          )}
-          {status === 'success' && (
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-          )}
-          {status === 'error' && (
-            <XCircle className="w-5 h-5 text-red-500" />
-          )}
+          {status === 'processing' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
+          {status === 'uploading' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
+          {status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+          {status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
         </div>
 
         {/* File Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground dark:text-white truncate">
-            {fileName}
-          </p>
-          <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-foreground text-sm dark:text-white">{fileName}</p>
+          <p className="text-muted-foreground text-xs dark:text-muted-foreground">
             {status === 'processing' && 'Обработка...'}
             {status === 'uploading' && 'Загрузка...'}
             {status === 'success' && 'Загружено'}
@@ -48,7 +38,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
         {/* Progress */}
         {(status === 'processing' || status === 'uploading') && (
-          <div className="flex-shrink-0 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+          <div className="flex-shrink-0 font-medium text-muted-foreground text-xs dark:text-muted-foreground">
             {progress}%
           </div>
         )}
@@ -56,16 +46,15 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
       {/* Progress Bar */}
       {(status === 'processing' || status === 'uploading') && (
-        <div className="mt-2 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted dark:bg-muted">
           <motion.div
-            initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3 }}
             className="h-full bg-blue-500"
+            initial={{ width: 0 }}
+            transition={{ duration: 0.3 }}
           />
         </div>
       )}
     </motion.div>
   );
 }
-

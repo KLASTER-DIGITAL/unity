@@ -1,28 +1,37 @@
-import { Suspense, lazy } from "react";
-import { ThemeProvider } from "@/shared/components/theme-provider";
-import { LottiePreloader } from "@/shared/components/LottiePreloader";
-import { PerformanceDashboard } from "@/shared/lib/i18n/monitoring/PerformanceDashboard";
+import { lazy, Suspense } from 'react';
+import { createAppHandlers } from '@/pwa/handlers/appHandlers';
+import { useAppInitialization } from '@/pwa/hooks/useAppInitialization';
+// PWA hooks and handlers (renamed from @/app/ to @/pwa/ to avoid conflict with React Native /app/)
+import { useAppState } from '@/pwa/hooks/useAppState';
+import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { ThemeProvider } from '@/shared/components/theme-provider';
+import { PerformanceDashboard } from '@/shared/lib/i18n/monitoring/PerformanceDashboard';
 
-// App hooks and handlers
-import { useAppState } from "@/app/hooks/useAppState";
-import { useAppInitialization } from "@/app/hooks/useAppInitialization";
-import { createAppHandlers } from "@/app/handlers/appHandlers";
-
-// Lazy load app-level components for code splitting
-const MobileApp = lazy(() => import("@/app/mobile").then(module => ({ default: module.MobileApp })));
-const AdminApp = lazy(() => import("@/app/admin").then(module => ({ default: module.AdminApp })));
+// Lazy load PWA-level components for code splitting
+const MobileApp = lazy(() =>
+  import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
+);
+const AdminApp = lazy(() => import('@/pwa/admin').then((module) => ({ default: module.AdminApp })));
 
 // PWA Components - Lazy loaded для улучшения производительности
-const PWAHead = lazy(() => import("@/shared/components/pwa/PWAHead"));
-const PWASplash = lazy(() => import("@/shared/components/pwa/PWASplash"));
-const PWAStatus = lazy(() => import("@/shared/components/pwa/PWAStatus"));
-const PWAUpdatePrompt = lazy(() => import("@/shared/components/pwa/PWAUpdatePrompt"));
-const InstallPrompt = lazy(() => import("@/shared/components/pwa/InstallPrompt"));
+const PWAHead = lazy(() => import('@/shared/components/pwa/PWAHead'));
+const PWASplash = lazy(() => import('@/shared/components/pwa/PWASplash'));
+const PWAStatus = lazy(() => import('@/shared/components/pwa/PWAStatus'));
+const PWAUpdatePrompt = lazy(() => import('@/shared/components/pwa/PWAUpdatePrompt'));
+const InstallPrompt = lazy(() => import('@/shared/components/pwa/InstallPrompt'));
 
 // Offline Components
-const OfflineSyncIndicator = lazy(() => import("@/shared/components/offline/OfflineSyncIndicator"));
-const OfflineModeBadge = lazy(() => import("@/shared/components/offline/OfflineModeBadge").then(m => ({ default: m.OfflineModeBadge })));
-const SyncCompletionModal = lazy(() => import("@/shared/components/offline/SyncCompletionModal").then(m => ({ default: m.SyncCompletionModal })));
+const OfflineSyncIndicator = lazy(() => import('@/shared/components/offline/OfflineSyncIndicator'));
+const OfflineModeBadge = lazy(() =>
+  import('@/shared/components/offline/OfflineModeBadge').then((m) => ({
+    default: m.OfflineModeBadge,
+  }))
+);
+const SyncCompletionModal = lazy(() =>
+  import('@/shared/components/offline/SyncCompletionModal').then((m) => ({
+    default: m.SyncCompletionModal,
+  }))
+);
 
 export default function App() {
   // App state management
@@ -76,9 +85,9 @@ export default function App() {
       return (
         <ThemeProvider defaultTheme="light" storageKey="unity-theme">
           <LottiePreloader
-            showMessage={false}
             minDuration={1500}
             onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
+            showMessage={false}
             size="lg"
           />
         </ThemeProvider>
@@ -88,13 +97,13 @@ export default function App() {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <AdminApp
-          userData={state.userData}
-          showAdminAuth={state.showAdminAuth}
           onAuthComplete={handlers.handleAdminAuthComplete}
-          onLogout={handlers.handleAdminLogout}
           onBack={() => {
             window.location.href = '/';
           }}
+          onLogout={handlers.handleAdminLogout}
+          showAdminAuth={state.showAdminAuth}
+          userData={state.userData}
         />
       </ThemeProvider>
     );
@@ -105,7 +114,7 @@ export default function App() {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
         <div className="p-8">
-          <h1 className="text-2xl font-bold">Test Route Disabled</h1>
+          <h1 className="font-bold text-2xl">Test Route Disabled</h1>
           <p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
         </div>
       </ThemeProvider>
@@ -126,11 +135,11 @@ export default function App() {
   if (state.isCheckingSession || !state.minLoadingTimeElapsed) {
     return (
       <ThemeProvider defaultTheme="light" storageKey="unity-theme">
-        <div className="max-w-md mx-auto">
+        <div className="mx-auto max-w-md">
           <LottiePreloader
-            showMessage={false}
             minDuration={1500}
             onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
+            showMessage={false}
             size="lg"
           />
         </div>
@@ -152,8 +161,8 @@ export default function App() {
           {/* PWA Status - уведомление об успешной установке */}
           <PWAStatus />
 
-          {/* PWA Update Prompt - обновление Service Worker */}
-          <PWAUpdatePrompt />
+          {/* PWA Update Prompt - обновление Service Worker (только для залогиненных пользователей) */}
+          {state.userData && <PWAUpdatePrompt />}
 
           {/* Install Prompt - настраиваемый через админ-панель */}
           {state.showInstallPrompt && (
@@ -169,39 +178,36 @@ export default function App() {
           )}
 
           {/* Offline Mode Badge - показывает offline статус и pending count */}
-          {state.userData?.user?.id && !state.isAdminRoute && (
-            <OfflineModeBadge />
-          )}
+          {state.userData?.user?.id && !state.isAdminRoute && <OfflineModeBadge />}
 
           {/* Sync Completion Modal - показывается после успешной синхронизации */}
           {state.userData?.user?.id && !state.isAdminRoute && (
             <SyncCompletionModal
               isOpen={state.showSyncComplete}
-              syncedCount={state.syncedCount}
               onClose={() => state.setShowSyncComplete(false)}
+              syncedCount={state.syncedCount}
             />
           )}
         </Suspense>
 
         <MobileApp
-          userData={state.userData}
-          onboardingComplete={state.onboardingComplete}
-          currentStep={state.currentStep}
-          selectedLanguage={state.selectedLanguage}
-          showAuth={state.showAuth}
           authMode={state.authMode}
+          currentStep={state.currentStep}
+          onAuthComplete={handlers.handleAuthComplete}
+          onboardingComplete={state.onboardingComplete}
           onboardingData={state.onboardingData}
-          onWelcomeComplete={handlers.handleWelcomeComplete}
-          onWelcomeSkip={handlers.handleWelcomeSkip}
+          onLogout={handlers.handleLogout}
           onOnboarding2Complete={handlers.handleOnboarding2Complete}
           onOnboarding3Complete={handlers.handleOnboarding3Complete}
           onOnboarding4Complete={handlers.handleOnboarding4Complete}
-          onAuthComplete={handlers.handleAuthComplete}
-          onLogout={handlers.handleLogout}
           onProfileUpdate={handlers.handleProfileUpdate}
+          onWelcomeComplete={handlers.handleWelcomeComplete}
+          onWelcomeSkip={handlers.handleWelcomeSkip}
+          selectedLanguage={state.selectedLanguage}
+          showAuth={state.showAuth}
+          userData={state.userData}
         />
       </ThemeProvider>
     </>
   );
 }
-

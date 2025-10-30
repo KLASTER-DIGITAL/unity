@@ -1,18 +1,18 @@
 /**
  * PWA E2E Tests
- * 
+ *
  * Tests for PWA functionality:
  * - Service Worker registration
  * - Offline mode
  * - Install prompt
  * - Push notifications
  * - Cache strategies
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('PWA Functionality', () => {
   test('should register service worker', async ({ page }) => {
@@ -82,8 +82,14 @@ test.describe('PWA Functionality', () => {
     expect(title).toBeTruthy();
 
     // Should show offline indicator
-    const hasOfflineIndicator = await page.locator('text=Offline').isVisible().catch(() => false);
-    const hasNoConnection = await page.locator('text=Нет подключения').isVisible().catch(() => false);
+    const hasOfflineIndicator = await page
+      .locator('text=Offline')
+      .isVisible()
+      .catch(() => false);
+    const hasNoConnection = await page
+      .locator('text=Нет подключения')
+      .isVisible()
+      .catch(() => false);
 
     expect(hasOfflineIndicator || hasNoConnection).toBeTruthy();
   });
@@ -101,12 +107,10 @@ test.describe('PWA Functionality', () => {
     await page.waitForTimeout(2000); // Give time for caching
 
     // Check if assets are cached
-    const cacheNames = await page.evaluate(async () => {
-      return await caches.keys();
-    });
+    const cacheNames = await page.evaluate(async () => await caches.keys());
 
     expect(cacheNames.length).toBeGreaterThan(0);
-    expect(cacheNames.some(name => name.includes('achievement-diary'))).toBeTruthy();
+    expect(cacheNames.some((name) => name.includes('achievement-diary'))).toBeTruthy();
   });
 
   test('should show install prompt on supported browsers', async ({ page, browserName }) => {
@@ -115,15 +119,13 @@ test.describe('PWA Functionality', () => {
       test.skip();
       return;
     }
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
     // Check if beforeinstallprompt event is supported
-    const hasInstallPrompt = await page.evaluate(() => {
-      return 'onbeforeinstallprompt' in window;
-    });
-    
+    const hasInstallPrompt = await page.evaluate(() => 'onbeforeinstallprompt' in window);
+
     expect(hasInstallPrompt).toBeTruthy();
   });
 
@@ -133,21 +135,21 @@ test.describe('PWA Functionality', () => {
       test.skip();
       return;
     }
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
     // Check if push notifications are supported
-    const pushSupported = await page.evaluate(() => {
-      return 'PushManager' in window && 'Notification' in window;
-    });
-    
+    const pushSupported = await page.evaluate(
+      () => 'PushManager' in window && 'Notification' in window
+    );
+
     expect(pushSupported).toBeTruthy();
   });
 
   test('should have proper cache headers', async ({ page }) => {
     const response = await page.goto('/');
-    
+
     // Check cache-control header
     const cacheControl = response?.headers()['cache-control'];
     expect(cacheControl).toBeTruthy();
@@ -155,12 +157,12 @@ test.describe('PWA Functionality', () => {
 
   test('should load app shell quickly', async ({ page }) => {
     const startTime = Date.now();
-    
+
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
+
     const loadTime = Date.now() - startTime;
-    
+
     // App shell should load in less than 3 seconds
     expect(loadTime).toBeLessThan(3000);
   });
@@ -190,10 +192,10 @@ test.describe('PWA Functionality', () => {
       test.skip();
       return;
     }
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
+
     // Check if background sync is supported
     const bgSyncSupported = await page.evaluate(async () => {
       if ('serviceWorker' in navigator) {
@@ -202,7 +204,7 @@ test.describe('PWA Functionality', () => {
       }
       return false;
     });
-    
+
     expect(bgSyncSupported).toBeTruthy();
   });
 
@@ -232,7 +234,7 @@ test.describe('PWA Functionality', () => {
 
   test('should have proper viewport meta tag', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check viewport meta tag
     const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
     expect(viewport).toBeTruthy();
@@ -240,4 +242,3 @@ test.describe('PWA Functionality', () => {
     expect(viewport).toContain('initial-scale=1');
   });
 });
-

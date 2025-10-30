@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { X, Play, Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, Play, X } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useState } from 'react';
+import type { MediaFile } from '@/shared/lib/api';
 import { PhotoViewer } from './PhotoViewer';
 import { VideoPlayer } from './VideoPlayer';
-import type { MediaFile } from '@/shared/lib/api';
 
-interface MediaGridProps {
+type MediaGridProps = {
   media: MediaFile[];
   onRemove?: (index: number) => void;
   readonly?: boolean;
-}
+};
 
 export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps) {
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
@@ -34,40 +34,40 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {media.map((mediaFile, index) => (
           <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="group relative aspect-square"
             exit={{ opacity: 0, scale: 0.9 }}
-            className="relative aspect-square group"
+            initial={{ opacity: 0, scale: 0.9 }}
+            key={index}
           >
             {/* Thumbnail */}
             <button
+              className="h-full w-full overflow-hidden rounded-lg bg-muted transition-opacity hover:opacity-90 dark:bg-card"
               onClick={() => handleMediaClick(mediaFile)}
-              className="w-full h-full rounded-lg overflow-hidden bg-muted dark:bg-card hover:opacity-90 transition-opacity"
             >
               {mediaFile.type === 'image' ? (
                 <img
-                  src={mediaFile.url}
                   alt={mediaFile.fileName}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
+                  src={mediaFile.url}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-muted dark:bg-muted">
-                  <Play className="w-12 h-12 text-muted-foreground" />
+                <div className="flex h-full w-full items-center justify-center bg-muted dark:bg-muted">
+                  <Play className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
             </button>
 
             {/* Type indicator */}
-            <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-sm rounded text-white text-xs flex items-center gap-1">
+            <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-black/50 px-2 py-1 text-white text-xs backdrop-blur-sm">
               {mediaFile.type === 'image' ? (
                 <>
-                  <ImageIcon className="w-3 h-3" />
+                  <ImageIcon className="h-3 w-3" />
                   <span>Фото</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-3 h-3" />
+                  <Play className="h-3 w-3" />
                   <span>Видео</span>
                 </>
               )}
@@ -76,19 +76,19 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
             {/* Remove button */}
             {!readonly && onRemove && (
               <button
+                aria-label="Remove"
+                className="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(index);
                 }}
-                className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Remove"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             )}
 
             {/* File size */}
-            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 backdrop-blur-sm rounded text-white text-xs">
+            <div className="absolute right-2 bottom-2 rounded bg-black/50 px-2 py-1 text-white text-xs backdrop-blur-sm">
               {(mediaFile.fileSize / 1024 / 1024).toFixed(1)}MB
             </div>
           </motion.div>
@@ -98,8 +98,8 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
       {/* Photo Viewer */}
       {selectedMedia && selectedMedia.type === 'image' && (
         <PhotoViewer
-          imageUrl={selectedMedia.url ?? ''}
           fileName={selectedMedia.fileName}
+          imageUrl={selectedMedia.url ?? ''}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}
         />
@@ -108,13 +108,12 @@ export function MediaGrid({ media, onRemove, readonly = false }: MediaGridProps)
       {/* Video Player */}
       {selectedMedia && selectedMedia.type === 'video' && (
         <VideoPlayer
-          videoUrl={selectedMedia.url ?? ''}
           fileName={selectedMedia.fileName}
           isOpen={viewerOpen}
           onClose={handleCloseViewer}
+          videoUrl={selectedMedia.url ?? ''}
         />
       )}
     </>
   );
 }
-

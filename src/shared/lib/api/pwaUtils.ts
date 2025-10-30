@@ -26,17 +26,17 @@ export function isPWAInstalled(): boolean {
   if (window.matchMedia('(display-mode: standalone)').matches) {
     return true;
   }
-  
+
   // Проверка для iOS Safari
   if ((window.navigator as any).standalone === true) {
     return true;
   }
-  
+
   // Проверка параметра URL (если приложение открыто из PWA)
   if (document.referrer.startsWith('android-app://')) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -80,7 +80,7 @@ export function isIOSSafari(): boolean {
   const webkit = /WebKit/.test(ua);
   const isIOSChrome = /CriOS/.test(ua);
   const isIOSFirefox = /FxiOS/.test(ua);
-  
+
   return iOS && webkit && !isIOSChrome && !isIOSFirefox;
 }
 
@@ -89,7 +89,7 @@ export function isIOSSafari(): boolean {
  */
 export function getInstallInstructions(): { platform: string; steps: string[] } {
   const ua = window.navigator.userAgent;
-  
+
   // iOS Safari
   if (isIOSSafari()) {
     return {
@@ -97,11 +97,11 @@ export function getInstallInstructions(): { platform: string; steps: string[] } 
       steps: [
         'Нажмите кнопку "Поделиться" внизу экрана',
         'Прокрутите вниз и нажмите "На экран Домой"',
-        'Нажмите "Добавить" для установки'
-      ]
+        'Нажмите "Добавить" для установки',
+      ],
     };
   }
-  
+
   // Android Chrome
   if (/Chrome/.test(ua) && /Android/.test(ua)) {
     return {
@@ -109,11 +109,11 @@ export function getInstallInstructions(): { platform: string; steps: string[] } 
       steps: [
         'Нажмите меню (три точки) в правом верхнем углу',
         'Выберите "Установить приложение" или "Добавить на главный экран"',
-        'Подтвердите установку'
-      ]
+        'Подтвердите установку',
+      ],
     };
   }
-  
+
   // Desktop Chrome/Edge
   if (/Chrome|Edg/.test(ua) && !/Mobile/.test(ua)) {
     return {
@@ -121,11 +121,11 @@ export function getInstallInstructions(): { platform: string; steps: string[] } 
       steps: [
         'Нажмите иконку установки в адресной строке',
         'Или откройте меню → "Установить приложение"',
-        'Подтвердите установку'
-      ]
+        'Подтвердите установку',
+      ],
     };
   }
-  
+
   // Firefox Android
   if (/Firefox/.test(ua) && /Android/.test(ua)) {
     return {
@@ -133,19 +133,19 @@ export function getInstallInstructions(): { platform: string; steps: string[] } 
       steps: [
         'Нажмите меню (три точки) в правом верхнем углу',
         'Выберите "Установить"',
-        'Подтвердите установку'
-      ]
+        'Подтвердите установку',
+      ],
     };
   }
-  
+
   // Другие браузеры
   return {
     platform: 'Другой браузер',
     steps: [
       'Откройте меню браузера',
       'Найдите опцию "Добавить на главный экран" или "Установить"',
-      'Следуйте инструкциям браузера'
-    ]
+      'Следуйте инструкциям браузера',
+    ],
   };
 }
 
@@ -159,31 +159,31 @@ export async function logPWADebugInfo(): Promise<void> {
     serviceWorker: 'serviceWorker' in navigator,
     pushManager: 'PushManager' in window,
     beforeInstallPrompt: 'onbeforeinstallprompt' in window,
-    notification: 'Notification' in window
+    notification: 'Notification' in window,
   });
 
   console.log('Installation Status:', {
     isPWAInstalled: isPWAInstalled(),
     displayMode: window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser',
     standalone: (window.navigator as any).standalone,
-    wasPromptShown: await wasInstallPromptShown()
+    wasPromptShown: await wasInstallPromptShown(),
   });
 
   console.log('PWA Settings:', {
     isPWAEnabled: await isPWAEnabled(),
-    pwaEnabledValue: await storage.getItem('pwa-enabled')
+    pwaEnabledValue: await storage.getItem('pwa-enabled'),
   });
 
   console.log('Browser Info:', {
     userAgent: navigator.userAgent,
     isIOSSafari: isIOSSafari(),
     navigatorPlatform: navigator.platform,
-    ...getInstallInstructions()
+    ...getInstallInstructions(),
   });
 
   console.log('Service Worker:', {
     controller: navigator.serviceWorker?.controller,
-    ready: navigator.serviceWorker?.ready
+    ready: navigator.serviceWorker?.ready,
   });
 
   console.groupEnd();

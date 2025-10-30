@@ -14,8 +14,10 @@ import type { StorageAdapter } from './types';
 export class WebStorageAdapter implements StorageAdapter {
   private isAvailable(): boolean {
     try {
-      if (typeof localStorage === 'undefined') return false;
-      
+      if (typeof localStorage === 'undefined') {
+        return false;
+      }
+
       // Test localStorage availability
       const testKey = '__storage_test__';
       localStorage.setItem(testKey, 'test');
@@ -29,7 +31,9 @@ export class WebStorageAdapter implements StorageAdapter {
 
   async getItem(key: string): Promise<string | null> {
     try {
-      if (!this.isAvailable()) return null;
+      if (!this.isAvailable()) {
+        return null;
+      }
       return localStorage.getItem(key);
     } catch (error) {
       console.error('Storage getItem error:', error);
@@ -51,7 +55,9 @@ export class WebStorageAdapter implements StorageAdapter {
 
   async removeItem(key: string): Promise<void> {
     try {
-      if (!this.isAvailable()) return;
+      if (!this.isAvailable()) {
+        return;
+      }
       localStorage.removeItem(key);
     } catch (error) {
       console.error('Storage removeItem error:', error);
@@ -61,7 +67,9 @@ export class WebStorageAdapter implements StorageAdapter {
 
   async clear(): Promise<void> {
     try {
-      if (!this.isAvailable()) return;
+      if (!this.isAvailable()) {
+        return;
+      }
       localStorage.clear();
     } catch (error) {
       console.error('Storage clear error:', error);
@@ -71,7 +79,9 @@ export class WebStorageAdapter implements StorageAdapter {
 
   async getAllKeys(): Promise<string[]> {
     try {
-      if (!this.isAvailable()) return [];
+      if (!this.isAvailable()) {
+        return [];
+      }
       return Object.keys(localStorage);
     } catch (error) {
       console.error('Storage getAllKeys error:', error);
@@ -79,25 +89,25 @@ export class WebStorageAdapter implements StorageAdapter {
     }
   }
 
-  async multiGet(keys: string[]): Promise<Array<[string, string | null]>> {
+  async multiGet(keys: string[]): Promise<[string, string | null][]> {
     try {
       if (!this.isAvailable()) {
-        return keys.map(key => [key, null]);
+        return keys.map((key) => [key, null]);
       }
-      
-      return keys.map(key => [key, localStorage.getItem(key)]);
+
+      return keys.map((key) => [key, localStorage.getItem(key)]);
     } catch (error) {
       console.error('Storage multiGet error:', error);
-      return keys.map(key => [key, null]);
+      return keys.map((key) => [key, null]);
     }
   }
 
-  async multiSet(keyValuePairs: Array<[string, string]>): Promise<void> {
+  async multiSet(keyValuePairs: [string, string][]): Promise<void> {
     try {
       if (!this.isAvailable()) {
         throw new Error('localStorage is not available');
       }
-      
+
       keyValuePairs.forEach(([key, value]) => {
         localStorage.setItem(key, value);
       });
@@ -109,9 +119,11 @@ export class WebStorageAdapter implements StorageAdapter {
 
   async multiRemove(keys: string[]): Promise<void> {
     try {
-      if (!this.isAvailable()) return;
-      
-      keys.forEach(key => {
+      if (!this.isAvailable()) {
+        return;
+      }
+
+      keys.forEach((key) => {
         localStorage.removeItem(key);
       });
     } catch (error) {
@@ -120,4 +132,3 @@ export class WebStorageAdapter implements StorageAdapter {
     }
   }
 }
-

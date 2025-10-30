@@ -1,11 +1,12 @@
 /**
  * Component Showcase Page
- * 
+ *
  * Демонстрация Universal Components для E2E тестирования
  * Доступна только в development режиме
  */
 
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { Button } from '@/shared/components/ui/universal/Button';
 import { Modal } from '@/shared/components/ui/universal/Modal';
 import { RadioGroup } from '@/shared/components/ui/universal/RadioGroup';
@@ -22,26 +23,22 @@ export const ComponentShowcase: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+      <div className="mx-auto max-w-4xl space-y-12">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Universal Components Showcase
-          </h1>
-          <p className="text-muted-foreground">
-            Демонстрация компонентов для E2E тестирования
-          </p>
+          <h1 className="mb-2 font-bold text-4xl text-foreground">Universal Components Showcase</h1>
+          <p className="text-muted-foreground">Демонстрация компонентов для E2E тестирования</p>
         </div>
 
         {/* Button Section */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-foreground border-b border-border pb-2">
+          <h2 className="border-border border-b pb-2 font-semibold text-2xl text-foreground">
             Button Component
           </h2>
 
           {/* Variants */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Variants</h3>
+            <h3 className="font-medium text-foreground text-lg">Variants</h3>
             <div className="flex flex-wrap gap-4">
               <Button variant="default">Default</Button>
               <Button variant="destructive">Destructive</Button>
@@ -54,7 +51,7 @@ export const ComponentShowcase: React.FC = () => {
 
           {/* Sizes */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Sizes</h3>
+            <h3 className="font-medium text-foreground text-lg">Sizes</h3>
             <div className="flex flex-wrap items-center gap-4">
               <Button size="sm">Small</Button>
               <Button size="default">Default</Button>
@@ -65,7 +62,7 @@ export const ComponentShowcase: React.FC = () => {
 
           {/* States */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">States</h3>
+            <h3 className="font-medium text-foreground text-lg">States</h3>
             <div className="flex flex-wrap gap-4">
               <Button disabled>Disabled</Button>
               <Button loading={isLoading} onClick={handleLoadingClick}>
@@ -76,7 +73,7 @@ export const ComponentShowcase: React.FC = () => {
 
           {/* With Icons */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">With Icons</h3>
+            <h3 className="font-medium text-foreground text-lg">With Icons</h3>
             <div className="flex flex-wrap gap-4">
               <Button leftIcon={<span>←</span>}>Back</Button>
               <Button rightIcon={<span>→</span>}>Next</Button>
@@ -85,29 +82,27 @@ export const ComponentShowcase: React.FC = () => {
 
           {/* Full Width */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Full Width</h3>
+            <h3 className="font-medium text-foreground text-lg">Full Width</h3>
             <Button fullWidth>Full Width Button</Button>
           </div>
         </section>
 
         {/* Modal Section */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-foreground border-b border-border pb-2">
+          <h2 className="border-border border-b pb-2 font-semibold text-2xl text-foreground">
             Modal Component
           </h2>
 
           <div className="space-y-4">
-            <Button onClick={() => setIsModalOpen(true)}>
-              Open Modal
-            </Button>
+            <Button onClick={() => setIsModalOpen(true)}>Open Modal</Button>
 
             <Modal
-              open={isModalOpen}
-              onOpenChange={setIsModalOpen}
-              title="Example Modal"
-              description="This is a modal description"
               closeButton
               closeOnBackdrop
+              description="This is a modal description"
+              onOpenChange={setIsModalOpen}
+              open={isModalOpen}
+              title="Example Modal"
             >
               <div className="space-y-4">
                 <p className="text-foreground">
@@ -116,13 +111,11 @@ export const ComponentShowcase: React.FC = () => {
                 <p className="text-muted-foreground">
                   Try clicking the backdrop or pressing Escape to close the modal.
                 </p>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                <div className="flex justify-end gap-2">
+                  <Button onClick={() => setIsModalOpen(false)} variant="outline">
                     Cancel
                   </Button>
-                  <Button onClick={() => setIsModalOpen(false)}>
-                    Confirm
-                  </Button>
+                  <Button onClick={() => setIsModalOpen(false)}>Confirm</Button>
                 </div>
               </div>
             </Modal>
@@ -130,108 +123,96 @@ export const ComponentShowcase: React.FC = () => {
 
           {/* Different Sizes */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Sizes</h3>
+            <h3 className="font-medium text-foreground text-lg">Sizes</h3>
             <div className="flex flex-wrap gap-4">
-              <Button onClick={() => setIsModalOpen(true)}>
-                Small Modal
-              </Button>
-              <Button onClick={() => setIsModalOpen(true)}>
-                Default Modal
-              </Button>
-              <Button onClick={() => setIsModalOpen(true)}>
-                Large Modal
-              </Button>
+              <Button onClick={() => setIsModalOpen(true)}>Small Modal</Button>
+              <Button onClick={() => setIsModalOpen(true)}>Default Modal</Button>
+              <Button onClick={() => setIsModalOpen(true)}>Large Modal</Button>
             </div>
           </div>
         </section>
 
         {/* RadioGroup Section */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-foreground border-b border-border pb-2">
+          <h2 className="border-border border-b pb-2 font-semibold text-2xl text-foreground">
             RadioGroup Component
           </h2>
 
           {/* Basic RadioGroup */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Basic</h3>
+            <h3 className="font-medium text-foreground text-lg">Basic</h3>
             <RadioGroup
-              value={radioValue}
               onValueChange={setRadioValue}
               options={[
                 { value: 'option1', label: 'Option 1' },
                 { value: 'option2', label: 'Option 2' },
                 { value: 'option3', label: 'Option 3' },
               ]}
+              value={radioValue}
             />
-            <p className="text-sm text-muted-foreground">
-              Selected: {radioValue}
-            </p>
+            <p className="text-muted-foreground text-sm">Selected: {radioValue}</p>
           </div>
 
           {/* Horizontal Orientation */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Horizontal</h3>
+            <h3 className="font-medium text-foreground text-lg">Horizontal</h3>
             <RadioGroup
-              value={radioValue}
               onValueChange={setRadioValue}
-              orientation="horizontal"
               options={[
                 { value: 'option1', label: 'Option 1' },
                 { value: 'option2', label: 'Option 2' },
                 { value: 'option3', label: 'Option 3' },
               ]}
+              orientation="horizontal"
+              value={radioValue}
             />
           </div>
 
           {/* Disabled Options */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">Disabled</h3>
+            <h3 className="font-medium text-foreground text-lg">Disabled</h3>
             <RadioGroup
-              value={radioValue}
               onValueChange={setRadioValue}
               options={[
                 { value: 'option1', label: 'Option 1' },
                 { value: 'option2', label: 'Option 2 (Disabled)', disabled: true },
                 { value: 'option3', label: 'Option 3' },
               ]}
+              value={radioValue}
             />
           </div>
 
           {/* With Descriptions */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-foreground">With Descriptions</h3>
+            <h3 className="font-medium text-foreground text-lg">With Descriptions</h3>
             <RadioGroup
-              value={radioValue}
               onValueChange={setRadioValue}
               options={[
-                { 
-                  value: 'option1', 
+                {
+                  value: 'option1',
                   label: 'Option 1',
-                  description: 'This is the first option'
+                  description: 'This is the first option',
                 },
-                { 
-                  value: 'option2', 
+                {
+                  value: 'option2',
                   label: 'Option 2',
-                  description: 'This is the second option'
+                  description: 'This is the second option',
                 },
-                { 
-                  value: 'option3', 
+                {
+                  value: 'option3',
                   label: 'Option 3',
-                  description: 'This is the third option'
+                  description: 'This is the third option',
                 },
               ]}
+              value={radioValue}
             />
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="text-center text-sm text-muted-foreground pt-8 border-t border-border">
-          <p>
-            Component Showcase - Development Only
-          </p>
-          <p className="mt-2">
-            React Native Ready: 100% ✅
-          </p>
+        <footer className="border-border border-t pt-8 text-center text-muted-foreground text-sm">
+          <p>Component Showcase - Development Only</p>
+          <p className="mt-2">React Native Ready: 100% ✅</p>
         </footer>
       </div>
     </div>
@@ -239,4 +220,3 @@ export const ComponentShowcase: React.FC = () => {
 };
 
 export default ComponentShowcase;
-

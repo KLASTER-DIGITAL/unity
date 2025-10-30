@@ -1,23 +1,27 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useTranslation } from "@/shared/lib/i18n";
-import { getEntries, type DiaryEntry } from "@/shared/lib/api";
-import { calculateAchievements, calculateUserStats, type Achievement } from "@/shared/lib/api/statsCalculator";
-import { toast } from "sonner";
 import {
-  Trophy,
+  BookOpen,
+  Camera,
+  Crown,
+  Dumbbell,
+  Flame,
+  Heart,
   Star,
   Target,
-  Flame,
-  Crown,
+  Trophy,
   Zap,
-  Heart,
-  BookOpen,
-  Dumbbell,
-  Camera
-} from "lucide-react";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { type DiaryEntry, getEntries } from '@/shared/lib/api';
+import {
+  type Achievement,
+  calculateAchievements,
+  calculateUserStats,
+} from '@/shared/lib/api/statsCalculator';
+import { useTranslation } from '@/shared/lib/i18n';
 
 // Маппинг иконок для достижений
 const iconMap: Record<string, any> = {
@@ -29,7 +33,7 @@ const iconMap: Record<string, any> = {
   Target,
   Camera,
   Heart,
-  Zap
+  Zap,
 };
 
 export function AchievementsScreen({ userData }: { userData?: any }) {
@@ -40,7 +44,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   if (!t) {
     console.error('[ACHIEVEMENTS] Translation function not available');
     return (
-      <div className="pb-20 min-h-screen flex items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-background pb-20">
         <p className="text-foreground">Loading translations...</p>
       </div>
     );
@@ -55,22 +59,22 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
     longestStreak: 0,
     totalBadges: 0,
     level: 1,
-    nextLevelProgress: 0
+    nextLevelProgress: 0,
   });
 
   useEffect(() => {
     loadData();
-  }, [userData?.id]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {
       setIsLoading(true);
       // ✅ FIXED: userData has structure {user: {...}, profile: {...}}
-      const userId = userData?.user?.id || userData?.id || "anonymous";
-      console.log("[ACHIEVEMENTS] Loading data for user:", userId);
+      const userId = userData?.user?.id || userData?.id || 'anonymous';
+      console.log('[ACHIEVEMENTS] Loading data for user:', userId);
       const entriesData = await getEntries(userId, 100);
 
-      console.log("Loaded entries for achievements:", entriesData);
+      console.log('Loaded entries for achievements:', entriesData);
       setEntries(entriesData);
 
       // Вычислить достижения
@@ -83,23 +87,23 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
         totalEntries: stats.totalEntries,
         currentStreak: stats.currentStreak,
         longestStreak: stats.longestStreak,
-        totalBadges: calculatedAchievements.filter(a => a.earned).length,
+        totalBadges: calculatedAchievements.filter((a) => a.earned).length,
         level: stats.level,
-        nextLevelProgress: stats.nextLevelProgress
+        nextLevelProgress: stats.nextLevelProgress,
       });
 
-      console.log("Calculated achievements:", calculatedAchievements);
-      console.log("User stats:", userStats);
+      console.log('Calculated achievements:', calculatedAchievements);
+      console.log('User stats:', userStats);
     } catch (error) {
-      console.error("Error loading data:", error);
-      toast.error("Не удалось загрузить достижения");
+      console.error('Error loading data:', error);
+      toast.error('Не удалось загрузить достижения');
     } finally {
       setIsLoading(false);
     }
   };
 
   // Преобразовать достижения в формат для UI
-  const badges = achievements.map(achievement => {
+  const badges = achievements.map((achievement) => {
     // ✅ SAFETY: Ensure icon is always a valid component
     const IconComponent = iconMap[achievement.icon];
 
@@ -111,7 +115,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       earned: achievement.earned,
       rarity: achievement.rarity,
       earnedDate: achievement.earnedDate,
-      progress: achievement.progress
+      progress: achievement.progress,
     };
   });
 
@@ -120,13 +124,13 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       id: 1,
       title: t('milestone_10_entries', '10 записей'),
       completed: userStats.totalEntries >= 10,
-      reward: t('badge_beginner', 'Бейдж "Начинающий"')
+      reward: t('badge_beginner', 'Бейдж "Начинающий"'),
     },
     {
       id: 2,
       title: t('milestone_week_streak', 'Неделя подряд'),
       completed: userStats.currentStreak >= 7,
-      reward: t('badge_consistency', 'Бейдж "Постоянство"')
+      reward: t('badge_consistency', 'Бейдж "Постоянство"'),
     },
     {
       id: 3,
@@ -134,7 +138,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       completed: userStats.totalEntries >= 50,
       progress: userStats.totalEntries,
       total: 50,
-      reward: t('premium_theme', 'Премиум тема')
+      reward: t('premium_theme', 'Премиум тема'),
     },
     {
       id: 4,
@@ -142,8 +146,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       completed: userStats.longestStreak >= 30,
       progress: userStats.longestStreak,
       total: 30,
-      reward: t('badge_legend', 'Бейдж "Легенда"')
-    }
+      reward: t('badge_legend', 'Бейдж "Легенда"'),
+    },
   ];
 
   // Helper functions for rarity styling (currently unused but kept for future use)
@@ -167,21 +171,21 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="pb-20 min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         {/* Skeleton for achievements header */}
-        <div className="p-4 bg-card transition-colors duration-300">
-          <div className="text-center mb-6">
-            <Skeleton className="w-20 h-20 rounded-full mx-auto mb-3" />
-            <Skeleton className="h-8 w-32 mx-auto mb-2" />
-            <Skeleton className="h-4 w-40 mx-auto" />
+        <div className="bg-card p-4 transition-colors duration-300">
+          <div className="mb-6 text-center">
+            <Skeleton className="mx-auto mb-3 h-20 w-20 rounded-full" />
+            <Skeleton className="mx-auto mb-2 h-8 w-32" />
+            <Skeleton className="mx-auto h-4 w-40" />
           </div>
 
           {/* Skeleton for stats grid */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="text-center">
-                <Skeleton className="h-8 w-12 mx-auto mb-1" />
-                <Skeleton className="h-3 w-16 mx-auto" />
+          <div className="mb-6 grid grid-cols-4 gap-4">
+            {[...new Array(4)].map((_, i) => (
+              <div className="text-center" key={i}>
+                <Skeleton className="mx-auto mb-1 h-8 w-12" />
+                <Skeleton className="mx-auto h-3 w-16" />
               </div>
             ))}
           </div>
@@ -197,15 +201,15 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
         </div>
 
         {/* Skeleton for achievement cards */}
-        <div className="p-4 space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-card rounded-[16px] p-4 transition-colors duration-300">
+        <div className="space-y-3 p-4">
+          {[...new Array(3)].map((_, i) => (
+            <div className="rounded-[16px] bg-card p-4 transition-colors duration-300" key={i}>
               <div className="flex items-start gap-4">
-                <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+                <Skeleton className="h-12 w-12 flex-shrink-0 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-5 w-3/4" />
                   <Skeleton className="h-4 w-full" />
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="mt-2 flex items-center gap-2">
                     <Skeleton className="h-6 w-16 rounded-full" />
                     <Skeleton className="h-6 w-20 rounded-full" />
                   </div>
@@ -219,44 +223,54 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
   }
 
   return (
-    <div className="pb-20 min-h-screen overflow-x-hidden scrollbar-hide bg-background">
+    <div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-20">
       {/* Header Section */}
-      <div className="p-4 bg-card transition-colors duration-300">
-        <div className="text-center mb-6">
-          <div className="w-20 h-20 bg-linear-to-br from-primary to-primary/80 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
+      <div className="bg-card p-4 transition-colors duration-300">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/80 shadow-lg">
             <Crown className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl mb-1 text-foreground font-semibold">{t('level', 'Уровень')} {userStats.level}</h1>
+          <h1 className="mb-1 font-semibold text-2xl text-foreground">
+            {t('level', 'Уровень')} {userStats.level}
+          </h1>
           <p className="text-muted-foreground">{t('achievement_master', 'Мастер достижений')}</p>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="mb-6 grid grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl mb-1 text-foreground font-semibold">{userStats.totalEntries}</div>
-            <div className="text-xs text-muted-foreground">Записей</div>
+            <div className="mb-1 font-semibold text-2xl text-foreground">
+              {userStats.totalEntries}
+            </div>
+            <div className="text-muted-foreground text-xs">Записей</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl mb-1 text-foreground font-semibold">{userStats.totalBadges}</div>
-            <div className="text-xs text-muted-foreground">Наград</div>
+            <div className="mb-1 font-semibold text-2xl text-foreground">
+              {userStats.totalBadges}
+            </div>
+            <div className="text-muted-foreground text-xs">Наград</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl mb-1 text-foreground font-semibold">{userStats.currentStreak}</div>
-            <div className="text-xs text-muted-foreground">Дней подряд</div>
+            <div className="mb-1 font-semibold text-2xl text-foreground">
+              {userStats.currentStreak}
+            </div>
+            <div className="text-muted-foreground text-xs">Дней подряд</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl mb-1 text-foreground font-semibold">{userStats.longestStreak}</div>
-            <div className="text-xs text-muted-foreground">Рекорд</div>
+            <div className="mb-1 font-semibold text-2xl text-foreground">
+              {userStats.longestStreak}
+            </div>
+            <div className="text-muted-foreground text-xs">Рекорд</div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-muted-foreground">
+          <div className="flex justify-between text-muted-foreground text-sm">
             <span>До следующего уровня</span>
             <span>{userStats.nextLevelProgress}%</span>
           </div>
-          <div className="w-full bg-muted rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-muted">
             <div
-              className="bg-linear-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-300"
+              className="h-2 rounded-full bg-linear-to-r from-primary to-primary/80 transition-all duration-300"
               style={{ width: `${userStats.nextLevelProgress}%` }}
             />
           </div>
@@ -266,61 +280,75 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
       {/* Badges Grid */}
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
-          {badges.map(badge => {
+          {badges.map((badge) => {
             // ✅ SAFETY: Ensure Icon component exists before rendering
             const Icon = badge.icon || Star;
 
             return (
               <Card
-                key={badge.id}
-                className={`bg-card border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                className={`cursor-pointer border-0 bg-card shadow-sm transition-all hover:shadow-md ${
                   badge.earned ? '' : 'opacity-60'
                 }`}
+                key={badge.id}
               >
                 <CardContent className="p-4 text-center">
                   <div className="relative mb-3">
-                    <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${
-                      badge.earned
-                        ? badge.rarity === 'legendary' ? 'bg-linear-to-br from-purple-400 to-purple-600' :
-                          badge.rarity === 'rare' ? 'bg-linear-to-br from-blue-400 to-blue-600' :
-                          badge.rarity === 'uncommon' ? 'bg-linear-to-br from-green-400 to-green-600' :
-                          'bg-linear-to-br from-gray-400 to-gray-600'
-                        : 'bg-muted'
-                    }`}>
-                      {Icon && <Icon className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`} />}
+                    <div
+                      className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
+                        badge.earned
+                          ? badge.rarity === 'legendary'
+                            ? 'bg-linear-to-br from-purple-400 to-purple-600'
+                            : badge.rarity === 'rare'
+                              ? 'bg-linear-to-br from-blue-400 to-blue-600'
+                              : badge.rarity === 'uncommon'
+                                ? 'bg-linear-to-br from-green-400 to-green-600'
+                                : 'bg-linear-to-br from-gray-400 to-gray-600'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      {Icon && (
+                        <Icon
+                          className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`}
+                        />
+                      )}
                     </div>
                     {badge.earned && (
-                      <div className="absolute -top-2 -right-2">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <Star className="h-3 w-3 text-white fill-white" />
+                      <div className="-top-2 -right-2 absolute">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500">
+                          <Star className="h-3 w-3 fill-white text-white" />
                         </div>
                       </div>
                     )}
                   </div>
-                  
-                  <h4 className="text-[#0d062d] mb-1">{badge.name}</h4>
-                  <p className="text-xs text-[#787486] mb-2">{badge.description}</p>
-                  
+
+                  <h4 className="mb-1 text-[#0d062d]">{badge.name}</h4>
+                  <p className="mb-2 text-[#787486] text-xs">{badge.description}</p>
+
                   {badge.earned ? (
-                    <Badge className={`text-xs ${
-                      badge.rarity === 'legendary' ? 'bg-purple-100 text-purple-600' :
-                      badge.rarity === 'rare' ? 'bg-blue-100 text-blue-600' :
-                      badge.rarity === 'uncommon' ? 'bg-green-100 text-green-600' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
+                    <Badge
+                      className={`text-xs ${
+                        badge.rarity === 'legendary'
+                          ? 'bg-purple-100 text-purple-600'
+                          : badge.rarity === 'rare'
+                            ? 'bg-blue-100 text-blue-600'
+                            : badge.rarity === 'uncommon'
+                              ? 'bg-green-100 text-green-600'
+                              : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
                       {badge.earnedDate}
                     </Badge>
                   ) : (
                     <div className="space-y-1">
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="h-2 w-full rounded-full bg-muted">
                         <div
-                          className="bg-[#5030e5] h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${((badge.progress || 0) / (badge.rarity === 'legendary' ? 30 : 20)) * 100}%` 
+                          className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
+                          style={{
+                            width: `${((badge.progress || 0) / (badge.rarity === 'legendary' ? 30 : 20)) * 100}%`,
                           }}
                         />
                       </div>
-                      <p className="text-xs text-[#787486]">
+                      <p className="text-[#787486] text-xs">
                         {badge.progress}/{badge.rarity === 'legendary' ? 30 : 20}
                       </p>
                     </div>
@@ -334,36 +362,45 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
       {/* Milestones Section */}
       <div className="p-4">
-        <h3 className="text-[#0d062d] mb-4">Основные этапы</h3>
+        <h3 className="mb-4 text-[#0d062d]">Основные этапы</h3>
         <div className="space-y-3">
-          {milestones.map(milestone => (
-            <Card key={milestone.id} className="bg-card border-0 shadow-sm transition-colors duration-300">
+          {milestones.map((milestone) => (
+            <Card
+              className="border-0 bg-card shadow-sm transition-colors duration-300"
+              key={milestone.id}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      milestone.completed 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-[#5030e5]/10 text-[#5030e5]'
-                    }`}>
-                      {milestone.completed ? <Trophy className="h-5 w-5" strokeWidth={2} /> : <Target className="h-5 w-5" strokeWidth={2} />}
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        milestone.completed
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-[#5030e5]/10 text-[#5030e5]'
+                      }`}
+                    >
+                      {milestone.completed ? (
+                        <Trophy className="h-5 w-5" strokeWidth={2} />
+                      ) : (
+                        <Target className="h-5 w-5" strokeWidth={2} />
+                      )}
                     </div>
                     <div>
                       <h4 className="text-[#0d062d]">{milestone.title}</h4>
-                      <p className="text-sm text-[#787486]">{milestone.reward}</p>
+                      <p className="text-[#787486] text-sm">{milestone.reward}</p>
                     </div>
                   </div>
-                  
+
                   {milestone.completed ? (
                     <Badge className="bg-green-100 text-green-600">Выполнено</Badge>
                   ) : (
                     <div className="text-right">
-                      <p className="text-sm text-[#787486] mb-1">
+                      <p className="mb-1 text-[#787486] text-sm">
                         {milestone.progress}/{milestone.total}
                       </p>
-                      <div className="w-20 bg-muted rounded-full h-2">
+                      <div className="h-2 w-20 rounded-full bg-muted">
                         <div
-                          className="bg-[#5030e5] h-2 rounded-full transition-all duration-300"
+                          className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
                           style={{ width: `${(milestone.progress! / milestone.total!) * 100}%` }}
                         />
                       </div>

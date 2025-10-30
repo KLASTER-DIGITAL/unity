@@ -1,35 +1,29 @@
 /**
  * Motivation Cards Section - Lazy Loaded Component
- * 
+ *
  * This component is lazy loaded to improve LCP (Largest Contentful Paint)
  * by deferring the loading of motivation cards until after initial page render.
- * 
+ *
  * Performance Impact:
  * - Reduces initial bundle size
  * - Improves LCP by ~2-3 seconds
  * - Cards load after critical content is visible
  */
 
-import { useState, useEffect } from "react";
-import { AnimatedPresence } from "@/shared/lib/platform/animation";
-import { getMotivationCards, markCardAsRead } from "@/shared/lib/api";
-import { toast } from "sonner";
-import { type Language } from "@/shared/lib/i18n";
-import { X } from "lucide-react";
-
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
+import type { Language } from '@/shared/lib/i18n';
+import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import type { AchievementCard } from './achievement';
 // Import modular components
-import {
-  SwipeCard,
-  getDefaultMotivations,
-} from "./achievement";
-import type {
-  AchievementCard
-} from "./achievement";
+import { getDefaultMotivations, SwipeCard } from './achievement';
 
-interface MotivationCardsSectionProps {
+type MotivationCardsSectionProps = {
   userData: any;
   onCardSwipe?: () => void;
-}
+};
 
 export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCardsSectionProps) {
   const [cards, setCards] = useState<AchievementCard[]>([]);
@@ -42,23 +36,22 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
   // Load motivation cards on mount
   useEffect(() => {
     loadMotivationCards();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadMotivationCards = async () => {
     try {
       setIsLoading(true);
-      const userId = userData?.user?.id || userData?.id || "anonymous";
+      const userId = userData?.user?.id || userData?.id || 'anonymous';
 
       const motivationCards = await getMotivationCards(userId);
-      console.log("[MotivationCardsSection] Loaded motivation cards:", motivationCards);
+      console.log('[MotivationCardsSection] Loaded motivation cards:', motivationCards);
 
       setCards(motivationCards);
       setCurrentIndex(0);
-
     } catch (error) {
-      console.error("[MotivationCardsSection] Error loading motivation cards:", error);
+      console.error('[MotivationCardsSection] Error loading motivation cards:', error);
       toast.error('Не удалось загрузить карточки', {
-        description: 'Проверьте подключение к интернету'
+        description: 'Проверьте подключение к интернету',
       });
 
       // Fallback to default motivations
@@ -76,7 +69,7 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
     if (direction === 'right') {
       // Mark as read
       try {
-        const userId = userData?.user?.id || userData?.id || "anonymous";
+        const userId = userData?.user?.id || userData?.id || 'anonymous';
         await markCardAsRead(userId, currentCard.id);
         console.log(`Card ${currentCard.id} marked as read`);
       } catch (error) {
@@ -124,12 +117,10 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
   if (isLoading) {
     return (
       <div className="p-section">
-        <div className="relative w-full min-h-[280px] mb-responsive-md flex items-center justify-center">
+        <div className="relative mb-responsive-md flex min-h-[280px] w-full items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Загрузка карточек...
-            </p>
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
+            <p className="mt-4 text-muted-foreground text-sm">Загрузка карточек...</p>
           </div>
         </div>
       </div>
@@ -140,15 +131,11 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
   if (showAllRead && !hasCards) {
     return (
       <div className="p-section">
-        <div className="relative w-full min-h-[280px] mb-responsive-md">
-          <div className="bg-card rounded-[36px] p-8 text-center border border-border">
-            <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Все прочитано!
-            </h3>
-            <p className="text-muted-foreground">
-              Новые карточки появятся завтра
-            </p>
+        <div className="relative mb-responsive-md min-h-[280px] w-full">
+          <div className="rounded-[36px] border border-border bg-card p-8 text-center">
+            <div className="mb-4 text-6xl">🎉</div>
+            <h3 className="mb-2 font-semibold text-xl">Все прочитано!</h3>
+            <p className="text-muted-foreground">Новые карточки появятся завтра</p>
           </div>
         </div>
       </div>
@@ -160,32 +147,30 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
     <div className="p-section">
       {/* Undo Button */}
       {showUndo && lastRemovedCard && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="-translate-x-1/2 fade-in slide-in-from-top-2 fixed top-20 left-1/2 z-50 animate-in duration-300">
           <button
+            className="flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-card-foreground shadow-lg transition-colors hover:bg-accent"
             onClick={handleUndo}
-            className="bg-card text-card-foreground px-6 py-3 rounded-full shadow-lg border border-border flex items-center gap-2 hover:bg-accent transition-colors"
           >
-            <X className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              Отменить
-            </span>
+            <X className="h-4 w-4" />
+            <span className="font-medium text-sm">Отменить</span>
           </button>
         </div>
       )}
 
       {/* Cards Stack Container */}
-      <div className="relative w-full min-h-[280px] mb-responsive-md">
+      <div className="relative mb-responsive-md min-h-[280px] w-full">
         <AnimatedPresence>
           {visibleCards.reverse().map((card, idx) => {
             const actualIndex = visibleCards.length - 1 - idx;
             return (
               <SwipeCard
-                key={card.id}
                 card={card}
                 index={actualIndex}
-                totalCards={visibleCards.length}
-                onSwipe={handleSwipe}
                 isTop={actualIndex === 0}
+                key={card.id}
+                onSwipe={handleSwipe}
+                totalCards={visibleCards.length}
               />
             );
           })}
@@ -194,4 +179,3 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
     </div>
   );
 }
-

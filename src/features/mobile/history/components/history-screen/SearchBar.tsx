@@ -1,12 +1,12 @@
-import { Search, Filter } from "lucide-react";
+import { Filter, Search } from 'lucide-react';
 
-interface SearchBarProps {
+type SearchBarProps = {
   searchQuery: string;
   showFilters: boolean;
   activeFiltersCount: number;
   onSearchChange: (query: string) => void;
   onToggleFilters: () => void;
-}
+};
 
 /**
  * Search Bar Component
@@ -17,30 +17,30 @@ export function SearchBar({
   showFilters: _showFilters,
   activeFiltersCount,
   onSearchChange,
-  onToggleFilters
+  onToggleFilters,
 }: SearchBarProps) {
   return (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       {/* Search */}
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-5 w-5 text-muted-foreground" />
         <input
-          type="text"
-          value={searchQuery}
+          className="w-full rounded-[12px] border border-border bg-muted py-3 pr-4 pl-11 text-[15px]! text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent"
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Поиск по записям..."
-          className="w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-[12px] text-[15px]! text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
+          type="text"
+          value={searchQuery}
         />
       </div>
 
       {/* Filters Button */}
       <button
+        className="flex flex-shrink-0 items-center gap-2 rounded-[12px] bg-accent/10 px-4 py-3 font-medium! text-[14px]! text-accent transition-colors hover:bg-accent/20"
         onClick={onToggleFilters}
-        className="flex items-center gap-2 px-4 py-3 bg-accent/10 text-accent rounded-[12px] text-[14px]! font-medium! hover:bg-accent/20 transition-colors flex-shrink-0"
       >
         <Filter className="h-5 w-5" strokeWidth={2} />
         {activeFiltersCount > 0 && (
-          <span className="bg-accent text-white px-2 py-0.5 rounded-full text-[12px]!">
+          <span className="rounded-full bg-accent px-2 py-0.5 text-[12px]! text-white">
             {activeFiltersCount}
           </span>
         )}
@@ -48,4 +48,3 @@ export function SearchBar({
     </div>
   );
 }
-

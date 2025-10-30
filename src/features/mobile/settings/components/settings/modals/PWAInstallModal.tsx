@@ -2,66 +2,70 @@
  * SettingsScreen - PWA Install Modal Component
  */
 
-import { motion } from "motion/react";
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
+import { motion } from 'motion/react';
 
-interface PWAInstallModalProps {
+type PWAInstallModalProps = {
   isOpen: boolean;
   onClose: () => void;
   t: any;
-}
+};
 
 export function PWAInstallModal({ isOpen, onClose, t }: PWAInstallModalProps) {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <>
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
         exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
+        className="modal-bottom-sheet z-modal mx-auto max-w-md overflow-y-auto border-border border-t bg-card p-modal transition-colors duration-300"
         exit={{ opacity: 0, y: 100 }}
-        className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300"
+        initial={{ opacity: 0, y: 100 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-title-3 text-foreground">{t.installPWA || "Установить приложение"}</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-foreground text-title-3">
+            {t.installPWA || 'Установить приложение'}
+          </h3>
           <button
+            className="rounded-full p-1 transition-colors hover:bg-accent/10"
             onClick={onClose}
-            className="p-1 hover:bg-accent/10 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-foreground" />
+            <X className="h-5 w-5 text-foreground" />
           </button>
         </div>
 
-        <p className="text-footnote text-muted-foreground mb-4">Добавьте UNITY на главный экран</p>
+        <p className="mb-4 text-footnote text-muted-foreground">Добавьте UNITY на главный экран</p>
 
         <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="text-headline text-blue-900 mb-2">iOS (Safari)</h4>
-            <ol className="list-decimal list-inside space-y-1 text-footnote text-blue-800">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <h4 className="mb-2 text-blue-900 text-headline">iOS (Safari)</h4>
+            <ol className="list-inside list-decimal space-y-1 text-blue-800 text-footnote">
               <li>Нажмите кнопку "Поделиться" внизу экрана</li>
               <li>Выберите "На экран Домой"</li>
               <li>Нажмите "Добавить"</li>
             </ol>
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h4 className="text-headline text-green-900 mb-2">Android (Chrome)</h4>
-            <ol className="list-decimal list-inside space-y-1 text-footnote text-green-800">
+          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+            <h4 className="mb-2 text-green-900 text-headline">Android (Chrome)</h4>
+            <ol className="list-inside list-decimal space-y-1 text-footnote text-green-800">
               <li>Нажмите меню (три точки) в правом верхнем углу</li>
               <li>Выберите "Установить приложение"</li>
               <li>Нажмите "Установить"</li>
             </ol>
           </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-900 mb-2">Преимущества PWA</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-purple-800">
+          <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+            <h4 className="mb-2 font-semibold text-purple-900">Преимущества PWA</h4>
+            <ul className="list-inside list-disc space-y-1 text-purple-800 text-sm">
               <li>Работает офлайн</li>
               <li>Быстрая загрузка</li>
               <li>Иконка на главном экране</li>
@@ -73,4 +77,3 @@ export function PWAInstallModal({ isOpen, onClose, t }: PWAInstallModalProps) {
     </>
   );
 }
-

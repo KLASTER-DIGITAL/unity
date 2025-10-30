@@ -1,21 +1,18 @@
 /**
  * Universal Modal Component for UNITY-v2
- * 
+ *
  * Cross-platform modal that works on both Web and React Native
  * Replaces @radix-ui/react-dialog
- * 
+ *
  * @author UNITY Team
  * @date 2025-01-18
  */
 
-import React, { useEffect, forwardRef } from 'react';
-import { cn } from '../utils';
 import { XIcon } from 'lucide-react';
-import {
-  UniversalEventHandlers,
-  ModalProps,
-  ModalSize
-} from './types';
+import type React from 'react';
+import { useEffect } from 'react';
+import { cn } from '../utils';
+import type { ModalProps, ModalSize, UniversalEventHandlers } from './types';
 
 /**
  * Extended Modal component props
@@ -75,166 +72,165 @@ export interface ExtendedModalProps extends ModalProps, UniversalEventHandlers {
 /**
  * Web-specific modal implementation
  */
-const WebModal = forwardRef<HTMLDivElement, ExtendedModalProps>(
-  ({ 
-    open = false,
-    onOpenChange,
-    title,
-    description,
-    size = 'md',
-    closable = true,
-    backdrop = true,
-    animation = 'fade',
-    closeOnBackdrop = true,
-    closeOnEscape = true,
-    showCloseButton = true,
-    closeButton,
-    zIndex = 50,
-    backdropColor = 'rgba(0, 0, 0, 0.5)',
-    preventBodyScroll = true,
-    children,
-    header,
-    footer,
-    className,
-    testID,
-    accessibilityLabel,
-    ...props 
-  }, ref) => {
-    // Handle escape key
-    useEffect(() => {
-      if (!open || !closeOnEscape) return;
+const WebModal = ({
+  open = false,
+  onOpenChange,
+  title,
+  description,
+  size = 'md',
+  closable = true,
+  backdrop = true,
+  animation = 'fade',
+  closeOnBackdrop = true,
+  closeOnEscape = true,
+  showCloseButton = true,
+  closeButton,
+  zIndex = 50,
+  backdropColor = 'rgba(0, 0, 0, 0.5)',
+  preventBodyScroll = true,
+  children,
+  header,
+  footer,
+  className,
+  testID,
+  accessibilityLabel,
+  ref,
+  ...props
+}: ExtendedModalProps & { ref?: React.RefObject<HTMLDivElement | null> }) => {
+  // Handle escape key
+  useEffect(() => {
+    if (!(open && closeOnEscape)) {
+      return;
+    }
 
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && onOpenChange) {
-          onOpenChange(false);
-        }
-      };
-
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }, [open, closeOnEscape, onOpenChange]);
-
-    // Prevent body scroll
-    useEffect(() => {
-      if (!open || !preventBodyScroll) return;
-
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }, [open, preventBodyScroll]);
-
-    if (!open) return null;
-
-    // Size styles
-    const sizeStyles = {
-      sm: 'max-w-sm',
-      md: 'max-w-md',
-      lg: 'max-w-lg',
-      xl: 'max-w-xl',
-      full: 'max-w-full h-full'
-    };
-
-    // Animation styles
-    const animationStyles = {
-      fade: 'animate-in fade-in-0 duration-200',
-      slide: 'animate-in slide-in-from-bottom-4 duration-300',
-      scale: 'animate-in zoom-in-95 duration-200',
-      bounce: 'animate-in zoom-in-95 duration-300',
-      none: ''
-    };
-
-    const handleBackdropClick = (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget && closeOnBackdrop && onOpenChange) {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onOpenChange) {
         onOpenChange(false);
       }
     };
 
-    return (
-      <div
-        className={cn(
-          'fixed inset-0 z-50 flex items-center justify-center p-4',
-          animationStyles[animation]
-        )}
-        style={{ zIndex }}
-        data-testid={testID}
-        aria-label={accessibilityLabel}
-      >
-        {/* Backdrop */}
-        {backdrop && (
-          <div
-            className="fixed inset-0 bg-black/50"
-            style={{ backgroundColor: backdropColor }}
-            onClick={handleBackdropClick}
-          />
-        )}
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [open, closeOnEscape, onOpenChange]);
 
-        {/* Modal Content */}
+  // Prevent body scroll
+  useEffect(() => {
+    if (!(open && preventBodyScroll)) {
+      return;
+    }
+
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, [open, preventBodyScroll]);
+
+  if (!open) {
+    return null;
+  }
+
+  // Size styles
+  const sizeStyles = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    full: 'max-w-full h-full',
+  };
+
+  // Animation styles
+  const animationStyles = {
+    fade: 'animate-in fade-in-0 duration-200',
+    slide: 'animate-in slide-in-from-bottom-4 duration-300',
+    scale: 'animate-in zoom-in-95 duration-200',
+    bounce: 'animate-in zoom-in-95 duration-300',
+    none: '',
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && closeOnBackdrop && onOpenChange) {
+      onOpenChange(false);
+    }
+  };
+
+  return (
+    <div
+      aria-label={accessibilityLabel}
+      className={cn(
+        'fixed inset-0 z-50 flex items-center justify-center p-4',
+        animationStyles[animation]
+      )}
+      data-testid={testID}
+      style={{ zIndex }}
+    >
+      {/* Backdrop */}
+      {backdrop && (
         <div
-          ref={ref}
-          className={cn(
-            'relative bg-background rounded-lg shadow-lg border max-h-[90vh] overflow-hidden',
-            'flex flex-col w-full',
-            sizeStyles[size],
-            className
-          )}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={title ? 'modal-title' : undefined}
-          aria-describedby={description ? 'modal-description' : undefined}
-          {...props}
-        >
-          {/* Header */}
-          {(title || description || header || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b">
-              <div className="flex-1">
-                {header || (
-                  <>
-                    {title && (
-                      <h2 id="modal-title" className="text-lg font-semibold">
-                        {title}
-                      </h2>
-                    )}
-                    {description && (
-                      <p id="modal-description" className="text-sm text-muted-foreground mt-1">
-                        {description}
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
-              
-              {closable && showCloseButton && (
-                <button
-                  type="button"
-                  className="ml-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  onClick={() => onOpenChange && onOpenChange(false)}
-                  aria-label="Close modal"
-                >
-                  {closeButton || <XIcon className="h-4 w-4" />}
-                </button>
+          className="fixed inset-0 bg-black/50"
+          onClick={handleBackdropClick}
+          style={{ backgroundColor: backdropColor }}
+        />
+      )}
+
+      {/* Modal Content */}
+      <div
+        aria-describedby={description ? 'modal-description' : undefined}
+        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-modal="true"
+        className={cn(
+          'relative max-h-[90vh] overflow-hidden rounded-lg border bg-background shadow-lg',
+          'flex w-full flex-col',
+          sizeStyles[size],
+          className
+        )}
+        ref={ref}
+        role="dialog"
+        {...props}
+      >
+        {/* Header */}
+        {(title || description || header || showCloseButton) && (
+          <div className="flex items-center justify-between border-b p-6">
+            <div className="flex-1">
+              {header || (
+                <>
+                  {title && (
+                    <h2 className="font-semibold text-lg" id="modal-title">
+                      {title}
+                    </h2>
+                  )}
+                  {description && (
+                    <p className="mt-1 text-muted-foreground text-sm" id="modal-description">
+                      {description}
+                    </p>
+                  )}
+                </>
               )}
             </div>
-          )}
 
-          {/* Content */}
-          <div className="flex-1 overflow-auto p-6">
-            {children}
+            {closable && showCloseButton && (
+              <button
+                aria-label="Close modal"
+                className="ml-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                onClick={() => onOpenChange?.(false)}
+                type="button"
+              >
+                {closeButton || <XIcon className="h-4 w-4" />}
+              </button>
+            )}
           </div>
+        )}
 
-          {/* Footer */}
-          {footer && (
-            <div className="border-t p-6">
-              {footer}
-            </div>
-          )}
-        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">{children}</div>
+
+        {/* Footer */}
+        {footer && <div className="border-t p-6">{footer}</div>}
       </div>
-    );
-  }
-);
+    </div>
+  );
+};
 
 /**
  * Universal Modal component
@@ -243,7 +239,7 @@ const WebModal = forwardRef<HTMLDivElement, ExtendedModalProps>(
  * - PWA build (src/): ONLY web implementation
  * - React Native build (/app/): Uses /app/shared/components/ui/universal/Modal.native.tsx
  */
-export const Modal = WebModal;
+export const Modal = WebModal as typeof WebModal & { displayName: string };
 
 Modal.displayName = 'Modal';
 
@@ -260,7 +256,7 @@ export const ModalUtils = {
       md: { maxWidth: 400 },
       lg: { maxWidth: 500 },
       xl: { maxWidth: 600 },
-      full: { maxWidth: '100%', height: '100%' }
+      full: { maxWidth: '100%', height: '100%' },
     };
     return styles[size] || styles.md;
   },
@@ -270,20 +266,23 @@ export const ModalUtils = {
    */
   validateProps: (props: ExtendedModalProps) => {
     const errors: string[] = [];
-    
+
     if (props.size && !['sm', 'md', 'lg', 'xl', 'full'].includes(props.size)) {
       errors.push(`Invalid size: ${props.size}`);
     }
-    
-    if (props.animation && !['fade', 'slide', 'scale', 'bounce', 'none'].includes(props.animation)) {
+
+    if (
+      props.animation &&
+      !['fade', 'slide', 'scale', 'bounce', 'none'].includes(props.animation)
+    ) {
       errors.push(`Invalid animation: ${props.animation}`);
     }
-    
+
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
-  }
+  },
 };
 
 export default Modal;

@@ -1,8 +1,8 @@
 /**
  * Lazy Sentry Monitoring Wrapper
- * 
+ *
  * Предоставляет lazy-loaded версии Sentry функций для уменьшения initial bundle
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-28
  */
@@ -91,4 +91,3 @@ export async function captureMessage(message: string, context?: any) {
     console.error('❌ [Sentry Lazy] Failed to capture message:', error);
   }
 }
-

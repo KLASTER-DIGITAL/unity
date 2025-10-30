@@ -1,5 +1,3 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -11,14 +9,14 @@ const corsHeaders = {
 // ======================
 
 // Health check (MUST be before dynamic routes)
-app.get('/health', (c) => {
-  return c.json({
+app.get('/health', (c) =>
+  c.json({
     success: true,
     status: 'ok',
     service: 'profiles',
-    timestamp: new Date().toISOString()
-  });
-});
+    timestamp: new Date().toISOString(),
+  })
+);
 
 // Create user profile
 app.post('/create', async (c) => {
@@ -27,7 +25,7 @@ app.post('/create', async (c) => {
 
     console.log('[PROFILES] Creating profile:', profileData);
 
-    if (!profileData.id || !profileData.email) {
+    if (!(profileData.id && profileData.email)) {
       return c.json({ success: false, error: 'id and email are required' }, 400);
     }
 
@@ -45,11 +43,11 @@ app.post('/create', async (c) => {
           selectedTime: 'none',
           morningTime: '08:00',
           eveningTime: '21:00',
-          permissionGranted: false
+          permissionGranted: false,
         },
-        onboarding_completed: profileData.onboardingCompleted || false,
+        onboarding_completed: profileData.onboardingCompleted,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -71,13 +69,12 @@ app.post('/create', async (c) => {
       notificationSettings: data.notification_settings,
       onboardingCompleted: data.onboarding_completed,
       createdAt: data.created_at,
-      updatedAt: data.updated_at
+      updatedAt: data.updated_at,
     };
 
     console.log('[PROFILES] Profile created successfully:', profile);
 
     return c.json({ success: true, profile });
-
   } catch (error) {
     console.error('[PROFILES] Error creating profile:', error);
     return c.json({ success: false, error: error.message }, 500);
@@ -91,11 +88,7 @@ app.get('/:id', async (c) => {
 
     console.log(`[PROFILES] Fetching profile for user: ${userId}`);
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
     if (error) {
       console.error('[PROFILES] Error fetching profile:', error);
@@ -126,11 +119,10 @@ app.get('/:id', async (c) => {
       biometricEnabled: data.biometric_enabled,
       backupEnabled: data.backup_enabled,
       firstDayOfWeek: data.first_day_of_week,
-      privacySettings: data.privacy_settings
+      privacySettings: data.privacy_settings,
     };
 
     return c.json({ success: true, profile });
-
   } catch (error) {
     console.error('[PROFILES] Error fetching profile:', error);
     return c.json({ success: false, error: error.message }, 500);
@@ -147,7 +139,7 @@ app.put('/:id', async (c) => {
 
     // Convert camelCase to snake_case for database
     const dbUpdates: any = {
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
     if (updates.name !== undefined) dbUpdates.name = updates.name;
@@ -156,12 +148,15 @@ app.put('/:id', async (c) => {
     if (updates.language !== undefined) dbUpdates.language = updates.language;
     if (updates.diaryName !== undefined) dbUpdates.diary_name = updates.diaryName;
     if (updates.diaryEmoji !== undefined) dbUpdates.diary_emoji = updates.diaryEmoji;
-    if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
-    if (updates.onboardingCompleted !== undefined) dbUpdates.onboarding_completed = updates.onboardingCompleted;
+    if (updates.notificationSettings !== undefined)
+      dbUpdates.notification_settings = updates.notificationSettings;
+    if (updates.onboardingCompleted !== undefined)
+      dbUpdates.onboarding_completed = updates.onboardingCompleted;
     // New fields from migration 20251018
     if (updates.theme !== undefined) dbUpdates.theme = updates.theme;
     if (updates.isPremium !== undefined) dbUpdates.is_premium = updates.isPremium;
-    if (updates.biometricEnabled !== undefined) dbUpdates.biometric_enabled = updates.biometricEnabled;
+    if (updates.biometricEnabled !== undefined)
+      dbUpdates.biometric_enabled = updates.biometricEnabled;
     if (updates.backupEnabled !== undefined) dbUpdates.backup_enabled = updates.backupEnabled;
     if (updates.firstDayOfWeek !== undefined) dbUpdates.first_day_of_week = updates.firstDayOfWeek;
     if (updates.privacySettings !== undefined) dbUpdates.privacy_settings = updates.privacySettings;
@@ -197,13 +192,12 @@ app.put('/:id', async (c) => {
       biometricEnabled: data.biometric_enabled,
       backupEnabled: data.backup_enabled,
       firstDayOfWeek: data.first_day_of_week,
-      privacySettings: data.privacy_settings
+      privacySettings: data.privacy_settings,
     };
 
     console.log('[PROFILES] Profile updated successfully:', profile);
 
     return c.json({ success: true, profile });
-
   } catch (error) {
     console.error('[PROFILES] Error updating profile:', error);
     return c.json({ success: false, error: error.message }, 500);
@@ -212,4 +206,3 @@ app.put('/:id', async (c) => {
 
 // Запуск сервера
 Deno.serve((req) => app.fetch(req));
-

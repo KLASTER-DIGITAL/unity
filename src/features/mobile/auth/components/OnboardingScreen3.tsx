@@ -1,14 +1,8 @@
-import { useState } from "react";
-import { motion } from "motion/react";
-
+import { motion } from 'motion/react';
+import { useState } from 'react';
+import type { OnboardingScreen3Props } from './onboarding3';
 // Import modular components
-import {
-  PersonalizationForm,
-  Sliedbar,
-  NextButton,
-  translations
-} from "./onboarding3";
-import type { OnboardingScreen3Props } from "./onboarding3";
+import { NextButton, PersonalizationForm, Sliedbar, translations } from './onboarding3';
 
 // Re-export types for backward compatibility
 export type { OnboardingScreen3Props };
@@ -17,10 +11,17 @@ export type { OnboardingScreen3Props };
 // ✅ REMOVED: Sliedbar moved to ./onboarding3/Sliedbar.tsx
 // ✅ REMOVED: ArrowRight, ArrowRight1, NextButton moved to ./onboarding3/NextButton.tsx
 
-function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
-  const currentTranslations = translations[selectedLanguage as keyof typeof translations] || translations.ru;
+function Frame2087324619({
+  selectedLanguage,
+  onNext,
+  currentStep,
+  totalSteps,
+  onStepClick,
+}: OnboardingScreen3Props) {
+  const currentTranslations =
+    translations[selectedLanguage as keyof typeof translations] || translations.ru;
   const [isFormComplete, setIsFormComplete] = useState(false);
-  const [formData, setFormData] = useState({ name: "", emoji: "🏆" });
+  const [formData, setFormData] = useState({ name: '', emoji: '🏆' });
 
   const handlePersonalizationNext = (name: string, emoji: string) => {
     setFormData({ name, emoji });
@@ -34,84 +35,92 @@ function Frame2087324619({ selectedLanguage, onNext, currentStep, totalSteps, on
   };
 
   return (
-    <motion.div 
-      className="content-center flex flex-wrap gap-0 h-screen items-center justify-center relative shrink-0 w-full max-w-[444px] mx-auto overflow-hidden scrollbar-hide"
-      initial={{ opacity: 0 }}
+    <motion.div
       animate={{ opacity: 1 }}
+      className="scrollbar-hide relative mx-auto flex h-screen w-full max-w-[444px] shrink-0 flex-wrap content-center items-center justify-center gap-0 overflow-hidden"
+      initial={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <PersonalizationForm 
-        currentTranslations={currentTranslations} 
+      <PersonalizationForm
+        currentTranslations={currentTranslations}
         onNext={handlePersonalizationNext}
         onUpdate={handleFormUpdate}
       />
-      <Sliedbar currentStep={currentStep} totalSteps={totalSteps} onStepClick={onStepClick} />
+      <Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
       <NextButton
-        onNext={() => handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)}
         disabled={!isFormComplete}
+        onNext={() =>
+          handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)
+        }
         validationMessage={currentTranslations.validationError}
       />
     </motion.div>
   );
 }
 
-export function OnboardingScreen3({ selectedLanguage, onNext, currentStep, totalSteps, onStepClick }: OnboardingScreen3Props) {
+export function OnboardingScreen3({
+  selectedLanguage,
+  onNext,
+  currentStep,
+  totalSteps,
+  onStepClick,
+}: OnboardingScreen3Props) {
   return (
     <motion.div
-      className="bg-card content-stretch flex gap-2.5 items-center justify-center relative size-full h-screen overflow-hidden scrollbar-hide"
+      animate={{ opacity: 1 }}
+      className="scrollbar-hide relative flex size-full h-screen content-stretch items-center justify-center gap-2.5 overflow-hidden bg-card"
       data-name="Onboard 3"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {/* Animated background elements */}
       <motion.div
-        className="absolute top-10 left-10 w-20 h-20 rounded-full bg-linear-to-br from-[#756ef3]/10 to-[#756ef3]/5"
         animate={{
           scale: [1, 1.2, 1],
           rotate: [0, 180, 360],
-          opacity: [0.3, 0.6, 0.3]
+          opacity: [0.3, 0.6, 0.3],
         }}
+        className="absolute top-10 left-10 h-20 w-20 rounded-full bg-linear-to-br from-[#756ef3]/10 to-[#756ef3]/5"
         transition={{
           duration: 8,
-          repeat: Infinity,
-          ease: "linear"
+          repeat: Number.POSITIVE_INFINITY,
+          ease: 'linear',
         }}
       />
-      
+
       <motion.div
-        className="absolute top-32 right-16 w-12 h-12 rounded-full bg-linear-to-br from-[#8B78FF]/20 to-[#5451D6]/10"
         animate={{
           scale: [1, 0.8, 1],
           x: [0, 10, 0],
-          y: [0, -5, 0]
+          y: [0, -5, 0],
         }}
+        className="absolute top-32 right-16 h-12 w-12 rounded-full bg-linear-to-br from-[#8B78FF]/20 to-[#5451D6]/10"
         transition={{
           duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut"
+          repeat: Number.POSITIVE_INFINITY,
+          ease: 'easeInOut',
         }}
       />
-      
+
       <motion.div
-        className="absolute bottom-24 left-20 w-6 h-6 rounded-full bg-linear-to-br from-[#756ef3]/15 to-transparent"
         animate={{
           scale: [0.5, 1, 0.5],
-          opacity: [0.2, 0.8, 0.2]
+          opacity: [0.2, 0.8, 0.2],
         }}
+        className="absolute bottom-24 left-20 h-6 w-6 rounded-full bg-linear-to-br from-[#756ef3]/15 to-transparent"
         transition={{
           duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
+          repeat: Number.POSITIVE_INFINITY,
+          ease: 'easeInOut',
         }}
       />
 
       <Frame2087324619
-        selectedLanguage={selectedLanguage}
-        onNext={onNext}
         currentStep={currentStep}
-        totalSteps={totalSteps}
+        onNext={onNext}
         onStepClick={onStepClick}
+        selectedLanguage={selectedLanguage}
+        totalSteps={totalSteps}
       />
     </motion.div>
   );

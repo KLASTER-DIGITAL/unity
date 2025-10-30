@@ -1,6 +1,6 @@
 /**
  * Утилиты для проверки поддержки Push Notifications на разных браузерах
- * 
+ *
  * Поддержка Push Notifications:
  * - Chrome/Edge (Desktop & Android): ✅ Полная поддержка
  * - Firefox (Desktop & Android): ✅ Полная поддержка
@@ -10,14 +10,14 @@
  * - Samsung Internet: ✅ Полная поддержка
  */
 
-export interface BrowserInfo {
+export type BrowserInfo = {
   name: string;
   version: string;
   os: string;
   isMobile: boolean;
-}
+};
 
-export interface PushSupportInfo {
+export type PushSupportInfo = {
   isSupported: boolean;
   reason?: string;
   browserInfo: BrowserInfo;
@@ -27,7 +27,7 @@ export interface PushSupportInfo {
     notifications: boolean;
     permissions: boolean;
   };
-}
+};
 
 /**
  * Определяет информацию о браузере
@@ -35,17 +35,23 @@ export interface PushSupportInfo {
 export function getBrowserInfo(): BrowserInfo {
   const ua = navigator.userAgent;
   const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
-  
+
   let name = 'Unknown';
   let version = 'Unknown';
   let os = 'Unknown';
 
   // Определяем OS
-  if (/Windows/i.test(ua)) os = 'Windows';
-  else if (/Mac OS X/i.test(ua)) os = 'macOS';
-  else if (/Linux/i.test(ua)) os = 'Linux';
-  else if (/Android/i.test(ua)) os = 'Android';
-  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  if (/Windows/i.test(ua)) {
+    os = 'Windows';
+  } else if (/Mac OS X/i.test(ua)) {
+    os = 'macOS';
+  } else if (/Linux/i.test(ua)) {
+    os = 'Linux';
+  } else if (/Android/i.test(ua)) {
+    os = 'Android';
+  } else if (/iPhone|iPad|iPod/i.test(ua)) {
+    os = 'iOS';
+  }
 
   // Определяем браузер
   if (/Edg\//i.test(ua)) {
@@ -76,7 +82,7 @@ export function getBrowserInfo(): BrowserInfo {
  */
 export function checkPushSupport(): PushSupportInfo {
   const browserInfo = getBrowserInfo();
-  
+
   const features = {
     serviceWorker: 'serviceWorker' in navigator,
     pushManager: 'PushManager' in window,
@@ -88,7 +94,8 @@ export function checkPushSupport(): PushSupportInfo {
   if (browserInfo.os === 'iOS') {
     return {
       isSupported: false,
-      reason: 'iOS Safari не поддерживает Push Notifications через Service Worker. Используйте нативное приложение или Web Push API (ограниченная поддержка).',
+      reason:
+        'iOS Safari не поддерживает Push Notifications через Service Worker. Используйте нативное приложение или Web Push API (ограниченная поддержка).',
       browserInfo,
       features,
     };
@@ -96,7 +103,7 @@ export function checkPushSupport(): PushSupportInfo {
 
   // Safari на macOS - требуется версия 16+
   if (browserInfo.name === 'Safari' && browserInfo.os === 'macOS') {
-    const version = parseInt(browserInfo.version);
+    const version = Number.parseInt(browserInfo.version, 10);
     if (version < 16) {
       return {
         isSupported: false,
@@ -161,7 +168,7 @@ export async function requestPushPermission(): Promise<NotificationPermission> {
  */
 export async function subscribeToPush(vapidPublicKey: string): Promise<PushSubscription> {
   const support = checkPushSupport();
-  
+
   if (!support.isSupported) {
     throw new Error(support.reason || 'Push Notifications не поддерживаются');
   }
@@ -176,7 +183,7 @@ export async function subscribeToPush(vapidPublicKey: string): Promise<PushSubsc
 
   // Получаем Service Worker registration
   const registration = await navigator.serviceWorker.ready;
-  
+
   // Подписываемся на Push
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
@@ -193,13 +200,13 @@ export async function subscribeToPush(vapidPublicKey: string): Promise<PushSubsc
 export async function unsubscribeFromPush(): Promise<boolean> {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
-  
+
   if (subscription) {
     const result = await subscription.unsubscribe();
     console.log('[Push] Unsubscribed:', result);
     return result;
   }
-  
+
   return false;
 }
 
@@ -218,7 +225,11 @@ export async function getCurrentSubscription(): Promise<PushSubscription | null>
 /**
  * Отправляет тестовое уведомление (локальное, не через Push API)
  */
-export async function sendTestNotification(title: string, body: string, icon?: string): Promise<void> {
+export async function sendTestNotification(
+  title: string,
+  body: string,
+  icon?: string
+): Promise<void> {
   if (!('Notification' in window)) {
     throw new Error('Notifications API не поддерживается');
   }
@@ -254,10 +265,8 @@ export async function sendTestNotification(title: string, body: string, icon?: s
  * Конвертирует VAPID ключ из base64 в Uint8Array
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -280,7 +289,7 @@ export function getPushRecommendations(): string[] {
     recommendations.push('💡 Рекомендуем запросить разрешение у пользователя');
   } else {
     recommendations.push(`❌ ${support.reason}`);
-    
+
     if (support.browserInfo.os === 'iOS') {
       recommendations.push('💡 Для iOS рекомендуем использовать нативное приложение');
       recommendations.push('💡 Или используйте альтернативные методы уведомлений (email, SMS)');
@@ -295,4 +304,3 @@ export function getPushRecommendations(): string[] {
 
   return recommendations;
 }
-

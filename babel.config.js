@@ -1,6 +1,6 @@
 /**
  * Babel configuration for React Native Expo
- * 
+ *
  * Поддержка:
  * - Expo preset
  * - TypeScript path aliases
@@ -8,9 +8,9 @@
  * - Platform-specific code
  */
 
-module.exports = function(api) {
+module.exports = (api) => {
   api.cache(true);
-  
+
   return {
     presets: [
       [
@@ -55,4 +55,3 @@ module.exports = function(api) {
     ],
   };
 };
-

@@ -3,9 +3,9 @@
  */
 export async function compressImage(
   file: File,
-  maxWidth: number = 1920,
-  maxHeight: number = 1920,
-  quality: number = 0.85
+  maxWidth = 1920,
+  maxHeight = 1920,
+  quality = 0.85
 ): Promise<File> {
   // Проверка типа файла
   if (!file.type.startsWith('image/')) {
@@ -66,7 +66,7 @@ export async function compressImage(
               // Создаем новый File из Blob
               const compressedFile = new File([blob], file.name, {
                 type: 'image/jpeg',
-                lastModified: Date.now()
+                lastModified: Date.now(),
               });
 
               console.log(
@@ -79,7 +79,7 @@ export async function compressImage(
             quality
           );
         } catch (error) {
-          reject(new Error('Ошибка при обработке изображения: ' + (error as Error).message));
+          reject(new Error(`Ошибка при обработке изображения: ${(error as Error).message}`));
         }
       };
 
@@ -103,10 +103,7 @@ export async function compressImage(
 /**
  * Создание thumbnail для изображения
  */
-export async function createThumbnail(
-  file: File,
-  maxSize: number = 200
-): Promise<string> {
+export async function createThumbnail(file: File, maxSize = 200): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -131,11 +128,7 @@ export async function createThumbnail(
         }
 
         // Рисуем квадратный crop
-        ctx.drawImage(
-          img,
-          x, y, size, size,
-          0, 0, maxSize, maxSize
-        );
+        ctx.drawImage(img, x, y, size, size, 0, 0, maxSize, maxSize);
 
         // Возвращаем data URL
         resolve(canvas.toDataURL('image/jpeg', 0.7));

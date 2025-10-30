@@ -1,22 +1,22 @@
 /**
  * Unit Tests for Mobile Feature Components
- * 
+ *
  * Tests for:
  * - AchievementHomeScreen (10 tests)
  * - ChatInputSection (12 tests)
  * - RecentEntriesFeed (8 tests)
  * - HistoryScreen (10 tests)
  * - ReportsScreen (8 tests)
- * 
+ *
  * Total: 48 tests
  * Target coverage: 75%+
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-26
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AchievementHomeScreen } from '@/features/mobile/home/components/AchievementHomeScreen';
 import { ChatInputSection } from '@/features/mobile/home/components/ChatInputSection';
 import { RecentEntriesFeed } from '@/features/mobile/home/components/RecentEntriesFeed';
@@ -165,24 +165,14 @@ describe('AchievementHomeScreen', () => {
   };
 
   it('should render without crashing', () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('should load user stats on mount', async () => {
     const { getUserStats } = await import('@/shared/lib/api');
-    
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     await waitFor(() => {
       expect(getUserStats).toHaveBeenCalledWith('test-user');
@@ -190,12 +180,7 @@ describe('AchievementHomeScreen', () => {
   });
 
   it('should load motivation cards on mount', async () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     // Component should render and start loading
     await waitFor(() => {
@@ -204,12 +189,7 @@ describe('AchievementHomeScreen', () => {
   });
 
   it('should display achievement header', async () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -217,12 +197,7 @@ describe('AchievementHomeScreen', () => {
   });
 
   it('should display chat input section', async () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -230,12 +205,7 @@ describe('AchievementHomeScreen', () => {
   });
 
   it('should display recent entries feed', async () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -244,12 +214,12 @@ describe('AchievementHomeScreen', () => {
 
   it('should handle new entry creation', async () => {
     const onNavigateToHistory = vi.fn();
-    
+
     render(
       <AchievementHomeScreen
-        userData={mockUserData}
         diaryData={mockDiaryData}
         onNavigateToHistory={onNavigateToHistory}
+        userData={mockUserData}
       />
     );
 
@@ -259,12 +229,7 @@ describe('AchievementHomeScreen', () => {
   });
 
   it('should handle entry click', async () => {
-    render(
-      <AchievementHomeScreen
-        userData={mockUserData}
-        diaryData={mockDiaryData}
-      />
-    );
+    render(<AchievementHomeScreen diaryData={mockDiaryData} userData={mockUserData} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
@@ -273,12 +238,12 @@ describe('AchievementHomeScreen', () => {
 
   it('should handle navigation to history', async () => {
     const onNavigateToHistory = vi.fn();
-    
+
     render(
       <AchievementHomeScreen
-        userData={mockUserData}
         diaryData={mockDiaryData}
         onNavigateToHistory={onNavigateToHistory}
+        userData={mockUserData}
       />
     );
 
@@ -292,9 +257,9 @@ describe('AchievementHomeScreen', () => {
 
     render(
       <AchievementHomeScreen
-        userData={mockUserData}
         diaryData={mockDiaryData}
         onNavigateToSettings={onNavigateToSettings}
+        userData={mockUserData}
       />
     );
 
@@ -338,19 +303,25 @@ describe('ChatInputSection', () => {
   it('should have voice recording button', () => {
     render(<ChatInputSection {...mockProps} />);
     // Voice button should be present
-    expect(document.querySelector('[data-testid="voice-button"]') || document.querySelector('button')).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="voice-button"]') || document.querySelector('button')
+    ).toBeInTheDocument();
   });
 
   it('should have media upload button', () => {
     render(<ChatInputSection {...mockProps} />);
     // Media button should be present
-    expect(document.querySelector('[data-testid="media-button"]') || document.querySelector('button')).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="media-button"]') || document.querySelector('button')
+    ).toBeInTheDocument();
   });
 
   it('should have send button', () => {
     render(<ChatInputSection {...mockProps} />);
     // Send button should be present
-    expect(document.querySelector('[data-testid="send-button"]') || document.querySelector('button')).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="send-button"]') || document.querySelector('button')
+    ).toBeInTheDocument();
   });
 
   it('should call onMessageSent when message is sent', async () => {
@@ -417,7 +388,7 @@ describe('ChatInputSection', () => {
     fireEvent.click(sendButton);
 
     // Wait a bit to ensure no call is made
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Should not call analyzeTextWithAI for empty message
     expect(analyzeTextWithAI).not.toHaveBeenCalled();
@@ -465,43 +436,39 @@ describe('RecentEntriesFeed', () => {
   it('should display entries after loading', async () => {
     render(<RecentEntriesFeed userData={mockUserData} />);
 
-    await waitFor(() => {
-      const entryItems = screen.queryAllByTestId('entry-item');
-      expect(entryItems.length).toBeGreaterThanOrEqual(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const entryItems = screen.queryAllByTestId('entry-item');
+        expect(entryItems.length).toBeGreaterThanOrEqual(0);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('should handle entry click', async () => {
     const onEntryClick = vi.fn();
 
-    render(
-      <RecentEntriesFeed
-        userData={mockUserData}
-        onEntryClick={onEntryClick}
-      />
-    );
+    render(<RecentEntriesFeed onEntryClick={onEntryClick} userData={mockUserData} />);
 
-    await waitFor(() => {
-      const entryItems = screen.queryAllByTestId('entry-item');
-      if (entryItems.length > 0) {
-        fireEvent.click(entryItems[0]);
-        expect(onEntryClick).toHaveBeenCalled();
-      } else {
-        // No entries to click, test passes
-        expect(true).toBe(true);
-      }
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const entryItems = screen.queryAllByTestId('entry-item');
+        if (entryItems.length > 0) {
+          fireEvent.click(entryItems[0]);
+          expect(onEntryClick).toHaveBeenCalled();
+        } else {
+          // No entries to click, test passes
+          expect(true).toBe(true);
+        }
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('should handle view all click', async () => {
     const onViewAllClick = vi.fn();
 
-    render(
-      <RecentEntriesFeed
-        userData={mockUserData}
-        onViewAllClick={onViewAllClick}
-      />
-    );
+    render(<RecentEntriesFeed onViewAllClick={onViewAllClick} userData={mockUserData} />);
 
     // Component should render successfully
     await waitFor(() => {
@@ -536,4 +503,3 @@ describe('RecentEntriesFeed', () => {
     });
   });
 });
-

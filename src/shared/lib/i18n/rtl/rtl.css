@@ -1,6 +1,6 @@
 /**
  * RTL CSS utilities
- * 
+ *
  * Provides CSS classes and utilities for RTL support
  */
 
@@ -25,56 +25,136 @@
 }
 
 /* Margin utilities (logical properties) */
-.ms-1 { margin-inline-start: 0.25rem; }
-.ms-2 { margin-inline-start: 0.5rem; }
-.ms-3 { margin-inline-start: 0.75rem; }
-.ms-4 { margin-inline-start: 1rem; }
-.ms-5 { margin-inline-start: 1.25rem; }
-.ms-6 { margin-inline-start: 1.5rem; }
-.ms-8 { margin-inline-start: 2rem; }
+.ms-1 {
+  margin-inline-start: 0.25rem;
+}
+.ms-2 {
+  margin-inline-start: 0.5rem;
+}
+.ms-3 {
+  margin-inline-start: 0.75rem;
+}
+.ms-4 {
+  margin-inline-start: 1rem;
+}
+.ms-5 {
+  margin-inline-start: 1.25rem;
+}
+.ms-6 {
+  margin-inline-start: 1.5rem;
+}
+.ms-8 {
+  margin-inline-start: 2rem;
+}
 
-.me-1 { margin-inline-end: 0.25rem; }
-.me-2 { margin-inline-end: 0.5rem; }
-.me-3 { margin-inline-end: 0.75rem; }
-.me-4 { margin-inline-end: 1rem; }
-.me-5 { margin-inline-end: 1.25rem; }
-.me-6 { margin-inline-end: 1.5rem; }
-.me-8 { margin-inline-end: 2rem; }
+.me-1 {
+  margin-inline-end: 0.25rem;
+}
+.me-2 {
+  margin-inline-end: 0.5rem;
+}
+.me-3 {
+  margin-inline-end: 0.75rem;
+}
+.me-4 {
+  margin-inline-end: 1rem;
+}
+.me-5 {
+  margin-inline-end: 1.25rem;
+}
+.me-6 {
+  margin-inline-end: 1.5rem;
+}
+.me-8 {
+  margin-inline-end: 2rem;
+}
 
 /* Padding utilities (logical properties) */
-.ps-1 { padding-inline-start: 0.25rem; }
-.ps-2 { padding-inline-start: 0.5rem; }
-.ps-3 { padding-inline-start: 0.75rem; }
-.ps-4 { padding-inline-start: 1rem; }
-.ps-5 { padding-inline-start: 1.25rem; }
-.ps-6 { padding-inline-start: 1.5rem; }
-.ps-8 { padding-inline-start: 2rem; }
+.ps-1 {
+  padding-inline-start: 0.25rem;
+}
+.ps-2 {
+  padding-inline-start: 0.5rem;
+}
+.ps-3 {
+  padding-inline-start: 0.75rem;
+}
+.ps-4 {
+  padding-inline-start: 1rem;
+}
+.ps-5 {
+  padding-inline-start: 1.25rem;
+}
+.ps-6 {
+  padding-inline-start: 1.5rem;
+}
+.ps-8 {
+  padding-inline-start: 2rem;
+}
 
-.pe-1 { padding-inline-end: 0.25rem; }
-.pe-2 { padding-inline-end: 0.5rem; }
-.pe-3 { padding-inline-end: 0.75rem; }
-.pe-4 { padding-inline-end: 1rem; }
-.pe-5 { padding-inline-end: 1.25rem; }
-.pe-6 { padding-inline-end: 1.5rem; }
-.pe-8 { padding-inline-end: 2rem; }
+.pe-1 {
+  padding-inline-end: 0.25rem;
+}
+.pe-2 {
+  padding-inline-end: 0.5rem;
+}
+.pe-3 {
+  padding-inline-end: 0.75rem;
+}
+.pe-4 {
+  padding-inline-end: 1rem;
+}
+.pe-5 {
+  padding-inline-end: 1.25rem;
+}
+.pe-6 {
+  padding-inline-end: 1.5rem;
+}
+.pe-8 {
+  padding-inline-end: 2rem;
+}
 
 /* Border utilities (logical properties) */
-.border-s { border-inline-start: 1px solid; }
-.border-e { border-inline-end: 1px solid; }
+.border-s {
+  border-inline-start: 1px solid;
+}
+.border-e {
+  border-inline-end: 1px solid;
+}
 
-.border-s-2 { border-inline-start-width: 2px; }
-.border-e-2 { border-inline-end-width: 2px; }
+.border-s-2 {
+  border-inline-start-width: 2px;
+}
+.border-e-2 {
+  border-inline-end-width: 2px;
+}
 
 /* Position utilities (logical properties) */
-.start-0 { inset-inline-start: 0; }
-.start-1 { inset-inline-start: 0.25rem; }
-.start-2 { inset-inline-start: 0.5rem; }
-.start-4 { inset-inline-start: 1rem; }
+.start-0 {
+  inset-inline-start: 0;
+}
+.start-1 {
+  inset-inline-start: 0.25rem;
+}
+.start-2 {
+  inset-inline-start: 0.5rem;
+}
+.start-4 {
+  inset-inline-start: 1rem;
+}
 
-.end-0 { inset-inline-end: 0; }
-.end-1 { inset-inline-end: 0.25rem; }
-.end-2 { inset-inline-end: 0.5rem; }
-.end-4 { inset-inline-end: 1rem; }
+.end-0 {
+  inset-inline-end: 0;
+}
+.end-1 {
+  inset-inline-end: 0.25rem;
+}
+.end-2 {
+  inset-inline-end: 0.5rem;
+}
+.end-4 {
+  inset-inline-end: 1rem;
+}
 
 /* Flexbox utilities */
 .flex-row-reverse-rtl {
@@ -258,23 +338,46 @@
 
 /* Responsive RTL utilities */
 @media (min-width: 640px) {
-  .sm\:ms-4 { margin-inline-start: 1rem; }
-  .sm\:me-4 { margin-inline-end: 1rem; }
-  .sm\:ps-4 { padding-inline-start: 1rem; }
-  .sm\:pe-4 { padding-inline-end: 1rem; }
+  .sm\:ms-4 {
+    margin-inline-start: 1rem;
+  }
+  .sm\:me-4 {
+    margin-inline-end: 1rem;
+  }
+  .sm\:ps-4 {
+    padding-inline-start: 1rem;
+  }
+  .sm\:pe-4 {
+    padding-inline-end: 1rem;
+  }
 }
 
 @media (min-width: 768px) {
-  .md\:ms-6 { margin-inline-start: 1.5rem; }
-  .md\:me-6 { margin-inline-end: 1.5rem; }
-  .md\:ps-6 { padding-inline-start: 1.5rem; }
-  .md\:pe-6 { padding-inline-end: 1.5rem; }
+  .md\:ms-6 {
+    margin-inline-start: 1.5rem;
+  }
+  .md\:me-6 {
+    margin-inline-end: 1.5rem;
+  }
+  .md\:ps-6 {
+    padding-inline-start: 1.5rem;
+  }
+  .md\:pe-6 {
+    padding-inline-end: 1.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
-  .lg\:ms-8 { margin-inline-start: 2rem; }
-  .lg\:me-8 { margin-inline-end: 2rem; }
-  .lg\:ps-8 { padding-inline-start: 2rem; }
-  .lg\:pe-8 { padding-inline-end: 2rem; }
+  .lg\:ms-8 {
+    margin-inline-start: 2rem;
+  }
+  .lg\:me-8 {
+    margin-inline-end: 2rem;
+  }
+  .lg\:ps-8 {
+    padding-inline-start: 2rem;
+  }
+  .lg\:pe-8 {
+    padding-inline-end: 2rem;
+  }
 }
-

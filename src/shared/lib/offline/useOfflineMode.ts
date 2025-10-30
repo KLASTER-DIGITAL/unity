@@ -1,30 +1,30 @@
 /**
  * useOfflineMode Hook
- * 
+ *
  * React hook for managing offline mode in components.
  * Provides offline status, sync control, and event handling.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { offlineManager, type OfflineStatus, type SyncEvent } from './offlineManager';
+import { useCallback, useEffect, useState } from 'react';
+import { type OfflineStatus, offlineManager, type SyncEvent } from './offlineManager';
 
-export interface UseOfflineModeReturn {
+export type UseOfflineModeReturn = {
   // Status
   isOnline: boolean;
   lastOnline: Date | null;
   pendingCount: number;
   syncInProgress: boolean;
-  
+
   // Actions
   sync: () => Promise<void>;
   clearOfflineData: () => Promise<void>;
-  
+
   // Events
   lastSyncEvent: SyncEvent | null;
-}
+};
 
 /**
  * Hook for managing offline mode
@@ -69,4 +69,3 @@ export function useOfflineMode(): UseOfflineModeReturn {
     lastSyncEvent,
   };
 }
-

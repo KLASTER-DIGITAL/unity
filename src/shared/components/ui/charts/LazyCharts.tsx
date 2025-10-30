@@ -1,23 +1,29 @@
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from 'react';
 
 // Lazy load chart components для оптимизации производительности
 // Эти компоненты используют recharts - тяжелую библиотеку для графиков
 
 // Bar Chart Components
-const BarChart01 = lazy(() => import("../shadcn-io/bar-chart-01").then(module => ({ default: module.ChartBarInteractive })));
+const BarChart01 = lazy(() =>
+  import('../shadcn-io/bar-chart-01').then((module) => ({ default: module.ChartBarInteractive }))
+);
 
-// Line Chart Components  
-const LineChart01 = lazy(() => import("../shadcn-io/line-chart-01").then(module => ({ default: module.ChartLineInteractive })));
+// Line Chart Components
+const LineChart01 = lazy(() =>
+  import('../shadcn-io/line-chart-01').then((module) => ({ default: module.ChartLineInteractive }))
+);
 
 // Pie Chart Components
-const PieChart01 = lazy(() => import("../shadcn-io/pie-chart-01").then(module => ({ default: module.ChartPieSimple })));
+const PieChart01 = lazy(() =>
+  import('../shadcn-io/pie-chart-01').then((module) => ({ default: module.ChartPieSimple }))
+);
 
 // Chart Loading Component
 const ChartLoadingFallback = () => (
-  <div className="w-full h-64 flex items-center justify-center bg-muted rounded-lg border-2 border-dashed border-border">
+  <div className="flex h-64 w-full items-center justify-center rounded-lg border-2 border-border border-dashed bg-muted">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-      <p className="text-sm text-muted-foreground">Загрузка графика...</p>
+      <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-blue-500 border-b-2" />
+      <p className="text-muted-foreground text-sm">Загрузка графика...</p>
     </div>
   </div>
 );
@@ -51,19 +57,17 @@ export const LazyPieChart = (props: any) => (
 
 // Preload функции для критических графиков
 export const preloadCharts = {
-  barChart: () => import("../shadcn-io/bar-chart-01"),
-  lineChart: () => import("../shadcn-io/line-chart-01"),
-  pieChart: () => import("../shadcn-io/pie-chart-01")
+  barChart: () => import('../shadcn-io/bar-chart-01'),
+  lineChart: () => import('../shadcn-io/line-chart-01'),
+  pieChart: () => import('../shadcn-io/pie-chart-01'),
 };
 
 // Hook для preloading графиков при hover
 export const useChartPreload = () => {
-  const preloadOnHover = (chartType: keyof typeof preloadCharts) => {
-    return {
-      onMouseEnter: () => preloadCharts[chartType](),
-      onFocus: () => preloadCharts[chartType]()
-    };
-  };
+  const preloadOnHover = (chartType: keyof typeof preloadCharts) => ({
+    onMouseEnter: () => preloadCharts[chartType](),
+    onFocus: () => preloadCharts[chartType](),
+  });
 
   return { preloadOnHover };
 };
@@ -72,7 +76,7 @@ export const useChartPreload = () => {
 export {
   LazyBarChart as BarChart,
   LazyLineChart as LineChart,
-  LazyPieChart as PieChart
+  LazyPieChart as PieChart,
   // LazyUsageChart as UsageChart // Not implemented yet
 };
 
@@ -83,5 +87,5 @@ export default {
   PieChart: LazyPieChart,
   // UsageChart: LazyUsageChart, // Not implemented yet
   preloadCharts,
-  useChartPreload
+  useChartPreload,
 };

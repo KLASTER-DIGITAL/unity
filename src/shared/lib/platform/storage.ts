@@ -42,8 +42,10 @@ export const StorageUtils = {
   async getJSON<T>(key: string): Promise<T | null> {
     try {
       const jsonString = await storage.getItem(key);
-      if (!jsonString) return null;
-      
+      if (!jsonString) {
+        return null;
+      }
+
       return JSON.parse(jsonString) as T;
     } catch (error) {
       console.error('Failed to retrieve JSON:', error);
@@ -63,7 +65,9 @@ export const StorageUtils = {
    */
   async getBoolean(key: string): Promise<boolean | null> {
     const value = await storage.getItem(key);
-    if (value === null) return null;
+    if (value === null) {
+      return null;
+    }
     return value === 'true';
   },
 
@@ -79,11 +83,13 @@ export const StorageUtils = {
    */
   async getNumber(key: string): Promise<number | null> {
     const value = await storage.getItem(key);
-    if (value === null) return null;
-    
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? null : parsed;
-  }
+    if (value === null) {
+      return null;
+    }
+
+    const parsed = Number.parseFloat(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  },
 };
 
 /**
@@ -94,20 +100,20 @@ export const StorageKeys = {
   LANGUAGE: 'unity_language',
   THEME: 'unity_theme',
   NOTIFICATIONS_ENABLED: 'unity_notifications_enabled',
-  
+
   // App state
   ONBOARDING_COMPLETED: 'unity_onboarding_completed',
   LAST_SYNC: 'unity_last_sync',
   OFFLINE_ENTRIES: 'unity_offline_entries',
-  
+
   // Cache
   TRANSLATIONS_CACHE: 'unity_translations_cache',
   USER_PROFILE_CACHE: 'unity_user_profile_cache',
-  
+
   // PWA
   PWA_INSTALL_PROMPTED: 'unity_pwa_install_prompted',
   PWA_INSTALLED: 'unity_pwa_installed',
-  
+
   // Performance
-  PERFORMANCE_METRICS: 'unity_performance_metrics'
+  PERFORMANCE_METRICS: 'unity_performance_metrics',
 } as const;

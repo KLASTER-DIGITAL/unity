@@ -2,15 +2,14 @@
  * OnboardingScreen3 - Modular exports
  */
 
-export { PersonalizationForm } from "./PersonalizationForm";
-export { Sliedbar } from "./Sliedbar";
-export { NextButton } from "./NextButton";
-export { translations, emojiOptions } from "./constants";
+export { emojiOptions, translations } from './constants';
+export { NextButton } from './NextButton';
+export { PersonalizationForm } from './PersonalizationForm';
+export { Sliedbar } from './Sliedbar';
 export type {
+  ArrowRight1Props,
+  NextButtonProps,
   OnboardingScreen3Props,
   PersonalizationFormProps,
   SliedbarProps,
-  NextButtonProps,
-  ArrowRight1Props
-} from "./types";
-
+} from './types';

@@ -1,6 +1,6 @@
 /**
  * Examples of date and number formatting in UNITY-v2
- * 
+ *
  * This file demonstrates how to use the formatting system
  * in different scenarios.
  */
@@ -12,18 +12,18 @@ import { useTranslation } from '../useTranslation';
  */
 export function ExampleEntryDate({ createdAt }: { createdAt: string }) {
   const { t } = useTranslation();
-  
+
   return (
-    <div className="text-sm text-muted-foreground">
+    <div className="text-muted-foreground text-sm">
       {/* Short date: "1/15/24" (en) / "15.01.24" (ru) */}
       <p>{t.formatDate(createdAt, { style: 'short' })}</p>
-      
+
       {/* Medium date: "Jan 15, 2024" (en) / "15 янв. 2024 г." (ru) */}
       <p>{t.formatDate(createdAt, { style: 'medium' })}</p>
-      
+
       {/* Long date: "January 15, 2024" (en) / "15 января 2024 г." (ru) */}
       <p>{t.formatDate(createdAt, { style: 'long' })}</p>
-      
+
       {/* With time: "Jan 15, 2024, 3:30 PM" */}
       <p>{t.formatDate(createdAt, { style: 'medium', includeTime: true })}</p>
     </div>
@@ -35,15 +35,15 @@ export function ExampleEntryDate({ createdAt }: { createdAt: string }) {
  */
 export function ExampleTimeAgo({ date }: { date: string }) {
   const { t } = useTranslation();
-  
+
   return (
-    <div className="text-sm text-muted-foreground">
+    <div className="text-muted-foreground text-sm">
       {/* "5 minutes ago" / "2 hours ago" / "yesterday" */}
       <p>{t.formatRelativeTime(date)}</p>
-      
+
       {/* Short version: "5m ago" / "2h ago" */}
       <p>{t.formatRelativeTime(date, { style: 'short' })}</p>
-      
+
       {/* Always numeric: "1 day ago" instead of "yesterday" */}
       <p>{t.formatRelativeTime(date, { numeric: 'always' })}</p>
     </div>
@@ -53,28 +53,28 @@ export function ExampleTimeAgo({ date }: { date: string }) {
 /**
  * Example 3: Achievement statistics with numbers
  */
-export function ExampleAchievementStats({ 
-  count, 
-  percentage, 
-  rank 
-}: { 
-  count: number; 
-  percentage: number; 
+export function ExampleAchievementStats({
+  count,
+  percentage,
+  rank,
+}: {
+  count: number;
+  percentage: number;
   rank: number;
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="space-y-2">
       {/* Number: "1,234" (en) / "1 234" (ru) */}
       <p>Total: {t.formatNumber(count)}</p>
-      
+
       {/* Percentage: "85%" (en) / "85 %" (ru) */}
       <p>Completion: {t.formatPercent(percentage)}</p>
-      
+
       {/* Compact: "1.2K" / "1.2M" */}
-      <p>Users: {t.formatCompact(1234567)}</p>
-      
+      <p>Users: {t.formatCompact(1_234_567)}</p>
+
       {/* Ordinal: "1st" / "2nd" / "3rd" */}
       <p>Rank: {t.numberFormats.ordinal(rank, t.currentLanguage)}</p>
     </div>
@@ -86,7 +86,7 @@ export function ExampleAchievementStats({
  */
 export function ExampleFileUpload({ size }: { size: number }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="text-sm">
       {/* "1.50 MB" / "2.34 GB" */}
@@ -100,12 +100,12 @@ export function ExampleFileUpload({ size }: { size: number }) {
  */
 export function ExampleMediaDuration({ seconds }: { seconds: number }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="text-sm">
       {/* Short: "1h 5m 30s" */}
       <p>{t.formatDuration(seconds)}</p>
-      
+
       {/* Long: "1 hours 5 minutes 30 seconds" */}
       <p>{t.dateFormats.durationLong(seconds, t.currentLanguage)}</p>
     </div>
@@ -117,18 +117,18 @@ export function ExampleMediaDuration({ seconds }: { seconds: number }) {
  */
 export function ExampleCurrency({ amount }: { amount: number }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="space-y-2">
       {/* USD: "$1,234.56" (en) / "1 234,56 $" (ru) */}
       <p>{t.formatCurrency(amount, 'USD')}</p>
-      
+
       {/* EUR: "€1,234.56" (en) / "1 234,56 €" (ru) */}
       <p>{t.formatCurrency(amount, 'EUR')}</p>
-      
+
       {/* RUB: "₽1,234.56" (en) / "1 234,56 ₽" (ru) */}
       <p>{t.formatCurrency(amount, 'RUB')}</p>
-      
+
       {/* Using presets */}
       <p>{t.numberFormats.usd(amount, t.currentLanguage)}</p>
     </div>
@@ -138,24 +138,24 @@ export function ExampleCurrency({ amount }: { amount: number }) {
 /**
  * Example 7: History screen with dates
  */
-export function ExampleHistoryEntry({ 
-  entry 
-}: { 
-  entry: { 
-    created_at: string; 
-    text: string; 
-  } 
+export function ExampleHistoryEntry({
+  entry,
+}: {
+  entry: {
+    created_at: string;
+    text: string;
+  };
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="border-b pb-4">
-      <div className="flex justify-between items-start mb-2">
-        <div className="text-sm text-muted-foreground">
+      <div className="mb-2 flex items-start justify-between">
+        <div className="text-muted-foreground text-sm">
           {/* Relative time for recent entries */}
           {t.formatRelativeTime(entry.created_at)}
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           {/* Exact time */}
           {t.formatTime(entry.created_at)}
         </div>
@@ -168,55 +168,47 @@ export function ExampleHistoryEntry({
 /**
  * Example 8: Reports screen with statistics
  */
-export function ExampleReportStats({ 
-  stats 
-}: { 
+export function ExampleReportStats({
+  stats,
+}: {
   stats: {
     totalEntries: number;
     avgPerDay: number;
     completionRate: number;
     totalDuration: number;
-  }
+  };
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="bg-card p-4 rounded-lg">
-        <div className="text-2xl font-bold">
-          {t.formatNumber(stats.totalEntries)}
-        </div>
-        <div className="text-sm text-muted-foreground">
+      <div className="rounded-lg bg-card p-4">
+        <div className="font-bold text-2xl">{t.formatNumber(stats.totalEntries)}</div>
+        <div className="text-muted-foreground text-sm">
           {t('reports.totalEntries', 'Total Entries')}
         </div>
       </div>
-      
-      <div className="bg-card p-4 rounded-lg">
-        <div className="text-2xl font-bold">
-          {t.formatNumber(stats.avgPerDay, { 
+
+      <div className="rounded-lg bg-card p-4">
+        <div className="font-bold text-2xl">
+          {t.formatNumber(stats.avgPerDay, {
             minimumFractionDigits: 1,
-            maximumFractionDigits: 1 
+            maximumFractionDigits: 1,
           })}
         </div>
-        <div className="text-sm text-muted-foreground">
-          {t('reports.avgPerDay', 'Avg per Day')}
-        </div>
+        <div className="text-muted-foreground text-sm">{t('reports.avgPerDay', 'Avg per Day')}</div>
       </div>
-      
-      <div className="bg-card p-4 rounded-lg">
-        <div className="text-2xl font-bold">
-          {t.formatPercent(stats.completionRate)}
-        </div>
-        <div className="text-sm text-muted-foreground">
+
+      <div className="rounded-lg bg-card p-4">
+        <div className="font-bold text-2xl">{t.formatPercent(stats.completionRate)}</div>
+        <div className="text-muted-foreground text-sm">
           {t('reports.completionRate', 'Completion Rate')}
         </div>
       </div>
-      
-      <div className="bg-card p-4 rounded-lg">
-        <div className="text-2xl font-bold">
-          {t.formatDuration(stats.totalDuration)}
-        </div>
-        <div className="text-sm text-muted-foreground">
+
+      <div className="rounded-lg bg-card p-4">
+        <div className="font-bold text-2xl">{t.formatDuration(stats.totalDuration)}</div>
+        <div className="text-muted-foreground text-sm">
           {t('reports.totalDuration', 'Total Duration')}
         </div>
       </div>
@@ -227,46 +219,38 @@ export function ExampleReportStats({
 /**
  * Example 9: Admin panel with usage statistics
  */
-export function ExampleAdminUsage({ 
-  usage 
-}: { 
+export function ExampleAdminUsage({
+  usage,
+}: {
   usage: {
     totalUsers: number;
     activeUsers: number;
     totalStorage: number;
     apiCalls: number;
-  }
+  };
 }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
         <span>Total Users:</span>
-        <span className="font-semibold">
-          {t.formatCompact(usage.totalUsers)}
-        </span>
+        <span className="font-semibold">{t.formatCompact(usage.totalUsers)}</span>
       </div>
-      
+
       <div className="flex justify-between">
         <span>Active Users:</span>
-        <span className="font-semibold">
-          {t.formatNumber(usage.activeUsers)}
-        </span>
+        <span className="font-semibold">{t.formatNumber(usage.activeUsers)}</span>
       </div>
-      
+
       <div className="flex justify-between">
         <span>Storage Used:</span>
-        <span className="font-semibold">
-          {t.formatFileSize(usage.totalStorage)}
-        </span>
+        <span className="font-semibold">{t.formatFileSize(usage.totalStorage)}</span>
       </div>
-      
+
       <div className="flex justify-between">
         <span>API Calls:</span>
-        <span className="font-semibold">
-          {t.formatCompact(usage.apiCalls)}
-        </span>
+        <span className="font-semibold">{t.formatCompact(usage.apiCalls)}</span>
       </div>
     </div>
   );
@@ -278,7 +262,7 @@ export function ExampleAdminUsage({
 export function ExamplePresetFormats() {
   const { t } = useTranslation();
   const now = new Date();
-  
+
   return (
     <div className="space-y-2 text-sm">
       {/* Date presets */}
@@ -289,13 +273,12 @@ export function ExamplePresetFormats() {
       <p>Time ago: {t.dateFormats.timeAgo(now, t.currentLanguage)}</p>
       <p>Month/Year: {t.dateFormats.monthYear(now, t.currentLanguage)}</p>
       <p>Weekday: {t.dateFormats.weekday(now, t.currentLanguage)}</p>
-      
+
       {/* Number presets */}
       <p>Decimal: {t.numberFormats.decimal(1234.56, t.currentLanguage)}</p>
       <p>Percent: {t.numberFormats.percent(0.85, t.currentLanguage)}</p>
-      <p>Compact: {t.numberFormats.compact(1234567, t.currentLanguage)}</p>
+      <p>Compact: {t.numberFormats.compact(1_234_567, t.currentLanguage)}</p>
       <p>File size: {t.numberFormats.fileSize(1024 * 1024, t.currentLanguage)}</p>
     </div>
   );
 }
-

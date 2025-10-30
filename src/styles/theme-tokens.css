@@ -1,12 +1,12 @@
 /**
  * Theme Tokens - Tailwind CSS v4 @theme directive
  * Registers CSS variables as Tailwind utility classes
- * 
+ *
  * This file tells Tailwind to generate utility classes like:
  * - bg-background, bg-card, bg-muted
  * - text-foreground, text-muted-foreground
  * - border-border
- * 
+ *
  * AI-Friendly: Small file (~60 lines) for quick analysis
  */
 
@@ -125,10 +125,10 @@
 
   /* ===== NEW: iOS Typography - Font Weights ===== */
   /* According to iOS HIG (docs/ios_font_guidelines.md) */
-  --font-weight-bold: 700;        /* Large Title */
-  --font-weight-semibold: 600;    /* Titles, Headlines */
-  --font-weight-regular: 400;     /* Body, Callout, Subhead, Footnote, Captions */
-  --font-weight-light: 300;       /* Optional for very light text */
+  --font-weight-bold: 700; /* Large Title */
+  --font-weight-semibold: 600; /* Titles, Headlines */
+  --font-weight-regular: 400; /* Body, Callout, Subhead, Footnote, Captions */
+  --font-weight-light: 300; /* Optional for very light text */
 
   /* ===== NEW: iOS UIKit Semantic Colors ===== */
   /* Backgrounds */
@@ -165,10 +165,9 @@
   --z-dropdown: 10;
   --z-sticky: 20;
   --z-fixed: 30;
-  --z-navigation: 50;        /* Mobile bottom navigation */
-  --z-modal-backdrop: 60;    /* Modal backdrop (above navigation) */
-  --z-modal: 70;             /* Modal content (above backdrop) */
-  --z-popover: 80;           /* Popovers and tooltips */
-  --z-tooltip: 90;           /* Tooltips (highest) */
+  --z-navigation: 50; /* Mobile bottom navigation */
+  --z-modal-backdrop: 60; /* Modal backdrop (above navigation) */
+  --z-modal: 70; /* Modal content (above backdrop) */
+  --z-popover: 80; /* Popovers and tooltips */
+  --z-tooltip: 90; /* Tooltips (highest) */
 }
-

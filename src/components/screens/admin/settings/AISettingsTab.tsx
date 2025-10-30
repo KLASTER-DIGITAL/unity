@@ -1,15 +1,21 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Brain, Save, AlertCircle, CheckCircle, DollarSign, Zap, Settings2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { AlertCircle, Brain, CheckCircle, DollarSign, Save, Settings2, Zap } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
-import { Badge } from '@/shared/components/ui/badge';
-import { toast } from 'sonner';
-import { Select } from '@/shared/components/ui/universal/Select';
 import {
   Table,
   TableBody,
@@ -18,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { Select } from '@/shared/components/ui/universal/Select';
 import { createClient } from '@/utils/supabase/client';
 
 interface AIModelConfig {
@@ -75,7 +82,9 @@ export const AISettingsTab: React.FC = () => {
     setIsLoading(true);
     try {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!session?.access_token) {
         toast.error('Ошибка авторизации');
@@ -129,7 +138,9 @@ export const AISettingsTab: React.FC = () => {
     setIsSaving(true);
     try {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!session?.access_token) {
         toast.error('Ошибка авторизации');
@@ -137,24 +148,20 @@ export const AISettingsTab: React.FC = () => {
       }
 
       // Save model configs
-      const { error: configError } = await supabase
-        .from('admin_settings')
-        .upsert({
-          key: 'ai_model_configs',
-          value: JSON.stringify(modelConfigs),
-          updated_at: new Date().toISOString(),
-        });
+      const { error: configError } = await supabase.from('admin_settings').upsert({
+        key: 'ai_model_configs',
+        value: JSON.stringify(modelConfigs),
+        updated_at: new Date().toISOString(),
+      });
 
       if (configError) throw configError;
 
       // Save budget config
-      const { error: budgetError } = await supabase
-        .from('admin_settings')
-        .upsert({
-          key: 'ai_budget_config',
-          value: JSON.stringify(budgetConfig),
-          updated_at: new Date().toISOString(),
-        });
+      const { error: budgetError } = await supabase.from('admin_settings').upsert({
+        key: 'ai_budget_config',
+        value: JSON.stringify(budgetConfig),
+        updated_at: new Date().toISOString(),
+      });
 
       if (budgetError) throw budgetError;
 
@@ -183,20 +190,16 @@ export const AISettingsTab: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[26px]! text-foreground flex items-center gap-2">
-            <Brain className="w-7 h-7 text-accent" />
+          <h3 className="flex items-center gap-2 text-[26px]! text-foreground">
+            <Brain className="h-7 w-7 text-accent" />
             AI Settings
           </h3>
-          <p className="text-[15px]! text-muted-foreground font-normal!">
+          <p className="font-normal! text-[15px]! text-muted-foreground">
             Управление моделями, лимитами и бюджетом AI
           </p>
         </div>
-        <Button
-          onClick={handleSaveSettings}
-          disabled={isSaving}
-          className="gap-2"
-        >
-          <Save className="w-4 h-4" />
+        <Button className="gap-2" disabled={isSaving} onClick={handleSaveSettings}>
+          <Save className="h-4 w-4" />
           {isSaving ? 'Сохранение...' : 'Сохранить настройки'}
         </Button>
       </div>
@@ -206,44 +209,58 @@ export const AISettingsTab: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-[17px]! flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-500" />
+              <CardTitle className="flex items-center gap-2 text-[17px]!">
+                <DollarSign className="h-5 w-5 text-green-500" />
                 Бюджет AI
               </CardTitle>
-              <CardDescription className="text-[13px]! font-normal!">
+              <CardDescription className="font-normal! text-[13px]!">
                 Месячный лимит и текущие расходы
               </CardDescription>
             </div>
-            <Badge variant={isOverBudget ? 'destructive' : 'outline'} className="text-[13px]!">
+            <Badge className="text-[13px]!" variant={isOverBudget ? 'destructive' : 'outline'}>
               {budgetPercentage.toFixed(1)}% использовано
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <Label htmlFor="monthly_budget" className="text-[13px]!">Месячный бюджет ($)</Label>
+              <Label className="text-[13px]!" htmlFor="monthly_budget">
+                Месячный бюджет ($)
+              </Label>
               <Input
+                className="mt-1.5"
                 id="monthly_budget"
+                onChange={(e) =>
+                  setBudgetConfig({
+                    ...budgetConfig,
+                    monthly_budget: Number.parseFloat(e.target.value),
+                  })
+                }
                 type="number"
                 value={budgetConfig.monthly_budget}
-                onChange={(e) => setBudgetConfig({ ...budgetConfig, monthly_budget: parseFloat(e.target.value) })}
-                className="mt-1.5"
               />
             </div>
             <div>
-              <Label htmlFor="alert_threshold" className="text-[13px]!">Порог уведомления (%)</Label>
+              <Label className="text-[13px]!" htmlFor="alert_threshold">
+                Порог уведомления (%)
+              </Label>
               <Input
+                className="mt-1.5"
                 id="alert_threshold"
+                onChange={(e) =>
+                  setBudgetConfig({
+                    ...budgetConfig,
+                    alert_threshold: Number.parseFloat(e.target.value),
+                  })
+                }
                 type="number"
                 value={budgetConfig.alert_threshold}
-                onChange={(e) => setBudgetConfig({ ...budgetConfig, alert_threshold: parseFloat(e.target.value) })}
-                className="mt-1.5"
               />
             </div>
             <div>
               <Label className="text-[13px]!">Текущие расходы</Label>
-              <div className="mt-1.5 h-10 px-3 rounded-md border border-input bg-muted flex items-center text-[15px]! font-semibold! text-foreground">
+              <div className="mt-1.5 flex h-10 items-center rounded-md border border-input bg-muted px-3 font-semibold! text-[15px]! text-foreground">
                 ${budgetConfig.current_spend.toFixed(2)}
               </div>
             </div>
@@ -253,11 +270,11 @@ export const AISettingsTab: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[13px]!">
               <span className="text-muted-foreground">Использовано</span>
-              <span className={isOverBudget ? 'text-red-500 font-semibold!' : 'text-foreground'}>
+              <span className={isOverBudget ? 'font-semibold! text-red-500' : 'text-foreground'}>
                 ${budgetConfig.current_spend.toFixed(2)} / ${budgetConfig.monthly_budget.toFixed(2)}
               </span>
             </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className={`h-full transition-all ${isOverBudget ? 'bg-red-500' : 'bg-green-500'}`}
                 style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
@@ -266,25 +283,29 @@ export const AISettingsTab: React.FC = () => {
           </div>
 
           {/* Test Mode */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-accent/5">
+          <div className="flex items-center justify-between rounded-lg bg-accent/5 p-3">
             <div className="flex items-center gap-3">
-              <Settings2 className="w-5 h-5 text-accent" />
+              <Settings2 className="h-5 w-5 text-accent" />
               <div>
-                <p className="text-[15px]! font-medium! text-foreground">Тестовый режим</p>
-                <p className="text-[13px]! text-muted-foreground">Использование sandbox-ключа без реальных затрат</p>
+                <p className="font-medium! text-[15px]! text-foreground">Тестовый режим</p>
+                <p className="text-[13px]! text-muted-foreground">
+                  Использование sandbox-ключа без реальных затрат
+                </p>
               </div>
             </div>
             <Switch
               checked={budgetConfig.test_mode}
-              onCheckedChange={(checked) => setBudgetConfig({ ...budgetConfig, test_mode: checked })}
+              onCheckedChange={(checked) =>
+                setBudgetConfig({ ...budgetConfig, test_mode: checked })
+              }
             />
           </div>
 
           {isOverBudget && (
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3">
+              <AlertCircle className="mt-0.5 h-5 w-5 text-red-500" />
               <div>
-                <p className="text-[15px]! font-medium! text-red-600">Превышен порог бюджета!</p>
+                <p className="font-medium! text-[15px]! text-red-600">Превышен порог бюджета!</p>
                 <p className="text-[13px]! text-red-600/80">
                   Текущие расходы превысили {budgetConfig.alert_threshold}% от месячного бюджета.
                 </p>
@@ -297,18 +318,18 @@ export const AISettingsTab: React.FC = () => {
       {/* Model Assignment Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-[17px]! flex items-center gap-2">
-            <Zap className="w-5 h-5 text-accent" />
+          <CardTitle className="flex items-center gap-2 text-[17px]!">
+            <Zap className="h-5 w-5 text-accent" />
             Назначение моделей по операциям
           </CardTitle>
-          <CardDescription className="text-[13px]! font-normal!">
+          <CardDescription className="font-normal! text-[13px]!">
             Выберите оптимальную модель для каждого типа AI операции
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Brain className="w-6 h-6 animate-spin text-accent" />
+              <Brain className="h-6 w-6 animate-spin text-accent" />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -333,15 +354,20 @@ export const AISettingsTab: React.FC = () => {
                       <TableRow key={opType.value}>
                         <TableCell>
                           <div>
-                            <p className="text-[15px]! font-medium! text-foreground">{opType.label}</p>
-                            <p className="text-[13px]! text-muted-foreground">{opType.description}</p>
+                            <p className="font-medium! text-[15px]! text-foreground">
+                              {opType.label}
+                            </p>
+                            <p className="text-[13px]! text-muted-foreground">
+                              {opType.description}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Select
-                            value={config.model}
-                            onValueChange={(value) => updateModelConfig(opType.value, 'model', value)}
                             className="w-[180px]"
+                            onValueChange={(value) =>
+                              updateModelConfig(opType.value, 'model', value)
+                            }
                             options={AI_MODELS.map((model) => ({
                               value: model.value,
                               label: model.label,
@@ -352,38 +378,54 @@ export const AISettingsTab: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                   {option.label}
                                   {model?.recommended && (
-                                    <Badge variant="outline" className="text-[10px]! bg-green-500/10 text-green-600 border-green-500/20">
+                                    <Badge
+                                      className="border-green-500/20 bg-green-500/10 text-[10px]! text-green-600"
+                                      variant="outline"
+                                    >
                                       ✓
                                     </Badge>
                                   )}
                                 </div>
                               );
                             }}
+                            value={config.model}
                           />
                         </TableCell>
                         <TableCell>
                           <Input
-                            type="number"
-                            value={config.max_tokens}
-                            onChange={(e) => updateModelConfig(opType.value, 'max_tokens', parseInt(e.target.value))}
                             className="w-[100px]"
                             disabled={config.model === 'whisper-1'}
+                            onChange={(e) =>
+                              updateModelConfig(
+                                opType.value,
+                                'max_tokens',
+                                Number.parseInt(e.target.value)
+                              )
+                            }
+                            type="number"
+                            value={config.max_tokens}
                           />
                         </TableCell>
                         <TableCell>
                           <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="2"
-                            value={config.temperature}
-                            onChange={(e) => updateModelConfig(opType.value, 'temperature', parseFloat(e.target.value))}
                             className="w-[80px]"
                             disabled={config.model === 'whisper-1'}
+                            max="2"
+                            min="0"
+                            onChange={(e) =>
+                              updateModelConfig(
+                                opType.value,
+                                'temperature',
+                                Number.parseFloat(e.target.value)
+                              )
+                            }
+                            step="0.1"
+                            type="number"
+                            value={config.temperature}
                           />
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-accent/10 text-accent">
+                          <Badge className="bg-accent/10 text-accent" variant="outline">
                             {selectedModel?.cost || 'N/A'}
                           </Badge>
                         </TableCell>
@@ -400,42 +442,48 @@ export const AISettingsTab: React.FC = () => {
       {/* Recommendations Card */}
       <Card className="border-accent/20 bg-accent/5">
         <CardHeader>
-          <CardTitle className="text-[17px]! flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
+          <CardTitle className="flex items-center gap-2 text-[17px]!">
+            <CheckCircle className="h-5 w-5 text-green-500" />
             Рекомендации по оптимизации
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
-            <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 rounded-lg bg-background p-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
               <span className="text-[15px]!">💡</span>
             </div>
             <div>
-              <p className="text-[15px]! font-medium! text-foreground">Используйте GPT-4o-mini для массовых операций</p>
+              <p className="font-medium! text-[15px]! text-foreground">
+                Используйте GPT-4o-mini для массовых операций
+              </p>
               <p className="text-[13px]! text-muted-foreground">
-                Для мотивационных карточек и анализа эмоций GPT-4o-mini обеспечивает отличное качество при стоимости в 8 раз ниже GPT-4o
+                Для мотивационных карточек и анализа эмоций GPT-4o-mini обеспечивает отличное
+                качество при стоимости в 8 раз ниже GPT-4o
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
-            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 rounded-lg bg-background p-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
               <span className="text-[15px]!">📊</span>
             </div>
             <div>
-              <p className="text-[15px]! font-medium! text-foreground">Оптимизируйте max_tokens</p>
+              <p className="font-medium! text-[15px]! text-foreground">Оптимизируйте max_tokens</p>
               <p className="text-[13px]! text-muted-foreground">
-                Установите разумные лимиты токенов для каждой операции. Для карточек достаточно 500 токенов, для отчетов - 2000
+                Установите разумные лимиты токенов для каждой операции. Для карточек достаточно 500
+                токенов, для отчетов - 2000
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-background">
-            <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3 rounded-lg bg-background p-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
               <span className="text-[15px]!">⚡</span>
             </div>
             <div>
-              <p className="text-[15px]! font-medium! text-foreground">Настройте temperature правильно</p>
+              <p className="font-medium! text-[15px]! text-foreground">
+                Настройте temperature правильно
+              </p>
               <p className="text-[13px]! text-muted-foreground">
                 Для аналитики используйте 0.5-0.7, для креативных задач (AI Coach) - 0.8-1.0
               </p>
@@ -446,4 +494,3 @@ export const AISettingsTab: React.FC = () => {
     </div>
   );
 };
-

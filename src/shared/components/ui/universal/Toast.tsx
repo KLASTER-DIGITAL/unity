@@ -56,9 +56,8 @@ export const toast = WebToast.toast;
  */
 export const Toaster = WebToast.Toaster;
 
+export type { ToasterProps } from './Toast.web';
 /**
  * Re-export types
  */
 export type { ToastProps } from './types';
-export type { ToasterProps } from './Toast.web';
-

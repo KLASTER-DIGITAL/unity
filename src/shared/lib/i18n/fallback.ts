@@ -1,4 +1,4 @@
-import { Translations } from './types';
+import type { Translations } from './types';
 
 // Fallback переводы на случай, если Supabase недоступен
 export const fallbackTranslations: Record<string, Translations> = {
@@ -91,7 +91,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: 'Прогресс перевода',
     untranslated_keys: 'Непереведенные ключи',
     translation_complete: 'Перевод завершен',
-    translation_failed: 'Ошибка перевода'
+    translation_failed: 'Ошибка перевода',
   },
   en: {
     greeting: 'Hello!',
@@ -182,7 +182,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: 'Translation progress',
     untranslated_keys: 'Untranslated keys',
     translation_complete: 'Translation complete',
-    translation_failed: 'Translation failed'
+    translation_failed: 'Translation failed',
   },
   es: {
     greeting: '¡Hola!',
@@ -273,7 +273,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: 'Progreso de traducción',
     untranslated_keys: 'Claves no traducidas',
     translation_complete: 'Traducción completa',
-    translation_failed: 'Error de traducción'
+    translation_failed: 'Error de traducción',
   },
   de: {
     greeting: 'Hallo!',
@@ -364,11 +364,11 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: 'Übersetzungsfortschritt',
     untranslated_keys: 'Nicht übersetzte Schlüssel',
     translation_complete: 'Übersetzung abgeschlossen',
-    translation_failed: 'Übersetzung fehlgeschlagen'
+    translation_failed: 'Übersetzung fehlgeschlagen',
   },
   fr: {
     greeting: 'Bonjour!',
-    todayQuestion: 'Comment s\'est passé votre journée?',
+    todayQuestion: "Comment s'est passé votre journée?",
     home: 'Accueil',
     history: 'Historique',
     awards: 'Récompenses',
@@ -385,11 +385,11 @@ export const fallbackTranslations: Record<string, Translations> = {
     next: 'Suivant',
     skip: 'Ignorer',
     start_button: 'Commencer',
-    alreadyHaveAccount: 'J\'ai déjà un compte',
+    alreadyHaveAccount: "J'ai déjà un compte",
     signIn: 'Se connecter',
-    signUp: 'S\'inscrire',
+    signUp: "S'inscrire",
     signInWith: 'Se connecter avec',
-    signUpWith: 'S\'inscrire avec',
+    signUpWith: "S'inscrire avec",
     yourEmail: 'Votre email',
     yourName: 'Votre nom',
     password: 'Mot de passe',
@@ -406,19 +406,19 @@ export const fallbackTranslations: Record<string, Translations> = {
     security: 'Sécurité',
     language: 'Langue',
     support: 'Support',
-    appLanguage: 'Langue de l\'app',
+    appLanguage: "Langue de l'app",
     currentLanguage: 'Langue actuelle',
     changeLanguage: 'Changer de langue',
     firstDayOfWeek: 'Premier jour de la semaine',
     monday: 'Lundi',
     importData: 'Importer des données',
     contactSupport: 'Contacter le support',
-    rateApp: 'Noter l\'app',
+    rateApp: "Noter l'app",
     faq: 'FAQ',
     dangerousZone: 'Zone dangereuse',
     logout: 'Se déconnecter',
     deleteAllData: 'Supprimer toutes les données',
-    appVersion: 'Version de l\'app',
+    appVersion: "Version de l'app",
     appSubtitle: 'Journal des Succès',
     family: 'Famille',
     work: 'Travail',
@@ -434,9 +434,9 @@ export const fallbackTranslations: Record<string, Translations> = {
     defaultCard2Description: 'Chaque jour vous rapproche du succès',
     defaultCard3Title: 'Vous êtes formidable!',
     defaultCard3Description: 'Vos efforts ne passeront pas inaperçus',
-    connectedToAI: 'Connecté à l\'IA',
+    connectedToAI: "Connecté à l'IA",
     aiHelp: 'Aide IA',
-    aiHelpDescription: 'L\'IA vous aidera à analyser vos entrées',
+    aiHelpDescription: "L'IA vous aidera à analyser vos entrées",
     historyTitle: 'Historique des entrées',
     foundEntries: 'Entrées trouvées',
     filters: 'Filtres',
@@ -446,7 +446,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     firstEntry: 'Première entrée',
     reminders: 'Rappels',
     select_language: 'Sélectionner la langue',
-    app_language_description: 'Choisissez la langue de l\'interface de l\'application',
+    app_language_description: "Choisissez la langue de l'interface de l'application",
     loading_translations: 'Chargement des traductions...',
     translation_error: 'Erreur de chargement des traductions',
     retry: 'Réessayer',
@@ -455,7 +455,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: 'Progression de la traduction',
     untranslated_keys: 'Clés non traduites',
     translation_complete: 'Traduction terminée',
-    translation_failed: 'Échec de la traduction'
+    translation_failed: 'Échec de la traduction',
   },
   zh: {
     greeting: '你好！',
@@ -546,7 +546,7 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: '翻译进度',
     untranslated_keys: '未翻译的键',
     translation_complete: '翻译完成',
-    translation_failed: '翻译失败'
+    translation_failed: '翻译失败',
   },
   ja: {
     greeting: 'こんにちは！',
@@ -637,8 +637,8 @@ export const fallbackTranslations: Record<string, Translations> = {
     translation_progress: '翻訳の進行状況',
     untranslated_keys: '未翻訳のキー',
     translation_complete: '翻訳完了',
-    translation_failed: '翻訳失敗'
-  }
+    translation_failed: '翻訳失敗',
+  },
 };
 
 // Получение fallback перевода для языка
@@ -651,4 +651,3 @@ export function getFallbackKey(language: string, key: keyof Translations): strin
   const translations = getFallbackTranslation(language);
   return translations[key] || key;
 }
-

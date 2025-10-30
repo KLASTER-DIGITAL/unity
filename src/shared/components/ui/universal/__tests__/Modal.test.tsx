@@ -1,25 +1,21 @@
 /**
  * Modal Component Tests
- * 
+ *
  * Tests for Universal Modal component
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock Modal component
-const Modal = ({ 
-  open, 
-  onClose, 
-  children,
-  title,
-  ...props 
-}: any) => {
-  if (!open) return null;
-  
+const Modal = ({ open, onClose, children, title, ...props }: any) => {
+  if (!open) {
+    return null;
+  }
+
   return (
-    <div role="dialog" aria-modal="true" {...props}>
+    <div aria-modal="true" role="dialog" {...props}>
       {title && <h2>{title}</h2>}
       {children}
       <button onClick={onClose}>Close</button>
@@ -40,7 +36,11 @@ describe('Modal Component', () => {
     });
 
     it('should render with title', () => {
-      render(<Modal open={true} title="Modal Title">Content</Modal>);
+      render(
+        <Modal open={true} title="Modal Title">
+          Content
+        </Modal>
+      );
       expect(screen.getByText('Modal Title')).toBeInTheDocument();
     });
 
@@ -53,11 +53,15 @@ describe('Modal Component', () => {
   describe('Events', () => {
     it('should call onClose when close button is clicked', () => {
       const handleClose = vi.fn();
-      render(<Modal open={true} onClose={handleClose}>Content</Modal>);
-      
+      render(
+        <Modal onClose={handleClose} open={true}>
+          Content
+        </Modal>
+      );
+
       const closeButton = screen.getByText('Close');
       fireEvent.click(closeButton);
-      
+
       expect(handleClose).toHaveBeenCalledTimes(1);
     });
   });
@@ -74,4 +78,3 @@ describe('Modal Component', () => {
     });
   });
 });
-

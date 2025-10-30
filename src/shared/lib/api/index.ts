@@ -14,77 +14,70 @@
 // CORE & CONFIGURATION
 // ==========================================
 
-export { apiRequest, getAuthHeaders, blobToBase64 } from './core/request';
-export type { ApiOptions } from './core/request';
 export { API_URLS } from './config/urls';
+export type { ApiOptions } from './core/request';
+export { apiRequest, blobToBase64, getAuthHeaders } from './core/request';
 
 // ==========================================
 // TYPES
 // ==========================================
 
 export type {
-  UserProfile,
-  MediaFile,
   AIAnalysisResult,
-  DiaryEntry,
-  UserStats,
-  UploadMediaOptions,
-  MotivationCard,
   BookDraft,
   BookGenerationRequest,
+  DiaryEntry,
+  MediaFile,
+  MotivationCard,
+  UploadMediaOptions,
+  UserProfile,
+  UserStats,
 } from './types';
 
 // ==========================================
 // SERVICES
 // ==========================================
 
+// AI Analysis API
+export { analyzeTextWithAI } from './services/ai-analysis';
+export type {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+  UserCategory,
+} from './services/categories';
+// Categories API
+export {
+  createCategory,
+  deleteCategory,
+  getCategoryByName,
+  getUserCategories,
+  updateCategory,
+} from './services/categories';
+// Entries API
+export {
+  createEntry,
+  deleteEntry,
+  getEntries,
+  getEntry,
+  updateEntry,
+} from './services/entries';
+// Media API
+export {
+  deleteMedia,
+  getSignedUrl,
+  uploadMedia,
+} from './services/media';
+// Motivations API
+export {
+  getMotivationCards,
+  markCardAsRead,
+} from './services/motivations';
 // Profiles API
 export {
   createUserProfile,
   getUserProfile,
   updateUserProfile,
 } from './services/profiles';
-
-// Entries API
-export {
-  createEntry,
-  getEntries,
-  getEntry,
-  updateEntry,
-  deleteEntry,
-} from './services/entries';
-
-// AI Analysis API
-export {
-  analyzeTextWithAI,
-} from './services/ai-analysis';
-
-// Media API
-export {
-  uploadMedia,
-  getSignedUrl,
-  deleteMedia,
-} from './services/media';
-
-// Motivations API
-export {
-  getMotivationCards,
-  markCardAsRead,
-} from './services/motivations';
-
-// Categories API
-export {
-  getUserCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  getCategoryByName,
-} from './services/categories';
-export type {
-  UserCategory,
-  CreateCategoryInput,
-  UpdateCategoryInput,
-} from './services/categories';
 
 // ==========================================
 // LEGACY API (from api.ts)
@@ -93,4 +86,3 @@ export type {
 // Re-export everything from the legacy api.ts file
 // This ensures backward compatibility while we migrate
 export * from './api';
-

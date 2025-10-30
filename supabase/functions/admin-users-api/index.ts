@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -12,7 +12,7 @@ const corsHeaders = {
 async function verifySuperAdmin(req: Request) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  
+
   // Get access token from Authorization header
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
@@ -20,7 +20,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Missing authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -30,14 +30,17 @@ async function verifySuperAdmin(req: Request) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
   // Verify user JWT token
-  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAdmin.auth.getUser(accessToken);
   if (authError || !user) {
     console.error('[AUTH] User verification failed:', authError);
     return {
-      error: new Response(
-        JSON.stringify({ success: false, error: 'Invalid access token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      error: new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }),
     };
   }
 
@@ -56,7 +59,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Failed to verify admin role' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -68,7 +71,7 @@ async function verifySuperAdmin(req: Request) {
       error: new Response(
         JSON.stringify({ success: false, error: 'Forbidden: Super admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      ),
     };
   }
 
@@ -100,8 +103,7 @@ Deno.serve(async (req) => {
     // ✅ FIX N+1: Используем один запрос с подсчетом через SQL
     // Вместо 1 + N запросов (где N = количество пользователей)
     // делаем 1 запрос с LEFT JOIN и COUNT + streak calculation
-    const { data: usersRaw, error } = await supabaseAdmin
-      .rpc('get_users_with_stats');
+    const { data: usersRaw, error } = await supabaseAdmin.rpc('get_users_with_stats');
 
     if (error) {
       // Fallback на старый метод если RPC функция не существует
@@ -129,15 +131,14 @@ Deno.serve(async (req) => {
       }, {});
 
       // Добавляем подсчеты к пользователям
-      const usersWithStats = (users || []).map(user => ({
+      const usersWithStats = (users || []).map((user) => ({
         ...user,
-        entriesCount: countsMap[user.id] || 0
+        entriesCount: countsMap[user.id] || 0,
       }));
 
-      return new Response(
-        JSON.stringify({ success: true, users: usersWithStats }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, users: usersWithStats }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // ✅ FIX: Map snake_case to camelCase for frontend
@@ -158,7 +159,7 @@ Deno.serve(async (req) => {
       biometricEnabled: user.biometric_enabled,
       backupEnabled: user.backup_enabled,
       firstDayOfWeek: user.first_day_of_week,
-      privacySettings: user.privacy_settings
+      privacySettings: user.privacy_settings,
     }));
 
     console.log('[ADMIN-USERS-API] ✅ Users fetched:', usersFormatted.length);
@@ -167,13 +168,11 @@ Deno.serve(async (req) => {
       JSON.stringify({ success: true, users: usersFormatted, total: usersFormatted.length }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('[ADMIN-USERS-API] ❌ Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

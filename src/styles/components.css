@@ -1,13 +1,16 @@
 /**
  * Custom Components - Base styles for HTML elements
  * Typography, scrollbar hiding, and global element styles
- * 
+ *
  * AI-Friendly: Only component-level styles (~80 lines)
  */
 
 /* Smooth transitions for theme changes */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* Typography - iOS style */
@@ -44,7 +47,8 @@ h4 {
   line-height: 1.5;
 }
 
-p, span {
+p,
+span {
   font-family: var(--font-family-primary);
   font-size: var(--text-base);
   font-weight: var(--font-weight-regular);
@@ -74,12 +78,12 @@ input {
 
 /* ===== iOS-style Scrollbar Hiding ===== */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* ===== Z-Index Utility Classes ===== */
@@ -117,7 +121,9 @@ input {
   padding: 1.5rem; /* p-6 */
   border-top-left-radius: 1.5rem; /* rounded-t-3xl */
   border-top-right-radius: 1.5rem;
-  box-shadow: 0 -10px 25px -5px rgb(0 0 0 / 0.1), 0 -8px 10px -6px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 -10px 25px -5px rgb(0 0 0 / 0.1),
+    0 -8px 10px -6px rgb(0 0 0 / 0.1);
   overflow-y: auto; /* Enable vertical scrolling */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }

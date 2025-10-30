@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const importMappings: Record<string, string> = {
@@ -17,7 +17,8 @@ const importMappings: Record<string, string> = {
   'from "../../components/MobileHeader"': 'from "@/shared/components/layout/MobileHeader"',
   'from "./components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
   'from "../components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
-  'from "../../components/AchievementHeader"': 'from "@/shared/components/layout/AchievementHeader"',
+  'from "../../components/AchievementHeader"':
+    'from "@/shared/components/layout/AchievementHeader"',
 
   // PWA
   'from "./components/PWAHead"': 'from "@/shared/components/pwa/PWAHead"',
@@ -130,7 +131,10 @@ function updateImportsInFile(filePath: string): boolean {
 
     for (const [oldImport, newImport] of Object.entries(importMappings)) {
       if (content.includes(oldImport)) {
-        content = content.replace(new RegExp(oldImport.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newImport);
+        content = content.replace(
+          new RegExp(oldImport.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+          newImport
+        );
         updated = true;
       }
     }
@@ -162,10 +166,12 @@ function processDirectory(dirPath: string): number {
         continue;
       }
       updatedCount += processDirectory(fullPath);
-    } else if (stat.isFile() && (entry.endsWith('.ts') || entry.endsWith('.tsx'))) {
-      if (updateImportsInFile(fullPath)) {
-        updatedCount++;
-      }
+    } else if (
+      stat.isFile() &&
+      (entry.endsWith('.ts') || entry.endsWith('.tsx')) &&
+      updateImportsInFile(fullPath)
+    ) {
+      updatedCount++;
     }
   }
 
@@ -177,4 +183,3 @@ const srcPath = join(process.cwd(), 'src');
 console.log('🔄 Starting import updates...\n');
 const updatedFiles = processDirectory(srcPath);
 console.log(`\n✅ Updated ${updatedFiles} files`);
-

@@ -1,32 +1,32 @@
 /**
  * Input Component Tests
- * 
+ *
  * Tests for Universal Input component
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock Input component (since we don't have UniversalInput yet)
-const Input = ({ 
-  value, 
-  onChange, 
-  placeholder, 
-  disabled, 
+const Input = ({
+  value,
+  onChange,
+  placeholder,
+  disabled,
   type = 'text',
   'aria-label': ariaLabel,
   className,
-  ...props 
+  ...props
 }: any) => (
   <input
-    type={type}
-    value={value}
-    onChange={onChange}
-    placeholder={placeholder}
-    disabled={disabled}
     aria-label={ariaLabel}
     className={className}
+    disabled={disabled}
+    onChange={onChange}
+    placeholder={placeholder}
+    type={type}
+    value={value}
     {...props}
   />
 );
@@ -39,32 +39,32 @@ describe('Input Component', () => {
     });
 
     it('should render with placeholder', () => {
-      render(<Input placeholder="Enter text" aria-label="Test" />);
+      render(<Input aria-label="Test" placeholder="Enter text" />);
       expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument();
     });
 
     it('should render with custom className', () => {
-      render(<Input className="custom-class" aria-label="Test" />);
+      render(<Input aria-label="Test" className="custom-class" />);
       expect(screen.getByRole('textbox')).toHaveClass('custom-class');
     });
   });
 
   describe('Props', () => {
     it('should render with value', () => {
-      render(<Input value="test value" onChange={vi.fn()} aria-label="Test" />);
+      render(<Input aria-label="Test" onChange={vi.fn()} value="test value" />);
       expect(screen.getByRole('textbox')).toHaveValue('test value');
     });
 
     it('should be disabled when disabled prop is true', () => {
-      render(<Input disabled aria-label="Test" />);
+      render(<Input aria-label="Test" disabled />);
       expect(screen.getByRole('textbox')).toBeDisabled();
     });
 
     it('should support different input types', () => {
-      const { rerender } = render(<Input type="email" aria-label="Email" />);
+      const { rerender } = render(<Input aria-label="Email" type="email" />);
       expect(screen.getByRole('textbox')).toHaveAttribute('type', 'email');
-      
-      rerender(<Input type="password" aria-label="Password" />);
+
+      rerender(<Input aria-label="Password" type="password" />);
       expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
     });
   });
@@ -72,21 +72,21 @@ describe('Input Component', () => {
   describe('Events', () => {
     it('should call onChange when value changes', () => {
       const handleChange = vi.fn();
-      render(<Input onChange={handleChange} aria-label="Test" />);
-      
+      render(<Input aria-label="Test" onChange={handleChange} />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: 'new value' } });
-      
+
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
     it('should not call onChange when disabled', () => {
       const handleChange = vi.fn();
-      render(<Input onChange={handleChange} disabled aria-label="Test" />);
-      
+      render(<Input aria-label="Test" disabled onChange={handleChange} />);
+
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: 'new value' } });
-      
+
       expect(handleChange).not.toHaveBeenCalled();
     });
   });
@@ -100,7 +100,7 @@ describe('Input Component', () => {
     it('should be keyboard accessible', () => {
       render(<Input aria-label="Test" />);
       const input = screen.getByRole('textbox');
-      
+
       input.focus();
       expect(input).toHaveFocus();
     });
@@ -111,4 +111,3 @@ describe('Input Component', () => {
     });
   });
 });
-

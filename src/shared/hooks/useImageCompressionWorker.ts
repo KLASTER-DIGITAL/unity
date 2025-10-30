@@ -1,17 +1,17 @@
-import { useRef, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
-interface CompressionOptions {
+type CompressionOptions = {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-}
+};
 
-interface CompressionResult {
+type CompressionResult = {
   file: File;
   originalSize: number;
   compressedSize: number;
   reduction: number;
-}
+};
 
 export function useImageCompressionWorker() {
   const workerRef = useRef<Worker | null>(null);
@@ -113,17 +113,13 @@ export function useImageCompressionWorker() {
       // Fallback to main thread if worker not available
       if (!worker) {
         const { compressImage: mainThreadCompress } = await import('../../utils/imageCompression');
-        const compressed = await mainThreadCompress(
-          file,
-          options?.maxWidth,
-          options?.quality
-        );
-        
+        const compressed = await mainThreadCompress(file, options?.maxWidth, options?.quality);
+
         return {
           file: compressed,
           originalSize: file.size,
           compressedSize: compressed.size,
-          reduction: ((file.size - compressed.size) / file.size) * 100
+          reduction: ((file.size - compressed.size) / file.size) * 100,
         };
       }
 
@@ -139,7 +135,7 @@ export function useImageCompressionWorker() {
               file: data,
               originalSize: file.size,
               compressedSize: data.size,
-              reduction: ((file.size - data.size) / file.size) * 100
+              reduction: ((file.size - data.size) / file.size) * 100,
             });
           } else if (type === 'error') {
             worker.removeEventListener('message', handleMessage);
@@ -160,7 +156,9 @@ export function useImageCompressionWorker() {
 
       // Fallback to main thread
       if (!worker) {
-        const { generateThumbnail: mainThreadThumbnail } = await import('../../utils/imageCompression');
+        const { generateThumbnail: mainThreadThumbnail } = await import(
+          '../../utils/imageCompression'
+        );
         return mainThreadThumbnail(file);
       }
 
@@ -190,7 +188,9 @@ export function useImageCompressionWorker() {
 
       // Fallback to main thread
       if (!worker) {
-        const { getImageDimensions: mainThreadDimensions } = await import('../../utils/imageCompression');
+        const { getImageDimensions: mainThreadDimensions } = await import(
+          '../../utils/imageCompression'
+        );
         return mainThreadDimensions(file);
       }
 
@@ -226,7 +226,6 @@ export function useImageCompressionWorker() {
     compressImage,
     generateThumbnail,
     getImageDimensions,
-    cleanup
+    cleanup,
   };
 }
-

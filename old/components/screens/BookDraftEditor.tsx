@@ -1,23 +1,11 @@
-import { useState, useEffect } from "react";
-import { motion } from "motion/react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Textarea } from "../ui/textarea";
-import { getBookDraft, saveBookDraft, renderBookPDF, type BookDraft } from "../../utils/api";
-import { toast } from "sonner";
-import { 
-  ArrowLeft, 
-  Save, 
-  Download, 
-  Edit3,
-  Trash2,
-  Plus,
-  FileText,
-  Image,
-  BarChart3,
-  Loader2
-} from "lucide-react";
+import { ArrowLeft, BarChart3, Download, Edit3, FileText, Loader2, Save } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { type BookDraft, getBookDraft, renderBookPDF, saveBookDraft } from '../../utils/api';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Textarea } from '../ui/textarea';
 
 interface BookDraftEditorProps {
   draftId: string;
@@ -52,9 +40,9 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
       setBook(bookData);
       setEditedContent(bookData.storyJson);
     } catch (error) {
-      console.error("Error loading book:", error);
-      toast.error("Не удалось загрузить книгу", {
-        description: "Попробуйте еще раз"
+      console.error('Error loading book:', error);
+      toast.error('Не удалось загрузить книгу', {
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsLoading(false);
@@ -67,11 +55,11 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
     try {
       setIsSaving(true);
       await saveBookDraft(draftId, editedContent);
-      toast.success("Изменения сохранены! 💾");
+      toast.success('Изменения сохранены! 💾');
     } catch (error) {
-      console.error("Error saving book:", error);
-      toast.error("Не удалось сохранить изменения", {
-        description: "Попробуйте еще раз"
+      console.error('Error saving book:', error);
+      toast.error('Не удалось сохранить изменения', {
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsSaving(false);
@@ -83,31 +71,34 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
 
     try {
       setIsPublishing(true);
-      
+
       // Сначала сохраняем изменения
       await saveBookDraft(draftId, editedContent);
-      
+
       // Затем рендерим PDF
       const result = await renderBookPDF(draftId);
-      
-      toast.success("PDF книга создана! 🎉", {
-        description: `${result.pages} страниц, ${result.wordCount} слов`
+
+      toast.success('PDF книга создана! 🎉', {
+        description: `${result.pages} страниц, ${result.wordCount} слов`,
       });
 
       // Обновляем книгу с PDF URL
-      setBook(prev => prev ? {
-        ...prev,
-        pdfUrl: result.pdfUrl,
-        isFinal: true,
-        isDraft: false
-      } : null);
+      setBook((prev) =>
+        prev
+          ? {
+              ...prev,
+              pdfUrl: result.pdfUrl,
+              isFinal: true,
+              isDraft: false,
+            }
+          : null
+      );
 
       onPublish?.(book!.id);
-      
     } catch (error) {
-      console.error("Error publishing book:", error);
-      toast.error("Не удалось создать PDF", {
-        description: "Попробуйте еще раз"
+      console.error('Error publishing book:', error);
+      toast.error('Не удалось создать PDF', {
+        description: 'Попробуйте еще раз',
       });
     } finally {
       setIsPublishing(false);
@@ -124,12 +115,12 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
     const updatedChapters = [...editedContent.chapters];
     updatedChapters[chapterIndex] = {
       ...updatedChapters[chapterIndex],
-      text: editedContent.chapters[chapterIndex].text
+      text: editedContent.chapters[chapterIndex].text,
     };
 
     setEditedContent({
       ...editedContent,
-      chapters: updatedChapters
+      chapters: updatedChapters,
     });
     setEditingChapter(null);
   };
@@ -144,58 +135,56 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
     const updatedChapters = [...editedContent.chapters];
     updatedChapters[chapterIndex] = {
       ...updatedChapters[chapterIndex],
-      text
+      text,
     };
 
     setEditedContent({
       ...editedContent,
-      chapters: updatedChapters
+      chapters: updatedChapters,
     });
   };
 
   const handleTitleChange = (title: string) => {
     setEditedContent({
       ...editedContent,
-      title
+      title,
     });
   };
 
   const handlePrologueChange = (prologue: string) => {
     setEditedContent({
       ...editedContent,
-      prologue
+      prologue,
     });
   };
 
   const handleEpilogueChange = (epilogue: string) => {
     setEditedContent({
       ...editedContent,
-      epilogue
+      epilogue,
     });
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="mx-auto max-w-4xl">
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
           </div>
         </div>
       </div>
     );
   }
 
-  if (!book || !editedContent) {
+  if (!(book && editedContent)) {
     return (
       <div className="min-h-screen bg-background p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center py-16">
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              Книга не найдена
-            </h3>
+        <div className="mx-auto max-w-4xl">
+          <div className="py-16 text-center">
+            <h3 className="mb-2 font-semibold text-foreground text-xl">Книга не найдена</h3>
             <Button onClick={onBack} variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Назад к библиотеке
             </Button>
           </div>
@@ -206,46 +195,38 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button onClick={onBack} variant="ghost">
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Редактирование книги
-              </h1>
-              <p className="text-muted-foreground">
-                Внесите изменения и сохраните черновик
-              </p>
+              <h1 className="font-bold text-3xl text-foreground">Редактирование книги</h1>
+              <p className="text-muted-foreground">Внесите изменения и сохраните черновик</p>
             </div>
           </div>
-          
+
           <div className="flex space-x-2">
-            <Button 
-              onClick={handleSave}
-              disabled={isSaving}
-              variant="outline"
-            >
-              <Save className="w-4 h-4 mr-2" />
+            <Button disabled={isSaving} onClick={handleSave} variant="outline">
+              <Save className="mr-2 h-4 w-4" />
               {isSaving ? 'Сохранение...' : 'Сохранить'}
             </Button>
-            <Button 
-              onClick={handlePublish}
-              disabled={isPublishing}
+            <Button
               className="bg-primary hover:bg-primary/90"
+              disabled={isPublishing}
+              onClick={handlePublish}
             >
               {isPublishing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Создание PDF...
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="mr-2 h-4 w-4" />
                   Создать PDF
                 </>
               )}
@@ -258,17 +239,23 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-primary" />
+                <FileText className="h-5 w-5 text-primary" />
                 <Badge variant="secondary">
-                  {book.style === 'warm_family' ? 'Теплый семейный' : 
-                   book.style === 'biographical' ? 'Биографический' : 'Мотивационный'}
+                  {book.style === 'warm_family'
+                    ? 'Теплый семейный'
+                    : book.style === 'biographical'
+                      ? 'Биографический'
+                      : 'Мотивационный'}
                 </Badge>
                 <Badge variant="outline">
-                  {book.layout === 'photo_text' ? 'Фото + текст' : 
-                   book.layout === 'text_only' ? 'Только текст' : 'Минимальный'}
+                  {book.layout === 'photo_text'
+                    ? 'Фото + текст'
+                    : book.layout === 'text_only'
+                      ? 'Только текст'
+                      : 'Минимальный'}
                 </Badge>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {book.periodStart} - {book.periodEnd}
               </div>
             </div>
@@ -281,16 +268,16 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Edit3 className="w-5 h-5" />
+                <Edit3 className="h-5 w-5" />
                 <span>Название книги</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
-                value={editedContent.title || ''}
+                className="min-h-[60px] font-semibold text-lg"
                 onChange={(e) => handleTitleChange(e.target.value)}
-                className="min-h-[60px] text-lg font-semibold"
                 placeholder="Введите название книги..."
+                value={editedContent.title || ''}
               />
             </CardContent>
           </Card>
@@ -299,16 +286,16 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <FileText className="w-5 h-5" />
+                <FileText className="h-5 w-5" />
                 <span>Предисловие</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
-                value={editedContent.prologue || ''}
-                onChange={(e) => handlePrologueChange(e.target.value)}
                 className="min-h-[120px]"
+                onChange={(e) => handlePrologueChange(e.target.value)}
                 placeholder="Напишите предисловие к книге..."
+                value={editedContent.prologue || ''}
               />
             </CardContent>
           </Card>
@@ -319,34 +306,26 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
-                    <FileText className="w-5 h-5" />
+                    <FileText className="h-5 w-5" />
                     <span>Глава: {chapter.name}</span>
                   </CardTitle>
                   <div className="flex space-x-2">
                     {editingChapter === index ? (
                       <>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleChapterSave(index)}
+                        <Button
                           className="bg-green-600 hover:bg-green-700"
+                          onClick={() => handleChapterSave(index)}
+                          size="sm"
                         >
-                          <Save className="w-4 h-4" />
+                          <Save className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={handleChapterCancel}
-                        >
+                        <Button onClick={handleChapterCancel} size="sm" variant="outline">
                           Отмена
                         </Button>
                       </>
                     ) : (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleChapterEdit(index)}
-                      >
-                        <Edit3 className="w-4 h-4" />
+                      <Button onClick={() => handleChapterEdit(index)} size="sm" variant="outline">
+                        <Edit3 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -355,10 +334,10 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
               <CardContent>
                 {editingChapter === index ? (
                   <Textarea
-                    value={chapter.text || ''}
-                    onChange={(e) => handleTextChange(index, e.target.value)}
                     className="min-h-[200px]"
+                    onChange={(e) => handleTextChange(index, e.target.value)}
                     placeholder="Напишите содержание главы..."
+                    value={chapter.text || ''}
                   />
                 ) : (
                   <div className="prose max-w-none">
@@ -369,8 +348,8 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
                 {/* Achievements */}
                 {chapter.achievements && chapter.achievements.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <BarChart3 className="w-4 h-4 mr-2" />
+                    <h4 className="mb-2 flex items-center font-medium">
+                      <BarChart3 className="mr-2 h-4 w-4" />
                       Достижения
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -386,10 +365,13 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
                 {/* Quotes */}
                 {chapter.quotes && chapter.quotes.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="font-medium mb-2">Цитаты</h4>
+                    <h4 className="mb-2 font-medium">Цитаты</h4>
                     <div className="space-y-2">
                       {chapter.quotes.map((quote: string, quoteIndex: number) => (
-                        <blockquote key={quoteIndex} className="border-l-4 border-primary pl-4 italic">
+                        <blockquote
+                          className="border-primary border-l-4 pl-4 italic"
+                          key={quoteIndex}
+                        >
                           "{quote}"
                         </blockquote>
                       ))}
@@ -405,29 +387,29 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className="h-5 w-5" />
                   <span>Статистика</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">
+                    <div className="font-bold text-2xl text-primary">
                       {editedContent.statistics.total_entries}
                     </div>
-                    <div className="text-sm text-muted-foreground">Всего записей</div>
+                    <div className="text-muted-foreground text-sm">Всего записей</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="font-bold text-2xl text-green-600">
                       {editedContent.statistics.positive_percent}%
                     </div>
-                    <div className="text-sm text-muted-foreground">Позитивных</div>
+                    <div className="text-muted-foreground text-sm">Позитивных</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="font-bold text-2xl text-blue-600">
                       {editedContent.statistics.achievements_count}
                     </div>
-                    <div className="text-sm text-muted-foreground">Достижений</div>
+                    <div className="text-muted-foreground text-sm">Достижений</div>
                   </div>
                 </div>
               </CardContent>
@@ -438,16 +420,16 @@ export function BookDraftEditor({ draftId, userData, onBack, onPublish }: BookDr
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <FileText className="w-5 h-5" />
+                <FileText className="h-5 w-5" />
                 <span>Заключение</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
-                value={editedContent.epilogue || ''}
-                onChange={(e) => handleEpilogueChange(e.target.value)}
                 className="min-h-[120px]"
+                onChange={(e) => handleEpilogueChange(e.target.value)}
                 placeholder="Напишите заключение к книге..."
+                value={editedContent.epilogue || ''}
               />
             </CardContent>
           </Card>

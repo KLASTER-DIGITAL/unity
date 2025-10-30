@@ -1,17 +1,20 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
-import { motion, AnimatedPresence } from "@/shared/lib/platform/animation";
-import { X } from "lucide-react";
-import { type DiaryEntry } from "@/shared/lib/api";
-import { MediaPreview } from "@/features/mobile/media";
 
-interface EntryDetailModalProps {
+import { X } from 'lucide-react';
+import { MediaPreview } from '@/features/mobile/media';
+import type { DiaryEntry } from '@/shared/lib/api';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
+
+type EntryDetailModalProps = {
   entry: DiaryEntry | null;
   isOpen: boolean;
   onClose: () => void;
-}
+};
 
 export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalProps) {
-  if (!entry) return null;
+  if (!entry) {
+    return null;
+  }
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -21,25 +24,33 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
   const getSentimentColor = (sentiment: string): string => {
     switch (sentiment) {
-      case 'positive': return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]';
-      case 'neutral': return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]';
-      case 'negative': return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)]';
-      default: return 'bg-muted text-foreground';
+      case 'positive':
+        return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]';
+      case 'neutral':
+        return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]';
+      case 'negative':
+        return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)]';
+      default:
+        return 'bg-muted text-foreground';
     }
   };
 
   const getSentimentLabel = (sentiment: string): string => {
     switch (sentiment) {
-      case 'positive': return '😊 Позитив';
-      case 'neutral': return '😐 Нейтрал';
-      case 'negative': return '😔 Грусть';
-      default: return 'Неизвестно';
+      case 'positive':
+        return '😊 Позитив';
+      case 'neutral':
+        return '😐 Нейтрал';
+      case 'negative':
+        return '😔 Грусть';
+      default:
+        return 'Неизвестно';
     }
   };
 
@@ -49,28 +60,28 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
             exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
           />
 
           {/* Modal */}
           <motion.div
-            data-testid="entry-details"
-            initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
+            className="modal-bottom-sheet z-modal mx-auto max-h-[85vh] max-w-md overflow-y-auto border-border border-t bg-card transition-colors duration-300"
+            data-testid="entry-details"
             exit={{ opacity: 0, y: 100 }}
+            initial={{ opacity: 0, y: 100 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="modal-bottom-sheet z-modal bg-card max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300 max-h-[85vh]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px]! font-semibold! text-foreground">Запись</h2>
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-semibold! text-[20px]! text-foreground">Запись</h2>
               <button
+                className="rounded-full p-1 transition-colors hover:bg-accent/10"
                 onClick={onClose}
-                className="p-1 hover:bg-accent/10 rounded-full transition-colors"
               >
                 <X className="h-5 w-5 text-foreground" strokeWidth={2} />
               </button>
@@ -78,18 +89,18 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
             {/* Date */}
             <div className="mb-4">
-              <p className="text-[13px]! text-muted-foreground">
-                {formatDate(entry.createdAt)}
-              </p>
+              <p className="text-[13px]! text-muted-foreground">{formatDate(entry.createdAt)}</p>
             </div>
 
             {/* Category & Sentiment */}
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className={`px-3 py-1 rounded-full text-[12px]! font-medium! border ${getSentimentColor(entry.sentiment)} border-current/30`}>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span
+                className={`rounded-full border px-3 py-1 font-medium! text-[12px]! ${getSentimentColor(entry.sentiment)} border-current/30`}
+              >
                 {getSentimentLabel(entry.sentiment)}
               </span>
               {entry.category && (
-                <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-[12px]! border border-muted-foreground/30 dark:border-muted-foreground/50 transition-colors duration-300">
+                <span className="rounded-full border border-muted-foreground/30 bg-muted px-3 py-1 text-[12px]! text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50">
                   {entry.category}
                 </span>
               )}
@@ -104,14 +115,14 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
             {/* Title */}
             {entry.text && (
-              <h3 className="text-[18px]! font-semibold! text-foreground mb-3">
+              <h3 className="mb-3 font-semibold! text-[18px]! text-foreground">
                 {entry.text.split('\n')[0]}
               </h3>
             )}
 
             {/* Full Text */}
             <div className="mb-6">
-              <p className="text-[15px]! text-foreground leading-[22px] whitespace-pre-wrap">
+              <p className="whitespace-pre-wrap text-[15px]! text-foreground leading-[22px]">
                 {entry.text}
               </p>
             </div>
@@ -119,8 +130,11 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
             {/* Tags */}
             {entry.tags && entry.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {entry.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded-[6px] text-[11px]! font-medium! border border-muted-foreground/30 dark:border-muted-foreground/50 transition-colors duration-300">
+                {entry.tags.map((tag) => (
+                  <span
+                    className="rounded-[6px] border border-muted-foreground/30 bg-muted px-2 py-1 font-medium! text-[11px]! text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50"
+                    key={tag}
+                  >
                     #{tag}
                   </span>
                 ))}
@@ -132,4 +146,3 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
     </AnimatedPresence>
   );
 }
-

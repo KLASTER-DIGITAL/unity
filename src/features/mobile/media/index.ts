@@ -15,8 +15,8 @@
 // Components
 export { MediaLightbox } from './components/MediaLightbox';
 export { MediaPreview } from './components/MediaPreview';
-export { VoiceRecordingModal } from './components/VoiceRecordingModal';
 export { PermissionGuide } from './components/PermissionGuide';
+export { VoiceRecordingModal } from './components/VoiceRecordingModal';
 
 // Hooks
 export { useVoiceRecorder } from './hooks/useVoiceRecorder';

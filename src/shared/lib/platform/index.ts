@@ -11,10 +11,10 @@
 import {
   Platform,
   PlatformConstants,
-  PlatformFeatures,
   PlatformDev,
+  PlatformFeatures,
+  type PlatformSpecific,
   type PlatformType,
-  type PlatformSpecific
 } from './detection';
 
 export {
@@ -23,40 +23,37 @@ export {
   PlatformFeatures,
   PlatformDev,
   type PlatformType,
-  type PlatformSpecific
+  type PlatformSpecific,
 };
-
-// Storage adapter
-export {
-  storage,
-  StorageUtils,
-  StorageKeys,
-  type StorageAdapter
-} from './storage';
 
 // Media adapter
 export {
-  media,
+  type MediaAdapter,
   MediaUtils,
-  type MediaAdapter
+  media,
 } from './media';
-
 // Navigation adapter
 export {
-  navigation,
-  NavigationUtils,
   type NavigationAdapter,
+  type NavigationOptions,
+  NavigationUtils,
+  navigation,
   type RouteParams,
-  type NavigationOptions
 } from './navigation';
-
 // React Native readiness checker
 export {
-  ReactNativeReadinessChecker,
   checkReactNativeReadiness,
+  ReactNativeReadinessChecker,
   type ReadinessCheckResult,
-  type ReadinessReport
+  type ReadinessReport,
 } from './react-native-readiness';
+// Storage adapter
+export {
+  type StorageAdapter,
+  StorageKeys,
+  StorageUtils,
+  storage,
+} from './storage';
 
 /**
  * Platform abstraction utilities
@@ -86,9 +83,9 @@ export const PlatformUtils = {
   /**
    * Get platform-specific constant
    */
-  getConstant<K extends keyof typeof PlatformConstants>(key: K): typeof PlatformConstants[K] {
+  getConstant<K extends keyof typeof PlatformConstants>(key: K): (typeof PlatformConstants)[K] {
     return PlatformConstants[key];
-  }
+  },
 };
 
 /**

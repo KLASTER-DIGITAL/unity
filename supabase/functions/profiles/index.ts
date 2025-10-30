@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
           success: true,
           status: 'ok',
           service: 'profiles',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       const profileData = await req.json();
       console.log('[PROFILES] Creating profile:', profileData);
 
-      if (!profileData.id || !profileData.email) {
+      if (!(profileData.id && profileData.email)) {
         return new Response(
           JSON.stringify({ success: false, error: 'id and email are required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -61,21 +61,21 @@ Deno.serve(async (req) => {
             selectedTime: 'none',
             morningTime: '08:00',
             eveningTime: '21:00',
-            permissionGranted: false
+            permissionGranted: false,
           },
-          onboarding_completed: profileData.onboardingCompleted || false,
+          onboarding_completed: profileData.onboardingCompleted,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();
 
       if (error) {
         console.error('[PROFILES] Error creating profile:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const profile = {
@@ -89,14 +89,13 @@ Deno.serve(async (req) => {
         notificationSettings: data.notification_settings,
         onboardingCompleted: data.onboarding_completed,
         createdAt: data.created_at,
-        updatedAt: data.updated_at
+        updatedAt: data.updated_at,
       };
 
       console.log('[PROFILES] Profile created successfully:', profile);
-      return new Response(
-        JSON.stringify({ success: true, profile }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, profile }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Get user profile by ID
@@ -104,25 +103,21 @@ Deno.serve(async (req) => {
       const userId = path.split('/').pop();
       console.log(`[PROFILES] Fetching profile for user: ${userId}`);
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
       if (error) {
         console.error('[PROFILES] Error fetching profile:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       if (!data) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Profile not found' }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: 'Profile not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const profile = {
@@ -143,13 +138,12 @@ Deno.serve(async (req) => {
         biometricEnabled: data.biometric_enabled,
         backupEnabled: data.backup_enabled,
         firstDayOfWeek: data.first_day_of_week,
-        privacySettings: data.privacy_settings
+        privacySettings: data.privacy_settings,
       };
 
-      return new Response(
-        JSON.stringify({ success: true, profile }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, profile }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Update user profile
@@ -159,7 +153,7 @@ Deno.serve(async (req) => {
       console.log(`[PROFILES] Updating profile for user: ${userId}`, updates);
 
       const dbUpdates: any = {
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       if (updates.name !== undefined) dbUpdates.name = updates.name;
@@ -168,14 +162,19 @@ Deno.serve(async (req) => {
       if (updates.language !== undefined) dbUpdates.language = updates.language;
       if (updates.diaryName !== undefined) dbUpdates.diary_name = updates.diaryName;
       if (updates.diaryEmoji !== undefined) dbUpdates.diary_emoji = updates.diaryEmoji;
-      if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
-      if (updates.onboardingCompleted !== undefined) dbUpdates.onboarding_completed = updates.onboardingCompleted;
+      if (updates.notificationSettings !== undefined)
+        dbUpdates.notification_settings = updates.notificationSettings;
+      if (updates.onboardingCompleted !== undefined)
+        dbUpdates.onboarding_completed = updates.onboardingCompleted;
       if (updates.theme !== undefined) dbUpdates.theme = updates.theme;
       if (updates.isPremium !== undefined) dbUpdates.is_premium = updates.isPremium;
-      if (updates.biometricEnabled !== undefined) dbUpdates.biometric_enabled = updates.biometricEnabled;
+      if (updates.biometricEnabled !== undefined)
+        dbUpdates.biometric_enabled = updates.biometricEnabled;
       if (updates.backupEnabled !== undefined) dbUpdates.backup_enabled = updates.backupEnabled;
-      if (updates.firstDayOfWeek !== undefined) dbUpdates.first_day_of_week = updates.firstDayOfWeek;
-      if (updates.privacySettings !== undefined) dbUpdates.privacy_settings = updates.privacySettings;
+      if (updates.firstDayOfWeek !== undefined)
+        dbUpdates.first_day_of_week = updates.firstDayOfWeek;
+      if (updates.privacySettings !== undefined)
+        dbUpdates.privacy_settings = updates.privacySettings;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -186,10 +185,10 @@ Deno.serve(async (req) => {
 
       if (error) {
         console.error('[PROFILES] Error updating profile:', error);
-        return new Response(
-          JSON.stringify({ success: false, error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       const profile = {
@@ -209,28 +208,25 @@ Deno.serve(async (req) => {
         biometricEnabled: data.biometric_enabled,
         backupEnabled: data.backup_enabled,
         firstDayOfWeek: data.first_day_of_week,
-        privacySettings: data.privacy_settings
+        privacySettings: data.privacy_settings,
       };
 
       console.log('[PROFILES] Profile updated successfully:', profile);
-      return new Response(
-        JSON.stringify({ success: true, profile }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, profile }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Not found
-    return new Response(
-      JSON.stringify({ success: false, error: 'Not found' }),
-      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    return new Response(JSON.stringify({ success: false, error: 'Not found' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[PROFILES] Error:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

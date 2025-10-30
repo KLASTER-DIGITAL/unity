@@ -8,6 +8,81 @@
 
 ## [Unreleased] - 2025-10-30
 
+### 🔄 Изменено
+
+**React 19.1.0 Migration (2025-10-30)**:
+- **package.json**: Восстановлен React 19.1.0 + npm overrides
+  - Восстановлен `"react": "19.1.0"` (было ошибочно откачено на 18.3.1)
+  - Восстановлен `"react-dom": "19.1.0"`
+  - Добавлен `"overrides"` секция для принудительной установки React 19
+  - Причина: Expo SDK 54 официально требует React 19.1.0
+  - Результат: `npm list react` показывает `react@19.1.0 overridden`
+- **MobileConfigTab.tsx**: Исправлены импорты
+  - Изменен `import { useToast }` на `import { toast }` из Universal Toast
+  - Изменен путь к supabase: `@/utils/supabase/client` (было `@/shared/lib/supabase/client`)
+  - Удален `const { toast } = useToast()` (теперь используется напрямую)
+- **vite.config.ts**: Конфигурация уже правильная
+  - React и React-DOM в одном vendor-react chunk (186.14 kB)
+  - dedupe + alias для предотвращения дубликатов
+  - manualChunks правильно настроен
+- **Vite cache**: Полная очистка
+  - `rm -rf node_modules/.vite build .vite`
+  - Пересборка production build (9.89s, 2808 modules)
+- **Документация**: Создан `docs/architecture/REACT_19_MIGRATION.md` (300 строк)
+  - Почему React 19.1.0
+  - Troubleshooting Invalid Hook Call Error
+  - Migration guide
+  - Совместимость библиотек
+
+**React Native Bug Fixes (2025-10-30)**:
+- **Обновлено**: 8 файлов для исправления критических ошибок
+  - `app/_layout.tsx` - добавлен GestureHandlerRootView wrapper
+  - `app/index.tsx` - auth flow с проверкой сессии
+  - `app/(tabs)/diary.tsx` - добавлен DesignTokens import
+  - `app/(tabs)/settings.tsx` - добавлен DesignTokens import
+  - `app/(tabs)/achievements.tsx` - исправлен stats?.totalEntries
+  - `app-shared/components/navigation/CustomTabBar.tsx` - добавлен DesignTokens import
+  - `app-shared/hooks/useUserData.ts` - обработка PGRST116 error
+  - UUID format исправлен в 3 файлах (index.tsx, diary.tsx, achievements.tsx)
+- **Установлено**: `@lottiefiles/dotlottie-react` для web версии Lottie
+- **Результат**: 0 ошибок в консоли, все компоненты работают
+
+**Documentation Updates (2025-10-30)**:
+- **Обновлено**: `docs/mobile/REACT_NATIVE_DESIGN_SYSTEM.md`
+  - Версия: 1.0 → 1.1
+  - Добавлена секция "Auth Screen" (150 строк)
+  - Добавлена секция "Testing" (30 строк)
+  - Обновлен статус: Production Ready (95% завершено)
+- **Обновлено**: `docs/CHANGELOG.md`
+  - Добавлены все изменения от 2025-10-30
+  - Auth Screen, Bug Fixes, Testing Script
+- **Обновлено**: `docs/plan/SPRINT.md`
+  - Sprint #14 → Sprint #15
+  - Тема: React Native UI - Final Polish & Testing
+  - Статус: 95% завершено
+
+### ✅ Тестирование
+
+**React Native Testing Script (2025-10-30)**:
+- **Создан**: `scripts/test-react-native.sh` (200 строк)
+- **Функциональность**:
+  - Проверка 39 компонентов и файлов
+  - Проверка 7 критических зависимостей
+  - Проверка 5 конфигурационных файлов
+  - Цветной вывод (Green/Red/Yellow)
+  - Success rate calculation
+  - Exit codes для CI/CD
+- **Результат**: 100% tests passed (39/39)
+- **Использование**: `chmod +x scripts/test-react-native.sh && ./scripts/test-react-native.sh`
+
+**Unit Tests Created (2025-10-30)**:
+- **Создан**: `tests/unit/react-native-screens.test.tsx` (257 строк)
+- **Содержание**:
+  - 13 тестов для React Native screens
+  - Mocks для React Native, Expo, Supabase
+  - Smoke tests, integration tests, performance tests
+- **Статус**: Концепция валидна, требует доработки path resolution
+
 ### 📚 Документация
 
 **React Native Expo Setup Documentation (2025-10-30)**:

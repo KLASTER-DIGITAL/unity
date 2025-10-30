@@ -41,4 +41,3 @@ export const API_URLS = {
  * @deprecated Use specific microservice URLs instead
  */
 export const LEGACY_API_URL = '';
-

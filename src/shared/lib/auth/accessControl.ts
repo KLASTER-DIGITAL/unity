@@ -5,7 +5,7 @@
 
 export type UserRole = 'user' | 'super_admin';
 
-export interface UserData {
+export type UserData = {
   user?: {
     id: string;
     email: string;
@@ -18,17 +18,19 @@ export interface UserData {
   };
   role?: UserRole;
   success?: boolean;
-}
+};
 
-export interface RouteParams {
+export type RouteParams = {
   view?: string | null;
-}
+};
 
 /**
  * Get user role from userData
  */
 export function getUserRole(userData: UserData | null): UserRole | null {
-  if (!userData) return null;
+  if (!userData) {
+    return null;
+  }
   return userData.profile?.role || userData.role || null;
 }
 
@@ -52,7 +54,7 @@ export function isRegularUser(userData: UserData | null): boolean {
 export function parseRouteParams(): RouteParams {
   const urlParams = new URLSearchParams(window.location.search);
   return {
-    view: urlParams.get('view')
+    view: urlParams.get('view'),
   };
 }
 
@@ -96,7 +98,9 @@ export function validateRouteAccess(
   userData: UserData | null,
   params?: RouteParams
 ): string | null {
-  if (!userData) return null; // Not authenticated yet, allow to proceed
+  if (!userData) {
+    return null; // Not authenticated yet, allow to proceed
+  }
 
   const routeParams = params || parseRouteParams();
   const userRole = getUserRole(userData);
@@ -106,13 +110,13 @@ export function validateRouteAccess(
 
   // Super admin trying to access PWA (not admin/test/performance)
   if (userRole === 'super_admin' && !isAdmin && !isTest && !isPerf) {
-    console.log("🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel");
+    console.log('🚫 Access denied: super_admin cannot access PWA, redirecting to admin panel');
     return '/?view=admin';
   }
 
   // Regular user trying to access admin panel
   if (isAdmin && userRole !== 'super_admin') {
-    console.log("🚫 Access denied: user role is not super_admin, redirecting to PWA");
+    console.log('🚫 Access denied: user role is not super_admin, redirecting to PWA');
     return '/';
   }
 
@@ -134,11 +138,7 @@ export function redirectIfNeeded(redirectUrl: string | null): boolean {
  * Check access and redirect if needed
  * Returns true if redirected, false if access is allowed
  */
-export function checkAccessAndRedirect(
-  userData: UserData | null,
-  params?: RouteParams
-): boolean {
+export function checkAccessAndRedirect(userData: UserData | null, params?: RouteParams): boolean {
   const redirectUrl = validateRouteAccess(userData, params);
   return redirectIfNeeded(redirectUrl);
 }
-

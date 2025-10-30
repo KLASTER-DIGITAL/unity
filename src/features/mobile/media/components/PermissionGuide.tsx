@@ -1,91 +1,89 @@
-import { motion, AnimatePresence } from "motion/react";
-import { Mic, Camera, AlertCircle, X } from "lucide-react";
+import { AlertCircle, Camera, Mic, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
-interface PermissionGuideProps {
+type PermissionGuideProps = {
   type: 'microphone' | 'camera';
   isOpen: boolean;
   onClose: () => void;
-}
+};
 
 export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps) {
   const isMicrophone = type === 'microphone';
   const Icon = isMicrophone ? Mic : Camera;
   const title = isMicrophone ? 'Доступ к микрофону' : 'Доступ к камере';
-  const description = isMicrophone 
+  const description = isMicrophone
     ? 'Для записи голосовых сообщений необходимо разрешить доступ к микрофону'
     : 'Для загрузки фото и видео необходимо разрешить доступ к камере';
-  
-  if (!isOpen) return null;
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        className="scrollbar-hide fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 pb-24"
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 pb-24 scrollbar-hide"
+        initial={{ opacity: 0 }}
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
+          className="relative w-full max-w-md rounded-[20px] bg-card p-6"
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-card rounded-[20px] p-6 max-w-md w-full relative"
+          initial={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
+            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-accent/10"
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-accent/10 transition-colors"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <X className="h-5 w-5 text-muted-foreground" />
           </button>
 
           {/* Icon */}
-          <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon className="w-8 h-8 text-accent" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+            <Icon className="h-8 w-8 text-accent" />
           </div>
 
           {/* Title */}
-          <h3 className="text-center mb-2">
-            {title}
-          </h3>
+          <h3 className="mb-2 text-center">{title}</h3>
 
           {/* Description */}
-          <p className="text-center text-muted-foreground mb-6">
-            {description}
-          </p>
+          <p className="mb-6 text-center text-muted-foreground">{description}</p>
 
           {/* Instructions */}
-          <div className="space-y-4 mb-6">
+          <div className="mb-6 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[13px]! text-accent font-semibold!">1</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+                <span className="font-semibold! text-[13px]! text-accent">1</span>
               </div>
               <div className="flex-1">
-                <p className="text-[14px]! font-normal! text-foreground">
+                <p className="font-normal! text-[14px]! text-foreground">
                   Найдите иконку {isMicrophone ? '🎤' : '📷'} в адресной строке браузера
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[13px]! text-accent font-semibold!">2</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+                <span className="font-semibold! text-[13px]! text-accent">2</span>
               </div>
               <div className="flex-1">
-                <p className="text-[14px]! font-normal! text-foreground">
+                <p className="font-normal! text-[14px]! text-foreground">
                   Нажмите на неё и выберите <strong>"Разрешить"</strong>
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[13px]! text-accent font-semibold!">3</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+                <span className="font-semibold! text-[13px]! text-accent">3</span>
               </div>
               <div className="flex-1">
-                <p className="text-[14px]! font-normal! text-foreground">
+                <p className="font-normal! text-[14px]! text-foreground">
                   Обновите страницу и попробуйте снова
                 </p>
               </div>
@@ -93,30 +91,29 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
           </div>
 
           {/* Browser-specific hints */}
-          <div className="bg-muted rounded-[12px] p-4 mb-4">
-            <p className="text-[12px]! font-semibold! text-foreground mb-2">
-              💡 Подсказка:
-            </p>
-            <p className="text-[12px]! font-normal! text-muted-foreground">
-              В Chrome и Safari иконка разрешений находится слева от адреса сайта.
-              В Firefox - справа от адресной строки.
+          <div className="mb-4 rounded-[12px] bg-muted p-4">
+            <p className="mb-2 font-semibold! text-[12px]! text-foreground">💡 Подсказка:</p>
+            <p className="font-normal! text-[12px]! text-muted-foreground">
+              В Chrome и Safari иконка разрешений находится слева от адреса сайта. В Firefox -
+              справа от адресной строки.
             </p>
           </div>
 
           {/* Note */}
-          <div className="bg-primary/10 border border-primary/20 rounded-[12px] p-3 mb-4">
+          <div className="mb-4 rounded-[12px] border border-primary/20 bg-primary/10 p-3">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-              <p className="text-[13px]! font-normal! text-accent">
-                Ваши данные в безопасности. Мы используем {isMicrophone ? 'микрофон' : 'камеру'} только для указанных функций и не храним записи на серверах.
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+              <p className="font-normal! text-[13px]! text-accent">
+                Ваши данные в безопасности. Мы используем {isMicrophone ? 'микрофон' : 'камеру'}{' '}
+                только для указанных функций и не храним записи на серверах.
               </p>
             </div>
           </div>
 
           {/* Action Button */}
           <button
+            className="w-full rounded-[12px] bg-accent py-3 text-white transition-colors hover:bg-accent/90"
             onClick={onClose}
-            className="w-full bg-accent text-white py-3 rounded-[12px] hover:bg-accent/90 transition-colors"
           >
             Понятно
           </button>

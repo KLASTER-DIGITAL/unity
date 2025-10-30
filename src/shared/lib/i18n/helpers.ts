@@ -1,10 +1,10 @@
 /**
  * i18n Helper Functions
- * 
+ *
  * Utility functions for translation-related tasks
  */
 
-import { Language } from './types';
+import type { Language } from './types';
 
 /**
  * Get translation for diary entry category
@@ -22,7 +22,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: 'Здоровье',
       personalDevelopment: 'Личное развитие',
       creativity: 'Творчество',
-      relationships: 'Отношения'
+      relationships: 'Отношения',
     },
     en: {
       family: 'Family',
@@ -32,7 +32,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: 'Health',
       personalDevelopment: 'Personal Development',
       creativity: 'Creativity',
-      relationships: 'Relationships'
+      relationships: 'Relationships',
     },
     es: {
       family: 'Familia',
@@ -42,7 +42,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: 'Salud',
       personalDevelopment: 'Desarrollo Personal',
       creativity: 'Creatividad',
-      relationships: 'Relaciones'
+      relationships: 'Relaciones',
     },
     de: {
       family: 'Familie',
@@ -52,7 +52,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: 'Gesundheit',
       personalDevelopment: 'Persönliche Entwicklung',
       creativity: 'Kreativität',
-      relationships: 'Beziehungen'
+      relationships: 'Beziehungen',
     },
     fr: {
       family: 'Famille',
@@ -62,7 +62,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: 'Santé',
       personalDevelopment: 'Développement Personnel',
       creativity: 'Créativité',
-      relationships: 'Relations'
+      relationships: 'Relations',
     },
     zh: {
       family: '家庭',
@@ -72,7 +72,7 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: '健康',
       personalDevelopment: '个人发展',
       creativity: '创造力',
-      relationships: '关系'
+      relationships: '关系',
     },
     ja: {
       family: '家族',
@@ -82,11 +82,10 @@ export function getCategoryTranslation(category: string, language: Language = 'r
       health: '健康',
       personalDevelopment: '自己啓発',
       creativity: '創造性',
-      relationships: '人間関係'
-    }
+      relationships: '人間関係',
+    },
   };
 
   const translations = categoryTranslations[language] || categoryTranslations.ru;
   return translations[category] || category;
 }
-

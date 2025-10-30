@@ -1,6 +1,6 @@
 /**
  * PWA Translation Keys
- * 
+ *
  * Ключи переводов для PWA компонентов на 7 языках:
  * - ru (Русский)
  * - en (English)
@@ -18,7 +18,7 @@ export const PWA_TRANSLATION_KEYS = {
     en: 'Install App',
     es: 'Instalar aplicación',
     de: 'App installieren',
-    fr: 'Installer l\'application',
+    fr: "Installer l'application",
     zh: '安装应用',
     ja: 'アプリをインストール',
   },
@@ -27,7 +27,7 @@ export const PWA_TRANSLATION_KEYS = {
     en: 'Install the app for quick access and offline work',
     es: 'Instala la aplicación para acceso rápido y trabajo sin conexión',
     de: 'Installieren Sie die App für schnellen Zugriff und Offline-Arbeit',
-    fr: 'Installez l\'application pour un accès rapide et un travail hors ligne',
+    fr: "Installez l'application pour un accès rapide et un travail hors ligne",
     zh: '安装应用以快速访问和离线工作',
     ja: 'アプリをインストールして、素早くアクセスしてオフラインで作業',
   },
@@ -54,7 +54,7 @@ export const PWA_TRANSLATION_KEYS = {
     en: 'Quick access from home screen',
     es: 'Acceso rápido desde la pantalla de inicio',
     de: 'Schneller Zugriff vom Startbildschirm',
-    fr: 'Accès rapide depuis l\'écran d\'accueil',
+    fr: "Accès rapide depuis l'écran d'accueil",
     zh: '从主屏幕快速访问',
     ja: 'ホーム画面から素早くアクセス',
   },
@@ -92,7 +92,7 @@ export const PWA_TRANSLATION_KEYS = {
     en: 'You can now launch UNITY Diary from your home screen',
     es: 'Ahora puedes iniciar UNITY Diary desde tu pantalla de inicio',
     de: 'Sie können UNITY Diary jetzt von Ihrem Startbildschirm aus starten',
-    fr: 'Vous pouvez maintenant lancer UNITY Diary depuis votre écran d\'accueil',
+    fr: "Vous pouvez maintenant lancer UNITY Diary depuis votre écran d'accueil",
     zh: '现在您可以从主屏幕启动 UNITY Diary',
     ja: 'ホーム画面から UNITY Diary を起動できるようになりました',
   },
@@ -112,7 +112,7 @@ export const PWA_TRANSLATION_KEYS = {
     en: 'A new version of the app is ready to install',
     es: 'Una nueva versión de la aplicación está lista para instalar',
     de: 'Eine neue Version der App ist bereit zur Installation',
-    fr: 'Une nouvelle version de l\'application est prête à être installée',
+    fr: "Une nouvelle version de l'application est prête à être installée",
     zh: '新版本应用已准备好安装',
     ja: 'アプリの新しいバージョンがインストール可能です',
   },
@@ -208,12 +208,9 @@ export const PWA_TRANSLATION_KEYS = {
 /**
  * Получает перевод для ключа на указанном языке
  */
-export function getPWATranslation(
-  key: keyof typeof PWA_TRANSLATION_KEYS,
-  language: string = 'en'
-): string {
+export function getPWATranslation(key: keyof typeof PWA_TRANSLATION_KEYS, language = 'en'): string {
   const translations = PWA_TRANSLATION_KEYS[key];
-  
+
   if (!translations) {
     console.warn(`[PWA i18n] Translation key not found: ${key}`);
     return key;
@@ -221,13 +218,13 @@ export function getPWATranslation(
 
   // Пытаемся получить перевод на запрошенном языке
   const translation = translations[language as keyof typeof translations];
-  
+
   if (translation) {
     return translation;
   }
 
   // Fallback на английский
-  const fallback = translations['en'];
+  const fallback = translations.en;
   if (fallback) {
     console.warn(`[PWA i18n] Translation not found for ${key} in ${language}, using English`);
     return fallback;
@@ -241,9 +238,8 @@ export function getPWATranslation(
 /**
  * Hook для использования PWA переводов
  */
-export function usePWATranslation(language: string = 'en') {
+export function usePWATranslation(language = 'en') {
   return {
     t: (key: keyof typeof PWA_TRANSLATION_KEYS) => getPWATranslation(key, language),
   };
 }
-

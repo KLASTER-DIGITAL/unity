@@ -1,12 +1,12 @@
 /**
  * Performance Dashboard for i18n System
- * 
+ *
  * Visual dashboard for monitoring i18n performance metrics
  */
 
-import { useState, useEffect } from 'react';
+import { Activity, AlertCircle, Download, TrendingUp, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { PerformanceMonitor, type PerformanceStats } from './PerformanceMonitor';
-import { Activity, Zap, AlertCircle, TrendingUp, Download } from 'lucide-react';
 
 export function PerformanceDashboard() {
   const [stats, setStats] = useState<PerformanceStats | null>(null);
@@ -21,12 +21,12 @@ export function PerformanceDashboard() {
   // Auto-refresh every 2 seconds
   useEffect(() => {
     updateStats();
-    
+
     if (autoRefresh) {
       const interval = setInterval(updateStats, 2000);
       return () => clearInterval(interval);
     }
-  }, [autoRefresh]);
+  }, [autoRefresh, updateStats]);
 
   // Export metrics
   const handleExport = () => {
@@ -53,32 +53,42 @@ export function PerformanceDashboard() {
   }
 
   const getHealthStatus = () => {
-    if (stats.errors > 10) return { color: 'red', label: 'Critical' };
-    if (stats.cacheHitRate < 0.7) return { color: 'yellow', label: 'Warning' };
-    if (stats.averageLookupTime > 10) return { color: 'yellow', label: 'Warning' };
+    if (stats.errors > 10) {
+      return { color: 'red', label: 'Critical' };
+    }
+    if (stats.cacheHitRate < 0.7) {
+      return { color: 'yellow', label: 'Warning' };
+    }
+    if (stats.averageLookupTime > 10) {
+      return { color: 'yellow', label: 'Warning' };
+    }
     return { color: 'green', label: 'Healthy' };
   };
 
   const health = getHealthStatus();
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-6">
       {/* Header */}
-      <div className="bg-card rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="rounded-lg bg-card p-6 shadow">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">i18n Performance Dashboard</h1>
+            <h1 className="font-bold text-2xl">i18n Performance Dashboard</h1>
             <p className="text-muted-foreground">Real-time monitoring of translation system</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                health.color === 'green' ? 'bg-green-100 text-green-800' :
-                health.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
+              <span className="text-muted-foreground text-sm">Status:</span>
+              <span
+                className={`rounded-full px-3 py-1 font-semibold text-sm ${
+                  health.color === 'green'
+                    ? 'bg-green-100 text-green-800'
+                    : health.color === 'yellow'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                }`}
+              >
                 {health.label}
               </span>
             </div>
@@ -88,34 +98,32 @@ export function PerformanceDashboard() {
         {/* Controls */}
         <div className="flex gap-2">
           <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-4 py-2 rounded-lg font-semibold ${
-              autoRefresh 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-muted text-foreground'
+            className={`rounded-lg px-4 py-2 font-semibold ${
+              autoRefresh ? 'bg-blue-600 text-white' : 'bg-muted text-foreground'
             }`}
+            onClick={() => setAutoRefresh(!autoRefresh)}
           >
             {autoRefresh ? 'Auto-Refresh ON' : 'Auto-Refresh OFF'}
           </button>
-          
+
           <button
+            className="rounded-lg bg-muted px-4 py-2 font-semibold text-foreground hover:bg-muted"
             onClick={updateStats}
-            className="px-4 py-2 bg-muted text-foreground rounded-lg font-semibold hover:bg-muted"
           >
             Refresh Now
           </button>
-          
+
           <button
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700"
             onClick={handleExport}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 flex items-center gap-2"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             Export
           </button>
-          
+
           <button
+            className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
             onClick={handleClear}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"
           >
             Clear
           </button>
@@ -123,65 +131,57 @@ export function PerformanceDashboard() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Translation Lookups */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="w-5 h-5 text-blue-600" />
+        <div className="rounded-lg bg-card p-6 shadow">
+          <div className="mb-2 flex items-center gap-3">
+            <Activity className="h-5 w-5 text-blue-600" />
             <h3 className="font-semibold">Translation Lookups</h3>
           </div>
-          <p className="text-3xl font-bold">{stats.translationLookups}</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {stats.translationMisses} misses
-          </p>
+          <p className="font-bold text-3xl">{stats.translationLookups}</p>
+          <p className="mt-1 text-muted-foreground text-sm">{stats.translationMisses} misses</p>
         </div>
 
         {/* Cache Hit Rate */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Zap className="w-5 h-5 text-yellow-600" />
+        <div className="rounded-lg bg-card p-6 shadow">
+          <div className="mb-2 flex items-center gap-3">
+            <Zap className="h-5 w-5 text-yellow-600" />
             <h3 className="font-semibold">Cache Hit Rate</h3>
           </div>
-          <p className="text-3xl font-bold">
-            {(stats.cacheHitRate * 100).toFixed(1)}%
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="font-bold text-3xl">{(stats.cacheHitRate * 100).toFixed(1)}%</p>
+          <p className="mt-1 text-muted-foreground text-sm">
             {stats.cacheHits} hits / {stats.cacheMisses} misses
           </p>
         </div>
 
         {/* Average Lookup Time */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
+        <div className="rounded-lg bg-card p-6 shadow">
+          <div className="mb-2 flex items-center gap-3">
+            <TrendingUp className="h-5 w-5 text-green-600" />
             <h3 className="font-semibold">Avg Lookup Time</h3>
           </div>
-          <p className="text-3xl font-bold">
-            {stats.averageLookupTime.toFixed(2)}ms
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            P95: {stats.p95.toFixed(2)}ms
-          </p>
+          <p className="font-bold text-3xl">{stats.averageLookupTime.toFixed(2)}ms</p>
+          <p className="mt-1 text-muted-foreground text-sm">P95: {stats.p95.toFixed(2)}ms</p>
         </div>
 
         {/* Errors */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <AlertCircle className="w-5 h-5 text-red-600" />
+        <div className="rounded-lg bg-card p-6 shadow">
+          <div className="mb-2 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600" />
             <h3 className="font-semibold">Errors</h3>
           </div>
-          <p className="text-3xl font-bold">{stats.errors}</p>
-          <p className="text-sm text-muted-foreground mt-1 truncate">
+          <p className="font-bold text-3xl">{stats.errors}</p>
+          <p className="mt-1 truncate text-muted-foreground text-sm">
             {stats.lastError || 'No errors'}
           </p>
         </div>
       </div>
 
       {/* Detailed Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Translation Metrics */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Translation Metrics</h2>
+        <div className="rounded-lg bg-card p-6 shadow">
+          <h2 className="mb-4 font-bold text-xl">Translation Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Total Lookups" value={stats.translationLookups} />
             <MetricRow label="Misses" value={stats.translationMisses} />
@@ -193,26 +193,28 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Cache Metrics */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Cache Metrics</h2>
+        <div className="rounded-lg bg-card p-6 shadow">
+          <h2 className="mb-4 font-bold text-xl">Cache Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Cache Hits" value={stats.cacheHits} />
             <MetricRow label="Cache Misses" value={stats.cacheMisses} />
             <MetricRow label="Hit Rate" value={`${(stats.cacheHitRate * 100).toFixed(1)}%`} />
             <MetricRow label="Cache Size" value={stats.cacheSize} />
-            
+
             {/* Progress bar */}
             <div className="pt-2">
-              <div className="flex justify-between text-sm mb-1">
+              <div className="mb-1 flex justify-between text-sm">
                 <span>Hit Rate</span>
                 <span>{(stats.cacheHitRate * 100).toFixed(1)}%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2">
+              <div className="h-2 w-full rounded-full bg-muted">
                 <div
                   className={`h-2 rounded-full ${
-                    stats.cacheHitRate >= 0.8 ? 'bg-green-600' :
-                    stats.cacheHitRate >= 0.6 ? 'bg-yellow-600' :
-                    'bg-red-600'
+                    stats.cacheHitRate >= 0.8
+                      ? 'bg-green-600'
+                      : stats.cacheHitRate >= 0.6
+                        ? 'bg-yellow-600'
+                        : 'bg-red-600'
                   }`}
                   style={{ width: `${stats.cacheHitRate * 100}%` }}
                 />
@@ -222,8 +224,8 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Loading Metrics */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Loading Metrics</h2>
+        <div className="rounded-lg bg-card p-6 shadow">
+          <h2 className="mb-4 font-bold text-xl">Loading Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Language Loads" value={stats.languageLoads} />
             <MetricRow label="Average Load Time" value={`${stats.averageLoadTime.toFixed(2)}ms`} />
@@ -232,8 +234,8 @@ export function PerformanceDashboard() {
         </div>
 
         {/* Memory Metrics */}
-        <div className="bg-card rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Memory Metrics</h2>
+        <div className="rounded-lg bg-card p-6 shadow">
+          <h2 className="mb-4 font-bold text-xl">Memory Metrics</h2>
           <div className="space-y-3">
             <MetricRow label="Current Usage" value={formatBytes(stats.memoryUsage)} />
             <MetricRow label="Estimated Size" value={formatBytes(stats.estimatedSize)} />
@@ -242,31 +244,31 @@ export function PerformanceDashboard() {
       </div>
 
       {/* Recommendations */}
-      <div className="bg-card rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold mb-4">Recommendations</h2>
+      <div className="rounded-lg bg-card p-6 shadow">
+        <h2 className="mb-4 font-bold text-xl">Recommendations</h2>
         <div className="space-y-2">
           {stats.cacheHitRate < 0.7 && (
             <Recommendation
-              type="warning"
               message="Cache hit rate is below 70%. Consider prefetching popular languages."
+              type="warning"
             />
           )}
           {stats.averageLookupTime > 10 && (
             <Recommendation
-              type="warning"
               message="Average lookup time is above 10ms. Check for performance bottlenecks."
+              type="warning"
             />
           )}
           {stats.errors > 0 && (
             <Recommendation
-              type="error"
               message={`${stats.errors} errors detected. Last error: ${stats.lastError}`}
+              type="error"
             />
           )}
           {stats.cacheHitRate >= 0.8 && stats.averageLookupTime <= 5 && stats.errors === 0 && (
             <Recommendation
-              type="success"
               message="All metrics are healthy! System is performing optimally."
+              type="success"
             />
           )}
         </div>
@@ -279,32 +281,39 @@ export function PerformanceDashboard() {
 
 function MetricRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex justify-between items-center py-2 border-b last:border-b-0">
+    <div className="flex items-center justify-between border-b py-2 last:border-b-0">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold">{value}</span>
     </div>
   );
 }
 
-function Recommendation({ type, message }: { type: 'success' | 'warning' | 'error'; message: string }) {
+function Recommendation({
+  type,
+  message,
+}: {
+  type: 'success' | 'warning' | 'error';
+  message: string;
+}) {
   const colors = {
     success: 'bg-green-50 border-green-200 text-green-800',
     warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    error: 'bg-red-50 border-red-200 text-red-800'
+    error: 'bg-red-50 border-red-200 text-red-800',
   };
 
   return (
-    <div className={`p-3 rounded-lg border ${colors[type]}`}>
+    <div className={`rounded-lg border p-3 ${colors[type]}`}>
       <p className="text-sm">{message}</p>
     </div>
   );
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 }
-

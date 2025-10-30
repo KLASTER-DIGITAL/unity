@@ -4,21 +4,18 @@ const CACHE_NAME_STATIC = 'achievement-diary-static-v1';
 
 // Cache TTL (Time To Live) в миллисекундах
 const CACHE_TTL = {
-  api: 5 * 60 * 1000,      // 5 минут для API
+  api: 5 * 60 * 1000, // 5 минут для API
   static: 24 * 60 * 60 * 1000, // 24 часа для статики
-  images: 7 * 24 * 60 * 60 * 1000 // 7 дней для изображений
+  images: 7 * 24 * 60 * 60 * 1000, // 7 дней для изображений
 };
 
-const urlsToCache = [
-  '/',
-  '/App.tsx',
-  '/styles/globals.css'
-];
+const urlsToCache = ['/', '/App.tsx', '/styles/globals.css'];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches
+      .open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
@@ -35,16 +32,16 @@ self.addEventListener('activate', (event) => {
   const currentCaches = [CACHE_NAME, CACHE_NAME_API, CACHE_NAME_STATIC];
 
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
         cacheNames.map((cacheName) => {
           if (!currentCaches.includes(cacheName)) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
-      );
-    })
+      )
+    )
   );
   self.clients.claim();
 });
@@ -56,7 +53,7 @@ function isCacheExpired(cachedResponse, ttl) {
   const cachedTime = cachedResponse.headers.get('sw-cache-time');
   if (!cachedTime) return true;
 
-  const age = Date.now() - parseInt(cachedTime, 10);
+  const age = Date.now() - Number.parseInt(cachedTime, 10);
   return age > ttl;
 }
 
@@ -69,7 +66,7 @@ function addCacheTimestamp(response) {
   return new Response(clonedResponse.body, {
     status: clonedResponse.status,
     statusText: clonedResponse.statusText,
-    headers: headers
+    headers,
   });
 }
 
@@ -78,34 +75,37 @@ function getCacheStrategy(request) {
   const url = new URL(request.url);
 
   // API requests - Stale-While-Revalidate
-  if (url.pathname.startsWith('/api/') ||
-      url.pathname.includes('supabase.co') ||
-      url.pathname.includes('/rest/v1/')) {
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.includes('supabase.co') ||
+    url.pathname.includes('/rest/v1/')
+  ) {
     return {
       strategy: 'stale-while-revalidate',
       cacheName: CACHE_NAME_API,
-      ttl: CACHE_TTL.api
+      ttl: CACHE_TTL.api,
     };
   }
 
   // Images - Cache-First with long TTL
-  if (request.destination === 'image' ||
-      /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname)) {
+  if (request.destination === 'image' || /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname)) {
     return {
       strategy: 'cache-first',
       cacheName: CACHE_NAME_STATIC,
-      ttl: CACHE_TTL.images
+      ttl: CACHE_TTL.images,
     };
   }
 
   // Static assets - Cache-First
-  if (request.destination === 'style' ||
-      request.destination === 'script' ||
-      /\.(css|js|woff2?|ttf|eot)$/i.test(url.pathname)) {
+  if (
+    request.destination === 'style' ||
+    request.destination === 'script' ||
+    /\.(css|js|woff2?|ttf|eot)$/i.test(url.pathname)
+  ) {
     return {
       strategy: 'cache-first',
       cacheName: CACHE_NAME_STATIC,
-      ttl: CACHE_TTL.static
+      ttl: CACHE_TTL.static,
     };
   }
 
@@ -113,7 +113,7 @@ function getCacheStrategy(request) {
   return {
     strategy: 'network-first',
     cacheName: CACHE_NAME,
-    ttl: CACHE_TTL.static
+    ttl: CACHE_TTL.static,
   };
 }
 
@@ -123,17 +123,19 @@ async function staleWhileRevalidate(request, cacheName, ttl) {
   const cachedResponse = await cache.match(request);
 
   // Fetch from network in background
-  const fetchPromise = fetch(request).then(async (networkResponse) => {
-    if (networkResponse && networkResponse.status === 200) {
-      const responseWithTimestamp = addCacheTimestamp(networkResponse);
-      await cache.put(request, responseWithTimestamp.clone());
-      return responseWithTimestamp;
-    }
-    return networkResponse;
-  }).catch((error) => {
-    console.log('[SW] Network fetch failed:', error);
-    return null;
-  });
+  const fetchPromise = fetch(request)
+    .then(async (networkResponse) => {
+      if (networkResponse && networkResponse.status === 200) {
+        const responseWithTimestamp = addCacheTimestamp(networkResponse);
+        await cache.put(request, responseWithTimestamp.clone());
+        return responseWithTimestamp;
+      }
+      return networkResponse;
+    })
+    .catch((error) => {
+      console.log('[SW] Network fetch failed:', error);
+      return null;
+    });
 
   // Return cached response immediately if available and not expired
   if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
@@ -229,7 +231,7 @@ self.addEventListener('push', (event) => {
     body: 'Время записать новое достижение!',
     icon: '/icon-192.png',
     badge: '/badge-72.png',
-    data: {}
+    data: {},
   };
 
   // Парсим данные из push события
@@ -241,7 +243,7 @@ self.addEventListener('push', (event) => {
         body: payload.body || notificationData.body,
         icon: payload.icon || notificationData.icon,
         badge: payload.badge || notificationData.badge,
-        data: payload.data || {}
+        data: payload.data || {},
       };
     } catch (error) {
       console.error('[Service Worker] Failed to parse push data:', error);
@@ -257,24 +259,25 @@ self.addEventListener('push', (event) => {
     data: {
       ...notificationData.data,
       dateOfArrival: Date.now(),
-      url: notificationData.data.url || '/'
+      url: notificationData.data.url || '/',
     },
     actions: [
       {
         action: 'open',
-        title: 'Открыть'
+        title: 'Открыть',
       },
       {
         action: 'close',
-        title: 'Закрыть'
-      }
+        title: 'Закрыть',
+      },
     ],
     requireInteraction: false,
-    tag: 'achievement-diary-notification'
+    tag: 'achievement-diary-notification',
   };
 
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, options)
+    self.registration
+      .showNotification(notificationData.title, options)
       .then(() => {
         console.log('[Service Worker] Notification shown');
         // Отправляем событие о доставке уведомления
@@ -284,7 +287,7 @@ self.addEventListener('push', (event) => {
         clients.forEach((client) => {
           client.postMessage({
             type: 'PUSH_DELIVERED',
-            data: notificationData
+            data: notificationData,
           });
         });
       })
@@ -303,7 +306,8 @@ self.addEventListener('notificationclick', (event) => {
   const urlToOpen = event.notification.data?.url || '/';
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
         // Проверяем есть ли уже открытое окно
         for (const client of clientList) {
@@ -324,7 +328,7 @@ self.addEventListener('notificationclick', (event) => {
         clients.forEach((client) => {
           client.postMessage({
             type: 'PUSH_CLICKED',
-            data: event.notification.data
+            data: event.notification.data,
           });
         });
       })
@@ -339,15 +343,14 @@ self.addEventListener('notificationclose', (event) => {
   console.log('[Service Worker] Notification closed:', event);
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' })
-      .then((clients) => {
-        clients.forEach((client) => {
-          client.postMessage({
-            type: 'PUSH_CLOSED',
-            data: event.notification.data
-          });
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      clients.forEach((client) => {
+        client.postMessage({
+          type: 'PUSH_CLOSED',
+          data: event.notification.data,
         });
-      })
+      });
+    })
   );
 });
 

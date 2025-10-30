@@ -1,14 +1,15 @@
 /**
  * Navigation Platform Adapter
- * 
+ *
  * Provides cross-platform navigation functionality:
  * - Web: window.history API
  * - Native: @react-navigation/native
- * 
+ *
  * @module platform/navigation
  */
 
 import { WebNavigationAdapter } from './navigation.web';
+
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native implementation is in /app/shared/lib/platform/navigation.native.ts
 
@@ -21,4 +22,3 @@ export type { NavigationAdapter, NavigationOptions } from '../navigation';
  * React Native build: Uses /app/shared/lib/platform/navigation.native.ts
  */
 export const navigation = new WebNavigationAdapter();
-

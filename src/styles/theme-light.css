@@ -1,21 +1,23 @@
 /**
  * Light Theme - shadcn/ui iOS Style
  * OKLCH color space for better perceptual uniformity
- * 
+ *
  * Color Philosophy:
  * - background: Pure white (#ffffff)
  * - foreground: Dark gray text (#6b6b6b)
  * - card: White cards on white background
  * - primary: iOS blue (#007aff)
  * - muted: Light gray for secondary elements (#f8f8f8)
- * 
+ *
  * AI-Friendly: Only light theme variables (~50 lines)
  */
 
 :root {
   /* ===== iOS Typography System ===== */
   /* Font Family - San Francisco (SF Pro) */
-  --font-family-ios: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-ios:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+    Helvetica, Arial, sans-serif;
   --font-family-primary: var(--font-family-ios); /* Backward compatibility */
 
   /* Font Weights */
@@ -24,17 +26,17 @@
   --font-weight-normal: 400;
 
   /* iOS Text Styles - Sizes */
-  --text-large-title: 34px;  /* iOS largeTitle */
-  --text-title-1: 28px;      /* iOS title1 */
-  --text-title-2: 22px;      /* iOS title2 */
-  --text-title-3: 20px;      /* iOS title3 */
-  --text-headline: 17px;     /* iOS headline */
-  --text-body: 17px;         /* iOS body */
-  --text-callout: 16px;      /* iOS callout */
-  --text-subhead: 15px;      /* iOS subheadline */
-  --text-footnote: 13px;     /* iOS footnote */
-  --text-caption-1: 12px;    /* iOS caption1 */
-  --text-caption-2: 11px;    /* iOS caption2 */
+  --text-large-title: 34px; /* iOS largeTitle */
+  --text-title-1: 28px; /* iOS title1 */
+  --text-title-2: 22px; /* iOS title2 */
+  --text-title-3: 20px; /* iOS title3 */
+  --text-headline: 17px; /* iOS headline */
+  --text-body: 17px; /* iOS body */
+  --text-callout: 16px; /* iOS callout */
+  --text-subhead: 15px; /* iOS subheadline */
+  --text-footnote: 13px; /* iOS footnote */
+  --text-caption-1: 12px; /* iOS caption1 */
+  --text-caption-2: 11px; /* iOS caption2 */
 
   /* Backward compatibility */
   --font-size: 16px;
@@ -51,29 +53,29 @@
   /* ===== iOS UIKit Dynamic Colors - Light Mode ===== */
 
   /* Backgrounds (iOS systemBackground hierarchy) */
-  --ios-bg-primary: #FFFFFF;           /* systemBackground */
-  --ios-bg-secondary: #F2F2F7;         /* secondarySystemBackground */
-  --ios-bg-tertiary: #FFFFFF;          /* tertiarySystemBackground */
-  --ios-bg-grouped: #F2F2F7;           /* systemGroupedBackground */
-  --ios-bg-grouped-secondary: #FFFFFF; /* secondarySystemGroupedBackground */
+  --ios-bg-primary: #ffffff; /* systemBackground */
+  --ios-bg-secondary: #f2f2f7; /* secondarySystemBackground */
+  --ios-bg-tertiary: #ffffff; /* tertiarySystemBackground */
+  --ios-bg-grouped: #f2f2f7; /* systemGroupedBackground */
+  --ios-bg-grouped-secondary: #ffffff; /* secondarySystemGroupedBackground */
 
   /* Text Colors (iOS label hierarchy) */
-  --ios-text-primary: #000000;              /* label */
-  --ios-text-secondary: rgba(60,60,67,0.6); /* secondaryLabel */
-  --ios-text-tertiary: rgba(60,60,67,0.3);  /* tertiaryLabel */
+  --ios-text-primary: #000000; /* label */
+  --ios-text-secondary: rgba(60, 60, 67, 0.6); /* secondaryLabel */
+  --ios-text-tertiary: rgba(60, 60, 67, 0.3); /* tertiaryLabel */
 
   /* Borders & Separators */
-  --ios-separator: #C6C6C8;            /* separator */
+  --ios-separator: #c6c6c8; /* separator */
 
   /* System Colors */
-  --ios-blue: #007AFF;                 /* systemBlue */
-  --ios-green: #34C759;                /* systemGreen */
-  --ios-red: #FF3B30;                  /* systemRed */
-  --ios-orange: #FF9500;               /* systemOrange */
-  --ios-yellow: #FFCC00;               /* systemYellow */
-  --ios-pink: #FF2D55;                 /* systemPink */
-  --ios-purple: #AF52DE;               /* systemPurple */
-  --ios-gray: #8E8E93;                 /* systemGray */
+  --ios-blue: #007aff; /* systemBlue */
+  --ios-green: #34c759; /* systemGreen */
+  --ios-red: #ff3b30; /* systemRed */
+  --ios-orange: #ff9500; /* systemOrange */
+  --ios-yellow: #ffcc00; /* systemYellow */
+  --ios-pink: #ff2d55; /* systemPink */
+  --ios-purple: #af52de; /* systemPurple */
+  --ios-gray: #8e8e93; /* systemGray */
 
   /* ===== shadcn/ui Colors (mapped to iOS) ===== */
 
@@ -82,7 +84,9 @@
   --foreground: oklch(0 0 0); /* #000000 - iOS label */
 
   /* Cards */
-  --card: oklch(0.98 0 0); /* #fafafa - Gray 2 для модальных окон (светлая тема) */
+  --card: oklch(
+    0.98 0 0
+  ); /* #fafafa - Gray 2 для модальных окон (светлая тема) */
   --card-foreground: oklch(0 0 0); /* #000000 - iOS label */
 
   /* Popovers */
@@ -102,7 +106,9 @@
 
   /* Muted - для неактивных элементов */
   --muted: oklch(0.975 0 0); /* #f2f2f7 */
-  --muted-foreground: oklch(0.45 0.015 286.75); /* rgba(60,60,67,0.6) - iOS secondaryLabel */
+  --muted-foreground: oklch(
+    0.45 0.015 286.75
+  ); /* rgba(60,60,67,0.6) - iOS secondaryLabel */
 
   /* Accent */
   --accent: oklch(0.568 0.207 254.604); /* #007aff - iOS systemBlue */
@@ -138,4 +144,3 @@
   --sidebar-border: oklch(0.918 0 0); /* #e5e5e5 */
   --sidebar-ring: oklch(0.568 0.207 254.604); /* #007aff */
 }
-

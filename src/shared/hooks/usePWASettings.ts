@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { useEffect, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
+import { createClient } from '@/utils/supabase/client';
 
 /**
  * PWA Settings из админ-панели
  */
-export interface PWASettings {
+export type PWASettings = {
   // Основные настройки
   enableNotifications: boolean;
   enableOfflineMode: boolean;
   enableInstallPrompt: boolean;
-  
+
   // Install Prompt настройки
   installPromptTiming: 'immediate' | 'after_visits' | 'after_time' | 'manual';
   installPromptVisitsCount: number; // После скольких визитов показывать (если timing = 'after_visits')
@@ -22,7 +22,7 @@ export interface PWASettings {
   installPromptDescription: string;
   installPromptButtonText: string;
   installPromptSkipText: string;
-}
+};
 
 /**
  * Дефолтные настройки PWA (если не загружены из админки)
@@ -43,11 +43,11 @@ const DEFAULT_PWA_SETTINGS: PWASettings = {
 
 /**
  * Hook для загрузки PWA настроек из админ-панели
- * 
+ *
  * @example
  * ```tsx
  * const { settings, isLoading, error } = usePWASettings();
- * 
+ *
  * if (settings.enableInstallPrompt && settings.installPromptTiming === 'after_visits') {
  *   const visitCount = getVisitCount();
  *   if (visitCount >= settings.installPromptVisitsCount) {
@@ -63,6 +63,7 @@ export function usePWASettings() {
 
   useEffect(() => {
     loadPWASettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPWASettings = async () => {
@@ -91,13 +92,13 @@ export function usePWASettings() {
 
       if (data?.value) {
         const loadedSettings = JSON.parse(data.value);
-        
+
         // Мержим с дефолтными настройками (на случай если какие-то поля отсутствуют)
         setSettings({
           ...DEFAULT_PWA_SETTINGS,
           ...loadedSettings,
         });
-        
+
         console.log('[usePWASettings] Settings loaded:', loadedSettings);
       } else {
         setSettings(DEFAULT_PWA_SETTINGS);
@@ -142,7 +143,9 @@ export async function shouldShowInstallPrompt(
       settings.installPromptLocation === currentLocation;
 
     if (!locationAllowed) {
-      console.log(`[shouldShowInstallPrompt] Location not allowed: current=${currentLocation}, allowed=${settings.installPromptLocation}`);
+      console.log(
+        `[shouldShowInstallPrompt] Location not allowed: current=${currentLocation}, allowed=${settings.installPromptLocation}`
+      );
       return false;
     }
   }
@@ -155,8 +158,9 @@ export async function shouldShowInstallPrompt(
   }
 
   // Проверяем уже установлено ли PWA
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                       (window.navigator as any).standalone === true;
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true;
   if (isStandalone) {
     console.log('[shouldShowInstallPrompt] PWA already installed');
     return false;
@@ -169,9 +173,11 @@ export async function shouldShowInstallPrompt(
       return true;
 
     case 'after_visits': {
-      const visitCount = parseInt((await storage.getItem('visitCount')) || '0');
+      const visitCount = Number.parseInt((await storage.getItem('visitCount')) || '0', 10);
       const shouldShow = visitCount >= settings.installPromptVisitsCount;
-      console.log(`[shouldShowInstallPrompt] After visits: ${visitCount}/${settings.installPromptVisitsCount} - ${shouldShow ? 'SHOW' : 'WAIT'}`);
+      console.log(
+        `[shouldShowInstallPrompt] After visits: ${visitCount}/${settings.installPromptVisitsCount} - ${shouldShow ? 'SHOW' : 'WAIT'}`
+      );
       return shouldShow;
     }
 
@@ -184,9 +190,11 @@ export async function shouldShowInstallPrompt(
         return false;
       }
 
-      const minutesPassed = (Date.now() - parseInt(firstVisit)) / 1000 / 60;
+      const minutesPassed = (Date.now() - Number.parseInt(firstVisit, 10)) / 1000 / 60;
       const shouldShow = minutesPassed >= settings.installPromptDelayMinutes;
-      console.log(`[shouldShowInstallPrompt] After time: ${minutesPassed.toFixed(1)}/${settings.installPromptDelayMinutes} min - ${shouldShow ? 'SHOW' : 'WAIT'}`);
+      console.log(
+        `[shouldShowInstallPrompt] After time: ${minutesPassed.toFixed(1)}/${settings.installPromptDelayMinutes} min - ${shouldShow ? 'SHOW' : 'WAIT'}`
+      );
       return shouldShow;
     }
 
@@ -195,7 +203,10 @@ export async function shouldShowInstallPrompt(
       return false;
 
     default:
-      console.warn('[shouldShowInstallPrompt] Unknown timing strategy:', settings.installPromptTiming);
+      console.warn(
+        '[shouldShowInstallPrompt] Unknown timing strategy:',
+        settings.installPromptTiming
+      );
       return false;
   }
 }
@@ -204,7 +215,7 @@ export async function shouldShowInstallPrompt(
  * Утилита для инкремента счетчика визитов (async версия)
  */
 export async function incrementVisitCount(): Promise<number> {
-  const currentCount = parseInt((await storage.getItem('visitCount')) || '0');
+  const currentCount = Number.parseInt((await storage.getItem('visitCount')) || '0', 10);
   const newCount = currentCount + 1;
   await storage.setItem('visitCount', newCount.toString());
   console.log(`[incrementVisitCount] Visit count: ${currentCount} → ${newCount}`);
@@ -218,4 +229,3 @@ export async function resetPWACounters(): Promise<void> {
   await storage.multiRemove(['visitCount', 'firstVisitTime', 'installPromptShown']);
   console.log('[resetPWACounters] All PWA counters reset');
 }
-

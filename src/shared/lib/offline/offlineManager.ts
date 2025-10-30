@@ -1,46 +1,46 @@
 /**
  * Offline Manager
- * 
+ *
  * Comprehensive offline mode management for PWA.
  * Handles offline detection, data caching, sync queue, and conflict resolution.
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-24
  */
 
-import { getAllItems, STORES, type PendingEntry } from './indexedDB';
-import { syncPendingEntries, isBackgroundSyncSupported } from './backgroundSync';
+import { isBackgroundSyncSupported, syncPendingEntries } from './backgroundSync';
+import { getAllItems, type PendingEntry, STORES } from './indexedDB';
 
-export interface OfflineStatus {
+export type OfflineStatus = {
   isOnline: boolean;
   lastOnline: Date | null;
   pendingCount: number;
   syncInProgress: boolean;
-}
+};
 
-export interface ConflictResolution {
+export type ConflictResolution = {
   strategy: 'server-wins' | 'client-wins' | 'merge' | 'manual';
   serverData?: any;
   clientData?: any;
   mergedData?: any;
-}
+};
 
 type OfflineListener = (status: OfflineStatus) => void;
 type SyncListener = (event: SyncEvent) => void;
 
-export interface SyncEvent {
+export type SyncEvent = {
   type: 'sync-start' | 'sync-complete' | 'sync-error' | 'entry-synced' | 'entry-failed';
   data?: any;
   error?: string;
-}
+};
 
 class OfflineManager {
   private isOnline: boolean = navigator.onLine;
   private lastOnline: Date | null = navigator.onLine ? new Date() : null;
-  private pendingCount: number = 0;
-  private syncInProgress: boolean = false;
-  private listeners: Set<OfflineListener> = new Set();
-  private syncListeners: Set<SyncListener> = new Set();
+  private pendingCount = 0;
+  private syncInProgress = false;
+  private readonly listeners: Set<OfflineListener> = new Set();
+  private readonly syncListeners: Set<SyncListener> = new Set();
   private syncInterval: number | null = null;
 
   constructor() {
@@ -76,7 +76,7 @@ class OfflineManager {
   /**
    * Handle online event
    */
-  private handleOnline = async () => {
+  private readonly handleOnline = async () => {
     console.log('[OfflineManager] Connection restored');
     this.isOnline = true;
     this.lastOnline = new Date();
@@ -89,7 +89,7 @@ class OfflineManager {
   /**
    * Handle offline event
    */
-  private handleOffline = () => {
+  private readonly handleOffline = () => {
     console.log('[OfflineManager] Connection lost');
     this.isOnline = false;
     this.notifyListeners();
@@ -98,7 +98,7 @@ class OfflineManager {
   /**
    * Handle Service Worker messages
    */
-  private handleSWMessage = async (event: MessageEvent) => {
+  private readonly handleSWMessage = async (event: MessageEvent) => {
     const { type, data } = event.data || {};
 
     switch (type) {
@@ -151,7 +151,7 @@ class OfflineManager {
         console.log('[OfflineManager] Periodic sync check triggered');
         await this.sync();
       }
-    }, 30000);
+    }, 30_000);
   }
 
   /**
@@ -297,18 +297,18 @@ class OfflineManager {
    */
   public async clearOfflineData(): Promise<void> {
     console.log('[OfflineManager] Clearing all offline data...');
-    
+
     try {
       // Clear IndexedDB
       const entries = await getAllItems<PendingEntry>(STORES.PENDING_ENTRIES);
       console.log(`[OfflineManager] Found ${entries.length} pending entries to clear`);
-      
+
       // Note: Actual deletion would require deleteItem for each entry
       // For now, just log the count
-      
+
       await this.updatePendingCount();
       this.notifyListeners();
-      
+
       console.log('[OfflineManager] Offline data cleared');
     } catch (error) {
       console.error('[OfflineManager] Failed to clear offline data:', error);
@@ -321,22 +321,22 @@ class OfflineManager {
    */
   public destroy() {
     console.log('[OfflineManager] Destroying...');
-    
+
     // Remove event listeners
     window.removeEventListener('online', this.handleOnline);
     window.removeEventListener('offline', this.handleOffline);
-    
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.removeEventListener('message', this.handleSWMessage);
     }
-    
+
     // Stop periodic sync
     this.stopPeriodicSync();
-    
+
     // Clear listeners
     this.listeners.clear();
     this.syncListeners.clear();
-    
+
     console.log('[OfflineManager] Destroyed');
   }
 }
@@ -346,4 +346,3 @@ export const offlineManager = new OfflineManager();
 
 // Export for testing
 export { OfflineManager };
-

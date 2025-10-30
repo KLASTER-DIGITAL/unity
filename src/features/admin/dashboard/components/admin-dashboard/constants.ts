@@ -2,7 +2,7 @@
  * AdminDashboard - Constants
  */
 
-export const SUPER_ADMIN_EMAIL = "diary@leadshunter.biz";
+export const SUPER_ADMIN_EMAIL = 'diary@leadshunter.biz';
 
 export const INITIAL_STATS = {
   totalUsers: 0,
@@ -12,7 +12,7 @@ export const INITIAL_STATS = {
   newUsersToday: 0,
   activeToday: 0,
   totalEntries: 0,
-  pwaInstalls: 0
+  pwaInstalls: 0,
 };
 
 export const PWA_SUB_TABS = [
@@ -22,4 +22,3 @@ export const PWA_SUB_TABS = [
   { id: 'analytics', label: 'Analytics' },
   { id: 'cache', label: 'Cache' },
 ] as const;
-

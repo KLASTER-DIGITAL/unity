@@ -1,5 +1,11 @@
+import {
+  analyzeTextWithAI,
+  createEntry,
+  createUserProfile,
+  getUserProfile,
+  type UserProfile,
+} from '@/shared/lib/api';
 import { createClient } from './supabase/client';
-import { createUserProfile, getUserProfile, createEntry, analyzeTextWithAI, type UserProfile } from '@/shared/lib/api';
 
 export interface AuthResult {
   success: boolean;
@@ -24,16 +30,16 @@ export async function signUpWithEmail(
 ): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
+
     // Регистрация в Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          name: userData.name
-        }
-      }
+          name: userData.name,
+        },
+      },
     });
 
     if (error) {
@@ -59,9 +65,9 @@ export async function signUpWithEmail(
         selectedTime: 'none',
         morningTime: '08:00',
         eveningTime: '21:00',
-        permissionGranted: false
+        permissionGranted: false,
       },
-      onboardingCompleted: true // ✅ Пользователь прошел онбординг
+      onboardingCompleted: true, // ✅ Пользователь прошел онбординг
     });
 
     console.log('Profile created:', profile);
@@ -93,7 +99,7 @@ export async function signUpWithEmail(
             insight: 'Ведение дневника помогает лучше понимать себя и свои достижения.',
             isAchievement: true,
             mood: 'хорошее',
-            confidence: 0.8
+            confidence: 0.8,
           };
         }
 
@@ -107,8 +113,8 @@ export async function signUpWithEmail(
           aiReply: analysis.reply || '',
           aiSummary: analysis.summary || undefined,
           aiInsight: analysis.insight || undefined,
-          isAchievement: analysis.isAchievement || true,
-          mood: analysis.mood || 'хорошее'
+          isAchievement: true,
+          mood: analysis.mood || 'хорошее',
         });
 
         console.log('✅ First entry created successfully with AI analysis');
@@ -121,9 +127,8 @@ export async function signUpWithEmail(
     return {
       success: true,
       user: data.user,
-      profile
+      profile,
     };
-
   } catch (error: any) {
     console.error('Sign up error:', error);
     return { success: false, error: error.message };
@@ -134,10 +139,10 @@ export async function signUpWithEmail(
 export async function signInWithEmail(email: string, password: string): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (error) {
@@ -165,9 +170,8 @@ export async function signInWithEmail(email: string, password: string): Promise<
       success: true,
       user: data.user,
       profile: profile || undefined,
-      needsOnboarding
+      needsOnboarding,
     };
-
   } catch (error: any) {
     console.error('Sign in error:', error);
     return { success: false, error: error.message };
@@ -178,12 +182,12 @@ export async function signInWithEmail(email: string, password: string): Promise<
 export async function signInWithGoogle(): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin
-      }
+        redirectTo: window.location.origin,
+      },
     });
 
     if (error) {
@@ -193,7 +197,6 @@ export async function signInWithGoogle(): Promise<AuthResult> {
 
     // OAuth redirect - вернется на страницу после авторизации
     return { success: true };
-
   } catch (error: any) {
     console.error('Google sign in error:', error);
     return { success: false, error: error.message };
@@ -204,12 +207,12 @@ export async function signInWithGoogle(): Promise<AuthResult> {
 export async function signInWithFacebook(): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: window.location.origin
-      }
+        redirectTo: window.location.origin,
+      },
     });
 
     if (error) {
@@ -218,7 +221,6 @@ export async function signInWithFacebook(): Promise<AuthResult> {
     }
 
     return { success: true };
-
   } catch (error: any) {
     console.error('Facebook sign in error:', error);
     return { success: false, error: error.message };
@@ -229,12 +231,12 @@ export async function signInWithFacebook(): Promise<AuthResult> {
 export async function signInWithApple(): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
-        redirectTo: window.location.origin
-      }
+        redirectTo: window.location.origin,
+      },
     });
 
     if (error) {
@@ -243,9 +245,8 @@ export async function signInWithApple(): Promise<AuthResult> {
     }
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     console.error('Apple sign in error:', error);
     return { success: false, error: error.message };
@@ -259,7 +260,6 @@ export async function signInWithTelegram(): Promise<AuthResult> {
     // который обрабатывается напрямую в компоненте AuthScreen
     // Здесь мы только возвращаем успешный результат для инициации процесса
     return { success: true };
-
   } catch (error: any) {
     console.error('Telegram sign in error:', error);
     return { success: false, error: error.message };
@@ -276,8 +276,11 @@ export async function signOut(): Promise<void> {
 export async function checkSession(): Promise<AuthResult> {
   try {
     const supabase = createClient();
-    
-    const { data: { session }, error } = await supabase.auth.getSession();
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
 
     if (error || !session?.user) {
       return { success: false };
@@ -291,12 +294,13 @@ export async function checkSession(): Promise<AuthResult> {
     // Если профиля нет, создаем базовый
     if (!profile) {
       console.log('Profile not found, creating new profile for:', session.user.id);
-      
+
       try {
         const newProfile = await createUserProfile({
           id: session.user.id,
           email: session.user.email!,
-          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Пользователь',
+          name:
+            session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Пользователь',
           diaryName: 'Мой дневник',
           diaryEmoji: '🏆',
           language: 'ru',
@@ -304,9 +308,9 @@ export async function checkSession(): Promise<AuthResult> {
             selectedTime: 'none',
             morningTime: '08:00',
             eveningTime: '21:00',
-            permissionGranted: false
+            permissionGranted: false,
           },
-          onboardingCompleted: false // Новый пользователь должен пройти онбординг
+          onboardingCompleted: false, // Новый пользователь должен пройти онбординг
         });
 
         console.log('Profile created successfully:', newProfile);
@@ -325,9 +329,9 @@ export async function checkSession(): Promise<AuthResult> {
             selectedTime: 'none',
             morningTime: '08:00',
             eveningTime: '21:00',
-            permissionGranted: false
+            permissionGranted: false,
           },
-          onboardingCompleted: false
+          onboardingCompleted: false,
         };
       }
     }
@@ -335,9 +339,8 @@ export async function checkSession(): Promise<AuthResult> {
     return {
       success: true,
       user: session.user,
-      profile
+      profile,
     };
-
   } catch (error: any) {
     console.error('Session check error:', error);
     return { success: false, error: error.message };

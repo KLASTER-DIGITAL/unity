@@ -1,10 +1,10 @@
 /**
  * Admin Cards - Card Components
  * AI-Friendly: 47 lines, < 200 lines target
- * 
+ *
  * Purpose: Card component styles for admin panel
  * Includes: .admin-card, .admin-card-header, .admin-card-content, .admin-card-footer
- * 
+ *
  * Why needed: Consistent card styling for content containers
  */
 
@@ -53,4 +53,3 @@
   border-top: 1px solid var(--admin-gray-200);
   background-color: var(--admin-bg-secondary);
 }
-

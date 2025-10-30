@@ -1,17 +1,21 @@
+import { BarChart3, FileText, Languages } from 'lucide-react';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { Languages, FileText, BarChart3 } from 'lucide-react';
 import { LanguagesManagementContent } from './languages/LanguagesManagementContent';
 import { TranslationsManagementContent } from './languages/TranslationsManagementContent';
 import { TranslationsStatisticsContent } from './languages/TranslationsStatisticsContent';
 
-interface LanguagesAndTranslationsTabProps {
+type LanguagesAndTranslationsTabProps = {
   initialLanguage?: string;
-}
+};
 
-export function LanguagesAndTranslationsTab({ initialLanguage }: LanguagesAndTranslationsTabProps = {}) {
+export function LanguagesAndTranslationsTab({
+  initialLanguage,
+}: LanguagesAndTranslationsTabProps = {}) {
   const [activeTab, setActiveTab] = useState('languages');
-  const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] = useState<string>(initialLanguage || 'ru');
+  const [selectedLanguageForTranslations, setSelectedLanguageForTranslations] = useState<string>(
+    initialLanguage || 'ru'
+  );
 
   const handleNavigateToTranslations = (languageCode: string) => {
     setSelectedLanguageForTranslations(languageCode);
@@ -22,45 +26,44 @@ export function LanguagesAndTranslationsTab({ initialLanguage }: LanguagesAndTra
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <Languages className="w-6 h-6" />
+        <h2 className="flex items-center gap-2 font-bold text-2xl">
+          <Languages className="h-6 w-6" />
           Языки и переводы
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-muted-foreground text-sm">
           Управление языками приложения и переводами интерфейса
         </p>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs onValueChange={setActiveTab} value={activeTab}>
         <TabsList className="grid w-full max-w-2xl grid-cols-3">
-          <TabsTrigger value="languages" className="flex items-center gap-2">
-            <Languages className="w-4 h-4" />
+          <TabsTrigger className="flex items-center gap-2" value="languages">
+            <Languages className="h-4 w-4" />
             Языки
           </TabsTrigger>
-          <TabsTrigger value="translations" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
+          <TabsTrigger className="flex items-center gap-2" value="translations">
+            <FileText className="h-4 w-4" />
             Переводы
           </TabsTrigger>
-          <TabsTrigger value="statistics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
+          <TabsTrigger className="flex items-center gap-2" value="statistics">
+            <BarChart3 className="h-4 w-4" />
             Статистика
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="languages" className="mt-6">
+        <TabsContent className="mt-6" value="languages">
           <LanguagesManagementContent onNavigateToTranslations={handleNavigateToTranslations} />
         </TabsContent>
 
-        <TabsContent value="translations" className="mt-6">
+        <TabsContent className="mt-6" value="translations">
           <TranslationsManagementContent initialLanguage={selectedLanguageForTranslations} />
         </TabsContent>
 
-        <TabsContent value="statistics" className="mt-6">
+        <TabsContent className="mt-6" value="statistics">
           <TranslationsStatisticsContent />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-

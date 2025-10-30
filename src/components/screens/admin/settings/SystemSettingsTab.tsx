@@ -1,12 +1,28 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import {
+  Activity,
+  AlertCircle,
+  Database,
+  HardDrive,
+  Info,
+  Monitor,
+  RotateCw,
+  Server,
+} from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
-import { Monitor, Database, Server, HardDrive, RotateCw, Activity, AlertCircle, Info } from 'lucide-react';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { createClient } from '@/utils/supabase/client';
 
 interface SystemStatus {
@@ -19,7 +35,7 @@ export const SystemSettingsTab: React.FC = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
     database: 'checking',
     api: 'checking',
-    storage: 'checking'
+    storage: 'checking',
   });
 
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
@@ -34,13 +50,13 @@ export const SystemSettingsTab: React.FC = () => {
       const supabase = createClient();
 
       // Check database status by trying to query
-      const { error: dbError } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
+      const { error: dbError } = await supabase.from('profiles').select('id').limit(1);
 
       // Check API status by checking session
-      const { data: { session }, error: apiError } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error: apiError,
+      } = await supabase.auth.getSession();
 
       // Check storage status by trying to list buckets
       const { error: storageError } = await supabase.storage.listBuckets();
@@ -48,7 +64,7 @@ export const SystemSettingsTab: React.FC = () => {
       setSystemStatus({
         database: dbError ? 'offline' : 'online',
         api: apiError || !session ? 'offline' : 'online',
-        storage: storageError ? 'offline' : 'online'
+        storage: storageError ? 'offline' : 'online',
       });
 
       toast.success('Статус системы обновлен');
@@ -58,7 +74,7 @@ export const SystemSettingsTab: React.FC = () => {
       setSystemStatus({
         database: 'offline',
         api: 'offline',
-        storage: 'offline'
+        storage: 'offline',
       });
     } finally {
       setIsCheckingStatus(false);
@@ -82,39 +98,40 @@ export const SystemSettingsTab: React.FC = () => {
         .from('entries')
         .select('*', { count: 'exact', head: true });
 
-      toast.info(`База данных содержит ${usersCount} пользователей и ${entriesCount} записей. Резервное копирование доступно через Supabase Dashboard.`, {
-        duration: 5000
-      });
+      toast.info(
+        `База данных содержит ${usersCount} пользователей и ${entriesCount} записей. Резервное копирование доступно через Supabase Dashboard.`,
+        {
+          duration: 5000,
+        }
+      );
     } catch (error: any) {
       console.error('Error getting backup info:', error);
       toast.error(`Ошибка: ${error.message}`);
     }
   };
 
-
-
   return (
     <div className="space-y-8">
       {/* Заголовок раздела */}
-      <div className="flex items-center justify-between pb-4 border-b">
+      <div className="flex items-center justify-between border-b pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Monitor className="w-6 h-6 text-primary" />
+          <div className="rounded-lg bg-primary/10 p-2">
+            <Monitor className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold">Системные настройки</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="font-bold text-2xl">Системные настройки</h2>
+            <p className="text-muted-foreground text-sm">
               Мониторинг и управление системными ресурсами
             </p>
           </div>
         </div>
         <Button
-          onClick={handleRefreshStatus}
           disabled={isCheckingStatus}
-          variant="outline"
+          onClick={handleRefreshStatus}
           size="sm"
+          variant="outline"
         >
-          <RotateCw className={`w-4 h-4 mr-2 ${isCheckingStatus ? 'animate-spin' : ''}`} />
+          <RotateCw className={`mr-2 h-4 w-4 ${isCheckingStatus ? 'animate-spin' : ''}`} />
           Обновить статус
         </Button>
       </div>
@@ -124,107 +141,171 @@ export const SystemSettingsTab: React.FC = () => {
         <Info className="h-4 w-4" />
         <AlertTitle>Информация о системных метриках</AlertTitle>
         <AlertDescription>
-          Детальные метрики производительности (CPU, Memory, Disk) доступны через Supabase Dashboard.
-          Здесь отображается статус основных сервисов и информация о базе данных.
+          Детальные метрики производительности (CPU, Memory, Disk) доступны через Supabase
+          Dashboard. Здесь отображается статус основных сервисов и информация о базе данных.
         </AlertDescription>
       </Alert>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Статус системы */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Статус сервисов */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
+                <Activity className="h-5 w-5" />
                 Статус системы
               </CardTitle>
-              <CardDescription>
-                Мониторинг состояния основных сервисов
-              </CardDescription>
+              <CardDescription>Мониторинг состояния основных сервисов</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className={`p-6 rounded-lg border relative overflow-hidden ${
-                  systemStatus.database === 'online'
-                    ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
-                    : systemStatus.database === 'checking'
-                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
-                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
-                }`}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div
+                  className={`relative overflow-hidden rounded-lg border p-6 ${
+                    systemStatus.database === 'online'
+                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20'
+                      : systemStatus.database === 'checking'
+                        ? 'border-border bg-muted dark:border-gray-800 dark:bg-gray-950/20'
+                        : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+                  }`}
+                >
                   <div className="absolute top-2 right-2">
-                    <div className={`w-3 h-3 rounded-full ${
-                      systemStatus.database === 'online' ? 'bg-green-500' :
-                      systemStatus.database === 'checking' ? 'bg-muted0 animate-pulse' :
-                      'bg-red-500'
-                    }`} />
+                    <div
+                      className={`h-3 w-3 rounded-full ${
+                        systemStatus.database === 'online'
+                          ? 'bg-green-500'
+                          : systemStatus.database === 'checking'
+                            ? 'animate-pulse bg-muted0'
+                            : 'bg-red-500'
+                      }`}
+                    />
                   </div>
                   <div className="text-center">
-                    <Database className={`w-12 h-12 mx-auto mb-2 ${
-                      systemStatus.database === 'online' ? 'text-green-600 dark:text-green-500' :
-                      systemStatus.database === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
-                      'text-red-600 dark:text-red-500'
-                    }`} />
-                    <div className="font-medium mb-1">База данных</div>
-                    <div className="text-muted-foreground text-sm mb-3">PostgreSQL</div>
-                    <Badge variant={systemStatus.database === 'online' ? 'success' : systemStatus.database === 'checking' ? 'outline' : 'destructive'}>
-                      {systemStatus.database === 'online' ? 'Работает' : systemStatus.database === 'checking' ? 'Проверка...' : 'Недоступна'}
+                    <Database
+                      className={`mx-auto mb-2 h-12 w-12 ${
+                        systemStatus.database === 'online'
+                          ? 'text-green-600 dark:text-green-500'
+                          : systemStatus.database === 'checking'
+                            ? 'text-muted-foreground dark:text-muted-foreground'
+                            : 'text-red-600 dark:text-red-500'
+                      }`}
+                    />
+                    <div className="mb-1 font-medium">База данных</div>
+                    <div className="mb-3 text-muted-foreground text-sm">PostgreSQL</div>
+                    <Badge
+                      variant={
+                        systemStatus.database === 'online'
+                          ? 'success'
+                          : systemStatus.database === 'checking'
+                            ? 'outline'
+                            : 'destructive'
+                      }
+                    >
+                      {systemStatus.database === 'online'
+                        ? 'Работает'
+                        : systemStatus.database === 'checking'
+                          ? 'Проверка...'
+                          : 'Недоступна'}
                     </Badge>
                   </div>
                 </div>
 
-                <div className={`p-6 rounded-lg border relative overflow-hidden ${
-                  systemStatus.api === 'online'
-                    ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800'
-                    : systemStatus.api === 'checking'
-                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
-                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
-                }`}>
+                <div
+                  className={`relative overflow-hidden rounded-lg border p-6 ${
+                    systemStatus.api === 'online'
+                      ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20'
+                      : systemStatus.api === 'checking'
+                        ? 'border-border bg-muted dark:border-gray-800 dark:bg-gray-950/20'
+                        : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+                  }`}
+                >
                   <div className="absolute top-2 right-2">
-                    <div className={`w-3 h-3 rounded-full ${
-                      systemStatus.api === 'online' ? 'bg-blue-500' :
-                      systemStatus.api === 'checking' ? 'bg-muted0 animate-pulse' :
-                      'bg-red-500'
-                    }`} />
+                    <div
+                      className={`h-3 w-3 rounded-full ${
+                        systemStatus.api === 'online'
+                          ? 'bg-blue-500'
+                          : systemStatus.api === 'checking'
+                            ? 'animate-pulse bg-muted0'
+                            : 'bg-red-500'
+                      }`}
+                    />
                   </div>
                   <div className="text-center">
-                    <Server className={`w-12 h-12 mx-auto mb-2 ${
-                      systemStatus.api === 'online' ? 'text-blue-600 dark:text-blue-500' :
-                      systemStatus.api === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
-                      'text-red-600 dark:text-red-500'
-                    }`} />
-                    <div className="font-medium mb-1">API</div>
-                    <div className="text-muted-foreground text-sm mb-3">Edge Functions</div>
-                    <Badge variant={systemStatus.api === 'online' ? 'default' : systemStatus.api === 'checking' ? 'outline' : 'destructive'}>
-                      {systemStatus.api === 'online' ? 'Работает' : systemStatus.api === 'checking' ? 'Проверка...' : 'Недоступен'}
+                    <Server
+                      className={`mx-auto mb-2 h-12 w-12 ${
+                        systemStatus.api === 'online'
+                          ? 'text-blue-600 dark:text-blue-500'
+                          : systemStatus.api === 'checking'
+                            ? 'text-muted-foreground dark:text-muted-foreground'
+                            : 'text-red-600 dark:text-red-500'
+                      }`}
+                    />
+                    <div className="mb-1 font-medium">API</div>
+                    <div className="mb-3 text-muted-foreground text-sm">Edge Functions</div>
+                    <Badge
+                      variant={
+                        systemStatus.api === 'online'
+                          ? 'default'
+                          : systemStatus.api === 'checking'
+                            ? 'outline'
+                            : 'destructive'
+                      }
+                    >
+                      {systemStatus.api === 'online'
+                        ? 'Работает'
+                        : systemStatus.api === 'checking'
+                          ? 'Проверка...'
+                          : 'Недоступен'}
                     </Badge>
                   </div>
                 </div>
 
-                <div className={`p-6 rounded-lg border relative overflow-hidden ${
-                  systemStatus.storage === 'online'
-                    ? 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800'
-                    : systemStatus.storage === 'checking'
-                    ? 'bg-muted dark:bg-gray-950/20 border-border dark:border-gray-800'
-                    : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
-                }`}>
+                <div
+                  className={`relative overflow-hidden rounded-lg border p-6 ${
+                    systemStatus.storage === 'online'
+                      ? 'border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950/20'
+                      : systemStatus.storage === 'checking'
+                        ? 'border-border bg-muted dark:border-gray-800 dark:bg-gray-950/20'
+                        : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+                  }`}
+                >
                   <div className="absolute top-2 right-2">
-                    <div className={`w-3 h-3 rounded-full ${
-                      systemStatus.storage === 'online' ? 'bg-purple-500' :
-                      systemStatus.storage === 'checking' ? 'bg-muted0 animate-pulse' :
-                      'bg-red-500'
-                    }`} />
+                    <div
+                      className={`h-3 w-3 rounded-full ${
+                        systemStatus.storage === 'online'
+                          ? 'bg-purple-500'
+                          : systemStatus.storage === 'checking'
+                            ? 'animate-pulse bg-muted0'
+                            : 'bg-red-500'
+                      }`}
+                    />
                   </div>
                   <div className="text-center">
-                    <HardDrive className={`w-12 h-12 mx-auto mb-2 ${
-                      systemStatus.storage === 'online' ? 'text-purple-600 dark:text-purple-500' :
-                      systemStatus.storage === 'checking' ? 'text-muted-foreground dark:text-muted-foreground' :
-                      'text-red-600 dark:text-red-500'
-                    }`} />
-                    <div className="font-medium mb-1">Хранилище</div>
-                    <div className="text-muted-foreground text-sm mb-3">Supabase Storage</div>
-                    <Badge variant={systemStatus.storage === 'online' ? 'default' : systemStatus.storage === 'checking' ? 'outline' : 'destructive'}>
-                      {systemStatus.storage === 'online' ? 'Работает' : systemStatus.storage === 'checking' ? 'Проверка...' : 'Недоступно'}
+                    <HardDrive
+                      className={`mx-auto mb-2 h-12 w-12 ${
+                        systemStatus.storage === 'online'
+                          ? 'text-purple-600 dark:text-purple-500'
+                          : systemStatus.storage === 'checking'
+                            ? 'text-muted-foreground dark:text-muted-foreground'
+                            : 'text-red-600 dark:text-red-500'
+                      }`}
+                    />
+                    <div className="mb-1 font-medium">Хранилище</div>
+                    <div className="mb-3 text-muted-foreground text-sm">Supabase Storage</div>
+                    <Badge
+                      variant={
+                        systemStatus.storage === 'online'
+                          ? 'default'
+                          : systemStatus.storage === 'checking'
+                            ? 'outline'
+                            : 'destructive'
+                      }
+                    >
+                      {systemStatus.storage === 'online'
+                        ? 'Работает'
+                        : systemStatus.storage === 'checking'
+                          ? 'Проверка...'
+                          : 'Недоступно'}
                     </Badge>
                   </div>
                 </div>
@@ -238,20 +319,14 @@ export const SystemSettingsTab: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Database className="w-5 h-5" />
+                <Database className="h-5 w-5" />
                 Управление базой данных
               </CardTitle>
-              <CardDescription>
-                Резервное копирование и восстановление
-              </CardDescription>
+              <CardDescription>Резервное копирование и восстановление</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button
-                onClick={handleBackupDatabase}
-                variant="default"
-                className="w-full"
-              >
-                <Database className="w-4 h-4 mr-2" />
+              <Button className="w-full" onClick={handleBackupDatabase} variant="default">
+                <Database className="mr-2 h-4 w-4" />
                 Информация о резервном копировании
               </Button>
 
@@ -259,8 +334,8 @@ export const SystemSettingsTab: React.FC = () => {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Резервное копирование</AlertTitle>
                 <AlertDescription className="text-sm">
-                  Автоматическое резервное копирование настроено через Supabase.
-                  Для ручного создания резервной копии используйте Supabase Dashboard.
+                  Автоматическое резервное копирование настроено через Supabase. Для ручного
+                  создания резервной копии используйте Supabase Dashboard.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -272,38 +347,42 @@ export const SystemSettingsTab: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="w-5 h-5" />
+            <Info className="h-5 w-5" />
             Дополнительная информация
           </CardTitle>
-          <CardDescription>
-            Полезные ссылки и ресурсы
-          </CardDescription>
+          <CardDescription>Полезные ссылки и ресурсы</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="p-4 bg-muted rounded-lg">
-              <div className="font-medium mb-2">Supabase Dashboard</div>
-              <p className="text-sm text-muted-foreground mb-3">
-                Для доступа к детальным метрикам производительности, логам и настройкам используйте Supabase Dashboard.
+            <div className="rounded-lg bg-muted p-4">
+              <div className="mb-2 font-medium">Supabase Dashboard</div>
+              <p className="mb-3 text-muted-foreground text-sm">
+                Для доступа к детальным метрикам производительности, логам и настройкам используйте
+                Supabase Dashboard.
               </p>
               <Button
-                variant="outline"
+                onClick={() =>
+                  window.open(
+                    'https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc',
+                    '_blank'
+                  )
+                }
                 size="sm"
-                onClick={() => window.open('https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc', '_blank')}
+                variant="outline"
               >
                 Открыть Dashboard
               </Button>
             </div>
 
-            <div className="p-4 bg-muted rounded-lg">
-              <div className="font-medium mb-2">Документация</div>
-              <p className="text-sm text-muted-foreground mb-3">
+            <div className="rounded-lg bg-muted p-4">
+              <div className="mb-2 font-medium">Документация</div>
+              <p className="mb-3 text-muted-foreground text-sm">
                 Подробная документация по управлению проектом и настройке системы.
               </p>
               <Button
-                variant="outline"
-                size="sm"
                 onClick={() => window.open('https://supabase.com/docs', '_blank')}
+                size="sm"
+                variant="outline"
               >
                 Открыть документацию
               </Button>
@@ -317,20 +396,14 @@ export const SystemSettingsTab: React.FC = () => {
       <Card className="hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Server className="w-5 h-5" />
+            <Server className="h-5 w-5" />
             Управление сервисами
           </CardTitle>
-          <CardDescription>
-            Перезапуск и обслуживание системных компонентов
-          </CardDescription>
+          <CardDescription>Перезапуск и обслуживание системных компонентов</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button
-              onClick={() => {}}
-              disabled={true}
-              variant="default"
-            >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <Button disabled={true} onClick={() => {}} variant="default">
               Disabled
             </Button>
           </div>
@@ -343,14 +416,14 @@ export const SystemSettingsTab: React.FC = () => {
           <CardTitle>Резервное копирование</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="p-4 bg-muted rounded-lg border">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="font-medium mb-1">Последняя копия</div>
-                  <div className="text-sm text-muted-foreground">Недоступно</div>
-                </div>
+          <div className="rounded-lg border bg-muted p-4">
+            <div className="grid grid-cols-1 gap-4 text-center md:grid-cols-3">
+              <div>
+                <div className="mb-1 font-medium">Последняя копия</div>
+                <div className="text-muted-foreground text-sm">Недоступно</div>
               </div>
             </div>
+          </div>
         </CardContent>
       </Card>
     </div>

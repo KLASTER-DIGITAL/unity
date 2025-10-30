@@ -4,11 +4,11 @@
  * Coverage target: 80%+
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getFallbackTranslation, getFallbackKey } from '@/shared/lib/i18n/fallback';
-import { I18nAPI } from '@/shared/lib/i18n/api';
-import { TranslationLoader } from '@/shared/lib/i18n/loader';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Translations } from '@/shared/lib/api/i18n-types';
+import { I18nAPI } from '@/shared/lib/i18n/api';
+import { getFallbackKey, getFallbackTranslation } from '@/shared/lib/i18n/fallback';
+import { TranslationLoader } from '@/shared/lib/i18n/loader';
 
 // Mock fetch for API calls
 global.fetch = vi.fn();
@@ -19,8 +19,8 @@ vi.mock('@/shared/lib/platform/storage', () => ({
     getItem: vi.fn(),
     setItem: vi.fn(),
     removeItem: vi.fn(),
-    clear: vi.fn()
-  }
+    clear: vi.fn(),
+  },
 }));
 
 describe('i18n System', () => {
@@ -31,7 +31,7 @@ describe('i18n System', () => {
   describe('Fallback Translations', () => {
     it('should return Russian translations for "ru" language', () => {
       const translations = getFallbackTranslation('ru');
-      
+
       expect(translations).toBeDefined();
       expect(translations.greeting).toBe('Привет!');
       expect(translations.home).toBe('Главная');
@@ -40,7 +40,7 @@ describe('i18n System', () => {
 
     it('should return English translations for "en" language', () => {
       const translations = getFallbackTranslation('en');
-      
+
       expect(translations).toBeDefined();
       expect(translations.greeting).toBe('Hello!');
       expect(translations.home).toBe('Home');
@@ -49,7 +49,7 @@ describe('i18n System', () => {
 
     it('should return Spanish translations for "es" language', () => {
       const translations = getFallbackTranslation('es');
-      
+
       expect(translations).toBeDefined();
       expect(translations.greeting).toBe('¡Hola!');
       expect(translations.home).toBe('Inicio');
@@ -57,7 +57,7 @@ describe('i18n System', () => {
 
     it('should return Chinese translations for "zh" language', () => {
       const translations = getFallbackTranslation('zh');
-      
+
       expect(translations).toBeDefined();
       expect(translations.greeting).toBe('你好！');
       expect(translations.home).toBe('首页');
@@ -65,7 +65,7 @@ describe('i18n System', () => {
 
     it('should fallback to Russian for unknown language', () => {
       const translations = getFallbackTranslation('unknown');
-      
+
       expect(translations).toBeDefined();
       expect(translations.greeting).toBe('Привет!');
     });
@@ -73,7 +73,7 @@ describe('i18n System', () => {
     it('should get specific key from fallback translations', () => {
       const greeting = getFallbackKey('en', 'greeting');
       expect(greeting).toBe('Hello!');
-      
+
       const home = getFallbackKey('ru', 'home');
       expect(home).toBe('Главная');
     });
@@ -88,12 +88,12 @@ describe('i18n System', () => {
     it('should fetch supported languages from API', async () => {
       const mockLanguages = [
         { code: 'ru', name: 'Русский', nativeName: 'Русский', isActive: true },
-        { code: 'en', name: 'English', nativeName: 'English', isActive: true }
+        { code: 'en', name: 'English', nativeName: 'English', isActive: true },
       ];
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockLanguages
+        json: async () => mockLanguages,
       });
 
       const languages = await I18nAPI.getSupportedLanguages();
@@ -106,14 +106,12 @@ describe('i18n System', () => {
     it('should handle legacy API response format', async () => {
       const mockLegacyResponse = {
         success: true,
-        languages: [
-          { code: 'ru', name: 'Русский', nativeName: 'Русский', isActive: true }
-        ]
+        languages: [{ code: 'ru', name: 'Русский', nativeName: 'Русский', isActive: true }],
       };
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockLegacyResponse
+        json: async () => mockLegacyResponse,
       });
 
       const languages = await I18nAPI.getSupportedLanguages();
@@ -128,15 +126,15 @@ describe('i18n System', () => {
       const mockTranslations = {
         greeting: 'Hello!',
         home: 'Home',
-        settings: 'Settings'
+        settings: 'Settings',
       };
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: {
-          get: vi.fn().mockReturnValue('etag-123')
+          get: vi.fn().mockReturnValue('etag-123'),
         },
-        json: async () => mockTranslations
+        json: async () => mockTranslations,
       });
 
       const translations = await I18nAPI.getTranslations('en');
@@ -149,15 +147,15 @@ describe('i18n System', () => {
     it('should use cache with ETag if provided', async () => {
       const mockTranslations = {
         greeting: 'Hello!',
-        home: 'Home'
+        home: 'Home',
       };
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: {
-          get: vi.fn().mockReturnValue('etag-456')
+          get: vi.fn().mockReturnValue('etag-456'),
         },
-        json: async () => mockTranslations
+        json: async () => mockTranslations,
       });
 
       const result = await I18nAPI.getTranslations('en', { useCache: true, etag: 'abc123' });
@@ -171,7 +169,7 @@ describe('i18n System', () => {
     it('should handle cache headers correctly', async () => {
       const mockTranslations = {
         greeting: 'Hello!',
-        home: 'Home'
+        home: 'Home',
       };
 
       (global.fetch as any).mockResolvedValueOnce({
@@ -181,13 +179,13 @@ describe('i18n System', () => {
           get: vi.fn((header: string) => {
             if (header === 'ETag') return 'etag-789';
             return null;
-          })
+          }),
         },
-        json: async () => mockTranslations
+        json: async () => mockTranslations,
       });
 
       const translations = await I18nAPI.getTranslations('en', {
-        useCache: true
+        useCache: true,
       });
 
       expect(translations).toEqual(mockTranslations);
@@ -197,7 +195,7 @@ describe('i18n System', () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 404,
-        statusText: 'Not Found'
+        statusText: 'Not Found',
       });
 
       await expect(I18nAPI.getTranslations('unknown')).rejects.toThrow(
@@ -213,13 +211,13 @@ describe('i18n System', () => {
         ok: true,
         json: async () => ({
           success: true,
-          translations: { greeting: 'Hello!' }
-        })
+          translations: { greeting: 'Hello!' },
+        }),
       });
 
       const result = await TranslationLoader.loadTranslations({
         language: 'en',
-        fallbackLanguage: 'ru'
+        fallbackLanguage: 'ru',
       });
 
       // Verify result structure
@@ -234,13 +232,13 @@ describe('i18n System', () => {
         ok: true,
         json: async () => ({
           success: true,
-          translations: {}
-        })
+          translations: {},
+        }),
       });
 
       await TranslationLoader.loadTranslations({
         language: 'en',
-        fallbackLanguage: 'ru'
+        fallbackLanguage: 'ru',
       });
 
       expect(global.fetch).toHaveBeenCalled();
@@ -250,8 +248,8 @@ describe('i18n System', () => {
   describe('Language Switching', () => {
     it('should validate language codes', () => {
       const validLanguages = ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'];
-      
-      validLanguages.forEach(lang => {
+
+      validLanguages.forEach((lang) => {
         const translations = getFallbackTranslation(lang);
         expect(translations).toBeDefined();
         expect(translations.greeting).toBeDefined();
@@ -271,4 +269,3 @@ describe('i18n System', () => {
     });
   });
 });
-

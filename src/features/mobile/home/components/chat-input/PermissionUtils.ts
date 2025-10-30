@@ -9,14 +9,14 @@
 export const checkMicrophonePermission = async (): Promise<'granted' | 'denied' | 'prompt'> => {
   try {
     // Check Permissions API
-    if (navigator.permissions && navigator.permissions.query) {
+    if (navigator.permissions?.query) {
       const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
       return result.state as 'granted' | 'denied' | 'prompt';
     }
   } catch (error) {
     console.log('Permissions API not available:', error);
   }
-  
+
   // Fallback - try to get access
   return 'prompt';
 };
@@ -30,4 +30,3 @@ export const triggerHapticFeedback = (pattern: number | number[] = 50) => {
     navigator.vibrate(pattern);
   }
 };
-

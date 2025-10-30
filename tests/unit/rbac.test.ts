@@ -4,18 +4,18 @@
  * Coverage target: 80%+
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   getUserRole,
-  isSuperAdmin,
-  isRegularUser,
-  parseRouteParams,
   isAdminRoute,
-  isTestRoute,
   isPerformanceRoute,
-  validateRouteAccess,
+  isRegularUser,
+  isSuperAdmin,
+  isTestRoute,
+  parseRouteParams,
+  type RouteParams,
   type UserData,
-  type RouteParams
+  validateRouteAccess,
 } from '@/shared/lib/auth/accessControl';
 
 describe('RBAC - Role-Based Access Control', () => {
@@ -23,7 +23,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return role from profile', () => {
       const userData: UserData = {
         user: { id: '123', email: 'test@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
 
       expect(getUserRole(userData)).toBe('super_admin');
@@ -32,7 +32,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return role from root level if profile.role is missing', () => {
       const userData: UserData = {
         user: { id: '123', email: 'test@example.com' },
-        role: 'user'
+        role: 'user',
       };
 
       expect(getUserRole(userData)).toBe('user');
@@ -44,7 +44,7 @@ describe('RBAC - Role-Based Access Control', () => {
 
     it('should return null for userData without role', () => {
       const userData: UserData = {
-        user: { id: '123', email: 'test@example.com' }
+        user: { id: '123', email: 'test@example.com' },
       };
 
       expect(getUserRole(userData)).toBeNull();
@@ -55,7 +55,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return true for super_admin role', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
 
       expect(isSuperAdmin(userData)).toBe(true);
@@ -64,7 +64,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return false for user role', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
 
       expect(isSuperAdmin(userData)).toBe(false);
@@ -79,7 +79,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return true for user role', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
 
       expect(isRegularUser(userData)).toBe(true);
@@ -88,7 +88,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should return false for super_admin role', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
 
       expect(isRegularUser(userData)).toBe(false);
@@ -170,7 +170,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow super_admin to access admin route', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
       const params: RouteParams = { view: 'admin' };
 
@@ -181,7 +181,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should redirect regular user from admin route to PWA', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
       const params: RouteParams = { view: 'admin' };
 
@@ -192,7 +192,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should redirect super_admin from PWA route to admin', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
       const params: RouteParams = { view: null };
 
@@ -203,7 +203,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow regular user to access PWA route', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
       const params: RouteParams = { view: null };
 
@@ -219,7 +219,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow super_admin to access test route', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
       const params: RouteParams = { view: 'test' };
 
@@ -230,7 +230,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow super_admin to access performance route', () => {
       const userData: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
       const params: RouteParams = { view: 'performance' };
 
@@ -241,7 +241,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow regular user to access test route', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
       const params: RouteParams = { view: 'test' };
 
@@ -252,7 +252,7 @@ describe('RBAC - Role-Based Access Control', () => {
     it('should allow regular user to access performance route', () => {
       const userData: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
       const params: RouteParams = { view: 'performance' };
 
@@ -266,7 +266,7 @@ describe('RBAC - Role-Based Access Control', () => {
       // Test that WelcomeScreen redirects authenticated users
       const authenticatedUser: UserData = {
         user: { id: '123', email: 'test@example.com' },
-        profile: { role: 'user', onboardingCompleted: true }
+        profile: { role: 'user', onboardingCompleted: true },
       };
 
       // WelcomeScreen should redirect authenticated users to PWA
@@ -277,7 +277,7 @@ describe('RBAC - Role-Based Access Control', () => {
       // Test that AuthScreenNew handles role-based redirects
       const superAdmin: UserData = {
         user: { id: '123', email: 'admin@example.com' },
-        profile: { role: 'super_admin' }
+        profile: { role: 'super_admin' },
       };
 
       // AuthScreenNew should NOT redirect super_admin (App.tsx handles it)
@@ -288,7 +288,7 @@ describe('RBAC - Role-Based Access Control', () => {
       // Test that App.tsx validates route access
       const regularUser: UserData = {
         user: { id: '456', email: 'user@example.com' },
-        profile: { role: 'user' }
+        profile: { role: 'user' },
       };
       const adminParams: RouteParams = { view: 'admin' };
 
@@ -298,4 +298,3 @@ describe('RBAC - Role-Based Access Control', () => {
     });
   });
 });
-

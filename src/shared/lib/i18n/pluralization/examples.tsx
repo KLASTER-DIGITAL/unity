@@ -1,6 +1,6 @@
 /**
  * Examples of pluralization usage in UNITY-v2
- * 
+ *
  * This file demonstrates how to use the pluralization system
  * in different scenarios.
  */
@@ -12,15 +12,15 @@ import { useTranslation } from '../useTranslation';
  */
 export function ExampleSimplePlural() {
   const { t } = useTranslation();
-  
+
   // Database should have:
   // - achievements_one: "{{count}} achievement"
   // - achievements_other: "{{count}} achievements"
-  
+
   return (
     <div>
-      <p>{t.plural('achievements', 1)}</p>  {/* → "1 achievement" */}
-      <p>{t.plural('achievements', 5)}</p>  {/* → "5 achievements" */}
+      <p>{t.plural('achievements', 1)}</p> {/* → "1 achievement" */}
+      <p>{t.plural('achievements', 5)}</p> {/* → "5 achievements" */}
     </div>
   );
 }
@@ -30,20 +30,20 @@ export function ExampleSimplePlural() {
  */
 export function ExampleComplexPlural() {
   const { t } = useTranslation();
-  
+
   // Database should have:
   // - days_one: "{{count}} день"
   // - days_few: "{{count}} дня"
   // - days_many: "{{count}} дней"
-  
+
   return (
     <div>
-      <p>{t.plural('days', 1)}</p>   {/* → "1 день" */}
-      <p>{t.plural('days', 2)}</p>   {/* → "2 дня" */}
-      <p>{t.plural('days', 5)}</p>   {/* → "5 дней" */}
-      <p>{t.plural('days', 21)}</p>  {/* → "21 день" */}
-      <p>{t.plural('days', 22)}</p>  {/* → "22 дня" */}
-      <p>{t.plural('days', 25)}</p>  {/* → "25 дней" */}
+      <p>{t.plural('days', 1)}</p> {/* → "1 день" */}
+      <p>{t.plural('days', 2)}</p> {/* → "2 дня" */}
+      <p>{t.plural('days', 5)}</p> {/* → "5 дней" */}
+      <p>{t.plural('days', 21)}</p> {/* → "21 день" */}
+      <p>{t.plural('days', 22)}</p> {/* → "22 дня" */}
+      <p>{t.plural('days', 25)}</p> {/* → "25 дней" */}
     </div>
   );
 }
@@ -53,22 +53,18 @@ export function ExampleComplexPlural() {
  */
 export function ExampleEntriesCount({ count }: { count: number }) {
   const { t } = useTranslation();
-  
+
   // Database should have:
   // English:
   // - entries_one: "{{count}} entry"
   // - entries_other: "{{count}} entries"
-  // 
+  //
   // Russian:
   // - entries_one: "{{count}} запись"
   // - entries_few: "{{count}} записи"
   // - entries_many: "{{count}} записей"
-  
-  return (
-    <div className="text-sm text-muted-foreground">
-      {t.plural('entries', count)}
-    </div>
-  );
+
+  return <div className="text-muted-foreground text-sm">{t.plural('entries', count)}</div>;
 }
 
 /**
@@ -76,14 +72,14 @@ export function ExampleEntriesCount({ count }: { count: number }) {
  */
 export function ExampleTimeAgo({ minutes }: { minutes: number }) {
   const { t } = useTranslation();
-  
+
   if (minutes < 60) {
     // Database should have:
     // - minutes_one: "{{count}} minute ago"
     // - minutes_other: "{{count}} minutes ago"
     return <span>{t.plural('minutes', minutes)}</span>;
   }
-  
+
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
     // Database should have:
@@ -91,7 +87,7 @@ export function ExampleTimeAgo({ minutes }: { minutes: number }) {
     // - hours_other: "{{count}} hours ago"
     return <span>{t.plural('hours', hours)}</span>;
   }
-  
+
   const days = Math.floor(hours / 24);
   // Database should have:
   // - days_one: "{{count}} day ago"
@@ -104,22 +100,18 @@ export function ExampleTimeAgo({ minutes }: { minutes: number }) {
  */
 export function ExampleAchievementMilestones({ count }: { count: number }) {
   const { t } = useTranslation();
-  
+
   // Database should have:
   // English:
   // - milestones_one: "{{count}} milestone reached"
   // - milestones_other: "{{count}} milestones reached"
-  // 
+  //
   // Russian:
   // - milestones_one: "Достигнута {{count}} веха"
   // - milestones_few: "Достигнуты {{count}} вехи"
   // - milestones_many: "Достигнуто {{count}} вех"
-  
-  return (
-    <div className="text-lg font-semibold">
-      {t.plural('milestones', count)}
-    </div>
-  );
+
+  return <div className="font-semibold text-lg">{t.plural('milestones', count)}</div>;
 }
 
 /**
@@ -127,13 +119,9 @@ export function ExampleAchievementMilestones({ count }: { count: number }) {
  */
 export function ExampleItemsWithFallback({ count }: { count: number }) {
   const { t } = useTranslation();
-  
+
   // If translation not found, use fallback
-  return (
-    <div>
-      {t.plural('items', count, `${count} items`)}
-    </div>
-  );
+  return <div>{t.plural('items', count, `${count} items`)}</div>;
 }
 
 /**
@@ -141,13 +129,13 @@ export function ExampleItemsWithFallback({ count }: { count: number }) {
  */
 export function ExampleZeroItems({ count }: { count: number }) {
   const { t } = useTranslation();
-  
+
   // Database should have:
   // English:
   // - items_zero: "No items"  (optional)
   // - items_one: "{{count}} item"
   // - items_other: "{{count}} items"
-  // 
+  //
   // Arabic:
   // - items_zero: "لا توجد عناصر"
   // - items_one: "عنصر واحد"
@@ -155,11 +143,11 @@ export function ExampleZeroItems({ count }: { count: number }) {
   // - items_few: "{{count}} عناصر"
   // - items_many: "{{count}} عنصرًا"
   // - items_other: "{{count}} عنصر"
-  
+
   if (count === 0) {
-    return <div>{t.plural('items', 0)}</div>;  // → "No items" or "0 items"
+    return <div>{t.plural('items', 0)}</div>; // → "No items" or "0 items"
   }
-  
+
   return <div>{t.plural('items', count)}</div>;
 }
 
@@ -199,7 +187,7 @@ export const PLURAL_MIGRATIONS = {
     ('milestones_one', 'en', '{{count}} milestone reached'),
     ('milestones_other', 'en', '{{count}} milestones reached');
   `,
-  
+
   // Russian plurals
   ru: `
     -- Achievements
@@ -237,19 +225,36 @@ export const PLURAL_MIGRATIONS = {
     ('milestones_one', 'ru', 'Достигнута {{count}} веха'),
     ('milestones_few', 'ru', 'Достигнуты {{count}} вехи'),
     ('milestones_many', 'ru', 'Достигнуто {{count}} вех');
-  `
+  `,
 };
 
 /**
  * TypeScript types for plural keys
- * 
+ *
  * Add these to TranslationKeys.ts:
  */
-export type PluralKeys = 
-  | 'achievements_one' | 'achievements_few' | 'achievements_many' | 'achievements_other'
-  | 'entries_one' | 'entries_few' | 'entries_many' | 'entries_other'
-  | 'days_one' | 'days_few' | 'days_many' | 'days_other'
-  | 'hours_one' | 'hours_few' | 'hours_many' | 'hours_other'
-  | 'minutes_one' | 'minutes_few' | 'minutes_many' | 'minutes_other'
-  | 'milestones_one' | 'milestones_few' | 'milestones_many' | 'milestones_other';
-
+export type PluralKeys =
+  | 'achievements_one'
+  | 'achievements_few'
+  | 'achievements_many'
+  | 'achievements_other'
+  | 'entries_one'
+  | 'entries_few'
+  | 'entries_many'
+  | 'entries_other'
+  | 'days_one'
+  | 'days_few'
+  | 'days_many'
+  | 'days_other'
+  | 'hours_one'
+  | 'hours_few'
+  | 'hours_many'
+  | 'hours_other'
+  | 'minutes_one'
+  | 'minutes_few'
+  | 'minutes_many'
+  | 'minutes_other'
+  | 'milestones_one'
+  | 'milestones_few'
+  | 'milestones_many'
+  | 'milestones_other';

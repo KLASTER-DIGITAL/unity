@@ -1,8 +1,8 @@
 /**
  * Universal Switch Component - Web Implementation
- * 
+ *
  * Uses Radix UI Switch for web platform
- * 
+ *
  * @module components/ui/universal/Switch.web
  */
 
@@ -13,7 +13,7 @@ import { cn } from '../utils';
 // TYPES
 // ============================================================================
 
-export interface SwitchProps {
+export type SwitchProps = {
   /** Checked state */
   checked?: boolean;
   /** Callback when checked state changes */
@@ -26,7 +26,7 @@ export interface SwitchProps {
   className?: string;
   /** Accessibility label */
   'aria-label'?: string;
-}
+};
 
 // ============================================================================
 // COMPONENTS
@@ -42,15 +42,15 @@ export function Switch({
 }: SwitchProps) {
   return (
     <SwitchPrimitive.Root
-      checked={checked}
-      onCheckedChange={onCheckedChange}
-      defaultChecked={defaultChecked}
-      disabled={disabled}
       aria-label={ariaLabel}
+      checked={checked}
       className={cn(
-        'peer inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50',
+        'peer inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
+      defaultChecked={defaultChecked}
+      disabled={disabled}
+      onCheckedChange={onCheckedChange}
       style={{
         backgroundColor: checked ? '#007aff' : '#e5e5ea',
       }}
@@ -97,4 +97,3 @@ export default {
   Switch,
   SwitchUtils,
 };
-

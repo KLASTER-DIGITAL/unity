@@ -1,14 +1,14 @@
-import { motion } from "motion/react";
-import { Bell } from "lucide-react";
+import { Bell } from 'lucide-react';
+import { motion } from 'motion/react';
 
-interface PermissionModalProps {
+type PermissionModalProps = {
   isOpen: boolean;
   title: string;
   laterLabel: string;
   allowLabel: string;
   onAllow: () => void;
   onLater: () => void;
-}
+};
 
 /**
  * Permission Modal Component
@@ -20,40 +20,44 @@ export function PermissionModal({
   laterLabel,
   allowLabel,
   onAllow,
-  onLater
+  onLater,
 }: PermissionModalProps) {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <motion.div
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4 pb-24"
-      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 pb-24 backdrop-blur-sm"
+      initial={{ opacity: 0 }}
       onClick={onLater}
+      transition={{ duration: 0.3 }}
     >
       <motion.div
-        className="bg-card rounded-(--radius) p-6 w-full max-w-[300px] shadow-lg border border-border transition-colors duration-300"
-        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3 }}
+        className="w-full max-w-[300px] rounded-(--radius) border border-border bg-card p-6 shadow-lg transition-colors duration-300"
+        initial={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
+        transition={{ duration: 0.3 }}
       >
-        <div className="text-center space-y-3 mb-6">
-          <Bell className="w-12 h-12 text-[#756ef3] mx-auto" />
-          <h3 className="text-[17px]! font-semibold! !text-[#002055] dark:!text-[#1a1a1a]">{title}</h3>
+        <div className="mb-6 space-y-3 text-center">
+          <Bell className="mx-auto h-12 w-12 text-[#756ef3]" />
+          <h3 className="!text-[#002055] dark:!text-[#1a1a1a] font-semibold! text-[17px]!">
+            {title}
+          </h3>
         </div>
-        
+
         <div className="flex gap-3">
           <button
+            className="flex-1 rounded-(--radius) bg-secondary px-4 py-3 text-secondary-foreground transition-all duration-200 hover:bg-secondary/80 active:scale-95"
             onClick={onLater}
-            className="flex-1 py-3 px-4 rounded-(--radius) bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all duration-200 active:scale-95"
           >
             {laterLabel}
           </button>
           <button
+            className="flex-1 rounded-(--radius) bg-[#756ef3] px-4 py-3 text-white transition-all duration-200 hover:bg-[#6b62e8] active:scale-95"
             onClick={onAllow}
-            className="flex-1 py-3 px-4 rounded-(--radius) bg-[#756ef3] text-white hover:bg-[#6b62e8] transition-all duration-200 active:scale-95"
           >
             {allowLabel}
           </button>
@@ -62,4 +66,3 @@ export function PermissionModal({
     </motion.div>
   );
 }
-

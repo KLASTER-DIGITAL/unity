@@ -1,6 +1,6 @@
 /**
  * Formatting utilities for i18n
- * 
+ *
  * Provides locale-aware formatting for:
  * - Dates and times
  * - Numbers and currencies
@@ -10,23 +10,21 @@
  */
 
 export * from './DateFormatter';
-export * from './NumberFormatter';
-
 // Re-export commonly used functions
 export {
+  DATE_FORMATS,
   formatDate,
-  formatTime,
   formatRelativeTime,
-  DATE_FORMATS
+  formatTime,
 } from './DateFormatter';
+export * from './NumberFormatter';
 
 export {
-  formatNumber,
-  formatCurrency,
-  formatPercent,
   formatCompact,
-  formatFileSize,
+  formatCurrency,
   formatDuration,
-  NUMBER_FORMATS
+  formatFileSize,
+  formatNumber,
+  formatPercent,
+  NUMBER_FORMATS,
 } from './NumberFormatter';
-

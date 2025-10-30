@@ -37,17 +37,6 @@ function ShimmeringText({
     >
       {text?.split('')?.map((char, i) => (
         <motion.span
-          key={i}
-          className="inline-block whitespace-pre [transform-style:preserve-3d]"
-          initial={{
-            ...(wave
-              ? {
-                  scale: 1,
-                  rotateY: 0,
-                }
-              : {}),
-            color: 'var(--color)',
-          }}
           animate={{
             ...(wave
               ? {
@@ -59,9 +48,20 @@ function ShimmeringText({
               : {}),
             color: ['var(--color)', 'var(--shimmering-color)', 'var(--color)'],
           }}
+          className="inline-block whitespace-pre [transform-style:preserve-3d]"
+          initial={{
+            ...(wave
+              ? {
+                  scale: 1,
+                  rotateY: 0,
+                }
+              : {}),
+            color: 'var(--color)',
+          }}
+          key={i}
           transition={{
             duration,
-            repeat: Infinity,
+            repeat: Number.POSITIVE_INFINITY,
             repeatType: 'loop',
             repeatDelay: text.length * 0.05,
             delay: (i * duration) / text.length,

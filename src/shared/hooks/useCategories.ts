@@ -3,18 +3,18 @@
  * Manages user categories (default + custom)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  getUserCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  type UserCategory,
   type CreateCategoryInput,
+  createCategory,
+  deleteCategory,
+  getUserCategories,
   type UpdateCategoryInput,
+  type UserCategory,
+  updateCategory,
 } from '@/shared/lib/api';
 
-interface UseCategoriesResult {
+type UseCategoriesResult = {
   categories: UserCategory[];
   isLoading: boolean;
   error: Error | null;
@@ -22,7 +22,7 @@ interface UseCategoriesResult {
   addCategory: (input: CreateCategoryInput) => Promise<UserCategory>;
   editCategory: (id: string, input: UpdateCategoryInput) => Promise<UserCategory>;
   removeCategory: (id: string) => Promise<void>;
-}
+};
 
 /**
  * Hook for managing user categories
@@ -67,7 +67,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
 
       try {
         const newCategory = await createCategory(userId, input);
-        setCategories(prev => [...prev, newCategory]);
+        setCategories((prev) => [...prev, newCategory]);
         return newCategory;
       } catch (err) {
         console.error('[useCategories] Error adding category:', err);
@@ -82,9 +82,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
     async (id: string, input: UpdateCategoryInput): Promise<UserCategory> => {
       try {
         const updatedCategory = await updateCategory(id, input);
-        setCategories(prev =>
-          prev.map(cat => (cat.id === id ? updatedCategory : cat))
-        );
+        setCategories((prev) => prev.map((cat) => (cat.id === id ? updatedCategory : cat)));
         return updatedCategory;
       } catch (err) {
         console.error('[useCategories] Error editing category:', err);
@@ -98,7 +96,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
   const removeCategory = useCallback(async (id: string): Promise<void> => {
     try {
       await deleteCategory(id);
-      setCategories(prev => prev.filter(cat => cat.id !== id));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
     } catch (err) {
       console.error('[useCategories] Error removing category:', err);
       throw err;
@@ -121,7 +119,7 @@ export function useCategories(userId: string | undefined): UseCategoriesResult {
  */
 export function useCategoryNames(userId: string | undefined): string[] {
   const { categories } = useCategories(userId);
-  return categories.map(cat => cat.name);
+  return categories.map((cat) => cat.name);
 }
 
 /**
@@ -130,7 +128,7 @@ export function useCategoryNames(userId: string | undefined): string[] {
 export function useCategoriesForUI(userId: string | undefined) {
   const { categories, isLoading, error } = useCategories(userId);
 
-  const formattedCategories = categories.map(cat => ({
+  const formattedCategories = categories.map((cat) => ({
     id: cat.name,
     label: cat.name,
     icon: cat.icon,
@@ -144,4 +142,3 @@ export function useCategoriesForUI(userId: string | undefined) {
     error,
   };
 }
-

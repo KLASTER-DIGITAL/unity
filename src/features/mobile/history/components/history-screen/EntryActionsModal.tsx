@@ -1,73 +1,67 @@
-import { motion, AnimatePresence } from "motion/react";
-import { X, Edit, Trash2 } from "lucide-react";
-import type { DiaryEntry } from "@/shared/lib/api";
+import { Edit, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type { DiaryEntry } from '@/shared/lib/api';
 
-interface EntryActionsModalProps {
+type EntryActionsModalProps = {
   entry: DiaryEntry | null;
   onClose: () => void;
   onEdit: (entry: DiaryEntry) => void;
   onDelete: (entryId: string) => void;
-}
+};
 
 /**
  * Entry Actions Modal Component
  * Modal for entry actions (edit, delete)
  */
-export function EntryActionsModal({
-  entry,
-  onClose,
-  onEdit,
-  onDelete
-}: EntryActionsModalProps) {
-  if (!entry) return null;
+export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryActionsModalProps) {
+  if (!entry) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
-      <>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-modal-backdrop backdrop-blur-sm"
-        />
+      <motion.div
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        onClick={onClose}
+      />
 
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 100 }}
-          className="modal-bottom-sheet z-modal bg-card p-modal max-w-md mx-auto overflow-y-auto border-t border-border transition-colors duration-300 max-h-[85vh]"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[18px]! font-semibold! text-foreground">Действия</h3>
-            <button
-              onClick={onClose}
-              className="p-1 hover:bg-accent/10 rounded-full transition-colors"
-            >
-              <X className="h-5 w-5 text-foreground" strokeWidth={2} />
-            </button>
-          </div>
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="modal-bottom-sheet z-modal mx-auto max-h-[85vh] max-w-md overflow-y-auto border-border border-t bg-card p-modal transition-colors duration-300"
+        exit={{ opacity: 0, y: 100 }}
+        initial={{ opacity: 0, y: 100 }}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="font-semibold! text-[18px]! text-foreground">Действия</h3>
+          <button
+            className="rounded-full p-1 transition-colors hover:bg-accent/10"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5 text-foreground" strokeWidth={2} />
+          </button>
+        </div>
 
-          <div className="space-y-2">
-            <button
-              onClick={() => onEdit(entry)}
-              className="w-full flex items-center gap-3 p-3 text-foreground hover:bg-accent/10 rounded-[12px] transition-colors"
-            >
-              <Edit className="h-5 w-5" strokeWidth={2} />
-              <span className="text-[15px]! font-medium!">Редактировать</span>
-            </button>
+        <div className="space-y-2">
+          <button
+            className="flex w-full items-center gap-3 rounded-[12px] p-3 text-foreground transition-colors hover:bg-accent/10"
+            onClick={() => onEdit(entry)}
+          >
+            <Edit className="h-5 w-5" strokeWidth={2} />
+            <span className="font-medium! text-[15px]!">Редактировать</span>
+          </button>
 
-            <button
-              onClick={() => onDelete(entry.id)}
-              className="w-full flex items-center gap-3 p-3 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-[12px] transition-colors"
-            >
-              <Trash2 className="h-5 w-5" strokeWidth={2} />
-              <span className="text-[15px]! font-medium!">Удалить запись</span>
-            </button>
-          </div>
-        </motion.div>
-      </>
+          <button
+            className="flex w-full items-center gap-3 rounded-[12px] p-3 text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+            onClick={() => onDelete(entry.id)}
+          >
+            <Trash2 className="h-5 w-5" strokeWidth={2} />
+            <span className="font-medium! text-[15px]!">Удалить запись</span>
+          </button>
+        </div>
+      </motion.div>
     </AnimatePresence>
   );
 }
-

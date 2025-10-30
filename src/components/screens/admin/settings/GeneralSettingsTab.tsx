@@ -1,15 +1,22 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import { Loader2, RotateCcw, Save, Settings } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { Textarea } from '@/shared/components/ui/textarea';
-import { Button } from '@/shared/components/ui/button';
 import { Switch } from '@/shared/components/ui/switch';
-import { Badge } from '@/shared/components/ui/badge';
-import { Settings, Save, RotateCcw, Loader2 } from 'lucide-react';
+import { Textarea } from '@/shared/components/ui/textarea';
 import { createClient } from '@/utils/supabase/client';
 
 export const GeneralSettingsTab: React.FC = () => {
@@ -20,7 +27,7 @@ export const GeneralSettingsTab: React.FC = () => {
     maxEntriesPerDay: 10,
     enableAnalytics: true,
     enableErrorReporting: true,
-    maintenanceMode: false
+    maintenanceMode: false,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +42,7 @@ export const GeneralSettingsTab: React.FC = () => {
     try {
       setIsLoading(true);
       const supabase = createClient();
-      
+
       const { data, error } = await supabase
         .from('admin_settings')
         .select('key, value')
@@ -46,24 +53,28 @@ export const GeneralSettingsTab: React.FC = () => {
           'max_entries_per_day',
           'enable_analytics',
           'enable_error_reporting',
-          'maintenance_mode'
+          'maintenance_mode',
         ]);
 
       if (error) throw error;
 
-      const settingsMap = data?.reduce((acc, item) => {
-        acc[item.key] = item.value;
-        return acc;
-      }, {} as Record<string, string>) || {};
+      const settingsMap =
+        data?.reduce(
+          (acc, item) => {
+            acc[item.key] = item.value;
+            return acc;
+          },
+          {} as Record<string, string>
+        ) || {};
 
       setSettings({
         appName: settingsMap.app_name || '',
         appDescription: settingsMap.app_description || '',
         supportEmail: settingsMap.support_email || '',
-        maxEntriesPerDay: parseInt(settingsMap.max_entries_per_day || '10'),
+        maxEntriesPerDay: Number.parseInt(settingsMap.max_entries_per_day || '10'),
         enableAnalytics: settingsMap.enable_analytics === 'true',
         enableErrorReporting: settingsMap.enable_error_reporting === 'true',
-        maintenanceMode: settingsMap.maintenance_mode === 'true'
+        maintenanceMode: settingsMap.maintenance_mode === 'true',
       });
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -85,7 +96,7 @@ export const GeneralSettingsTab: React.FC = () => {
         { key: 'max_entries_per_day', value: settings.maxEntriesPerDay.toString() },
         { key: 'enable_analytics', value: settings.enableAnalytics.toString() },
         { key: 'enable_error_reporting', value: settings.enableErrorReporting.toString() },
-        { key: 'maintenance_mode', value: settings.maintenanceMode.toString() }
+        { key: 'maintenance_mode', value: settings.maintenanceMode.toString() },
       ];
 
       for (const update of updates) {
@@ -122,7 +133,7 @@ export const GeneralSettingsTab: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -131,37 +142,35 @@ export const GeneralSettingsTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Settings className="w-6 h-6" />
+          <h2 className="flex items-center gap-2 font-bold text-2xl">
+            <Settings className="h-6 w-6" />
             Общие настройки
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Основные параметры приложения
-          </p>
+          <p className="mt-1 text-muted-foreground text-sm">Основные параметры приложения</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleReset} variant="outline" disabled={isResetting || isSaving}>
+          <Button disabled={isResetting || isSaving} onClick={handleReset} variant="outline">
             {isResetting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Перезагрузка...
               </>
             ) : (
               <>
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="mr-2 h-4 w-4" />
                 Перезагрузить
               </>
             )}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || isResetting}>
+          <Button disabled={isSaving || isResetting} onClick={handleSave}>
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Сохраняю...
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 Сохранить
               </>
             )}
@@ -179,9 +188,9 @@ export const GeneralSettingsTab: React.FC = () => {
             <Label htmlFor="appName">Название приложения</Label>
             <Input
               id="appName"
-              value={settings.appName}
               onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
               placeholder="UNITY Diary"
+              value={settings.appName}
             />
           </div>
 
@@ -189,10 +198,10 @@ export const GeneralSettingsTab: React.FC = () => {
             <Label htmlFor="appDescription">Описание приложения</Label>
             <Textarea
               id="appDescription"
-              value={settings.appDescription}
               onChange={(e) => setSettings({ ...settings, appDescription: e.target.value })}
               placeholder="Персональный дневник достижений"
               rows={3}
+              value={settings.appDescription}
             />
           </div>
 
@@ -200,10 +209,10 @@ export const GeneralSettingsTab: React.FC = () => {
             <Label htmlFor="supportEmail">Email поддержки</Label>
             <Input
               id="supportEmail"
-              type="email"
-              value={settings.supportEmail}
               onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
               placeholder="support@example.com"
+              type="email"
+              value={settings.supportEmail}
             />
           </div>
 
@@ -211,13 +220,18 @@ export const GeneralSettingsTab: React.FC = () => {
             <Label htmlFor="maxEntriesPerDay">Максимум записей в день</Label>
             <Input
               id="maxEntriesPerDay"
-              type="number"
-              min="1"
               max="100"
+              min="1"
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  maxEntriesPerDay: Number.parseInt(e.target.value) || 10,
+                })
+              }
+              type="number"
               value={settings.maxEntriesPerDay}
-              onChange={(e) => setSettings({ ...settings, maxEntriesPerDay: parseInt(e.target.value) || 10 })}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Ограничение количества записей, которые пользователь может создать за день
             </p>
           </div>
@@ -230,49 +244,49 @@ export const GeneralSettingsTab: React.FC = () => {
           <CardDescription>Включение/отключение функций приложения</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between rounded-lg bg-muted p-4">
             <div className="space-y-0.5">
               <Label htmlFor="enableAnalytics">Аналитика</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Сбор анонимной статистики использования
               </p>
             </div>
             <Switch
-              id="enableAnalytics"
               checked={settings.enableAnalytics}
+              id="enableAnalytics"
               onCheckedChange={(checked) => setSettings({ ...settings, enableAnalytics: checked })}
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center justify-between rounded-lg bg-muted p-4">
             <div className="space-y-0.5">
               <Label htmlFor="enableErrorReporting">Отчеты об ошибках</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Автоматическая отправка отчетов об ошибках
               </p>
             </div>
             <Switch
-              id="enableErrorReporting"
               checked={settings.enableErrorReporting}
-              onCheckedChange={(checked) => setSettings({ ...settings, enableErrorReporting: checked })}
+              id="enableErrorReporting"
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, enableErrorReporting: checked })
+              }
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-            <div className="space-y-0.5 flex-1">
+          <div className="flex items-center justify-between rounded-lg bg-muted p-4">
+            <div className="flex-1 space-y-0.5">
               <div className="flex items-center gap-2">
                 <Label htmlFor="maintenanceMode">Режим обслуживания</Label>
-                {settings.maintenanceMode && (
-                  <Badge variant="destructive">Активен</Badge>
-                )}
+                {settings.maintenanceMode && <Badge variant="destructive">Активен</Badge>}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Временно отключить доступ к приложению для обслуживания
               </p>
             </div>
             <Switch
-              id="maintenanceMode"
               checked={settings.maintenanceMode}
+              id="maintenanceMode"
               onCheckedChange={(checked) => setSettings({ ...settings, maintenanceMode: checked })}
             />
           </div>

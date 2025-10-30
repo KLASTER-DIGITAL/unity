@@ -1,17 +1,17 @@
 /**
  * Universal Animation System
- * 
+ *
  * Platform-agnostic animation API that works in both React Web and React Native.
- * 
+ *
  * Usage:
  * ```tsx
  * import { AnimatedView, AnimatedPresence, AnimationPresets } from '@/shared/lib/platform/animation';
- * 
+ *
  * // Simple fade in
  * <AnimatedView {...AnimationPresets.fadeIn}>
  *   <div>Content</div>
  * </AnimatedView>
- * 
+ *
  * // Custom animation
  * <AnimatedView
  *   initial={{ opacity: 0, y: 20 }}
@@ -20,7 +20,7 @@
  * >
  *   <div>Content</div>
  * </AnimatedView>
- * 
+ *
  * // Screen transitions
  * <AnimatedPresence mode="wait">
  *   {activeScreen === 'home' && (
@@ -42,19 +42,16 @@ export const AnimatedPresence = webModule.AnimatedPresence;
 export const createAnimated = webModule.createAnimated;
 export const motion = webModule.motion;
 
+// Export convenience hooks
+export { useAnimationState, useMotionValue, useTransform } from './hooks';
 // Export types
 export type {
+  AnimatedPresenceProps,
+  AnimatedViewProps,
   AnimationConfig,
   SpringConfig,
   TimingConfig,
   TransitionConfig,
-  AnimatedViewProps,
-  AnimatedPresenceProps,
 } from './types';
-
 // Export presets
 export { AnimationPresets, ScreenTransitions } from './types';
-
-// Export convenience hooks
-export { useAnimationState, useMotionValue, useTransform } from './hooks';
-

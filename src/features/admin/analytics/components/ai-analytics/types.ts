@@ -2,7 +2,7 @@
  * AI Analytics Tab - Type definitions
  */
 
-export interface AIUsageLog {
+export type AIUsageLog = {
   id: string;
   user_id: string;
   operation_type: string;
@@ -14,9 +14,9 @@ export interface AIUsageLog {
   created_at: string;
   user_email?: string;
   user_name?: string;
-}
+};
 
-export interface AIStats {
+export type AIStats = {
   totalRequests: number;
   totalTokens: number;
   totalCost: number;
@@ -25,21 +25,20 @@ export interface AIStats {
   operationBreakdown: Array<{ operation: string; requests: number; cost: number }>;
   modelBreakdown: Array<{ model: string; requests: number; cost: number }>;
   dailyUsage: Array<{ date: string; requests: number; cost: number; tokens: number }>;
-}
+};
 
-export interface AIRecommendation {
+export type AIRecommendation = {
   type: 'warning' | 'info' | 'success';
   title: string;
   description: string;
   impact?: string;
-}
+};
 
-export interface CostForecast {
+export type CostForecast = {
   nextMonth: number;
   nextQuarter: number;
   trend: 'increasing' | 'decreasing' | 'stable';
   percentageChange: number;
-}
+};
 
 export type PeriodType = '7d' | '30d' | '90d' | 'all';
-

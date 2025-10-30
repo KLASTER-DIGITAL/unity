@@ -1,6 +1,6 @@
-import { Activity } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Activity } from 'lucide-react';
+import { Badge } from '@/shared/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
 /**
  * System Status Component
@@ -12,7 +12,7 @@ export function SystemStatus() {
     <Card className="border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-[17px]!">
-          <Activity className="w-5 h-5" />
+          <Activity className="h-5 w-5" />
           Статус системы
         </CardTitle>
       </CardHeader>
@@ -20,37 +20,49 @@ export function SystemStatus() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-[15px]! text-foreground">База данных</span>
             </div>
-            <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 text-[13px]!">
+            <Badge
+              className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"
+              variant="outline"
+            >
               Работает
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-[15px]! text-foreground">API сервер</span>
             </div>
-            <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 text-[13px]!">
+            <Badge
+              className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"
+              variant="outline"
+            >
               Работает
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-[15px]! text-foreground">Service Worker</span>
             </div>
-            <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 text-[13px]!">
+            <Badge
+              className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"
+              variant="outline"
+            >
               Активен v1.0.3
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-[15px]! text-foreground">Push-уведомления</span>
             </div>
-            <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 text-[13px]!">
+            <Badge
+              className="border-green-500/20 bg-green-500/10 text-[13px]! text-green-600"
+              variant="outline"
+            >
               Включено
             </Badge>
           </div>
@@ -59,4 +71,3 @@ export function SystemStatus() {
     </Card>
   );
 }
-

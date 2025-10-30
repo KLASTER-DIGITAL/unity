@@ -1,11 +1,11 @@
 /**
  * Animation System
  * AI-Friendly: Анимации для модальных окон, карточек, transitions
- * 
+ *
  * Использование:
  * - Автоматически применяется к элементам с transition классами
  * - Используется motion/react для сложных анимаций
- * 
+ *
  * Файл: 98 строк
  */
 
@@ -92,7 +92,9 @@
 
 /* ===== Hover Effects ===== */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
@@ -103,4 +105,3 @@
 .dark .hover-lift:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-

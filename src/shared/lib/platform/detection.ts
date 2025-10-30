@@ -1,20 +1,20 @@
 /**
  * Platform Detection System for UNITY-v2
- * 
+ *
  * Provides universal platform detection and selection utilities
  * for cross-platform compatibility (Web/React Native)
- * 
+ *
  * @author UNITY Team
  * @date 2025-01-18
  */
 
 export type PlatformType = 'web' | 'native';
 
-export interface PlatformSpecific<T> {
+export type PlatformSpecific<T> = {
   web?: T;
   native?: T;
   default?: T;
-}
+};
 
 /**
  * Platform detection and selection utilities
@@ -28,12 +28,12 @@ export const Platform = {
     if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       return 'web';
     }
-    
+
     // Check for React Native environment
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return 'native';
     }
-    
+
     // Default to web for SSR/Node environments
     return 'web';
   },
@@ -56,9 +56,11 @@ export const Platform = {
    * Check if DOM APIs are available
    */
   get hasDOMAPI(): boolean {
-    return typeof window !== 'undefined' && 
-           typeof document !== 'undefined' && 
-           typeof localStorage !== 'undefined';
+    return (
+      typeof window !== 'undefined' &&
+      typeof document !== 'undefined' &&
+      typeof localStorage !== 'undefined'
+    );
   },
 
   /**
@@ -72,23 +74,25 @@ export const Platform = {
    * Check if running in PWA mode
    */
   get isPWA(): boolean {
-    if (!this.isBrowser) return false;
-    
+    if (!this.isBrowser) {
+      return false;
+    }
+
     // Check if running in standalone mode
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    
+
     // Check if launched from home screen (iOS)
     const isIOSStandalone = (window.navigator as any).standalone === true;
-    
+
     return isStandalone || isIOSStandalone;
   },
 
   /**
    * Select platform-specific implementation
-   * 
+   *
    * @param specifics - Platform-specific implementations
    * @returns Selected implementation based on current platform
-   * 
+   *
    * @example
    * ```typescript
    * const storage = Platform.select({
@@ -102,26 +106,26 @@ export const Platform = {
     if (this.isWeb && specifics.web !== undefined) {
       return specifics.web;
     }
-    
+
     if (this.isNative && specifics.native !== undefined) {
       return specifics.native;
     }
-    
+
     if (specifics.default !== undefined) {
       return specifics.default;
     }
-    
+
     throw new Error(
       `No implementation found for platform "${this.OS}". ` +
-      `Available: ${Object.keys(specifics).join(', ')}`
+        `Available: ${Object.keys(specifics).join(', ')}`
     );
   },
 
   /**
    * Execute platform-specific code
-   * 
+   *
    * @param specifics - Platform-specific functions
-   * 
+   *
    * @example
    * ```typescript
    * Platform.execute({
@@ -140,7 +144,7 @@ export const Platform = {
 
   /**
    * Get platform-specific value with fallback
-   * 
+   *
    * @param webValue - Value for web platform
    * @param nativeValue - Value for native platform
    * @param defaultValue - Fallback value
@@ -150,9 +154,9 @@ export const Platform = {
     return this.select({
       web: webValue,
       native: nativeValue,
-      default: defaultValue ?? webValue
+      default: defaultValue ?? webValue,
     });
-  }
+  },
 };
 
 /**
@@ -165,7 +169,7 @@ export const PlatformConstants = {
   MAX_FILE_SIZE: Platform.value(
     50 * 1024 * 1024, // 50MB for web
     20 * 1024 * 1024, // 20MB for native
-    10 * 1024 * 1024  // 10MB default
+    10 * 1024 * 1024 // 10MB default
   ),
 
   /**
@@ -174,7 +178,7 @@ export const PlatformConstants = {
   SUPPORTED_IMAGE_FORMATS: Platform.value(
     ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], // Web
     ['image/jpeg', 'image/png'], // Native
-    ['image/jpeg', 'image/png']  // Default
+    ['image/jpeg', 'image/png'] // Default
   ),
 
   /**
@@ -183,7 +187,7 @@ export const PlatformConstants = {
   SUPPORTED_VIDEO_FORMATS: Platform.value(
     ['video/mp4', 'video/webm', 'video/ogg'], // Web
     ['video/mp4'], // Native
-    ['video/mp4']  // Default
+    ['video/mp4'] // Default
   ),
 
   /**
@@ -192,17 +196,17 @@ export const PlatformConstants = {
   ANIMATION_DURATION: Platform.value(
     300, // Web
     250, // Native (slightly faster for better feel)
-    300  // Default
+    300 // Default
   ),
 
   /**
    * Touch feedback delay (ms)
    */
   TOUCH_FEEDBACK_DELAY: Platform.value(
-    0,   // Web (no delay)
-    50,  // Native (haptic feedback)
-    0    // Default
-  )
+    0, // Web (no delay)
+    50, // Native (haptic feedback)
+    0 // Default
+  ),
 };
 
 /**
@@ -215,8 +219,8 @@ export const PlatformFeatures = {
   get hasHapticFeedback(): boolean {
     return Platform.value(
       false, // Web (not widely supported)
-      true,  // Native (React Native has haptic feedback)
-      false  // Default
+      true, // Native (React Native has haptic feedback)
+      false // Default
     );
   },
 
@@ -227,11 +231,11 @@ export const PlatformFeatures = {
     if (Platform.isWeb) {
       return navigator.mediaDevices && 'getUserMedia' in navigator.mediaDevices;
     }
-    
+
     if (Platform.isNative) {
       return true; // Assume camera is available in React Native
     }
-    
+
     return false;
   },
 
@@ -249,11 +253,11 @@ export const PlatformFeatures = {
     if (Platform.isWeb) {
       return 'serviceWorker' in navigator && 'PushManager' in window;
     }
-    
+
     if (Platform.isNative) {
       return true; // React Native has push notifications
     }
-    
+
     return false;
   },
 
@@ -264,13 +268,13 @@ export const PlatformFeatures = {
     if (Platform.isWeb) {
       return 'localStorage' in window && 'indexedDB' in window;
     }
-    
+
     if (Platform.isNative) {
       return true; // React Native has AsyncStorage
     }
-    
+
     return false;
-  }
+  },
 };
 
 /**
@@ -293,10 +297,10 @@ export const PlatformDev = {
       haptic: PlatformFeatures.hasHapticFeedback,
       geolocation: PlatformFeatures.hasGeolocation,
       pushNotifications: PlatformFeatures.hasPushNotifications,
-      offlineStorage: PlatformFeatures.hasOfflineStorage
+      offlineStorage: PlatformFeatures.hasOfflineStorage,
     });
     console.groupEnd();
-  }
+  },
 };
 
 // Auto-log platform info in development

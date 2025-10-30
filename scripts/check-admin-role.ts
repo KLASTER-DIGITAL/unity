@@ -5,7 +5,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://ecuwuzqlwdkkdncampnc.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg1MjI2OTQsImV4cCI6MjA0NDA5ODY5NH0.Ql-Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Q';
+const supabaseAnonKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg1MjI2OTQsImV4cCI6MjA0NDA5ODY5NH0.Ql-Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Ql5Q';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -53,11 +54,9 @@ async function checkAndUpdateAdminRole() {
     }
 
     console.log('✅ Role updated successfully:', updated);
-
   } catch (error) {
     console.error('❌ Error:', error);
   }
 }
 
 checkAndUpdateAdminRole();
-

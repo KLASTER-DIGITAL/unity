@@ -1,7 +1,6 @@
-
-import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
 
 // ✅ PWA: Регистрация Service Worker
 if ('serviceWorker' in navigator) {
@@ -22,19 +21,23 @@ if ('serviceWorker' in navigator) {
 if (import.meta.env.PROD) {
   // Используем requestIdleCallback для инициализации Sentry в idle time
   const initSentryLazy = () => {
-    import("@/shared/lib/monitoring").then(({ initSentry }) => {
-      initSentry();
-      console.log('✅ [Sentry] Lazy loaded and initialized');
-    }).catch(err => {
-      console.error('❌ [Sentry] Failed to lazy load:', err);
-    });
+    import('@/shared/lib/monitoring')
+      .then(({ initSentry }) => {
+        initSentry();
+        console.log('✅ [Sentry] Lazy loaded and initialized');
+      })
+      .catch((err) => {
+        console.error('❌ [Sentry] Failed to lazy load:', err);
+      });
 
-    import("@/shared/lib/performance").then(({ initSentryPerformanceIntegration }) => {
-      initSentryPerformanceIntegration();
-      console.log('✅ [Sentry Performance] Lazy loaded and initialized');
-    }).catch(err => {
-      console.error('❌ [Sentry Performance] Failed to lazy load:', err);
-    });
+    import('@/shared/lib/performance')
+      .then(({ initSentryPerformanceIntegration }) => {
+        initSentryPerformanceIntegration();
+        console.log('✅ [Sentry Performance] Lazy loaded and initialized');
+      })
+      .catch((err) => {
+        console.error('❌ [Sentry Performance] Failed to lazy load:', err);
+      });
   };
 
   // Инициализируем Sentry в idle time или через 2 секунды (что наступит раньше)
@@ -68,5 +71,4 @@ window.addEventListener('unhandledrejection', (event) => {
   // Не перезагружаем страницу для промисов, только логируем
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
-  
+createRoot(document.getElementById('root')!).render(<App />);

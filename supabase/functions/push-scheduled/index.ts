@@ -1,13 +1,13 @@
 /**
  * Push Scheduled Edge Function
- * 
+ *
  * Отправляет запланированные push уведомления:
  * - Ежедневные напоминания в 21:00 (daily_reminder)
  * - Еженедельные мотивационные карточки (weekly_motivation)
  * - Напоминания о целях (goal_reminder)
- * 
+ *
  * Вызывается через Supabase Cron Jobs
- * 
+ *
  * Endpoints:
  * - POST /push-scheduled?type=daily_reminder - Ежедневное напоминание
  * - POST /push-scheduled?type=weekly_motivation - Еженедельная мотивация
@@ -42,7 +42,7 @@ async function getUsersWithPushEnabled() {
   }
 
   // Уникальные user_id
-  const uniqueUserIds = [...new Set(data.map(sub => sub.user_id))];
+  const uniqueUserIds = [...new Set(data.map((sub) => sub.user_id))];
   return uniqueUserIds;
 }
 
@@ -57,23 +57,20 @@ async function sendPushNotification(
   data?: Record<string, any>
 ) {
   try {
-    const response = await fetch(
-      `${supabaseUrl}/functions/v1/push-sender`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-        },
-        body: JSON.stringify({
-          user_ids: userIds,
-          title,
-          body,
-          icon: icon || '/icon-192.png',
-          data: data || {},
-        }),
-      }
-    );
+    const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify({
+        user_ids: userIds,
+        title,
+        body,
+        icon: icon || '/icon-192.png',
+        data: data || {},
+      }),
+    });
 
     const result = await response.json();
     console.log('[PUSH-SCHEDULED] Push sent:', result);
@@ -89,7 +86,7 @@ async function sendPushNotification(
  */
 async function sendDailyReminder() {
   console.log('[PUSH-SCHEDULED] Sending daily reminder...');
-  
+
   const userIds = await getUsersWithPushEnabled();
   if (userIds.length === 0) {
     console.log('[PUSH-SCHEDULED] No users with push enabled');
@@ -115,7 +112,7 @@ async function sendDailyReminder() {
  */
 async function sendWeeklyMotivation() {
   console.log('[PUSH-SCHEDULED] Sending weekly motivation...');
-  
+
   const userIds = await getUsersWithPushEnabled();
   if (userIds.length === 0) {
     console.log('[PUSH-SCHEDULED] No users with push enabled');
@@ -132,16 +129,10 @@ async function sendWeeklyMotivation() {
   const title = card?.title || '💪 Мотивация недели';
   const body = card?.description || 'Продолжайте двигаться к своим целям!';
 
-  const result = await sendPushNotification(
-    userIds,
-    title,
-    body,
-    '/icon-192.png',
-    {
-      type: 'weekly_motivation',
-      url: '/?view=motivation',
-    }
-  );
+  const result = await sendPushNotification(userIds, title, body, '/icon-192.png', {
+    type: 'weekly_motivation',
+    url: '/?view=motivation',
+  });
 
   return result;
 }
@@ -151,7 +142,7 @@ async function sendWeeklyMotivation() {
  */
 async function sendGoalReminder() {
   console.log('[PUSH-SCHEDULED] Sending goal reminder...');
-  
+
   const userIds = await getUsersWithPushEnabled();
   if (userIds.length === 0) {
     console.log('[PUSH-SCHEDULED] No users with push enabled');
@@ -191,20 +182,20 @@ Deno.serve(async (req) => {
       case 'daily_reminder':
         result = await sendDailyReminder();
         break;
-      
+
       case 'weekly_motivation':
         result = await sendWeeklyMotivation();
         break;
-      
+
       case 'goal_reminder':
         result = await sendGoalReminder();
         break;
-      
+
       default:
-        return new Response(
-          JSON.stringify({ error: `Unknown type: ${type}` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return new Response(JSON.stringify({ error: `Unknown type: ${type}` }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
     }
 
     return new Response(
@@ -217,10 +208,9 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('[PUSH-SCHEDULED] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
-

@@ -1,10 +1,11 @@
 import { LanguagesManagementTab } from '../LanguagesManagementTab';
 
-interface LanguagesManagementContentProps {
+type LanguagesManagementContentProps = {
   onNavigateToTranslations?: (languageCode: string) => void;
-}
+};
 
-export function LanguagesManagementContent({ onNavigateToTranslations }: LanguagesManagementContentProps = {}) {
+export function LanguagesManagementContent({
+  onNavigateToTranslations,
+}: LanguagesManagementContentProps = {}) {
   return <LanguagesManagementTab onNavigateToTranslations={onNavigateToTranslations} />;
 }
-

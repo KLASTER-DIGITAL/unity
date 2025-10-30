@@ -1,13 +1,12 @@
-import { imgEllipse } from "@/imports/svg-ok0q3";
+import { imgEllipse } from '@/imports/svg-ok0q3';
 
 /**
  * Decorative ellipse element
  */
 export function Ellipse() {
   return (
-    <div className="absolute right-4 top-20 w-16 h-12 pointer-events-none z-0">
-      <img className="block w-full h-full object-contain" src={imgEllipse} alt="" />
+    <div className="pointer-events-none absolute top-20 right-4 z-0 h-12 w-16">
+      <img alt="" className="block h-full w-full object-contain" src={imgEllipse} />
     </div>
   );
 }
-

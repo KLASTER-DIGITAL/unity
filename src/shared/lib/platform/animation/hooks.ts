@@ -4,9 +4,9 @@
  * Platform-agnostic hooks for managing animation state.
  */
 
-import { useState, useCallback } from 'react';
-import type { AnimationConfig } from './types';
 import { useMotionValue as useMotionValueWeb, useTransform as useTransformWeb } from 'motion/react';
+import { useCallback, useState } from 'react';
+import type { AnimationConfig } from './types';
 
 /**
  * Hook for managing animation state
@@ -50,4 +50,3 @@ export function useTransform(value: any, input: number[], output: number[]) {
   // TODO: Add platform detection and native implementation for Q3 2025
   return useTransformWeb(value, input, output);
 }
-

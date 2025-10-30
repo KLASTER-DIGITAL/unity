@@ -1,27 +1,29 @@
 /**
  * Toast Component Tests
- * 
+ *
  * Tests for Universal Toast component
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock Toast component
-const Toast = ({ 
-  open, 
-  onOpenChange, 
+const Toast = ({
+  open,
+  onOpenChange,
   title,
   description,
   variant = 'default',
   duration = 3000,
-  ...props 
+  ...props
 }: any) => {
-  if (!open) return null;
-  
+  if (!open) {
+    return null;
+  }
+
   return (
-    <div role="status" aria-live="polite" data-variant={variant} {...props}>
+    <div aria-live="polite" data-variant={variant} role="status" {...props}>
       {title && <div>{title}</div>}
       {description && <div>{description}</div>}
       <button onClick={() => onOpenChange?.(false)}>Close</button>
@@ -47,7 +49,7 @@ describe('Toast Component', () => {
     });
 
     it('should render with description', () => {
-      render(<Toast open={true} title="Success" description="Operation completed" />);
+      render(<Toast description="Operation completed" open={true} title="Success" />);
       expect(screen.getByText('Operation completed')).toBeInTheDocument();
     });
 
@@ -61,11 +63,11 @@ describe('Toast Component', () => {
   describe('Events', () => {
     it('should call onOpenChange when close button is clicked', () => {
       const handleOpenChange = vi.fn();
-      render(<Toast open={true} title="Toast" onOpenChange={handleOpenChange} />);
-      
+      render(<Toast onOpenChange={handleOpenChange} open={true} title="Toast" />);
+
       const closeButton = screen.getByText('Close');
       fireEvent.click(closeButton);
-      
+
       expect(handleOpenChange).toHaveBeenCalledWith(false);
     });
   });
@@ -94,4 +96,3 @@ describe('Toast Component', () => {
     });
   });
 });
-

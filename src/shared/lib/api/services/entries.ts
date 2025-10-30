@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/client';
-import { getAuthHeaders } from '../core/request';
 import { API_URLS } from '../config/urls';
+import { getAuthHeaders } from '../core/request';
 import type { DiaryEntry } from '../types';
 
 /**
@@ -11,7 +11,7 @@ async function entriesApiRequest<T = any>(endpoint: string, options: any = {}): 
 
   const headers = {
     ...(await getAuthHeaders()),
-    ...customHeaders
+    ...customHeaders,
   };
 
   const config: RequestInit = {
@@ -28,12 +28,12 @@ async function entriesApiRequest<T = any>(endpoint: string, options: any = {}): 
 
     const response = await fetch(`${API_URLS.ENTRIES}${endpoint}`, config);
     const responseText = await response.text();
-    
+
     console.log(`[ENTRIES API Response] ${endpoint}:`, responseText);
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      
+
       try {
         const errorData = JSON.parse(responseText);
         errorMessage = errorData.error || errorData.message || errorMessage;
@@ -50,7 +50,7 @@ async function entriesApiRequest<T = any>(endpoint: string, options: any = {}): 
 
     try {
       return JSON.parse(responseText);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error('Failed to parse response as JSON:', responseText);
       throw new Error('Invalid JSON response from server');
     }
@@ -77,16 +77,16 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
       sentiment: entry.sentiment || 'neutral',
       category: entry.category || 'Другое',
       mood: entry.mood || 'нормальное',
-      is_first_entry: (entry as any).isFirstEntry || false,
+      is_first_entry: (entry as any).isFirstEntry,
       media: entry.media || null,
       ai_reply: entry.aiReply || '',
       ai_summary: entry.aiSummary || null,
       ai_insight: entry.aiInsight || null,
-      is_achievement: entry.isAchievement || false,
+      is_achievement: entry.isAchievement,
       tags: entry.tags || [],
       streak_day: entry.streakDay || 1,
       focus_area: entry.focusArea || entry.category || 'Другое',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     })
     .select()
     .single();
@@ -112,7 +112,7 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
     streakDay: data.streak_day,
     focusArea: data.focus_area,
     createdAt: data.created_at,
-    media: data.media
+    media: data.media,
   };
 
   console.log('[ENTRIES] Entry created successfully:', createdEntry);
@@ -123,7 +123,7 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
  * Get entries for a user
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function getEntries(userId: string, limit: number = 50): Promise<DiaryEntry[]> {
+export async function getEntries(userId: string, limit = 50): Promise<DiaryEntry[]> {
   console.log('[ENTRIES] Fetching entries for user:', userId);
 
   const supabase = createClient();
@@ -141,7 +141,7 @@ export async function getEntries(userId: string, limit: number = 50): Promise<Di
   }
 
   // Convert to camelCase
-  const entries: DiaryEntry[] = data.map(entry => ({
+  const entries: DiaryEntry[] = data.map((entry) => ({
     id: entry.id,
     userId: entry.user_id,
     text: entry.text,
@@ -156,7 +156,7 @@ export async function getEntries(userId: string, limit: number = 50): Promise<Di
     streakDay: entry.streak_day,
     focusArea: entry.focus_area,
     createdAt: entry.created_at,
-    media: entry.media
+    media: entry.media,
   }));
 
   console.log('[ENTRIES] Fetched entries:', entries.length);
@@ -169,7 +169,9 @@ export async function getEntries(userId: string, limit: number = 50): Promise<Di
 export async function getEntry(entryId: string): Promise<DiaryEntry> {
   console.log('[ENTRIES] Fetching entry:', entryId);
 
-  const response = await entriesApiRequest<{ success: boolean; entry: DiaryEntry; error?: string }>(`/${entryId}`);
+  const response = await entriesApiRequest<{ success: boolean; entry: DiaryEntry; error?: string }>(
+    `/${entryId}`
+  );
 
   if (!response.success) {
     console.error('[ENTRIES] Failed to fetch entry:', response);
@@ -184,17 +186,28 @@ export async function getEntry(entryId: string): Promise<DiaryEntry> {
  * Update an entry
  * TEMPORARY: Uses direct Supabase client until Edge Function routing is fixed
  */
-export async function updateEntry(entryId: string, updates: Partial<DiaryEntry>): Promise<DiaryEntry> {
+export async function updateEntry(
+  entryId: string,
+  updates: Partial<DiaryEntry>
+): Promise<DiaryEntry> {
   console.log('[ENTRIES] Updating entry:', entryId, updates);
 
   const supabase = createClient();
 
   // Convert camelCase to snake_case for database
   const updateData: any = {};
-  if (updates.text !== undefined) updateData.text = updates.text;
-  if (updates.sentiment !== undefined) updateData.sentiment = updates.sentiment;
-  if (updates.category !== undefined) updateData.category = updates.category;
-  if (updates.mood !== undefined) updateData.mood = updates.mood;
+  if (updates.text !== undefined) {
+    updateData.text = updates.text;
+  }
+  if (updates.sentiment !== undefined) {
+    updateData.sentiment = updates.sentiment;
+  }
+  if (updates.category !== undefined) {
+    updateData.category = updates.category;
+  }
+  if (updates.mood !== undefined) {
+    updateData.mood = updates.mood;
+  }
 
   const { data, error } = await supabase
     .from('entries')
@@ -224,7 +237,7 @@ export async function updateEntry(entryId: string, updates: Partial<DiaryEntry>)
     streakDay: data.streak_day,
     focusArea: data.focus_area,
     createdAt: data.created_at,
-    media: data.media
+    media: data.media,
   };
 
   console.log('[ENTRIES] Entry updated successfully:', updatedEntry);
@@ -240,10 +253,7 @@ export async function deleteEntry(entryId: string, _userId: string): Promise<voi
 
   const supabase = createClient();
 
-  const { error } = await supabase
-    .from('entries')
-    .delete()
-    .eq('id', entryId);
+  const { error } = await supabase.from('entries').delete().eq('id', entryId);
 
   if (error) {
     console.error('[ENTRIES] Failed to delete entry:', error);
@@ -252,4 +262,3 @@ export async function deleteEntry(entryId: string, _userId: string): Promise<voi
 
   console.log('[ENTRIES] Entry deleted successfully');
 }
-

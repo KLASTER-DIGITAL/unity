@@ -1,27 +1,27 @@
 /**
  * Unit Tests for Custom Hooks
- * 
+ *
  * Tests for:
  * - useVoiceRecorder (12 tests)
  * - useMediaUploader (15 tests)
  * - useSpeechRecognition (10 tests)
  * - useImageCompressionWorker (8 tests)
  * - useOfflineMode (8 tests)
- * 
+ *
  * Total: 53 tests
  * Target coverage: 80%+
- * 
+ *
  * @author UNITY Team
  * @date 2025-10-26
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder';
-import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useImageCompressionWorker } from '@/shared/hooks/useImageCompressionWorker';
-import { useOfflineMode } from '@/shared/lib/offline/useOfflineMode';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder';
+import { useOfflineMode } from '@/shared/lib/offline/useOfflineMode';
 
 // ============================================================================
 // MOCKS
@@ -144,8 +144,12 @@ vi.mock('@/shared/lib/api', () => ({
 
 // Mock image compression utilities
 vi.mock('@/utils/imageCompression', () => ({
-  compressImage: vi.fn().mockResolvedValue(new File(['compressed'], 'compressed.jpg', { type: 'image/jpeg' })),
-  generateThumbnail: vi.fn().mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
+  compressImage: vi
+    .fn()
+    .mockResolvedValue(new File(['compressed'], 'compressed.jpg', { type: 'image/jpeg' })),
+  generateThumbnail: vi
+    .fn()
+    .mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
   getImageDimensions: vi.fn().mockResolvedValue({ width: 1920, height: 1080 }),
   isImageFile: vi.fn((file: File) => file.type.startsWith('image/')),
   isVideoFile: vi.fn((file: File) => file.type.startsWith('video/')),
@@ -153,8 +157,12 @@ vi.mock('@/utils/imageCompression', () => ({
 
 // Mock video compression utilities
 vi.mock('@/utils/videoCompression', () => ({
-  compressVideo: vi.fn().mockResolvedValue(new File(['compressed'], 'compressed.mp4', { type: 'video/mp4' })),
-  generateVideoThumbnail: vi.fn().mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
+  compressVideo: vi
+    .fn()
+    .mockResolvedValue(new File(['compressed'], 'compressed.mp4', { type: 'video/mp4' })),
+  generateVideoThumbnail: vi
+    .fn()
+    .mockResolvedValue(new File(['thumbnail'], 'thumb.jpg', { type: 'image/jpeg' })),
   getVideoMetadata: vi.fn().mockResolvedValue({ width: 1920, height: 1080, duration: 10 }),
   validateVideo: vi.fn().mockResolvedValue(true),
 }));
@@ -169,7 +177,7 @@ beforeEach(() => {
   global.AudioContext = MockAudioContext as any;
   (global as any).webkitAudioContext = MockAudioContext;
   (global as any).webkitSpeechRecognition = MockSpeechRecognition;
-  
+
   Object.defineProperty(global.navigator, 'mediaDevices', {
     value: { getUserMedia: mockGetUserMedia },
     writable: true,
@@ -853,4 +861,3 @@ describe('useMediaUploader', () => {
     expect(true).toBe(true);
   });
 });
-

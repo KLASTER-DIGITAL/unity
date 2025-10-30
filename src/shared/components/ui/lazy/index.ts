@@ -8,29 +8,29 @@ export {
   PieChart,
   // UsageChart, // Not implemented yet
   preloadCharts,
-  useChartPreload
+  useChartPreload,
 } from '../charts/LazyCharts';
 
 // UI Components (анимации и сложные интерактивные элементы)
 export {
-  Card3D,
   AnimatedModal,
   AnimatedTooltip,
   BackgroundGradient,
-  MagneticButton,
-  MotionHighlight,
-  ShimmeringText,
-  Sparkles,
+  Card3D,
   ColorPicker,
   Counter,
   Gantt,
-  Rating,
-  Terminal,
+  MagneticButton,
+  MotionHighlight,
   Pill,
+  preloadComponents,
+  Rating,
+  ShimmeringText,
+  Sparkles,
   Status,
   Tabs,
-  preloadComponents,
-  useComponentPreload
+  Terminal,
+  useComponentPreload,
 } from './LazyComponents';
 
 // Utility функции для preloading
@@ -40,11 +40,11 @@ export const preloadAll = {
     await Promise.all([
       preloadCharts.barChart(),
       preloadCharts.lineChart(),
-      preloadCharts.pieChart()
+      preloadCharts.pieChart(),
       // preloadCharts.usageChart() // Not implemented yet
     ]);
   },
-  
+
   components: async () => {
     const { preloadComponents } = await import('./LazyComponents');
     await Promise.all([
@@ -52,26 +52,21 @@ export const preloadAll = {
       preloadComponents.animatedModal(),
       preloadComponents.colorPicker(),
       preloadComponents.gantt(),
-      preloadComponents.terminal()
+      preloadComponents.terminal(),
     ]);
   },
-  
+
   all: async () => {
-    await Promise.all([
-      preloadAll.charts(),
-      preloadAll.components()
-    ]);
-  }
+    await Promise.all([preloadAll.charts(), preloadAll.components()]);
+  },
 };
 
 // Hook для preloading всех компонентов
 export const useLazyPreload = () => {
-  const preloadOnInteraction = () => {
-    return {
-      onMouseEnter: () => preloadAll.all(),
-      onFocus: () => preloadAll.all()
-    };
-  };
+  const preloadOnInteraction = () => ({
+    onMouseEnter: () => preloadAll.all(),
+    onFocus: () => preloadAll.all(),
+  });
 
   return { preloadOnInteraction, preloadAll };
 };

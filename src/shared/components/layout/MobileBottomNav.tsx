@@ -15,22 +15,22 @@
  * @date 2025-10-19
  */
 
-import { Home, History, Trophy, BarChart3, Settings } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { useTranslation } from "@/shared/lib/i18n";
-import { cn } from "@/shared/components/ui/utils";
-import { useKeyboardVisible } from "@/shared/hooks/useKeyboardVisible";
+import { BarChart3, History, Home, Settings, Trophy } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { cn } from '@/shared/components/ui/utils';
+import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
+import { useTranslation } from '@/shared/lib/i18n';
 
-interface MobileBottomNavProps {
+type MobileBottomNavProps = {
   activeTab: string;
   onTabChange: (tab: string) => void;
   stickyBottom?: boolean; // Enable sticky bottom mode (no margin)
-}
+};
 
 export function MobileBottomNav({
   activeTab,
   onTabChange,
-  stickyBottom = false
+  stickyBottom = false,
 }: MobileBottomNavProps) {
   const { t } = useTranslation();
   const isKeyboardVisible = useKeyboardVisible();
@@ -45,66 +45,66 @@ export function MobileBottomNav({
 
   return (
     <motion.nav
-      initial={{ y: 100, opacity: 0 }}
       animate={{
         y: isKeyboardVisible ? 100 : 0,
-        opacity: isKeyboardVisible ? 0 : 1
+        opacity: isKeyboardVisible ? 0 : 1,
       }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
         // Position & Layout
-        "fixed left-0 right-0 z-navigation max-w-md mx-auto",
+        'fixed right-0 left-0 z-navigation mx-auto max-w-md',
         // Floating effect (unless sticky)
-        stickyBottom ? "bottom-0" : "bottom-4",
+        stickyBottom ? 'bottom-0' : 'bottom-4',
         // Horizontal margins for floating effect
-        stickyBottom ? "" : "mx-4",
+        stickyBottom ? '' : 'mx-4',
         // Background & Border
-        "bg-card/95 backdrop-blur-lg border border-border",
+        'border border-border bg-card/95 backdrop-blur-lg',
         // Rounded corners - 16px for floating, none for sticky
-        stickyBottom ? "rounded-none border-t" : "rounded-[16px] shadow-xl",
+        stickyBottom ? 'rounded-none border-t' : 'rounded-[16px] shadow-xl',
         // Padding
-        "px-2 py-3",
+        'px-2 py-3',
         // Transitions
-        "transition-colors duration-300"
+        'transition-colors duration-300'
       )}
+      initial={{ y: 100, opacity: 0 }}
       style={{
         // iOS-style blur effect
-        WebkitBackdropFilter: "blur(20px)",
-        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(20px)',
       }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
     >
-      <div className="flex justify-around items-center gap-1">
+      <div className="flex items-center justify-around gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
 
           return (
             <motion.button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
               className={cn(
                 // Base styles - HORIZONTAL layout (flex-row)
-                "relative flex flex-row items-center justify-center gap-2",
-                "min-w-[44px] min-h-[44px]", // iOS touch target size
-                "rounded-full transition-all duration-200",
+                'relative flex flex-row items-center justify-center gap-2',
+                'min-h-[44px] min-w-[44px]', // iOS touch target size
+                'rounded-full transition-all duration-200',
                 // Active state - pill style with padding
-                isActive && "bg-primary/15 px-3 py-2",
+                isActive && 'bg-primary/15 px-3 py-2',
                 // Inactive state - compact
-                !isActive && "px-2 py-2",
+                !isActive && 'px-2 py-2',
                 // Hover effect (only for inactive)
-                !isActive && "hover:bg-primary/5 active:bg-primary/10"
+                !isActive && 'hover:bg-primary/5 active:bg-primary/10'
               )}
-              whileTap={{ scale: 0.95 }}
+              key={tab.id}
               layout
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              onClick={() => onTabChange(tab.id)}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileTap={{ scale: 0.95 }}
             >
               {/* Icon */}
               <motion.div
-                layout
                 className={cn(
-                  "flex items-center justify-center shrink-0",
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  'flex shrink-0 items-center justify-center',
+                  isActive ? 'text-primary' : 'text-muted-foreground'
                 )}
+                layout
               >
                 <Icon className="h-5 w-5" strokeWidth={2} />
               </motion.div>
@@ -113,11 +113,11 @@ export function MobileBottomNav({
               <AnimatePresence mode="wait">
                 {isActive && (
                   <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
+                    animate={{ opacity: 1, width: 'auto' }}
+                    className="overflow-hidden whitespace-nowrap font-normal text-[11px] text-primary"
                     exit={{ opacity: 0, width: 0 }}
+                    initial={{ opacity: 0, width: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="text-[11px] font-normal text-primary whitespace-nowrap overflow-hidden"
                   >
                     {tab.label}
                   </motion.span>

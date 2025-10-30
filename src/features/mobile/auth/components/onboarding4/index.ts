@@ -2,15 +2,14 @@
  * Onboarding Screen 4 Modular Components
  */
 
+export { BackgroundElements } from './BackgroundElements';
 export { ChatGPTInput } from './ChatGPTInput';
+export { NextButton } from './NextButton';
 export { NotificationOption } from './NotificationOption';
 export { NotificationSettings } from './NotificationSettings';
 export { PermissionModal } from './PermissionModal';
-export { SuccessModal } from './SuccessModal';
 export { Sliedbar } from './Sliedbar';
-export { NextButton } from './NextButton';
-export { BackgroundElements } from './BackgroundElements';
+export { SuccessModal } from './SuccessModal';
 
 export { onboarding4Translations } from './translations';
-export type { OnboardingScreen4Props, NotificationSettingsType } from './types';
-
+export type { NotificationSettingsType, OnboardingScreen4Props } from './types';

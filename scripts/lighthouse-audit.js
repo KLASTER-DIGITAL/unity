@@ -37,26 +37,26 @@ function installLighthouse() {
     return true;
   } catch (error) {
     console.log(`${colors.red}❌ Failed to install Lighthouse${colors.reset}`);
-    console.log(`Please install manually: npm install -g lighthouse`);
+    console.log('Please install manually: npm install -g lighthouse');
     return false;
   }
 }
 
 function startDevServer() {
   console.log(`${colors.blue}🚀 Starting development server...${colors.reset}`);
-  
+
   return new Promise((resolve, reject) => {
     const server = spawn('npm', ['run', 'dev'], {
       stdio: 'pipe',
-      detached: false
+      detached: false,
     });
 
     let serverReady = false;
-    
+
     server.stdout.on('data', (data) => {
       const output = data.toString();
       console.log(output);
-      
+
       // Ищем сообщение о готовности сервера
       if (output.includes('Local:') && output.includes('3000') && !serverReady) {
         serverReady = true;
@@ -77,13 +77,13 @@ function startDevServer() {
       if (!serverReady) {
         reject(new Error('Server failed to start within 30 seconds'));
       }
-    }, 30000);
+    }, 30_000);
   });
 }
 
 function runLighthouseAudit(url = 'http://localhost:3000') {
   console.log(`${colors.cyan}🔍 Running Lighthouse audit on ${url}...${colors.reset}`);
-  
+
   const outputDir = path.join(process.cwd(), 'lighthouse-reports');
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -119,7 +119,9 @@ function runLighthouseAudit(url = 'http://localhost:3000') {
 
 function parseResults(jsonPath) {
   if (!fs.existsSync(jsonPath)) {
-    console.log(`${colors.yellow}⚠️  JSON report not found, skipping detailed analysis${colors.reset}`);
+    console.log(
+      `${colors.yellow}⚠️  JSON report not found, skipping detailed analysis${colors.reset}`
+    );
     return null;
   }
 
@@ -157,9 +159,15 @@ function displayResults(results) {
     return colors.red;
   };
 
-  console.log(`  Performance:     ${scoreColor(results.performance)}${results.performance}${colors.reset}`);
-  console.log(`  Accessibility:   ${scoreColor(results.accessibility)}${results.accessibility}${colors.reset}`);
-  console.log(`  Best Practices:  ${scoreColor(results.bestPractices)}${results.bestPractices}${colors.reset}`);
+  console.log(
+    `  Performance:     ${scoreColor(results.performance)}${results.performance}${colors.reset}`
+  );
+  console.log(
+    `  Accessibility:   ${scoreColor(results.accessibility)}${results.accessibility}${colors.reset}`
+  );
+  console.log(
+    `  Best Practices:  ${scoreColor(results.bestPractices)}${results.bestPractices}${colors.reset}`
+  );
   console.log(`  SEO:             ${scoreColor(results.seo)}${results.seo}${colors.reset}`);
   if (results.pwa) {
     console.log(`  PWA:             ${scoreColor(results.pwa)}${results.pwa}${colors.reset}`);
@@ -179,9 +187,12 @@ function displayResults(results) {
 
   // Recommendations
   console.log(`\n${colors.yellow}💡 Key Recommendations:${colors.reset}`);
-  
+
   const opportunities = Object.entries(results.opportunities)
-    .filter(([key, audit]) => audit.score !== null && audit.score < 1 && audit.details?.overallSavingsMs > 100)
+    .filter(
+      ([key, audit]) =>
+        audit.score !== null && audit.score < 1 && audit.details?.overallSavingsMs > 100
+    )
     .sort((a, b) => (b[1].details?.overallSavingsMs || 0) - (a[1].details?.overallSavingsMs || 0))
     .slice(0, 5);
 
@@ -209,18 +220,18 @@ async function runFullAudit() {
   }
 
   let server = null;
-  
+
   try {
     // Запускаем dev server
     server = await startDevServer();
-    
+
     // Ждем немного для полной загрузки
     console.log(`${colors.blue}⏳ Waiting for server to be ready...${colors.reset}`);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // Запускаем audit
     const { reportPath, jsonPath } = runLighthouseAudit();
-    
+
     // Парсим и показываем результаты
     const results = parseResults(jsonPath);
     displayResults(results);
@@ -228,7 +239,6 @@ async function runFullAudit() {
     console.log(`\n${colors.green}✅ Audit completed!${colors.reset}`);
     console.log(`📄 HTML Report: ${reportPath}`);
     console.log(`📊 JSON Report: ${jsonPath}`);
-
   } catch (error) {
     console.error(`${colors.red}❌ Audit failed:${colors.reset}`, error.message);
     process.exit(1);
@@ -249,22 +259,22 @@ switch (command) {
   case 'audit':
     runFullAudit();
     break;
-    
-  case 'url':
+
+  case 'url': {
     const url = args[1];
     if (!url) {
       console.log(`${colors.red}❌ Please provide a URL${colors.reset}`);
-      console.log(`Usage: node scripts/lighthouse-audit.js url <URL>`);
+      console.log('Usage: node scripts/lighthouse-audit.js url <URL>');
       process.exit(1);
     }
-    
+
     if (!checkLighthouseInstalled()) {
       console.log(`${colors.yellow}Installing Lighthouse...${colors.reset}`);
       if (!installLighthouse()) {
         process.exit(1);
       }
     }
-    
+
     try {
       const { reportPath, jsonPath } = runLighthouseAudit(url);
       const results = parseResults(jsonPath);
@@ -276,16 +286,17 @@ switch (command) {
       process.exit(1);
     }
     break;
-    
+  }
+
   case 'help':
     console.log(`${colors.cyan}Lighthouse Performance Audit Tool${colors.reset}\n`);
-    console.log(`Usage: node scripts/lighthouse-audit.js [command] [options]\n`);
-    console.log(`Commands:`);
-    console.log(`  audit        - Run full audit on local dev server (default)`);
-    console.log(`  url <URL>    - Run audit on specific URL`);
-    console.log(`  help         - Show this help message`);
+    console.log('Usage: node scripts/lighthouse-audit.js [command] [options]\n');
+    console.log('Commands:');
+    console.log('  audit        - Run full audit on local dev server (default)');
+    console.log('  url <URL>    - Run audit on specific URL');
+    console.log('  help         - Show this help message');
     break;
-    
+
   default:
     console.log(`${colors.red}Unknown command: ${command}${colors.reset}`);
     console.log(`Run 'node scripts/lighthouse-audit.js help' for usage information.`);

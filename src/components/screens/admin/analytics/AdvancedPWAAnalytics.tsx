@@ -1,6 +1,6 @@
 /**
  * Advanced PWA Analytics Dashboard
- * 
+ *
  * Расширенная аналитика PWA с:
  * - Retention rate по когортам
  * - Funnel анализ
@@ -8,36 +8,34 @@
  * - Экспорт в CSV/JSON
  */
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Button } from '@/shared/components/ui/button';
+import { BarChart3, Calendar, Download, Filter, RefreshCw, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { SimpleChart } from '@/shared/components/SimpleChart';
 import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import {
-  TrendingUp,
-
-  Download,
-  Calendar,
-  BarChart3,
-  Filter,
-  RefreshCw,
-} from 'lucide-react';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import {
+  type CohortData,
+  exportToCSV,
+  exportToJSON,
+  type FunnelData,
   getCohortRetention,
   getFunnelAnalysis,
   getTimeSeriesData,
-  exportToCSV,
-  exportToJSON,
-  type CohortData,
-  type FunnelData,
   type TimeSeriesData,
 } from '@/shared/lib/analytics/advanced-pwa-analytics';
-import { SimpleChart } from '@/shared/components/SimpleChart';
-import { toast } from 'sonner';
 
 export function AdvancedPWAAnalytics() {
   const [isLoading, setIsLoading] = useState(false);
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
-  
+
   const [cohorts, setCohorts] = useState<CohortData[]>([]);
   const [funnel, setFunnel] = useState<FunnelData[]>([]);
   const [timeSeries, setTimeSeries] = useState<TimeSeriesData[]>([]);
@@ -48,7 +46,7 @@ export function AdvancedPWAAnalytics() {
     try {
       const endDate = new Date().toISOString();
       const startDate = new Date();
-      
+
       if (period === '7d') {
         startDate.setDate(startDate.getDate() - 7);
       } else if (period === '30d') {
@@ -98,50 +96,40 @@ export function AdvancedPWAAnalytics() {
   };
 
   // Calculate overall retention
-  const overallRetention = cohorts.length > 0 ? {
-    week1: Math.round(cohorts.reduce((sum, c) => sum + c.week1, 0) / cohorts.length),
-    week2: Math.round(cohorts.reduce((sum, c) => sum + c.week2, 0) / cohorts.length),
-    week3: Math.round(cohorts.reduce((sum, c) => sum + c.week3, 0) / cohorts.length),
-    week4: Math.round(cohorts.reduce((sum, c) => sum + c.week4, 0) / cohorts.length),
-  } : { week1: 0, week2: 0, week3: 0, week4: 0 };
+  const overallRetention =
+    cohorts.length > 0
+      ? {
+          week1: Math.round(cohorts.reduce((sum, c) => sum + c.week1, 0) / cohorts.length),
+          week2: Math.round(cohorts.reduce((sum, c) => sum + c.week2, 0) / cohorts.length),
+          week3: Math.round(cohorts.reduce((sum, c) => sum + c.week3, 0) / cohorts.length),
+          week4: Math.round(cohorts.reduce((sum, c) => sum + c.week4, 0) / cohorts.length),
+        }
+      : { week1: 0, week2: 0, week3: 0, week4: 0 };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Расширенная аналитика PWA</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="font-bold text-2xl">Расширенная аналитика PWA</h2>
+          <p className="text-muted-foreground text-sm">
             Детальная статистика, retention, funnel анализ
           </p>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button
-            onClick={loadAnalytics}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          <Button disabled={isLoading} onClick={loadAnalytics} size="sm" variant="outline">
+            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Обновить
           </Button>
-          
-          <Button
-            onClick={handleExportCSV}
-            variant="outline"
-            size="sm"
-          >
-            <Download className="w-4 h-4 mr-2" />
+
+          <Button onClick={handleExportCSV} size="sm" variant="outline">
+            <Download className="mr-2 h-4 w-4" />
             CSV
           </Button>
-          
-          <Button
-            onClick={handleExportJSON}
-            variant="outline"
-            size="sm"
-          >
-            <Download className="w-4 h-4 mr-2" />
+
+          <Button onClick={handleExportJSON} size="sm" variant="outline">
+            <Download className="mr-2 h-4 w-4" />
             JSON
           </Button>
         </div>
@@ -151,15 +139,15 @@ export function AdvancedPWAAnalytics() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Период:</span>
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium text-sm">Период:</span>
             <div className="flex gap-2">
               {(['7d', '30d', '90d'] as const).map((p) => (
                 <Button
                   key={p}
                   onClick={() => setPeriod(p)}
-                  variant={period === p ? 'default' : 'outline'}
                   size="sm"
+                  variant={period === p ? 'default' : 'outline'}
                 >
                   {p === '7d' && '7 дней'}
                   {p === '30d' && '30 дней'}
@@ -175,7 +163,7 @@ export function AdvancedPWAAnalytics() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
+            <TrendingUp className="h-5 w-5" />
             Retention Rate
           </CardTitle>
           <CardDescription>
@@ -183,22 +171,22 @@ export function AdvancedPWAAnalytics() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{overallRetention.week1}%</div>
-              <div className="text-sm text-muted-foreground">Неделя 1</div>
+          <div className="mb-6 grid grid-cols-4 gap-4">
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="font-bold text-2xl">{overallRetention.week1}%</div>
+              <div className="text-muted-foreground text-sm">Неделя 1</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{overallRetention.week2}%</div>
-              <div className="text-sm text-muted-foreground">Неделя 2</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="font-bold text-2xl">{overallRetention.week2}%</div>
+              <div className="text-muted-foreground text-sm">Неделя 2</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{overallRetention.week3}%</div>
-              <div className="text-sm text-muted-foreground">Неделя 3</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="font-bold text-2xl">{overallRetention.week3}%</div>
+              <div className="text-muted-foreground text-sm">Неделя 3</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold">{overallRetention.week4}%</div>
-              <div className="text-sm text-muted-foreground">Неделя 4</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="font-bold text-2xl">{overallRetention.week4}%</div>
+              <div className="text-muted-foreground text-sm">Неделя 4</div>
             </div>
           </div>
 
@@ -207,35 +195,35 @@ export function AdvancedPWAAnalytics() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2">Когорта</th>
-                    <th className="text-right p-2">Пользователей</th>
-                    <th className="text-right p-2">Неделя 1</th>
-                    <th className="text-right p-2">Неделя 2</th>
-                    <th className="text-right p-2">Неделя 3</th>
-                    <th className="text-right p-2">Неделя 4</th>
+                    <th className="p-2 text-left">Когорта</th>
+                    <th className="p-2 text-right">Пользователей</th>
+                    <th className="p-2 text-right">Неделя 1</th>
+                    <th className="p-2 text-right">Неделя 2</th>
+                    <th className="p-2 text-right">Неделя 3</th>
+                    <th className="p-2 text-right">Неделя 4</th>
                   </tr>
                 </thead>
                 <tbody>
                   {cohorts.map((cohort) => (
-                    <tr key={cohort.cohort} className="border-b">
+                    <tr className="border-b" key={cohort.cohort}>
                       <td className="p-2">{cohort.cohort}</td>
-                      <td className="text-right p-2">{cohort.totalUsers}</td>
-                      <td className="text-right p-2">
+                      <td className="p-2 text-right">{cohort.totalUsers}</td>
+                      <td className="p-2 text-right">
                         <Badge variant={cohort.week1 >= 50 ? 'success' : 'secondary'}>
                           {cohort.week1}%
                         </Badge>
                       </td>
-                      <td className="text-right p-2">
+                      <td className="p-2 text-right">
                         <Badge variant={cohort.week2 >= 40 ? 'success' : 'secondary'}>
                           {cohort.week2}%
                         </Badge>
                       </td>
-                      <td className="text-right p-2">
+                      <td className="p-2 text-right">
                         <Badge variant={cohort.week3 >= 30 ? 'success' : 'secondary'}>
                           {cohort.week3}%
                         </Badge>
                       </td>
-                      <td className="text-right p-2">
+                      <td className="p-2 text-right">
                         <Badge variant={cohort.week4 >= 25 ? 'success' : 'secondary'}>
                           {cohort.week4}%
                         </Badge>
@@ -253,26 +241,24 @@ export function AdvancedPWAAnalytics() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" />
+            <BarChart3 className="h-5 w-5" />
             Funnel Analysis
           </CardTitle>
-          <CardDescription>
-            Конверсия пользователей на каждом этапе
-          </CardDescription>
+          <CardDescription>Конверсия пользователей на каждом этапе</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {funnel.map((stage, index) => (
-              <div key={stage.stage} className="space-y-2">
+              <div className="space-y-2" key={stage.stage}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 font-medium text-sm">
                       {index + 1}
                     </div>
                     <span className="font-medium">{stage.stage}</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {stage.users.toLocaleString()} пользователей
                     </span>
                     <Badge variant={stage.percentage >= 50 ? 'success' : 'secondary'}>
@@ -280,16 +266,16 @@ export function AdvancedPWAAnalytics() {
                     </Badge>
                   </div>
                 </div>
-                
-                <div className="w-full bg-muted rounded-full h-3">
+
+                <div className="h-3 w-full rounded-full bg-muted">
                   <div
-                    className="bg-primary rounded-full h-3 transition-all"
+                    className="h-3 rounded-full bg-primary transition-all"
                     style={{ width: `${stage.percentage}%` }}
                   />
                 </div>
-                
+
                 {stage.dropoff > 0 && (
-                  <div className="text-sm text-muted-foreground pl-10">
+                  <div className="pl-10 text-muted-foreground text-sm">
                     Отсев: {stage.dropoff.toLocaleString()} пользователей
                   </div>
                 )}
@@ -303,21 +289,19 @@ export function AdvancedPWAAnalytics() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <Calendar className="h-5 w-5" />
             Динамика установок
           </CardTitle>
-          <CardDescription>
-            Установки и активность по дням
-          </CardDescription>
+          <CardDescription>Установки и активность по дням</CardDescription>
         </CardHeader>
         <CardContent>
           {timeSeries.length > 0 && (
             <SimpleChart
               data={timeSeries}
               dataKey="installs"
-              xAxisKey="date"
               title="Установки по дням"
               type="line"
+              xAxisKey="date"
             />
           )}
         </CardContent>
@@ -325,4 +309,3 @@ export function AdvancedPWAAnalytics() {
     </div>
   );
 }
-

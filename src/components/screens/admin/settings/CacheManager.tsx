@@ -1,31 +1,36 @@
 /**
  * Cache Manager Component
- * 
+ *
  * Admin panel component for managing Service Worker caches.
  * Shows cache statistics and provides controls for invalidation.
  */
 
-import { useState, useEffect } from 'react';
-import { RefreshCw, Trash2, Database, HardDrive } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Database, HardDrive, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
-
-  clearCache,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
+import {
+  type CacheInfo,
   clearAllCaches,
-  invalidateAPICache,
+  clearCache,
   formatCacheSize,
   getCacheStats,
-  type CacheInfo
+  invalidateAPICache,
 } from '@/shared/lib/cache/cacheManager';
-import { toast } from 'sonner';
 
 export function CacheManager() {
   const [caches, setCaches] = useState<CacheInfo[]>([]);
   const [stats, setStats] = useState({
     totalCaches: 0,
     totalEntries: 0,
-    totalSize: 0
+    totalSize: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isClearing, setIsClearing] = useState<string | null>(null);
@@ -39,7 +44,7 @@ export function CacheManager() {
       setStats({
         totalCaches: cacheStats.totalCaches,
         totalEntries: cacheStats.totalEntries,
-        totalSize: cacheStats.totalSize
+        totalSize: cacheStats.totalSize,
       });
     } catch (error) {
       console.error('[CacheManager] Failed to load cache stats:', error);
@@ -113,40 +118,40 @@ export function CacheManager() {
   return (
     <div className="space-y-6">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Database className="w-4 h-4" />
+            <CardTitle className="flex items-center gap-2 font-medium text-sm">
+              <Database className="h-4 w-4" />
               Всего кэшей
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCaches}</div>
+            <div className="font-bold text-2xl">{stats.totalCaches}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <HardDrive className="w-4 h-4" />
+            <CardTitle className="flex items-center gap-2 font-medium text-sm">
+              <HardDrive className="h-4 w-4" />
               Всего записей
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalEntries}</div>
+            <div className="font-bold text-2xl">{stats.totalEntries}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <HardDrive className="w-4 h-4" />
+            <CardTitle className="flex items-center gap-2 font-medium text-sm">
+              <HardDrive className="h-4 w-4" />
               Размер кэша
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCacheSize(stats.totalSize)}</div>
+            <div className="font-bold text-2xl">{formatCacheSize(stats.totalSize)}</div>
           </CardContent>
         </Card>
       </div>
@@ -155,43 +160,37 @@ export function CacheManager() {
       <Card>
         <CardHeader>
           <CardTitle>Быстрые действия</CardTitle>
-          <CardDescription>
-            Управление кэшами приложения
-          </CardDescription>
+          <CardDescription>Управление кэшами приложения</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={loadCacheStats}
-              disabled={isLoading}
-              variant="outline"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <Button disabled={isLoading} onClick={loadCacheStats} variant="outline">
+              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Обновить статистику
             </Button>
 
             <Button
-              onClick={handleInvalidateAPICache}
               disabled={isClearing === 'api'}
+              onClick={handleInvalidateAPICache}
               variant="outline"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Инвалидировать API кэш
             </Button>
 
             <Button
-              onClick={handleClearAllCaches}
               disabled={isClearing === 'all'}
+              onClick={handleClearAllCaches}
               variant="destructive"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Очистить все кэши
             </Button>
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            💡 <strong>Stale-While-Revalidate:</strong> API запросы возвращают кэш мгновенно и обновляются в фоне.
-            TTL: API 5 мин, статика 24 часа, изображения 7 дней.
+          <p className="text-muted-foreground text-sm">
+            💡 <strong>Stale-While-Revalidate:</strong> API запросы возвращают кэш мгновенно и
+            обновляются в фоне. TTL: API 5 мин, статика 24 часа, изображения 7 дней.
           </p>
         </CardContent>
       </Card>
@@ -200,26 +199,19 @@ export function CacheManager() {
       <Card>
         <CardHeader>
           <CardTitle>Список кэшей</CardTitle>
-          <CardDescription>
-            Детальная информация о каждом кэше
-          </CardDescription>
+          <CardDescription>Детальная информация о каждом кэше</CardDescription>
         </CardHeader>
         <CardContent>
           {caches.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Database className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Нет активных кэшей</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
-                Кэши будут созданы автоматически при первом использовании PWA.
-                Service Worker начнёт кэшировать ресурсы после установки.
+              <Database className="mb-4 h-12 w-12 text-muted-foreground opacity-50" />
+              <h3 className="mb-2 font-semibold text-lg">Нет активных кэшей</h3>
+              <p className="mb-4 max-w-md text-center text-muted-foreground text-sm">
+                Кэши будут созданы автоматически при первом использовании PWA. Service Worker начнёт
+                кэшировать ресурсы после установки.
               </p>
-              <Button
-                onClick={loadCacheStats}
-                disabled={isLoading}
-                variant="outline"
-                size="sm"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <Button disabled={isLoading} onClick={loadCacheStats} size="sm" variant="outline">
+                <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                 Обновить
               </Button>
             </div>
@@ -227,23 +219,23 @@ export function CacheManager() {
             <div className="space-y-3">
               {caches.map((cache) => (
                 <div
+                  className="flex items-center justify-between rounded-lg border p-4"
                   key={cache.name}
-                  className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex-1">
                     <div className="font-medium">{cache.name}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {cache.entries} записей • {formatCacheSize(cache.size)}
                     </div>
                   </div>
 
                   <Button
-                    onClick={() => handleClearCache(cache.name)}
                     disabled={isClearing === cache.name}
-                    variant="outline"
+                    onClick={() => handleClearCache(cache.name)}
                     size="sm"
+                    variant="outline"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Очистить
                   </Button>
                 </div>
@@ -257,33 +249,31 @@ export function CacheManager() {
       <Card>
         <CardHeader>
           <CardTitle>Стратегии кэширования</CardTitle>
-          <CardDescription>
-            Как работает кэширование в приложении
-          </CardDescription>
+          <CardDescription>Как работает кэширование в приложении</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-2">🔄 Stale-While-Revalidate (API)</h4>
-              <p className="text-sm text-muted-foreground">
-                API запросы возвращают кэш мгновенно, затем обновляются в фоне.
-                Если кэш устарел (TTL 5 мин), ждем сетевой запрос.
+              <h4 className="mb-2 font-medium">🔄 Stale-While-Revalidate (API)</h4>
+              <p className="text-muted-foreground text-sm">
+                API запросы возвращают кэш мгновенно, затем обновляются в фоне. Если кэш устарел
+                (TTL 5 мин), ждем сетевой запрос.
               </p>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">📦 Cache-First (Статика)</h4>
-              <p className="text-sm text-muted-foreground">
-                Статические файлы (CSS, JS, изображения) берутся из кэша.
-                Обновляются только при истечении TTL или ручной инвалидации.
+              <h4 className="mb-2 font-medium">📦 Cache-First (Статика)</h4>
+              <p className="text-muted-foreground text-sm">
+                Статические файлы (CSS, JS, изображения) берутся из кэша. Обновляются только при
+                истечении TTL или ручной инвалидации.
               </p>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">🌐 Network-First (HTML)</h4>
-              <p className="text-sm text-muted-foreground">
-                HTML страницы всегда загружаются из сети.
-                Кэш используется только при отсутствии соединения.
+              <h4 className="mb-2 font-medium">🌐 Network-First (HTML)</h4>
+              <p className="text-muted-foreground text-sm">
+                HTML страницы всегда загружаются из сети. Кэш используется только при отсутствии
+                соединения.
               </p>
             </div>
           </div>
@@ -292,4 +282,3 @@ export function CacheManager() {
     </div>
   );
 }
-
