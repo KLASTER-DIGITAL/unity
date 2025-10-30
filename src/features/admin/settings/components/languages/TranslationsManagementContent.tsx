@@ -1,11 +1,11 @@
-import { TranslationsManagementTab } from '../TranslationsManagementTab';
+import { TranslationsManagementTab } from "../TranslationsManagementTab";
 
 type TranslationsManagementContentProps = {
-  initialLanguage?: string;
+	initialLanguage?: string;
 };
 
 export function TranslationsManagementContent({
-  initialLanguage,
+	initialLanguage,
 }: TranslationsManagementContentProps = {}) {
-  return <TranslationsManagementTab initialLanguage={initialLanguage} />;
+	return <TranslationsManagementTab initialLanguage={initialLanguage} />;
 }

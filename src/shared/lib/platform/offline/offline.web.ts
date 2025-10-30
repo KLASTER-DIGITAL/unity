@@ -8,297 +8,319 @@
  */
 
 import type {
-  CachedEntry,
-  MediaStorageAdapter,
-  NetworkAdapter,
-  OfflineStorageAdapter,
-  PendingEntry,
-} from './types';
+	CachedEntry,
+	MediaStorageAdapter,
+	NetworkAdapter,
+	OfflineStorageAdapter,
+	PendingEntry,
+} from "./types";
 
-const DB_NAME = 'unity-diary-offline';
+const DB_NAME = "unity-diary-offline";
 const DB_VERSION = 1;
 
 const STORES = {
-  PENDING_ENTRIES: 'pending_entries',
-  CACHED_ENTRIES: 'cached_entries',
-  SYNC_QUEUE: 'sync_queue',
+	PENDING_ENTRIES: "pending_entries",
+	CACHED_ENTRIES: "cached_entries",
+	SYNC_QUEUE: "sync_queue",
 } as const;
 
 /**
  * Open IndexedDB database
  */
 function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+	return new Promise((resolve, reject) => {
+		const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
+		request.onerror = () => reject(request.error);
+		request.onsuccess = () => resolve(request.result);
 
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
+		request.onupgradeneeded = (event) => {
+			const db = (event.target as IDBOpenDBRequest).result;
 
-      // Create stores if they don't exist
-      if (!db.objectStoreNames.contains(STORES.PENDING_ENTRIES)) {
-        const pendingStore = db.createObjectStore(STORES.PENDING_ENTRIES, { keyPath: 'id' });
-        pendingStore.createIndex('userId', 'userId', { unique: false });
-        pendingStore.createIndex('syncStatus', 'syncStatus', { unique: false });
-      }
+			// Create stores if they don't exist
+			if (!db.objectStoreNames.contains(STORES.PENDING_ENTRIES)) {
+				const pendingStore = db.createObjectStore(STORES.PENDING_ENTRIES, {
+					keyPath: "id",
+				});
+				pendingStore.createIndex("userId", "userId", { unique: false });
+				pendingStore.createIndex("syncStatus", "syncStatus", { unique: false });
+			}
 
-      if (!db.objectStoreNames.contains(STORES.CACHED_ENTRIES)) {
-        const cachedStore = db.createObjectStore(STORES.CACHED_ENTRIES, { keyPath: 'id' });
-        cachedStore.createIndex('userId', 'userId', { unique: false });
-      }
+			if (!db.objectStoreNames.contains(STORES.CACHED_ENTRIES)) {
+				const cachedStore = db.createObjectStore(STORES.CACHED_ENTRIES, {
+					keyPath: "id",
+				});
+				cachedStore.createIndex("userId", "userId", { unique: false });
+			}
 
-      if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
-        db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: 'id' });
-      }
-    };
-  });
+			if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
+				db.createObjectStore(STORES.SYNC_QUEUE, { keyPath: "id" });
+			}
+		};
+	});
 }
 
 /**
  * Web Offline Storage Adapter (IndexedDB)
  */
 export class WebOfflineStorageAdapter implements OfflineStorageAdapter {
-  private db: IDBDatabase | null = null;
+	private db: IDBDatabase | null = null;
 
-  async initialize(): Promise<void> {
-    this.db = await openDB();
-    console.log('[WebOfflineStorage] Initialized IndexedDB');
-  }
+	async initialize(): Promise<void> {
+		this.db = await openDB();
+		console.log("[WebOfflineStorage] Initialized IndexedDB");
+	}
 
-  async addPendingEntry(entry: PendingEntry): Promise<void> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async addPendingEntry(entry: PendingEntry): Promise<void> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
-      const store = transaction.objectStore(STORES.PENDING_ENTRIES);
-      const request = store.add(entry);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.PENDING_ENTRIES],
+				"readwrite",
+			);
+			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
+			const request = store.add(entry);
 
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async getPendingEntries(userId: string): Promise<PendingEntry[]> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async getPendingEntries(userId: string): Promise<PendingEntry[]> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readonly');
-      const store = transaction.objectStore(STORES.PENDING_ENTRIES);
-      const index = store.index('userId');
-      const request = index.getAll(userId);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.PENDING_ENTRIES],
+				"readonly",
+			);
+			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
+			const index = store.index("userId");
+			const request = index.getAll(userId);
 
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve(request.result || []);
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async updatePendingEntry(entry: PendingEntry): Promise<void> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async updatePendingEntry(entry: PendingEntry): Promise<void> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
-      const store = transaction.objectStore(STORES.PENDING_ENTRIES);
-      const request = store.put(entry);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.PENDING_ENTRIES],
+				"readwrite",
+			);
+			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
+			const request = store.put(entry);
 
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async deletePendingEntry(id: string): Promise<void> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async deletePendingEntry(id: string): Promise<void> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.PENDING_ENTRIES], 'readwrite');
-      const store = transaction.objectStore(STORES.PENDING_ENTRIES);
-      const request = store.delete(id);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.PENDING_ENTRIES],
+				"readwrite",
+			);
+			const store = transaction.objectStore(STORES.PENDING_ENTRIES);
+			const request = store.delete(id);
 
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async addCachedEntry(entry: CachedEntry): Promise<void> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async addCachedEntry(entry: CachedEntry): Promise<void> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.CACHED_ENTRIES], 'readwrite');
-      const store = transaction.objectStore(STORES.CACHED_ENTRIES);
-      const request = store.add(entry);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.CACHED_ENTRIES],
+				"readwrite",
+			);
+			const store = transaction.objectStore(STORES.CACHED_ENTRIES);
+			const request = store.add(entry);
 
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async getCachedEntries(userId: string): Promise<CachedEntry[]> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async getCachedEntries(userId: string): Promise<CachedEntry[]> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STORES.CACHED_ENTRIES], 'readonly');
-      const store = transaction.objectStore(STORES.CACHED_ENTRIES);
-      const index = store.index('userId');
-      const request = index.getAll(userId);
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.CACHED_ENTRIES],
+				"readonly",
+			);
+			const store = transaction.objectStore(STORES.CACHED_ENTRIES);
+			const index = store.index("userId");
+			const request = index.getAll(userId);
 
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-  }
+			request.onsuccess = () => resolve(request.result || []);
+			request.onerror = () => reject(request.error);
+		});
+	}
 
-  async clearAll(): Promise<void> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async clearAll(): Promise<void> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    if (!this.db) {
-      throw new Error('Database not initialized');
-    }
+		if (!this.db) {
+			throw new Error("Database not initialized");
+		}
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [STORES.PENDING_ENTRIES, STORES.CACHED_ENTRIES, STORES.SYNC_QUEUE],
-        'readwrite'
-      );
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction(
+				[STORES.PENDING_ENTRIES, STORES.CACHED_ENTRIES, STORES.SYNC_QUEUE],
+				"readwrite",
+			);
 
-      // Clear all stores
-      transaction.objectStore(STORES.PENDING_ENTRIES).clear();
-      transaction.objectStore(STORES.CACHED_ENTRIES).clear();
-      transaction.objectStore(STORES.SYNC_QUEUE).clear();
+			// Clear all stores
+			transaction.objectStore(STORES.PENDING_ENTRIES).clear();
+			transaction.objectStore(STORES.CACHED_ENTRIES).clear();
+			transaction.objectStore(STORES.SYNC_QUEUE).clear();
 
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
-    });
-  }
+			transaction.oncomplete = () => resolve();
+			transaction.onerror = () => reject(transaction.error);
+		});
+	}
 
-  async getStorageSize(): Promise<number> {
-    if (!this.db) {
-      await this.initialize();
-    }
+	async getStorageSize(): Promise<number> {
+		if (!this.db) {
+			await this.initialize();
+		}
 
-    // Estimate storage size by counting entries
-    const pendingEntries = await this.getPendingEntries('');
-    const cachedEntries = await this.getCachedEntries('');
+		// Estimate storage size by counting entries
+		const pendingEntries = await this.getPendingEntries("");
+		const cachedEntries = await this.getCachedEntries("");
 
-    // Rough estimate: 1KB per entry
-    return (pendingEntries.length + cachedEntries.length) * 1024;
-  }
+		// Rough estimate: 1KB per entry
+		return (pendingEntries.length + cachedEntries.length) * 1024;
+	}
 }
 
 /**
  * Web Media Storage Adapter (Cache API)
  */
 export class WebMediaStorageAdapter implements MediaStorageAdapter {
-  private readonly cacheName = 'unity-media-cache';
+	private readonly cacheName = "unity-media-cache";
 
-  async saveMedia(userId: string, file: File): Promise<string> {
-    const cache = await caches.open(this.cacheName);
-    const url = `/offline-media/${userId}/${file.name}`;
+	async saveMedia(userId: string, file: File): Promise<string> {
+		const cache = await caches.open(this.cacheName);
+		const url = `/offline-media/${userId}/${file.name}`;
 
-    const response = new Response(file, {
-      headers: { 'Content-Type': file.type },
-    });
+		const response = new Response(file, {
+			headers: { "Content-Type": file.type },
+		});
 
-    await cache.put(url, response);
-    return url;
-  }
+		await cache.put(url, response);
+		return url;
+	}
 
-  async getMedia(path: string): Promise<string | null> {
-    const cache = await caches.open(this.cacheName);
-    const response = await cache.match(path);
+	async getMedia(path: string): Promise<string | null> {
+		const cache = await caches.open(this.cacheName);
+		const response = await cache.match(path);
 
-    if (!response) {
-      return null;
-    }
+		if (!response) {
+			return null;
+		}
 
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
-  }
+		const blob = await response.blob();
+		return URL.createObjectURL(blob);
+	}
 
-  async deleteMedia(path: string): Promise<void> {
-    const cache = await caches.open(this.cacheName);
-    await cache.delete(path);
-  }
+	async deleteMedia(path: string): Promise<void> {
+		const cache = await caches.open(this.cacheName);
+		await cache.delete(path);
+	}
 
-  async getMediaSize(): Promise<number> {
-    const cache = await caches.open(this.cacheName);
-    const keys = await cache.keys();
+	async getMediaSize(): Promise<number> {
+		const cache = await caches.open(this.cacheName);
+		const keys = await cache.keys();
 
-    let totalSize = 0;
-    for (const request of keys) {
-      const response = await cache.match(request);
-      if (response) {
-        const blob = await response.blob();
-        totalSize += blob.size;
-      }
-    }
+		let totalSize = 0;
+		for (const request of keys) {
+			const response = await cache.match(request);
+			if (response) {
+				const blob = await response.blob();
+				totalSize += blob.size;
+			}
+		}
 
-    return totalSize;
-  }
+		return totalSize;
+	}
 
-  async clearAllMedia(): Promise<void> {
-    await caches.delete(this.cacheName);
-  }
+	async clearAllMedia(): Promise<void> {
+		await caches.delete(this.cacheName);
+	}
 }
 
 /**
  * Web Network Adapter (navigator.onLine)
  */
 export class WebNetworkAdapter implements NetworkAdapter {
-  async isOnline(): Promise<boolean> {
-    return navigator.onLine;
-  }
+	async isOnline(): Promise<boolean> {
+		return navigator.onLine;
+	}
 
-  addListener(callback: (isOnline: boolean) => void): () => void {
-    const onlineHandler = () => callback(true);
-    const offlineHandler = () => callback(false);
+	addListener(callback: (isOnline: boolean) => void): () => void {
+		const onlineHandler = () => callback(true);
+		const offlineHandler = () => callback(false);
 
-    window.addEventListener('online', onlineHandler);
-    window.addEventListener('offline', offlineHandler);
+		window.addEventListener("online", onlineHandler);
+		window.addEventListener("offline", offlineHandler);
 
-    // Return cleanup function
-    return () => {
-      window.removeEventListener('online', onlineHandler);
-      window.removeEventListener('offline', offlineHandler);
-    };
-  }
+		// Return cleanup function
+		return () => {
+			window.removeEventListener("online", onlineHandler);
+			window.removeEventListener("offline", offlineHandler);
+		};
+	}
 }
 
 // Export singleton instances

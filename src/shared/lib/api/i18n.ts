@@ -15,66 +15,69 @@
  * @module i18n
  */
 
-import { useEffect, useState } from 'react';
-import { fallbackTranslations } from '../i18n/fallback';
-import type { Language, Translations } from './i18n-types';
+import { useEffect, useState } from "react";
+import { fallbackTranslations } from "../i18n/fallback";
+import type { Language, Translations } from "./i18n-types";
 
 // Re-export types for convenience
-export type { Language, Translations } from './i18n-types';
+export type { Language, Translations } from "./i18n-types";
 
 // Хук для получения переводов
-export function useTranslations(language: Language = 'ru'): Translations {
-  const [translations, setTranslations] = useState<Translations>(
-    fallbackTranslations[language] as Translations
-  );
-  const [_isLoading, setIsLoading] = useState(true);
+export function useTranslations(language: Language = "ru"): Translations {
+	const [translations, setTranslations] = useState<Translations>(
+		fallbackTranslations[language] as Translations,
+	);
+	const [_isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadTranslations = async () => {
-      try {
-        setIsLoading(true);
-        // const dynamicTranslations = await translationsApi.getTranslations(language);
-        // Заглушка - будет заменено на работу с Edge Function
+	useEffect(() => {
+		const loadTranslations = async () => {
+			try {
+				setIsLoading(true);
+				// const dynamicTranslations = await translationsApi.getTranslations(language);
+				// Заглушка - будет заменено на работу с Edge Function
 
-        // Используем fallback переводы пока не реализован Edge Function
-        setTranslations(fallbackTranslations[language] as Translations);
-      } catch (error) {
-        console.error('Error loading translations:', error);
-        // Используем fallback переводы в случае ошибки
-        setTranslations(fallbackTranslations[language] as Translations);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+				// Используем fallback переводы пока не реализован Edge Function
+				setTranslations(fallbackTranslations[language] as Translations);
+			} catch (error) {
+				console.error("Error loading translations:", error);
+				// Используем fallback переводы в случае ошибки
+				setTranslations(fallbackTranslations[language] as Translations);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-    loadTranslations();
-  }, [language]);
+		loadTranslations();
+	}, [language]);
 
-  return translations;
+	return translations;
 }
 
 // Функция для получения перевода категории
-export function getCategoryTranslation(category: string, language: Language = 'ru'): string {
-  const translations = fallbackTranslations[language] as Translations;
+export function getCategoryTranslation(
+	category: string,
+	language: Language = "ru",
+): string {
+	const translations = fallbackTranslations[language] as Translations;
 
-  switch (category) {
-    case 'family':
-      return translations.family;
-    case 'work':
-      return translations.work;
-    case 'finance':
-      return translations.finance;
-    case 'gratitude':
-      return translations.gratitude;
-    case 'health':
-      return translations.health;
-    case 'personalDevelopment':
-      return translations.personalDevelopment;
-    case 'creativity':
-      return translations.creativity;
-    case 'relationships':
-      return translations.relationships;
-    default:
-      return category;
-  }
+	switch (category) {
+		case "family":
+			return translations.family;
+		case "work":
+			return translations.work;
+		case "finance":
+			return translations.finance;
+		case "gratitude":
+			return translations.gratitude;
+		case "health":
+			return translations.health;
+		case "personalDevelopment":
+			return translations.personalDevelopment;
+		case "creativity":
+			return translations.creativity;
+		case "relationships":
+			return translations.relationships;
+		default:
+			return category;
+	}
 }

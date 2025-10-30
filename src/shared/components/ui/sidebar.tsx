@@ -17,39 +17,39 @@
  * @module sidebar
  */
 
-'use client';
+"use client";
 
 // Base Components
 export {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInput,
-  SidebarInset,
-  SidebarRail,
-  SidebarSeparator,
-  SidebarTrigger,
-} from './sidebar-components-base';
+	Sidebar,
+	SidebarContent,
+	SidebarFooter,
+	SidebarHeader,
+	SidebarInput,
+	SidebarInset,
+	SidebarRail,
+	SidebarSeparator,
+	SidebarTrigger,
+} from "./sidebar-components-base";
 // Group Components
 export {
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-} from './sidebar-components-group';
+	SidebarGroup,
+	SidebarGroupAction,
+	SidebarGroupContent,
+	SidebarGroupLabel,
+} from "./sidebar-components-group";
 // Menu Components
 export {
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  sidebarMenuButtonVariants,
-} from './sidebar-components-menu';
+	SidebarMenu,
+	SidebarMenuAction,
+	SidebarMenuBadge,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarMenuSkeleton,
+	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem,
+	sidebarMenuButtonVariants,
+} from "./sidebar-components-menu";
 // Context and Provider
-export { SidebarProvider, useSidebar } from './sidebar-context';
+export { SidebarProvider, useSidebar } from "./sidebar-context";

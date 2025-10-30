@@ -14,70 +14,70 @@
 // CORE & CONFIGURATION
 // ==========================================
 
-export { API_URLS } from './config/urls';
-export type { ApiOptions } from './core/request';
-export { apiRequest, blobToBase64, getAuthHeaders } from './core/request';
+export { API_URLS } from "./config/urls";
+export type { ApiOptions } from "./core/request";
+export { apiRequest, blobToBase64, getAuthHeaders } from "./core/request";
 
 // ==========================================
 // TYPES
 // ==========================================
 
 export type {
-  AIAnalysisResult,
-  BookDraft,
-  BookGenerationRequest,
-  DiaryEntry,
-  MediaFile,
-  MotivationCard,
-  UploadMediaOptions,
-  UserProfile,
-  UserStats,
-} from './types';
+	AIAnalysisResult,
+	BookDraft,
+	BookGenerationRequest,
+	DiaryEntry,
+	MediaFile,
+	MotivationCard,
+	UploadMediaOptions,
+	UserProfile,
+	UserStats,
+} from "./types";
 
 // ==========================================
 // SERVICES
 // ==========================================
 
 // AI Analysis API
-export { analyzeTextWithAI } from './services/ai-analysis';
+export { analyzeTextWithAI } from "./services/ai-analysis";
 export type {
-  CreateCategoryInput,
-  UpdateCategoryInput,
-  UserCategory,
-} from './services/categories';
+	CreateCategoryInput,
+	UpdateCategoryInput,
+	UserCategory,
+} from "./services/categories";
 // Categories API
 export {
-  createCategory,
-  deleteCategory,
-  getCategoryByName,
-  getUserCategories,
-  updateCategory,
-} from './services/categories';
+	createCategory,
+	deleteCategory,
+	getCategoryByName,
+	getUserCategories,
+	updateCategory,
+} from "./services/categories";
 // Entries API
 export {
-  createEntry,
-  deleteEntry,
-  getEntries,
-  getEntry,
-  updateEntry,
-} from './services/entries';
+	createEntry,
+	deleteEntry,
+	getEntries,
+	getEntry,
+	updateEntry,
+} from "./services/entries";
 // Media API
 export {
-  deleteMedia,
-  getSignedUrl,
-  uploadMedia,
-} from './services/media';
+	deleteMedia,
+	getSignedUrl,
+	uploadMedia,
+} from "./services/media";
 // Motivations API
 export {
-  getMotivationCards,
-  markCardAsRead,
-} from './services/motivations';
+	getMotivationCards,
+	markCardAsRead,
+} from "./services/motivations";
 // Profiles API
 export {
-  createUserProfile,
-  getUserProfile,
-  updateUserProfile,
-} from './services/profiles';
+	createUserProfile,
+	getUserProfile,
+	updateUserProfile,
+} from "./services/profiles";
 
 // ==========================================
 // LEGACY API (from api.ts)
@@ -85,4 +85,4 @@ export {
 
 // Re-export everything from the legacy api.ts file
 // This ensures backward compatibility while we migrate
-export * from './api';
+export * from "./api";

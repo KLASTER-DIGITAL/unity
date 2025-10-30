@@ -8,10 +8,10 @@
  * @module platform/media
  */
 
-import { WebMediaAdapter } from './media.web';
+import { WebMediaAdapter } from "./media.web";
 
 // Re-export types from main media file
-export type { MediaAdapter } from '../media';
+export type { MediaAdapter } from "../media";
 
 /**
  * Universal media instance

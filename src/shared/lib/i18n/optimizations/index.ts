@@ -8,58 +8,58 @@
  * - Prefetching: Background loading of popular languages
  */
 
-export { Compression, OptimizedStorage } from './Compression';
-export { LazyLoader } from './LazyLoader';
-export { CacheWarmer, SmartCache } from './SmartCache';
+export { Compression, OptimizedStorage } from "./Compression";
+export { LazyLoader } from "./LazyLoader";
+export { CacheWarmer, SmartCache } from "./SmartCache";
 
 /**
  * Initialize all optimizations
  */
 export async function initializeOptimizations(options?: {
-  enablePrefetch?: boolean;
-  maxCachedLanguages?: number;
-  prefetchLanguages?: string[];
+	enablePrefetch?: boolean;
+	maxCachedLanguages?: number;
+	prefetchLanguages?: string[];
 }): Promise<void> {
-  const {
-    enablePrefetch = true,
-    maxCachedLanguages = 3,
-    prefetchLanguages = ['en', 'ru'],
-  } = options || {};
+	const {
+		enablePrefetch = true,
+		maxCachedLanguages = 3,
+		prefetchLanguages = ["en", "ru"],
+	} = options || {};
 
-  console.log('🚀 Initializing translation optimizations...');
+	console.log("🚀 Initializing translation optimizations...");
 
-  // Configure lazy loader
-  const { LazyLoader } = await import('./LazyLoader');
-  LazyLoader.setPrefetchEnabled(enablePrefetch);
-  LazyLoader.setMaxCachedLanguages(maxCachedLanguages);
+	// Configure lazy loader
+	const { LazyLoader } = await import("./LazyLoader");
+	LazyLoader.setPrefetchEnabled(enablePrefetch);
+	LazyLoader.setMaxCachedLanguages(maxCachedLanguages);
 
-  // Configure smart cache
-  const { SmartCache } = await import('./SmartCache');
-  SmartCache.configure({
-    maxEntries: maxCachedLanguages + 2,
-    maxSize: 5 * 1024 * 1024, // 5MB
-  });
+	// Configure smart cache
+	const { SmartCache } = await import("./SmartCache");
+	SmartCache.configure({
+		maxEntries: maxCachedLanguages + 2,
+		maxSize: 5 * 1024 * 1024, // 5MB
+	});
 
-  // Warm cache with popular languages
-  if (enablePrefetch && prefetchLanguages.length > 0) {
-    const { CacheWarmer } = await import('./SmartCache');
-    await CacheWarmer.warm(prefetchLanguages as any);
-  }
+	// Warm cache with popular languages
+	if (enablePrefetch && prefetchLanguages.length > 0) {
+		const { CacheWarmer } = await import("./SmartCache");
+		await CacheWarmer.warm(prefetchLanguages as any);
+	}
 
-  console.log('✅ Translation optimizations initialized');
+	console.log("✅ Translation optimizations initialized");
 }
 
 /**
  * Get optimization statistics
  */
 export function getOptimizationStats() {
-  const { LazyLoader } = require('./LazyLoader');
-  const { SmartCache } = require('./SmartCache');
-  const { OptimizedStorage } = require('./Compression');
+	const { LazyLoader } = require("./LazyLoader");
+	const { SmartCache } = require("./SmartCache");
+	const { OptimizedStorage } = require("./Compression");
 
-  return {
-    lazyLoader: LazyLoader.getStats(),
-    smartCache: SmartCache.getStats(),
-    storage: OptimizedStorage.getStats(),
-  };
+	return {
+		lazyLoader: LazyLoader.getStats(),
+		smartCache: SmartCache.getStats(),
+		storage: OptimizedStorage.getStats(),
+	};
 }

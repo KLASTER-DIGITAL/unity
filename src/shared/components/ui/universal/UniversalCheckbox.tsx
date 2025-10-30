@@ -9,7 +9,7 @@
  */
 
 // Import implementations
-import * as WebCheckbox from './Checkbox.web';
+import * as WebCheckbox from "./Checkbox.web";
 
 // ============================================================================
 // PLATFORM SELECT
@@ -30,12 +30,12 @@ export const UniversalCheckbox = CheckboxComponents.Checkbox;
 export const CheckboxUtils = CheckboxComponents.CheckboxUtils;
 
 // Export types
-export type { CheckboxProps } from './Checkbox.web';
+export type { CheckboxProps } from "./Checkbox.web";
 
 // Note: NativeCheckbox is NOT exported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed in React Native environment
 
 export default {
-  Checkbox: UniversalCheckbox,
-  CheckboxUtils,
+	Checkbox: UniversalCheckbox,
+	CheckboxUtils,
 };

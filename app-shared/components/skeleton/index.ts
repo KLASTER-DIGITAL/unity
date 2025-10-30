@@ -1,8 +1,8 @@
 export {
-  SkeletonAchievementCard,
-  SkeletonCard,
-  SkeletonCircle,
-  SkeletonEntryCard,
-  SkeletonMilestoneCard,
-  SkeletonText,
-} from './SkeletonCard';
+	SkeletonAchievementCard,
+	SkeletonCard,
+	SkeletonCircle,
+	SkeletonEntryCard,
+	SkeletonMilestoneCard,
+	SkeletonText,
+} from "./SkeletonCard";

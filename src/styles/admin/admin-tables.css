@@ -11,32 +11,32 @@
 /* ===== Tables ===== */
 
 .admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--admin-text-sm);
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--admin-text-sm);
 }
 
 .admin-table thead {
-  background-color: var(--admin-bg-secondary);
-  border-bottom: 2px solid var(--admin-gray-200);
+	background-color: var(--admin-bg-secondary);
+	border-bottom: 2px solid var(--admin-gray-200);
 }
 
 .admin-table th {
-  padding: var(--admin-space-3) var(--admin-space-4);
-  text-align: left;
-  font-weight: var(--admin-font-semibold);
-  color: var(--admin-gray-700);
+	padding: var(--admin-space-3) var(--admin-space-4);
+	text-align: left;
+	font-weight: var(--admin-font-semibold);
+	color: var(--admin-gray-700);
 }
 
 .admin-table td {
-  padding: var(--admin-space-3) var(--admin-space-4);
-  border-bottom: 1px solid var(--admin-gray-200);
+	padding: var(--admin-space-3) var(--admin-space-4);
+	border-bottom: 1px solid var(--admin-gray-200);
 }
 
 .admin-table tbody tr:hover {
-  background-color: var(--admin-bg-secondary);
+	background-color: var(--admin-bg-secondary);
 }
 
 .admin-table tbody tr:last-child td {
-  border-bottom: none;
+	border-bottom: none;
 }

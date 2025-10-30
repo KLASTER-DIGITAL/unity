@@ -11,41 +11,41 @@
  * Pending entry for offline storage
  */
 export type PendingEntry = {
-  id: string;
-  userId: string;
-  text: string;
-  sentiment?: 'positive' | 'neutral' | 'negative';
-  category?: string;
-  mood?: string;
-  media?: any[];
-  tags?: string[];
-  createdAt: string;
-  syncStatus: 'pending' | 'syncing' | 'failed';
-  retryCount: number;
-  lastError?: string;
+	id: string;
+	userId: string;
+	text: string;
+	sentiment?: "positive" | "neutral" | "negative";
+	category?: string;
+	mood?: string;
+	media?: any[];
+	tags?: string[];
+	createdAt: string;
+	syncStatus: "pending" | "syncing" | "failed";
+	retryCount: number;
+	lastError?: string;
 };
 
 /**
  * Cached entry for offline access
  */
 export type CachedEntry = {
-  id: string;
-  userId: string;
-  data: any;
-  cachedAt: string;
-  expiresAt?: string;
+	id: string;
+	userId: string;
+	data: any;
+	cachedAt: string;
+	expiresAt?: string;
 };
 
 /**
  * Sync queue item
  */
 export type SyncQueueItem = {
-  id: string;
-  type: 'create' | 'update' | 'delete';
-  resource: string;
-  data: any;
-  createdAt: string;
-  retryCount: number;
+	id: string;
+	type: "create" | "update" | "delete";
+	resource: string;
+	data: any;
+	createdAt: string;
+	retryCount: number;
 };
 
 /**
@@ -57,50 +57,50 @@ export type SyncQueueItem = {
  * - React Native: SQLite + AsyncStorage
  */
 export type OfflineStorageAdapter = {
-  /**
-   * Initialize storage
-   */
-  initialize(): Promise<void>;
+	/**
+	 * Initialize storage
+	 */
+	initialize(): Promise<void>;
 
-  /**
-   * Add pending entry
-   */
-  addPendingEntry(entry: PendingEntry): Promise<void>;
+	/**
+	 * Add pending entry
+	 */
+	addPendingEntry(entry: PendingEntry): Promise<void>;
 
-  /**
-   * Get all pending entries
-   */
-  getPendingEntries(userId: string): Promise<PendingEntry[]>;
+	/**
+	 * Get all pending entries
+	 */
+	getPendingEntries(userId: string): Promise<PendingEntry[]>;
 
-  /**
-   * Update pending entry
-   */
-  updatePendingEntry(entry: PendingEntry): Promise<void>;
+	/**
+	 * Update pending entry
+	 */
+	updatePendingEntry(entry: PendingEntry): Promise<void>;
 
-  /**
-   * Delete pending entry
-   */
-  deletePendingEntry(id: string): Promise<void>;
+	/**
+	 * Delete pending entry
+	 */
+	deletePendingEntry(id: string): Promise<void>;
 
-  /**
-   * Add cached entry
-   */
-  addCachedEntry(entry: CachedEntry): Promise<void>;
+	/**
+	 * Add cached entry
+	 */
+	addCachedEntry(entry: CachedEntry): Promise<void>;
 
-  /**
-   * Get cached entries
-   */
-  getCachedEntries(userId: string): Promise<CachedEntry[]>;
+	/**
+	 * Get cached entries
+	 */
+	getCachedEntries(userId: string): Promise<CachedEntry[]>;
 
-  /**
-   * Clear all offline data
-   */
-  clearAll(): Promise<void>;
+	/**
+	 * Clear all offline data
+	 */
+	clearAll(): Promise<void>;
 
-  /**
-   * Get storage size (in bytes)
-   */
-  getStorageSize(): Promise<number>;
+	/**
+	 * Get storage size (in bytes)
+	 */
+	getStorageSize(): Promise<number>;
 };
 
 /**
@@ -112,33 +112,33 @@ export type OfflineStorageAdapter = {
  * - React Native: File System (Expo FileSystem)
  */
 export type MediaStorageAdapter = {
-  /**
-   * Save media file
-   */
-  saveMedia(
-    userId: string,
-    file: File | { uri: string; type: string; name: string }
-  ): Promise<string>;
+	/**
+	 * Save media file
+	 */
+	saveMedia(
+		userId: string,
+		file: File | { uri: string; type: string; name: string },
+	): Promise<string>;
 
-  /**
-   * Get media file
-   */
-  getMedia(path: string): Promise<string | null>;
+	/**
+	 * Get media file
+	 */
+	getMedia(path: string): Promise<string | null>;
 
-  /**
-   * Delete media file
-   */
-  deleteMedia(path: string): Promise<void>;
+	/**
+	 * Delete media file
+	 */
+	deleteMedia(path: string): Promise<void>;
 
-  /**
-   * Get media storage size
-   */
-  getMediaSize(): Promise<number>;
+	/**
+	 * Get media storage size
+	 */
+	getMediaSize(): Promise<number>;
 
-  /**
-   * Clear all media
-   */
-  clearAllMedia(): Promise<void>;
+	/**
+	 * Clear all media
+	 */
+	clearAllMedia(): Promise<void>;
 };
 
 /**
@@ -150,13 +150,13 @@ export type MediaStorageAdapter = {
  * - React Native: NetInfo
  */
 export type NetworkAdapter = {
-  /**
-   * Check if online
-   */
-  isOnline(): Promise<boolean>;
+	/**
+	 * Check if online
+	 */
+	isOnline(): Promise<boolean>;
 
-  /**
-   * Add network status listener
-   */
-  addListener(callback: (isOnline: boolean) => void): () => void;
+	/**
+	 * Add network status listener
+	 */
+	addListener(callback: (isOnline: boolean) => void): () => void;
 };

@@ -7,7 +7,7 @@
  * @date 2025-10-21
  */
 
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/react";
 
 /**
  * Инициализация Sentry
@@ -19,119 +19,121 @@ import * as Sentry from '@sentry/react';
  * initSentry();
  */
 export function initSentry() {
-  // Инициализируем только в production
-  if (import.meta.env.PROD) {
-    const dsn = import.meta.env.VITE_SENTRY_DSN;
+	// Инициализируем только в production
+	if (import.meta.env.PROD) {
+		const dsn = import.meta.env.VITE_SENTRY_DSN;
 
-    if (!dsn) {
-      console.warn('⚠️ [Sentry] VITE_SENTRY_DSN не установлен. Sentry не будет работать.');
-      return;
-    }
+		if (!dsn) {
+			console.warn(
+				"⚠️ [Sentry] VITE_SENTRY_DSN не установлен. Sentry не будет работать.",
+			);
+			return;
+		}
 
-    Sentry.init({
-      dsn,
+		Sentry.init({
+			dsn,
 
-      // Интеграции
-      integrations: [
-        // Browser Tracing для мониторинга производительности
-        Sentry.browserTracingIntegration({
-          // Настройки для медленных запросов (tracingOrigins deprecated, use tracePropagationTargets)
-          // tracingOrigins: [
-          //   'localhost',
-          //   /^https:\/\/unity-wine\.vercel\.app/,
-          //   /^https:\/\/.*\.supabase\.co/,
-          // ],
-        }),
+			// Интеграции
+			integrations: [
+				// Browser Tracing для мониторинга производительности
+				Sentry.browserTracingIntegration({
+					// Настройки для медленных запросов (tracingOrigins deprecated, use tracePropagationTargets)
+					// tracingOrigins: [
+					//   'localhost',
+					//   /^https:\/\/unity-wine\.vercel\.app/,
+					//   /^https:\/\/.*\.supabase\.co/,
+					// ],
+				}),
 
-        // Session Replay для воспроизведения ошибок
-        Sentry.replayIntegration({
-          // Маскируем чувствительные данные
-          maskAllText: true,
-          blockAllMedia: true,
-        }),
+				// Session Replay для воспроизведения ошибок
+				Sentry.replayIntegration({
+					// Маскируем чувствительные данные
+					maskAllText: true,
+					blockAllMedia: true,
+				}),
 
-        // Feedback ОТКЛЮЧЕН - вызывает ошибку "Error invoking post: Method not found"
-        // Fixes UNITY-V2-B
-        // Sentry.feedbackIntegration({
-        //   colorScheme: 'system',
-        //   showBranding: false,
-        //   autoInject: false,
-        // }),
-      ],
+				// Feedback ОТКЛЮЧЕН - вызывает ошибку "Error invoking post: Method not found"
+				// Fixes UNITY-V2-B
+				// Sentry.feedbackIntegration({
+				//   colorScheme: 'system',
+				//   showBranding: false,
+				//   autoInject: false,
+				// }),
+			],
 
-      // Performance Monitoring
-      tracesSampleRate: 0.3, // 30% транзакций для production (увеличено с 0.1)
+			// Performance Monitoring
+			tracesSampleRate: 0.3, // 30% транзакций для production (увеличено с 0.1)
 
-      // Session Replay
-      replaysSessionSampleRate: 0.1, // 10% обычных сессий
-      replaysOnErrorSampleRate: 1.0, // 100% сессий с ошибками
+			// Session Replay
+			replaysSessionSampleRate: 0.1, // 10% обычных сессий
+			replaysOnErrorSampleRate: 1.0, // 100% сессий с ошибками
 
-      // Profiling для медленных запросов
-      profilesSampleRate: 0.3, // 30% профилирования (синхронизировано с traces)
+			// Profiling для медленных запросов
+			profilesSampleRate: 0.3, // 30% профилирования (синхронизировано с traces)
 
-      // Environment
-      environment: import.meta.env.MODE,
+			// Environment
+			environment: import.meta.env.MODE,
 
-      // Release tracking
-      release: `unity-v2@${import.meta.env.VITE_APP_VERSION || 'unknown'}`,
+			// Release tracking
+			release: `unity-v2@${import.meta.env.VITE_APP_VERSION || "unknown"}`,
 
-      // Фильтрация ошибок
-      beforeSend(event, hint) {
-        // Игнорируем ошибки от расширений браузера
-        if (
-          event.exception?.values?.[0]?.stacktrace?.frames?.some((frame) =>
-            frame.filename?.includes('chrome-extension://')
-          )
-        ) {
-          return null;
-        }
+			// Фильтрация ошибок
+			beforeSend(event, hint) {
+				// Игнорируем ошибки от расширений браузера
+				if (
+					event.exception?.values?.[0]?.stacktrace?.frames?.some((frame) =>
+						frame.filename?.includes("chrome-extension://"),
+					)
+				) {
+					return null;
+				}
 
-        // Игнорируем ошибки сети (они не критичны)
-        if (event.exception?.values?.[0]?.type === 'NetworkError') {
-          return null;
-        }
+				// Игнорируем ошибки сети (они не критичны)
+				if (event.exception?.values?.[0]?.type === "NetworkError") {
+					return null;
+				}
 
-        // Добавляем дополнительный контекст
-        if (hint.originalException instanceof Error) {
-          event.contexts = {
-            ...event.contexts,
-            app: {
-              version: import.meta.env.VITE_APP_VERSION,
-              build: import.meta.env.VITE_BUILD_ID,
-            },
-          };
-        }
+				// Добавляем дополнительный контекст
+				if (hint.originalException instanceof Error) {
+					event.contexts = {
+						...event.contexts,
+						app: {
+							version: import.meta.env.VITE_APP_VERSION,
+							build: import.meta.env.VITE_BUILD_ID,
+						},
+					};
+				}
 
-        return event;
-      },
+				return event;
+			},
 
-      // Игнорируем определенные ошибки
-      ignoreErrors: [
-        // Ошибки от расширений браузера
-        'top.GLOBALS',
-        'originalCreateNotification',
-        'canvas.contentDocument',
-        'MyApp_RemoveAllHighlights',
-        'atomicFindClose',
+			// Игнорируем определенные ошибки
+			ignoreErrors: [
+				// Ошибки от расширений браузера
+				"top.GLOBALS",
+				"originalCreateNotification",
+				"canvas.contentDocument",
+				"MyApp_RemoveAllHighlights",
+				"atomicFindClose",
 
-        // Ошибки сети
-        'NetworkError',
-        'Failed to fetch',
-        'Load failed',
+				// Ошибки сети
+				"NetworkError",
+				"Failed to fetch",
+				"Load failed",
 
-        // Ошибки от рекламных блокировщиков
-        'adsbygoogle',
+				// Ошибки от рекламных блокировщиков
+				"adsbygoogle",
 
-        // Случайные ошибки браузера
-        'ResizeObserver loop limit exceeded',
-        'ResizeObserver loop completed with undelivered notifications',
-      ],
-    });
+				// Случайные ошибки браузера
+				"ResizeObserver loop limit exceeded",
+				"ResizeObserver loop completed with undelivered notifications",
+			],
+		});
 
-    console.log('✅ [Sentry] Инициализирован для production');
-  } else {
-    console.log('ℹ️ [Sentry] Отключен в development режиме');
-  }
+		console.log("✅ [Sentry] Инициализирован для production");
+	} else {
+		console.log("ℹ️ [Sentry] Отключен в development режиме");
+	}
 }
 
 /**
@@ -145,11 +147,11 @@ export function initSentry() {
  * }
  */
 export function captureException(error: Error, context?: any) {
-  if (import.meta.env.PROD) {
-    Sentry.captureException(error, context);
-  } else {
-    console.error('🔴 [Sentry Dev]', error, context);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.captureException(error, context);
+	} else {
+		console.error("🔴 [Sentry Dev]", error, context);
+	}
 }
 
 /**
@@ -162,11 +164,11 @@ export function captureException(error: Error, context?: any) {
  * });
  */
 export function captureMessage(message: string, context?: any) {
-  if (import.meta.env.PROD) {
-    Sentry.captureMessage(message, context);
-  } else {
-    console.log('ℹ️ [Sentry Dev]', message, context);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.captureMessage(message, context);
+	} else {
+		console.log("ℹ️ [Sentry Dev]", message, context);
+	}
 }
 
 /**
@@ -180,9 +182,9 @@ export function captureMessage(message: string, context?: any) {
  * });
  */
 export function setUser(user: Sentry.User | null) {
-  if (import.meta.env.PROD) {
-    Sentry.setUser(user);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.setUser(user);
+	}
 }
 
 /**
@@ -196,9 +198,9 @@ export function setUser(user: Sentry.User | null) {
  * });
  */
 export function addBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
-  if (import.meta.env.PROD) {
-    Sentry.addBreadcrumb(breadcrumb);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.addBreadcrumb(breadcrumb);
+	}
 }
 
 /**
@@ -208,9 +210,9 @@ export function addBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
  * setTag('page', 'admin-dashboard');
  */
 export function setTag(key: string, value: string) {
-  if (import.meta.env.PROD) {
-    Sentry.setTag(key, value);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.setTag(key, value);
+	}
 }
 
 /**
@@ -224,9 +226,9 @@ export function setTag(key: string, value: string) {
  * });
  */
 export function setContext(name: string, context: Record<string, any>) {
-  if (import.meta.env.PROD) {
-    Sentry.setContext(name, context);
-  }
+	if (import.meta.env.PROD) {
+		Sentry.setContext(name, context);
+	}
 }
 
 /**
@@ -246,15 +248,15 @@ export function setContext(name: string, context: Record<string, any>) {
  * }
  */
 export function startSpan(name: string, op: string) {
-  if (import.meta.env.PROD) {
-    return Sentry.startSpan({ name, op }, (span) => span);
-  }
-  // Mock span для development
-  return {
-    setStatus: () => {},
-    finish: () => {},
-    setData: () => {},
-  };
+	if (import.meta.env.PROD) {
+		return Sentry.startSpan({ name, op }, (span) => span);
+	}
+	// Mock span для development
+	return {
+		setStatus: () => {},
+		finish: () => {},
+		setData: () => {},
+	};
 }
 
 /**
@@ -266,14 +268,14 @@ export function startSpan(name: string, op: string) {
  * });
  */
 export async function withSpan<T>(
-  name: string,
-  op: string,
-  callback: () => Promise<T>
+	name: string,
+	op: string,
+	callback: () => Promise<T>,
 ): Promise<T> {
-  if (import.meta.env.PROD) {
-    return Sentry.startSpan({ name, op }, async () => await callback());
-  }
-  return callback();
+	if (import.meta.env.PROD) {
+		return Sentry.startSpan({ name, op }, async () => await callback());
+	}
+	return callback();
 }
 
 /**
@@ -303,19 +305,19 @@ export const withProfiler = Sentry.withProfiler;
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function showFeedbackWidget(_openForm = false) {
-  console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
-  // if (import.meta.env.PROD) {
-  //   const feedback = Sentry.getFeedback();
-  //   if (feedback) {
-  //     if (openForm) {
-  //       feedback.openDialog();
-  //     } else {
-  //       feedback.createWidget();
-  //     }
-  //   }
-  // } else {
-  //   console.log('ℹ️ [Sentry Feedback] Доступен только в production', { openForm });
-  // }
+	console.warn("⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK");
+	// if (import.meta.env.PROD) {
+	//   const feedback = Sentry.getFeedback();
+	//   if (feedback) {
+	//     if (openForm) {
+	//       feedback.openDialog();
+	//     } else {
+	//       feedback.createWidget();
+	//     }
+	//   }
+	// } else {
+	//   console.log('ℹ️ [Sentry Feedback] Доступен только в production', { openForm });
+	// }
 }
 
 /**
@@ -327,13 +329,13 @@ export function showFeedbackWidget(_openForm = false) {
  * @deprecated Временно отключено из-за ошибки в Sentry SDK
  */
 export function hideFeedbackWidget() {
-  console.warn('⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK');
-  // if (import.meta.env.PROD) {
-  //   const feedback = Sentry.getFeedback();
-  //   if (feedback) {
-  //     feedback.removeWidget();
-  //   }
-  // }
+	console.warn("⚠️ [Sentry Feedback] Временно отключен из-за ошибки в SDK");
+	// if (import.meta.env.PROD) {
+	//   const feedback = Sentry.getFeedback();
+	//   if (feedback) {
+	//     feedback.removeWidget();
+	//   }
+	// }
 }
 
 // Re-export Sentry для прямого использования если нужно

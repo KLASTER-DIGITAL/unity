@@ -19,56 +19,56 @@
  * ```
  */
 
-import { formatPluralKey, getPluralForm, type PluralForm } from './PluralRules';
+import { formatPluralKey, getPluralForm, type PluralForm } from "./PluralRules";
 
 export type PluralTranslations = {
-  zero?: string;
-  one?: string;
-  two?: string;
-  few?: string;
-  many?: string;
-  other: string;
+	zero?: string;
+	one?: string;
+	two?: string;
+	few?: string;
+	many?: string;
+	other: string;
 };
 
 export type PluralizationOptions = {
-  count: number;
-  language: string;
-  translations: Record<string, string>;
-  baseKey: string;
-  fallback?: string;
+	count: number;
+	language: string;
+	translations: Record<string, string>;
+	baseKey: string;
+	fallback?: string;
 };
 
 /**
  * Get pluralized translation
  */
 export function pluralize(options: PluralizationOptions): string {
-  const { count, language, translations, baseKey, fallback } = options;
+	const { count, language, translations, baseKey, fallback } = options;
 
-  // Get the appropriate plural form for this count and language
-  const form = getPluralForm(language, count);
+	// Get the appropriate plural form for this count and language
+	const form = getPluralForm(language, count);
 
-  // Try to get translation for this form
-  const key = formatPluralKey(baseKey, form);
-  let translation = translations[key];
+	// Try to get translation for this form
+	const key = formatPluralKey(baseKey, form);
+	let translation = translations[key];
 
-  // Fallback to 'other' form if specific form not found
-  if (!translation && form !== 'other') {
-    const otherKey = formatPluralKey(baseKey, 'other');
-    translation = translations[otherKey];
-  }
+	// Fallback to 'other' form if specific form not found
+	if (!translation && form !== "other") {
+		const otherKey = formatPluralKey(baseKey, "other");
+		translation = translations[otherKey];
+	}
 
-  // Fallback to base key (for backwards compatibility)
-  if (!translation) {
-    translation = translations[baseKey];
-  }
+	// Fallback to base key (for backwards compatibility)
+	if (!translation) {
+		translation = translations[baseKey];
+	}
 
-  // Use provided fallback or return key
-  if (!translation) {
-    translation = fallback || baseKey;
-  }
+	// Use provided fallback or return key
+	if (!translation) {
+		translation = fallback || baseKey;
+	}
 
-  // Replace {{count}} placeholder with actual count
-  return translation.replace(/\{\{count\}\}/g, count.toString());
+	// Replace {{count}} placeholder with actual count
+	return translation.replace(/\{\{count\}\}/g, count.toString());
 }
 
 /**
@@ -85,20 +85,20 @@ export function pluralize(options: PluralizationOptions): string {
  * ```
  */
 export function createPluralTranslations(
-  _language: string,
-  forms: Partial<PluralTranslations>
+	_language: string,
+	forms: Partial<PluralTranslations>,
 ): PluralTranslations {
-  // Ensure 'other' form exists (fallback to 'many' or 'one')
-  const other = forms.other || forms.many || forms.one || '{{count}} items';
+	// Ensure 'other' form exists (fallback to 'many' or 'one')
+	const other = forms.other || forms.many || forms.one || "{{count}} items";
 
-  return {
-    zero: forms.zero,
-    one: forms.one,
-    two: forms.two,
-    few: forms.few,
-    many: forms.many,
-    other,
-  };
+	return {
+		zero: forms.zero,
+		one: forms.one,
+		two: forms.two,
+		few: forms.few,
+		many: forms.many,
+		other,
+	};
 }
 
 /**
@@ -107,62 +107,62 @@ export function createPluralTranslations(
  * Returns missing forms that should be provided
  */
 export function validatePluralTranslations(
-  language: string,
-  forms: Partial<PluralTranslations>
+	language: string,
+	forms: Partial<PluralTranslations>,
 ): PluralForm[] {
-  const missing: PluralForm[] = [];
+	const missing: PluralForm[] = [];
 
-  // Check required forms based on language
-  switch (language) {
-    case 'ru':
-    case 'pl':
-      if (!forms.one) {
-        missing.push('one');
-      }
-      if (!forms.few) {
-        missing.push('few');
-      }
-      if (!forms.many) {
-        missing.push('many');
-      }
-      break;
-    case 'ar':
-      if (!forms.zero) {
-        missing.push('zero');
-      }
-      if (!forms.one) {
-        missing.push('one');
-      }
-      if (!forms.two) {
-        missing.push('two');
-      }
-      if (!forms.few) {
-        missing.push('few');
-      }
-      if (!forms.many) {
-        missing.push('many');
-      }
-      if (!forms.other) {
-        missing.push('other');
-      }
-      break;
-    case 'zh':
-    case 'ja':
-      if (!forms.other) {
-        missing.push('other');
-      }
-      break;
-    default:
-      if (!forms.one) {
-        missing.push('one');
-      }
-      if (!forms.other) {
-        missing.push('other');
-      }
-      break;
-  }
+	// Check required forms based on language
+	switch (language) {
+		case "ru":
+		case "pl":
+			if (!forms.one) {
+				missing.push("one");
+			}
+			if (!forms.few) {
+				missing.push("few");
+			}
+			if (!forms.many) {
+				missing.push("many");
+			}
+			break;
+		case "ar":
+			if (!forms.zero) {
+				missing.push("zero");
+			}
+			if (!forms.one) {
+				missing.push("one");
+			}
+			if (!forms.two) {
+				missing.push("two");
+			}
+			if (!forms.few) {
+				missing.push("few");
+			}
+			if (!forms.many) {
+				missing.push("many");
+			}
+			if (!forms.other) {
+				missing.push("other");
+			}
+			break;
+		case "zh":
+		case "ja":
+			if (!forms.other) {
+				missing.push("other");
+			}
+			break;
+		default:
+			if (!forms.one) {
+				missing.push("one");
+			}
+			if (!forms.other) {
+				missing.push("other");
+			}
+			break;
+	}
 
-  return missing;
+	return missing;
 }
 
 /**
@@ -177,33 +177,33 @@ export function validatePluralTranslations(
  * ```
  */
 export function generatePluralTranslations(
-  language: string,
-  ...templates: string[]
+	language: string,
+	...templates: string[]
 ): PluralTranslations {
-  switch (language) {
-    case 'ru':
-    case 'pl':
-      return {
-        one: templates[0] ? `{{count}} ${templates[0]}` : undefined,
-        few: templates[1] ? `{{count}} ${templates[1]}` : undefined,
-        many: templates[2] ? `{{count}} ${templates[2]}` : undefined,
-        other: templates[2] ? `{{count}} ${templates[2]}` : '{{count}} items',
-      };
-    case 'ar':
-      return {
-        zero: templates[0] ? templates[0] : undefined,
-        one: templates[1] ? `{{count}} ${templates[1]}` : undefined,
-        two: templates[2] ? `{{count}} ${templates[2]}` : undefined,
-        few: templates[3] ? `{{count}} ${templates[3]}` : undefined,
-        many: templates[4] ? `{{count}} ${templates[4]}` : undefined,
-        other: templates[5] ? `{{count}} ${templates[5]}` : '{{count}} items',
-      };
-    default:
-      return {
-        one: templates[0] ? `{{count}} ${templates[0]}` : undefined,
-        other: templates[1] ? `{{count}} ${templates[1]}` : '{{count}} items',
-      };
-  }
+	switch (language) {
+		case "ru":
+		case "pl":
+			return {
+				one: templates[0] ? `{{count}} ${templates[0]}` : undefined,
+				few: templates[1] ? `{{count}} ${templates[1]}` : undefined,
+				many: templates[2] ? `{{count}} ${templates[2]}` : undefined,
+				other: templates[2] ? `{{count}} ${templates[2]}` : "{{count}} items",
+			};
+		case "ar":
+			return {
+				zero: templates[0] ? templates[0] : undefined,
+				one: templates[1] ? `{{count}} ${templates[1]}` : undefined,
+				two: templates[2] ? `{{count}} ${templates[2]}` : undefined,
+				few: templates[3] ? `{{count}} ${templates[3]}` : undefined,
+				many: templates[4] ? `{{count}} ${templates[4]}` : undefined,
+				other: templates[5] ? `{{count}} ${templates[5]}` : "{{count}} items",
+			};
+		default:
+			return {
+				one: templates[0] ? `{{count}} ${templates[0]}` : undefined,
+				other: templates[1] ? `{{count}} ${templates[1]}` : "{{count}} items",
+			};
+	}
 }
 
 /**
@@ -219,70 +219,97 @@ export function generatePluralTranslations(
  * ```
  */
 export function formatPlural(
-  count: number,
-  baseKey: string,
-  translations: Record<string, string>,
-  language: string,
-  fallback?: string
+	count: number,
+	baseKey: string,
+	translations: Record<string, string>,
+	language: string,
+	fallback?: string,
 ): string {
-  return pluralize({
-    count,
-    language,
-    translations,
-    baseKey,
-    fallback,
-  });
+	return pluralize({
+		count,
+		language,
+		translations,
+		baseKey,
+		fallback,
+	});
 }
 
 /**
  * Common plural templates for different languages
  */
 export const COMMON_PLURALS = {
-  // English
-  en: {
-    items: { one: '{{count}} item', other: '{{count}} items' },
-    days: { one: '{{count}} day', other: '{{count}} days' },
-    hours: { one: '{{count}} hour', other: '{{count}} hours' },
-    minutes: { one: '{{count}} minute', other: '{{count}} minutes' },
-    seconds: { one: '{{count}} second', other: '{{count}} seconds' },
-    achievements: { one: '{{count}} achievement', other: '{{count}} achievements' },
-    entries: { one: '{{count}} entry', other: '{{count}} entries' },
-  },
+	// English
+	en: {
+		items: { one: "{{count}} item", other: "{{count}} items" },
+		days: { one: "{{count}} day", other: "{{count}} days" },
+		hours: { one: "{{count}} hour", other: "{{count}} hours" },
+		minutes: { one: "{{count}} minute", other: "{{count}} minutes" },
+		seconds: { one: "{{count}} second", other: "{{count}} seconds" },
+		achievements: {
+			one: "{{count}} achievement",
+			other: "{{count}} achievements",
+		},
+		entries: { one: "{{count}} entry", other: "{{count}} entries" },
+	},
 
-  // Russian
-  ru: {
-    items: { one: '{{count}} элемент', few: '{{count}} элемента', many: '{{count}} элементов' },
-    days: { one: '{{count}} день', few: '{{count}} дня', many: '{{count}} дней' },
-    hours: { one: '{{count}} час', few: '{{count}} часа', many: '{{count}} часов' },
-    minutes: { one: '{{count}} минута', few: '{{count}} минуты', many: '{{count}} минут' },
-    seconds: { one: '{{count}} секунда', few: '{{count}} секунды', many: '{{count}} секунд' },
-    achievements: {
-      one: '{{count}} достижение',
-      few: '{{count}} достижения',
-      many: '{{count}} достижений',
-    },
-    entries: { one: '{{count}} запись', few: '{{count}} записи', many: '{{count}} записей' },
-  },
+	// Russian
+	ru: {
+		items: {
+			one: "{{count}} элемент",
+			few: "{{count}} элемента",
+			many: "{{count}} элементов",
+		},
+		days: {
+			one: "{{count}} день",
+			few: "{{count}} дня",
+			many: "{{count}} дней",
+		},
+		hours: {
+			one: "{{count}} час",
+			few: "{{count}} часа",
+			many: "{{count}} часов",
+		},
+		minutes: {
+			one: "{{count}} минута",
+			few: "{{count}} минуты",
+			many: "{{count}} минут",
+		},
+		seconds: {
+			one: "{{count}} секунда",
+			few: "{{count}} секунды",
+			many: "{{count}} секунд",
+		},
+		achievements: {
+			one: "{{count}} достижение",
+			few: "{{count}} достижения",
+			many: "{{count}} достижений",
+		},
+		entries: {
+			one: "{{count}} запись",
+			few: "{{count}} записи",
+			many: "{{count}} записей",
+		},
+	},
 
-  // Spanish
-  es: {
-    items: { one: '{{count}} elemento', other: '{{count}} elementos' },
-    days: { one: '{{count}} día', other: '{{count}} días' },
-    hours: { one: '{{count}} hora', other: '{{count}} horas' },
-    minutes: { one: '{{count}} minuto', other: '{{count}} minutos' },
-    seconds: { one: '{{count}} segundo', other: '{{count}} segundos' },
-    achievements: { one: '{{count}} logro', other: '{{count}} logros' },
-    entries: { one: '{{count}} entrada', other: '{{count}} entradas' },
-  },
+	// Spanish
+	es: {
+		items: { one: "{{count}} elemento", other: "{{count}} elementos" },
+		days: { one: "{{count}} día", other: "{{count}} días" },
+		hours: { one: "{{count}} hora", other: "{{count}} horas" },
+		minutes: { one: "{{count}} minuto", other: "{{count}} minutos" },
+		seconds: { one: "{{count}} segundo", other: "{{count}} segundos" },
+		achievements: { one: "{{count}} logro", other: "{{count}} logros" },
+		entries: { one: "{{count}} entrada", other: "{{count}} entradas" },
+	},
 
-  // German
-  de: {
-    items: { one: '{{count}} Element', other: '{{count}} Elemente' },
-    days: { one: '{{count}} Tag', other: '{{count}} Tage' },
-    hours: { one: '{{count}} Stunde', other: '{{count}} Stunden' },
-    minutes: { one: '{{count}} Minute', other: '{{count}} Minuten' },
-    seconds: { one: '{{count}} Sekunde', other: '{{count}} Sekunden' },
-    achievements: { one: '{{count}} Erfolg', other: '{{count}} Erfolge' },
-    entries: { one: '{{count}} Eintrag', other: '{{count}} Einträge' },
-  },
+	// German
+	de: {
+		items: { one: "{{count}} Element", other: "{{count}} Elemente" },
+		days: { one: "{{count}} Tag", other: "{{count}} Tage" },
+		hours: { one: "{{count}} Stunde", other: "{{count}} Stunden" },
+		minutes: { one: "{{count}} Minute", other: "{{count}} Minuten" },
+		seconds: { one: "{{count}} Sekunde", other: "{{count}} Sekunden" },
+		achievements: { one: "{{count}} Erfolg", other: "{{count}} Erfolge" },
+		entries: { one: "{{count}} Eintrag", other: "{{count}} Einträge" },
+	},
 };

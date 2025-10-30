@@ -7,4 +7,4 @@
  * For PWA version, use src/main.tsx instead.
  */
 
-import 'expo-router/entry';
+import "expo-router/entry";

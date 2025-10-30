@@ -38,7 +38,7 @@
  */
 
 // Import web implementation
-import * as WebRadioGroup from './RadioGroup.web';
+import * as WebRadioGroup from "./RadioGroup.web";
 
 /**
  * ✅ PWA + React Native Architecture:
@@ -61,4 +61,4 @@ export const RadioGroupUtils = platformRadioGroupUtils;
 /**
  * Re-export types
  */
-export type { RadioGroupOption, RadioGroupProps } from './RadioGroup.web';
+export type { RadioGroupOption, RadioGroupProps } from "./RadioGroup.web";

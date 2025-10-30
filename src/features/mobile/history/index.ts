@@ -5,4 +5,4 @@
  * - HistoryScreen: Main history screen with search and filters
  */
 
-export { HistoryScreen } from './components/HistoryScreen';
+export { HistoryScreen } from "./components/HistoryScreen";

@@ -5,4 +5,4 @@
  * - MobileApp: Main mobile application with onboarding, auth, and feature screens
  */
 
-export { MobileApp } from './MobileApp';
+export { MobileApp } from "./MobileApp";

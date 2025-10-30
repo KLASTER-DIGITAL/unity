@@ -3,5 +3,5 @@
  */
 
 export type HistoryScreenProps = {
-  userData?: any;
+	userData?: any;
 };

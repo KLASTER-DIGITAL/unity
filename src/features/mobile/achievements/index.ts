@@ -5,4 +5,4 @@
  * - AchievementsScreen: Main achievements screen with progress tracking
  */
 
-export { AchievementsScreen } from './components/AchievementsScreen';
+export { AchievementsScreen } from "./components/AchievementsScreen";

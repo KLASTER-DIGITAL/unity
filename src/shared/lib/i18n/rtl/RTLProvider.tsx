@@ -4,35 +4,35 @@
  * Automatically applies RTL direction based on current language
  */
 
-import type React from 'react';
-import { createContext, type ReactNode, useContext, useEffect } from 'react';
-import { useTranslationContext } from '../TranslationProvider';
+import type React from "react";
+import { createContext, type ReactNode, useContext, useEffect } from "react";
+import { useTranslationContext } from "../TranslationProvider";
 import {
-  applyDocumentDirection,
-  getRTLConfig,
-  getTextDirection,
-  type RTLConfig,
-  type TextDirection,
-} from './RTLDetector';
+	applyDocumentDirection,
+	getRTLConfig,
+	getTextDirection,
+	type RTLConfig,
+	type TextDirection,
+} from "./RTLDetector";
 
 type RTLContextValue = {
-  direction: TextDirection;
-  isRTL: boolean;
-  config: RTLConfig;
+	direction: TextDirection;
+	isRTL: boolean;
+	config: RTLConfig;
 };
 
 const RTLContext = createContext<RTLContextValue | null>(null);
 
 type RTLProviderProps = {
-  children: ReactNode;
-  /**
-   * Override language (useful for testing)
-   */
-  language?: string;
-  /**
-   * Disable automatic document direction update
-   */
-  disableDocumentUpdate?: boolean;
+	children: ReactNode;
+	/**
+	 * Override language (useful for testing)
+	 */
+	language?: string;
+	/**
+	 * Disable automatic document direction update
+	 */
+	disableDocumentUpdate?: boolean;
 };
 
 /**
@@ -48,37 +48,39 @@ type RTLProviderProps = {
  * </TranslationProvider>
  */
 export const RTLProvider: React.FC<RTLProviderProps> = ({
-  children,
-  language: overrideLanguage,
-  disableDocumentUpdate = false,
+	children,
+	language: overrideLanguage,
+	disableDocumentUpdate = false,
 }) => {
-  const { currentLanguage } = useTranslationContext();
-  const language = overrideLanguage || currentLanguage;
+	const { currentLanguage } = useTranslationContext();
+	const language = overrideLanguage || currentLanguage;
 
-  const direction = getTextDirection(language);
-  const config = getRTLConfig(language);
+	const direction = getTextDirection(language);
+	const config = getRTLConfig(language);
 
-  // Apply direction to document
-  useEffect(() => {
-    if (!disableDocumentUpdate) {
-      applyDocumentDirection(direction);
-      console.log(`📐 RTL: Applied ${direction} direction for language: ${language}`);
-    }
-  }, [direction, language, disableDocumentUpdate]);
+	// Apply direction to document
+	useEffect(() => {
+		if (!disableDocumentUpdate) {
+			applyDocumentDirection(direction);
+			console.log(
+				`📐 RTL: Applied ${direction} direction for language: ${language}`,
+			);
+		}
+	}, [direction, language, disableDocumentUpdate]);
 
-  const value: RTLContextValue = {
-    direction,
-    isRTL: direction === 'rtl',
-    config,
-  };
+	const value: RTLContextValue = {
+		direction,
+		isRTL: direction === "rtl",
+		config,
+	};
 
-  return (
-    <RTLContext.Provider value={value}>
-      <div className={config.directionClass} dir={direction}>
-        {children}
-      </div>
-    </RTLContext.Provider>
-  );
+	return (
+		<RTLContext.Provider value={value}>
+			<div className={config.directionClass} dir={direction}>
+				{children}
+			</div>
+		</RTLContext.Provider>
+	);
 };
 
 /**
@@ -94,13 +96,13 @@ export const RTLProvider: React.FC<RTLProviderProps> = ({
  * );
  */
 export const useRTL = (): RTLContextValue => {
-  const context = useContext(RTLContext);
+	const context = useContext(RTLContext);
 
-  if (!context) {
-    throw new Error('useRTL must be used within RTLProvider');
-  }
+	if (!context) {
+		throw new Error("useRTL must be used within RTLProvider");
+	}
 
-  return context;
+	return context;
 };
 
 /**
@@ -112,12 +114,12 @@ export const useRTL = (): RTLContextValue => {
  * });
  */
 export function withRTL<P extends object>(
-  Component: React.ComponentType<P & RTLContextValue>
+	Component: React.ComponentType<P & RTLContextValue>,
 ): React.FC<P> {
-  return (props: P) => {
-    const rtl = useRTL();
-    return <Component {...props} {...rtl} />;
-  };
+	return (props: P) => {
+		const rtl = useRTL();
+		return <Component {...props} {...rtl} />;
+	};
 }
 
 /**
@@ -129,17 +131,17 @@ export function withRTL<P extends object>(
  * </RTLDiv>
  */
 export const RTLDiv: React.FC<{
-  children: ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}> = ({ children, className = '', style = {} }) => {
-  const { direction } = useRTL();
+	children: ReactNode;
+	className?: string;
+	style?: React.CSSProperties;
+}> = ({ children, className = "", style = {} }) => {
+	const { direction } = useRTL();
 
-  return (
-    <div className={className} dir={direction} style={style}>
-      {children}
-    </div>
-  );
+	return (
+		<div className={className} dir={direction} style={style}>
+			{children}
+		</div>
+	);
 };
 
 /**
@@ -152,22 +154,22 @@ export const RTLDiv: React.FC<{
  * <RTLText>Hello</RTLText> // Automatically LTR
  */
 export const RTLText: React.FC<{
-  children: ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-  /**
-   * Force specific direction (overrides auto-detection)
-   */
-  forceDirection?: TextDirection;
-}> = ({ children, className = '', style = {}, forceDirection }) => {
-  const { direction: contextDirection } = useRTL();
+	children: ReactNode;
+	className?: string;
+	style?: React.CSSProperties;
+	/**
+	 * Force specific direction (overrides auto-detection)
+	 */
+	forceDirection?: TextDirection;
+}> = ({ children, className = "", style = {}, forceDirection }) => {
+	const { direction: contextDirection } = useRTL();
 
-  // Use forced direction or context direction
-  const direction = forceDirection || contextDirection;
+	// Use forced direction or context direction
+	const direction = forceDirection || contextDirection;
 
-  return (
-    <span className={className} dir={direction} style={style}>
-      {children}
-    </span>
-  );
+	return (
+		<span className={className} dir={direction} style={style}>
+			{children}
+		</span>
+	);
 };

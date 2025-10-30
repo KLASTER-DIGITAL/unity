@@ -12,233 +12,248 @@
  * @date 2025-10-24
  */
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
-test.describe('PWA Functionality', () => {
-  test('should register service worker', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+test.describe("PWA Functionality", () => {
+	test("should register service worker", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Wait for service worker registration (happens on window load event)
-    await page.waitForTimeout(1000);
+		// Wait for service worker registration (happens on window load event)
+		await page.waitForTimeout(1000);
 
-    // Check if service worker is registered
-    const swRegistered = await page.evaluate(async () => {
-      if ('serviceWorker' in navigator) {
-        // Wait for registration to complete
-        await navigator.serviceWorker.ready;
-        const registration = await navigator.serviceWorker.getRegistration();
-        return !!registration;
-      }
-      return false;
-    });
+		// Check if service worker is registered
+		const swRegistered = await page.evaluate(async () => {
+			if ("serviceWorker" in navigator) {
+				// Wait for registration to complete
+				await navigator.serviceWorker.ready;
+				const registration = await navigator.serviceWorker.getRegistration();
+				return !!registration;
+			}
+			return false;
+		});
 
-    expect(swRegistered).toBeTruthy();
-  });
+		expect(swRegistered).toBeTruthy();
+	});
 
-  test('should have valid manifest.json', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should have valid manifest.json", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check manifest link
-    const manifestLink = await page.locator('link[rel="manifest"]').getAttribute('href');
-    expect(manifestLink).toBeTruthy();
+		// Check manifest link
+		const manifestLink = await page
+			.locator('link[rel="manifest"]')
+			.getAttribute("href");
+		expect(manifestLink).toBeTruthy();
 
-    // Fetch and validate manifest
-    const manifestResponse = await page.goto(manifestLink!);
-    expect(manifestResponse?.status()).toBe(200);
+		// Fetch and validate manifest
+		const manifestResponse = await page.goto(manifestLink!);
+		expect(manifestResponse?.status()).toBe(200);
 
-    const manifest = await manifestResponse?.json();
-    expect(manifest.name).toBeTruthy();
-    expect(manifest.short_name).toBeTruthy();
-    expect(manifest.start_url).toBeTruthy();
-    expect(manifest.display).toBeTruthy();
-    expect(manifest.icons).toBeTruthy();
-    expect(manifest.icons.length).toBeGreaterThan(0);
-  });
+		const manifest = await manifestResponse?.json();
+		expect(manifest.name).toBeTruthy();
+		expect(manifest.short_name).toBeTruthy();
+		expect(manifest.start_url).toBeTruthy();
+		expect(manifest.display).toBeTruthy();
+		expect(manifest.icons).toBeTruthy();
+		expect(manifest.icons.length).toBeGreaterThan(0);
+	});
 
-  test('should work offline', async ({ page, context }) => {
-    // Load page online first
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should work offline", async ({ page, context }) => {
+		// Load page online first
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Wait for service worker to be ready and cache assets
-    await page.evaluate(async () => {
-      if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.ready;
-      }
-    });
-    await page.waitForTimeout(3000); // Give time for caching
+		// Wait for service worker to be ready and cache assets
+		await page.evaluate(async () => {
+			if ("serviceWorker" in navigator) {
+				await navigator.serviceWorker.ready;
+			}
+		});
+		await page.waitForTimeout(3000); // Give time for caching
 
-    // Go offline
-    await context.setOffline(true);
+		// Go offline
+		await context.setOffline(true);
 
-    // Reload page
-    await page.reload();
-    await page.waitForLoadState('networkidle');
+		// Reload page
+		await page.reload();
+		await page.waitForLoadState("networkidle");
 
-    // Page should still load (from cache)
-    const title = await page.title();
-    expect(title).toBeTruthy();
+		// Page should still load (from cache)
+		const title = await page.title();
+		expect(title).toBeTruthy();
 
-    // Should show offline indicator
-    const hasOfflineIndicator = await page
-      .locator('text=Offline')
-      .isVisible()
-      .catch(() => false);
-    const hasNoConnection = await page
-      .locator('text=Нет подключения')
-      .isVisible()
-      .catch(() => false);
+		// Should show offline indicator
+		const hasOfflineIndicator = await page
+			.locator("text=Offline")
+			.isVisible()
+			.catch(() => false);
+		const hasNoConnection = await page
+			.locator("text=Нет подключения")
+			.isVisible()
+			.catch(() => false);
 
-    expect(hasOfflineIndicator || hasNoConnection).toBeTruthy();
-  });
+		expect(hasOfflineIndicator || hasNoConnection).toBeTruthy();
+	});
 
-  test('should cache static assets', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should cache static assets", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Wait for service worker to be ready and cache assets
-    await page.evaluate(async () => {
-      if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.ready;
-      }
-    });
-    await page.waitForTimeout(2000); // Give time for caching
+		// Wait for service worker to be ready and cache assets
+		await page.evaluate(async () => {
+			if ("serviceWorker" in navigator) {
+				await navigator.serviceWorker.ready;
+			}
+		});
+		await page.waitForTimeout(2000); // Give time for caching
 
-    // Check if assets are cached
-    const cacheNames = await page.evaluate(async () => await caches.keys());
+		// Check if assets are cached
+		const cacheNames = await page.evaluate(async () => await caches.keys());
 
-    expect(cacheNames.length).toBeGreaterThan(0);
-    expect(cacheNames.some((name) => name.includes('achievement-diary'))).toBeTruthy();
-  });
+		expect(cacheNames.length).toBeGreaterThan(0);
+		expect(
+			cacheNames.some((name) => name.includes("achievement-diary")),
+		).toBeTruthy();
+	});
 
-  test('should show install prompt on supported browsers', async ({ page, browserName }) => {
-    // Skip on browsers that don't support install prompt
-    if (browserName !== 'chromium') {
-      test.skip();
-      return;
-    }
+	test("should show install prompt on supported browsers", async ({
+		page,
+		browserName,
+	}) => {
+		// Skip on browsers that don't support install prompt
+		if (browserName !== "chromium") {
+			test.skip();
+			return;
+		}
 
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check if beforeinstallprompt event is supported
-    const hasInstallPrompt = await page.evaluate(() => 'onbeforeinstallprompt' in window);
+		// Check if beforeinstallprompt event is supported
+		const hasInstallPrompt = await page.evaluate(
+			() => "onbeforeinstallprompt" in window,
+		);
 
-    expect(hasInstallPrompt).toBeTruthy();
-  });
+		expect(hasInstallPrompt).toBeTruthy();
+	});
 
-  test('should support push notifications', async ({ page, browserName }) => {
-    // Skip on browsers that don't support push
-    if (browserName === 'webkit') {
-      test.skip();
-      return;
-    }
+	test("should support push notifications", async ({ page, browserName }) => {
+		// Skip on browsers that don't support push
+		if (browserName === "webkit") {
+			test.skip();
+			return;
+		}
 
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check if push notifications are supported
-    const pushSupported = await page.evaluate(
-      () => 'PushManager' in window && 'Notification' in window
-    );
+		// Check if push notifications are supported
+		const pushSupported = await page.evaluate(
+			() => "PushManager" in window && "Notification" in window,
+		);
 
-    expect(pushSupported).toBeTruthy();
-  });
+		expect(pushSupported).toBeTruthy();
+	});
 
-  test('should have proper cache headers', async ({ page }) => {
-    const response = await page.goto('/');
+	test("should have proper cache headers", async ({ page }) => {
+		const response = await page.goto("/");
 
-    // Check cache-control header
-    const cacheControl = response?.headers()['cache-control'];
-    expect(cacheControl).toBeTruthy();
-  });
+		// Check cache-control header
+		const cacheControl = response?.headers()["cache-control"];
+		expect(cacheControl).toBeTruthy();
+	});
 
-  test('should load app shell quickly', async ({ page }) => {
-    const startTime = Date.now();
+	test("should load app shell quickly", async ({ page }) => {
+		const startTime = Date.now();
 
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+		await page.goto("/");
+		await page.waitForLoadState("domcontentloaded");
 
-    const loadTime = Date.now() - startTime;
+		const loadTime = Date.now() - startTime;
 
-    // App shell should load in less than 3 seconds
-    expect(loadTime).toBeLessThan(3000);
-  });
+		// App shell should load in less than 3 seconds
+		expect(loadTime).toBeLessThan(3000);
+	});
 
-  test('should have valid theme color', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should have valid theme color", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check theme-color meta tag
-    const themeColor = await page.locator('meta[name="theme-color"]').getAttribute('content');
-    expect(themeColor).toBeTruthy();
-    expect(themeColor).toMatch(/^#[0-9A-Fa-f]{6}$/);
-  });
+		// Check theme-color meta tag
+		const themeColor = await page
+			.locator('meta[name="theme-color"]')
+			.getAttribute("content");
+		expect(themeColor).toBeTruthy();
+		expect(themeColor).toMatch(/^#[0-9A-Fa-f]{6}$/);
+	});
 
-  test('should have apple-touch-icon', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should have apple-touch-icon", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check apple-touch-icon link
-    const appleTouchIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href');
-    expect(appleTouchIcon).toBeTruthy();
-  });
+		// Check apple-touch-icon link
+		const appleTouchIcon = await page
+			.locator('link[rel="apple-touch-icon"]')
+			.getAttribute("href");
+		expect(appleTouchIcon).toBeTruthy();
+	});
 
-  test('should support background sync', async ({ page, browserName }) => {
-    // Skip on browsers that don't support background sync
-    if (browserName !== 'chromium') {
-      test.skip();
-      return;
-    }
+	test("should support background sync", async ({ page, browserName }) => {
+		// Skip on browsers that don't support background sync
+		if (browserName !== "chromium") {
+			test.skip();
+			return;
+		}
 
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Check if background sync is supported
-    const bgSyncSupported = await page.evaluate(async () => {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        return 'sync' in registration;
-      }
-      return false;
-    });
+		// Check if background sync is supported
+		const bgSyncSupported = await page.evaluate(async () => {
+			if ("serviceWorker" in navigator) {
+				const registration = await navigator.serviceWorker.ready;
+				return "sync" in registration;
+			}
+			return false;
+		});
 
-    expect(bgSyncSupported).toBeTruthy();
-  });
+		expect(bgSyncSupported).toBeTruthy();
+	});
 
-  test('should handle service worker updates', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+	test("should handle service worker updates", async ({ page }) => {
+		await page.goto("/");
+		await page.waitForLoadState("networkidle");
 
-    // Wait for service worker registration
-    await page.waitForTimeout(1000);
+		// Wait for service worker registration
+		await page.waitForTimeout(1000);
 
-    // Check if service worker update mechanism works
-    const hasUpdateMechanism = await page.evaluate(async () => {
-      if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.ready;
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          // Trigger update check
-          await registration.update();
-          return true;
-        }
-      }
-      return false;
-    });
+		// Check if service worker update mechanism works
+		const hasUpdateMechanism = await page.evaluate(async () => {
+			if ("serviceWorker" in navigator) {
+				await navigator.serviceWorker.ready;
+				const registration = await navigator.serviceWorker.getRegistration();
+				if (registration) {
+					// Trigger update check
+					await registration.update();
+					return true;
+				}
+			}
+			return false;
+		});
 
-    expect(hasUpdateMechanism).toBeTruthy();
-  });
+		expect(hasUpdateMechanism).toBeTruthy();
+	});
 
-  test('should have proper viewport meta tag', async ({ page }) => {
-    await page.goto('/');
+	test("should have proper viewport meta tag", async ({ page }) => {
+		await page.goto("/");
 
-    // Check viewport meta tag
-    const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
-    expect(viewport).toBeTruthy();
-    expect(viewport).toContain('width=device-width');
-    expect(viewport).toContain('initial-scale=1');
-  });
+		// Check viewport meta tag
+		const viewport = await page
+			.locator('meta[name="viewport"]')
+			.getAttribute("content");
+		expect(viewport).toBeTruthy();
+		expect(viewport).toContain("width=device-width");
+		expect(viewport).toContain("initial-scale=1");
+	});
 });

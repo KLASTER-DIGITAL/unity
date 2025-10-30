@@ -13,12 +13,12 @@
  */
 
 // Components
-export { MediaLightbox } from './components/MediaLightbox';
-export { MediaPreview } from './components/MediaPreview';
-export { PermissionGuide } from './components/PermissionGuide';
-export { VoiceRecordingModal } from './components/VoiceRecordingModal';
+export { MediaLightbox } from "./components/MediaLightbox";
+export { MediaPreview } from "./components/MediaPreview";
+export { PermissionGuide } from "./components/PermissionGuide";
+export { VoiceRecordingModal } from "./components/VoiceRecordingModal";
 
 // Hooks
-export { useVoiceRecorder } from './hooks/useVoiceRecorder';
+export { useVoiceRecorder } from "./hooks/useVoiceRecorder";
 // NOTE: useMediaUploader moved to @/shared/hooks/useMediaUploader
 // Import directly from @/shared/hooks/useMediaUploader instead

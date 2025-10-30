@@ -1,14 +1,14 @@
-import { CloudOff, Settings } from 'lucide-react';
-import { useOfflineMode } from '@/shared/lib/offline';
-import { SettingsRow, SettingsSection } from '../SettingsRow';
+import { CloudOff, Settings } from "lucide-react";
+import { useOfflineMode } from "@/shared/lib/offline";
+import { SettingsRow, SettingsSection } from "../SettingsRow";
 
 type OfflineSectionProps = {
-  offlineEnabled: boolean;
-  isPremium: boolean;
-  onOfflineChange: (enabled: boolean) => void;
-  onOfflineSettingsClick: () => void;
-  onPremiumRequired: () => void;
-  t: any; // Translation object
+	offlineEnabled: boolean;
+	isPremium: boolean;
+	onOfflineChange: (enabled: boolean) => void;
+	onOfflineSettingsClick: () => void;
+	onPremiumRequired: () => void;
+	t: any; // Translation object
 };
 
 /**
@@ -19,80 +19,80 @@ type OfflineSectionProps = {
  * - Pending syncs indicator
  */
 export function OfflineSection({
-  offlineEnabled,
-  isPremium,
-  onOfflineChange,
-  onOfflineSettingsClick,
-  onPremiumRequired,
-  t,
+	offlineEnabled,
+	isPremium,
+	onOfflineChange,
+	onOfflineSettingsClick,
+	onPremiumRequired,
+	t,
 }: OfflineSectionProps) {
-  const { pendingCount, syncInProgress } = useOfflineMode();
+	const { pendingCount, syncInProgress } = useOfflineMode();
 
-  const handleOfflineChange = (checked: boolean) => {
-    if (!isPremium && checked) {
-      onPremiumRequired();
-    } else {
-      onOfflineChange(checked);
-    }
-  };
+	const handleOfflineChange = (checked: boolean) => {
+		if (!isPremium && checked) {
+			onPremiumRequired();
+		} else {
+			onOfflineChange(checked);
+		}
+	};
 
-  const handleOfflineClick = () => {
-    if (!isPremium) {
-      onPremiumRequired();
-    }
-  };
+	const handleOfflineClick = () => {
+		if (!isPremium) {
+			onPremiumRequired();
+		}
+	};
 
-  const handleSettingsClick = () => {
-    if (!isPremium) {
-      onPremiumRequired();
-    } else {
-      onOfflineSettingsClick();
-    }
-  };
+	const handleSettingsClick = () => {
+		if (!isPremium) {
+			onPremiumRequired();
+		} else {
+			onOfflineSettingsClick();
+		}
+	};
 
-  // Формируем description с учетом pending syncs
-  const getDescription = () => {
-    if (!isPremium) {
-      return 'Требуется премиум';
-    }
-    if (!offlineEnabled) {
-      return 'Премиум функция';
-    }
-    if (syncInProgress) {
-      return `Синхронизация ${pendingCount} записей...`;
-    }
-    if (pendingCount > 0) {
-      return `${pendingCount} записей ожидают синхронизации`;
-    }
-    return 'Работает в фоновом режиме';
-  };
+	// Формируем description с учетом pending syncs
+	const getDescription = () => {
+		if (!isPremium) {
+			return "Требуется премиум";
+		}
+		if (!offlineEnabled) {
+			return "Премиум функция";
+		}
+		if (syncInProgress) {
+			return `Синхронизация ${pendingCount} записей...`;
+		}
+		if (pendingCount > 0) {
+			return `${pendingCount} записей ожидают синхронизации`;
+		}
+		return "Работает в фоновом режиме";
+	};
 
-  return (
-    <SettingsSection title={t.offlineMode || 'Offline режим'}>
-      <SettingsRow
-        description={getDescription()}
-        disabled={!isPremium}
-        icon={CloudOff}
-        iconBgColor="bg-[var(--ios-purple)]/10"
-        iconColor="text-[var(--ios-purple)]"
-        onClick={handleOfflineClick}
-        onSwitchChange={handleOfflineChange}
-        rightElement="switch"
-        switchChecked={offlineEnabled}
-        title={t.enableOfflineMode || 'Включить offline режим'}
-      />
+	return (
+		<SettingsSection title={t.offlineMode || "Offline режим"}>
+			<SettingsRow
+				description={getDescription()}
+				disabled={!isPremium}
+				icon={CloudOff}
+				iconBgColor="bg-[var(--ios-purple)]/10"
+				iconColor="text-[var(--ios-purple)]"
+				onClick={handleOfflineClick}
+				onSwitchChange={handleOfflineChange}
+				rightElement="switch"
+				switchChecked={offlineEnabled}
+				title={t.enableOfflineMode || "Включить offline режим"}
+			/>
 
-      {/* Offline Settings - только для премиум пользователей */}
-      {isPremium && offlineEnabled && (
-        <SettingsRow
-          description="Синхронизация и конфликты"
-          icon={Settings}
-          iconBgColor="bg-[var(--ios-blue)]/10"
-          iconColor="text-[var(--ios-blue)]"
-          onClick={handleSettingsClick}
-          title={t.offlineSettings || 'Настройки offline'}
-        />
-      )}
-    </SettingsSection>
-  );
+			{/* Offline Settings - только для премиум пользователей */}
+			{isPremium && offlineEnabled && (
+				<SettingsRow
+					description="Синхронизация и конфликты"
+					icon={Settings}
+					iconBgColor="bg-[var(--ios-blue)]/10"
+					iconColor="text-[var(--ios-blue)]"
+					onClick={handleSettingsClick}
+					title={t.offlineSettings || "Настройки offline"}
+				/>
+			)}
+		</SettingsSection>
+	);
 }

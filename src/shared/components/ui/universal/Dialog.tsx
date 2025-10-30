@@ -9,7 +9,7 @@
  */
 
 // Import implementations
-import * as WebDialog from './Dialog.web';
+import * as WebDialog from "./Dialog.web";
 
 // Note: NativeDialog is NOT imported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed
@@ -42,23 +42,23 @@ export const DialogDescription = DialogComponents.DialogDescription;
 
 // Export types
 export type {
-  DialogContentProps,
-  DialogDescriptionProps,
-  DialogFooterProps,
-  DialogHeaderProps,
-  DialogProps,
-  DialogTitleProps,
-} from './Dialog.web';
+	DialogContentProps,
+	DialogDescriptionProps,
+	DialogFooterProps,
+	DialogHeaderProps,
+	DialogProps,
+	DialogTitleProps,
+} from "./Dialog.web";
 
 export default {
-  Dialog,
-  DialogTrigger,
-  DialogPortal,
-  DialogClose,
-  DialogOverlay,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
+	Dialog,
+	DialogTrigger,
+	DialogPortal,
+	DialogClose,
+	DialogOverlay,
+	DialogContent,
+	DialogHeader,
+	DialogFooter,
+	DialogTitle,
+	DialogDescription,
 };

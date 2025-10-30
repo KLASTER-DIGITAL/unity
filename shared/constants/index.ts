@@ -4,4 +4,4 @@
  * TRULY shared code - NO platform-specific imports
  */
 
-export * from './app';
+export * from "./app";

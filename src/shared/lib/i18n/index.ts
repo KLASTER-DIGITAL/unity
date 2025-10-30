@@ -10,21 +10,21 @@
  */
 
 // Re-export formatting
-export * from './formatting';
-export * from './helpers';
-export * from './I18nTestComponent';
-export * from './LanguageSelector';
-export * from './language-detection';
+export * from "./formatting";
+export * from "./helpers";
+export * from "./I18nTestComponent";
+export * from "./LanguageSelector";
+export * from "./language-detection";
 // Re-export optimizations
-export * from './optimizations';
+export * from "./optimizations";
 // Re-export pluralization
-export * from './pluralization';
+export * from "./pluralization";
 // Re-export RTL support
-export * from './rtl';
-export * from './TranslationLoader';
-export * from './TranslationManager';
-export * from './TranslationProvider';
+export * from "./rtl";
+export * from "./TranslationLoader";
+export * from "./TranslationManager";
+export * from "./TranslationProvider";
 // Re-export types
-export type { Language, Translations } from './types';
-export * from './types/TranslationKeys';
-export * from './useTranslation';
+export type { Language, Translations } from "./types";
+export * from "./types/TranslationKeys";
+export * from "./useTranslation";

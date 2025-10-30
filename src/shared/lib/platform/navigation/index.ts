@@ -8,13 +8,13 @@
  * @module platform/navigation
  */
 
-import { WebNavigationAdapter } from './navigation.web';
+import { WebNavigationAdapter } from "./navigation.web";
 
 // ✅ PWA + React Native Architecture: ONLY import web module in PWA build
 // React Native implementation is in /app/shared/lib/platform/navigation.native.ts
 
 // Re-export types from main navigation file
-export type { NavigationAdapter, NavigationOptions } from '../navigation';
+export type { NavigationAdapter, NavigationOptions } from "../navigation";
 
 /**
  * Universal navigation instance

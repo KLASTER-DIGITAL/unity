@@ -11,65 +11,65 @@
  */
 
 :root {
-  /* ===== Positive Gradients - Light Mode ===== */
-  /* Используются для позитивных достижений, успехов */
-  --gradient-positive-1-start: #fe7669;
-  --gradient-positive-1-end: #ff8969;
+	/* ===== Positive Gradients - Light Mode ===== */
+	/* Используются для позитивных достижений, успехов */
+	--gradient-positive-1-start: #fe7669;
+	--gradient-positive-1-end: #ff8969;
 
-  --gradient-positive-2-start: #ff7769;
-  --gradient-positive-2-end: #ff6b9d;
+	--gradient-positive-2-start: #ff7769;
+	--gradient-positive-2-end: #ff6b9d;
 
-  --gradient-positive-3-start: #ff6b9d;
-  --gradient-positive-3-end: #c471ed;
+	--gradient-positive-3-start: #ff6b9d;
+	--gradient-positive-3-end: #c471ed;
 
-  --gradient-positive-4-start: #c471ed;
-  --gradient-positive-4-end: #8b78ff;
+	--gradient-positive-4-start: #c471ed;
+	--gradient-positive-4-end: #8b78ff;
 
-  /* ===== Neutral Gradients - Light Mode ===== */
-  /* Используются для нейтральных записей, информации */
-  --gradient-neutral-1-start: #92bfff;
-  --gradient-neutral-1-end: #6ba3ff;
+	/* ===== Neutral Gradients - Light Mode ===== */
+	/* Используются для нейтральных записей, информации */
+	--gradient-neutral-1-start: #92bfff;
+	--gradient-neutral-1-end: #6ba3ff;
 
-  --gradient-neutral-2-start: #6ba3ff;
-  --gradient-neutral-2-end: #5b93ef;
+	--gradient-neutral-2-start: #6ba3ff;
+	--gradient-neutral-2-end: #5b93ef;
 
-  /* ===== Negative Gradients - Light Mode ===== */
-  /* Используются для неудач, проблем (для анализа и роста) */
-  --gradient-negative-1-start: #ffb74d;
-  --gradient-negative-1-end: #ffa726;
+	/* ===== Negative Gradients - Light Mode ===== */
+	/* Используются для неудач, проблем (для анализа и роста) */
+	--gradient-negative-1-start: #ffb74d;
+	--gradient-negative-1-end: #ffa726;
 
-  --gradient-negative-2-start: #ffa726;
-  --gradient-negative-2-end: #ff9800;
+	--gradient-negative-2-start: #ffa726;
+	--gradient-negative-2-end: #ff9800;
 }
 
 .dark {
-  /* ===== Positive Gradients - Dark Mode ===== */
-  /* Более яркие для контраста на темном фоне */
-  --gradient-positive-1-start: #ff8a7a;
-  --gradient-positive-1-end: #ffa080;
+	/* ===== Positive Gradients - Dark Mode ===== */
+	/* Более яркие для контраста на темном фоне */
+	--gradient-positive-1-start: #ff8a7a;
+	--gradient-positive-1-end: #ffa080;
 
-  --gradient-positive-2-start: #ff8a7a;
-  --gradient-positive-2-end: #ff7bad;
+	--gradient-positive-2-start: #ff8a7a;
+	--gradient-positive-2-end: #ff7bad;
 
-  --gradient-positive-3-start: #ff7bad;
-  --gradient-positive-3-end: #d481fd;
+	--gradient-positive-3-start: #ff7bad;
+	--gradient-positive-3-end: #d481fd;
 
-  --gradient-positive-4-start: #d481fd;
-  --gradient-positive-4-end: #9b88ff;
+	--gradient-positive-4-start: #d481fd;
+	--gradient-positive-4-end: #9b88ff;
 
-  /* ===== Neutral Gradients - Dark Mode ===== */
-  /* Более яркие для видимости */
-  --gradient-neutral-1-start: #a0cfff;
-  --gradient-neutral-1-end: #7ab3ff;
+	/* ===== Neutral Gradients - Dark Mode ===== */
+	/* Более яркие для видимости */
+	--gradient-neutral-1-start: #a0cfff;
+	--gradient-neutral-1-end: #7ab3ff;
 
-  --gradient-neutral-2-start: #7ab3ff;
-  --gradient-neutral-2-end: #6ba3ff;
+	--gradient-neutral-2-start: #7ab3ff;
+	--gradient-neutral-2-end: #6ba3ff;
 
-  /* ===== Negative Gradients - Dark Mode ===== */
-  /* Более яркие для контраста */
-  --gradient-negative-1-start: #ffc870;
-  --gradient-negative-1-end: #ffb84d;
+	/* ===== Negative Gradients - Dark Mode ===== */
+	/* Более яркие для контраста */
+	--gradient-negative-1-start: #ffc870;
+	--gradient-negative-1-end: #ffb84d;
 
-  --gradient-negative-2-start: #ffb84d;
-  --gradient-negative-2-end: #ffa826;
+	--gradient-negative-2-start: #ffb84d;
+	--gradient-negative-2-end: #ffa826;
 }

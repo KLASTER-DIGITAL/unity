@@ -1,74 +1,74 @@
-import { useEffect, useState } from 'react';
-import { speech } from '../lib/platform/speech';
+import { useEffect, useState } from "react";
+import { speech } from "../lib/platform/speech";
 
 type SpeechRecognitionHook = {
-  isListening: boolean;
-  transcript: string;
-  startListening: () => void;
-  stopListening: () => void;
-  isSupported: boolean;
+	isListening: boolean;
+	transcript: string;
+	startListening: () => void;
+	stopListening: () => void;
+	isSupported: boolean;
 };
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
+	const [isListening, setIsListening] = useState(false);
+	const [transcript, setTranscript] = useState("");
 
-  const isSupported = speech.isSupported();
+	const isSupported = speech.isSupported();
 
-  useEffect(() => {
-    if (!isSupported) {
-      return;
-    }
+	useEffect(() => {
+		if (!isSupported) {
+			return;
+		}
 
-    // Set up callbacks
-    speech.onStart(() => {
-      setIsListening(true);
-    });
+		// Set up callbacks
+		speech.onStart(() => {
+			setIsListening(true);
+		});
 
-    speech.onResult((result) => {
-      if (result.isFinal) {
-        setTranscript(result.transcript);
-      }
-    });
+		speech.onResult((result) => {
+			if (result.isFinal) {
+				setTranscript(result.transcript);
+			}
+		});
 
-    speech.onEnd(() => {
-      setIsListening(false);
-    });
+		speech.onEnd(() => {
+			setIsListening(false);
+		});
 
-    speech.onError((error) => {
-      console.error('Speech recognition error:', error);
-      setIsListening(false);
-    });
+		speech.onError((error) => {
+			console.error("Speech recognition error:", error);
+			setIsListening(false);
+		});
 
-    return () => {
-      if (speech.isListening()) {
-        speech.abort();
-      }
-    };
-  }, [isSupported]);
+		return () => {
+			if (speech.isListening()) {
+				speech.abort();
+			}
+		};
+	}, [isSupported]);
 
-  const startListening = () => {
-    if (!isSupported) {
-      return;
-    }
+	const startListening = () => {
+		if (!isSupported) {
+			return;
+		}
 
-    setTranscript('');
-    speech.startListening({
-      language: 'ru-RU',
-      continuous: false,
-      interimResults: false,
-    });
-  };
+		setTranscript("");
+		speech.startListening({
+			language: "ru-RU",
+			continuous: false,
+			interimResults: false,
+		});
+	};
 
-  const stopListening = () => {
-    speech.stopListening();
-  };
+	const stopListening = () => {
+		speech.stopListening();
+	};
 
-  return {
-    isListening,
-    transcript,
-    startListening,
-    stopListening,
-    isSupported,
-  };
+	return {
+		isListening,
+		transcript,
+		startListening,
+		stopListening,
+		isSupported,
+	};
 }

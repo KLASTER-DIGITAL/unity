@@ -5,8 +5,8 @@
  */
 
 export {
-  BLUR_PLACEHOLDERS,
-  generateGradientBlurPlaceholder,
-  generateSimpleBlurPlaceholder,
-  getBlurPlaceholder,
-} from './generateBlurPlaceholder';
+	BLUR_PLACEHOLDERS,
+	generateGradientBlurPlaceholder,
+	generateSimpleBlurPlaceholder,
+	getBlurPlaceholder,
+} from "./generateBlurPlaceholder";

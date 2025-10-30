@@ -3,5 +3,5 @@
  * This allows gradual migration without breaking existing imports
  */
 
-export * from '../../../utils/auth';
-export * from './accessControl';
+export * from "../../../utils/auth";
+export * from "./accessControl";

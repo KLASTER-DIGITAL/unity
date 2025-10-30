@@ -6,132 +6,134 @@
  * @module platform/media/web
  */
 
-import type { MediaAdapter } from '../media';
+import type { MediaAdapter } from "../media";
 
 /**
  * Web media adapter using browser APIs
  */
 export class WebMediaAdapter implements MediaAdapter {
-  async readAsDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+	async readAsDataURL(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
 
-      reader.onload = (e) => {
-        resolve(e.target?.result as string);
-      };
+			reader.onload = (e) => {
+				resolve(e.target?.result as string);
+			};
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read file as data URL'));
-      };
+			reader.onerror = () => {
+				reject(new Error("Failed to read file as data URL"));
+			};
 
-      reader.readAsDataURL(file);
-    });
-  }
+			reader.readAsDataURL(file);
+		});
+	}
 
-  async readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+	async readAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
 
-      reader.onload = (e) => {
-        resolve(e.target?.result as ArrayBuffer);
-      };
+			reader.onload = (e) => {
+				resolve(e.target?.result as ArrayBuffer);
+			};
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read file as array buffer'));
-      };
+			reader.onerror = () => {
+				reject(new Error("Failed to read file as array buffer"));
+			};
 
-      reader.readAsArrayBuffer(file);
-    });
-  }
+			reader.readAsArrayBuffer(file);
+		});
+	}
 
-  async readAsText(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+	async readAsText(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
 
-      reader.onload = (e) => {
-        resolve(e.target?.result as string);
-      };
+			reader.onload = (e) => {
+				resolve(e.target?.result as string);
+			};
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read file as text'));
-      };
+			reader.onerror = () => {
+				reject(new Error("Failed to read file as text"));
+			};
 
-      reader.readAsText(file);
-    });
-  }
+			reader.readAsText(file);
+		});
+	}
 
-  createObjectURL(file: File | Blob): string {
-    return URL.createObjectURL(file);
-  }
+	createObjectURL(file: File | Blob): string {
+		return URL.createObjectURL(file);
+	}
 
-  revokeObjectURL(url: string): void {
-    URL.revokeObjectURL(url);
-  }
+	revokeObjectURL(url: string): void {
+		URL.revokeObjectURL(url);
+	}
 
-  async getImageDimensions(file: File): Promise<{ width: number; height: number }> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+	async getImageDimensions(
+		file: File,
+	): Promise<{ width: number; height: number }> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
 
-      reader.onload = (e) => {
-        const img = new Image();
+			reader.onload = (e) => {
+				const img = new Image();
 
-        img.onload = () => {
-          resolve({ width: img.width, height: img.height });
-        };
+				img.onload = () => {
+					resolve({ width: img.width, height: img.height });
+				};
 
-        img.onerror = () => {
-          reject(new Error('Failed to load image'));
-        };
+				img.onerror = () => {
+					reject(new Error("Failed to load image"));
+				};
 
-        img.src = e.target?.result as string;
-      };
+				img.src = e.target?.result as string;
+			};
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read image file'));
-      };
+			reader.onerror = () => {
+				reject(new Error("Failed to read image file"));
+			};
 
-      reader.readAsDataURL(file);
-    });
-  }
+			reader.readAsDataURL(file);
+		});
+	}
 
-  async getVideoMetadata(file: File): Promise<{
-    duration: number;
-    width: number;
-    height: number;
-  }> {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
+	async getVideoMetadata(file: File): Promise<{
+		duration: number;
+		width: number;
+		height: number;
+	}> {
+		return new Promise((resolve, reject) => {
+			const video = document.createElement("video");
+			video.preload = "metadata";
 
-      video.onloadedmetadata = () => {
-        URL.revokeObjectURL(video.src);
-        resolve({
-          duration: Math.round(video.duration),
-          width: video.videoWidth,
-          height: video.videoHeight,
-        });
-      };
+			video.onloadedmetadata = () => {
+				URL.revokeObjectURL(video.src);
+				resolve({
+					duration: Math.round(video.duration),
+					width: video.videoWidth,
+					height: video.videoHeight,
+				});
+			};
 
-      video.onerror = () => {
-        reject(new Error('Failed to load video metadata'));
-      };
+			video.onerror = () => {
+				reject(new Error("Failed to load video metadata"));
+			};
 
-      video.src = URL.createObjectURL(file);
-    });
-  }
+			video.src = URL.createObjectURL(file);
+		});
+	}
 
-  createCanvas(width: number, height: number): HTMLCanvasElement {
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    return canvas;
-  }
+	createCanvas(width: number, height: number): HTMLCanvasElement {
+		const canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		return canvas;
+	}
 
-  createImage(): HTMLImageElement {
-    return new Image();
-  }
+	createImage(): HTMLImageElement {
+		return new Image();
+	}
 
-  createVideo(): HTMLVideoElement {
-    return document.createElement('video');
-  }
+	createVideo(): HTMLVideoElement {
+		return document.createElement("video");
+	}
 }

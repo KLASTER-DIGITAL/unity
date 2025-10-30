@@ -1,1 +1,1 @@
-export { AIAnalyticsTab } from './components/AIAnalyticsTab';
+export { AIAnalyticsTab } from "./components/AIAnalyticsTab";

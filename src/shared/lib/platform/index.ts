@@ -9,86 +9,88 @@
 
 // Platform detection
 import {
-  Platform,
-  PlatformConstants,
-  PlatformDev,
-  PlatformFeatures,
-  type PlatformSpecific,
-  type PlatformType,
-} from './detection';
+	Platform,
+	PlatformConstants,
+	PlatformDev,
+	PlatformFeatures,
+	type PlatformSpecific,
+	type PlatformType,
+} from "./detection";
 
 export {
-  Platform,
-  PlatformConstants,
-  PlatformFeatures,
-  PlatformDev,
-  type PlatformType,
-  type PlatformSpecific,
+	Platform,
+	PlatformConstants,
+	PlatformFeatures,
+	PlatformDev,
+	type PlatformType,
+	type PlatformSpecific,
 };
 
 // Media adapter
 export {
-  type MediaAdapter,
-  MediaUtils,
-  media,
-} from './media';
+	type MediaAdapter,
+	MediaUtils,
+	media,
+} from "./media";
 // Navigation adapter
 export {
-  type NavigationAdapter,
-  type NavigationOptions,
-  NavigationUtils,
-  navigation,
-  type RouteParams,
-} from './navigation';
+	type NavigationAdapter,
+	type NavigationOptions,
+	NavigationUtils,
+	navigation,
+	type RouteParams,
+} from "./navigation";
 // React Native readiness checker
 export {
-  checkReactNativeReadiness,
-  ReactNativeReadinessChecker,
-  type ReadinessCheckResult,
-  type ReadinessReport,
-} from './react-native-readiness';
+	checkReactNativeReadiness,
+	ReactNativeReadinessChecker,
+	type ReadinessCheckResult,
+	type ReadinessReport,
+} from "./react-native-readiness";
 // Storage adapter
 export {
-  type StorageAdapter,
-  StorageKeys,
-  StorageUtils,
-  storage,
-} from './storage';
+	type StorageAdapter,
+	StorageKeys,
+	StorageUtils,
+	storage,
+} from "./storage";
 
 /**
  * Platform abstraction utilities
  */
 export const PlatformUtils = {
-  /**
-   * Get platform-specific file path separator
-   */
-  get pathSeparator(): string {
-    return Platform.value('/', '/', '/');
-  },
+	/**
+	 * Get platform-specific file path separator
+	 */
+	get pathSeparator(): string {
+		return Platform.value("/", "/", "/");
+	},
 
-  /**
-   * Get platform-specific line ending
-   */
-  get lineEnding(): string {
-    return Platform.value('\n', '\n', '\n');
-  },
+	/**
+	 * Get platform-specific line ending
+	 */
+	get lineEnding(): string {
+		return Platform.value("\n", "\n", "\n");
+	},
 
-  /**
-   * Check if platform supports feature
-   */
-  supportsFeature(feature: keyof typeof PlatformFeatures): boolean {
-    return PlatformFeatures[feature];
-  },
+	/**
+	 * Check if platform supports feature
+	 */
+	supportsFeature(feature: keyof typeof PlatformFeatures): boolean {
+		return PlatformFeatures[feature];
+	},
 
-  /**
-   * Get platform-specific constant
-   */
-  getConstant<K extends keyof typeof PlatformConstants>(key: K): (typeof PlatformConstants)[K] {
-    return PlatformConstants[key];
-  },
+	/**
+	 * Get platform-specific constant
+	 */
+	getConstant<K extends keyof typeof PlatformConstants>(
+		key: K,
+	): (typeof PlatformConstants)[K] {
+		return PlatformConstants[key];
+	},
 };
 
 /**
  * Re-export commonly used platform utilities
  */
-export { Platform as default } from './detection';
+export { Platform as default } from "./detection";

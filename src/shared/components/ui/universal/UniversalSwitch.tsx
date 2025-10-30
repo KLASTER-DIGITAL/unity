@@ -9,7 +9,7 @@
  */
 
 // Import implementations
-import * as WebSwitch from './Switch.web';
+import * as WebSwitch from "./Switch.web";
 
 // ============================================================================
 // PLATFORM SELECT
@@ -30,12 +30,12 @@ export const UniversalSwitch = SwitchComponents.Switch;
 export const SwitchUtils = SwitchComponents.SwitchUtils;
 
 // Export types
-export type { SwitchProps } from './Switch.web';
+export type { SwitchProps } from "./Switch.web";
 
 // Note: NativeSwitch is NOT exported to avoid bundling react-native in web build
 // Native version is loaded dynamically when needed in React Native environment
 
 export default {
-  Switch: UniversalSwitch,
-  SwitchUtils,
+	Switch: UniversalSwitch,
+	SwitchUtils,
 };

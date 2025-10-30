@@ -9,22 +9,22 @@
  * - Durations
  */
 
-export * from './DateFormatter';
+export * from "./DateFormatter";
 // Re-export commonly used functions
 export {
-  DATE_FORMATS,
-  formatDate,
-  formatRelativeTime,
-  formatTime,
-} from './DateFormatter';
-export * from './NumberFormatter';
+	DATE_FORMATS,
+	formatDate,
+	formatRelativeTime,
+	formatTime,
+} from "./DateFormatter";
+export * from "./NumberFormatter";
 
 export {
-  formatCompact,
-  formatCurrency,
-  formatDuration,
-  formatFileSize,
-  formatNumber,
-  formatPercent,
-  NUMBER_FORMATS,
-} from './NumberFormatter';
+	formatCompact,
+	formatCurrency,
+	formatDuration,
+	formatFileSize,
+	formatNumber,
+	formatPercent,
+	NUMBER_FORMATS,
+} from "./NumberFormatter";
