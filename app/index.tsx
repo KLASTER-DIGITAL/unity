@@ -41,7 +41,8 @@ export default function IndexScreen() {
 
 	useEffect(() => {
 		checkAuth();
-	}, [checkAuth]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>

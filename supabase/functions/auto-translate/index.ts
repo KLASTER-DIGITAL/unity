@@ -219,7 +219,7 @@ Output (JSON only, no explanations):`;
 						.replace(/```\n?/g, "")
 						.trim();
 					translated = JSON.parse(cleanedText);
-				} catch (parseError) {
+				} catch (_parseError) {
 					console.error("Failed to parse OpenAI response:", translatedText);
 					continue;
 				}

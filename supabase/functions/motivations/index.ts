@@ -38,7 +38,7 @@ function getGradientBySentiment(sentiment: string): string {
 		negative: ["from-[#f093fb] to-[#f5576c]", "from-[#fa709a] to-[#fee140]"],
 	};
 
-	const gradientList = gradients[sentiment] || gradients["positive"];
+	const gradientList = gradients[sentiment] || gradients.positive;
 	return gradientList[Math.floor(Math.random() * gradientList.length)];
 }
 
@@ -116,7 +116,7 @@ function getDefaultMotivations(language: string): any[] {
 		],
 	};
 
-	return defaults[language] || defaults["en"];
+	return defaults[language] || defaults.en;
 }
 
 // ======================

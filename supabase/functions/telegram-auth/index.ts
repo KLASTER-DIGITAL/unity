@@ -92,7 +92,7 @@ serve(async (req) => {
 				await req.json();
 
 			// Валидация данных Telegram
-			if (!(telegramData && telegramData.id && telegramData.hash)) {
+			if (!(telegramData?.id && telegramData.hash)) {
 				return new Response(
 					JSON.stringify({ error: "Invalid Telegram data" }),
 					{

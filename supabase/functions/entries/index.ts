@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
 				);
 			}
 
-			if (!(entryData.text && entryData.text.trim())) {
+			if (!entryData.text?.trim()) {
 				return new Response(
 					JSON.stringify({ success: false, error: "text is required" }),
 					{
