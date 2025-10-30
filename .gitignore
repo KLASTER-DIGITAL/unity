@@ -107,7 +107,9 @@ ios/
 Podfile.lock
 
 # Android (Expo generated, not committed)
-android/
+# ВАЖНО: Используем /android/ с ведущим слэшем чтобы исключить только корневую директорию,
+# НЕ затрагивая src/shared/components/ui/shadcn-io/android/
+/android/
 
 # Metro
 .metro-health-check*
