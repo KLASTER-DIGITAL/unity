@@ -479,5 +479,102 @@ module.exports = {
 
 ---
 
-**Следующий шаг**: Переместить .native.tsx файлы в /app/shared/
+## 🔧 Конфигурационные файлы
+
+### `.gitignore` - КРИТИЧЕСКИ ВАЖНО
+
+```gitignore
+# Android (Expo generated, not committed)
+# ВАЖНО: Используем /android/ с ведущим слэшем чтобы исключить только корневую директорию,
+# НЕ затрагивая src/shared/components/ui/shadcn-io/android/
+/android/
+
+# iOS (Expo generated, not committed)
+ios/
+```
+
+**Критическое правило**: ВСЕГДА используйте `/` в начале для исключения только корневых директорий
+
+**Примеры**:
+- ✅ `/android/` - исключает только `/android/`, НЕ затрагивает `src/.../android/`
+- ❌ `android/` - исключает ВСЕ директории с именем `android` (ОШИБКА!)
+
+**Почему это важно**:
+- У нас есть UI компонент `src/shared/components/ui/shadcn-io/android/index.tsx`
+- Если использовать `android/` → файл НЕ попадет в git → Vercel build упадет ❌
+- С `/android/` → только корневая директория исключена → UI компонент в git ✅
+
+### `.vercelignore` - Исключение React Native из PWA build
+
+```
+# React Native / Expo (не нужны для web build)
+# ВАЖНО: /app/ с ведущим слэшем исключает только корневую директорию app/,
+# НЕ затрагивая src/app/ (PWA компоненты)
+/app/
+/index.js
+/.expo/
+/metro.config.js
+/babel.config.js
+/eas.json
+/app.json
+```
+
+**Критическое правило**: `/app/` (с слэшем) vs `src/app/` (без слэша)
+
+**Примеры**:
+- ✅ `/app/` - исключает только `/app/` (React Native), НЕ затрагивает `src/app/` (PWA)
+- ❌ `app/` - исключает ВСЕ директории с именем `app`, включая `src/app/` (ОШИБКА!)
+
+### `eas.json` - EAS Build конфигурация
+
+**Создание**: `eas build:configure`
+
+**Рекомендуемая конфигурация**:
+```json
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "development-device": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  }
+}
+```
+
+**Профили**:
+- `development`: iOS Simulator build (для Mac)
+- `development-device`: Android APK для физических устройств
+- `preview`: Internal testing (QA)
+- `production`: App Store/Google Play
+
+**Текущий статус**: `eas.json` **НЕ создан** в UNITY-v2 (см. `docs/mobile/REACT_NATIVE_EXPO_SETUP.md`)
+
+---
+
+## 📚 Связанная документация
+
+- `docs/mobile/REACT_NATIVE_EXPO_SETUP.md` - React Native Expo Setup
+- `docs/architecture/DEPLOYMENT.md` - Deployment конфигурация
+- `.augment/rules/unity.md` - Правила разработки
+
+---
+
+**Следующий шаг**: Создать `eas.json` и Development Build для тестирования на телефоне
 

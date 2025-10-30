@@ -1,7 +1,7 @@
 # Deployment Configuration - UNITY-v2
 
-**Последнее обновление**: 2025-10-28  
-**Платформа**: Vercel  
+**Последнее обновление**: 2025-10-30
+**Платформа**: Vercel
 **Статус**: ✅ Production Ready
 
 ---
@@ -303,6 +303,60 @@ vendor-misc-Bpm007VH.js:1 Uncaught ReferenceError: Cannot access 'G' before init
 
 ---
 
+## 🚨 Критические ошибки и исправления
+
+### Проблема 1: `.gitignore` исключает UI компоненты (ИСПРАВЛЕНО 2025-10-30)
+
+**Симптомы**:
+- Local build успешен
+- Vercel build падает с ошибкой: `ENOENT: no such file or directory, open '/vercel/path0/src/shared/components/ui/shadcn-io/android'`
+- Файл существует локально, но НЕ в git
+
+**Root Cause**:
+`.gitignore` строка 110 содержала `android/` (без ведущего слэша):
+
+```gitignore
+# ❌ БЫЛО (неправильно)
+android/
+
+# ✅ СТАЛО (правильно)
+/android/
+```
+
+**Последствия**:
+- `android/` исключает **ВСЕ** директории с именем `android` в проекте
+- Файл `src/shared/components/ui/shadcn-io/android/index.tsx` существовал локально
+- Но **НЕ был закоммичен** в git из-за `.gitignore`
+- Local build использовал локальный файл → успех ✅
+- Vercel build не нашел файл в репозитории → ENOENT ❌
+
+**Решение**:
+1. Изменить `.gitignore` с `android/` на `/android/` (с ведущим слэшем)
+2. Добавить файл `src/shared/components/ui/shadcn-io/android/index.tsx` в git
+3. Commit: `0ab6129` - "fix(critical): Add missing Android component excluded by .gitignore"
+
+**Почему pre-commit hook не поймал ошибку?**:
+- Pre-commit hook запускает `npm run build` на **локальных файлах**
+- Git не отслеживает файл из-за `.gitignore`
+- Build успешен локально, но падает на Vercel
+
+**Правило**: ВСЕГДА используйте `/` в начале для исключения только корневых директорий:
+- ✅ `/android/` - исключает только `/android/`, НЕ затрагивает `src/.../android/`
+- ❌ `android/` - исключает ВСЕ директории с именем `android` (ОШИБКА!)
+
+### Проблема 2: `.vercelignore` исключает PWA компоненты
+
+**Потенциальная проблема** (предотвращена):
+- Если использовать `app/` (без слэша) в `.vercelignore`
+- Исключит `src/app/` PWA компоненты из Vercel build
+- Vercel build упадет с `Cannot find module`
+
+**Решение**:
+- Использовать `/app/` (с ведущим слэшем)
+- Исключает только `/app/` (React Native), НЕ затрагивает `src/app/` (PWA)
+
+---
+
 ## 📝 Environment Variables
 
 ### Vercel Dashboard
@@ -332,11 +386,13 @@ SENTRY_AUTH_TOKEN=<your-sentry-auth-token>  # Опционально
 - `docs/CHANGELOG.md` - История изменений
 - `docs/FIX.md` - Технические изменения
 - `docs/handoff/2025-10-28_deployment_fixes.md` - Handoff документ
+- `docs/mobile/REACT_NATIVE_EXPO_SETUP.md` - React Native Expo Setup
+- `docs/architecture/ARCHITECTURE_PWA_RN.md` - PWA vs React Native архитектура
 - `.augment/rules/unity.md` - Правила разработки
 
 ---
 
-**Автор**: AI Agent  
-**Дата создания**: 2025-10-28  
-**Последнее обновление**: 2025-10-28
+**Автор**: AI Agent
+**Дата создания**: 2025-10-28
+**Последнее обновление**: 2025-10-30
 

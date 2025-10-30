@@ -186,6 +186,342 @@ type: "always_apply"
 
 ---
 
+## 🔀 Гибридный подход PWA + React Native
+
+### Архитектура разделения
+
+UNITY-v2 использует **уникальную гибридную архитектуру** с двумя параллельными build системами:
+
+```
+UNITY-v2
+├── PWA Build (Vite)           → Vercel deployment
+│   ├── Entry: src/main.tsx
+│   ├── Build: npm run build
+│   ├── Output: build/
+│   └── React: 18.3.1 + react-native-web
+│
+└── React Native Build (Metro) → Expo Go / EAS Build
+    ├── Entry: index.js
+    ├── Build: npx expo start
+    ├── Output: .expo/
+    └── React: 19.1.0 (planned)
+```
+
+### Критическое разделение директорий
+
+**ВАЖНО**: `/app/` и `src/app/` - это РАЗНЫЕ директории!
+
+```
+/app/                  # React Native Expo Router (ИСКЛЮЧЕН из Vercel)
+├── _layout.tsx        # Expo Router layout
+├── index.tsx          # Expo Router entry point
+└── (tabs)/            # Expo Router tabs
+
+src/app/               # PWA компоненты (ВКЛЮЧЕН в Vercel)
+├── mobile/            # PWA мобильные компоненты
+│   ├── MobileApp.tsx
+│   └── index.ts
+└── admin/             # PWA админ компоненты
+    ├── AdminApp.tsx
+    └── index.ts
+```
+
+### Правила разработки фич
+
+#### 1. **ОБЯЗАТЕЛЬНО создавать реализацию для ОБОИХ платформ**
+
+При разработке ЛЮБОЙ новой фичи или улучшении дизайна:
+
+- ✅ **ВСЕГДА** создавать `.web.ts` И `.native.ts` версии для platform-specific кода
+- ✅ **ВСЕГДА** тестировать на обеих платформах ПЕРЕД коммитом
+- ❌ **ЗАПРЕТ** на создание фич только для одной платформы без адаптации для другой
+
+**Пример**:
+```typescript
+// ✅ ПРАВИЛЬНО: Platform Adapter
+src/shared/lib/platform/storage/
+├── index.ts           # Экспорт для PWA
+├── storage.web.ts     # Web реализация (localStorage)
+├── storage.native.ts  # Native реализация (AsyncStorage)
+└── types.ts           # Shared types
+
+// ❌ НЕПРАВИЛЬНО: Только web версия
+src/shared/lib/storage.ts  // Только localStorage, нет native версии
+```
+
+#### 2. **Platform Adapters обязательность**
+
+Для ЛЮБЫХ новых фич с platform-specific реализацией ОБЯЗАТЕЛЬНО создавать Platform Adapter:
+
+**Категории требующие Platform Adapters**:
+- **Анимации**: Framer Motion (web) vs Reanimated (native)
+- **Storage**: localStorage (web) vs AsyncStorage (native)
+- **Media**: FileReader (web) vs expo-file-system (native)
+- **Navigation**: window.history (web) vs @react-navigation (native)
+- **UI компоненты**: Radix UI (web) vs React Native components (native)
+- **Offline**: Service Worker (web) vs NetInfo (native)
+- **Push notifications**: Web Push API (web) vs Expo Notifications (native)
+
+**Структура Platform Adapter**:
+```typescript
+src/shared/lib/platform/{feature}/
+├── index.ts              # Экспорт (автоматически выбирает .web или .native)
+├── {feature}.web.ts      # Web реализация
+├── {feature}.native.ts   # Native реализация (в /app/shared/ для RN build)
+└── types.ts              # Shared TypeScript types
+```
+
+**Цель**: Предотвращение технического долга при React Native миграции (Q3 2025)
+
+#### 3. **Universal Components обязательность**
+
+**ПРАВИЛО**: Все новые UI компоненты ДОЛЖНЫ использовать Universal Components из `@/shared/components/ui/universal`
+
+**ЗАПРЕТ**: НЕ использовать Radix UI напрямую в новых компонентах
+
+**Примеры Universal Components**:
+- `UniversalToast` - Toast notifications (Radix → RN Toast)
+- `UniversalDialog` - Модальные окна (Radix Dialog → RN Modal)
+- `UniversalSelect` - Выпадающие списки (Radix Select → RN Picker)
+- `UniversalSwitch` - Переключатели (Radix Switch → RN Switch)
+- `UniversalCheckbox` - Чекбоксы (Radix Checkbox → RN Checkbox)
+- `UniversalRadioGroup` - Радио кнопки (Radix RadioGroup → RN RadioButton)
+
+### Конфигурационные файлы
+
+#### 1. `.gitignore` - КРИТИЧЕСКИ ВАЖНО
+
+```gitignore
+# Android (Expo generated, not committed)
+# ВАЖНО: Используем /android/ с ведущим слэшем чтобы исключить только корневую директорию,
+# НЕ затрагивая src/shared/components/ui/shadcn-io/android/
+/android/
+
+# iOS (Expo generated, not committed)
+ios/
+```
+
+**Критическое правило**: ВСЕГДА используйте `/` в начале для исключения только корневых директорий
+
+**Примеры**:
+- ✅ `/android/` - исключает только `/android/`, НЕ затрагивает `src/.../android/`
+- ❌ `android/` - исключает ВСЕ директории с именем `android` (ОШИБКА!)
+
+**Почему это важно**:
+- У нас есть UI компонент `src/shared/components/ui/shadcn-io/android/index.tsx`
+- Если использовать `android/` → файл НЕ попадет в git → Vercel build упадет ❌
+- С `/android/` → только корневая директория исключена → UI компонент в git ✅
+
+#### 2. `.vercelignore` - Исключение React Native из PWA build
+
+```
+# React Native / Expo (не нужны для web build)
+# ВАЖНО: /app/ с ведущим слэшем исключает только корневую директорию app/,
+# НЕ затрагивая src/app/ (PWA компоненты)
+/app/
+/index.js
+/.expo/
+/metro.config.js
+/babel.config.js
+/eas.json
+/app.json
+```
+
+**Критическое правило**: `/app/` (с слэшем) vs `src/app/` (без слэша)
+
+**Примеры**:
+- ✅ `/app/` - исключает только `/app/` (React Native), НЕ затрагивает `src/app/` (PWA)
+- ❌ `app/` - исключает ВСЕ директории с именем `app`, включая `src/app/` (ОШИБКА!)
+
+#### 3. `eas.json` - EAS Build конфигурация
+
+**Создание**: `eas build:configure`
+
+**Рекомендуемая конфигурация**:
+```json
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "development-device": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  }
+}
+```
+
+**Профили**:
+- `development`: iOS Simulator build (для Mac)
+- `development-device`: Android APK для физических устройств
+- `preview`: Internal testing (QA)
+- `production`: App Store/Google Play
+
+### Build и Deployment
+
+#### PWA Build (Vite)
+
+```bash
+# Development
+npm run dev
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+
+# Deployment
+git push origin main  # Автоматический деплой на Vercel
+```
+
+**Output**: `build/` директория → Vercel
+
+#### React Native Build (Metro)
+
+```bash
+# Development server (Expo Go)
+npm run start:expo
+# или
+npx expo start
+
+# Development Build (EAS)
+eas build --platform android --profile development-device
+eas build --platform ios --profile development
+
+# Production Build (EAS)
+eas build --platform android --profile production
+eas build --platform ios --profile production
+```
+
+**Output**: `.expo/` cache → Expo Go / EAS Build
+
+### Критические ошибки которых избегать
+
+#### 1. ❌ НЕ использовать `android/` без ведущего слэша в `.gitignore`
+
+**Проблема**: Исключит ВСЕ директории с именем `android`, включая UI компоненты
+
+**Последствия**:
+- Файл `src/shared/components/ui/shadcn-io/android/index.tsx` НЕ попадет в git
+- Local build успешен (файл существует локально)
+- Vercel build упадет с `ENOENT: no such file or directory`
+
+**Решение**: Использовать `/android/` (с ведущим слэшем)
+
+#### 2. ❌ НЕ использовать `app/` без ведущего слэша в `.vercelignore`
+
+**Проблема**: Исключит `src/app/` PWA компоненты из Vercel build
+
+**Последствия**:
+- PWA компоненты (`src/app/mobile/`, `src/app/admin/`) НЕ попадут в build
+- Vercel build упадет с `Cannot find module`
+
+**Решение**: Использовать `/app/` (с ведущим слэшем)
+
+#### 3. ❌ НЕ создавать фичи только для PWA без React Native адаптации
+
+**Проблема**: Технический долг при React Native миграции
+
+**Последствия**:
+- Миграция займет 7-10 дней вместо 3-5 дней
+- Нужно будет переписывать код
+- Потеря времени и ресурсов
+
+**Решение**: ВСЕГДА создавать Platform Adapters для platform-specific кода
+
+#### 4. ❌ НЕ использовать Radix UI напрямую в новых компонентах
+
+**Проблема**: Radix UI работает только в web, не совместим с React Native
+
+**Последствия**:
+- Компонент НЕ будет работать в React Native
+- Нужно будет переписывать на Universal Components
+
+**Решение**: Использовать Universal Components из `@/shared/components/ui/universal`
+
+### Тестирование на обеих платформах
+
+#### PWA Testing
+
+```bash
+# 1. Запустить dev server
+npm run dev
+
+# 2. Открыть в браузере
+# http://localhost:5173
+
+# 3. Проверить консоль браузера (Chrome MCP)
+# - 0 errors
+# - 0 warnings
+
+# 4. Проверить production build
+npm run build
+npm run preview
+```
+
+#### React Native Testing
+
+**Способ 1: Expo Go (быстрый старт)**
+
+```bash
+# 1. Установить Expo Go на телефон
+# iOS: App Store
+# Android: Google Play
+
+# 2. Запустить dev server
+npm run start:expo
+
+# 3. Сканировать QR код в Expo Go app
+```
+
+**Ограничения Expo Go**:
+- ❌ НЕ поддерживает custom native modules
+- ❌ НЕ подходит для UNITY-v2 (используем expo-dev-client)
+
+**Способ 2: Development Build (рекомендуется)**
+
+```bash
+# 1. Установить EAS CLI
+npm install -g eas-cli
+
+# 2. Войти в Expo
+eas login
+
+# 3. Создать Development Build
+eas build --platform android --profile development-device
+
+# 4. Установить APK на телефон
+
+# 5. Запустить dev server
+npm run start:expo --dev-client
+
+# 6. Сканировать QR код в Development Build app
+```
+
+### Expo Account
+
+- **Email**: www.klaster.digital@gmail.com
+- **Account**: https://expo.dev/accounts/klastergital
+- **Password**: Qqq111www222!
+
+---
+
 ## 🔑 Доступы (Критическая информация)
 
 ### Supabase

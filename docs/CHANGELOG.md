@@ -7,7 +7,37 @@
 
 ---
 
-## [Unreleased] - 2025-10-29
+## [Unreleased] - 2025-10-30
+
+### 🏗️ Архитектура
+
+- **React Native Expo Setup Documentation**: Создана полная документация по настройке Expo для тестирования на телефоне ✅
+  - ✅ Документ: docs/mobile/REACT_NATIVE_EXPO_SETUP.md
+  - ✅ Объяснение Expo Managed Workflow vs Bare Workflow
+  - ✅ Детальное объяснение PWA vs React Native архитектуры
+  - ✅ Пошаговая инструкция для Expo Go (быстрый старт)
+  - ✅ Пошаговая инструкция для Development Build (рекомендуется)
+  - ✅ Сравнительная таблица: Expo Go vs Development Build
+  - ✅ Рекомендации для UNITY-v2
+
+- **Hybrid Development Rules**: Обновлены правила разработки для гибридного подхода PWA + React Native ✅
+  - ✅ Обновлен .augment/rules/unity.md с новым разделом "Гибридный подход PWA + React Native"
+  - ✅ Правила разработки фич: ВСЕГДА создавать .web.ts И .native.ts версии
+  - ✅ Platform Adapters обязательность для ЛЮБЫХ новых фич с platform-specific реализацией
+  - ✅ Universal Components обязательность: ЗАПРЕТ на прямое использование Radix UI
+  - ✅ Конфигурационные файлы: .gitignore, .vercelignore, eas.json
+  - ✅ Критические ошибки которых избегать
+  - ✅ Тестирование на обеих платформах
+
+### 🐛 Исправления
+
+- **Critical Vercel Build Failure**: Исправлена критическая ошибка Vercel build из-за неправильного .gitignore ✅
+  - Root cause: `.gitignore` строка 110 содержала `android/` (без ведущего слэша)
+  - Последствия: файл `src/shared/components/ui/shadcn-io/android/index.tsx` НЕ попадал в git
+  - Local build успешен (файл существовал локально), Vercel build падал с ENOENT
+  - Решение: изменить `android/` на `/android/` (с ведущим слэшем)
+  - Commit: `0ab6129` - "fix(critical): Add missing Android component excluded by .gitignore"
+  - Правило: ВСЕГДА использовать `/` в начале для исключения только корневых директорий
 
 ### 🏗️ Архитектура
 

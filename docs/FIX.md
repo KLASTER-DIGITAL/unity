@@ -6,7 +6,76 @@
 
 ---
 
-## [Unreleased] - 2025-10-29
+## [Unreleased] - 2025-10-30
+
+### 📚 Документация
+
+**React Native Expo Setup Documentation (2025-10-30)**:
+- **Создан**: `docs/mobile/REACT_NATIVE_EXPO_SETUP.md` (603 строки)
+- **Содержание**:
+  - Объяснение почему исключаем `/android/` в `.gitignore`
+  - Expo Managed Workflow vs Bare Workflow
+  - Детальное объяснение PWA vs React Native архитектуры
+  - Пошаговая инструкция для Expo Go (быстрый старт)
+  - Пошаговая инструкция для Development Build (рекомендуется)
+  - Сравнительная таблица: Expo Go vs Development Build
+  - Рекомендации для UNITY-v2
+- **Цель**: Полное руководство по настройке Expo для тестирования на телефоне
+
+**Hybrid Development Rules (2025-10-30)**:
+- **Обновлен**: `.augment/rules/unity.md` (новый раздел "Гибридный подход PWA + React Native")
+- **Содержание**:
+  - Архитектура разделения (PWA Build vs React Native Build)
+  - Критическое разделение директорий (`/app/` vs `src/app/`)
+  - Правила разработки фич (ВСЕГДА создавать `.web.ts` И `.native.ts`)
+  - Platform Adapters обязательность
+  - Universal Components обязательность
+  - Конфигурационные файлы (`.gitignore`, `.vercelignore`, `eas.json`)
+  - Build и Deployment процессы
+  - Критические ошибки которых избегать
+  - Тестирование на обеих платформах
+  - Expo Account credentials
+- **Цель**: Предотвращение технического долга при React Native миграции
+
+**Documentation Updates (2025-10-30)**:
+- **Обновлен**: `docs/architecture/DEPLOYMENT.md`
+  - Добавлен раздел "Критические ошибки и исправления"
+  - Проблема 1: `.gitignore` исключает UI компоненты (commit `0ab6129`)
+  - Проблема 2: `.vercelignore` исключает PWA компоненты (предотвращена)
+  - Обновлена дата последнего обновления: 2025-10-30
+- **Обновлен**: `docs/architecture/ARCHITECTURE_PWA_RN.md`
+  - Добавлен раздел "Конфигурационные файлы"
+  - `.gitignore` критическое правило (ведущий слэш)
+  - `.vercelignore` критическое правило (ведущий слэш)
+  - `eas.json` рекомендуемая конфигурация
+  - Связанная документация
+- **Обновлен**: `docs/CHANGELOG.md`
+  - Добавлена информация о React Native Expo Setup Documentation
+  - Добавлена информация о Hybrid Development Rules
+  - Добавлена информация о Critical Vercel Build Failure fix
+- **Обновлен**: `docs/FIX.md` (этот файл)
+
+### 🐛 Исправления
+
+**Critical .gitignore Fix (2025-10-30)**:
+- **Проблема**: `.gitignore` строка 110 содержала `android/` (без ведущего слэша)
+  - Исключал ВСЕ директории с именем `android` в проекте
+  - Файл `src/shared/components/ui/shadcn-io/android/index.tsx` НЕ попадал в git
+  - Local build успешен (файл существовал локально)
+  - Vercel build падал с `ENOENT: no such file or directory`
+- **Root Cause**: Неправильный pattern в `.gitignore`
+  - `android/` (БЕЗ слэша) → исключает ВСЕ директории с именем `android`
+  - `/android/` (С слэшем) → исключает ТОЛЬКО корневую директорию `/android/`
+- **Решение**:
+  1. Изменить `.gitignore` с `android/` на `/android/` (строка 110)
+  2. Добавить файл в git: `git add -f src/shared/components/ui/shadcn-io/android/`
+  3. Commit: `0ab6129` - "fix(critical): Add missing Android component excluded by .gitignore"
+- **Почему pre-commit hook не поймал?**:
+  - Pre-commit hook запускает `npm run build` на локальных файлах
+  - Git не отслеживает файл из-за `.gitignore`
+  - Build успешен локально, но падает на Vercel
+- **Правило**: ВСЕГДА использовать `/` в начале для исключения только корневых директорий
+- **Файлы**: `.gitignore` (строка 110)
 
 ### 🔄 Изменено
 
