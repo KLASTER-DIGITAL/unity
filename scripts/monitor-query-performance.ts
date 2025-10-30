@@ -13,8 +13,8 @@
  */
 
 // Конфигурация
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const _SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://ecuwuzqlwdkkdncampnc.supabase.co';
+const _SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Пороги для алертов
 const THRESHOLDS = {
@@ -211,8 +211,8 @@ function generateRecommendations(report: PerformanceReport): void {
  * Сохраняет отчет в файл
  */
 function saveReport(report: PerformanceReport): void {
-	const fs = require('fs');
-	const path = require('path');
+	const fs = require('node:fs');
+	const path = require('node:path');
 
 	const timestamp = new Date().toISOString().split('T')[0];
 	const reportDir = path.join(process.cwd(), 'docs/reports');

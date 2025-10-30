@@ -5,9 +5,9 @@
  * Автоматически запускает Lighthouse audit и генерирует отчет о производительности
  */
 
-const { execSync, spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { execSync, spawn } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // Цвета для консоли
 const colors = {
@@ -24,7 +24,7 @@ function checkLighthouseInstalled() {
 	try {
 		execSync('lighthouse --version', { stdio: 'ignore' });
 		return true;
-	} catch (error) {
+	} catch (_error) {
 		return false;
 	}
 }
@@ -35,7 +35,7 @@ function installLighthouse() {
 		execSync('npm install -g lighthouse', { stdio: 'inherit' });
 		console.log(`${colors.green}✅ Lighthouse installed successfully${colors.reset}`);
 		return true;
-	} catch (error) {
+	} catch (_error) {
 		console.log(`${colors.red}❌ Failed to install Lighthouse${colors.reset}`);
 		console.log('Please install manually: npm install -g lighthouse');
 		return false;
@@ -140,7 +140,7 @@ function parseResults(jsonPath) {
 			fid: lhr.audits['max-potential-fid'] ? lhr.audits['max-potential-fid'].displayValue : 'N/A',
 			cls: lhr.audits['cumulative-layout-shift'].displayValue,
 			si: lhr.audits['speed-index'].displayValue,
-			tti: lhr.audits['interactive'].displayValue,
+			tti: lhr.audits.interactive.displayValue,
 		},
 		opportunities: lhr.audits,
 	};
@@ -190,14 +190,14 @@ function displayResults(results) {
 
 	const opportunities = Object.entries(results.opportunities)
 		.filter(
-			([key, audit]) =>
+			([_key, audit]) =>
 				audit.score !== null && audit.score < 1 && audit.details?.overallSavingsMs > 100
 		)
 		.sort((a, b) => (b[1].details?.overallSavingsMs || 0) - (a[1].details?.overallSavingsMs || 0))
 		.slice(0, 5);
 
 	if (opportunities.length > 0) {
-		opportunities.forEach(([key, audit]) => {
+		opportunities.forEach(([_key, audit]) => {
 			const savings = audit.details?.overallSavingsMs;
 			if (savings) {
 				console.log(`  • ${audit.title}: ${Math.round(savings)}ms potential savings`);

@@ -4,10 +4,10 @@
  * Usage: npm run i18n:generate-types
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
-import * as fs from 'fs';
-import * as path from 'path';
 
 // Load environment variables from .env file
 config();

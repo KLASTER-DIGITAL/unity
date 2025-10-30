@@ -34,7 +34,7 @@ class MockMediaRecorder {
 	onstop: (() => void) | null = null;
 	mimeType = 'audio/webm';
 
-	constructor(stream: MediaStream, options?: any) {
+	constructor(_stream: MediaStream, options?: any) {
 		this.mimeType = options?.mimeType || 'audio/webm';
 	}
 
@@ -72,7 +72,7 @@ class MockAudioContext {
 		};
 	}
 
-	createMediaStreamSource(stream: MediaStream) {
+	createMediaStreamSource(_stream: MediaStream) {
 		return {
 			connect: vi.fn(),
 		};
@@ -244,7 +244,7 @@ describe('useVoiceRecorder', () => {
 		await act(async () => {
 			try {
 				await result.current.startRecording();
-			} catch (e) {
+			} catch (_e) {
 				// Ignore errors
 			}
 		});
@@ -264,7 +264,7 @@ describe('useVoiceRecorder', () => {
 		await act(async () => {
 			try {
 				await result.current.startRecording();
-			} catch (e) {
+			} catch (_e) {
 				// Ignore errors
 			}
 		});
@@ -336,18 +336,18 @@ describe('useVoiceRecorder', () => {
 		await act(async () => {
 			try {
 				await result.current.startRecording();
-			} catch (e) {
+			} catch (_e) {
 				// Ignore errors
 			}
 		});
 
 		// Try to start again while recording
-		let secondError: any = null;
+		let _secondError: any = null;
 		await act(async () => {
 			try {
 				await result.current.startRecording();
 			} catch (error) {
-				secondError = error;
+				_secondError = error;
 			}
 		});
 
@@ -476,7 +476,7 @@ describe('useSpeechRecognition', () => {
 	it('should not start if not supported', () => {
 		// Save original
 		const original = (global as any).webkitSpeechRecognition;
-		delete (global as any).webkitSpeechRecognition;
+		(global as any).webkitSpeechRecognition = undefined;
 
 		const { result } = renderHook(() => useSpeechRecognition());
 
@@ -547,12 +547,12 @@ describe('useImageCompressionWorker', () => {
 	it('should compress image successfully', async () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
-		const mockFile = new File(['image data'], 'test.jpg', {
+		const _mockFile = new File(['image data'], 'test.jpg', {
 			type: 'image/jpeg',
 		});
 
 		// Mock worker response
-		const mockWorker = {
+		const _mockWorker = {
 			postMessage: vi.fn(),
 			terminate: vi.fn(),
 			onmessage: null as any,

@@ -107,6 +107,7 @@ class I18nNativeAdapter implements I18nPlatformAdapter {
 	 * Get text direction for language
 	 */
 	private getTextDirection(language: string): 'ltr' | 'rtl' {
+		// biome-ignore lint/suspicious/noExplicitAny: RTL_LANGUAGES type compatibility
 		return RTL_LANGUAGES.includes(language as any) ? 'rtl' : 'ltr';
 	}
 

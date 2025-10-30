@@ -5,9 +5,9 @@
  * Оптимизирует изображения в проекте для уменьшения размера бандла
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 // Цвета для консоли
 const colors = {
@@ -25,7 +25,7 @@ function formatBytes(bytes) {
 	const k = 1024;
 	const sizes = ['B', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
+	return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 function findImages() {
@@ -143,7 +143,7 @@ function createWebPVersions() {
 	// Проверяем наличие cwebp (WebP encoder)
 	try {
 		execSync('which cwebp', { stdio: 'ignore' });
-	} catch (error) {
+	} catch (_error) {
 		console.log(`${colors.red}❌ cwebp not found. Install WebP tools:${colors.reset}`);
 		console.log('  # macOS:');
 		console.log('  brew install webp');
@@ -186,7 +186,7 @@ function createWebPVersions() {
 			console.log(
 				`     ${formatBytes(image.size)} → ${formatBytes(webpStat.size)} (${savingsPercent}% smaller)`
 			);
-		} catch (error) {
+		} catch (_error) {
 			console.log(`  ${colors.red}❌ Failed to convert ${image.name}${colors.reset}`);
 		}
 	}

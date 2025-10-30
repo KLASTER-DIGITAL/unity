@@ -5,9 +5,9 @@
  * Анализирует размер бандла и создает отчет о производительности
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 // Цвета для консоли
 const colors = {
@@ -26,7 +26,7 @@ function formatBytes(bytes) {
 	const k = 1024;
 	const sizes = ['B', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
+	return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 function analyzeBuildDirectory() {
@@ -54,7 +54,7 @@ function analyzeBuildDirectory() {
 			const stat = fs.statSync(filePath);
 
 			if (stat.isDirectory()) {
-				scanDirectory(filePath, prefix + file + '/');
+				scanDirectory(filePath, `${prefix + file}/`);
 			} else {
 				const ext = path.extname(file);
 				const size = stat.size;

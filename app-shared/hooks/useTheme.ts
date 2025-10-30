@@ -33,9 +33,10 @@ export function useTheme(): UseThemeResult {
 	const [themeMode, setThemeMode] = useState<ThemeMode>('system');
 
 	// Load theme preference from AsyncStorage
+	// biome-ignore lint/correctness/useExhaustiveDependencies: loadThemePreference is stable
 	useEffect(() => {
 		loadThemePreference();
-	}, [loadThemePreference]);
+	}, []);
 
 	const loadThemePreference = async () => {
 		try {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 console.log('🔧 Исправляем неправильные React импорты...');
 
@@ -14,7 +14,7 @@ function findFiles(dir, extensions = ['.ts', '.tsx']) {
 		const filePath = path.join(dir, file);
 		const stat = fs.statSync(filePath);
 
-		if (stat && stat.isDirectory()) {
+		if (stat?.isDirectory()) {
 			// Пропускаем node_modules и другие служебные папки
 			if (!['node_modules', '.git', 'dist', 'build'].includes(file)) {
 				results = results.concat(findFiles(filePath, extensions));
@@ -36,7 +36,7 @@ function fixReactImports(filePath) {
 		// import { React, ... } from "react";
 		{
 			regex: /import\s*{\s*React\s*,\s*([^}]+)\s*}\s*from\s*["']react["'];?/g,
-			replacement: (match, namedImports) =>
+			replacement: (_match, namedImports) =>
 				`import React, { ${namedImports.trim()} } from "react";`,
 		},
 		// import { React } from "react";

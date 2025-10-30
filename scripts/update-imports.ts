@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const importMappings: Record<string, string> = {
 	// UI components
