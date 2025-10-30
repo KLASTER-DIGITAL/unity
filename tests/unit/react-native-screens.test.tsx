@@ -150,6 +150,7 @@ vi.mock('../../app-shared/contexts/ThemeContext', () => ({
 		setTheme: vi.fn(),
 		toggleTheme: vi.fn(),
 	}),
+	// biome-ignore lint/suspicious/noExplicitAny: Mock setup
 	ThemeProvider: ({ children }: any) => children,
 }));
 
