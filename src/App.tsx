@@ -77,7 +77,7 @@ export default function App() {
         <ThemeProvider defaultTheme="light" storageKey="unity-theme">
           <LottiePreloader
             showMessage={false}
-            minDuration={5000}
+            minDuration={1500}
             onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
             size="lg"
           />
@@ -129,7 +129,7 @@ export default function App() {
         <div className="max-w-md mx-auto">
           <LottiePreloader
             showMessage={false}
-            minDuration={5000}
+            minDuration={1500}
             onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
             size="lg"
           />

@@ -157,7 +157,7 @@ export function useAppInitialization(props: UseAppInitializationProps) {
             username: session.profile?.name || session.user.email,
           });
 
-          setUserData(session.user);
+          setUserData(session);
 
           // Check if user has completed onboarding
           const entries = await getEntries(session.user.id);
