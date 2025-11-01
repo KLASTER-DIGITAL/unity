@@ -35,7 +35,6 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadEntries is stable
 	useEffect(() => {
 		loadEntries();
 	}, []);

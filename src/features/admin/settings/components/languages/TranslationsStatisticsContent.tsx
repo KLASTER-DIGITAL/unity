@@ -58,7 +58,6 @@ export function TranslationsStatisticsContent() {
 
 	useEffect(() => {
 		loadStatistics();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadStatistics is stable
 	}, []);
 
 	const loadStatistics = async () => {

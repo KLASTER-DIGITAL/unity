@@ -17,7 +17,6 @@ import { Pressable as RNPressable, StyleSheet, View } from 'react-native';
 interface PressableProps {
 	children: React.ReactNode;
 	className?: string;
-	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 	disabled?: boolean;
 	pressScale?: number;

@@ -79,6 +79,14 @@ export default function App() {
 		onboardingComplete: state.onboardingComplete,
 	});
 
+	// ✅ HOOKS MUST BE AT TOP LEVEL - before any early returns
+	// Показываем Lottie только при первом запуске (до онбординга)
+	const isFirstLaunch = useMemo(() => !hasShownLogoBefore(), []);
+	const shouldShowLottie = useMemo(
+		() => isFirstLaunch && (state.isCheckingSession || !state.minLoadingTimeElapsed),
+		[isFirstLaunch, state.isCheckingSession, state.minLoadingTimeElapsed]
+	);
+
 	// Admin view
 	if (state.isAdminRoute) {
 		// Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
@@ -133,13 +141,6 @@ export default function App() {
 
 	// Mobile view - loading state
 	// Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
-	// ✅ OPTIMIZATION: Показываем Lottie только при первом запуске (до онбординга)
-	const isFirstLaunch = useMemo(() => !hasShownLogoBefore(), []);
-	const shouldShowLottie = useMemo(
-		() => isFirstLaunch && (state.isCheckingSession || !state.minLoadingTimeElapsed),
-		[isFirstLaunch, state.isCheckingSession, state.minLoadingTimeElapsed]
-	);
-
 	if (state.isCheckingSession || !state.minLoadingTimeElapsed) {
 		return (
 			<ThemeProvider defaultTheme="light" storageKey="unity-theme">

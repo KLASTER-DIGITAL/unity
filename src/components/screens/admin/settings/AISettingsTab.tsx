@@ -132,7 +132,6 @@ export const AISettingsTab: React.FC = () => {
 
 	useEffect(() => {
 		loadAISettings();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadAISettings is stable
 	}, []);
 
 	const loadAISettings = async () => {

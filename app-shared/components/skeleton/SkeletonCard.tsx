@@ -38,7 +38,6 @@ interface SkeletonCardProps {
 	/**
 	 * Дополнительные стили
 	 */
-	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 }
 
@@ -145,7 +144,6 @@ export function SkeletonCircle({
 }: {
 	size?: number;
 	shimmer?: boolean;
-	// biome-ignore lint/suspicious/noExplicitAny: Style object type varies
 	style?: any;
 }) {
 	return (

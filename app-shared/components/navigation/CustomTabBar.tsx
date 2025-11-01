@@ -120,7 +120,6 @@ interface TabButtonProps {
 	iconName: keyof typeof Ionicons.glyphMap;
 	isFocused: boolean;
 	onPress: () => void;
-	// biome-ignore lint/suspicious/noExplicitAny: Theme colors type
 	colors: any;
 }
 

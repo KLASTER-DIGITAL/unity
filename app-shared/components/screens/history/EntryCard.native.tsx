@@ -9,7 +9,6 @@ interface DiaryEntry {
 	category: string;
 	sentiment: string;
 	createdAt: string;
-	// biome-ignore lint/suspicious/noExplicitAny: Media type varies
 	media?: any[];
 	tags?: string[];
 }

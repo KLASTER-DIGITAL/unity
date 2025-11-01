@@ -34,7 +34,6 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 	const [showAllRead, setShowAllRead] = useState(false);
 
 	// Load motivation cards on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadMotivationCards is stable
 	useEffect(() => {
 		loadMotivationCards();
 	}, []);

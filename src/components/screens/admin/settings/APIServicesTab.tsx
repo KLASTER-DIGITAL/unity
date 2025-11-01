@@ -61,7 +61,6 @@ export function APIServicesTab() {
 
 	useEffect(() => {
 		loadServices();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadServices is stable
 	}, []);
 
 	const loadServices = async () => {

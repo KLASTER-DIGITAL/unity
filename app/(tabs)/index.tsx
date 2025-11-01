@@ -26,7 +26,6 @@ export default function HomeScreen() {
 	const { isLoading: isLoadingEntries, refetch: refetchEntries } = useEntries(userId);
 
 	// Get current user on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: getCurrentUser is stable
 	useEffect(() => {
 		getCurrentUser();
 	}, []);
@@ -49,7 +48,6 @@ export default function HomeScreen() {
 		}
 	};
 
-	// biome-ignore lint/suspicious/noExplicitAny: Dynamic entry type
 	const handleNewEntry = (entry: any) => {
 		console.log('[HomeScreen] New entry created:', entry);
 		// Reload data

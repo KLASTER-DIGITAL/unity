@@ -102,29 +102,23 @@ describe('RBAC - Role-Based Access Control', () => {
 	describe('parseRouteParams', () => {
 		beforeEach(() => {
 			// Reset window.location before each test
-			// biome-ignore lint/suspicious/noExplicitAny: Test setup
-			// biome-ignore lint/performance/noDelete: Test setup requires delete
 			delete (window as any).location;
-			// biome-ignore lint/suspicious/noExplicitAny: Test setup
 			(window as any).location = { search: '' };
 		});
 
 		it('should parse admin view parameter', () => {
-			// biome-ignore lint/suspicious/noExplicitAny: Test setup
 			(window as any).location = { search: '?view=admin' };
 			const params = parseRouteParams();
 			expect(params.view).toBe('admin');
 		});
 
 		it('should parse test view parameter', () => {
-			// biome-ignore lint/suspicious/noExplicitAny: Test setup
 			(window as any).location = { search: '?view=test' };
 			const params = parseRouteParams();
 			expect(params.view).toBe('test');
 		});
 
 		it('should return null for no view parameter', () => {
-			// biome-ignore lint/suspicious/noExplicitAny: Test setup
 			(window as any).location = { search: '' };
 			const params = parseRouteParams();
 			expect(params.view).toBeNull();

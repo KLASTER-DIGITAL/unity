@@ -18,18 +18,12 @@ import type {
 // Type definitions for Reanimated (will be imported dynamically)
 type ReanimatedModule = {
 	default: {
-		// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 		View: any;
-		// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 		createAnimatedComponent: (component: any) => any;
 	};
-	// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 	useSharedValue: (initialValue: any) => any;
-	// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 	useAnimatedStyle: (callback: () => any) => any;
-	// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 	withTiming: (toValue: any, config?: any) => any;
-	// biome-ignore lint/suspicious/noExplicitAny: React Native Reanimated types
 	withSpring: (toValue: any, config?: any) => any;
 	runOnJS: (callback: () => void) => void;
 };

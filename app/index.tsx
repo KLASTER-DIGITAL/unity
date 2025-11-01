@@ -39,7 +39,6 @@ export default function IndexScreen() {
 		}
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: checkAuth is stable
 	useEffect(() => {
 		checkAuth();
 	}, []);

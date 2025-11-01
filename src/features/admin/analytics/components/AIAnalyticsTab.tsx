@@ -60,7 +60,6 @@ export function AIAnalyticsTab() {
 
 	useEffect(() => {
 		loadAIAnalytics();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadAIAnalytics is stable
 	}, []);
 
 	const loadAIAnalytics = async () => {

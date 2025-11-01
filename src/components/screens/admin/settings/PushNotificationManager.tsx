@@ -47,7 +47,6 @@ export function PushNotificationManager() {
 	useEffect(() => {
 		loadVapidKeys();
 		loadStats();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadStats and loadVapidKeys are stable
 	}, []);
 
 	/**

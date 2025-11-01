@@ -37,7 +37,6 @@ export function UsersManagementTab() {
 
 	useEffect(() => {
 		loadUsers();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadUsers is stable
 	}, []);
 
 	const loadUsers = async () => {

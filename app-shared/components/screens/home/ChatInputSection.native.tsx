@@ -15,7 +15,6 @@ import { DesignTokens } from '../../../design-system/tokens';
 
 interface ChatInputSectionProps {
 	onMessageSent?: (message: string) => void;
-	// biome-ignore lint/suspicious/noExplicitAny: Entry type varies
 	onEntrySaved?: (entry: any) => void;
 	userName?: string;
 	userId?: string;

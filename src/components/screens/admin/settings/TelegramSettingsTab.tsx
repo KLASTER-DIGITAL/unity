@@ -55,7 +55,6 @@ export function TelegramSettingsTab() {
 	useEffect(() => {
 		loadTelegramSettings();
 		loadTelegramStats();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadTelegramSettings and loadTelegramStats are stable
 	}, []);
 
 	const loadTelegramSettings = async () => {

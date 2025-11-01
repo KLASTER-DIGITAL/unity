@@ -38,7 +38,6 @@ export function AchievementHomeScreen({
 	const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
 
 	// Загрузка статистики при монтировании
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadStats is stable
 	useEffect(() => {
 		loadStats();
 	}, []);

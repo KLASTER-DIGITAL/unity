@@ -40,7 +40,6 @@ export function PushSubscriptionManager({
 		checkSupport();
 		checkSubscription();
 		initWebPush(userId);
-		// biome-ignore lint/correctness/useExhaustiveDependencies: checkSubscription and checkSupport are stable
 	}, [userId]);
 
 	/**

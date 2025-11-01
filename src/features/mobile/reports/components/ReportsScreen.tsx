@@ -30,7 +30,6 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadData is stable
 	useEffect(() => {
 		loadData();
 	}, []);

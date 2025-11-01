@@ -87,7 +87,6 @@ export function PWAOverview() {
 
 	useEffect(() => {
 		loadStats();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadStats is stable
 	}, []);
 
 	const loadStats = async () => {

@@ -63,7 +63,6 @@ export function usePWASettings() {
 
 	useEffect(() => {
 		loadPWASettings();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadPWASettings is stable
 	}, []);
 
 	const loadPWASettings = async () => {

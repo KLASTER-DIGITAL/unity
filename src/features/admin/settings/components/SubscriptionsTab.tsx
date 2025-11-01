@@ -28,7 +28,6 @@ export function SubscriptionsTab() {
 
 	useEffect(() => {
 		loadSubscriptions();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadSubscriptions is stable
 	}, []);
 
 	const loadSubscriptions = async () => {

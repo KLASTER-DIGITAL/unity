@@ -35,7 +35,6 @@ export function AnimatedPressable({
 		transform: [{ scale: scale.value }],
 	}));
 
-	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePressIn = (event: any) => {
 		scale.value = withSpring(scaleValue, Animations.stiffSpringConfig);
 
@@ -51,13 +50,11 @@ export function AnimatedPressable({
 		onPressIn?.(event);
 	};
 
-	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePressOut = (event: any) => {
 		scale.value = withSpring(1, Animations.springConfig);
 		onPressOut?.(event);
 	};
 
-	// biome-ignore lint/suspicious/noExplicitAny: React Native event type
 	const handlePress = (event: any) => {
 		onPress?.(event);
 	};

@@ -26,7 +26,6 @@ export default function DiaryScreen() {
 	const { entries, isLoading, refetch, deleteEntry } = useEntries(userId);
 
 	// Get current user on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: getCurrentUser is stable
 	useEffect(() => {
 		getCurrentUser();
 	}, []);
@@ -48,7 +47,6 @@ export default function DiaryScreen() {
 	};
 
 	// Filter entries when search/filters change
-	// biome-ignore lint/correctness/useExhaustiveDependencies: filterEntries is stable
 	useEffect(() => {
 		filterEntries();
 	}, [entries, searchQuery, selectedCategory]);
@@ -113,10 +111,12 @@ export default function DiaryScreen() {
 					<Text style={styles.title}>История</Text>
 					<SearchBar
 						activeFiltersCount={0}
-						// biome-ignore lint/suspicious/noEmptyBlockStatements: Placeholder
-						onSearchChange={() => {}}
-						// biome-ignore lint/suspicious/noEmptyBlockStatements: Placeholder
-						onToggleFilters={() => {}}
+						onSearchChange={() => {
+							// TODO: Implement search functionality
+						}}
+						onToggleFilters={() => {
+							// TODO: Implement filters functionality
+						}}
 						searchQuery=""
 						showFilters={false}
 					/>

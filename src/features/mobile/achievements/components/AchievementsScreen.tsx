@@ -62,7 +62,6 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		nextLevelProgress: 0,
 	});
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadData is stable
 	useEffect(() => {
 		loadData();
 	}, []);

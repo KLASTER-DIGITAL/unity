@@ -38,7 +38,6 @@ type Milestone = {
 	total?: number;
 };
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex screen component
 export default function AchievementsScreen() {
 	const { colors } = useTheme();
 	const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -49,7 +48,6 @@ export default function AchievementsScreen() {
 	const { entries, isLoading: isLoadingEntries, refetch: refetchEntries } = useEntries(userId);
 
 	// Get current user on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: getCurrentUser is stable
 	useEffect(() => {
 		getCurrentUser();
 	}, []);

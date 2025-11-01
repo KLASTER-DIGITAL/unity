@@ -36,7 +36,6 @@ export const GeneralSettingsTab: React.FC = () => {
 
 	useEffect(() => {
 		loadSettings();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadSettings is stable
 	}, []);
 
 	const loadSettings = async () => {

@@ -66,7 +66,6 @@ export function LanguagesManagementTab({
 
 	useEffect(() => {
 		loadLanguages();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: loadLanguages is stable
 	}, []);
 
 	const loadLanguages = async () => {

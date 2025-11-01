@@ -27,7 +27,6 @@ vi.mock('react-native', () => ({
 	Switch: 'Switch',
 	Image: 'Image',
 	StyleSheet: {
-		// biome-ignore lint/suspicious/noExplicitAny: Mock setup
 		create: (styles: any) => styles,
 	},
 	Platform: {
@@ -150,7 +149,6 @@ vi.mock('../../app-shared/contexts/ThemeContext', () => ({
 		setTheme: vi.fn(),
 		toggleTheme: vi.fn(),
 	}),
-	// biome-ignore lint/suspicious/noExplicitAny: Mock setup
 	ThemeProvider: ({ children }: any) => children,
 }));
 

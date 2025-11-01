@@ -42,7 +42,6 @@ export const SystemSettingsTab: React.FC = () => {
 
 	useEffect(() => {
 		checkSystemStatus();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: checkSystemStatus is stable
 	}, []);
 
 	const checkSystemStatus = async () => {
@@ -404,7 +403,13 @@ export const SystemSettingsTab: React.FC = () => {
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-						<Button disabled={true} onClick={() => {}} variant="default">
+						<Button
+							disabled={true}
+							onClick={() => {
+								// Disabled button - no action
+							}}
+							variant="default"
+						>
 							Disabled
 						</Button>
 					</div>

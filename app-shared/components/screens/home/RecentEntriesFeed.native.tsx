@@ -7,12 +7,10 @@ interface DiaryEntry {
 	category?: string;
 	sentiment?: string;
 	created_at: string;
-	// biome-ignore lint/suspicious/noExplicitAny: Media type varies
 	media?: any[];
 }
 
 interface RecentEntriesFeedProps {
-	// biome-ignore lint/suspicious/noExplicitAny: User data type varies
 	userData: any;
 	language?: string;
 	onEntryClick?: (entry: DiaryEntry) => void;
@@ -47,7 +45,6 @@ export function RecentEntriesFeed({
 	const [entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadEntries is stable
 	useEffect(() => {
 		loadEntries();
 	}, []);

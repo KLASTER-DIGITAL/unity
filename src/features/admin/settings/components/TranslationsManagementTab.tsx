@@ -38,7 +38,6 @@ export function TranslationsManagementTab({
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState('translations');
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: loadData is stable
 	useEffect(() => {
 		loadData();
 	}, []);
