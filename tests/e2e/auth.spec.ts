@@ -79,7 +79,7 @@ test.describe('Authentication', () => {
 		await context.clearCookies();
 		await page.goto('/');
 
-		// Force logout by calling Supabase signOut
+		// Force logout by clearing all storage including IndexedDB
 		await page.evaluate(async () => {
 			// Clear all storage
 			localStorage.clear();
@@ -87,16 +87,26 @@ test.describe('Authentication', () => {
 
 			// Clear IndexedDB (Supabase stores session here)
 			const databases = await indexedDB.databases();
-			for (const db of databases) {
+			const deletePromises = databases.map((db) => {
 				if (db.name) {
-					indexedDB.deleteDatabase(db.name);
+					return new Promise<void>((resolve, reject) => {
+						const request = indexedDB.deleteDatabase(db.name);
+						request.onsuccess = () => resolve();
+						request.onerror = () => reject(request.error);
+						request.onblocked = () => {
+							console.warn(`Deletion of ${db.name} blocked`);
+							resolve(); // Resolve anyway to not block tests
+						};
+					});
 				}
-			}
+				return Promise.resolve();
+			});
+			await Promise.all(deletePromises);
 		});
 
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+		await page.waitForTimeout(500); // Wait for cleanup to complete
 	});
 
 	test('should show welcome screen for unauthenticated users', async ({ page }) => {

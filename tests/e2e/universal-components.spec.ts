@@ -80,16 +80,26 @@ test.describe('Button Component E2E - Settings Page', () => {
 
 			// Clear IndexedDB (Supabase stores session here)
 			const databases = await indexedDB.databases();
-			for (const db of databases) {
+			const deletePromises = databases.map((db) => {
 				if (db.name) {
-					indexedDB.deleteDatabase(db.name);
+					return new Promise<void>((resolve, reject) => {
+						const request = indexedDB.deleteDatabase(db.name);
+						request.onsuccess = () => resolve();
+						request.onerror = () => reject(request.error);
+						request.onblocked = () => {
+							console.warn(`Deletion of ${db.name} blocked`);
+							resolve(); // Resolve anyway to not block tests
+						};
+					});
 				}
-			}
+				return Promise.resolve();
+			});
+			await Promise.all(deletePromises);
 		});
 
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+		await page.waitForTimeout(500); // Wait for cleanup to complete
 
 		// Login and navigate to Settings
 		await login(page);
@@ -174,16 +184,26 @@ test.describe('Modal Component E2E - Home Page', () => {
 
 			// Clear IndexedDB (Supabase stores session here)
 			const databases = await indexedDB.databases();
-			for (const db of databases) {
+			const deletePromises = databases.map((db) => {
 				if (db.name) {
-					indexedDB.deleteDatabase(db.name);
+					return new Promise<void>((resolve, reject) => {
+						const request = indexedDB.deleteDatabase(db.name);
+						request.onsuccess = () => resolve();
+						request.onerror = () => reject(request.error);
+						request.onblocked = () => {
+							console.warn(`Deletion of ${db.name} blocked`);
+							resolve(); // Resolve anyway to not block tests
+						};
+					});
 				}
-			}
+				return Promise.resolve();
+			});
+			await Promise.all(deletePromises);
 		});
 
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+		await page.waitForTimeout(500); // Wait for cleanup to complete
 
 		// Login and navigate to Home
 		await login(page);
@@ -282,16 +302,26 @@ test.describe('RadioGroup Component E2E - Settings Page', () => {
 
 			// Clear IndexedDB (Supabase stores session here)
 			const databases = await indexedDB.databases();
-			for (const db of databases) {
+			const deletePromises = databases.map((db) => {
 				if (db.name) {
-					indexedDB.deleteDatabase(db.name);
+					return new Promise<void>((resolve, reject) => {
+						const request = indexedDB.deleteDatabase(db.name);
+						request.onsuccess = () => resolve();
+						request.onerror = () => reject(request.error);
+						request.onblocked = () => {
+							console.warn(`Deletion of ${db.name} blocked`);
+							resolve(); // Resolve anyway to not block tests
+						};
+					});
 				}
-			}
+				return Promise.resolve();
+			});
+			await Promise.all(deletePromises);
 		});
 
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+		await page.waitForTimeout(500); // Wait for cleanup to complete
 
 		// Login and navigate to Settings
 		await login(page);
