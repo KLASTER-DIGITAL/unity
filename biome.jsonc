@@ -72,5 +72,38 @@
 			"bracketSameLine": false,
 			"quoteProperties": "asNeeded"
 		}
-	}
+	},
+
+	"overrides": [
+		{
+			"includes": ["**/*.native.ts", "**/*.native.tsx", "app/**/*.tsx"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noExcessiveCognitiveComplexity": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["*.config.js", "*.config.ts", "*.config.mjs"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	]
 }
