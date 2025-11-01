@@ -24,7 +24,10 @@ export class WebHapticAdapter implements HapticAdapter {
 
 	constructor() {
 		// Load enabled state from storage on initialization (non-blocking)
-		this.initPromise = this.loadEnabledState();
+		// Fire and forget - don't block constructor
+		this.loadEnabledState().catch((error) => {
+			console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
+		});
 	}
 
 	/**
