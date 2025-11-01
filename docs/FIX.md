@@ -41,13 +41,46 @@
   - Lint: улучшение на 58% (17,334 → 7,182 ошибок)
   - Выявлено: разделы Goals/Habits/Tasks не реализованы
 
+### 🔄 Изменено
+
+**Biome Configuration (2025-11-01)**:
+- **biome.jsonc**: Добавлены overrides для React Native файлов
+  - Override 1: `**/*.native.ts`, `**/*.native.tsx`, `app/**/*.tsx` - отключен `noExplicitAny`
+  - Override 2: `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx` - отключен `noExcessiveCognitiveComplexity`
+  - Override 3: `*.config.js`, `*.config.ts`, `*.config.mjs` - отключен `noDefaultExport`
+  - Результат: warnings уменьшены с 3,281 до 3,240 (-41)
+
+### 📚 Документация
+
+**Roadmaps & Plans (2025-11-01)**:
+- **Создан**: `docs/plan/GOALS_HABITS_TASKS_ROADMAP.md`
+  - Детальный roadmap для Goals/Habits/Tasks (Q1 2026)
+  - Phase 1: Goals (Январь, 3 недели)
+  - Phase 2: Habits (Февраль, 3 недели)
+  - Phase 3: Tasks (Март, 2 недели)
+  - Database schema, UI/UX design, метрики успеха
+- **Создан**: `docs/plan/LINT_CLEANUP_PLAN.md`
+  - План по уменьшению lint ошибок с 7,188 до <1,000
+  - 4 фазы: Configuration, Auto-fix, Manual Fixes, Verification
+  - Приоритизация по категориям ошибок
+  - Еженедельные milestones
+- **Создан**: `docs/testing/E2E_TESTING_PLAN.md`
+  - План автоматизации E2E тестов
+  - 5 test suites (Auth, Diary, Navigation, Settings, Performance)
+  - Chrome DevTools MCP для автоматизации
+  - CI/CD integration через GitHub Actions
+- **Обновлен**: `docs/testing/2025-11-01_e2e_testing_report.md`
+  - Добавлены ссылки на GOALS_HABITS_TASKS_ROADMAP.md
+  - Обновлены рекомендации с четкими сроками
+
 ### 📊 Статистика
 
 **Lint Cleanup Progress**:
 - **До**: 17,334 errors
-- **После**: 3,901 errors + 3,281 warnings = 7,182 проблем
-- **Улучшение**: -10,105 ошибок (-58%)
-- **Осталось**: 7,182 проблем для исправления
+- **После**: 3,901 errors + 3,240 warnings = 7,141 проблем
+- **Улучшение**: -10,193 ошибок (-59%)
+- **Осталось**: 7,141 проблем для исправления
+- **План**: <1,000 проблем за 2 недели (см. LINT_CLEANUP_PLAN.md)
 
 ---
 
