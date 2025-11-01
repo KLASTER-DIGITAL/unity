@@ -163,7 +163,6 @@ const WebPressable = ({
 			role={role}
 			style={style}
 			tabIndex={disabled ? -1 : tabIndex}
-			transition={{ type: 'spring', stiffness: 400, damping: 30 }}
 			whileTap={{ scale: disabled ? 1 : pressScale }}
 			{...props}
 		>
