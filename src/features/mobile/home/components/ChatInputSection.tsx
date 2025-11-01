@@ -218,7 +218,7 @@ export function ChatInputSection({
 			</AnimatedPresence>
 
 			{/* Success Modal - СТАРЫЙ дизайн с конфетти */}
-			<SuccessModal isOpen={showSuccessModal} message="Ваша запись сохранена!" />
+			<SuccessModal isOpen={showSuccessModal} userName={userName} />
 		</div>
 	);
 }
