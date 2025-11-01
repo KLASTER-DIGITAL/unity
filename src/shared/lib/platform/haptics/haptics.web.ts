@@ -23,11 +23,11 @@ export class WebHapticAdapter implements HapticAdapter {
 	private enabled = true;
 
 	constructor() {
-		// Load enabled state from storage on initialization (non-blocking)
-		// Fire and forget - don't block constructor
-		this.loadEnabledState().catch((error) => {
-			console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
-		});
+		// DISABLED: Haptics initialization temporarily disabled to fix button hang issue
+		// TODO: Re-enable after fixing circular dependency or async initialization issue
+		// this.loadEnabledState().catch((error) => {
+		// 	console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
+		// });
 	}
 
 	/**
@@ -60,6 +60,10 @@ export class WebHapticAdapter implements HapticAdapter {
 	 * to avoid blocking event handlers. Call without await for better performance.
 	 */
 	async trigger(type: HapticFeedbackType, options?: HapticOptions): Promise<void> {
+		// DISABLED: Haptics temporarily disabled to fix button hang issue
+		// TODO: Re-enable after fixing the root cause
+		return;
+
 		// Check if haptic is enabled (global or per-call)
 		// Use current enabled state - initialization happens in background
 		const isEnabled = options?.enabled !== undefined ? options.enabled : this.enabled;
