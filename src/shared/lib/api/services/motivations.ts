@@ -49,7 +49,7 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
 			.from('motivation_cards')
 			.select('*')
 			.eq('user_id', userId)
-			.order('date', { ascending: false });
+			.order('created_at', { ascending: false });
 
 		if (error) {
 			console.error('[MOTIVATIONS] ❌ Fallback also failed:', error);

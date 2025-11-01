@@ -18,7 +18,10 @@ export function PWAUpdatePrompt() {
 		const handleServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
 			// Если есть ожидающий Service Worker
 			if (registration.waiting) {
+				console.log('[PWA Update] Waiting worker found, auto-updating...');
 				setWaitingWorker(registration.waiting);
+				// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ БЕЗ ЗАПРОСА
+				registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 				setShowUpdate(true);
 			}
 
@@ -27,7 +30,10 @@ export function PWAUpdatePrompt() {
 				registration.installing.addEventListener('statechange', (e) => {
 					const sw = e.target as ServiceWorker;
 					if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+						console.log('[PWA Update] New worker installed, auto-updating...');
 						setWaitingWorker(sw);
+						// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ БЕЗ ЗАПРОСА
+						sw.postMessage({ type: 'SKIP_WAITING' });
 						setShowUpdate(true);
 					}
 				});
@@ -48,7 +54,12 @@ export function PWAUpdatePrompt() {
 
 		// Слушаем событие обновления контроллера
 		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			console.log('[PWA Update] Controller changed, reloading page...');
 			if (!isUpdating) {
+				console.log('[PWA Update] Reloading page (not in update state)');
+				window.location.reload();
+			} else {
+				console.log('[PWA Update] Reloading page (in update state)');
 				window.location.reload();
 			}
 		});
@@ -56,15 +67,25 @@ export function PWAUpdatePrompt() {
 
 	const handleUpdate = () => {
 		if (!waitingWorker) {
+			console.error('[PWA Update] No waiting worker available');
 			return;
 		}
 
+		console.log('[PWA Update] Starting update process...');
 		setIsUpdating(true);
 
 		// Отправляем сообщение новому Service Worker для активации
 		waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+		console.log('[PWA Update] SKIP_WAITING message sent to Service Worker');
 
-		setShowUpdate(false);
+		// Fallback: если controllerchange не сработает в течение 3 секунд, перезагружаем принудительно
+		setTimeout(() => {
+			console.log('[PWA Update] Timeout reached, forcing reload...');
+			window.location.reload();
+		}, 3000);
+
+		// НЕ закрываем окно сразу - ждем controllerchange события
+		// setShowUpdate(false); - убрано, окно закроется после перезагрузки
 	};
 
 	const handleSkip = () => {
@@ -82,7 +103,7 @@ export function PWAUpdatePrompt() {
 				>
 					<div className="rounded-xl border border-border bg-card p-4 shadow-2xl">
 						<div className="flex items-start gap-3">
-							<div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+							<div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 								<RefreshCw className="h-5 w-5 text-accent" />
 							</div>
 

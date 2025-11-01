@@ -156,7 +156,6 @@ export function AchievementHomeScreen({
 			{/* Recent Entries Feed - Лента последних записей */}
 			{!isLoading && (
 				<RecentEntriesFeed
-					key={feedRefreshKey} // ✅ NEW: Force refresh when key changes
 					language={userData?.language || 'ru'}
 					onEntryClick={(entry) => {
 						setSelectedEntry(entry);
@@ -165,6 +164,7 @@ export function AchievementHomeScreen({
 						console.log('Navigate to History');
 						onNavigateToHistory?.();
 					}}
+					refreshTrigger={feedRefreshKey} // ✅ FIX: Используем refreshTrigger вместо key для автообновления
 					userData={userData}
 				/>
 			)}

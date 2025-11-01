@@ -154,12 +154,7 @@ export function SwipeCard({
 
 				{/* Основное содержимое карточки */}
 				<div className="relative z-0 p-card">
-					{/* Date - ✅ FIX #3: Уменьшили отступ снизу */}
-					<motion.div animate={{ opacity: 0.9 }} className="mb-3 text-white/90">
-						<p className="text-caption-1 text-white/90">{card.date}</p>
-					</motion.div>
-
-					{/* Title - ✅ FIX #3: Уменьшили размер заголовка */}
+					{/* Title */}
 					<motion.div className="mb-3">
 						<h3 className="text-title-2 text-white leading-tight tracking-[-0.5px]">
 							{card.title}

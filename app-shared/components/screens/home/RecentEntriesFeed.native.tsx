@@ -15,6 +15,7 @@ interface RecentEntriesFeedProps {
 	language?: string;
 	onEntryClick?: (entry: DiaryEntry) => void;
 	onViewAllClick?: () => void;
+	refreshTrigger?: number; // ✅ NEW: Trigger для автообновления ленты
 }
 
 // Категории с эмодзи
@@ -41,13 +42,15 @@ export function RecentEntriesFeed({
 	language: _language = 'ru',
 	onEntryClick,
 	onViewAllClick,
+	refreshTrigger,
 }: RecentEntriesFeedProps) {
 	const [entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
+	// ✅ FIX: Автообновление при изменении refreshTrigger
 	useEffect(() => {
 		loadEntries();
-	}, []);
+	}, [refreshTrigger]);
 
 	const loadEntries = async () => {
 		try {

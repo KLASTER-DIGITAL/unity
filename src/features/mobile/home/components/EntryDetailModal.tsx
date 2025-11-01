@@ -113,19 +113,27 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 							</div>
 						)}
 
-						{/* Title */}
-						{entry.text && (
-							<h3 className="mb-3 font-semibold! text-[18px]! text-foreground">
-								{entry.text.split('\n')[0]}
-							</h3>
-						)}
-
-						{/* Full Text */}
+						{/* Full Text - Оригинальный текст */}
 						<div className="mb-6">
 							<p className="whitespace-pre-wrap text-[15px]! text-foreground leading-[22px]">
 								{entry.text}
 							</p>
 						</div>
+
+						{/* AI Analysis - Показывается ТОЛЬКО в модале */}
+						{entry.aiReply && (
+							<div className="mb-6 rounded-[16px] border border-accent/20 bg-accent/5 p-4 transition-colors duration-300">
+								<div className="mb-2 flex items-center gap-2">
+									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/10">
+										<span className="text-[12px]">🤖</span>
+									</div>
+									<span className="font-semibold text-[13px]! text-accent">AI Анализ</span>
+								</div>
+								<p className="whitespace-pre-wrap text-[14px]! text-muted-foreground leading-[20px] italic">
+									{entry.aiReply}
+								</p>
+							</div>
+						)}
 
 						{/* Tags */}
 						{entry.tags && entry.tags.length > 0 && (

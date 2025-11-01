@@ -29,13 +29,27 @@ console.log('[MOTIVATIONS v9] ✅ Environment ready');
 function getGradientBySentiment(sentiment: string): string {
 	const gradients: Record<string, string[]> = {
 		positive: [
-			'from-[#FE7669] to-[#ff8969]',
-			'from-[#ff7769] to-[#ff6b9d]',
-			'from-[#ff6b9d] to-[#c471ed]',
-			'from-[#c471ed] to-[#8B78FF]',
+			'from-[#FE7669] to-[#ff8969]', // Коралловый
+			'from-[#ff7769] to-[#ff6b9d]', // Розовый
+			'from-[#ff6b9d] to-[#c471ed]', // Фиолетово-розовый
+			'from-[#c471ed] to-[#8B78FF]', // Фиолетовый
+			'from-[#43e97b] to-[#38f9d7]', // Зеленый
+			'from-[#4facfe] to-[#00f2fe]', // Голубой
+			'from-[#fa709a] to-[#fee140]', // Розово-желтый
+			'from-[#f093fb] to-[#f5576c]', // Пурпурный
+			'from-[#667eea] to-[#764ba2]', // Синий-фиолетовый
+			'from-[#f857a6] to-[#ff5858]', // Малиновый
 		],
-		neutral: ['from-[#4facfe] to-[#00f2fe]', 'from-[#43e97b] to-[#38f9d7]'],
-		negative: ['from-[#f093fb] to-[#f5576c]', 'from-[#fa709a] to-[#fee140]'],
+		neutral: [
+			'from-[#4facfe] to-[#00f2fe]',
+			'from-[#43e97b] to-[#38f9d7]',
+			'from-[#667eea] to-[#764ba2]',
+		],
+		negative: [
+			'from-[#f093fb] to-[#f5576c]',
+			'from-[#fa709a] to-[#fee140]',
+			'from-[#f857a6] to-[#ff5858]',
+		],
 	};
 
 	const gradientList = gradients[sentiment] || gradients.positive;

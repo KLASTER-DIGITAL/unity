@@ -42,17 +42,20 @@ export async function analyzeTextWithAI(
 		const result = await response.json();
 		console.log('[AI ANALYSIS] Analysis complete:', result);
 
+		// ✅ FIX: Edge Function возвращает { success: true, analysis: {...} }
+		const analysis = result.analysis || result;
+
 		return {
-			reply: result.reply || '',
-			summary: result.summary || '',
-			insight: result.insight || '',
-			sentiment: result.sentiment || 'neutral',
-			category: result.category || 'Другое',
-			tags: result.tags || [],
-			confidence: result.confidence || 0,
-			isAchievement: result.isAchievement,
-			mood: result.mood || 'нормальное',
-			entrySummaryId: result.entrySummaryId,
+			reply: analysis.reply || '',
+			summary: analysis.summary || '',
+			insight: analysis.insight || '',
+			sentiment: analysis.sentiment || 'neutral',
+			category: analysis.category || 'Другое',
+			tags: analysis.tags || [],
+			confidence: analysis.confidence || 0,
+			isAchievement: analysis.isAchievement,
+			mood: analysis.mood || 'нормальное',
+			entrySummaryId: analysis.entrySummaryId,
 		};
 	} catch (error) {
 		console.error('[AI ANALYSIS] Error:', error);

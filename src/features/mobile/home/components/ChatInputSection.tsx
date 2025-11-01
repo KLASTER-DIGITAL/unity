@@ -11,10 +11,11 @@ import {
 	InputArea,
 	handleMediaUpload as mediaUpload,
 	RecordingIndicator,
-	SuccessModal,
 	handleSendMessage as sendMessage,
 	handleVoiceInput as voiceInput,
 } from './chat-input';
+// ✅ СТАРЫЙ Success Modal с конфетти (НЕ новый дизайн)
+import { SuccessModal } from './chat-input/SuccessModal';
 
 // Re-export types for backward compatibility
 export type { ChatMessage, ChatInputSectionProps };
@@ -36,7 +37,7 @@ export function ChatInputSection({
 		null
 	);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
-	const [showAiHint, setShowAiHint] = useState(true); // ✅ NEW: AI hint visibility
+	const [showAiHint, setShowAiHint] = useState(false); // ✅ СКРЫТО: AI hint по умолчанию выключен
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -216,8 +217,8 @@ export function ChatInputSection({
 				)}
 			</AnimatedPresence>
 
-			{/* Success Modal */}
-			<SuccessModal isOffline={!navigator.onLine} isOpen={showSuccessModal} userName={userName} />
+			{/* Success Modal - СТАРЫЙ дизайн с конфетти */}
+			<SuccessModal isOpen={showSuccessModal} message="Ваша запись сохранена!" />
 		</div>
 	);
 }

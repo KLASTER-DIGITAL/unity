@@ -10,6 +10,7 @@ type RecentEntriesFeedProps = {
 	language?: Language;
 	onEntryClick?: (entry: DiaryEntry) => void;
 	onViewAllClick?: () => void;
+	refreshTrigger?: number; // ✅ NEW: Trigger для автообновления ленты
 };
 
 export function RecentEntriesFeed({
@@ -17,6 +18,7 @@ export function RecentEntriesFeed({
 	language: _language = 'ru',
 	onEntryClick,
 	onViewAllClick,
+	refreshTrigger,
 }: RecentEntriesFeedProps) {
 	const [entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,8 @@ export function RecentEntriesFeed({
 			setIsLoading(true);
 			const userId = userData?.user?.id || userData?.id || 'anonymous'; // ✅ FIXED: Try user.id first
 			const allEntries = await getEntries(userId, 3); // Загружаем только последние 3
+			console.log('[RecentEntriesFeed] Loaded entries:', allEntries);
+			console.log('[RecentEntriesFeed] First entry text:', allEntries[0]?.text);
 			setEntries(allEntries);
 		} catch (error) {
 			console.error('Error loading recent entries:', error);
@@ -40,9 +44,10 @@ export function RecentEntriesFeed({
 		}
 	}, [userData?.user?.id, userData?.id]);
 
+	// ✅ FIX: Автообновление при изменении refreshTrigger
 	useEffect(() => {
 		loadRecentEntries();
-	}, [loadRecentEntries]);
+	}, [loadRecentEntries, refreshTrigger]);
 
 	const formatTimeAgo = (dateString: string): string => {
 		const date = new Date(dateString);
@@ -153,14 +158,14 @@ export function RecentEntriesFeed({
 					{/* Последние 3 записи - ФИКСИРОВАННЫЙ размер 240x140px */}
 					{entries.map((entry) => (
 						<div
-							className="relative h-[140px] w-[240px] flex-shrink-0 cursor-pointer overflow-hidden rounded-[16px] border border-border bg-card p-3 transition-shadow hover:shadow-sm"
+							className="relative h-[140px] w-[240px] shrink-0 cursor-pointer overflow-hidden rounded-[16px] border border-border bg-card p-3 transition-shadow hover:shadow-sm"
 							data-testid="entry-item"
 							key={entry.id}
 							onClick={() => onEntryClick?.(entry)}
 						>
 							{/* Время и категория */}
 							<div className="mb-2 flex items-center justify-between">
-								<span className="whitespace-nowrap text-[11px]! text-white/70">
+								<span className="whitespace-nowrap text-[11px]! text-muted-foreground">
 									{formatTimeAgo(entry.createdAt)}
 								</span>
 								<Badge
@@ -170,25 +175,20 @@ export function RecentEntriesFeed({
 								</Badge>
 							</div>
 
-							{/* Заголовок */}
-							<h3 className="mb-1 line-clamp-1 font-semibold! text-[13px]! text-white">
-								{entry.text.split('\n')[0].substring(0, 30)}
-							</h3>
-
-							{/* Превью текста - ФИКСИРОВАННАЯ высота 60px, текст обрезается */}
-							<div className="relative h-[60px] w-full overflow-hidden">
-								<p className="absolute top-0 right-0 left-0 break-words !text-[11px] text-white/80 leading-relaxed">
-									{entry.text}
+							{/* Превью текста - ТОЛЬКО оригинальный текст */}
+							<div className="relative h-[90px] w-full overflow-hidden">
+								<p className="wrap-break-word text-[12px]! text-foreground leading-relaxed">
+									{entry.text || 'Нет текста'}
 								</p>
 								{/* Градиент затухания в конце */}
-								<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-6 bg-linear-to-t from-card via-card/50 to-transparent" />
+								<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-8 bg-linear-to-t from-card via-card/50 to-transparent" />
 							</div>
 						</div>
 					))}
 
 					{/* Карточка "Смотреть все" - 240x140px */}
 					<div
-						className="flex h-[140px] w-[240px] flex-shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5 p-4 transition-all hover:shadow-sm"
+						className="flex h-[140px] w-[240px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5 p-4 transition-all hover:shadow-sm"
 						onClick={onViewAllClick}
 					>
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">

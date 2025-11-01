@@ -56,11 +56,7 @@ export const NetworkStatusIndicator = memo(function NetworkStatusIndicator() {
 	const statusLabel = getStatusLabel();
 
 	return (
-		<span
-			aria-label={statusLabel}
-			className="absolute right-0 bottom-0 z-20 flex h-4 w-4"
-			title={statusLabel}
-		>
+		<span className="absolute right-0 bottom-0 z-20 flex h-2 w-2" title={statusLabel}>
 			{/* Pulsing ring - only show when syncing */}
 			{syncInProgress && (
 				<span
@@ -72,7 +68,7 @@ export const NetworkStatusIndicator = memo(function NetworkStatusIndicator() {
 			{/* Status dot with white border for visibility */}
 			<span
 				aria-hidden="true"
-				className={`relative inline-flex h-4 w-4 rounded-full ${statusColor} ring-2 ring-white transition-colors duration-300`}
+				className={`relative inline-flex h-2 w-2 rounded-full ${statusColor} ring-1 ring-white transition-colors duration-300`}
 			/>
 		</span>
 	);

@@ -286,7 +286,7 @@ export function TranslationsStatisticsContent() {
 					<div className="flex gap-3">
 						{stats.completeness === 100 ? (
 							<>
-								<CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+								<CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
 								<div className="space-y-1">
 									<p className="font-medium text-green-900 text-sm">Все переводы заполнены!</p>
 									<p className="text-green-700 text-xs">
@@ -296,7 +296,7 @@ export function TranslationsStatisticsContent() {
 							</>
 						) : (
 							<>
-								<AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
+								<AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
 								<div className="space-y-1">
 									<p className="font-medium text-orange-900 text-sm">Требуется внимание</p>
 									<p className="text-orange-700 text-xs">

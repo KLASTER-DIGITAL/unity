@@ -1,6 +1,6 @@
-const CACHE_NAME = 'achievement-diary-v1';
-const CACHE_NAME_API = 'achievement-diary-api-v1';
-const CACHE_NAME_STATIC = 'achievement-diary-static-v1';
+const CACHE_NAME = 'achievement-diary-v2';
+const CACHE_NAME_API = 'achievement-diary-api-v2';
+const CACHE_NAME_STATIC = 'achievement-diary-static-v2';
 
 // Cache TTL (Time To Live) в миллисекундах
 const CACHE_TTL = {
@@ -19,37 +19,42 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+	console.log('[SW] Installing new Service Worker...');
 	event.waitUntil(
 		caches
 			.open(CACHE_NAME)
 			.then((cache) => {
-				console.log('Opened cache');
+				console.log('[SW] Opened cache:', CACHE_NAME);
 				return cache.addAll(urlsToCache);
 			})
 			.catch((error) => {
-				console.error('Cache installation failed:', error);
+				console.error('[SW] Cache installation failed:', error);
 			})
 	);
-	// Не вызываем skipWaiting автоматически, ждем сообщения от клиента
+	// ✅ АВТОМАТИЧЕСКИ активируем новый Service Worker
+	self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+	console.log('[SW] Activating new Service Worker...');
 	const currentCaches = [CACHE_NAME, CACHE_NAME_API, CACHE_NAME_STATIC];
 
 	event.waitUntil(
-		caches.keys().then((cacheNames) =>
-			Promise.all(
+		caches.keys().then((cacheNames) => {
+			console.log('[SW] Current caches:', cacheNames);
+			return Promise.all(
 				cacheNames.map((cacheName) => {
 					if (!currentCaches.includes(cacheName)) {
-						console.log('Deleting old cache:', cacheName);
+						console.log('[SW] Deleting old cache:', cacheName);
 						return caches.delete(cacheName);
 					}
 					return Promise.resolve(); // Return resolved promise for current caches
 				})
-			)
-		)
+			);
+		})
 	);
+	// ✅ НЕМЕДЛЕННО берем контроль над всеми клиентами
 	self.clients.claim();
 });
 

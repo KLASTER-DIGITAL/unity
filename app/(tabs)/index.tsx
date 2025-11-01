@@ -20,6 +20,7 @@ export default function HomeScreen() {
 	const { colors } = useTheme();
 	const [userId, setUserId] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [feedRefreshKey, setFeedRefreshKey] = useState(0); // ✅ NEW: Trigger для автообновления ленты
 
 	// Real data from Supabase
 	const { profile, stats, isLoading: isLoadingUser, refetch: refetchUser } = useUserData(userId);
@@ -53,6 +54,8 @@ export default function HomeScreen() {
 		// Reload data
 		refetchUser();
 		refetchEntries();
+		// ✅ FIX: Trigger feed refresh
+		setFeedRefreshKey((prev) => prev + 1);
 	};
 
 	const handleNavigateToSettings = () => {
@@ -146,6 +149,7 @@ export default function HomeScreen() {
 					// TODO: Open entry detail modal
 				}}
 				onViewAllClick={handleNavigateToHistory}
+				refreshTrigger={feedRefreshKey} // ✅ FIX: Автообновление ленты после создания записи
 				userData={userData}
 			/>
 		</ScrollView>

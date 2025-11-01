@@ -1,12 +1,11 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { Cloud, CloudOff } from 'lucide-react';
+import { Confetti } from '@/shared/components/Confetti';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type SuccessModalProps = {
 	isOpen: boolean;
 	userName?: string;
-	isOffline?: boolean;
 };
 
 /**
@@ -18,11 +17,14 @@ type SuccessModalProps = {
  * - AI processing message
  * - Offline mode indicator
  */
-export function SuccessModal({ isOpen, userName = 'Анна', isOffline = false }: SuccessModalProps) {
+export function SuccessModal({ isOpen, userName = 'Анна' }: SuccessModalProps) {
 	return (
 		<AnimatedPresence>
 			{isOpen && (
 				<>
+					{/* Confetti Effect */}
+					<Confetti duration={3000} particleCount={100} trigger={isOpen} />
+
 					{/* Backdrop */}
 					<motion.div
 						animate={{ opacity: 1 }}
@@ -47,11 +49,14 @@ export function SuccessModal({ isOpen, userName = 'Анна', isOffline = false 
 								transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
 							>
 								<svg
+									aria-label="Success checkmark"
 									className="h-8 w-8 text-(--ios-green)"
 									fill="none"
+									role="img"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
 								>
+									<title>Success</title>
 									<path
 										d="M5 13l4 4L19 7"
 										strokeLinecap="round"
@@ -67,37 +72,6 @@ export function SuccessModal({ isOpen, userName = 'Анна', isOffline = false 
 							Отлично {userName}!<br />
 							Ваша запись сохранена! 🎉
 						</h3>
-						<p className="text-center text-[14px]! text-muted-foreground">
-							{isOffline
-								? 'Запись будет синхронизирована когда появится интернет'
-								: 'AI обрабатывает запись и создает мотивационную карточку...'}
-						</p>
-
-						{/* Offline Indicator */}
-						{isOffline && (
-							<motion.div
-								animate={{ opacity: 1, y: 0 }}
-								className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2"
-								initial={{ opacity: 0, y: 10 }}
-								transition={{ delay: 0.3 }}
-							>
-								<CloudOff className="h-4 w-4 text-orange-600" />
-								<span className="font-medium text-[12px]! text-orange-600">Сохранено offline</span>
-							</motion.div>
-						)}
-
-						{/* Online Indicator (optional) */}
-						{!isOffline && (
-							<motion.div
-								animate={{ opacity: 1, y: 0 }}
-								className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-green-500/20 bg-green-500/10 px-3 py-2"
-								initial={{ opacity: 0, y: 10 }}
-								transition={{ delay: 0.3 }}
-							>
-								<Cloud className="h-4 w-4 text-green-600" />
-								<span className="font-medium text-[12px]! text-green-600">Синхронизировано</span>
-							</motion.div>
-						)}
 					</motion.div>
 				</>
 			)}

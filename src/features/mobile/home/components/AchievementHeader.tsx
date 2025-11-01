@@ -85,44 +85,12 @@ export const AchievementHeader = memo(function AchievementHeader({
 						</div>
 					</div>
 
-					{/* Right: Days Counter - оптимальный размер кружка (130x130px) */}
-					<div className="relative flex h-[130px] w-[130px] shrink-0 items-center justify-center">
-						{/* Кружок с обводкой - видна на обоих режимах */}
-						<svg
-							className="absolute h-[130px] w-[130px]"
-							fill="none"
-							preserveAspectRatio="xMidYMid meet"
-							viewBox="0 0 130 130"
-						>
-							{/* Обводка для светлого режима - темная */}
-							<circle
-								className="block dark:hidden"
-								cx="65"
-								cy="65"
-								fill="none"
-								r="60"
-								stroke="rgba(0,0,0,0.3)"
-								strokeWidth="2"
-							/>
-							{/* Обводка для темного режима - белая с прозрачностью 80% */}
-							<circle
-								className="hidden dark:block"
-								cx="65"
-								cy="65"
-								fill="none"
-								r="60"
-								stroke="rgba(255,255,255,0.8)"
-								strokeWidth="2"
-							/>
-						</svg>
-
-						{/* Текст внутри кружка - центрирован с минимальным отступом */}
-						<div className="relative flex flex-col items-center justify-center gap-0">
-							<p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
-								{daysInApp}
-							</p>
-							<p className="text-[10px]! text-muted-foreground leading-none">День</p>
-						</div>
+					{/* Right: Days Counter БЕЗ кружка */}
+					<div className="flex shrink-0 flex-col items-center justify-center">
+						<p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
+							{daysInApp}
+						</p>
+						<p className="text-[10px]! text-muted-foreground leading-none">День</p>
 					</div>
 				</div>
 			</div>
