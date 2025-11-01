@@ -21,26 +21,31 @@ import { HAPTIC_PATTERNS, HAPTIC_STORAGE_KEY } from './types';
  */
 export class WebHapticAdapter implements HapticAdapter {
 	private enabled = true;
+	private enabledStateLoaded = false;
 
 	constructor() {
-		// DISABLED: Haptics initialization temporarily disabled to fix button hang issue
-		// TODO: Re-enable after fixing circular dependency or async initialization issue
-		// this.loadEnabledState().catch((error) => {
-		// 	console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
-		// });
+		// DO NOT load from storage in constructor - localStorage.getItem() blocks main thread!
+		// Load lazily on first trigger() call instead
 	}
 
 	/**
-	 * Load haptic enabled state from storage
+	 * Load haptic enabled state from storage (lazy loading)
+	 * Called on first trigger() to avoid blocking constructor
 	 */
 	private async loadEnabledState(): Promise<void> {
+		if (this.enabledStateLoaded) {
+			return; // Already loaded
+		}
+
 		try {
 			const storedValue = await storage.getItem(HAPTIC_STORAGE_KEY);
 			if (storedValue !== null) {
 				this.enabled = storedValue === 'true';
 			}
+			this.enabledStateLoaded = true;
 		} catch (error) {
 			console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
+			this.enabledStateLoaded = true; // Mark as loaded even on error
 		}
 	}
 
@@ -60,12 +65,15 @@ export class WebHapticAdapter implements HapticAdapter {
 	 * to avoid blocking event handlers. Call without await for better performance.
 	 */
 	async trigger(type: HapticFeedbackType, options?: HapticOptions): Promise<void> {
-		// DISABLED: Haptics temporarily disabled to fix button hang issue
-		// TODO: Re-enable after fixing the root cause
-		return;
+		// Lazy load enabled state on first trigger (non-blocking)
+		if (!this.enabledStateLoaded) {
+			// Load in background, don't await to avoid blocking
+			this.loadEnabledState().catch((error) => {
+				console.warn('[WebHapticAdapter] Failed to load enabled state:', error);
+			});
+		}
 
 		// Check if haptic is enabled (global or per-call)
-		// Use current enabled state - initialization happens in background
 		const isEnabled = options?.enabled !== undefined ? options.enabled : this.enabled;
 
 		if (!isEnabled) {
@@ -77,11 +85,8 @@ export class WebHapticAdapter implements HapticAdapter {
 			return; // Silent return - no need to warn on desktop
 		}
 
-		// Execute vibration immediately but in next tick to avoid blocking event handlers
-		// This ensures the click handler returns immediately
-		setTimeout(() => {
-			this.executeVibration(type, options);
-		}, 0);
+		// Execute vibration synchronously (no setTimeout needed - vibration is already fast)
+		this.executeVibration(type, options);
 	}
 
 	/**
