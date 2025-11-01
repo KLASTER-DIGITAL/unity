@@ -2,8 +2,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// ✅ PWA: Регистрация Service Worker
-if ('serviceWorker' in navigator) {
+// ✅ PWA: Регистрация Service Worker (ТОЛЬКО в production)
+// В dev режиме Service Worker вызывает ошибки из-за динамической обработки файлов Vite
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
 	window.addEventListener('load', () => {
 		navigator.serviceWorker
 			.register('/service-worker.js')

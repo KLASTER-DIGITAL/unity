@@ -9,7 +9,13 @@ const CACHE_TTL = {
 	images: 7 * 24 * 60 * 60 * 1000, // 7 дней для изображений
 };
 
-const urlsToCache = ['/', '/App.tsx', '/styles/globals.css'];
+// ✅ PWA: Кэшируем ТОЛЬКО существующие файлы в production build
+// НЕ кэшируем исходные файлы TypeScript (.tsx) или CSS которые обрабатываются Vite
+// Иконки используют inline SVG в manifest.json, поэтому не нужны отдельные файлы
+const urlsToCache = [
+	'/', // Главная страница
+	'/manifest.json', // PWA manifest (содержит inline SVG иконки)
+];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
