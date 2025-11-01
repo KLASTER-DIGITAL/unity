@@ -76,11 +76,24 @@
 
 	"overrides": [
 		{
-			"includes": ["**/*.native.ts", "**/*.native.tsx", "app/**/*.tsx"],
+			"includes": [
+				"**/*.native.ts",
+				"**/*.native.tsx",
+				"app/**/*.ts",
+				"app/**/*.tsx",
+				"app-shared/**/*.ts",
+				"app-shared/**/*.tsx"
+			],
 			"linter": {
 				"rules": {
 					"suspicious": {
 						"noExplicitAny": "off"
+					},
+					"complexity": {
+						"noExcessiveCognitiveComplexity": "off"
+					},
+					"correctness": {
+						"useExhaustiveDependencies": "off"
 					}
 				}
 			}
@@ -91,6 +104,12 @@
 				"rules": {
 					"complexity": {
 						"noExcessiveCognitiveComplexity": "off"
+					},
+					"suspicious": {
+						"noExplicitAny": "off"
+					},
+					"performance": {
+						"noDelete": "off"
 					}
 				}
 			}
