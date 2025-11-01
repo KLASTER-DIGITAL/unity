@@ -42,6 +42,7 @@ export function AuthForm({
 			{!isLogin && (
 				<div className="relative">
 					<input
+						autoComplete="name"
 						className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 						onChange={(e) => onNameChange(e.target.value)}
 						placeholder={translations.yourName}
@@ -55,6 +56,7 @@ export function AuthForm({
 			{/* Email */}
 			<div className="relative">
 				<input
+					autoComplete="email"
 					className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 					onChange={(e) => onEmailChange(e.target.value)}
 					placeholder={translations.yourEmail}
@@ -67,6 +69,7 @@ export function AuthForm({
 			{/* Password */}
 			<div className="relative">
 				<input
+					autoComplete={isLogin ? 'current-password' : 'new-password'}
 					className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 					minLength={6}
 					onChange={(e) => onPasswordChange(e.target.value)}

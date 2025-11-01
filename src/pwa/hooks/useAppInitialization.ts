@@ -24,6 +24,7 @@ import {
 import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
 import { initBackgroundSync } from '@/shared/lib/offline';
 import { reportWebVitals } from '@/shared/lib/performance';
+import { markLogoAsShown } from '@/shared/utils/firstLaunch';
 import { checkSession } from '@/utils/auth';
 
 type UseAppInitializationProps = {
@@ -179,6 +180,11 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 					// User has completed onboarding if they have entries or stats
 					const hasCompletedOnboarding = (entries && entries.length > 0) || !!stats;
 					setOnboardingComplete(hasCompletedOnboarding);
+
+					// ✅ OPTIMIZATION: Отмечаем, что логотип был показан (если онбординг завершен)
+					if (hasCompletedOnboarding) {
+						markLogoAsShown();
+					}
 
 					console.log(
 						'🎯 [App.tsx] Onboarding status:',

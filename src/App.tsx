@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { createAppHandlers } from '@/pwa/handlers/appHandlers';
 import { useAppInitialization } from '@/pwa/hooks/useAppInitialization';
 // PWA hooks and handlers (renamed from @/app/ to @/pwa/ to avoid conflict with React Native /app/)
@@ -6,6 +6,7 @@ import { useAppState } from '@/pwa/hooks/useAppState';
 import { LottiePreloader } from '@/shared/components/LottiePreloader';
 import { ThemeProvider } from '@/shared/components/theme-provider';
 import { PerformanceDashboard } from '@/shared/lib/i18n/monitoring/PerformanceDashboard';
+import { hasShownLogoBefore } from '@/shared/utils/firstLaunch';
 
 // Lazy load PWA-level components for code splitting
 const MobileApp = lazy(() =>
@@ -132,16 +133,30 @@ export default function App() {
 
 	// Mobile view - loading state
 	// Показываем прелоадер пока не завершена проверка сессии И не истекло минимальное время
+	// ✅ OPTIMIZATION: Показываем Lottie только при первом запуске (до онбординга)
+	const isFirstLaunch = useMemo(() => !hasShownLogoBefore(), []);
+	const shouldShowLottie = useMemo(
+		() => isFirstLaunch && (state.isCheckingSession || !state.minLoadingTimeElapsed),
+		[isFirstLaunch, state.isCheckingSession, state.minLoadingTimeElapsed]
+	);
+
 	if (state.isCheckingSession || !state.minLoadingTimeElapsed) {
 		return (
 			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
 				<div className="mx-auto max-w-md">
-					<LottiePreloader
-						minDuration={1500}
-						onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
-						showMessage={false}
-						size="lg"
-					/>
+					{shouldShowLottie ? (
+						<LottiePreloader
+							minDuration={isFirstLaunch ? 3000 : 500}
+							onMinDurationComplete={() => state.setMinLoadingTimeElapsed(true)}
+							showMessage={false}
+							size="lg"
+						/>
+					) : (
+						// Быстрый Skeleton для последующих запусков
+						<div className="flex min-h-screen items-center justify-center">
+							<div className="h-12 w-12 animate-pulse rounded-full bg-primary/20" />
+						</div>
+					)}
 				</div>
 			</ThemeProvider>
 		);

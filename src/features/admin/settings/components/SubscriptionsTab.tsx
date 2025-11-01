@@ -162,9 +162,7 @@ export function SubscriptionsTab() {
 									<TableRow key={sub.id}>
 										<TableCell>
 											<div>
-												<div className="text-sm font-semibold text-foreground">
-													{sub.userName}
-												</div>
+												<div className="text-sm font-semibold text-foreground">{sub.userName}</div>
 												<div className="text-xs font-normal text-muted-foreground">
 													{sub.userEmail}
 												</div>

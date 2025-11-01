@@ -26,9 +26,18 @@ export const checkMicrophonePermission = async (): Promise<'granted' | 'denied' 
 /**
  * Trigger haptic feedback if supported
  * @param pattern Vibration pattern (number or array of numbers)
+ * Note: Executes asynchronously to avoid blocking event handlers
  */
 export const triggerHapticFeedback = (pattern: number | number[] = 50) => {
-	if (navigator.vibrate) {
-		navigator.vibrate(pattern);
-	}
+	// Execute vibration in next tick to avoid blocking event handlers
+	setTimeout(() => {
+		if (typeof navigator !== 'undefined' && navigator.vibrate) {
+			try {
+				navigator.vibrate(pattern);
+			} catch (error) {
+				// Silently fail - vibration is not critical
+				console.debug('Vibration failed:', error);
+			}
+		}
+	}, 0);
 };

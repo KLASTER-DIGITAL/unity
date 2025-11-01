@@ -21,10 +21,11 @@ import { HAPTIC_PATTERNS, HAPTIC_STORAGE_KEY } from './types';
  */
 export class WebHapticAdapter implements HapticAdapter {
 	private enabled = true;
+	private initPromise: Promise<void> | null = null;
 
 	constructor() {
-		// Load enabled state from storage on initialization
-		this.loadEnabledState();
+		// Load enabled state from storage on initialization (non-blocking)
+		this.initPromise = this.loadEnabledState();
 	}
 
 	/**
@@ -53,9 +54,12 @@ export class WebHapticAdapter implements HapticAdapter {
 
 	/**
 	 * Trigger haptic feedback
+	 * Note: This method is async for interface compatibility, but vibration is triggered synchronously
+	 * to avoid blocking event handlers. Call without await for better performance.
 	 */
 	async trigger(type: HapticFeedbackType, options?: HapticOptions): Promise<void> {
 		// Check if haptic is enabled (global or per-call)
+		// Use current enabled state - initialization happens in background
 		const isEnabled = options?.enabled !== undefined ? options.enabled : this.enabled;
 
 		if (!isEnabled) {
@@ -64,10 +68,20 @@ export class WebHapticAdapter implements HapticAdapter {
 
 		// Check if Vibration API is supported
 		if (!this.isSupported()) {
-			console.warn('[WebHapticAdapter] Vibration API not supported on this device');
-			return;
+			return; // Silent return - no need to warn on desktop
 		}
 
+		// Execute vibration immediately but in next tick to avoid blocking event handlers
+		// This ensures the click handler returns immediately
+		setTimeout(() => {
+			this.executeVibration(type, options);
+		}, 0);
+	}
+
+	/**
+	 * Execute vibration (internal method)
+	 */
+	private executeVibration(type: HapticFeedbackType, options?: HapticOptions): void {
 		try {
 			// Get vibration pattern or duration
 			let pattern: number | number[];
@@ -83,11 +97,9 @@ export class WebHapticAdapter implements HapticAdapter {
 				pattern = HAPTIC_PATTERNS[type];
 			}
 
-			// Trigger vibration
-			const vibrated = navigator.vibrate(pattern);
-
-			if (!vibrated) {
-				console.warn('[WebHapticAdapter] Vibration request was ignored by the browser');
+			// Trigger vibration synchronously (but called from async context)
+			if (typeof navigator !== 'undefined' && navigator.vibrate) {
+				navigator.vibrate(pattern);
 			}
 		} catch (error) {
 			console.error('[WebHapticAdapter] Error triggering haptic feedback:', error);

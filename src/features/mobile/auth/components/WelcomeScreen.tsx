@@ -24,7 +24,7 @@ import {
 	imgEllipse35,
 	imgEllipse36,
 } from '@/imports/svg-lqmvp';
-import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { LoadingScreen } from '@/shared/components/LoadingScreen';
 import { PriorityOptimizedImage } from '@/shared/components/OptimizedImage';
 import { Button } from '@/shared/components/ui/button';
 // Новая i18n система
@@ -170,11 +170,11 @@ export function WelcomeScreen({
 		}
 	}, [selectedLanguage, i18nLanguage, changeLanguage]);
 
-	// ✅ FIX: Показываем загрузку, пока переводы не загрузились
+	// ✅ OPTIMIZATION: Быстрая загрузка без тяжелых Lottie анимаций
 	if (!isLoaded) {
 		return (
 			<div className="mx-auto h-screen w-full max-w-md bg-card">
-				<LottiePreloader animationType="initial" minDuration={5000} showMessage={false} size="sm" />
+				<LoadingScreen minDuration={0} />
 			</div>
 		);
 	}

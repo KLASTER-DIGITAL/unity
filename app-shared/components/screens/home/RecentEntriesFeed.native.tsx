@@ -40,7 +40,7 @@ const SENTIMENT_COLORS: Record<string, string> = {
 
 export function RecentEntriesFeed({
 	userData,
-	language = 'ru',
+	language: _language = 'ru',
 	onEntryClick,
 	onViewAllClick,
 }: RecentEntriesFeedProps) {

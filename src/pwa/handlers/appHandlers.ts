@@ -7,6 +7,7 @@
 
 import { trackInstallAccepted, trackInstallDismissed } from '@/shared/lib/analytics/pwa-tracking';
 import { setUser } from '@/shared/lib/monitoring/lazy';
+import { markLogoAsShown } from '@/shared/utils/firstLaunch';
 import { signOut } from '@/utils/auth';
 import type { OnboardingData } from '../hooks/useAppState';
 
@@ -151,6 +152,9 @@ export function createAppHandlers(props: AppHandlersProps) {
 		// Если пользователь прошел онбординг (есть firstEntry), создаем первую запись
 		// Это будет обработано в MobileApp через onAuthComplete
 		setOnboardingComplete(true);
+
+		// Отмечаем, что логотип был показан (после завершения онбординга)
+		markLogoAsShown();
 	};
 
 	/**

@@ -11,7 +11,7 @@
  */
 
 import { motion } from 'motion/react';
-import type { RefObject } from 'react';
+import { type RefObject, useRef } from 'react';
 import { cn } from '../utils';
 import type { UniversalComponentProps, UniversalEventHandlers } from './types';
 
@@ -107,20 +107,20 @@ const WebPressable = ({
 	};
 
 	// Long press implementation for web
-	let longPressTimer: ReturnType<typeof setTimeout> | null = null;
+	const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const handleLongPressStart = () => {
 		if (!disabled && onLongPress) {
-			longPressTimer = setTimeout(() => {
+			longPressTimerRef.current = setTimeout(() => {
 				onLongPress();
 			}, 500); // 500ms for long press
 		}
 	};
 
 	const handleLongPressEnd = () => {
-		if (longPressTimer) {
-			clearTimeout(longPressTimer);
-			longPressTimer = null;
+		if (longPressTimerRef.current) {
+			clearTimeout(longPressTimerRef.current);
+			longPressTimerRef.current = null;
 		}
 	};
 
@@ -134,21 +134,28 @@ const WebPressable = ({
 				className
 			)}
 			data-testid={testID}
-			onClick={handleClick}
-			onMouseDown={() => {
+			onClick={(e) => {
+				e.stopPropagation();
+				handleClick();
+			}}
+			onMouseDown={(e) => {
+				e.stopPropagation();
 				handleMouseDown();
 				handleLongPressStart();
 			}}
 			onMouseLeave={handleLongPressEnd}
-			onMouseUp={() => {
+			onMouseUp={(e) => {
+				e.stopPropagation();
 				handleMouseUp();
 				handleLongPressEnd();
 			}}
-			onTouchEnd={() => {
+			onTouchEnd={(e) => {
+				e.stopPropagation();
 				onPressOut?.();
 				handleLongPressEnd();
 			}}
-			onTouchStart={() => {
+			onTouchStart={(e) => {
+				e.stopPropagation();
 				onPressIn?.();
 				handleLongPressStart();
 			}}

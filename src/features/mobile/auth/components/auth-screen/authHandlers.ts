@@ -196,11 +196,31 @@ export async function handleEmailAuth({
 	handleComplete,
 	setIsLoading,
 }: EmailAuthParams) {
+	console.log('[handleEmailAuth] Called with:', {
+		isLogin,
+		email: email ? '***' : 'EMPTY',
+		password: password ? '***' : 'EMPTY',
+		name,
+	});
+
+	// Validate inputs
+	if (!email || !password) {
+		console.error('[handleEmailAuth] Missing email or password!', {
+			email: !!email,
+			password: !!password,
+		});
+		toast.error('Ошибка', {
+			description: 'Пожалуйста, заполните email и пароль',
+		});
+		return;
+	}
+
 	setIsLoading(true);
 
 	try {
 		if (isLogin) {
 			// Вход
+			console.log('[handleEmailAuth] Attempting sign in...');
 			const result = await signInWithEmail(email, password);
 
 			if (result.success && result.user && result.profile) {
