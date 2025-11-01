@@ -53,8 +53,7 @@ export async function handleSendMessage({
 		category: selectedCategory || undefined,
 	};
 
-	// ✅ FIX: Показываем success modal СРАЗУ (до отправки на сервер)
-	setShowSuccessModal(true);
+	// ✅ FIX: Очищаем input СРАЗУ, но НЕ показываем modal (чтобы не зависало)
 	setInputText('');
 	setIsProcessing(true);
 
@@ -65,6 +64,9 @@ export async function handleSendMessage({
 		// Запрос к AI для анализа текста
 		console.log('Analyzing text with AI...');
 		const analysis = await analyzeTextWithAI(userText, userName, userId);
+
+		// ✅ Показываем success modal ПОСЛЕ AI анализа (когда уже быстро)
+		setShowSuccessModal(true);
 
 		console.log('AI Analysis result:', analysis);
 
