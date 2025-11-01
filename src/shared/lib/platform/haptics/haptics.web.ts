@@ -21,7 +21,6 @@ import { HAPTIC_PATTERNS, HAPTIC_STORAGE_KEY } from './types';
  */
 export class WebHapticAdapter implements HapticAdapter {
 	private enabled = true;
-	private initPromise: Promise<void> | null = null;
 
 	constructor() {
 		// Load enabled state from storage on initialization (non-blocking)

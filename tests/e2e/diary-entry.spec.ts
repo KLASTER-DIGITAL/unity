@@ -19,6 +19,54 @@ const TEST_USER = {
 	password: process.env.TEST_USER_PASSWORD || '',
 };
 
+/**
+ * Helper function to navigate through WelcomeScreen and login
+ * Handles Framer Motion animation blocking with force: true
+ */
+async function login(page: any, email: string, password: string) {
+	await page.goto('/');
+	await page.waitForLoadState('networkidle');
+
+	// Check if we're on WelcomeScreen (has "У меня уже есть аккаунт" button)
+	const welcomeSkipButton = page.getByText(/У меня уже есть аккаунт/i);
+	const hasWelcomeScreen = (await welcomeSkipButton.count()) > 0;
+
+	if (hasWelcomeScreen) {
+		// Click "У меня уже есть аккаунт" to go to AuthScreen
+		// Use force: true to bypass Framer Motion animation blocking
+		await welcomeSkipButton.click({ timeout: 5000, force: true });
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000);
+	}
+
+	// Check if we need to switch to login mode (from register mode)
+	const authToggleButton = page.getByText(/Уже есть аккаунт\?/i);
+	const needsToggle = (await authToggleButton.count()) > 0;
+
+	if (needsToggle) {
+		// Click to switch to login mode
+		// Use force: true to bypass Framer Motion animation blocking
+		await authToggleButton.click({ timeout: 5000, force: true });
+		await page.waitForTimeout(1000);
+	}
+
+	// Fill email
+	const emailInput = page.getByPlaceholder(/email|почта/i);
+	await emailInput.fill(email, { timeout: 10000 });
+
+	// Fill password
+	const passwordInput = page.getByPlaceholder(/password|пароль/i);
+	await passwordInput.fill(password, { timeout: 10000 });
+
+	// Click login button
+	const submitButton = page.getByRole('button', { name: /войти|login/i });
+	await submitButton.click({ timeout: 10000 });
+
+	// Wait for navigation
+	await page.waitForLoadState('networkidle');
+	await page.waitForTimeout(1000);
+}
+
 test.describe('Diary Entry Management', () => {
 	test.beforeEach(async ({ page }) => {
 		// Skip if no password provided
@@ -27,12 +75,8 @@ test.describe('Diary Entry Management', () => {
 			return;
 		}
 
-		// Login before each test
-		await page.goto('/');
-		await page.fill('input[type="email"]', TEST_USER.email);
-		await page.fill('input[type="password"]', TEST_USER.password);
-		await page.click('button:has-text("Войти")');
-		await page.waitForLoadState('networkidle');
+		// Login before each test using helper
+		await login(page, TEST_USER.email, TEST_USER.password);
 	});
 
 	test('should create a new diary entry', async ({ page }) => {

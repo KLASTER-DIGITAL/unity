@@ -50,6 +50,7 @@ export const CardContainer = ({ children, className, containerClassName }: CardC
 					perspective: '1000px',
 				}}
 			>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: 3D card requires mouse events for animation */}
 				<div
 					className={cn(
 						'relative flex items-center justify-center transition-all duration-200 ease-linear',
@@ -116,7 +117,7 @@ export const CardItem = ({
 	useEffect(() => {
 		handleAnimations();
 		// biome-ignore lint/correctness/useExhaustiveDependencies: handleAnimations is stable
-	}, [isMouseEntered, translateX, translateY, translateZ, rotateX, rotateY, rotateZ]);
+	}, []);
 
 	const handleAnimations = () => {
 		if (!ref.current) {
