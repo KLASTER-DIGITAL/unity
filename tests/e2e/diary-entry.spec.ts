@@ -80,32 +80,18 @@ test.describe('Diary Entry Management', () => {
 		await page.goto('/');
 
 		// Force logout by clearing all storage including IndexedDB
-		await page.evaluate(async () => {
+		await page.evaluate(() => {
 			localStorage.clear();
 			sessionStorage.clear();
 
-			// Clear IndexedDB (Supabase stores session here)
-			const databases = await indexedDB.databases();
-			const deletePromises = databases.map((db) => {
-				if (db.name) {
-					return new Promise<void>((resolve, reject) => {
-						const request = indexedDB.deleteDatabase(db.name);
-						request.onsuccess = () => resolve();
-						request.onerror = () => reject(request.error);
-						request.onblocked = () => {
-							console.warn(`Deletion of ${db.name} blocked`);
-							resolve(); // Resolve anyway to not block tests
-						};
-					});
-				}
-				return Promise.resolve();
-			});
-			await Promise.all(deletePromises);
+			// Clear Supabase-specific IndexedDB (known database name)
+			const dbName = 'sb-ecuwuzqlwdkkdncampnc-auth-token';
+			const _request = indexedDB.deleteDatabase(dbName);
+			// Don't wait for completion - just fire and forget
 		});
 
 		await page.reload();
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(500); // Wait for cleanup to complete
 
 		// Login before each test using helper
 		await login(page, TEST_USER.email, TEST_USER.password);
