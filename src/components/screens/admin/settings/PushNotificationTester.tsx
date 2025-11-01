@@ -169,8 +169,8 @@ export function PushNotificationTester() {
 							</div>
 						</div>
 						<ul className="space-y-1 text-blue-800 text-sm dark:text-blue-200">
-							{recommendations.map((rec, index) => (
-								<li key={index}>{rec}</li>
+							{recommendations.map((rec) => (
+								<li key={rec}>{rec}</li>
 							))}
 						</ul>
 					</div>

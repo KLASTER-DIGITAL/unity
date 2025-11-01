@@ -122,6 +122,38 @@ export function APIServicesTab() {
 		});
 	};
 
+	const updateExistingService = async (supabase: ReturnType<typeof createClient>) => {
+		if (!editingService) return;
+
+		const { error } = await supabase
+			.from('api_services')
+			.update({
+				display_name: formData.display_name,
+				description: formData.description || null,
+				api_key: formData.api_key || null,
+				api_url: formData.api_url || null,
+				is_active: formData.is_active,
+			})
+			.eq('id', editingService.id);
+
+		if (error) throw error;
+		toast.success('Сервис успешно обновлен!');
+	};
+
+	const createNewService = async (supabase: ReturnType<typeof createClient>) => {
+		const { error } = await supabase.from('api_services').insert({
+			name: formData.name,
+			display_name: formData.display_name,
+			description: formData.description || null,
+			api_key: formData.api_key || null,
+			api_url: formData.api_url || null,
+			is_active: formData.is_active,
+		});
+
+		if (error) throw error;
+		toast.success('Сервис успешно создан!');
+	};
+
 	const handleSave = async () => {
 		if (!(formData.name && formData.display_name)) {
 			toast.error('Заполните обязательные поля');
@@ -133,33 +165,9 @@ export function APIServicesTab() {
 			const supabase = createClient();
 
 			if (editingService) {
-				// Update existing service
-				const { error } = await supabase
-					.from('api_services')
-					.update({
-						display_name: formData.display_name,
-						description: formData.description || null,
-						api_key: formData.api_key || null,
-						api_url: formData.api_url || null,
-						is_active: formData.is_active,
-					})
-					.eq('id', editingService.id);
-
-				if (error) throw error;
-				toast.success('Сервис успешно обновлен!');
+				await updateExistingService(supabase);
 			} else {
-				// Create new service
-				const { error } = await supabase.from('api_services').insert({
-					name: formData.name,
-					display_name: formData.display_name,
-					description: formData.description || null,
-					api_key: formData.api_key || null,
-					api_url: formData.api_url || null,
-					is_active: formData.is_active,
-				});
-
-				if (error) throw error;
-				toast.success('Сервис успешно создан!');
+				await createNewService(supabase);
 			}
 
 			handleCancel();
