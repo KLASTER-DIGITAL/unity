@@ -2,9 +2,6 @@ import { lazy } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
 import { LottiePreloader } from '@/shared/components/LottiePreloader';
 import { ThemeProvider } from '@/shared/components/theme-provider';
-import { LottiePreloader } from '@/shared/components/LottiePreloader';
-import { ThemeProvider } from '@/shared/components/theme-provider';
-import type { UserData } from '@/pwa/hooks/useAppState';
 
 const AdminApp = lazy(() => import('@/pwa/admin').then((module) => ({ default: module.AdminApp })));
 
@@ -54,4 +51,3 @@ export function AdminView({
 		</ThemeProvider>
 	);
 }
-

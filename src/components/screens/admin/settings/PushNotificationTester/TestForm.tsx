@@ -84,7 +84,4 @@ export function TestForm({
 		</div>
 	);
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes

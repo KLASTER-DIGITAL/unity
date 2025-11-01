@@ -79,7 +79,4 @@ export function SupportStatus({ supportInfo, recommendations }: SupportStatusPro
 		</div>
 	);
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes

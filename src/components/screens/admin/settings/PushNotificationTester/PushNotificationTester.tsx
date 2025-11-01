@@ -90,7 +90,4 @@ export function PushNotificationTester() {
 		</Card>
 	);
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes

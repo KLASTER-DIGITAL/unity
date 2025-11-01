@@ -1,8 +1,6 @@
 import { lazy, Suspense } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
 import { ThemeProvider } from '@/shared/components/theme-provider';
-import { ThemeProvider } from '@/shared/components/theme-provider';
-import type { UserData } from '@/pwa/hooks/useAppState';
 
 const MobileApp = lazy(() =>
 	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
@@ -87,13 +85,9 @@ export function MobileView({
 				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
 				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
-				{showInstallPrompt && (
-					<InstallPrompt onClose={onInstallClose} onInstall={onInstall} />
-				)}
+				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
-				{userData?.user?.id && !isAdminRoute && (
-					<OfflineSyncIndicator userId={userData.user.id} />
-				)}
+				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
 
 				{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
 
@@ -126,4 +120,3 @@ export function MobileView({
 		</ThemeProvider>
 	);
 }
-
