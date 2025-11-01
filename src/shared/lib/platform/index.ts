@@ -26,6 +26,16 @@ export {
 	type PlatformSpecific,
 };
 
+// Haptics adapter
+export {
+	HAPTIC_PATTERNS,
+	HAPTIC_STORAGE_KEY,
+	type HapticAdapter,
+	type HapticFeedbackType,
+	type HapticOptions,
+	HapticUtils,
+	haptics,
+} from './haptics';
 // Media adapter
 export {
 	type MediaAdapter,
