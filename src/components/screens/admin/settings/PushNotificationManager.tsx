@@ -9,7 +9,7 @@
  */
 
 import { ChevronDown, Key } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import {
 	Collapsible,
@@ -44,15 +44,10 @@ export function PushNotificationManager() {
 	const [body, setBody] = useState('');
 	const [icon, setIcon] = useState('/icon-192.png');
 
-	useEffect(() => {
-		loadVapidKeys();
-		loadStats();
-	}, []);
-
 	/**
 	 * Загружает VAPID keys из admin_settings
 	 */
-	const loadVapidKeys = async () => {
+	const loadVapidKeys = useCallback(async () => {
 		try {
 			const { data, error } = await supabase
 				.from('admin_settings')
@@ -72,12 +67,12 @@ export function PushNotificationManager() {
 		} catch (error) {
 			console.error('Error loading VAPID keys:', error);
 		}
-	};
+	}, []);
 
 	/**
 	 * Загружает статистику subscriptions
 	 */
-	const loadStats = async () => {
+	const loadStats = useCallback(async () => {
 		try {
 			// Total subscriptions
 			const { count: totalCount } = await supabase
@@ -108,7 +103,12 @@ export function PushNotificationManager() {
 		} catch (error) {
 			console.error('Error loading stats:', error);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadVapidKeys();
+		loadStats();
+	}, [loadVapidKeys, loadStats]);
 
 	/**
 	 * Генерирует новые VAPID keys используя Web Crypto API

@@ -79,4 +79,3 @@ export function SupportStatus({ supportInfo, recommendations }: SupportStatusPro
 		</div>
 	);
 }
-

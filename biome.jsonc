@@ -24,8 +24,10 @@
 				"noAccessKey": "error",
 				"noAriaHiddenOnFocusable": "error",
 				"noAutofocus": "warn",
+				"noLabelWithoutControl": "warn",
 				"noPositiveTabindex": "error",
 				"noRedundantAlt": "error",
+				"useButtonType": "warn",
 				"useKeyWithClickEvents": "error",
 				"useValidAriaProps": "error"
 			},
@@ -106,7 +108,8 @@
 						"noExcessiveCognitiveComplexity": "off"
 					},
 					"suspicious": {
-						"noExplicitAny": "off"
+						"noExplicitAny": "off",
+						"useAwait": "off"
 					},
 					"performance": {
 						"noDelete": "off"

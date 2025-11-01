@@ -10,7 +10,7 @@ import {
 	Users,
 	XCircle,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
@@ -52,12 +52,7 @@ export function TelegramSettingsTab() {
 		tokenMasked: '8297834785:******AQbo',
 	});
 
-	useEffect(() => {
-		loadTelegramSettings();
-		loadTelegramStats();
-	}, []);
-
-	const loadTelegramSettings = async () => {
+	const loadTelegramSettings = useCallback(async () => {
 		try {
 			const supabase = createClient();
 
@@ -96,9 +91,9 @@ export function TelegramSettingsTab() {
 			console.error('Error loading Telegram settings:', error);
 			setIsConfigured(false);
 		}
-	};
+	}, []);
 
-	const loadTelegramStats = async () => {
+	const loadTelegramStats = useCallback(async () => {
 		setIsLoadingStats(true);
 		try {
 			const supabase = createClient();
@@ -121,13 +116,20 @@ export function TelegramSettingsTab() {
 					lastActivity: lastActivity?.updated_at || null,
 				});
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error loading Telegram stats:', error);
-			toast.error(`Ошибка загрузки статистики: ${error.message}`);
+			toast.error(
+				`Ошибка загрузки статистики: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`
+			);
 		} finally {
 			setIsLoadingStats(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadTelegramSettings();
+		loadTelegramStats();
+	}, [loadTelegramSettings, loadTelegramStats]);
 
 	const testTelegramIntegration = async () => {
 		setIsLoading(true);
@@ -167,9 +169,11 @@ export function TelegramSettingsTab() {
 				toast.error('Edge Function telegram-auth не найдена. Разверните её для работы с Telegram.');
 				setIsConfigured(false);
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error testing Telegram integration:', error);
-			toast.error(`Ошибка тестирования: ${error.message}`);
+			toast.error(
+				`Ошибка тестирования: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`
+			);
 			setIsConfigured(false);
 		} finally {
 			setIsLoading(false);
