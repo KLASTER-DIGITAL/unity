@@ -36,8 +36,8 @@ interface APIService {
 	api_key: string | null;
 	api_url: string | null;
 	is_active: boolean;
-	config: Record<string, any>;
-	metadata: Record<string, any>;
+	config: Record<string, unknown>;
+	metadata: Record<string, unknown>;
 	created_at: string;
 	updated_at: string;
 }
@@ -164,9 +164,10 @@ export function APIServicesTab() {
 
 			handleCancel();
 			loadServices();
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error saving service:', error);
-			toast.error(error.message || 'Ошибка сохранения сервиса');
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка сохранения сервиса';
+			toast.error(errorMessage);
 		} finally {
 			setIsSaving(false);
 		}
@@ -182,9 +183,10 @@ export function APIServicesTab() {
 			if (error) throw error;
 			toast.success('Сервис успешно удален!');
 			loadServices();
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error deleting service:', error);
-			toast.error(error.message || 'Ошибка удаления сервиса');
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка удаления сервиса';
+			toast.error(errorMessage);
 		}
 	};
 

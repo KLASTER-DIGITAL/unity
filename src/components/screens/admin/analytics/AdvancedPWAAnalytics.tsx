@@ -9,7 +9,7 @@
  */
 
 import { BarChart3, Calendar, Download, Filter, RefreshCw, TrendingUp } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '@/shared/components/SimpleChart';
 import { Badge } from '@/shared/components/ui/badge';
@@ -41,7 +41,7 @@ export function AdvancedPWAAnalytics() {
 	const [timeSeries, setTimeSeries] = useState<TimeSeriesData[]>([]);
 
 	// Load analytics data
-	const loadAnalytics = async () => {
+	const loadAnalytics = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const endDate = new Date().toISOString();
@@ -70,7 +70,7 @@ export function AdvancedPWAAnalytics() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [period]);
 
 	useEffect(() => {
 		loadAnalytics();
