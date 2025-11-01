@@ -28,9 +28,10 @@ async function login(page: any) {
 
 	if (hasWelcomeScreen) {
 		// Click "У меня уже есть аккаунт" to go to AuthScreen
-		await welcomeSkipButton.click({ timeout: 5000 });
+		// Use force: true to bypass Framer Motion animation blocking
+		await welcomeSkipButton.click({ timeout: 5000, force: true });
 		await page.waitForLoadState('networkidle');
-		await page.waitForTimeout(500);
+		await page.waitForTimeout(1000);
 	}
 
 	// Check if we need to switch to login mode (from register mode)
@@ -40,8 +41,9 @@ async function login(page: any) {
 
 	if (needsToggle) {
 		// Click to switch to login mode
-		await authToggleButton.click({ timeout: 5000 });
-		await page.waitForTimeout(500);
+		// Use force: true to bypass Framer Motion animation blocking
+		await authToggleButton.click({ timeout: 5000, force: true });
+		await page.waitForTimeout(1000);
 	}
 
 	// Fill email

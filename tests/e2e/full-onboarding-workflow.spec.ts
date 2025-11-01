@@ -332,8 +332,9 @@ test.describe('Full Onboarding Workflow', () => {
 		// Try to find and click login if exists
 		const loginLink = page.locator('text=/У меня уже есть аккаунт|уже есть/i');
 		if (await loginLink.isVisible().catch(() => false)) {
-			await loginLink.click();
-			await page.waitForTimeout(1000);
+			// Use force: true to bypass Framer Motion animation blocking
+			await loginLink.click({ force: true });
+			await page.waitForTimeout(1500);
 		}
 
 		const emailInput = page

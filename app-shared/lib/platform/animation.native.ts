@@ -122,32 +122,22 @@ function getAnimationFunction(transition?: TransitionConfig): (toValue: any, con
 }
 
 /**
- * Animated View component for React Native (Reanimated)
+ * Internal animated component that uses Reanimated hooks
+ * Separated to satisfy React Hooks rules (no conditional hook calls)
+ * IMPORTANT: This component should ONLY be rendered when Reanimated is ready
  */
-export const AnimatedView: React.FC<AnimatedViewProps> = ({
+const ReanimatedAnimatedView: React.FC<AnimatedViewProps> = ({
 	children,
 	initial,
 	animate,
-	exit: _exit,
 	transition,
-	className: _className,
 	style,
 	onAnimationComplete,
 }) => {
-	const [isReady, setIsReady] = useState(false);
+	// IMPORTANT: No early returns before hooks to satisfy React Hooks rules
+	// This component is only rendered when Reanimated is ready (checked in parent)
 
-	useEffect(() => {
-		initReanimated()
-			.then(() => setIsReady(true))
-			.catch(console.error);
-	}, []);
-
-	if (!(isReady && Reanimated)) {
-		// Fallback: render without animation
-		return React.createElement('div', { style }, children);
-	}
-
-	const AnimatedViewComponent = Reanimated.default.View;
+	const AnimatedViewComponent = Reanimated?.default.View;
 
 	// Create shared values for animation
 	const initialStyle = convertToReanimatedStyle(initial);
@@ -155,8 +145,8 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
 
 	const animationFunc = getAnimationFunction(transition);
 
-	// Create animated style
-	const animatedStyle = Reanimated.useAnimatedStyle(() => {
+	// Create animated style (hook called unconditionally)
+	const animatedStyle = Reanimated?.useAnimatedStyle(() => {
 		const result: any = {};
 
 		// Animate opacity
@@ -188,6 +178,28 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
 		},
 		children
 	);
+};
+
+/**
+ * Animated View component for React Native (Reanimated)
+ * Wrapper that handles Reanimated initialization
+ */
+export const AnimatedView: React.FC<AnimatedViewProps> = (props) => {
+	const [isReady, setIsReady] = useState(false);
+
+	useEffect(() => {
+		initReanimated()
+			.then(() => setIsReady(true))
+			.catch(console.error);
+	}, []);
+
+	// Fallback: render without animation if Reanimated is not ready
+	if (!(isReady && Reanimated)) {
+		return React.createElement('div', { style: props.style }, props.children);
+	}
+
+	// Render animated version when Reanimated is ready
+	return React.createElement(ReanimatedAnimatedView, props);
 };
 
 /**
