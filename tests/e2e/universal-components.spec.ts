@@ -22,24 +22,39 @@ async function login(page: any) {
 	await page.goto('/');
 	await page.waitForLoadState('networkidle');
 
-	// Click "У меня уже есть аккаунт"
-	const loginButton = page.getByText(/У меня уже есть аккаунт/i);
-	if ((await loginButton.count()) > 0) {
-		await loginButton.click();
+	// Check if we're on WelcomeScreen (has "У меня уже есть аккаунт" button)
+	const welcomeSkipButton = page.getByText(/У меня уже есть аккаунт/i);
+	const hasWelcomeScreen = (await welcomeSkipButton.count()) > 0;
+
+	if (hasWelcomeScreen) {
+		// Click "У меня уже есть аккаунт" to go to AuthScreen
+		await welcomeSkipButton.click({ timeout: 5000 });
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(500);
+	}
+
+	// Check if we need to switch to login mode (from register mode)
+	// Look for "Уже есть аккаунт?" text (AuthToggle component)
+	const authToggleButton = page.getByText(/Уже есть аккаунт\?/i);
+	const needsToggle = (await authToggleButton.count()) > 0;
+
+	if (needsToggle) {
+		// Click to switch to login mode
+		await authToggleButton.click({ timeout: 5000 });
 		await page.waitForTimeout(500);
 	}
 
 	// Fill email
 	const emailInput = page.getByPlaceholder(/email|почта/i);
-	await emailInput.fill(TEST_EMAIL);
+	await emailInput.fill(TEST_EMAIL, { timeout: 10000 });
 
 	// Fill password
 	const passwordInput = page.getByPlaceholder(/password|пароль/i);
-	await passwordInput.fill(TEST_PASSWORD);
+	await passwordInput.fill(TEST_PASSWORD, { timeout: 10000 });
 
 	// Click login button
 	const submitButton = page.getByRole('button', { name: /войти|login/i });
-	await submitButton.click();
+	await submitButton.click({ timeout: 10000 });
 
 	// Wait for navigation
 	await page.waitForLoadState('networkidle');

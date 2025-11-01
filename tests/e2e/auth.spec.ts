@@ -26,8 +26,16 @@ const TEST_USERS = {
 };
 
 test.describe('Authentication', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ page, context }) => {
+		// Clear cookies and localStorage to ensure clean state
+		await context.clearCookies();
 		await page.goto('/');
+		await page.evaluate(() => {
+			localStorage.clear();
+			sessionStorage.clear();
+		});
+		await page.reload();
+		await page.waitForLoadState('networkidle');
 	});
 
 	test('should show welcome screen for unauthenticated users', async ({ page }) => {
