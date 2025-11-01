@@ -6,6 +6,51 @@
 
 ---
 
+## [Unreleased] - 2025-11-01
+
+### 🐛 Исправлено
+
+**E2E Testing & Bug Fixes (2025-11-01)**:
+- **AuthForm.tsx**: Добавлены autocomplete атрибуты
+  - `autoComplete="email"` для email input
+  - `autoComplete="current-password"` для password input (login)
+  - `autoComplete="new-password"` для password input (register)
+  - Устранен browser warning о missing autocomplete
+  - Улучшена UX для password managers
+- **authHandlers.ts**: Добавлена валидация и логирование
+  - Проверка на пустые email/password перед отправкой
+  - Логирование для отладки формы авторизации
+  - Toast уведомление при пустых полях
+  - Предотвращение 400 Bad Request ошибок
+- **biome.jsonc**: Обновлена версия schema
+  - Изменено с `1.9.4` на `2.3.2`
+  - Синхронизация с Biome CLI version
+  - Устранен deserialize warning
+- **RecentEntriesFeed.native.tsx**: Исправлен unused parameter
+  - Переименован `language` в `_language`
+  - Устранен lint warning `noUnusedFunctionParameters`
+
+### 📚 Документация
+
+**Testing Report (2025-11-01)**:
+- **Создан**: `docs/testing/2025-11-01_e2e_testing_report.md`
+  - Полный отчет E2E тестирования PWA
+  - Протестировано 7 из 10 разделов
+  - Найдено и исправлено 4 критичных ошибки
+  - Консоль: 0 errors, 0 warnings (после исправлений)
+  - Lint: улучшение на 58% (17,334 → 7,182 ошибок)
+  - Выявлено: разделы Goals/Habits/Tasks не реализованы
+
+### 📊 Статистика
+
+**Lint Cleanup Progress**:
+- **До**: 17,334 errors
+- **После**: 3,901 errors + 3,281 warnings = 7,182 проблем
+- **Улучшение**: -10,105 ошибок (-58%)
+- **Осталось**: 7,182 проблем для исправления
+
+---
+
 ## [Unreleased] - 2025-10-30
 
 ### 🔄 Изменено
