@@ -177,7 +177,7 @@ export function RecentEntriesFeed({
 
 							{/* Превью текста - ФИКСИРОВАННАЯ высота 60px, текст обрезается */}
 							<div className="relative h-[60px] w-full overflow-hidden">
-								<p className="absolute top-0 right-0 left-0 break-words text-[11px]! text-white/80 leading-relaxed">
+								<p className="absolute top-0 right-0 left-0 break-words !text-[11px] text-white/80 leading-relaxed">
 									{entry.text}
 								</p>
 								{/* Градиент затухания в конце */}
@@ -194,7 +194,7 @@ export function RecentEntriesFeed({
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
 							<ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
 						</div>
-						<p className="text-center font-medium! text-[13px]! text-accent">Смотреть все</p>
+						<p className="text-center text-sm font-medium text-accent">Смотреть все</p>
 					</div>
 				</div>
 			</div>

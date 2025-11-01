@@ -85,13 +85,13 @@ export function SubscriptionsTab() {
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<Card>
 					<CardHeader className="pb-2">
-						<CardTitle className="flex items-center gap-2 font-normal! text-[14px]! text-muted-foreground">
+						<CardTitle className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
 							<DollarSign className="h-4 w-4" />
 							Общий доход
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-semibold! text-[28px]! text-foreground">
+						<div className="text-3xl font-semibold text-foreground">
 							{stats.totalRevenue.toLocaleString()} ₽
 						</div>
 					</CardContent>
@@ -99,13 +99,13 @@ export function SubscriptionsTab() {
 
 				<Card>
 					<CardHeader className="pb-2">
-						<CardTitle className="flex items-center gap-2 font-normal! text-[14px]! text-muted-foreground">
+						<CardTitle className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
 							<Users className="h-4 w-4" />
 							Активных подписок
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-semibold! text-[28px]! text-foreground">
+						<div className="text-3xl font-semibold text-foreground">
 							{stats.activeSubscriptions}
 						</div>
 					</CardContent>
@@ -113,13 +113,13 @@ export function SubscriptionsTab() {
 
 				<Card>
 					<CardHeader className="pb-2">
-						<CardTitle className="flex items-center gap-2 font-normal! text-[14px]! text-muted-foreground">
+						<CardTitle className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
 							<TrendingUp className="h-4 w-4" />
 							MRR
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-semibold! text-[28px]! text-foreground">
+						<div className="text-3xl font-semibold text-foreground">
 							{stats.mrr.toLocaleString()} ₽
 						</div>
 					</CardContent>
@@ -127,13 +127,13 @@ export function SubscriptionsTab() {
 
 				<Card>
 					<CardHeader className="pb-2">
-						<CardTitle className="flex items-center gap-2 font-normal! text-[14px]! text-muted-foreground">
+						<CardTitle className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
 							<TrendingUp className="h-4 w-4" />
 							Churn Rate
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="font-semibold! text-[28px]! text-foreground">{stats.churnRate}%</div>
+						<div className="text-3xl font-semibold text-foreground">{stats.churnRate}%</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -141,7 +141,7 @@ export function SubscriptionsTab() {
 			{/* Subscriptions Table */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="font-semibold! text-[20px]!">Активные подписки</CardTitle>
+					<CardTitle className="text-xl font-semibold">Активные подписки</CardTitle>
 					<CardDescription>Управление премиум-подписками пользователей</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -162,19 +162,19 @@ export function SubscriptionsTab() {
 									<TableRow key={sub.id}>
 										<TableCell>
 											<div>
-												<div className="font-semibold! text-[14px]! text-foreground">
+												<div className="text-sm font-semibold text-foreground">
 													{sub.userName}
 												</div>
-												<div className="font-normal! text-[12px]! text-muted-foreground">
+												<div className="text-xs font-normal text-muted-foreground">
 													{sub.userEmail}
 												</div>
 											</div>
 										</TableCell>
 										<TableCell>{getPlanBadge(sub.plan)}</TableCell>
 										<TableCell>{getStatusBadge(sub.status)}</TableCell>
-										<TableCell className="text-[13px]!">{sub.startDate}</TableCell>
-										<TableCell className="text-[13px]!">{sub.nextBillingDate}</TableCell>
-										<TableCell className="text-right font-semibold! text-[14px]!">
+										<TableCell className="text-sm">{sub.startDate}</TableCell>
+										<TableCell className="text-sm">{sub.nextBillingDate}</TableCell>
+										<TableCell className="text-right text-sm font-semibold">
 											{sub.amount} ₽
 										</TableCell>
 									</TableRow>

@@ -38,7 +38,7 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 					>
 						<CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
 					</motion.div>
-					<p className="!text-[#002055] dark:!text-[#1a1a1a] text-[16px]!">{message}</p>
+					<p className="text-base font-medium text-foreground">{message}</p>
 				</motion.div>
 			</motion.div>
 		</>

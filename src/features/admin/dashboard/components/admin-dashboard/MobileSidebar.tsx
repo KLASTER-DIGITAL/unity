@@ -44,8 +44,8 @@ export function MobileSidebar({
 									<Shield className="h-6 w-6 text-white" />
 								</div>
 								<div>
-									<h1 className="text-[17px]! text-white">Admin</h1>
-									<p className="font-normal! text-[13px]! text-white/80">
+									<h1 className="text-lg text-white">Admin</h1>
+									<p className="text-sm font-normal text-white/80">
 										{t('admin_panel', 'Панель управления')}
 									</p>
 								</div>
@@ -61,7 +61,7 @@ export function MobileSidebar({
 								const isActive = activeTab === item.id;
 								return (
 									<motion.button
-										className={`relative flex w-full items-center gap-3 rounded-(--radius) px-3 py-2.5 text-[15px]! transition-all ${
+										className={`relative flex w-full items-center gap-3 rounded-(--radius) px-3 py-2.5 text-base transition-all ${
 											isActive
 												? 'bg-accent text-accent-foreground shadow-lg'
 												: 'text-foreground hover:bg-muted'
@@ -97,12 +97,12 @@ export function MobileSidebar({
 									{userData?.email?.[0].toUpperCase()}
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="truncate text-[14px]! text-foreground">{userData?.email}</p>
-									<p className="font-normal! text-[12px]! text-muted-foreground">Супер-админ</p>
+									<p className="truncate text-sm text-foreground">{userData?.email}</p>
+									<p className="text-xs font-normal text-muted-foreground">Супер-админ</p>
 								</div>
 							</div>
 							<Button
-								className="w-full justify-start gap-2 text-[15px]!"
+								className="w-full justify-start gap-2 text-base"
 								onClick={onLogout}
 								variant="outline"
 							>

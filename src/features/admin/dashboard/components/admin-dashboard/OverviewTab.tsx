@@ -26,8 +26,8 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
 			{/* Header with Refresh */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h3 className="text-[26px]! text-foreground">Обзор системы</h3>
-					<p className="font-normal! text-[15px]! text-muted-foreground">
+					<h3 className="text-2xl text-foreground">Обзор системы</h3>
+					<p className="text-base font-normal text-muted-foreground">
 						Статистика и метрики приложения
 					</p>
 				</div>
