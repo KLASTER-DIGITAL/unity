@@ -68,12 +68,34 @@ async function login(page: any, email: string, password: string) {
 }
 
 test.describe('Diary Entry Management', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ page, context }) => {
 		// Skip if no password provided
 		if (!TEST_USER.password) {
 			test.skip();
 			return;
 		}
+
+		// Clear cookies and storage to ensure clean state
+		await context.clearCookies();
+		await page.goto('/');
+
+		// Force logout by clearing all storage including IndexedDB
+		await page.evaluate(async () => {
+			localStorage.clear();
+			sessionStorage.clear();
+
+			// Clear IndexedDB (Supabase stores session here)
+			const databases = await indexedDB.databases();
+			for (const db of databases) {
+				if (db.name) {
+					indexedDB.deleteDatabase(db.name);
+				}
+			}
+		});
+
+		await page.reload();
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
 
 		// Login before each test using helper
 		await login(page, TEST_USER.email, TEST_USER.password);

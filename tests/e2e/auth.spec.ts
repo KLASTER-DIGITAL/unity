@@ -78,12 +78,25 @@ test.describe('Authentication', () => {
 		// Clear cookies and localStorage to ensure clean state
 		await context.clearCookies();
 		await page.goto('/');
-		await page.evaluate(() => {
+
+		// Force logout by calling Supabase signOut
+		await page.evaluate(async () => {
+			// Clear all storage
 			localStorage.clear();
 			sessionStorage.clear();
+
+			// Clear IndexedDB (Supabase stores session here)
+			const databases = await indexedDB.databases();
+			for (const db of databases) {
+				if (db.name) {
+					indexedDB.deleteDatabase(db.name);
+				}
+			}
 		});
+
 		await page.reload();
 		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
 	});
 
 	test('should show welcome screen for unauthenticated users', async ({ page }) => {

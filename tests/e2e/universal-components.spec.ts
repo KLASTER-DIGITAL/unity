@@ -68,7 +68,29 @@ async function login(page: any) {
 // ============================================================================
 
 test.describe('Button Component E2E - Settings Page', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ page, context }) => {
+		// Clear cookies and storage to ensure clean state
+		await context.clearCookies();
+		await page.goto('/');
+
+		// Force logout by clearing all storage including IndexedDB
+		await page.evaluate(async () => {
+			localStorage.clear();
+			sessionStorage.clear();
+
+			// Clear IndexedDB (Supabase stores session here)
+			const databases = await indexedDB.databases();
+			for (const db of databases) {
+				if (db.name) {
+					indexedDB.deleteDatabase(db.name);
+				}
+			}
+		});
+
+		await page.reload();
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+
 		// Login and navigate to Settings
 		await login(page);
 
@@ -140,7 +162,29 @@ test.describe('Button Component E2E - Settings Page', () => {
 // ============================================================================
 
 test.describe('Modal Component E2E - Home Page', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ page, context }) => {
+		// Clear cookies and storage to ensure clean state
+		await context.clearCookies();
+		await page.goto('/');
+
+		// Force logout by clearing all storage including IndexedDB
+		await page.evaluate(async () => {
+			localStorage.clear();
+			sessionStorage.clear();
+
+			// Clear IndexedDB (Supabase stores session here)
+			const databases = await indexedDB.databases();
+			for (const db of databases) {
+				if (db.name) {
+					indexedDB.deleteDatabase(db.name);
+				}
+			}
+		});
+
+		await page.reload();
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+
 		// Login and navigate to Home
 		await login(page);
 
@@ -226,7 +270,29 @@ test.describe('Modal Component E2E - Home Page', () => {
 // ============================================================================
 
 test.describe('RadioGroup Component E2E - Settings Page', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ page, context }) => {
+		// Clear cookies and storage to ensure clean state
+		await context.clearCookies();
+		await page.goto('/');
+
+		// Force logout by clearing all storage including IndexedDB
+		await page.evaluate(async () => {
+			localStorage.clear();
+			sessionStorage.clear();
+
+			// Clear IndexedDB (Supabase stores session here)
+			const databases = await indexedDB.databases();
+			for (const db of databases) {
+				if (db.name) {
+					indexedDB.deleteDatabase(db.name);
+				}
+			}
+		});
+
+		await page.reload();
+		await page.waitForLoadState('networkidle');
+		await page.waitForTimeout(1000); // Wait for IndexedDB cleanup
+
 		// Login and navigate to Settings
 		await login(page);
 
