@@ -250,7 +250,7 @@ describe('useVoiceRecorder', () => {
 		});
 
 		// Advance timer by 3 seconds
-		await act(async () => {
+		act(() => {
 			vi.advanceTimersByTime(3000);
 		});
 
@@ -270,7 +270,7 @@ describe('useVoiceRecorder', () => {
 		});
 
 		// Wait for data to be available
-		await act(async () => {
+		act(() => {
 			vi.advanceTimersByTime(200);
 		});
 
@@ -432,7 +432,7 @@ describe('useSpeechRecognition', () => {
 		});
 
 		// Wait for mock result
-		await act(async () => {
+		act(() => {
 			vi.advanceTimersByTime(150);
 		});
 
@@ -500,7 +500,7 @@ describe('useSpeechRecognition', () => {
 		});
 
 		// Wait for recognition to start
-		await act(async () => {
+		act(() => {
 			vi.advanceTimersByTime(50);
 		});
 
@@ -544,7 +544,7 @@ describe('useImageCompressionWorker', () => {
 		expect(typeof result.current.compressImage).toBe('function');
 	});
 
-	it('should compress image successfully', async () => {
+	it('should compress image successfully', () => {
 		const { result } = renderHook(() => useImageCompressionWorker());
 
 		const _mockFile = new File(['image data'], 'test.jpg', {
@@ -563,7 +563,7 @@ describe('useImageCompressionWorker', () => {
 	});
 
 	it('should handle compression options', () => {
-		const { result } = renderHook(() => useImageCompressionWorker());
+		renderHook(() => useImageCompressionWorker());
 
 		const options = {
 			maxWidth: 1920,

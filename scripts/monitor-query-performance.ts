@@ -273,7 +273,7 @@ ${report.alerts.length > 0 ? report.alerts.map((a) => `- ${a}`).join('\n') : 'Н
 /**
  * Главная функция
  */
-async function main() {
+function main() {
 	console.log(`${colors.cyan}
 ╔═══════════════════════════════════════════════════════════╗
 ║         Query Performance Monitor - UNITY-v2              ║
