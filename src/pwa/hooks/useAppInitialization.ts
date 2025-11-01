@@ -54,8 +54,6 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 	const {
 		userData,
 		isCheckingSession: _isCheckingSession,
-		// @ts-expect-error - Used in PWA install prompt logic (future implementation)
-		onboardingComplete,
 		setUserData,
 		setIsCheckingSession,
 		setOnboardingComplete,
@@ -67,12 +65,6 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		setDeferredPrompt,
 		setShowSyncComplete,
 		setSyncedCount,
-		// @ts-expect-error - Used in session initialization (future implementation)
-		setCurrentStep,
-		// @ts-expect-error - Used in session initialization (future implementation)
-		setSelectedLanguage,
-		// @ts-expect-error - Used in session initialization (future implementation)
-		setOnboardingData,
 	} = props;
 
 	// PWA settings
@@ -149,12 +141,70 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		};
 	}, [checkRouteAndAccess]);
 
+	// ✅ Helper: Check onboarding status with timeout
+	const checkOnboardingStatus = useCallback(async (userId: string): Promise<boolean> => {
+		try {
+			console.log('📊 [App.tsx] Checking onboarding status with 10s timeout...');
+
+			// Create timeout promise
+			const timeoutPromise = new Promise<never>((_, reject) => {
+				setTimeout(() => reject(new Error('Onboarding check timeout')), 10000);
+			});
+
+			// Race between data fetch and timeout
+			const [entries, stats] = await Promise.race([
+				Promise.all([
+					getEntries(userId).catch((err) => {
+						console.error('❌ [App.tsx] Failed to fetch entries:', err);
+						return null;
+					}),
+					getUserStats(userId).catch((err) => {
+						console.error('❌ [App.tsx] Failed to fetch stats:', err);
+						return null;
+					}),
+				]),
+				timeoutPromise,
+			]);
+
+			console.log('📊 [App.tsx] User stats:', {
+				entriesCount: entries?.length || 0,
+				hasStats: !!stats,
+			});
+
+			// User has completed onboarding if they have entries or stats
+			const hasCompletedOnboarding = (entries && entries.length > 0) || !!stats;
+
+			// ✅ OPTIMIZATION: Отмечаем, что логотип был показан (если онбординг завершен)
+			if (hasCompletedOnboarding) {
+				markLogoAsShown();
+			}
+
+			console.log(
+				'🎯 [App.tsx] Onboarding status:',
+				hasCompletedOnboarding ? 'COMPLETE' : 'INCOMPLETE'
+			);
+
+			return hasCompletedOnboarding;
+		} catch (onboardingError) {
+			console.error('❌ [App.tsx] Onboarding check failed:', onboardingError);
+			// ✅ FALLBACK: If onboarding check fails, assume user needs onboarding
+			console.log('🎯 [App.tsx] Onboarding status: INCOMPLETE (fallback due to error)');
+			return false;
+		}
+	}, []);
+
 	// Initialize session
 	useEffect(() => {
 		const initSession = async () => {
 			try {
-				console.log('🔐 [App.tsx] Checking session...');
-				const session = await checkSession();
+				console.log('🔐 [App.tsx] Checking session with 15s timeout...');
+
+				// ✅ FIX: Add timeout to checkSession to prevent infinite loading
+				const timeoutPromise = new Promise<null>((_, reject) => {
+					setTimeout(() => reject(new Error('Session check timeout after 15s')), 15000);
+				});
+
+				const session = await Promise.race([checkSession(), timeoutPromise]);
 
 				if (session?.user) {
 					console.log('✅ [App.tsx] Session found:', session.user.email);
@@ -168,28 +218,9 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 
 					setUserData(session);
 
-					// Check if user has completed onboarding
-					const entries = await getEntries(session.user.id);
-					const stats = await getUserStats(session.user.id);
-
-					console.log('📊 [App.tsx] User stats:', {
-						entriesCount: entries?.length || 0,
-						hasStats: !!stats,
-					});
-
-					// User has completed onboarding if they have entries or stats
-					const hasCompletedOnboarding = (entries && entries.length > 0) || !!stats;
+					// Check onboarding status
+					const hasCompletedOnboarding = await checkOnboardingStatus(session.user.id);
 					setOnboardingComplete(hasCompletedOnboarding);
-
-					// ✅ OPTIMIZATION: Отмечаем, что логотип был показан (если онбординг завершен)
-					if (hasCompletedOnboarding) {
-						markLogoAsShown();
-					}
-
-					console.log(
-						'🎯 [App.tsx] Onboarding status:',
-						hasCompletedOnboarding ? 'COMPLETE' : 'INCOMPLETE'
-					);
 				} else {
 					console.log('❌ [App.tsx] No session found');
 					setUserData(null);
@@ -200,12 +231,14 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 				setUserData(null);
 				setOnboardingComplete(false);
 			} finally {
+				// ✅ CRITICAL: Always set isCheckingSession to false to prevent infinite loading
+				console.log('✅ [App.tsx] Session check complete, hiding loading screen');
 				setIsCheckingSession(false);
 			}
 		};
 
 		initSession();
-	}, [setIsCheckingSession, setOnboardingComplete, setUserData]);
+	}, [setIsCheckingSession, setOnboardingComplete, setUserData, checkOnboardingStatus]);
 
 	// Initialize PWA features
 	useEffect(() => {
