@@ -45,6 +45,7 @@ self.addEventListener('activate', (event) => {
 						console.log('Deleting old cache:', cacheName);
 						return caches.delete(cacheName);
 					}
+					return Promise.resolve(); // Return resolved promise for current caches
 				})
 			)
 		)
@@ -147,7 +148,9 @@ async function staleWhileRevalidate(request, cacheName, ttl) {
 	if (cachedResponse && !isCacheExpired(cachedResponse, ttl)) {
 		console.log('[SW] Serving from cache (stale-while-revalidate):', request.url);
 		// Update cache in background
-		fetchPromise.catch(() => {}); // Ignore errors
+		fetchPromise.catch(() => {
+			// Intentionally ignore background fetch errors
+		});
 		return cachedResponse;
 	}
 

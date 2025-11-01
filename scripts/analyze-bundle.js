@@ -7,7 +7,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { execSync } = require('node:child_process');
+// execSync used for running build commands
+// const { execSync } = require('node:child_process');
 
 // Цвета для консоли
 const colors = {

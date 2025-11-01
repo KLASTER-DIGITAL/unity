@@ -53,7 +53,7 @@ interface PerformanceReport {
 /**
  * Получает статистику производительности запросов из Supabase
  */
-async function getQueryPerformance(): Promise<PerformanceReport> {
+function getQueryPerformance(): PerformanceReport {
 	console.log(`${colors.cyan}🔍 Получение статистики Query Performance...${colors.reset}\n`);
 
 	// В реальности эти данные нужно получать через Supabase Management API
@@ -204,7 +204,10 @@ function generateRecommendations(report: PerformanceReport): void {
 		'   - Настройте алерты на критичные запросы\n'
 	);
 
-	recommendations.forEach((r) => console.log(r));
+	// Print all recommendations
+	for (const r of recommendations) {
+		console.log(r);
+	}
 }
 
 /**
@@ -281,7 +284,7 @@ ${colors.reset}\n`);
 
 	try {
 		// Получить статистику
-		const report = await getQueryPerformance();
+		const report = getQueryPerformance();
 
 		// Анализировать
 		analyzePerformance(report);

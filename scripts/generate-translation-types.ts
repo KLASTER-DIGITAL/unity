@@ -23,15 +23,16 @@ if (!SUPABASE_ANON_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-interface TranslationKey {
-	translation_key: string;
-}
+// Unused interfaces - kept for future use
+// interface TranslationKey {
+// 	translation_key: string;
+// }
 
-interface Language {
-	code: string;
-	name: string;
-	native_name: string;
-}
+// interface Language {
+// 	code: string;
+// 	name: string;
+// 	native_name: string;
+// }
 
 async function generateTranslationTypes() {
 	console.log('🔄 Fetching translation keys from Supabase...');
