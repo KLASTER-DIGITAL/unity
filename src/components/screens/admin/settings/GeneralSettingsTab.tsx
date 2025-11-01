@@ -2,7 +2,7 @@
 
 import { Loader2, RotateCcw, Save, Settings } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -34,11 +34,7 @@ export const GeneralSettingsTab: React.FC = () => {
 	const [isSaving, setIsSaving] = useState(false);
 	const [isResetting, setIsResetting] = useState(false);
 
-	useEffect(() => {
-		loadSettings();
-	}, []);
-
-	const loadSettings = async () => {
+	const loadSettings = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const supabase = createClient();
@@ -82,7 +78,11 @@ export const GeneralSettingsTab: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadSettings();
+	}, [loadSettings]);
 
 	const handleSave = async () => {
 		setIsSaving(true);

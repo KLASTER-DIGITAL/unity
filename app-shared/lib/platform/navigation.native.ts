@@ -147,12 +147,16 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 		try {
 			if (!this.initialized) {
 				console.warn('Navigation not initialized yet');
-				return () => {};
+				return () => {
+					// No-op: Navigation not initialized
+				};
 			}
 
 			if (!this.navigationRef?.current) {
 				console.warn('Navigation ref not available');
-				return () => {};
+				return () => {
+					// No-op: Navigation ref not available
+				};
 			}
 
 			// Map web events to React Navigation events
@@ -174,7 +178,9 @@ export class NativeNavigationAdapter implements NavigationAdapter {
 			};
 		} catch (error) {
 			console.error('Add listener error:', error);
-			return () => {};
+			return () => {
+				// No-op: Error occurred during listener setup
+			};
 		}
 	}
 

@@ -19,7 +19,7 @@ import {
 	Users,
 } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SimpleChart } from '@/shared/components/SimpleChart';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 import { Badge } from '@/shared/components/ui/badge';
@@ -38,7 +38,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<'7d' | '30d' | 'all'>('7d');
 
-	const loadAnalytics = async () => {
+	const loadAnalytics = useCallback(async () => {
 		console.log('[PushAnalyticsDashboard] Loading analytics, period:', period);
 		setLoading(true);
 		try {
@@ -66,7 +66,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 			setLoading(false);
 			console.log('[PushAnalyticsDashboard] Loading complete');
 		}
-	};
+	}, [period]);
 
 	useEffect(() => {
 		loadAnalytics();

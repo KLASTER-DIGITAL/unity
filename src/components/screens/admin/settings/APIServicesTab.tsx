@@ -11,7 +11,7 @@ import {
 	X,
 	XCircle,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -59,11 +59,7 @@ export function APIServicesTab() {
 		is_active: true,
 	});
 
-	useEffect(() => {
-		loadServices();
-	}, []);
-
-	const loadServices = async () => {
+	const loadServices = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const supabase = createClient();
@@ -81,7 +77,11 @@ export function APIServicesTab() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadServices();
+	}, [loadServices]);
 
 	const handleCreate = () => {
 		setIsCreating(true);
@@ -201,9 +201,10 @@ export function APIServicesTab() {
 			if (error) throw error;
 			toast.success(`Сервис ${!service.is_active ? 'активирован' : 'деактивирован'}!`);
 			loadServices();
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error toggling service:', error);
-			toast.error(error.message || 'Ошибка изменения статуса');
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка изменения статуса';
+			toast.error(errorMessage);
 		}
 	};
 

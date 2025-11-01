@@ -2,7 +2,7 @@
 
 import { AlertCircle, Brain, CheckCircle, DollarSign, Save, Settings2, Zap } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -130,11 +130,7 @@ export const AISettingsTab: React.FC = () => {
 		test_mode: false,
 	});
 
-	useEffect(() => {
-		loadAISettings();
-	}, []);
-
-	const loadAISettings = async () => {
+	const loadAISettings = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const supabase = createClient();
@@ -182,13 +178,18 @@ export const AISettingsTab: React.FC = () => {
 			}
 
 			toast.success('Настройки AI загружены');
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error loading AI settings:', error);
-			toast.error(`Ошибка загрузки: ${error.message}`);
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки';
+			toast.error(`Ошибка загрузки: ${errorMessage}`);
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadAISettings();
+	}, [loadAISettings]);
 
 	const handleSaveSettings = async () => {
 		setIsSaving(true);
@@ -222,15 +223,20 @@ export const AISettingsTab: React.FC = () => {
 			if (budgetError) throw budgetError;
 
 			toast.success('Настройки AI успешно сохранены! 🧠');
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error saving AI settings:', error);
-			toast.error(`Ошибка сохранения: ${error.message}`);
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка сохранения';
+			toast.error(`Ошибка сохранения: ${errorMessage}`);
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
-	const updateModelConfig = (operationType: string, field: keyof AIModelConfig, value: any) => {
+	const updateModelConfig = (
+		operationType: string,
+		field: keyof AIModelConfig,
+		value: string | number | boolean
+	) => {
 		setModelConfigs((prev) =>
 			prev.map((config) =>
 				config.operation_type === operationType ? { ...config, [field]: value } : config

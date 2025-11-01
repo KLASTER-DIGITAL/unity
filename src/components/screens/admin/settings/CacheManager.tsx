@@ -6,7 +6,7 @@
  */
 
 import { Database, HardDrive, RefreshCw, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -36,7 +36,7 @@ export function CacheManager() {
 	const [isClearing, setIsClearing] = useState<string | null>(null);
 
 	// Load cache stats
-	const loadCacheStats = async () => {
+	const loadCacheStats = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const cacheStats = await getCacheStats();
@@ -52,7 +52,7 @@ export function CacheManager() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		loadCacheStats();
