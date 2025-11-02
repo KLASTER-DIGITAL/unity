@@ -3,6 +3,7 @@
  */
 
 export * from './constants';
+export { DeleteConfirmModal } from './DeleteConfirmModal';
 export { EditEntryModal } from './EditEntryModal';
 export { EmptyState } from './EmptyState';
 export { EntryActionsModal } from './EntryActionsModal';

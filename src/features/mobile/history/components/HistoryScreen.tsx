@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { type DiaryEntry, deleteEntry, getEntries, updateEntry } from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
 import {
+	DeleteConfirmModal,
 	EditEntryModal,
 	EmptyState,
 	EntryActionsModal,
@@ -31,6 +32,8 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 	const [isSaving, setIsSaving] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [successMessage, setSuccessMessage] = useState('');
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
@@ -111,17 +114,24 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 		}
 	};
 
-	const handleDeleteEntry = async (entryId: string) => {
-		if (!confirm('Удалить эту запись?')) {
+	const handleDeleteEntry = (entryId: string) => {
+		// Показываем красивое модальное окно подтверждения
+		setEntryToDelete(entryId);
+		setShowDeleteConfirm(true);
+	};
+
+	const confirmDelete = async () => {
+		if (!entryToDelete) {
 			return;
 		}
 
 		try {
 			const userId = userData?.user?.id || userData?.id || 'anonymous';
-			await deleteEntry(entryId, userId);
+			await deleteEntry(entryToDelete, userId);
 
-			setEntries((prev) => prev.filter((e) => e.id !== entryId));
+			setEntries((prev) => prev.filter((e) => e.id !== entryToDelete));
 			setSelectedEntry(null);
+			setEntryToDelete(null);
 
 			// Показываем success modal
 			setSuccessMessage('Запись успешно удалена!');
@@ -205,6 +215,15 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 				onClose={() => setEditingEntry(null)}
 				onSave={handleSaveEdit}
 				onTextChange={setEditText}
+			/>
+
+			<DeleteConfirmModal
+				isOpen={showDeleteConfirm}
+				onClose={() => {
+					setShowDeleteConfirm(false);
+					setEntryToDelete(null);
+				}}
+				onConfirm={confirmDelete}
 			/>
 
 			<SuccessModal isOpen={showSuccessModal} message={successMessage} />

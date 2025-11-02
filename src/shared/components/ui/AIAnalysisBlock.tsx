@@ -48,7 +48,6 @@ export function AIAnalysisBlock({
 		<div className={`rounded-[16px] border border-accent/20 bg-accent/5 p-4 ${className}`}>
 			<div className="mb-2 flex items-center gap-2">
 				<span className="text-[18px]">🤖</span>
-				<span className="font-semibold text-[14px] text-accent">AI Анализ</span>
 			</div>
 			<p className="text-[14px] text-muted-foreground leading-relaxed italic">{aiReply}</p>
 		</div>
