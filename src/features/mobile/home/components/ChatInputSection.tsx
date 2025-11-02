@@ -151,8 +151,8 @@ export function ChatInputSection({
 			<div className="relative">
 				{/* AI Voice Input - показывается когда идет запись */}
 				{isRecording && (
-					<div className="absolute -top-32 left-0 right-0 z-10">
-						<AIVoiceInput onStop={() => handleVoiceInput()} />
+					<div className="absolute -top-32 left-0 right-0 z-10 pointer-events-none">
+						<AIVoiceInput />
 					</div>
 				)}
 

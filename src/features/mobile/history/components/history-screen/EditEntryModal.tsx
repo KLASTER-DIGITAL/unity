@@ -1,6 +1,6 @@
 import { Image as ImageIcon, Save, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import type { MediaItem } from '@/shared/lib/api';
@@ -42,7 +42,23 @@ export function EditEntryModal({
 	const [localMedia, setLocalMedia] = useState<MediaItem[]>(editMedia);
 
 	// Media uploader hook
-	const { selectAndUploadMedia, isUploading } = useMediaUploader();
+	const { selectAndUploadMedia, uploadedMedia, isUploading } = useMediaUploader();
+
+	// Sync localMedia with editMedia when modal opens
+	useEffect(() => {
+		if (isOpen) {
+			setLocalMedia(editMedia);
+		}
+	}, [isOpen, editMedia]);
+
+	// Sync uploaded media with localMedia
+	useEffect(() => {
+		if (uploadedMedia.length > 0) {
+			const newMedia = [...localMedia, ...uploadedMedia];
+			setLocalMedia(newMedia);
+			onMediaChange(newMedia);
+		}
+	}, [uploadedMedia]);
 
 	if (!isOpen) {
 		return null;
@@ -50,14 +66,8 @@ export function EditEntryModal({
 
 	// Handle media upload
 	const handleAddMedia = async () => {
-		if (!userId || userId === 'anonymous') {
-			toast.error('Необходимо авторизоваться');
-			return;
-		}
-
 		try {
 			await selectAndUploadMedia(userId);
-			// После загрузки медиа будет добавлено через uploadedMedia
 			toast.success('Фото загружено!');
 		} catch (error) {
 			console.error('Error uploading media:', error);

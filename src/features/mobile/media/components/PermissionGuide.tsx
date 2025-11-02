@@ -30,32 +30,33 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 			>
 				<motion.div
 					animate={{ scale: 1, opacity: 1 }}
-					className="relative w-full max-w-md rounded-[20px] bg-card p-6"
+					className="relative w-full max-w-[340px] rounded-[16px] bg-card p-4"
 					exit={{ scale: 0.9, opacity: 0 }}
 					initial={{ scale: 0.9, opacity: 0 }}
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Close Button */}
 					<button
-						className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-accent/10"
+						className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-accent/10"
 						onClick={onClose}
+						type="button"
 					>
-						<X className="h-5 w-5 text-muted-foreground" />
+						<X className="h-4 w-4 text-muted-foreground" />
 					</button>
 
 					{/* Icon */}
-					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
-						<Icon className="h-8 w-8 text-accent" />
+					<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
+						<Icon className="h-6 w-6 text-accent" />
 					</div>
 
 					{/* Title */}
-					<h3 className="mb-2 text-center">{title}</h3>
+					<h3 className="mb-2 text-center text-[16px] font-semibold">{title}</h3>
 
 					{/* Description */}
-					<p className="mb-6 text-center text-muted-foreground">{description}</p>
+					<p className="mb-4 text-center text-[13px] text-muted-foreground">{description}</p>
 
 					{/* Instructions */}
-					<div className="mb-6 space-y-4">
+					<div className="mb-4 space-y-3">
 						<div className="flex items-start gap-3">
 							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
 								<span className="font-semibold! text-[13px]! text-accent">1</span>
@@ -91,19 +92,19 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 					</div>
 
 					{/* Browser-specific hints */}
-					<div className="mb-4 rounded-[12px] bg-muted p-4">
-						<p className="mb-2 font-semibold! text-[12px]! text-foreground">💡 Подсказка:</p>
-						<p className="font-normal! text-[12px]! text-muted-foreground">
+					<div className="mb-3 rounded-[10px] bg-muted p-3">
+						<p className="mb-1 text-[11px] font-semibold text-foreground">💡 Подсказка:</p>
+						<p className="text-[11px] text-muted-foreground">
 							В Chrome и Safari иконка разрешений находится слева от адреса сайта. В Firefox -
 							справа от адресной строки.
 						</p>
 					</div>
 
 					{/* Note */}
-					<div className="mb-4 rounded-[12px] border border-primary/20 bg-primary/10 p-3">
+					<div className="mb-3 rounded-[10px] border border-primary/20 bg-primary/10 p-2.5">
 						<div className="flex items-start gap-2">
-							<AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
-							<p className="font-normal! text-[13px]! text-accent">
+							<AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+							<p className="text-[11px] text-accent">
 								Ваши данные в безопасности. Мы используем {isMicrophone ? 'микрофон' : 'камеру'}{' '}
 								только для указанных функций и не храним записи на серверах.
 							</p>
@@ -112,8 +113,9 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 
 					{/* Action Button */}
 					<button
-						className="w-full rounded-[12px] bg-accent py-3 text-white transition-colors hover:bg-accent/90"
+						className="w-full rounded-[10px] bg-accent py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-accent/90"
 						onClick={onClose}
+						type="button"
 					>
 						Понятно
 					</button>

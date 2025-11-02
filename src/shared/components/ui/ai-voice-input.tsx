@@ -1,18 +1,12 @@
-import { Mic } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from './utils';
 
 type AIVoiceInputProps = {
-	onStop?: (duration: number) => void;
 	visualizerBars?: number;
 	className?: string;
 };
 
-export function AIVoiceInput({
-	onStop,
-	visualizerBars = 48,
-	className,
-}: AIVoiceInputProps) {
+export function AIVoiceInput({ visualizerBars = 48, className }: AIVoiceInputProps) {
 	const [time, setTime] = useState(0);
 	const [isClient, setIsClient] = useState(false);
 
@@ -34,23 +28,15 @@ export function AIVoiceInput({
 		return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 	};
 
-	const handleClick = () => {
-		onStop?.(time);
-	};
-
 	return (
 		<div className={cn('w-full py-4', className)}>
 			<div className="relative mx-auto flex w-full max-w-xl flex-col items-center gap-2">
-				<button
-					className="group flex h-16 w-16 items-center justify-center rounded-xl bg-none transition-colors"
-					onClick={handleClick}
-					type="button"
-				>
+				<div className="flex h-16 w-16 items-center justify-center rounded-xl">
 					<div
-						className="h-6 w-6 animate-spin cursor-pointer rounded-sm bg-black pointer-events-auto dark:bg-white"
+						className="h-6 w-6 animate-spin rounded-sm bg-black dark:bg-white"
 						style={{ animationDuration: '3s' }}
 					/>
-				</button>
+				</div>
 
 				<span className="font-mono text-sm text-black/70 transition-opacity duration-300 dark:text-white/70">
 					{formatTime(time)}
@@ -78,4 +64,3 @@ export function AIVoiceInput({
 		</div>
 	);
 }
-
