@@ -1,10 +1,13 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
+import { useEffect } from 'react';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type SuccessModalProps = {
 	isOpen: boolean;
 	userName?: string;
+	onClose?: () => void;
+	autoCloseDuration?: number; // Время автозакрытия в миллисекундах (по умолчанию 5000)
 };
 
 /**
@@ -15,8 +18,24 @@ type SuccessModalProps = {
  * - User name personalization
  * - AI processing message
  * - Offline mode indicator
+ * - Auto-close after 5 seconds
  */
-export function SuccessModal({ isOpen, userName = 'Анна' }: SuccessModalProps) {
+export function SuccessModal({
+	isOpen,
+	userName = 'Анна',
+	onClose,
+	autoCloseDuration = 5000,
+}: SuccessModalProps) {
+	// Автозакрытие через 5 секунд
+	useEffect(() => {
+		if (isOpen && onClose) {
+			const timer = setTimeout(() => {
+				onClose();
+			}, autoCloseDuration);
+
+			return () => clearTimeout(timer);
+		}
+	}, [isOpen, onClose, autoCloseDuration]);
 	return (
 		<AnimatedPresence>
 			{isOpen && (

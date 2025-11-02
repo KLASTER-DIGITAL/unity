@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { MediaLightbox, PermissionGuide, useVoiceRecorder } from '@/features/mobile/media';
-import { AIVoiceInput } from '@/shared/components/ui/ai-voice-input.tsx';
-import { transcribeAudio } from '@/shared/lib/api';
+import { MediaLightbox, PermissionGuide } from '@/features/mobile/media';
+import { VoicePoweredOrb } from '@/shared/components/ui/voice-powered-orb';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import type { ChatInputSectionProps, ChatMessage } from './chat-input';
@@ -30,7 +29,6 @@ export function ChatInputSection({
 	const [messages, _setMessages] = useState<ChatMessage[]>([]);
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [_isProcessing, _setIsProcessing] = useState(false);
-	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 	const [showPermissionGuide, setShowPermissionGuide] = useState<'microphone' | 'camera' | null>(
@@ -38,17 +36,9 @@ export function ChatInputSection({
 	);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [showAiHint, setShowAiHint] = useState(false); // ✅ СКРЫТО: AI hint по умолчанию выключен
-	const [showVoiceModal, setShowVoiceModal] = useState(false); // Модальное окно записи голоса
+	const [showVoiceOrb, setShowVoiceOrb] = useState(false); // Voice Powered Orb
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
-
-	// Голосовой рекордер
-	const {
-		isRecording,
-		startRecording,
-		stopRecording,
-		isSupported: isVoiceSupported,
-	} = useVoiceRecorder();
 
 	// Медиа загрузчик
 	const {
@@ -73,99 +63,45 @@ export function ChatInputSection({
 		}
 	}, []);
 
-	// Обработка отправки сообщения
-	const handleSendMessage = () =>
+	// Обработка отправки сообщения - СРАЗУ показать Success Modal
+	const handleSendMessage = () => {
+		// 1. Сразу показать Success Modal (НЕ ждать обработки)
+		setShowSuccessModal(true);
+
+		// 2. Обработка в фоновом режиме
 		sendMessage({
 			inputText,
 			uploadedMedia,
 			selectedCategory,
 			userName,
 			userId,
-			setShowSuccessModal,
+			setShowSuccessModal: () => {
+				// Не нужно, Success Modal уже показан
+			},
 			setInputText,
 			setIsProcessing: _setIsProcessing,
 			clearMedia,
 			onMessageSent,
 			onEntrySaved,
-		});
-
-	// Обработка клика на кнопку микрофона - ОТКРЫВАЕТ модальное окно
-	const handleVoiceClick = () => {
-		if (!isVoiceSupported) {
-			toast.error('Голосовой ввод недоступен', {
-				description: 'Ваш браузер не поддерживает запись голоса',
-			});
-			return;
-		}
-		setShowVoiceModal(true);
-	};
-
-	// Начало записи (вызывается из модального окна)
-	const handleStartRecording = async () => {
-		try {
-			await startRecording();
-			toast.success('Говорите...', { duration: 1000 });
-		} catch (error: any) {
-			console.error('Recording error:', error);
-			toast.error('Не удалось начать запись', {
+		}).catch((error) => {
+			console.error('Error sending message:', error);
+			toast.error('Не удалось отправить сообщение', {
 				description: error.message,
 			});
-		}
+		});
 	};
 
-	// Остановка записи (вызывается из модального окна)
-	const handleStopRecording = async () => {
-		setIsTranscribing(true);
+	// Обработка клика на кнопку микрофона - ОТКРЫВАЕТ Voice Powered Orb
+	const handleVoiceClick = () => {
+		setShowVoiceOrb(true);
+	};
 
-		try {
-			const audioBlob = await stopRecording();
-
-			if (!audioBlob) {
-				toast.error('Не удалось записать аудио');
-				setShowVoiceModal(false);
-				return;
-			}
-
-			console.log('Audio recorded, size:', audioBlob.size, 'type:', audioBlob.type);
-
-			// Отправляем на транскрибацию
-			toast.loading('Распознаю речь...', { id: 'transcribing' });
-
-			const transcribedText = await transcribeAudio(audioBlob);
-
-			toast.success('Готово! ✨', { id: 'transcribing' });
-
-			// Добавляем текст в input
-			setInputText((prev) => {
-				const newText = prev ? `${prev} ${transcribedText}` : transcribedText;
-				return newText;
-			});
-
-			// Закрываем модальное окно
-			setShowVoiceModal(false);
-		} catch (error: any) {
-			console.error('Transcription error:', error);
-
-			let errorMessage = 'Ошибка распознавания';
-			let errorDescription = error.message;
-
-			if (error.message?.includes('OpenAI API key')) {
-				errorMessage = 'Сервис недоступен';
-				errorDescription = 'Администратор не настроил OpenAI API. Попробуйте позже.';
-			} else if (error.message?.includes('Transcription failed')) {
-				errorMessage = 'Ошибка распознавания';
-				errorDescription = 'Не удалось распознать речь. Попробуйте еще раз.';
-			}
-
-			toast.error(errorMessage, {
-				id: 'transcribing',
-				description: errorDescription,
-			});
-
-			setShowVoiceModal(false);
-		} finally {
-			setIsTranscribing(false);
-		}
+	// Обработка готового транскрипта из Voice Powered Orb
+	const handleTranscriptReady = (text: string) => {
+		setInputText((prev) => {
+			const newText = prev ? `${prev} ${text}` : text;
+			return newText;
+		});
 	};
 
 	// Обработка загрузки медиа
@@ -216,21 +152,11 @@ export function ChatInputSection({
 			{/* Messages Area */}
 			{false}
 
-			{/* AI Voice Input Modal - открывается по центру экрана */}
-			<AIVoiceInput
-				isOpen={showVoiceModal}
-				onClose={() => setShowVoiceModal(false)}
-				onStartRecording={handleStartRecording}
-				onStopRecording={handleStopRecording}
-			/>
-
 			{/* Input Area */}
 			<div className="relative">
 				{/* Main Input Area */}
 				<InputArea
 					inputText={inputText}
-					isRecording={isRecording}
-					isTranscribing={isTranscribing}
 					isUploading={isUploading}
 					onCategoryToggle={toggleCategory}
 					onFilesDropped={handleFilesDropped}
@@ -275,8 +201,19 @@ export function ChatInputSection({
 				)}
 			</AnimatedPresence>
 
-			{/* Success Modal - СТАРЫЙ дизайн с конфетти */}
-			<SuccessModal isOpen={showSuccessModal} userName={userName} />
+			{/* Success Modal - СТАРЫЙ дизайн с конфетти, автозакрытие через 5 секунд */}
+			<SuccessModal
+				isOpen={showSuccessModal}
+				userName={userName}
+				onClose={() => setShowSuccessModal(false)}
+			/>
+
+			{/* Voice Powered Orb */}
+			<VoicePoweredOrb
+				isOpen={showVoiceOrb}
+				onClose={() => setShowVoiceOrb(false)}
+				onTranscriptReady={handleTranscriptReady}
+			/>
 		</div>
 	);
 }

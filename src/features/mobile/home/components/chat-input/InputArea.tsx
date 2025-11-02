@@ -10,8 +10,6 @@ import { motion } from '@/shared/lib/platform/animation';
 type InputAreaProps = {
 	inputText: string;
 	selectedCategory: string | null;
-	isRecording: boolean;
-	isTranscribing: boolean;
 	isUploading: boolean;
 	uploadProgress: number;
 	uploadedMedia: UploadedMedia[];
@@ -35,8 +33,6 @@ type InputAreaProps = {
 export function InputArea({
 	inputText,
 	selectedCategory,
-	isRecording,
-	isTranscribing,
 	isUploading,
 	uploadProgress,
 	uploadedMedia,
@@ -64,36 +60,12 @@ export function InputArea({
 			>
 				<div className="relative rounded-[16px] border border-border/20 bg-muted/10 backdrop-blur-md transition-colors duration-300">
 					<div className="flex items-end gap-responsive-xs p-2">
-						{/* Voice Button */}
+						{/* Voice Button - открывает Voice Powered Orb */}
 						<button
-							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
-								isRecording
-									? 'bg-red-500'
-									: isTranscribing
-										? 'bg-blue-500'
-										: 'hover:bg-muted active:scale-95'
-							} ${isTranscribing ? 'opacity-50' : ''}`}
-							disabled={isTranscribing}
+							className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all hover:bg-muted active:scale-95"
 							onClick={onVoiceClick}
 						>
-							{isTranscribing ? (
-								<motion.div
-									animate={{ rotate: 360 }}
-									className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
-									transition={{
-										repeat: Number.POSITIVE_INFINITY,
-										duration: 1,
-										ease: 'linear',
-									}}
-								/>
-							) : (
-								<Mic
-									className="h-4 w-4"
-									style={{
-										color: isRecording ? 'white' : 'var(--icon-primary)',
-									}}
-								/>
-							)}
+							<Mic className="h-4 w-4" style={{ color: 'var(--icon-primary)' }} />
 						</button>
 
 						{/* Text Input */}

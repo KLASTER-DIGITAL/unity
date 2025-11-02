@@ -105,3 +105,23 @@
 .dark .hover-lift:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* ===== Voice Powered Orb Animations ===== */
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
