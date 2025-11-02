@@ -76,14 +76,7 @@ export type CardBodyProps = {
 };
 
 export const CardBody = ({ children, className }: CardBodyProps) => (
-	<div
-		className={cn(
-			'h-96 w-96 [transform-style:preserve-3d] [&>*]:[transform-style:preserve-3d]',
-			className
-		)}
-	>
-		{children}
-	</div>
+	<div className={cn('h-96 w-96 transform-3d *:transform-3d', className)}>{children}</div>
 );
 
 export type CardItemProps = {

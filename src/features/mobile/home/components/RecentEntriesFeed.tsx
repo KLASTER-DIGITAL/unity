@@ -147,6 +147,7 @@ export function RecentEntriesFeed({
 					aria-label="Смотреть все"
 					className="flex h-8 w-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
 					onClick={onViewAllClick}
+					type="button"
 				>
 					<ArrowRight className="h-5 w-5" strokeWidth={2} />
 				</button>
@@ -155,13 +156,14 @@ export function RecentEntriesFeed({
 			{/* Горизонтальный скролл */}
 			<div className="overflow-hidden" ref={emblaRef}>
 				<div className="flex items-start gap-3 px-4">
-					{/* Последние 3 записи - ФИКСИРОВАННЫЙ размер 240x140px */}
+					{/* Последние 3 записи - УВЕЛИЧЕННЫЙ размер 280x200px для AI анализа */}
 					{entries.map((entry) => (
-						<div
-							className="relative h-[140px] w-[240px] shrink-0 cursor-pointer overflow-hidden rounded-[16px] border border-border bg-card p-3 transition-shadow hover:shadow-sm"
+						<button
+							className="relative h-[200px] w-[280px] shrink-0 cursor-pointer overflow-hidden rounded-[16px] border border-border bg-card p-3 text-left transition-shadow hover:shadow-sm"
 							data-testid="entry-item"
 							key={entry.id}
 							onClick={() => onEntryClick?.(entry)}
+							type="button"
 						>
 							{/* Время и категория */}
 							<div className="mb-2 flex items-center justify-between">
@@ -175,27 +177,54 @@ export function RecentEntriesFeed({
 								</Badge>
 							</div>
 
-							{/* Превью текста - ТОЛЬКО оригинальный текст */}
-							<div className="relative h-[90px] w-full overflow-hidden">
-								<p className="wrap-break-word text-[12px]! text-foreground leading-relaxed">
+							{/* Превью текста */}
+							<div className="relative mb-2 w-full overflow-hidden">
+								<p className="wrap-break-word line-clamp-2 text-[12px]! text-foreground leading-relaxed">
 									{entry.text || 'Нет текста'}
 								</p>
-								{/* Градиент затухания в конце */}
-								<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-8 bg-linear-to-t from-card via-card/50 to-transparent" />
 							</div>
-						</div>
+
+							{/* AI Анализ - показываем если есть */}
+							{entry.aiReply && (
+								<div className="relative h-[100px] w-full overflow-hidden rounded-[12px] border border-accent/20 bg-accent/5 p-2">
+									<div className="mb-1 flex items-center gap-1">
+										<div className="flex h-4 w-4 items-center justify-center rounded-full bg-accent/10">
+											<span className="text-[10px]">🤖</span>
+										</div>
+										<span className="font-semibold text-[10px]! text-accent">AI Анализ</span>
+									</div>
+									<p className="wrap-break-word line-clamp-3 text-[11px]! text-muted-foreground leading-relaxed italic">
+										{entry.aiReply}
+									</p>
+									{/* Градиент затухания */}
+									<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-6 bg-linear-to-t from-accent/5 via-accent/5 to-transparent" />
+								</div>
+							)}
+
+							{/* Если нет AI анализа, показываем больше текста */}
+							{!entry.aiReply && (
+								<div className="relative h-[100px] w-full overflow-hidden">
+									<p className="wrap-break-word text-[12px]! text-foreground leading-relaxed">
+										{entry.text || 'Нет текста'}
+									</p>
+									{/* Градиент затухания */}
+									<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-8 bg-linear-to-t from-card via-card/50 to-transparent" />
+								</div>
+							)}
+						</button>
 					))}
 
-					{/* Карточка "Смотреть все" - 240x140px */}
-					<div
-						className="flex h-[140px] w-[240px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5 p-4 transition-all hover:shadow-sm"
+					{/* Карточка "Смотреть все" - 280x200px */}
+					<button
+						className="flex h-[200px] w-[280px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5 p-4 transition-all hover:shadow-sm"
 						onClick={onViewAllClick}
+						type="button"
 					>
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
 							<ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
 						</div>
 						<p className="text-center text-sm font-medium text-accent">Смотреть все</p>
-					</div>
+					</button>
 				</div>
 			</div>
 		</div>

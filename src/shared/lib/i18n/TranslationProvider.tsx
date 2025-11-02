@@ -115,7 +115,9 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 					translations = await LazyLoader.load(language as any, 'high');
 				}
 
-				console.log(`Translations loaded for ${language} (${Object.keys(translations).length} keys)`);
+				console.log(
+					`Translations loaded for ${language} (${Object.keys(translations).length} keys)`
+				);
 
 				// Обновляем состояние
 				dispatch({

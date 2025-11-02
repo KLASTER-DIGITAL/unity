@@ -117,9 +117,10 @@ export function PWAUpdatePrompt() {
 
 								<div className="flex gap-2">
 									<button
-										className="flex-1 rounded-[var(--radius-lg)] bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+										className="flex-1 rounded-lg bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 										disabled={isUpdating}
 										onClick={handleUpdate}
+										type="button"
 									>
 										<span className="font-semibold! text-[13px]!">
 											{isUpdating ? 'Обновление...' : 'Обновить'}
@@ -128,6 +129,7 @@ export function PWAUpdatePrompt() {
 									<button
 										className="px-3 text-muted-foreground transition-colors hover:text-foreground"
 										onClick={handleSkip}
+										type="button"
 									>
 										<X className="h-5 w-5" />
 									</button>
