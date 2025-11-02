@@ -120,7 +120,6 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 				<div className="relative mb-responsive-md flex min-h-[280px] w-full items-center justify-center">
 					<div className="text-center">
 						<div className="inline-block h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-						<p className="mt-4 text-muted-foreground text-sm">Загрузка карточек...</p>
 					</div>
 				</div>
 			</div>

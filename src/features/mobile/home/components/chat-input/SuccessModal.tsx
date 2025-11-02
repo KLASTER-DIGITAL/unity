@@ -1,6 +1,5 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { Confetti } from '@/shared/components/Confetti';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type SuccessModalProps = {
@@ -22,9 +21,6 @@ export function SuccessModal({ isOpen, userName = 'Анна' }: SuccessModalProp
 		<AnimatedPresence>
 			{isOpen && (
 				<>
-					{/* Confetti Effect */}
-					<Confetti duration={3000} particleCount={100} trigger={isOpen} />
-
 					{/* Backdrop */}
 					<motion.div
 						animate={{ opacity: 1 }}

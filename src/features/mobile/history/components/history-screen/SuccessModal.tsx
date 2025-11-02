@@ -1,6 +1,5 @@
 import { CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Confetti } from '@/shared/components/Confetti';
 
 type SuccessModalProps = {
 	isOpen: boolean;
@@ -9,7 +8,7 @@ type SuccessModalProps = {
 
 /**
  * Success Modal Component
- * Modal for success messages with confetti
+ * Modal for success messages
  */
 export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 	if (!isOpen) {
@@ -18,7 +17,6 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 
 	return (
 		<AnimatePresence>
-			<Confetti duration={2000} particleCount={80} trigger={isOpen} />
 			<motion.div
 				animate={{ opacity: 1 }}
 				className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
