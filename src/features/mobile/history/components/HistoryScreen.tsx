@@ -74,6 +74,8 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 	};
 
 	const handleEditEntry = (entry: DiaryEntry) => {
+		console.log('[HISTORY] Editing entry:', entry);
+		console.log('[HISTORY] Entry media:', entry.media);
 		setEditingEntry(entry);
 		setEditText(entry.text);
 		setEditCategory(entry.category);

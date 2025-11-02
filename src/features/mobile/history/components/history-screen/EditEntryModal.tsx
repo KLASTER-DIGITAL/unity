@@ -47,6 +47,7 @@ export function EditEntryModal({
 	// Sync localMedia with editMedia when modal opens
 	useEffect(() => {
 		if (isOpen) {
+			console.log('[EditEntryModal] Modal opened, editMedia:', editMedia);
 			setLocalMedia(editMedia);
 		}
 	}, [isOpen, editMedia]);
