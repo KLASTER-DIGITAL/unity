@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
 import { useTranslation } from '@/shared/lib/i18n/useTranslation';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
@@ -41,14 +42,16 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const { t } = useTranslation();
 
 	const { isListening, transcript, startListening, stopListening, isSupported } =
-		useSpeechRecognition({
-			onError: (err) => {
-				console.error('[VoicePoweredOrb] Speech recognition error:', err);
-				setError(
-					t('voice_orb_error_recognition', 'Не удалось распознать речь. Попробуйте еще раз.')
-				);
-			},
-		});
+		useSpeechRecognition();
+
+	// Получить реальный уровень звука через Web Audio API
+	const audioLevel = useAudioLevel(isListening);
+	const audioLevelRef = useRef(audioLevel);
+
+	// Обновлять ref при изменении audioLevel
+	useEffect(() => {
+		audioLevelRef.current = audioLevel;
+	}, [audioLevel]);
 
 	// Обработка нового транскрипта
 	useEffect(() => {
@@ -241,11 +244,12 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		const render = () => {
 			const currentTime = (Date.now() - startTime) / 1000;
-			const audioLevel = isListening ? 0.5 + Math.random() * 0.5 : 0.2;
+			// Использовать реальный audioLevel из Web Audio API
+			const currentAudioLevel = isListening ? 0.3 + audioLevelRef.current * 0.7 : 0.2;
 
 			gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 			gl.uniform1f(timeLocation, currentTime);
-			gl.uniform1f(audioLevelLocation, audioLevel);
+			gl.uniform1f(audioLevelLocation, currentAudioLevel);
 
 			gl.clearColor(0, 0, 0, 0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
@@ -300,7 +304,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 					{/* Кликабельная область для закрытия - ПОД кнопкой */}
 					<button
-						className="fixed inset-0 z-[99] cursor-default bg-transparent"
+						className="fixed inset-0 z-99 cursor-default bg-transparent"
 						onClick={handleBackdropClick}
 						onKeyDown={(e) => {
 							if (e.key === 'Escape') {
@@ -317,18 +321,19 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* Кнопка управления СНИЗУ орба - ВЫШЕ ВСЕГО */}
 					<motion.div
 						animate={{ opacity: 1, y: 0 }}
-						className="fixed bottom-32 left-1/2 z-[101] -translate-x-1/2"
+						className="fixed bottom-32 left-1/2 z-101 -translate-x-1/2"
 						exit={{ opacity: 0, y: 20 }}
 						initial={{ opacity: 0, y: 20 }}
 					>
 						<button
-							className="flex items-center gap-2 rounded-full bg-white/10 px-6 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95"
+							className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95"
 							onClick={handleOrbClick}
 							type="button"
+							aria-label={isListening ? 'Остановить запись' : 'Начать запись'}
 						>
 							{/* Иконка микрофона */}
 							<svg
-								className="h-5 w-5 text-white"
+								className="h-6 w-6 text-white"
 								fill="none"
 								stroke="currentColor"
 								strokeWidth={2}
@@ -349,38 +354,21 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 									</>
 								)}
 							</svg>
-							{/* Текст кнопки */}
-							<span className="text-sm font-semibold text-white">
-								{isListening
-									? t('voice_orb_stop_recording', 'Остановить запись')
-									: t('voice_orb_start_recording', 'Начать запись')}
-							</span>
 						</button>
 					</motion.div>
 
-					{/* Hint текст и ошибки - ВЫШЕ кнопки, только когда НЕ слушаем */}
-					{!isListening && (
-						<div className="pointer-events-none fixed bottom-52 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 px-4 text-center">
-							{error ? (
-								<motion.div
-									animate={{ opacity: 1, y: 0 }}
-									className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg"
-									exit={{ opacity: 0, y: 10 }}
-									initial={{ opacity: 0, y: 10 }}
-								>
-									{error}
-								</motion.div>
-							) : (
-								<>
-									<p className="text-sm font-medium text-white">
-										{t('voice_orb_tap_to_start', 'Нажмите на орб чтобы начать')}
-									</p>
-									<p className="mt-1 text-xs text-white/70">
-										{t('voice_orb_tap_background_to_close', 'Или нажмите на фон чтобы закрыть')}
-									</p>
-								</>
-							)}
-						</div>
+					{/* Ошибки - показываем только если есть */}
+					{error && (
+						<motion.div
+							animate={{ opacity: 1, y: 0 }}
+							className="pointer-events-none fixed bottom-52 left-1/2 z-100 w-full max-w-md -translate-x-1/2 px-4 text-center"
+							exit={{ opacity: 0, y: 10 }}
+							initial={{ opacity: 0, y: 10 }}
+						>
+							<div className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg">
+								{error}
+							</div>
+						</motion.div>
 					)}
 				</>
 			)}
