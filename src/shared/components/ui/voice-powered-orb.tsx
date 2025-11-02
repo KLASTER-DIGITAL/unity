@@ -148,31 +148,31 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			void main() {
 				vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);
 				float dist = length(uv);
-				
+
 				// Орб радиус с пульсацией
 				float radius = 0.3 + audioLevel * 0.1;
-				
+
 				// Процедурный шум для органических эффектов
 				float noise = snoise(uv * 3.0 + time * 0.5);
 				float noise2 = snoise(uv * 5.0 - time * 0.3);
-				
+
 				// Цветовой градиент (purple → pink)
 				vec3 color1 = vec3(0.66, 0.33, 0.96); // purple
 				vec3 color2 = vec3(0.93, 0.28, 0.58); // pink
 				vec3 color = mix(color1, color2, sin(time + noise) * 0.5 + 0.5);
-				
+
 				// Свечение орба
 				float glow = smoothstep(radius + 0.1, radius - 0.1, dist + noise * 0.05);
 				float edge = smoothstep(radius + 0.05, radius, dist + noise2 * 0.03);
-				
+
 				// Внутренние детали
 				float detail = sin(dist * 20.0 - time * 2.0 + noise * 3.0) * 0.5 + 0.5;
 				color += detail * 0.2 * edge;
-				
+
 				// Финальный цвет с альфа-каналом
 				vec3 finalColor = color * (glow + edge * 0.5);
 				float alpha = glow + edge * 0.3;
-				
+
 				gl_FragColor = vec4(finalColor, alpha);
 			}
 		`;
@@ -230,6 +230,10 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		const resolutionLocation = gl.getUniformLocation(program, 'resolution');
 		const timeLocation = gl.getUniformLocation(program, 'time');
 		const audioLevelLocation = gl.getUniformLocation(program, 'audioLevel');
+
+		// Включить blending для альфа-канала
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 		// Анимационный цикл
 		let animationId: number;
@@ -289,57 +293,95 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* Backdrop с blur - ПОЛНОЭКРАННЫЙ как у модальных окон */}
 					<motion.div
 						animate={{ opacity: 1 }}
-						className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
+						className="pointer-events-none fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
 						exit={{ opacity: 0 }}
 						initial={{ opacity: 0 }}
+					/>
+
+					{/* Кликабельная область для закрытия - ПОД кнопкой */}
+					<button
+						className="fixed inset-0 z-[99] cursor-default bg-transparent"
 						onClick={handleBackdropClick}
+						onKeyDown={(e) => {
+							if (e.key === 'Escape') {
+								handleBackdropClick();
+							}
+						}}
+						type="button"
+						aria-label="Закрыть орб"
 					/>
 
 					{/* WebGL Canvas - ПОЛНОЭКРАННЫЙ */}
 					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
 
-					{/* Кликабельная область орба - ПОВЕРХ ВСЕГО */}
+					{/* Кнопка управления СНИЗУ орба - ВЫШЕ ВСЕГО */}
 					<motion.div
-						animate={{ opacity: 1, scale: 1 }}
-						className="fixed left-1/2 top-1/2 z-modal -translate-x-1/2 -translate-y-1/2"
-						exit={{ opacity: 0, scale: 0.8 }}
-						initial={{ opacity: 0, scale: 0.8 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="fixed bottom-32 left-1/2 z-[101] -translate-x-1/2"
+						exit={{ opacity: 0, y: 20 }}
+						initial={{ opacity: 0, y: 20 }}
 					>
 						<button
-							className="relative flex h-64 w-64 items-center justify-center rounded-full transition-all duration-300 hover:scale-105 active:scale-95"
+							className="flex items-center gap-2 rounded-full bg-white/10 px-6 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95"
 							onClick={handleOrbClick}
 							type="button"
 						>
-							<span className="sr-only">{isListening ? 'Остановить запись' : 'Начать запись'}</span>
+							{/* Иконка микрофона */}
+							<svg
+								className="h-5 w-5 text-white"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth={2}
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+							>
+								<title>{isListening ? 'Остановить' : 'Начать'}</title>
+								{isListening ? (
+									// Иконка стоп (квадрат)
+									<rect height="12" rx="2" width="12" x="6" y="6" />
+								) : (
+									// Иконка микрофона
+									<>
+										<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+										<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+										<line x1="12" x2="12" y1="19" y2="23" />
+										<line x1="8" x2="16" y1="23" y2="23" />
+									</>
+								)}
+							</svg>
+							{/* Текст кнопки */}
+							<span className="text-sm font-semibold text-white">
+								{isListening
+									? t('voice_orb_stop_recording', 'Остановить запись')
+									: t('voice_orb_start_recording', 'Начать запись')}
+							</span>
 						</button>
 					</motion.div>
 
-					{/* Hint текст и ошибки - ПОВЕРХ ВСЕГО */}
-					<div className="fixed bottom-20 left-1/2 z-modal w-full max-w-md -translate-x-1/2 px-4 text-center">
-						{error ? (
-							<motion.div
-								animate={{ opacity: 1, y: 0 }}
-								className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg"
-								exit={{ opacity: 0, y: 10 }}
-								initial={{ opacity: 0, y: 10 }}
-							>
-								{error}
-							</motion.div>
-						) : (
-							<>
-								<p className="text-sm font-medium text-white">
-									{isListening
-										? t('voice_orb_listening', 'Говорите...')
-										: t('voice_orb_tap_to_start', 'Нажмите на орб чтобы начать')}
-								</p>
-								{!isListening && (
+					{/* Hint текст и ошибки - ВЫШЕ кнопки, только когда НЕ слушаем */}
+					{!isListening && (
+						<div className="pointer-events-none fixed bottom-52 left-1/2 z-[100] w-full max-w-md -translate-x-1/2 px-4 text-center">
+							{error ? (
+								<motion.div
+									animate={{ opacity: 1, y: 0 }}
+									className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg"
+									exit={{ opacity: 0, y: 10 }}
+									initial={{ opacity: 0, y: 10 }}
+								>
+									{error}
+								</motion.div>
+							) : (
+								<>
+									<p className="text-sm font-medium text-white">
+										{t('voice_orb_tap_to_start', 'Нажмите на орб чтобы начать')}
+									</p>
 									<p className="mt-1 text-xs text-white/70">
 										{t('voice_orb_tap_background_to_close', 'Или нажмите на фон чтобы закрыть')}
 									</p>
-								)}
-							</>
-						)}
-					</div>
+								</>
+							)}
+						</div>
+					)}
 				</>
 			)}
 		</AnimatedPresence>
