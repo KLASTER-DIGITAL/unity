@@ -1,9 +1,9 @@
-// 🚀 MOTIVATIONS MICROSERVICE v9 - PURE DENO (NO HONO)
+// 🚀 MOTIVATIONS MICROSERVICE v10 - PURE DENO (NO HONO)
 // Purpose: Generate motivation cards from AI-analyzed entries
 // Architecture: Pure Deno.serve() with REST API
-// Status: PRODUCTION - Fixing CORS issue by removing Hono framework
+// Status: PRODUCTION - Fixed timeout issue
 
-console.log('[MOTIVATIONS v9] 🚀 Starting microservice (Pure Deno)...');
+console.log('[MOTIVATIONS v10] 🚀 Starting microservice (Pure Deno)...');
 
 // ======================
 // ENVIRONMENT VARIABLES
@@ -20,7 +20,7 @@ function getEnvVars() {
 	return { supabaseUrl, supabaseServiceKey };
 }
 
-console.log('[MOTIVATIONS v9] ✅ Environment ready');
+console.log('[MOTIVATIONS v10] ✅ Environment ready');
 
 // ======================
 // HELPER FUNCTIONS
@@ -151,11 +151,11 @@ async function handleRequest(req: Request): Promise<Response> {
 	const url = new URL(req.url);
 	const method = req.method;
 
-	console.log(`[MOTIVATIONS v9] ${method} ${url.pathname}`);
+	console.log(`[MOTIVATIONS v10] ${method} ${url.pathname}`);
 
 	// Handle CORS preflight
 	if (method === 'OPTIONS') {
-		console.log('[MOTIVATIONS v9] ✅ OPTIONS handled');
+		console.log('[MOTIVATIONS v10] ✅ OPTIONS handled');
 		return new Response(null, {
 			status: 204,
 			headers: corsHeaders(),
@@ -165,11 +165,11 @@ async function handleRequest(req: Request): Promise<Response> {
 	try {
 		// Route: GET /motivations/health
 		if (method === 'GET' && url.pathname === '/motivations/health') {
-			console.log('[MOTIVATIONS v9] ✅ Health check called');
+			console.log('[MOTIVATIONS v10] ✅ Health check called');
 			return new Response(
 				JSON.stringify({
 					success: true,
-					version: 'v9-pure-deno',
+					version: 'v10-pure-deno',
 					message: 'Motivations microservice is running (Pure Deno, no Hono)',
 					timestamp: new Date().toISOString(),
 				}),
@@ -191,7 +191,7 @@ async function handleRequest(req: Request): Promise<Response> {
 				});
 			}
 
-			console.log(`[MOTIVATIONS v9] Fetching cards for user: ${userId}`);
+			console.log(`[MOTIVATIONS v10] Fetching cards for user: ${userId}`);
 
 			const { supabaseUrl, supabaseServiceKey } = getEnvVars();
 
@@ -213,7 +213,7 @@ async function handleRequest(req: Request): Promise<Response> {
 
 			const profiles = await profileResponse.json();
 			const userLanguage = profiles[0]?.language || 'ru';
-			console.log(`[MOTIVATIONS v9] User language: ${userLanguage}`);
+			console.log(`[MOTIVATIONS v10] User language: ${userLanguage}`);
 
 			// Step 2: Fetch recent entries (last 48 hours)
 			const yesterday = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -233,7 +233,7 @@ async function handleRequest(req: Request): Promise<Response> {
 			}
 
 			const recentEntries = await entriesResponse.json();
-			console.log(`[MOTIVATIONS v9] Found ${recentEntries.length} recent entries`);
+			console.log(`[MOTIVATIONS v10] Found ${recentEntries.length} recent entries`);
 
 			// Step 3: Fetch viewed cards
 			const viewedResponse = await fetch(
@@ -253,11 +253,11 @@ async function handleRequest(req: Request): Promise<Response> {
 
 			const viewedCards = await viewedResponse.json();
 			const viewedIds = viewedCards.map((card: any) => card.entry_id);
-			console.log(`[MOTIVATIONS v9] Viewed card IDs: ${viewedIds.length}`);
+			console.log(`[MOTIVATIONS v10] Viewed card IDs: ${viewedIds.length}`);
 
 			// Step 4: Filter unviewed entries
 			const unviewedEntries = recentEntries.filter((entry: any) => !viewedIds.includes(entry.id));
-			console.log(`[MOTIVATIONS v9] Unviewed entries: ${unviewedEntries.length}`);
+			console.log(`[MOTIVATIONS v10] Unviewed entries: ${unviewedEntries.length}`);
 
 			// Step 5: Create cards from entries
 			const cards = unviewedEntries.slice(0, 3).map((entry: any) => ({
@@ -284,10 +284,10 @@ async function handleRequest(req: Request): Promise<Response> {
 				const defaultCards = getDefaultMotivations(userLanguage);
 				const needed = 3 - cards.length;
 				cards.push(...defaultCards.slice(0, needed));
-				console.log(`[MOTIVATIONS v9] Added ${needed} default cards`);
+				console.log(`[MOTIVATIONS v10] Added ${needed} default cards`);
 			}
 
-			console.log(`[MOTIVATIONS v9] ✅ Returning ${cards.length} cards`);
+			console.log(`[MOTIVATIONS v10] ✅ Returning ${cards.length} cards`);
 
 			return new Response(JSON.stringify({ success: true, cards }), {
 				status: 200,
@@ -313,7 +313,7 @@ async function handleRequest(req: Request): Promise<Response> {
 				);
 			}
 
-			console.log(`[MOTIVATIONS v9] Marking card ${cardId} as read for user ${userId}`);
+			console.log(`[MOTIVATIONS v10] Marking card ${cardId} as read for user ${userId}`);
 
 			const { supabaseUrl, supabaseServiceKey } = getEnvVars();
 
@@ -338,7 +338,7 @@ async function handleRequest(req: Request): Promise<Response> {
 				throw new Error(`Failed to mark card as read: ${response.status}`);
 			}
 
-			console.log('[MOTIVATIONS v9] ✅ Card marked as read');
+			console.log('[MOTIVATIONS v10] ✅ Card marked as read');
 
 			return new Response(JSON.stringify({ success: true }), {
 				status: 200,
@@ -352,7 +352,7 @@ async function handleRequest(req: Request): Promise<Response> {
 			headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
 		});
 	} catch (error: any) {
-		console.error('[MOTIVATIONS v9] ❌ Error:', error.message);
+		console.error('[MOTIVATIONS v10] ❌ Error:', error.message);
 		return new Response(JSON.stringify({ success: false, error: error.message }), {
 			status: 500,
 			headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
@@ -364,9 +364,9 @@ async function handleRequest(req: Request): Promise<Response> {
 // START SERVER
 // ======================
 
-console.log('[MOTIVATIONS v9] ✅ Microservice configured (Pure Deno)');
-console.log('[MOTIVATIONS v9] ✅ Starting Deno server...');
+console.log('[MOTIVATIONS v10] ✅ Microservice configured (Pure Deno)');
+console.log('[MOTIVATIONS v10] ✅ Starting Deno server...');
 
 Deno.serve(handleRequest);
 
-console.log('[MOTIVATIONS v9] ✅ Server started successfully!');
+console.log('[MOTIVATIONS v10] ✅ Server started successfully!');
