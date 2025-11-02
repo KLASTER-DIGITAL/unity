@@ -147,23 +147,19 @@ export function ChatInputSection({
 			{/* Messages Area */}
 			{false}
 
+			{/* AI Voice Input Modal - открывается по центру экрана */}
+			<AIVoiceInput
+				isOpen={isRecording}
+				onStart={() => {
+					console.log('[AIVoiceInput] Recording started');
+				}}
+				onStop={(duration) => {
+					console.log('[AIVoiceInput] Recording stopped, duration:', duration);
+				}}
+			/>
+
 			{/* Input Area */}
 			<div className="relative">
-				{/* AI Voice Input - показывается ТОЛЬКО когда идет запись */}
-				{isRecording && (
-					<div className="absolute -top-32 left-0 right-0 z-10">
-						<AIVoiceInput
-							isRecording={isRecording}
-							onStart={() => {
-								console.log('[AIVoiceInput] Recording started');
-							}}
-							onStop={(duration) => {
-								console.log('[AIVoiceInput] Recording stopped, duration:', duration);
-							}}
-						/>
-					</div>
-				)}
-
 				{/* Main Input Area */}
 				<InputArea
 					inputText={inputText}
