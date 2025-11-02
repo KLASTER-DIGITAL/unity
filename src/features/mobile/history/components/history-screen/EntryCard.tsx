@@ -1,6 +1,7 @@
 import { MoreVertical, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MediaPreview } from '@/features/mobile/media';
+import { AIAnalysisBlock } from '@/shared/components/ui/AIAnalysisBlock';
 import type { DiaryEntry } from '@/shared/lib/api';
 import { CATEGORY_ICONS, SENTIMENT_COLORS } from './constants';
 import { formatEntryDate } from './utils';
@@ -88,6 +89,13 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 			<p className="mb-3 text-[15px]! text-foreground leading-[22px] dark:text-white">
 				{entry.text}
 			</p>
+
+			{/* AI Анализ - показываем если есть */}
+			{entry.aiReply && (
+				<div className="mb-3">
+					<AIAnalysisBlock aiReply={entry.aiReply} variant="compact" />
+				</div>
+			)}
 
 			<div className="flex flex-wrap items-center gap-2">
 				<span

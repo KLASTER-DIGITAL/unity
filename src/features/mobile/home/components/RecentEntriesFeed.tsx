@@ -1,6 +1,7 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { AIAnalysisBlock } from '@/shared/components/ui/AIAnalysisBlock';
 import { Badge } from '@/shared/components/ui/badge';
 import { type DiaryEntry, getEntries } from '@/shared/lib/api';
 import type { Language } from '@/shared/lib/i18n';
@@ -185,21 +186,7 @@ export function RecentEntriesFeed({
 							</div>
 
 							{/* AI Анализ - показываем если есть */}
-							{entry.aiReply && (
-								<div className="relative h-[100px] w-full overflow-hidden rounded-[12px] border border-accent/20 bg-accent/5 p-2">
-									<div className="mb-1 flex items-center gap-1">
-										<div className="flex h-4 w-4 items-center justify-center rounded-full bg-accent/10">
-											<span className="text-[10px]">🤖</span>
-										</div>
-										<span className="font-semibold text-[10px]! text-accent">AI Анализ</span>
-									</div>
-									<p className="wrap-break-word line-clamp-3 text-[11px]! text-muted-foreground leading-relaxed italic">
-										{entry.aiReply}
-									</p>
-									{/* Градиент затухания */}
-									<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-6 bg-linear-to-t from-accent/5 via-accent/5 to-transparent" />
-								</div>
-							)}
+							<AIAnalysisBlock aiReply={entry.aiReply} variant="compact" />
 
 							{/* Если нет AI анализа, показываем больше текста */}
 							{!entry.aiReply && (
