@@ -38,11 +38,9 @@ interface VoicePoweredOrbProps {
 export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePoweredOrbProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [lastTranscript, setLastTranscript] = useState('');
 	const { t } = useTranslation();
 
-	const { isListening, transcript, startListening, stopListening, isSupported } =
-		useSpeechRecognition();
+	const { isListening, transcript, startListening, stopListening } = useSpeechRecognition();
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
@@ -53,23 +51,26 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		audioLevelRef.current = audioLevel;
 	}, [audioLevel]);
 
-	// Обработка нового транскрипта
+	// Обработка нового транскрипта (используем useRef для предотвращения дублей)
+	const lastTranscriptRef = useRef('');
+
 	useEffect(() => {
-		if (transcript?.trim() && transcript !== lastTranscript) {
+		if (transcript?.trim() && transcript !== lastTranscriptRef.current) {
 			console.log('[VoicePoweredOrb] New transcript:', transcript);
-			setLastTranscript(transcript);
+			lastTranscriptRef.current = transcript;
 			onTranscriptReady(transcript);
 			// Закрываем модальное окно после получения текста
 			setTimeout(() => {
 				onClose();
 			}, 500);
 		}
-	}, [transcript, lastTranscript, onTranscriptReady, onClose]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [transcript]);
 
 	// Сброс состояния при закрытии
 	useEffect(() => {
 		if (!isOpen) {
-			setLastTranscript('');
+			lastTranscriptRef.current = '';
 			setError(null);
 			if (isListening) {
 				stopListening();
@@ -152,17 +153,18 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);
 				float dist = length(uv);
 
-				// Орб радиус с пульсацией
-				float radius = 0.3 + audioLevel * 0.1;
+				// Орб радиус с УСИЛЕННОЙ пульсацией для синхронизации с речью
+				float radius = 0.3 + audioLevel * 0.3;
 
 				// Процедурный шум для органических эффектов
 				float noise = snoise(uv * 3.0 + time * 0.5);
 				float noise2 = snoise(uv * 5.0 - time * 0.3);
 
-				// Цветовой градиент (purple → pink)
-				vec3 color1 = vec3(0.66, 0.33, 0.96); // purple
-				vec3 color2 = vec3(0.93, 0.28, 0.58); // pink
-				vec3 color = mix(color1, color2, sin(time + noise) * 0.5 + 0.5);
+				// Цветовой градиент (cyan → blue → purple) - БЕЗ розового
+				vec3 color1 = vec3(0.2, 0.7, 0.9);   // cyan (голубой)
+				vec3 color2 = vec3(0.4, 0.5, 0.95);  // blue (синий)
+				vec3 color3 = vec3(0.6, 0.4, 0.85);  // purple (сиреневый)
+				vec3 color = mix(mix(color1, color2, sin(time + noise) * 0.5 + 0.5), color3, cos(time * 0.7) * 0.5 + 0.5);
 
 				// Свечение орба
 				float glow = smoothstep(radius + 0.1, radius - 0.1, dist + noise * 0.05);
@@ -270,20 +272,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		};
 	}, [isOpen, isListening]);
 
-	const handleOrbClick = () => {
-		if (!isSupported) {
-			setError(t('voice_orb_error_not_supported', 'Голосовой ввод недоступен в вашем браузере'));
-			return;
-		}
-
-		if (isListening) {
-			stopListening();
-		} else {
-			setError(null);
-			startListening();
-		}
-	};
-
 	const handleBackdropClick = () => {
 		if (!isListening) {
 			onClose();
@@ -294,46 +282,46 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		<AnimatedPresence>
 			{isOpen && (
 				<>
-					{/* Backdrop с blur - ПОЛНОЭКРАННЫЙ как у модальных окон */}
+					{/* Backdrop с blur - z-modal-backdrop (60) - КЛИКАБЕЛЬНЫЙ для закрытия */}
 					<motion.div
 						animate={{ opacity: 1 }}
-						className="pointer-events-none fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
+						className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
 						exit={{ opacity: 0 }}
 						initial={{ opacity: 0 }}
-					/>
-
-					{/* Кликабельная область для закрытия - ПОД кнопкой */}
-					<button
-						className="fixed inset-0 z-99 cursor-default bg-transparent"
 						onClick={handleBackdropClick}
-						onKeyDown={(e) => {
-							if (e.key === 'Escape') {
-								handleBackdropClick();
-							}
+						style={{
+							WebkitBackdropFilter: 'blur(8px)',
+							backdropFilter: 'blur(8px)',
 						}}
-						type="button"
-						aria-label="Закрыть орб"
+						transition={{ duration: 0.2 }}
 					/>
 
-					{/* WebGL Canvas - ПОЛНОЭКРАННЫЙ */}
+					{/* WebGL Canvas (орб) - z-modal (ПОВЕРХ backdrop) */}
 					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
 
-					{/* Кнопка управления СНИЗУ орба - ВЫШЕ ВСЕГО */}
+					{/* Кнопка управления В ЦЕНТРЕ орба - z-popover (САМЫЙ ВЕРХНИЙ, ПОВЕРХ орба) */}
 					<motion.div
-						animate={{ opacity: 1, y: 0 }}
-						className="fixed bottom-32 left-1/2 z-101 -translate-x-1/2"
-						exit={{ opacity: 0, y: 20 }}
-						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="fixed left-1/2 top-1/2 z-popover flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4"
+						exit={{ opacity: 0, scale: 0.8 }}
+						initial={{ opacity: 0, scale: 0.8 }}
 					>
 						<button
-							className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-95"
-							onClick={handleOrbClick}
+							className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 shadow-2xl backdrop-blur-md transition-all duration-300 hover:bg-white/30 active:scale-95"
+							onClick={() => {
+								if (isListening) {
+									stopListening();
+								} else {
+									setError(null);
+									startListening();
+								}
+							}}
 							type="button"
 							aria-label={isListening ? 'Остановить запись' : 'Начать запись'}
 						>
 							{/* Иконка микрофона */}
 							<svg
-								className="h-6 w-6 text-white"
+								className="h-10 w-10 text-white drop-shadow-lg"
 								fill="none"
 								stroke="currentColor"
 								strokeWidth={2}
@@ -355,6 +343,10 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								)}
 							</svg>
 						</button>
+						{/* Текст под кнопкой */}
+						<p className="text-center text-sm font-medium text-white drop-shadow-lg">
+							{isListening ? 'Остановить запись' : 'Начать запись'}
+						</p>
 					</motion.div>
 
 					{/* Ошибки - показываем только если есть */}
