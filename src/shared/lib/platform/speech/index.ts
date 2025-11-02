@@ -65,10 +65,99 @@ export type SpeechAdapter = {
 };
 
 // ============================================================================
+// BROWSER DETECTION
+// ============================================================================
+
+export type BrowserInfo = {
+	name: string;
+	version: string;
+	os: string;
+	isMobile: boolean;
+	isIOS: boolean;
+	isAndroid: boolean;
+	isSafari: boolean;
+	isChrome: boolean;
+	isPWA: boolean;
+};
+
+/**
+ * Detect browser and device information
+ */
+function detectBrowser(): BrowserInfo {
+	const ua = navigator.userAgent;
+	const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
+	const isIOS = /iPhone|iPad|iPod/i.test(ua);
+	const isAndroid = /Android/i.test(ua);
+
+	let name = 'Unknown';
+	let version = 'Unknown';
+	let os = 'Unknown';
+
+	// Detect OS
+	if (/Windows/i.test(ua)) {
+		os = 'Windows';
+	} else if (/Mac OS X/i.test(ua)) {
+		os = 'macOS';
+	} else if (/Linux/i.test(ua)) {
+		os = 'Linux';
+	} else if (/Android/i.test(ua)) {
+		os = 'Android';
+	} else if (/iPhone|iPad|iPod/i.test(ua)) {
+		os = 'iOS';
+	}
+
+	// Detect browser
+	const isIOSChrome = /CriOS/.test(ua);
+	const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua) && !/CriOS/i.test(ua);
+	const isChrome = /Chrome/i.test(ua) && !/Edg/i.test(ua) && !/CriOS/i.test(ua);
+
+	if (/Edg\//i.test(ua)) {
+		name = 'Edge';
+		version = ua.match(/Edg\/(\d+)/)?.[1] || 'Unknown';
+	} else if (isIOSChrome) {
+		name = 'Chrome (iOS)';
+		version = ua.match(/CriOS\/(\d+)/)?.[1] || 'Unknown';
+	} else if (isChrome) {
+		name = 'Chrome';
+		version = ua.match(/Chrome\/(\d+)/)?.[1] || 'Unknown';
+	} else if (/Firefox/i.test(ua)) {
+		name = 'Firefox';
+		version = ua.match(/Firefox\/(\d+)/)?.[1] || 'Unknown';
+	} else if (isSafari) {
+		name = 'Safari';
+		version = ua.match(/Version\/(\d+)/)?.[1] || 'Unknown';
+	} else if (/OPR\//i.test(ua)) {
+		name = 'Opera';
+		version = ua.match(/OPR\/(\d+)/)?.[1] || 'Unknown';
+	} else if (/SamsungBrowser/i.test(ua)) {
+		name = 'Samsung Internet';
+		version = ua.match(/SamsungBrowser\/(\d+)/)?.[1] || 'Unknown';
+	}
+
+	// Check if running as PWA
+	const isPWA =
+		window.matchMedia('(display-mode: standalone)').matches ||
+		(window.navigator as any).standalone === true;
+
+	return {
+		name,
+		version,
+		os,
+		isMobile,
+		isIOS,
+		isAndroid,
+		isSafari,
+		isChrome,
+		isPWA,
+	};
+}
+
+// ============================================================================
 // WEB IMPLEMENTATION
 // ============================================================================
 
 class WebSpeechAdapter implements SpeechAdapter {
+	private browserInfo: BrowserInfo;
 	private recognition: any = null;
 	private listening = false;
 	private resultCallback: ((result: SpeechRecognitionResult) => void) | null = null;
@@ -77,16 +166,52 @@ class WebSpeechAdapter implements SpeechAdapter {
 	private endCallback: (() => void) | null = null;
 
 	constructor() {
+		this.browserInfo = detectBrowser();
+
+		console.log('[WebSpeechAdapter] Browser info:', this.browserInfo);
+
 		if (this.isSupported()) {
 			this.initializeRecognition();
+		} else {
+			console.warn('[WebSpeechAdapter] Speech recognition not supported:', {
+				browser: this.browserInfo.name,
+				os: this.browserInfo.os,
+				isMobile: this.browserInfo.isMobile,
+				isPWA: this.browserInfo.isPWA,
+			});
 		}
 	}
 
 	isSupported(): boolean {
-		return !!(
+		// Check if Web Speech API exists
+		const hasAPI = !!(
 			typeof window !== 'undefined' &&
 			('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
 		);
+
+		if (!hasAPI) {
+			return false;
+		}
+
+		// CRITICAL: iOS Safari in PWA mode does NOT support Web Speech API
+		// Source: https://webreflection.medium.com/taming-the-web-speech-api-ef64f5a245e1
+		if (this.browserInfo.isIOS && this.browserInfo.isPWA) {
+			console.warn(
+				'[WebSpeechAdapter] iOS Safari PWA does not support Web Speech API. Use MediaRecorder fallback.'
+			);
+			return false;
+		}
+
+		// iOS Safari in browser mode has limited support
+		if (this.browserInfo.isIOS && this.browserInfo.isSafari) {
+			console.warn(
+				'[WebSpeechAdapter] iOS Safari has limited Web Speech API support. May not work reliably.'
+			);
+			// Still return true to try, but warn user
+			return true;
+		}
+
+		return true;
 	}
 
 	async requestPermissions(): Promise<boolean> {
@@ -275,6 +400,36 @@ class WebSpeechAdapter implements SpeechAdapter {
 			}
 		};
 	}
+
+	/**
+	 * Get browser information
+	 */
+	getBrowserInfo(): BrowserInfo {
+		return this.browserInfo;
+	}
+
+	/**
+	 * Get user-friendly error message for unsupported browsers
+	 */
+	getUnsupportedMessage(): string | null {
+		if (this.isSupported()) {
+			return null;
+		}
+
+		if (this.browserInfo.isIOS && this.browserInfo.isPWA) {
+			return 'Голосовой ввод недоступен в PWA на iOS. Пожалуйста, используйте Safari браузер или введите текст вручную.';
+		}
+
+		if (this.browserInfo.isIOS) {
+			return 'Голосовой ввод имеет ограниченную поддержку на iOS. Если не работает, введите текст вручную.';
+		}
+
+		if (this.browserInfo.isMobile) {
+			return 'Голосовой ввод недоступен в вашем браузере. Попробуйте Chrome или введите текст вручную.';
+		}
+
+		return 'Голосовой ввод не поддерживается в вашем браузере. Пожалуйста, используйте Chrome, Edge или Firefox.';
+	}
 }
 
 // ============================================================================
@@ -283,4 +438,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 
 // ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
 // React Native implementation is in /app/shared/lib/platform/speech.native.ts
-export const speech: SpeechAdapter = new WebSpeechAdapter();
+export const speech: SpeechAdapter & {
+	getBrowserInfo?: () => BrowserInfo;
+	getUnsupportedMessage?: () => string | null;
+} = new WebSpeechAdapter();

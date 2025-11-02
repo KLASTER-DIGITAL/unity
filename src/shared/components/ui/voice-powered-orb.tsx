@@ -5,6 +5,7 @@ import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
 import { useTranslation } from '@/shared/lib/i18n/useTranslation';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
+import { speech } from '@/shared/lib/platform/speech';
 
 interface VoicePoweredOrbProps {
 	isOpen: boolean;
@@ -40,7 +41,22 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [error, setError] = useState<string | null>(null);
 	const { t } = useTranslation();
 
-	const { isListening, transcript, startListening, stopListening } = useSpeechRecognition();
+	const { isListening, transcript, startListening, stopListening, isSupported } =
+		useSpeechRecognition();
+
+	// Проверка поддержки браузера при открытии
+	useEffect(() => {
+		if (isOpen && !isSupported) {
+			const unsupportedMessage = speech.getUnsupportedMessage?.();
+			if (unsupportedMessage) {
+				setError(unsupportedMessage);
+				console.warn('[VoicePoweredOrb] Speech recognition not supported:', {
+					browserInfo: speech.getBrowserInfo?.(),
+					message: unsupportedMessage,
+				});
+			}
+		}
+	}, [isOpen, isSupported]);
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
@@ -307,8 +323,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						initial={{ opacity: 0, scale: 0.8 }}
 					>
 						<button
-							className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 shadow-2xl backdrop-blur-md transition-all duration-300 hover:bg-white/30 active:scale-95"
+							className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 shadow-2xl backdrop-blur-md transition-all duration-300 hover:bg-white/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 							onClick={() => {
+								if (!isSupported) {
+									return;
+								}
 								if (isListening) {
 									stopListening();
 								} else {
@@ -317,6 +336,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								}
 							}}
 							type="button"
+							disabled={!isSupported}
 							aria-label={isListening ? 'Остановить запись' : 'Начать запись'}
 						>
 							{/* Иконка микрофона */}
