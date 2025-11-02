@@ -15,6 +15,10 @@ export const STORES = {
 	SYNC_QUEUE: 'sync_queue',
 } as const;
 
+// Singleton pattern: кэшируем database instance
+let dbInstance: IDBDatabase | null = null;
+let dbPromise: Promise<IDBDatabase> | null = null;
+
 export type PendingEntry = {
 	id: string;
 	userId: string;
@@ -41,20 +45,33 @@ export type SyncQueueItem = {
 };
 
 /**
- * Initialize IndexedDB database
+ * Initialize IndexedDB database (Singleton pattern)
  */
 export function initDB(): Promise<IDBDatabase> {
-	return new Promise((resolve, reject) => {
+	// Если уже есть открытая база данных, вернуть её
+	if (dbInstance) {
+		return Promise.resolve(dbInstance);
+	}
+
+	// Если уже идет процесс открытия, вернуть существующий Promise
+	if (dbPromise) {
+		return dbPromise;
+	}
+
+	// Создать новый Promise для открытия базы данных
+	dbPromise = new Promise((resolve, reject) => {
 		const request = indexedDB.open(DB_NAME, DB_VERSION);
 
 		request.onerror = () => {
 			console.error('[IndexedDB] Failed to open database:', request.error);
+			dbPromise = null; // Сбросить Promise при ошибке
 			reject(request.error);
 		};
 
 		request.onsuccess = () => {
+			dbInstance = request.result;
 			console.log('[IndexedDB] Database opened successfully');
-			resolve(request.result);
+			resolve(dbInstance);
 		};
 
 		request.onupgradeneeded = (event) => {
@@ -93,6 +110,8 @@ export function initDB(): Promise<IDBDatabase> {
 			}
 		};
 	});
+
+	return dbPromise;
 }
 
 /**
@@ -115,9 +134,7 @@ export async function addItem<T>(storeName: string, item: T): Promise<void> {
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -140,9 +157,7 @@ export async function getItem<T>(storeName: string, id: string): Promise<T | nul
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -165,9 +180,7 @@ export async function getAllItems<T>(storeName: string): Promise<T[]> {
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -191,9 +204,7 @@ export async function updateItem<T>(storeName: string, item: T): Promise<void> {
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -217,9 +228,7 @@ export async function deleteItem(storeName: string, id: string): Promise<void> {
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -247,9 +256,7 @@ export async function getItemsByIndex<T>(
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
 
@@ -273,8 +280,6 @@ export async function clearStore(storeName: string): Promise<void> {
 			reject(request.error);
 		};
 
-		transaction.oncomplete = () => {
-			db.close();
-		};
+		// НЕ закрываем db - используем singleton pattern
 	});
 }
