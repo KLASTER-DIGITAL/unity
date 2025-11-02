@@ -149,18 +149,20 @@ export function ChatInputSection({
 
 			{/* Input Area */}
 			<div className="relative">
-				{/* AI Voice Input - показывается когда идет запись */}
-				<div className="absolute -top-32 left-0 right-0 z-10">
-					<AIVoiceInput
-						isRecording={isRecording}
-						onStart={() => {
-							console.log('[AIVoiceInput] Recording started');
-						}}
-						onStop={(duration) => {
-							console.log('[AIVoiceInput] Recording stopped, duration:', duration);
-						}}
-					/>
-				</div>
+				{/* AI Voice Input - показывается ТОЛЬКО когда идет запись */}
+				{isRecording && (
+					<div className="absolute -top-32 left-0 right-0 z-10">
+						<AIVoiceInput
+							isRecording={isRecording}
+							onStart={() => {
+								console.log('[AIVoiceInput] Recording started');
+							}}
+							onStop={(duration) => {
+								console.log('[AIVoiceInput] Recording stopped, duration:', duration);
+							}}
+						/>
+					</div>
+				)}
 
 				{/* Main Input Area */}
 				<InputArea

@@ -9,15 +9,20 @@ interface AIVoiceInputProps {
 	onStop?: (duration: number) => void;
 	visualizerBars?: number;
 	className?: string;
-	isRecording?: boolean;
+	isRecording: boolean;
 }
 
+/**
+ * AI Voice Input Component
+ * Красивый компонент для записи голоса с визуализатором
+ * Управляется ИЗВНЕ через isRecording prop
+ */
 export function AIVoiceInput({
 	onStart,
 	onStop,
 	visualizerBars = 48,
 	className,
-	isRecording = false,
+	isRecording,
 }: AIVoiceInputProps) {
 	const [time, setTime] = useState(0);
 	const [isClient, setIsClient] = useState(false);
@@ -26,6 +31,7 @@ export function AIVoiceInput({
 		setIsClient(true);
 	}, []);
 
+	// Управление таймером и callbacks
 	useEffect(() => {
 		let intervalId: NodeJS.Timeout;
 
@@ -42,7 +48,7 @@ export function AIVoiceInput({
 		}
 
 		return () => clearInterval(intervalId);
-	}, [isRecording]);
+	}, [isRecording, onStart, onStop, time]);
 
 	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
@@ -53,43 +59,27 @@ export function AIVoiceInput({
 	return (
 		<div className={cn('w-full py-4', className)}>
 			<div className="relative mx-auto flex w-full max-w-xl flex-col items-center gap-2">
-				<div
-					className={cn(
-						'group flex h-16 w-16 items-center justify-center rounded-xl transition-colors',
-						isRecording ? 'bg-none' : 'bg-none hover:bg-black/10 dark:hover:bg-white/10'
-					)}
-				>
-					{isRecording ? (
-						<div
-							className="h-6 w-6 animate-spin cursor-pointer rounded-sm bg-black dark:bg-white"
-							style={{ animationDuration: '3s' }}
-						/>
-					) : (
-						<Mic className="h-6 w-6 text-black/70 dark:text-white/70" />
-					)}
+				{/* Spinning Square (когда идет запись) */}
+				<div className="flex h-16 w-16 items-center justify-center rounded-xl">
+					<div
+						className="pointer-events-auto h-6 w-6 cursor-pointer animate-spin rounded-sm bg-black dark:bg-white"
+						style={{ animationDuration: '3s' }}
+					/>
 				</div>
 
-				<span
-					className={cn(
-						'font-mono text-sm transition-opacity duration-300',
-						isRecording ? 'text-black/70 dark:text-white/70' : 'text-black/30 dark:text-white/30'
-					)}
-				>
+				{/* Timer */}
+				<span className="font-mono text-sm text-black/70 transition-opacity duration-300 dark:text-white/70">
 					{formatTime(time)}
 				</span>
 
+				{/* Visualizer Bars */}
 				<div className="flex h-4 w-64 items-center justify-center gap-0.5">
 					{[...Array(visualizerBars)].map((_, i) => (
 						<div
-							className={cn(
-								'w-0.5 rounded-full transition-all duration-300',
-								isRecording
-									? 'animate-pulse bg-black/50 dark:bg-white/50'
-									: 'h-1 bg-black/10 dark:bg-white/10'
-							)}
+							className="w-0.5 animate-pulse rounded-full bg-black/50 transition-all duration-300 dark:bg-white/50"
 							key={i}
 							style={
-								isRecording && isClient
+								isClient
 									? {
 											height: `${20 + Math.random() * 80}%`,
 											animationDelay: `${i * 0.05}s`,
@@ -100,9 +90,8 @@ export function AIVoiceInput({
 					))}
 				</div>
 
-				<p className="h-4 text-xs text-black/70 dark:text-white/70">
-					{isRecording ? 'Listening...' : 'Click to speak'}
-				</p>
+				{/* Status Text */}
+				<p className="h-4 text-xs text-black/70 dark:text-white/70">Listening...</p>
 			</div>
 		</div>
 	);
