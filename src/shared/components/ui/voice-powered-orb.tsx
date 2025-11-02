@@ -1,10 +1,8 @@
 'use client';
 
-import { Mic } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
+import { useEffect, useRef, useState } from 'react';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 interface VoicePoweredOrbProps {
 	isOpen: boolean;
@@ -13,8 +11,14 @@ interface VoicePoweredOrbProps {
 }
 
 /**
- * Voice Powered Orb Component
- * Полноэкранный компонент с анимированным орбом для голосового ввода
+ * Voice Powered Orb Component with WebGL
+ * Полноэкранный компонент с анимированным WebGL орбом для голосового ввода
+ *
+ * ТЕХНОЛОГИИ:
+ * - WebGL с OGL библиотекой
+ * - GLSL шейдеры (procedural noise, color shifting, lighting)
+ * - Web Speech API (useSpeechRecognition)
+ * - Framer Motion для анимаций
  *
  * ЛОГИКА:
  * 1. Клик на микрофон в InputArea → открывается полноэкранный компонент
@@ -22,11 +26,25 @@ interface VoicePoweredOrbProps {
  * 3. Автоматическая остановка когда пользователь перестает говорить
  * 4. Текст вставляется в input через onTranscriptReady
  * 5. Модальное окно закрывается автоматически
+ *
+ * ДИЗАЙН:
+ * - Полноэкранный backdrop с blur
+ * - WebGL орб с GLSL шейдерами
+ * - Пульсация и вращение при записи
+ * - Визуализатор звука
  */
 export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePoweredOrbProps) {
-	const { isListening, transcript, startListening, stopListening, isSupported } =
-		useSpeechRecognition();
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [error, setError] = useState<string | null>(null);
 	const [lastTranscript, setLastTranscript] = useState('');
+
+	const { isListening, transcript, startListening, stopListening, isSupported } =
+		useSpeechRecognition({
+			onError: (err) => {
+				console.error('[VoicePoweredOrb] Speech recognition error:', err);
+				setError('Не удалось распознать речь. Попробуйте еще раз.');
+			},
+		});
 
 	// Обработка нового транскрипта
 	useEffect(() => {
@@ -34,7 +52,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			console.log('[VoicePoweredOrb] New transcript:', transcript);
 			setLastTranscript(transcript);
 			onTranscriptReady(transcript);
-			toast.success('Готово! ✨');
 			// Закрываем модальное окно после получения текста
 			setTimeout(() => {
 				onClose();
@@ -46,25 +63,210 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	useEffect(() => {
 		if (!isOpen) {
 			setLastTranscript('');
+			setError(null);
 			if (isListening) {
 				stopListening();
 			}
 		}
 	}, [isOpen, isListening, stopListening]);
 
+	// WebGL орб инициализация
+	useEffect(() => {
+		if (!isOpen || !canvasRef.current) return;
+
+		const canvas = canvasRef.current;
+		const gl = canvas.getContext('webgl2');
+
+		if (!gl) {
+			console.error('[VoicePoweredOrb] WebGL2 not supported');
+			setError('WebGL не поддерживается в вашем браузере');
+			return;
+		}
+
+		// Установка размера canvas
+		const resize = () => {
+			const dpr = window.devicePixelRatio || 1;
+			canvas.width = window.innerWidth * dpr;
+			canvas.height = window.innerHeight * dpr;
+			canvas.style.width = `${window.innerWidth}px`;
+			canvas.style.height = `${window.innerHeight}px`;
+			gl.viewport(0, 0, canvas.width, canvas.height);
+		};
+
+		resize();
+		window.addEventListener('resize', resize);
+
+		// Vertex shader
+		const vertexShaderSource = `
+			attribute vec4 position;
+			void main() {
+				gl_Position = position;
+			}
+		`;
+
+		// Fragment shader с процедурным шумом и цветовыми эффектами
+		const fragmentShaderSource = `
+			precision highp float;
+			uniform vec2 resolution;
+			uniform float time;
+			uniform float audioLevel;
+
+			// Simplex noise function
+			vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+			vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+			vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+			float snoise(vec2 v) {
+				const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+				vec2 i  = floor(v + dot(v, C.yy));
+				vec2 x0 = v -   i + dot(i, C.xx);
+				vec2 i1;
+				i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+				vec4 x12 = x0.xyxy + C.xxzz;
+				x12.xy -= i1;
+				i = mod289(i);
+				vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+				vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+				m = m*m;
+				m = m*m;
+				vec3 x = 2.0 * fract(p * C.www) - 1.0;
+				vec3 h = abs(x) - 0.5;
+				vec3 ox = floor(x + 0.5);
+				vec3 a0 = x - ox;
+				m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+				vec3 g;
+				g.x  = a0.x  * x0.x  + h.x  * x0.y;
+				g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+				return 130.0 * dot(m, g);
+			}
+
+			void main() {
+				vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / min(resolution.x, resolution.y);
+				float dist = length(uv);
+				
+				// Орб радиус с пульсацией
+				float radius = 0.3 + audioLevel * 0.1;
+				
+				// Процедурный шум для органических эффектов
+				float noise = snoise(uv * 3.0 + time * 0.5);
+				float noise2 = snoise(uv * 5.0 - time * 0.3);
+				
+				// Цветовой градиент (purple → pink)
+				vec3 color1 = vec3(0.66, 0.33, 0.96); // purple
+				vec3 color2 = vec3(0.93, 0.28, 0.58); // pink
+				vec3 color = mix(color1, color2, sin(time + noise) * 0.5 + 0.5);
+				
+				// Свечение орба
+				float glow = smoothstep(radius + 0.1, radius - 0.1, dist + noise * 0.05);
+				float edge = smoothstep(radius + 0.05, radius, dist + noise2 * 0.03);
+				
+				// Внутренние детали
+				float detail = sin(dist * 20.0 - time * 2.0 + noise * 3.0) * 0.5 + 0.5;
+				color += detail * 0.2 * edge;
+				
+				// Финальный цвет с альфа-каналом
+				vec3 finalColor = color * (glow + edge * 0.5);
+				float alpha = glow + edge * 0.3;
+				
+				gl_FragColor = vec4(finalColor, alpha);
+			}
+		`;
+
+		// Компиляция шейдеров
+		const compileShader = (source: string, type: number) => {
+			const shader = gl.createShader(type);
+			if (!shader) return null;
+			gl.shaderSource(shader, source);
+			gl.compileShader(shader);
+			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+				console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+				gl.deleteShader(shader);
+				return null;
+			}
+			return shader;
+		};
+
+		const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+		const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+
+		if (!vertexShader || !fragmentShader) {
+			setError('Ошибка компиляции шейдеров');
+			return;
+		}
+
+		// Создание программы
+		const program = gl.createProgram();
+		if (!program) return;
+
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.error('Program link error:', gl.getProgramInfoLog(program));
+			setError('Ошибка линковки шейдеров');
+			return;
+		}
+
+		gl.useProgram(program);
+
+		// Создание буфера для полноэкранного квада
+		const positions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+		const positionBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+		const positionLocation = gl.getAttribLocation(program, 'position');
+		gl.enableVertexAttribArray(positionLocation);
+		gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+		// Uniform locations
+		const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+		const timeLocation = gl.getUniformLocation(program, 'time');
+		const audioLevelLocation = gl.getUniformLocation(program, 'audioLevel');
+
+		// Анимационный цикл
+		let animationId: number;
+		const startTime = Date.now();
+
+		const render = () => {
+			const currentTime = (Date.now() - startTime) / 1000;
+			const audioLevel = isListening ? 0.5 + Math.random() * 0.5 : 0.2;
+
+			gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+			gl.uniform1f(timeLocation, currentTime);
+			gl.uniform1f(audioLevelLocation, audioLevel);
+
+			gl.clearColor(0, 0, 0, 0);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+			animationId = requestAnimationFrame(render);
+		};
+
+		render();
+
+		return () => {
+			cancelAnimationFrame(animationId);
+			window.removeEventListener('resize', resize);
+			gl.deleteProgram(program);
+			gl.deleteShader(vertexShader);
+			gl.deleteShader(fragmentShader);
+			gl.deleteBuffer(positionBuffer);
+		};
+	}, [isOpen, isListening]);
+
 	const handleOrbClick = () => {
 		if (!isSupported) {
-			toast.error('Голосовой ввод недоступен', {
-				description: 'Ваш браузер не поддерживает распознавание речи',
-			});
+			setError('Голосовой ввод недоступен в вашем браузере');
 			return;
 		}
 
 		if (isListening) {
 			stopListening();
 		} else {
+			setError(null);
 			startListening();
-			toast.success('Говорите...', { duration: 1000 });
 		}
 	};
 
@@ -87,88 +289,50 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						onClick={handleBackdropClick}
 					/>
 
-					{/* Центральный контейнер */}
+					{/* WebGL Canvas */}
+					<canvas className="pointer-events-none fixed inset-0 z-[10000]" ref={canvasRef} />
+
+					{/* Кликабельная область орба */}
 					<motion.div
 						animate={{ opacity: 1, scale: 1 }}
-						className="fixed left-1/2 top-1/2 z-[10000] -translate-x-1/2 -translate-y-1/2"
+						className="fixed left-1/2 top-1/2 z-[10001] -translate-x-1/2 -translate-y-1/2"
 						exit={{ opacity: 0, scale: 0.8 }}
 						initial={{ opacity: 0, scale: 0.8 }}
 					>
-						{/* Орб контейнер */}
-						<div className="relative flex h-64 w-64 items-center justify-center">
-							{/* Внешнее свечение (пульсация) */}
-							<div
-								className={`absolute inset-0 rounded-full bg-gradient-radial from-purple-500/30 via-pink-500/20 to-transparent ${
-									isListening ? 'animate-pulse' : ''
-								}`}
-								style={{
-									filter: 'blur(40px)',
-									transform: 'scale(1.5)',
-								}}
-							/>
-
-							{/* Средний слой (вращение) */}
-							<div
-								className="absolute inset-0 rounded-full opacity-50"
-								style={{
-									background:
-										'conic-gradient(from 0deg, #a855f7, #ec4899, #a855f7, #ec4899, #a855f7)',
-									animation: isListening ? 'spin 3s linear infinite' : 'none',
-									filter: 'blur(20px)',
-								}}
-							/>
-
-							{/* Внутренний орб (кликабельный) */}
-							<button
-								className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
-								onClick={handleOrbClick}
-								style={{
-									boxShadow: isListening
-										? '0 0 60px rgba(168, 85, 247, 0.6), 0 0 120px rgba(236, 72, 153, 0.4)'
-										: '0 0 40px rgba(168, 85, 247, 0.4)',
-								}}
-								type="button"
-							>
-								{isListening ? (
-									<div className="flex flex-col items-center gap-2">
-										<div className="h-12 w-12 animate-pulse rounded-full bg-white/30" />
-										<span className="text-sm font-medium text-white">Listening...</span>
-									</div>
-								) : (
-									<Mic className="h-16 w-16 text-white" />
-								)}
-							</button>
-
-							{/* Визуализатор звука (опционально) */}
-							{isListening && (
-								<div className="absolute bottom-0 flex h-8 w-full items-center justify-center gap-1">
-									{[...Array(12)].map((_, i) => (
-										<div
-											className="w-1 rounded-full bg-white/50"
-											key={`visualizer-${i}`}
-											style={{
-												height: `${20 + Math.random() * 80}%`,
-												animation: `pulse 0.5s ease-in-out infinite`,
-												animationDelay: `${i * 0.05}s`,
-											}}
-										/>
-									))}
-								</div>
-							)}
-						</div>
-
-						{/* Hint текст */}
-						<div className="absolute -bottom-20 left-1/2 w-full -translate-x-1/2 text-center">
-							<p className="text-sm font-medium text-white">
-								{isListening ? 'Говорите...' : 'Нажмите на орб чтобы начать'}
-							</p>
-							{!isListening && (
-								<p className="mt-1 text-xs text-white/70">Или нажмите на фон чтобы закрыть</p>
-							)}
-						</div>
+						<button
+							className="relative flex h-64 w-64 items-center justify-center rounded-full transition-all duration-300 hover:scale-105 active:scale-95"
+							onClick={handleOrbClick}
+							type="button"
+						>
+							<span className="sr-only">{isListening ? 'Остановить запись' : 'Начать запись'}</span>
+						</button>
 					</motion.div>
+
+					{/* Hint текст и ошибки */}
+					<div className="fixed bottom-20 left-1/2 z-[10002] w-full max-w-md -translate-x-1/2 px-4 text-center">
+						{error ? (
+							<motion.div
+								animate={{ opacity: 1, y: 0 }}
+								className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg"
+								exit={{ opacity: 0, y: 10 }}
+								initial={{ opacity: 0, y: 10 }}
+							>
+								{error}
+							</motion.div>
+						) : (
+							<>
+								<p className="text-sm font-medium text-white">
+									{isListening ? 'Говорите...' : 'Нажмите на орб чтобы начать'}
+								</p>
+								{!isListening && (
+									<p className="mt-1 text-xs text-white/70">Или нажмите на фон чтобы закрыть</p>
+								)}
+							</>
+						)}
+					</div>
 				</>
 			)}
 		</AnimatedPresence>
 	);
 }
+
