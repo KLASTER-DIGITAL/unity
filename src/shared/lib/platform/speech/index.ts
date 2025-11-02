@@ -105,7 +105,22 @@ class WebSpeechAdapter implements SpeechAdapter {
 	}
 
 	startListening(options: SpeechRecognitionOptions = {}): void {
-		if (!this.recognition || this.listening) {
+		console.log('[WebSpeechAdapter] startListening called', {
+			hasRecognition: !!this.recognition,
+			isListening: this.listening,
+			options,
+		});
+
+		if (!this.recognition) {
+			console.error('[WebSpeechAdapter] No recognition instance');
+			if (this.errorCallback) {
+				this.errorCallback(new Error('Speech recognition not initialized'));
+			}
+			return;
+		}
+
+		if (this.listening) {
+			console.warn('[WebSpeechAdapter] Already listening');
 			return;
 		}
 
@@ -121,9 +136,18 @@ class WebSpeechAdapter implements SpeechAdapter {
 		this.recognition.interimResults = interimResults;
 		this.recognition.maxAlternatives = maxAlternatives;
 
+		console.log('[WebSpeechAdapter] Starting recognition with config:', {
+			language,
+			continuous,
+			interimResults,
+			maxAlternatives,
+		});
+
 		try {
 			this.recognition.start();
+			console.log('[WebSpeechAdapter] recognition.start() called successfully');
 		} catch (error: any) {
+			console.error('[WebSpeechAdapter] Failed to start recognition:', error);
 			if (this.errorCallback) {
 				this.errorCallback(new Error(`Failed to start recognition: ${error.message}`));
 			}
@@ -181,6 +205,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		this.recognition = new SpeechRecognition();
 
 		this.recognition.onstart = () => {
+			console.log('[WebSpeechAdapter] onstart event fired');
 			this.listening = true;
 			if (this.startCallback) {
 				this.startCallback();
@@ -188,6 +213,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		};
 
 		this.recognition.onresult = (event: any) => {
+			console.log('[WebSpeechAdapter] onresult event fired', event);
 			if (!this.resultCallback) {
 				return;
 			}
@@ -195,6 +221,12 @@ class WebSpeechAdapter implements SpeechAdapter {
 			const results = event.results;
 			const lastResult = results[results.length - 1];
 			const alternative = lastResult[0];
+
+			console.log('[WebSpeechAdapter] Result:', {
+				transcript: alternative.transcript,
+				confidence: alternative.confidence,
+				isFinal: lastResult.isFinal,
+			});
 
 			this.resultCallback({
 				transcript: alternative.transcript,
@@ -204,6 +236,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		};
 
 		this.recognition.onend = () => {
+			console.log('[WebSpeechAdapter] onend event fired');
 			this.listening = false;
 			if (this.endCallback) {
 				this.endCallback();
@@ -211,6 +244,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		};
 
 		this.recognition.onerror = (event: any) => {
+			console.error('[WebSpeechAdapter] onerror event fired:', event.error);
 			this.listening = false;
 
 			if (this.errorCallback) {
@@ -236,6 +270,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 						errorMessage = `Speech recognition error: ${event.error}`;
 				}
 
+				console.error('[WebSpeechAdapter] Error message:', errorMessage);
 				this.errorCallback(new Error(errorMessage));
 			}
 		};
