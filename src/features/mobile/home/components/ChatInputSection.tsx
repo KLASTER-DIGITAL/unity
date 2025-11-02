@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { MediaLightbox, PermissionGuide, useVoiceRecorder } from '@/features/mobile/media';
+import { AIVoiceInput } from '@/shared/components/ui/ai-voice-input.tsx';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import type { ChatInputSectionProps, ChatMessage } from './chat-input';
@@ -10,7 +10,6 @@ import {
 	handleFilesDropped as filesDropped,
 	InputArea,
 	handleMediaUpload as mediaUpload,
-	RecordingIndicator,
 	handleSendMessage as sendMessage,
 	handleVoiceInput as voiceInput,
 } from './chat-input';
@@ -44,11 +43,8 @@ export function ChatInputSection({
 	// Голосовой рекордер
 	const {
 		isRecording,
-		audioLevel,
-		recordingTime,
 		startRecording,
 		stopRecording,
-		cancelRecording,
 		isSupported: isVoiceSupported,
 	} = useVoiceRecorder();
 
@@ -103,12 +99,6 @@ export function ChatInputSection({
 			setShowPermissionGuide,
 		});
 
-	// Отменить запись
-	const handleCancelRecording = () => {
-		cancelRecording();
-		toast.info('Запись отменена');
-	};
-
 	// Обработка загрузки медиа
 	const handleMediaUpload = () =>
 		mediaUpload({
@@ -159,14 +149,12 @@ export function ChatInputSection({
 
 			{/* Input Area */}
 			<div className="relative">
-				{/* Recording Indicator */}
-				<RecordingIndicator
-					audioLevel={audioLevel}
-					isRecording={isRecording}
-					onCancel={handleCancelRecording}
-					onStop={handleVoiceInput}
-					recordingTime={recordingTime}
-				/>
+				{/* AI Voice Input - показывается когда идет запись */}
+				{isRecording && (
+					<div className="absolute -top-32 left-0 right-0 z-10">
+						<AIVoiceInput onStop={() => handleVoiceInput()} />
+					</div>
+				)}
 
 				{/* Main Input Area */}
 				<InputArea

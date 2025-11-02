@@ -1,7 +1,13 @@
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { type DiaryEntry, deleteEntry, getEntries, updateEntry } from '@/shared/lib/api';
+import {
+	type DiaryEntry,
+	deleteEntry,
+	getEntries,
+	type MediaItem,
+	updateEntry,
+} from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
 import {
 	DeleteConfirmModal,
@@ -29,6 +35,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 	const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
 	const [editText, setEditText] = useState('');
 	const [editCategory, setEditCategory] = useState('');
+	const [editMedia, setEditMedia] = useState<MediaItem[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [successMessage, setSuccessMessage] = useState('');
@@ -70,6 +77,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 		setEditingEntry(entry);
 		setEditText(entry.text);
 		setEditCategory(entry.category);
+		setEditMedia(entry.media || []);
 		setSelectedEntry(null);
 	};
 
@@ -85,6 +93,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 			const updates: Partial<DiaryEntry> = {
 				text: editText.trim(),
 				category: editCategory,
+				media: editMedia,
 			};
 
 			const updatedEntry = await updateEntry(editingEntry.id, updates);
@@ -97,6 +106,7 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 			setEditingEntry(null);
 			setEditText('');
 			setEditCategory('');
+			setEditMedia([]);
 
 			// Показываем success modal
 			setSuccessMessage('Запись успешно обновлена!');
@@ -208,13 +218,16 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 
 			<EditEntryModal
 				editCategory={editCategory}
+				editMedia={editMedia}
 				editText={editText}
 				isOpen={!!editingEntry}
 				isSaving={isSaving}
 				onCategoryChange={setEditCategory}
 				onClose={() => setEditingEntry(null)}
+				onMediaChange={setEditMedia}
 				onSave={handleSaveEdit}
 				onTextChange={setEditText}
+				userId={userData.id}
 			/>
 
 			<DeleteConfirmModal

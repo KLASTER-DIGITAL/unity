@@ -1,6 +1,6 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
-import { X } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { MediaPreview } from '@/features/mobile/media';
 import type { DiaryEntry } from '@/shared/lib/api';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
@@ -124,10 +124,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 						{entry.aiReply && (
 							<div className="mb-6 rounded-[16px] border border-accent/20 bg-accent/5 p-4 transition-colors duration-300">
 								<div className="mb-2 flex items-center gap-2">
-									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/10">
-										<span className="text-[12px]">🤖</span>
-									</div>
-									<span className="font-semibold text-[13px]! text-accent">AI Анализ</span>
+									<Sparkles className="h-4 w-4 text-accent" strokeWidth={2} />
 								</div>
 								<p className="whitespace-pre-wrap text-[14px]! text-muted-foreground leading-[20px] italic">
 									{entry.aiReply}

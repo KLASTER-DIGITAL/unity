@@ -10,6 +10,8 @@
  * ВАЖНО: Компонент НЕ генерирует AI контент, только отображает существующий entry.aiReply из БД
  */
 
+import { Sparkles } from 'lucide-react';
+
 type AIAnalysisBlockProps = {
 	aiReply: string;
 	variant?: 'compact' | 'full';
@@ -32,7 +34,7 @@ export function AIAnalysisBlock({
 				className={`relative h-[100px] w-full overflow-hidden rounded-[12px] border border-accent/20 bg-accent/5 p-2 ${className}`}
 			>
 				<div className="mb-1 flex items-center gap-1">
-					<span className="text-[14px]">🤖</span>
+					<Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
 				</div>
 				<p className="wrap-break-word line-clamp-4 text-[11px]! text-muted-foreground leading-relaxed italic">
 					{aiReply}
@@ -47,7 +49,7 @@ export function AIAnalysisBlock({
 	return (
 		<div className={`rounded-[16px] border border-accent/20 bg-accent/5 p-4 ${className}`}>
 			<div className="mb-2 flex items-center gap-2">
-				<span className="text-[18px]">🤖</span>
+				<Sparkles className="h-4 w-4 text-accent" strokeWidth={2} />
 			</div>
 			<p className="text-[14px] text-muted-foreground leading-relaxed italic">{aiReply}</p>
 		</div>

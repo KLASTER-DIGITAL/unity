@@ -12,7 +12,6 @@ export {
 	checkMicrophonePermission,
 	triggerHapticFeedback,
 } from './PermissionUtils';
-export { RecordingIndicator } from './RecordingIndicator';
 export { SuccessModal } from './SuccessModal';
 export type { Category, ChatInputSectionProps, ChatMessage } from './types';
 export { handleVoiceInput } from './voiceHandlers';

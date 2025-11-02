@@ -1,5 +1,9 @@
-import { Save, X } from 'lucide-react';
+import { Image as ImageIcon, Save, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import type { MediaItem } from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
 import { CATEGORIES } from './constants';
 
@@ -7,32 +11,67 @@ type EditEntryModalProps = {
 	isOpen: boolean;
 	editText: string;
 	editCategory: string;
+	editMedia: MediaItem[];
+	userId: string;
 	isSaving: boolean;
 	onClose: () => void;
 	onTextChange: (text: string) => void;
 	onCategoryChange: (category: string) => void;
+	onMediaChange: (media: MediaItem[]) => void;
 	onSave: () => void;
 };
 
 /**
  * Edit Entry Modal Component
- * Modal for editing diary entry
+ * Modal for editing diary entry with media support
  */
 export function EditEntryModal({
 	isOpen,
 	editText,
 	editCategory,
+	editMedia,
+	userId,
 	isSaving,
 	onClose,
 	onTextChange,
 	onCategoryChange,
+	onMediaChange,
 	onSave,
 }: EditEntryModalProps) {
 	const { t } = useTranslation();
+	const [localMedia, setLocalMedia] = useState<MediaItem[]>(editMedia);
+
+	// Media uploader hook
+	const { selectAndUploadMedia, isUploading } = useMediaUploader();
 
 	if (!isOpen) {
 		return null;
 	}
+
+	// Handle media upload
+	const handleAddMedia = async () => {
+		if (!userId || userId === 'anonymous') {
+			toast.error('Необходимо авторизоваться');
+			return;
+		}
+
+		try {
+			await selectAndUploadMedia(userId);
+			// После загрузки медиа будет добавлено через uploadedMedia
+			toast.success('Фото загружено!');
+		} catch (error) {
+			console.error('Error uploading media:', error);
+			toast.error('Не удалось загрузить фото');
+		}
+	};
+
+	// Handle media removal
+	const handleRemoveMedia = (index: number) => {
+		const newMedia = localMedia.filter((_, i) => i !== index);
+		setLocalMedia(newMedia);
+		onMediaChange(newMedia);
+		toast.success('Фото удалено');
+	};
 
 	return (
 		<AnimatePresence>
@@ -75,6 +114,49 @@ export function EditEntryModal({
 							rows={6}
 							value={editText}
 						/>
+					</div>
+
+					{/* Media Section */}
+					<div>
+						<label className="mb-2 block font-medium! text-[13px]! text-muted-foreground">
+							Фото
+						</label>
+
+						{/* Existing Media */}
+						{localMedia.length > 0 && (
+							<div className="mb-3 space-y-2">
+								{localMedia.map((media, index) => (
+									<div
+										className="relative overflow-hidden rounded-[12px] border border-border"
+										key={media.id || index}
+									>
+										<img
+											alt={`Uploaded media ${index + 1}`}
+											className="h-32 w-full object-cover"
+											src={media.url}
+										/>
+										<button
+											className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600"
+											onClick={() => handleRemoveMedia(index)}
+											type="button"
+										>
+											<Trash2 className="h-4 w-4" strokeWidth={2} />
+										</button>
+									</div>
+								))}
+							</div>
+						)}
+
+						{/* Add Media Button */}
+						<button
+							className="flex w-full items-center justify-center gap-2 rounded-[12px] border border-dashed border-border bg-muted/50 px-4 py-3 text-[14px]! text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+							disabled={isSaving || isUploading}
+							onClick={handleAddMedia}
+							type="button"
+						>
+							<ImageIcon className="h-4 w-4" strokeWidth={2} />
+							{isUploading ? 'Загрузка...' : 'Добавить фото'}
+						</button>
 					</div>
 
 					{/* Category Select */}
