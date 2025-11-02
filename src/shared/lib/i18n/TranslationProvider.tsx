@@ -1,4 +1,11 @@
-import React, { createContext, type ReactNode, useContext, useEffect, useReducer } from 'react';
+import React, {
+	createContext,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useReducer,
+} from 'react';
 import { TranslationCacheManager } from './cache';
 import { getFallbackTranslation } from './fallback';
 import { getPreferredLanguage, savePreferredLanguage } from './language-detection';
@@ -89,57 +96,63 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 		fallbackLanguage,
 	});
 
-	// Загрузка переводов для языка
-	const loadTranslations = async (language: string): Promise<void> => {
-		dispatch({ type: 'SET_LOADING', payload: true });
-		dispatch({ type: 'SET_ERROR', payload: null });
+	// ✅ CRITICAL FIX: Wrap loadTranslations in useCallback to prevent infinite re-renders
+	// Without useCallback, this function is recreated on every render, causing useEffect
+	// to run infinitely because it's in the dependency array
+	const loadTranslations = useCallback(
+		async (language: string): Promise<void> => {
+			dispatch({ type: 'SET_LOADING', payload: true });
+			dispatch({ type: 'SET_ERROR', payload: null });
 
-		try {
-			console.log(`Loading translations for language: ${language}`);
+			try {
+				console.log(`Loading translations for language: ${language}`);
 
-			// Try SmartCache first (optimized)
-			let translations = await SmartCache.get(language as any);
+				// Try SmartCache first (optimized)
+				let translations = await SmartCache.get(language as any);
 
-			if (!translations) {
-				// Use LazyLoader for optimized loading
-				translations = await LazyLoader.load(language as any, 'high');
-			}
+				if (!translations) {
+					// Use LazyLoader for optimized loading
+					translations = await LazyLoader.load(language as any, 'high');
+				}
 
-			console.log(`Translations loaded for ${language} (${Object.keys(translations).length} keys)`);
+				console.log(`Translations loaded for ${language} (${Object.keys(translations).length} keys)`);
 
-			// Обновляем состояние
-			dispatch({
-				type: 'SET_TRANSLATIONS',
-				payload: { language, translations },
-			});
-
-			dispatch({ type: 'SET_LOADED', payload: true });
-		} catch (error) {
-			console.error('Failed to load translations:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			dispatch({ type: 'SET_ERROR', payload: errorMessage });
-
-			// Используем fallback язык
-			if (language !== fallbackLanguage) {
-				console.log(`Loading fallback language: ${fallbackLanguage}`);
-				await loadTranslations(fallbackLanguage);
-			} else {
-				// Если даже fallback не загрузился, используем встроенные переводы
-				console.log('Using builtin fallback translations');
-				const fallbackTranslations = getFallbackTranslation(fallbackLanguage);
+				// Обновляем состояние
 				dispatch({
 					type: 'SET_TRANSLATIONS',
-					payload: {
-						language: fallbackLanguage,
-						translations: fallbackTranslations as unknown as Record<string, string>,
-					},
+					payload: { language, translations },
 				});
+
 				dispatch({ type: 'SET_LOADED', payload: true });
+			} catch (error) {
+				console.error('Failed to load translations:', error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				dispatch({ type: 'SET_ERROR', payload: errorMessage });
+
+				// Используем fallback язык
+				if (language !== fallbackLanguage) {
+					console.log(`Loading fallback language: ${fallbackLanguage}`);
+					// Recursive call is safe here because we check language !== fallbackLanguage
+					await loadTranslations(fallbackLanguage);
+				} else {
+					// Если даже fallback не загрузился, используем встроенные переводы
+					console.log('Using builtin fallback translations');
+					const fallbackTranslations = getFallbackTranslation(fallbackLanguage);
+					dispatch({
+						type: 'SET_TRANSLATIONS',
+						payload: {
+							language: fallbackLanguage,
+							translations: fallbackTranslations as unknown as Record<string, string>,
+						},
+					});
+					dispatch({ type: 'SET_LOADED', payload: true });
+				}
+			} finally {
+				dispatch({ type: 'SET_LOADING', payload: false });
 			}
-		} finally {
-			dispatch({ type: 'SET_LOADING', payload: false });
-		}
-	};
+		},
+		[fallbackLanguage]
+	);
 
 	// Смена языка
 	const changeLanguage = async (language: string): Promise<void> => {
@@ -213,6 +226,8 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 	};
 
 	// Инициализация при монтировании
+	// ✅ CRITICAL FIX: loadTranslations is now stable (useCallback), safe to include in deps
+	// Removed state.currentLanguage from deps to prevent re-initialization on language change
 	useEffect(() => {
 		// Wait for initial language detection
 		if (!initialLanguage) {
@@ -241,7 +256,8 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 		};
 
 		initialize();
-	}, [initialLanguage, loadTranslations, state.currentLanguage]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialLanguage, loadTranslations]);
 
 	// Значение контекста
 	const value: TranslationContextValue = {
