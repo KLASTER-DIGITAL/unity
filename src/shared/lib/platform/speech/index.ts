@@ -193,7 +193,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 			}
 
 			const results = event.results;
-			const lastResult = results.at(-1);
+			const lastResult = results[results.length - 1];
 			const alternative = lastResult[0];
 
 			this.resultCallback({
