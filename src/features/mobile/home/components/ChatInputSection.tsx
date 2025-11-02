@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { MediaLightbox, PermissionGuide, useVoiceRecorder } from '@/features/mobile/media';
 import { AIVoiceInput } from '@/shared/components/ui/ai-voice-input.tsx';
+import { transcribeAudio } from '@/shared/lib/api';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import type { ChatInputSectionProps, ChatMessage } from './chat-input';
@@ -11,7 +13,6 @@ import {
 	InputArea,
 	handleMediaUpload as mediaUpload,
 	handleSendMessage as sendMessage,
-	handleVoiceInput as voiceInput,
 } from './chat-input';
 // ✅ СТАРЫЙ Success Modal с конфетти (НЕ новый дизайн)
 import { SuccessModal } from './chat-input/SuccessModal';
@@ -37,6 +38,7 @@ export function ChatInputSection({
 	);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [showAiHint, setShowAiHint] = useState(false); // ✅ СКРЫТО: AI hint по умолчанию выключен
+	const [showVoiceModal, setShowVoiceModal] = useState(false); // Модальное окно записи голоса
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -87,17 +89,84 @@ export function ChatInputSection({
 			onEntrySaved,
 		});
 
-	// Обработка голосового ввода
-	const handleVoiceInput = () =>
-		voiceInput({
-			isRecording,
-			isVoiceSupported,
-			stopRecording,
-			startRecording,
-			setIsTranscribing,
-			setInputText,
-			setShowPermissionGuide,
-		});
+	// Обработка клика на кнопку микрофона - ОТКРЫВАЕТ модальное окно
+	const handleVoiceClick = () => {
+		if (!isVoiceSupported) {
+			toast.error('Голосовой ввод недоступен', {
+				description: 'Ваш браузер не поддерживает запись голоса',
+			});
+			return;
+		}
+		setShowVoiceModal(true);
+	};
+
+	// Начало записи (вызывается из модального окна)
+	const handleStartRecording = async () => {
+		try {
+			await startRecording();
+			toast.success('Говорите...', { duration: 1000 });
+		} catch (error: any) {
+			console.error('Recording error:', error);
+			toast.error('Не удалось начать запись', {
+				description: error.message,
+			});
+		}
+	};
+
+	// Остановка записи (вызывается из модального окна)
+	const handleStopRecording = async () => {
+		setIsTranscribing(true);
+
+		try {
+			const audioBlob = await stopRecording();
+
+			if (!audioBlob) {
+				toast.error('Не удалось записать аудио');
+				setShowVoiceModal(false);
+				return;
+			}
+
+			console.log('Audio recorded, size:', audioBlob.size, 'type:', audioBlob.type);
+
+			// Отправляем на транскрибацию
+			toast.loading('Распознаю речь...', { id: 'transcribing' });
+
+			const transcribedText = await transcribeAudio(audioBlob);
+
+			toast.success('Готово! ✨', { id: 'transcribing' });
+
+			// Добавляем текст в input
+			setInputText((prev) => {
+				const newText = prev ? `${prev} ${transcribedText}` : transcribedText;
+				return newText;
+			});
+
+			// Закрываем модальное окно
+			setShowVoiceModal(false);
+		} catch (error: any) {
+			console.error('Transcription error:', error);
+
+			let errorMessage = 'Ошибка распознавания';
+			let errorDescription = error.message;
+
+			if (error.message?.includes('OpenAI API key')) {
+				errorMessage = 'Сервис недоступен';
+				errorDescription = 'Администратор не настроил OpenAI API. Попробуйте позже.';
+			} else if (error.message?.includes('Transcription failed')) {
+				errorMessage = 'Ошибка распознавания';
+				errorDescription = 'Не удалось распознать речь. Попробуйте еще раз.';
+			}
+
+			toast.error(errorMessage, {
+				id: 'transcribing',
+				description: errorDescription,
+			});
+
+			setShowVoiceModal(false);
+		} finally {
+			setIsTranscribing(false);
+		}
+	};
 
 	// Обработка загрузки медиа
 	const handleMediaUpload = () =>
@@ -149,13 +218,10 @@ export function ChatInputSection({
 
 			{/* AI Voice Input Modal - открывается по центру экрана */}
 			<AIVoiceInput
-				isOpen={isRecording}
-				onStart={() => {
-					console.log('[AIVoiceInput] Recording started');
-				}}
-				onStop={(duration) => {
-					console.log('[AIVoiceInput] Recording stopped, duration:', duration);
-				}}
+				isOpen={showVoiceModal}
+				onClose={() => setShowVoiceModal(false)}
+				onStartRecording={handleStartRecording}
+				onStopRecording={handleStopRecording}
 			/>
 
 			{/* Input Area */}
@@ -174,7 +240,7 @@ export function ChatInputSection({
 					onMediaUpload={handleMediaUpload}
 					onRemoveMedia={removeMedia}
 					onSendMessage={handleSendMessage}
-					onVoiceClick={handleVoiceInput}
+					onVoiceClick={handleVoiceClick}
 					selectedCategory={selectedCategory}
 					textareaRef={textareaRef}
 					uploadedMedia={uploadedMedia}
