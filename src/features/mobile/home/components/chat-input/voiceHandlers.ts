@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
-import { transcribeAudio } from '@/shared/lib/api';
+// ❌ DEPRECATED: Whisper API transcription removed, use Web Speech API instead
+// import { transcribeAudio } from '@/shared/lib/api';
 import { checkMicrophonePermission, triggerHapticFeedback } from './PermissionUtils';
 
 type VoiceHandlerParams = {
@@ -32,6 +33,15 @@ export async function handleVoiceInput({
 	}
 
 	if (isRecording) {
+		// ❌ DEPRECATED: Whisper API transcription removed
+		// Use VoicePoweredOrb component with Web Speech API instead
+		console.warn(
+			'[voiceHandlers] This handler is deprecated. Use VoicePoweredOrb component instead.'
+		);
+		toast.error('Используйте кнопку микрофона для голосового ввода');
+		return;
+
+		/* DEPRECATED CODE - Whisper API transcription
 		// Останавливаем запись и транскрибируем
 		setIsTranscribing(true);
 
@@ -85,6 +95,7 @@ export async function handleVoiceInput({
 		} finally {
 			setIsTranscribing(false);
 		}
+		*/ // END DEPRECATED CODE
 	} else {
 		// Проверяем статус разрешения ПЕРЕД попыткой записи
 		const permissionStatus = await checkMicrophonePermission();

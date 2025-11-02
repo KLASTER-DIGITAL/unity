@@ -1,9 +1,11 @@
 import { createClient } from '@/utils/supabase/client';
 
 // ✅ NEW: Import from modular API structure (2025-10-23)
-import { API_URLS } from './config/urls';
+// ❌ DEPRECATED: API_URLS.TRANSCRIPTION removed (Whisper API)
+// import { API_URLS } from './config/urls';
 import type { ApiOptions } from './core/request';
-import { blobToBase64 } from './core/request';
+// ❌ DEPRECATED: blobToBase64 removed (Whisper API)
+// import { blobToBase64 } from './core/request';
 import type { MediaFile } from './types';
 
 // Re-export types for backward compatibility
@@ -17,7 +19,8 @@ export type {
 // DO NOT re-export them here to avoid duplicate exports
 
 // ✅ Microservices base URLs (backward compatibility)
-const TRANSCRIPTION_API_URL = API_URLS.TRANSCRIPTION;
+// ❌ DEPRECATED: Whisper API removed
+// const TRANSCRIPTION_API_URL = API_URLS.TRANSCRIPTION;
 
 // TODO: Books API microservice not yet created - using direct Supabase client for now
 const API_BASE_URL = ''; // Placeholder - will be removed when Books API is migrated
@@ -63,7 +66,7 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 		const responseText = await response.text();
 		console.log(`[API Response] ${endpoint}:`, responseText);
 
-		let jsonData;
+		let jsonData: unknown;
 		try {
 			jsonData = JSON.parse(responseText);
 		} catch (_parseError) {
@@ -236,11 +239,23 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 // VOICE TRANSCRIPTION (Whisper API)
 // ==========================================
 
+/**
+ * ❌ DEPRECATED: Whisper API transcription removed
+ * Use Web Speech API with VoicePoweredOrb component instead
+ *
+ * @deprecated Use useSpeechRecognition hook with VoicePoweredOrb component
+ */
 export async function transcribeAudio(
-	audioBlob: Blob,
-	userId?: string,
-	language?: string
+	_audioBlob: Blob,
+	_userId?: string,
+	_language?: string
 ): Promise<string> {
+	console.warn('[TRANSCRIPTION] This function is deprecated. Use Web Speech API instead.');
+	throw new Error(
+		'Whisper API transcription is deprecated. Use VoicePoweredOrb component with Web Speech API.'
+	);
+
+	/* DEPRECATED CODE - Whisper API transcription
 	console.log('[TRANSCRIPTION] Transcribing audio with Whisper API...');
 
 	// Конвертируем Blob в base64
@@ -285,6 +300,7 @@ export async function transcribeAudio(
 
 	console.log('[TRANSCRIPTION] ✅ Successful:', data.text);
 	return data.text;
+	*/ // END DEPRECATED CODE
 }
 
 // ==========================================

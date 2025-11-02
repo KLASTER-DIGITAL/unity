@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
+import { useTranslation } from '@/shared/lib/i18n/useTranslation';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 interface VoicePoweredOrbProps {
@@ -37,12 +38,15 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [lastTranscript, setLastTranscript] = useState('');
+	const { t } = useTranslation();
 
 	const { isListening, transcript, startListening, stopListening, isSupported } =
 		useSpeechRecognition({
 			onError: (err) => {
 				console.error('[VoicePoweredOrb] Speech recognition error:', err);
-				setError('Не удалось распознать речь. Попробуйте еще раз.');
+				setError(
+					t('voice_orb_error_recognition', 'Не удалось распознать речь. Попробуйте еще раз.')
+				);
 			},
 		});
 
@@ -71,6 +75,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	}, [isOpen, isListening, stopListening]);
 
 	// WebGL орб инициализация
+	// biome-ignore lint/correctness/useExhaustiveDependencies: t is stable from useTranslation
 	useEffect(() => {
 		if (!isOpen || !canvasRef.current) return;
 
@@ -79,7 +84,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		if (!gl) {
 			console.error('[VoicePoweredOrb] WebGL2 not supported');
-			setError('WebGL не поддерживается в вашем браузере');
+			setError(t('voice_orb_error_webgl', 'WebGL не поддерживается в вашем браузере'));
 			return;
 		}
 
@@ -190,7 +195,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
 
 		if (!vertexShader || !fragmentShader) {
-			setError('Ошибка компиляции шейдеров');
+			setError(t('voice_orb_error_shader', 'Ошибка компиляции шейдеров'));
 			return;
 		}
 
@@ -204,10 +209,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 			console.error('Program link error:', gl.getProgramInfoLog(program));
-			setError('Ошибка линковки шейдеров');
+			setError(t('voice_orb_error_shader_link', 'Ошибка линковки шейдеров'));
 			return;
 		}
 
+		// biome-ignore lint/correctness/useHookAtTopLevel: This is WebGL API, not React hook
 		gl.useProgram(program);
 
 		// Создание буфера для полноэкранного квада
@@ -258,7 +264,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 	const handleOrbClick = () => {
 		if (!isSupported) {
-			setError('Голосовой ввод недоступен в вашем браузере');
+			setError(t('voice_orb_error_not_supported', 'Голосовой ввод недоступен в вашем браузере'));
 			return;
 		}
 
@@ -280,22 +286,22 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		<AnimatedPresence>
 			{isOpen && (
 				<>
-					{/* Backdrop с blur */}
+					{/* Backdrop с blur - ПОЛНОЭКРАННЫЙ как у модальных окон */}
 					<motion.div
 						animate={{ opacity: 1 }}
-						className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-md"
+						className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
 						exit={{ opacity: 0 }}
 						initial={{ opacity: 0 }}
 						onClick={handleBackdropClick}
 					/>
 
-					{/* WebGL Canvas */}
-					<canvas className="pointer-events-none fixed inset-0 z-[10000]" ref={canvasRef} />
+					{/* WebGL Canvas - ПОЛНОЭКРАННЫЙ */}
+					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
 
-					{/* Кликабельная область орба */}
+					{/* Кликабельная область орба - ПОВЕРХ ВСЕГО */}
 					<motion.div
 						animate={{ opacity: 1, scale: 1 }}
-						className="fixed left-1/2 top-1/2 z-[10001] -translate-x-1/2 -translate-y-1/2"
+						className="fixed left-1/2 top-1/2 z-modal -translate-x-1/2 -translate-y-1/2"
 						exit={{ opacity: 0, scale: 0.8 }}
 						initial={{ opacity: 0, scale: 0.8 }}
 					>
@@ -308,8 +314,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						</button>
 					</motion.div>
 
-					{/* Hint текст и ошибки */}
-					<div className="fixed bottom-20 left-1/2 z-[10002] w-full max-w-md -translate-x-1/2 px-4 text-center">
+					{/* Hint текст и ошибки - ПОВЕРХ ВСЕГО */}
+					<div className="fixed bottom-20 left-1/2 z-modal w-full max-w-md -translate-x-1/2 px-4 text-center">
 						{error ? (
 							<motion.div
 								animate={{ opacity: 1, y: 0 }}
@@ -322,10 +328,14 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						) : (
 							<>
 								<p className="text-sm font-medium text-white">
-									{isListening ? 'Говорите...' : 'Нажмите на орб чтобы начать'}
+									{isListening
+										? t('voice_orb_listening', 'Говорите...')
+										: t('voice_orb_tap_to_start', 'Нажмите на орб чтобы начать')}
 								</p>
 								{!isListening && (
-									<p className="mt-1 text-xs text-white/70">Или нажмите на фон чтобы закрыть</p>
+									<p className="mt-1 text-xs text-white/70">
+										{t('voice_orb_tap_background_to_close', 'Или нажмите на фон чтобы закрыть')}
+									</p>
 								)}
 							</>
 						)}
@@ -335,4 +345,3 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		</AnimatedPresence>
 	);
 }
-
