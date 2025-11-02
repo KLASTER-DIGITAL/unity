@@ -32,7 +32,7 @@ export function useAudioLevel(isListening: boolean) {
 				streamRef.current = null;
 			}
 
-			if (audioContextRef.current) {
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
 				audioContextRef.current.close();
 				audioContextRef.current = null;
 			}
@@ -118,7 +118,7 @@ export function useAudioLevel(isListening: boolean) {
 				}
 			}
 
-			if (audioContextRef.current) {
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
 				audioContextRef.current.close();
 			}
 		};
