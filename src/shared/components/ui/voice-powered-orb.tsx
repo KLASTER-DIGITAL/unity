@@ -63,6 +63,13 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Используем простой флаг для отслеживания первого запуска
 	const [hasAutoStarted, setHasAutoStarted] = useState(false);
 	const [lastTranscript, setLastTranscript] = useState(''); // ✅ FIX: Используем state вместо ref
+	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
+	const processedTranscriptsRef = useRef<Set<string>>(new Set()); // ✅ FIX: Защита от повторных вызовов
+
+	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
+	useEffect(() => {
+		onTranscriptReadyRef.current = onTranscriptReady;
+	}, [onTranscriptReady]);
 
 	// Сброс состояния при открытии/закрытии
 	useEffect(() => {
@@ -71,10 +78,14 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setHasAutoStarted(false);
 			setLastTranscript('');
 			setError(null);
+			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем обработанные transcript при открытии
+			// ✅ FIX: НЕ сбрасываем transcript здесь - он должен остаться до начала новой записи
+			// Это позволяет увидеть последний результат если запись уже была
 		} else {
 			console.log('[VoicePoweredOrb] Modal closed, resetting state');
 			setHasAutoStarted(false);
 			setLastTranscript('');
+			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем при закрытии
 			if (isListening) {
 				console.log('[VoicePoweredOrb] Stopping listening on close');
 				stopListening();
@@ -84,7 +95,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 	// ✅ FIX: Автостарт записи при открытии (упрощенная логика)
 	useEffect(() => {
-		if (isOpen && !hasAutoStarted) {
+		// ✅ FIX: Проверяем что модальное окно открыто, еще не запускали и не слушаем уже
+		if (isOpen && !hasAutoStarted && !isListening) {
 			// Проверяем поддержку браузера
 			if (!isSupported) {
 				const errorMessage =
@@ -103,10 +115,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			// На мобильных браузерах Web Speech API требует вызов в контексте пользовательского взаимодействия
 			// setTimeout разрывает эту цепочку, поэтому вызываем напрямую
 			console.log('[VoicePoweredOrb] Auto-starting recording on open (immediate for mobile)');
-			setHasAutoStarted(true);
+			setHasAutoStarted(true); // ✅ FIX: Устанавливаем флаг ДО вызова чтобы избежать повторных запусков
 			// Вызываем напрямую без задержки для сохранения user gesture context
 			try {
 				startListening();
+				console.log('[VoicePoweredOrb] startListening called successfully');
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
 				setError(`Ошибка запуска записи: ${errorMessage}`);
@@ -115,9 +128,15 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					duration: 5000,
 				});
 				console.error('[VoicePoweredOrb] Failed to start listening:', err);
+				// ✅ FIX: Сбрасываем флаг если ошибка чтобы можно было попробовать снова
+				setHasAutoStarted(false);
 			}
+		} else if (isOpen && isListening && !hasAutoStarted) {
+			// ✅ FIX: Если уже слушаем но флаг не установлен - устанавливаем его
+			console.log('[VoicePoweredOrb] Already listening, setting hasAutoStarted flag');
+			setHasAutoStarted(true);
 		}
-	}, [isOpen, hasAutoStarted, isSupported, startListening]);
+	}, [isOpen, hasAutoStarted, isSupported, isListening, startListening]);
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
@@ -138,23 +157,28 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	}, [isListening, speechDebugInfo]);
 
 	// ✅ FIX: Упрощенная обработка transcript (ТОЧНО КАК В ChatGPTInput)
-	// Используем state вместо ref, добавляем onTranscriptReady в dependencies
+	// Используем state вместо ref, используем ref для onTranscriptReady чтобы избежать повторных вызовов
 	useEffect(() => {
-		if (transcript?.trim() && transcript !== lastTranscript) {
-			console.log('[VoicePoweredOrb] New transcript received:', transcript);
-			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`);
-
-			// ✅ FIX: Вызываем onTranscriptReady НАПРЯМУЮ (как в ChatGPTInput)
-			console.log('[VoicePoweredOrb] Calling onTranscriptReady with:', transcript);
-			onTranscriptReady(transcript);
-			console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+		const trimmedTranscript = transcript?.trim();
+			try {
+				onTranscriptReadyRef.current(trimmedTranscript);
+				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+			} catch (err) {
+				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
+				// Удаляем из обработанных если была ошибка
+				processedTranscriptsRef.current.delete(trimmedTranscript);
+			}
 
 			// Обновляем lastTranscript ПОСЛЕ вызова onTranscriptReady
-			setLastTranscript(transcript);
+			setLastTranscript(trimmedTranscript);
 
 			// ✅ НЕТ автоматического закрытия - пользователь видит текст и нажимает "Готово"
+		} else if (trimmedTranscript && trimmedTranscript === lastTranscript) {
+			console.log('[VoicePoweredOrb] Duplicate transcript, ignoring:', trimmedTranscript);
+		} else if (trimmedTranscript && processedTranscriptsRef.current.has(trimmedTranscript)) {
+			console.log('[VoicePoweredOrb] Already processed transcript, ignoring:', trimmedTranscript);
 		}
-	}, [transcript, lastTranscript, onTranscriptReady]); // ✅ FIX: Добавляем onTranscriptReady в dependencies (как в ChatGPTInput)
+	}, [transcript, lastTranscript]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
 
 	// WebGL орб инициализация
 	useEffect(() => {

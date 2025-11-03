@@ -52,6 +52,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 		}
 
 		try {
+			console.log('[useEntries] 🔄 Fetching entries... userId:', userId, 'limit:', limit);
 			setIsLoading(true);
 
 			let query = supabase
@@ -92,28 +93,36 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 				mediaUrl: entry.media_url,
 			}));
 
-			console.log('[useEntries] Loaded entries:', formattedEntries.length);
+			console.log('[useEntries] ✅ Loaded entries:', formattedEntries.length);
+			if (formattedEntries.length > 0) {
+				console.log(
+					'[useEntries] 📝 First entry:',
+					formattedEntries[0].id,
+					formattedEntries[0].text?.substring(0, 50)
+				);
+			}
 			setEntries(formattedEntries);
 			setError(null);
 		} catch (err) {
-			console.error('[useEntries] Error fetching entries:', err);
+			console.error('[useEntries] ❌ Error fetching entries:', err);
 			setError(err as Error);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [userId, limit]);
+	}, [userId, limit]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	// ✅ FIX: Обновляем ref при каждом изменении fetchEntries
 	useEffect(() => {
 		fetchEntriesRef.current = fetchEntries;
+		console.log('[useEntries] 🔗 Updated fetchEntriesRef.current');
 	}, [fetchEntries]);
 
 	// ✅ КРИТИЧНО: Initial fetch ТОЛЬКО при изменении userId или limit
-	// НЕ включаем fetchEntries в dependencies чтобы избежать бесконечного цикла!
 	useEffect(() => {
+		console.log('[useEntries] 🚀 Initial fetch triggered, userId:', userId, 'limit:', limit);
 		fetchEntries();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userId, limit]); // ✅ FIX: ТОЛЬКО userId и limit, НЕ fetchEntries!
+	}, [userId, limit]); // ✅ FIX: Только userId и limit для предотвращения бесконечного цикла
 
 	// ✅ КРИТИЧНО: Real-time subscription для автоматического обновления UI
 	// FIX: Убираем fetchEntries из dependencies, используем fetchEntriesRef.current
@@ -131,34 +140,62 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			limit
 		);
 
+		// Сохраняем актуальный userId и limit для использования в callback
+		const currentUserId = userId;
+		const currentLimit = limit;
+
 		const channel = supabase
-			.channel(`entries:${userId}:${limit || 'all'}`)
+			.channel(`entries:${currentUserId}:${currentLimit || 'all'}`)
 			.on(
 				'postgres_changes',
 				{
 					event: '*', // Слушаем INSERT, UPDATE, DELETE
 					schema: 'public',
 					table: 'entries',
-					filter: `user_id=eq.${userId}`,
+					filter: `user_id=eq.${currentUserId}`,
 				},
 				(payload) => {
-					console.log('[useEntries] 🔔 Real-time update received:', payload.eventType, payload);
+					console.log('[useEntries] 🔔 Real-time update received:', payload.eventType);
+					console.log('[useEntries] 📋 Payload new record:', payload.new);
+					console.log('[useEntries] 📋 Payload old record:', payload.old);
 
 					// ✅ FIX: Используем fetchEntriesRef.current вместо fetchEntries
 					// Это гарантирует что subscription НЕ пересоздается при каждом обновлении
 					// При получении события перезагружаем данные с учетом limit
-					if (fetchEntriesRef.current) {
-						console.log('[useEntries] 🔄 Calling fetchEntriesRef.current()...');
-						fetchEntriesRef.current();
-					} else {
-						console.error('[useEntries] ❌ fetchEntriesRef.current is null!');
-					}
+					const refreshEntries = async () => {
+						// Небольшая задержка чтобы убедиться что ref установлен
+						await new Promise((resolve) => setTimeout(resolve, 100));
+
+						try {
+							if (fetchEntriesRef.current) {
+								console.log(
+									'[useEntries] 🔄 Calling fetchEntriesRef.current() to refresh entries...'
+								);
+								await fetchEntriesRef.current();
+								console.log('[useEntries] ✅ Entries refreshed successfully');
+							} else {
+								console.warn(
+									'[useEntries] ⚠️ fetchEntriesRef.current is null, using fetchEntries directly'
+								);
+								// Fallback: если ref не установлен, используем замыкание fetchEntries
+								await fetchEntries();
+							}
+						} catch (err) {
+							console.error('[useEntries] ❌ Error refreshing entries:', err);
+						}
+					};
+
+					refreshEntries();
 				}
 			)
 			.subscribe((status) => {
 				console.log('[useEntries] 📡 Subscription status:', status);
 				if (status === 'SUBSCRIBED') {
 					console.log('[useEntries] ✅ Successfully subscribed to real-time updates');
+					// После успешной подписки обновляем ref на всякий случай
+					if (fetchEntriesRef.current) {
+						console.log('[useEntries] 🔗 fetchEntriesRef is ready');
+					}
 				} else if (status === 'CHANNEL_ERROR') {
 					console.error('[useEntries] ❌ Channel error!');
 				} else if (status === 'TIMED_OUT') {

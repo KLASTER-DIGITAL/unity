@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { MediaLightbox, PermissionGuide } from '@/features/mobile/media';
 import { VoicePoweredOrb } from '@/shared/components/ui/voice-powered-orb';
@@ -96,9 +96,15 @@ export function ChatInputSection({
 		setShowVoiceOrb(true);
 	};
 
-	// Обработка готового транскрипта из Voice Powered Orb
-	const handleTranscriptReady = (text: string) => {
+	// ✅ FIX: Обработка готового транскрипта из Voice Powered Orb
+	// Обернуто в useCallback для стабильности (как в ChatGPTInput)
+	const handleTranscriptReady = useCallback((text: string) => {
 		console.log('[ChatInputSection] handleTranscriptReady called with:', text);
+
+		if (!text?.trim()) {
+			console.warn('[ChatInputSection] Empty transcript, ignoring');
+			return;
+		}
 
 		// 🚨 ВИЗУАЛЬНЫЙ DEBUG для мобильных
 		toast.success(`💬 Текст добавлен в чат: "${text.substring(0, 20)}..."`, {
@@ -107,7 +113,7 @@ export function ChatInputSection({
 		});
 
 		setInputText((prev) => {
-			const newText = prev ? `${prev} ${text}` : text;
+			const newText = prev?.trim() ? `${prev.trim()} ${text.trim()}` : text.trim();
 			console.log('[ChatInputSection] Updated inputText:', newText);
 
 			// 🚨 ВИЗУАЛЬНЫЙ DEBUG: Показываем новое значение inputText
@@ -119,7 +125,7 @@ export function ChatInputSection({
 			return newText;
 		});
 		console.log('[ChatInputSection] handleTranscriptReady completed');
-	};
+	}, []);
 
 	// Обработка загрузки медиа
 	const handleMediaUpload = () =>
