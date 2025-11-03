@@ -7,11 +7,13 @@ type SpeechRecognitionHook = {
 	startListening: () => void;
 	stopListening: () => void;
 	isSupported: boolean;
+	debugInfo: string; // ✅ DEBUG: информация для отладки
 };
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
 	const [transcript, setTranscript] = useState('');
+	const [debugInfo, setDebugInfo] = useState(''); // ✅ DEBUG
 
 	const isSupported = speech.isSupported();
 
@@ -28,6 +30,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// Set up callbacks
 		speech.onStart(() => {
 			console.log('[useSpeechRecognition] Speech started');
+			setDebugInfo('🎤 Запись началась'); // ✅ DEBUG
 			lastTranscript = ''; // Сбрасываем при старте
 			hasFinalResult = false; // Сбрасываем флаг
 			setIsListening(true);
@@ -42,6 +45,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// ✅ ВСЕГДА сохраняем последний результат
 			lastTranscript = result.transcript;
+
+			// ✅ DEBUG: показываем что получили
+			setDebugInfo(`📝 ${result.isFinal ? 'FINAL' : 'interim'}: "${result.transcript.substring(0, 30)}..."`);
 
 			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
@@ -58,7 +64,12 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
 			if (!hasFinalResult && lastTranscript) {
 				console.log('[useSpeechRecognition] No final result, using last interim result:', lastTranscript);
+				setDebugInfo(`✅ Используем interim: "${lastTranscript.substring(0, 30)}..."`); // ✅ DEBUG
 				setTranscript(lastTranscript);
+			} else if (hasFinalResult) {
+				setDebugInfo('✅ Получен финальный результат'); // ✅ DEBUG
+			} else {
+				setDebugInfo('❌ Нет результата'); // ✅ DEBUG
 			}
 		});
 
@@ -97,5 +108,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		startListening,
 		stopListening,
 		isSupported,
+		debugInfo, // ✅ DEBUG
 	};
 }

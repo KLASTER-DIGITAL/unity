@@ -38,9 +38,10 @@ interface VoicePoweredOrbProps {
 export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePoweredOrbProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [debugInfo, setDebugInfo] = useState<string>(''); // ✅ DEBUG: визуальный индикатор
 	const { t } = useTranslation();
 
-	const { isListening, transcript, startListening, stopListening, isSupported } =
+	const { isListening, transcript, startListening, stopListening, isSupported, debugInfo: speechDebugInfo } =
 		useSpeechRecognition();
 
 	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись ТОЛЬКО ОДИН РАЗ при открытии
@@ -87,7 +88,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Логирование изменений isListening для отладки
 	useEffect(() => {
 		console.log('[VoicePoweredOrb] isListening changed:', isListening);
-	}, [isListening]);
+		// ✅ DEBUG: показываем информацию из hook
+		if (speechDebugInfo) {
+			setDebugInfo(speechDebugInfo);
+		}
+	}, [isListening, speechDebugInfo]);
 
 	// Обработка нового транскрипта (используем useRef для предотвращения дублей)
 	const lastTranscriptRef = useRef('');
@@ -95,11 +100,13 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	useEffect(() => {
 		if (transcript?.trim() && transcript !== lastTranscriptRef.current) {
 			console.log('[VoicePoweredOrb] New transcript:', transcript);
+			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`); // ✅ DEBUG
 			lastTranscriptRef.current = transcript;
 			onTranscriptReady(transcript);
 			// Закрываем модальное окно после получения текста
 			setTimeout(() => {
 				console.log('[VoicePoweredOrb] Closing modal after transcript');
+				setDebugInfo('Закрываем окно...'); // ✅ DEBUG
 				onClose();
 			}, 500);
 		}
@@ -388,6 +395,24 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						<p className="text-center text-sm font-medium text-white drop-shadow-lg">
 							{isListening ? 'Остановить запись' : 'Начать запись'}
 						</p>
+					</motion.div>
+
+					{/* DEBUG INFO - показываем ВСЕГДА для отладки */}
+					<motion.div
+						animate={{ opacity: 1, y: 0 }}
+						className="pointer-events-none fixed top-20 left-1/2 z-100 w-full max-w-md -translate-x-1/2 px-4 text-center"
+						exit={{ opacity: 0, y: -10 }}
+						initial={{ opacity: 0, y: -10 }}
+					>
+						<div className="space-y-2">
+							<div className="rounded-lg bg-blue-500/90 px-4 py-2 text-xs font-mono text-white shadow-lg">
+								{debugInfo || 'Ожидание...'}
+							</div>
+							{/* Показываем статус записи */}
+							<div className={`rounded-lg px-4 py-2 text-xs font-mono text-white shadow-lg ${isListening ? 'bg-green-500/90' : 'bg-gray-500/90'}`}>
+								{isListening ? '🔴 ЗАПИСЬ' : '⏸️ ПАУЗА'}
+							</div>
+						</div>
 					</motion.div>
 
 					{/* Ошибки - показываем только если есть */}
