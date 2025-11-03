@@ -53,14 +53,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
-<<<<<<< Updated upstream
-				console.log(
-					'[useSpeechRecognition] Final result, calling setTranscript with:',
-					result.transcript
-				);
-=======
 				console.log('[useSpeechRecognition] Final result, calling setTranscript with:', result.transcript);
->>>>>>> Stashed changes
 				hasFinalResult = true;
 				setTranscript(result.transcript);
 				console.log('[useSpeechRecognition] setTranscript called (final)');
@@ -80,14 +73,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
 			if (!hasFinalResult && lastTranscript) {
-<<<<<<< Updated upstream
-				console.log(
-					'[useSpeechRecognition] No final result, calling setTranscript with last interim:',
-					lastTranscript
-				);
-=======
 				console.log('[useSpeechRecognition] No final result, calling setTranscript with last interim:', lastTranscript);
->>>>>>> Stashed changes
 				setDebugInfo(`✅ Используем interim: "${lastTranscript.substring(0, 30)}..."`); // ✅ DEBUG
 				setTranscript(lastTranscript);
 				console.log('[useSpeechRecognition] setTranscript called (interim from onEnd)');

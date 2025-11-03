@@ -156,16 +156,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			}, 500);
 		} else if (transcript === '' && lastTranscriptRef.current !== '') {
 			// 🚨 DEBUG: Обнаружен СБРОС transcript
-<<<<<<< Updated upstream
-			console.warn(
-				'[VoicePoweredOrb] TRANSCRIPT RESET DETECTED! Was:',
-				lastTranscriptRef.current,
-				'Now:',
-				transcript
-			);
-=======
 			console.warn('[VoicePoweredOrb] TRANSCRIPT RESET DETECTED! Was:', lastTranscriptRef.current, 'Now:', transcript);
->>>>>>> Stashed changes
 			setDebugInfo('⚠️ Transcript сброшен!');
 			toast.warning('⚠️ Transcript сброшен!', {
 				duration: 2000,
