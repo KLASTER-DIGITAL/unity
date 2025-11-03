@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Web Speech API Test - Mobile Debug</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .status-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        
+        .status-value {
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        
+        .log-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid;
+        }
+        
+        .log-start { border-left-color: #10b981; }
+        .log-result { border-left-color: #3b82f6; }
+        .log-end { border-left-color: #f59e0b; }
+        .log-error { border-left-color: #ef4444; }
+        .log-info { border-left-color: #8b5cf6; }
+        
+        .button {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button-start {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .button-start:active {
+            transform: scale(0.98);
+        }
+        
+        .button-stop {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .button-stop:active {
+            transform: scale(0.98);
+        }
+        
+        .button-clear {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            padding: 12px;
+        }
+        
+        .recording-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .settings-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        select option {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Web Speech API Test</h1>
+        
+        <div class="info-box">
+            <strong>📱 Инструкция:</strong><br>
+            1. Нажмите "Начать запись"<br>
+            2. Говорите что-нибудь<br>
+            3. Смотрите на логи ниже<br>
+            4. Проверьте что текст появился в "Transcript"
+        </div>
+        
+        <!-- Browser Info -->
+        <div class="status-box">
+            <div class="status-title">🌐 Браузер</div>
+            <div class="status-value" id="browserInfo">Загрузка...</div>
+        </div>
+        
+        <!-- Support Status -->
+        <div class="status-box">
+            <div class="status-title">✅ Поддержка Web Speech API</div>
+            <div class="status-value" id="supportStatus">Проверка...</div>
+        </div>
+        
+        <!-- Settings -->
+        <div class="settings-box">
+            <div class="status-title" style="margin-bottom: 15px;">⚙️ Настройки</div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Interim Results</span>
+                <input type="checkbox" id="interimResults" checked>
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Continuous</span>
+                <input type="checkbox" id="continuous">
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Язык</span>
+                <select id="language">
+                    <option value="ru-RU">Русский (ru-RU)</option>
+                    <option value="en-US">English (en-US)</option>
+                    <option value="es-ES">Español (es-ES)</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Recording Status -->
+        <div class="status-box">
+            <div class="status-title">🎙️ Статус записи</div>
+            <div class="status-value" id="recordingStatus">Не активна</div>
+        </div>
+        
+        <!-- Transcript -->
+        <div class="status-box">
+            <div class="status-title">📝 Распознанный текст (Transcript)</div>
+            <div class="status-value" id="transcript">Пусто</div>
+        </div>
+        
+        <!-- Last Result Details -->
+        <div class="status-box">
+            <div class="status-title">🔍 Последний результат</div>
+            <div class="status-value" id="lastResult">Нет данных</div>
+        </div>
+        
+        <!-- Controls -->
+        <button class="button button-start" id="startBtn" onclick="startRecording()">
+            🎤 Начать запись
+        </button>
+        
+        <button class="button button-stop" id="stopBtn" onclick="stopRecording()" style="display: none;">
+            ⏹️ Остановить запись
+        </button>
+        
+        <!-- Event Log -->
+        <div class="status-box">
+            <div class="status-title">📋 Лог событий</div>
+            <div class="log-box" id="eventLog"></div>
+            <button class="button button-clear" onclick="clearLog()">Очистить лог</button>
+        </div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isRecording = false;
+        
+        // Detect browser
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            
+            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Edg')) browser = 'Edge';
+            
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+            const platform = isMobile ? '📱 Mobile' : '💻 Desktop';
+            
+            return `${browser} (${platform})`;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('browserInfo').textContent = detectBrowser();
+            
+            // Check support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (SpeechRecognition) {
+                document.getElementById('supportStatus').textContent = '✅ Поддерживается';
+                document.getElementById('supportStatus').style.color = '#10b981';
+                log('✅ Web Speech API поддерживается', 'info');
+            } else {
+                document.getElementById('supportStatus').textContent = '❌ НЕ поддерживается';
+                document.getElementById('supportStatus').style.color = '#ef4444';
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('startBtn').style.opacity = '0.5';
+                log('❌ Web Speech API НЕ поддерживается в этом браузере', 'error');
+            }
+        });
+        
+        function log(message, type = 'info') {
+            const logBox = document.getElementById('eventLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString('ru-RU', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                fractionalSecondDigits: 3
+            });
+            
+            entry.textContent = `[${timestamp}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+            log('Лог очищен', 'info');
+        }
+        
+        function startRecording() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('Web Speech API не поддерживается');
+                return;
+            }
+            
+            // Create new recognition instance
+            recognition = new SpeechRecognition();
+            
+            // Get settings
+            const interimResults = document.getElementById('interimResults').checked;
+            const continuous = document.getElementById('continuous').checked;
+            const language = document.getElementById('language').value;
+            
+            // Configure
+            recognition.lang = language;
+            recognition.interimResults = interimResults;
+            recognition.continuous = continuous;
+            recognition.maxAlternatives = 1;
+            
+            log(`🎤 Настройки: lang=${language}, interim=${interimResults}, continuous=${continuous}`, 'info');
+            
+            // Event handlers
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('recordingStatus').innerHTML = '<span class="recording-indicator"></span>🔴 ЗАПИСЬ ИДЕТ';
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                log('🎤 onstart: Запись началась', 'start');
+            };
+            
+            recognition.onresult = (event) => {
+                log(`📝 onresult: Получен результат (resultIndex=${event.resultIndex}, results.length=${event.results.length})`, 'result');
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const transcript = result[0].transcript;
+                    const confidence = result[0].confidence;
+                    const isFinal = result.isFinal;
+                    
+                    log(`   └─ [${i}] isFinal=${isFinal}, confidence=${confidence?.toFixed(3) || 'N/A'}, text="${transcript}"`, 'result');
+                    
+                    // Update transcript display
+                    document.getElementById('transcript').textContent = transcript;
+                    
+                    // Update last result details
+                    document.getElementById('lastResult').innerHTML = `
+                        <strong>isFinal:</strong> ${isFinal}<br>
+                        <strong>confidence:</strong> ${confidence?.toFixed(3) || 'N/A'}<br>
+                        <strong>text:</strong> "${transcript}"
+                    `;
+                    
+                    if (isFinal) {
+                        log(`✅ FINAL RESULT: "${transcript}"`, 'result');
+                    } else {
+                        log(`📝 INTERIM RESULT: "${transcript}"`, 'result');
+                    }
+                }
+            };
+            
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById('recordingStatus').textContent = '⏹️ Запись остановлена';
+                document.getElementById('startBtn').style.display = 'block';
+                document.getElementById('stopBtn').style.display = 'none';
+                log('⏹️ onend: Запись завершена', 'end');
+            };
+            
+            recognition.onerror = (event) => {
+                log(`❌ onerror: ${event.error} (${event.message || 'no message'})`, 'error');
+                document.getElementById('recordingStatus').textContent = `❌ Ошибка: ${event.error}`;
+            };
+            
+            recognition.onsoundstart = () => {
+                log('🔊 onsoundstart: Звук обнаружен', 'info');
+            };
+            
+            recognition.onsoundend = () => {
+                log('🔇 onsoundend: Звук прекратился', 'info');
+            };
+            
+            recognition.onspeechstart = () => {
+                log('🗣️ onspeechstart: Речь обнаружена', 'info');
+            };
+            
+            recognition.onspeechend = () => {
+                log('🤐 onspeechend: Речь прекратилась', 'info');
+            };
+            
+            // Start recognition
+            try {
+                recognition.start();
+                log('▶️ recognition.start() вызван', 'info');
+            } catch (error) {
+                log(`❌ Ошибка при вызове start(): ${error.message}`, 'error');
+            }
+        }
+        
+        function stopRecording() {
+            if (recognition) {
+                recognition.stop();
+                log('⏹️ recognition.stop() вызван', 'info');
+            }
+        }
+    </script>
+</body>
+</html>
+
