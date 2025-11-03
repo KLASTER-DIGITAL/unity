@@ -11,7 +11,7 @@
  * - Кэширование данных
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DiaryEntry } from '@/shared/lib/api';
 import { createClient } from '@/utils/supabase/client';
 
@@ -33,6 +33,10 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 	const [entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
+
+	// ✅ FIX: Используем useRef для стабильной ссылки на fetchEntries
+	// Это предотвращает повторное создание Realtime subscription при каждом обновлении
+	const fetchEntriesRef = useRef<(() => Promise<void>) | null>(null);
 
 	// Fetch entries from Supabase
 	const fetchEntries = useCallback(async () => {
@@ -95,12 +99,19 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 		}
 	}, [userId, limit]);
 
+	// ✅ FIX: Обновляем ref при каждом изменении fetchEntries
+	useEffect(() => {
+		fetchEntriesRef.current = fetchEntries;
+	}, [fetchEntries]);
+
 	// Initial fetch
 	useEffect(() => {
 		fetchEntries();
 	}, [fetchEntries]);
 
 	// ✅ КРИТИЧНО: Real-time subscription для автоматического обновления UI
+	// FIX: Убираем fetchEntries из dependencies, используем fetchEntriesRef.current
+	// Это предотвращает повторное создание subscription при каждом обновлении
 	useEffect(() => {
 		if (!userId) return;
 
@@ -121,9 +132,11 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 				(payload) => {
 					console.log('[useEntries] Real-time update received:', payload);
 
-					// ✅ FIX: Автоматически обновляем данные при любом изменении
-					// Это обеспечивает real-time обновление UI без manual refresh
-					fetchEntries();
+					// ✅ FIX: Используем fetchEntriesRef.current вместо fetchEntries
+					// Это гарантирует что subscription НЕ пересоздается при каждом обновлении
+					if (fetchEntriesRef.current) {
+						fetchEntriesRef.current();
+					}
 				}
 			)
 			.subscribe((status) => {
@@ -134,7 +147,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			console.log('[useEntries] Cleaning up real-time subscription');
 			supabase.removeChannel(channel);
 		};
-	}, [userId, fetchEntries]);
+	}, [userId]); // ✅ FIX: Только userId в dependencies, НЕ fetchEntries!
 
 	return {
 		entries,

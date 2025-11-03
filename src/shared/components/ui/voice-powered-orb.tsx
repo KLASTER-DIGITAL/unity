@@ -61,57 +61,64 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		debugInfo: speechDebugInfo,
 	} = useSpeechRecognition();
 
-	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись ТОЛЬКО ОДИН РАЗ при открытии
-	// Используем ref чтобы предотвратить повторный запуск когда isListening меняется
-	const hasAutoStartedRef = useRef(false);
+	// ✅ FIX: Упрощенная логика автостарта (как в ChatGPTInput)
+	// Используем простой флаг для отслеживания первого запуска
+	const [hasAutoStarted, setHasAutoStarted] = useState(false);
+	const [lastTranscript, setLastTranscript] = useState(''); // ✅ FIX: Используем state вместо ref
 
+	// Сброс состояния при открытии/закрытии
 	useEffect(() => {
 		if (isOpen) {
 			console.log('[VoicePoweredOrb] Modal opened, resetting state');
-			// Сбрасываем флаг при открытии
-			hasAutoStartedRef.current = false;
-			// ✅ FIX: Сбрасываем lastTranscriptRef при открытии модального окна
-			// Это предотвращает проблемы с повторным использованием старого transcript
-			lastTranscriptRef.current = '';
+			setHasAutoStarted(false);
+			setLastTranscript('');
+			setError(null);
+		} else {
+			console.log('[VoicePoweredOrb] Modal closed, resetting state');
+			setHasAutoStarted(false);
+			setLastTranscript('');
+			if (isListening) {
+				console.log('[VoicePoweredOrb] Stopping listening on close');
+				stopListening();
+			}
 		}
-	}, [isOpen]);
+	}, [isOpen, isListening, stopListening]);
 
+	// ✅ FIX: Автостарт записи при открытии (упрощенная логика)
 	useEffect(() => {
-		if (isOpen && !hasAutoStartedRef.current) {
+		if (isOpen && !hasAutoStarted) {
 			// Проверяем поддержку браузера
 			if (!isSupported) {
 				const errorMessage =
 					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.';
 				setError(errorMessage);
-				// ✅ TOAST ERROR для критических ошибок
 				toast.error('Голосовой ввод недоступен', {
 					description: 'Ваш браузер не поддерживает Web Speech API',
 					duration: 5000,
 				});
 				console.warn('[VoicePoweredOrb] Speech recognition not supported');
-				hasAutoStartedRef.current = true; // Помечаем что попытались
+				setHasAutoStarted(true);
 				return;
 			}
 
-			// Автоматически начинаем запись при открытии ТОЛЬКО ОДИН РАЗ
-			console.log('[VoicePoweredOrb] Auto-starting recording on open (ONCE)');
-			hasAutoStartedRef.current = true; // Помечаем что запустили
+			// Автоматически начинаем запись при открытии
+			console.log('[VoicePoweredOrb] Auto-starting recording on open');
+			setHasAutoStarted(true);
 			setTimeout(() => {
 				try {
 					startListening();
 				} catch (err) {
 					const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
 					setError(`Ошибка запуска записи: ${errorMessage}`);
-					// ✅ TOAST ERROR для критических ошибок
 					toast.error('Не удалось начать запись', {
 						description: errorMessage,
 						duration: 5000,
 					});
 					console.error('[VoicePoweredOrb] Failed to start listening:', err);
 				}
-			}, 300); // Небольшая задержка для плавности анимации
+			}, 300);
 		}
-	}, [isOpen, isSupported, startListening]);
+	}, [isOpen, hasAutoStarted, isSupported, startListening]);
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
@@ -131,49 +138,24 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		}
 	}, [isListening, speechDebugInfo]);
 
-	// Обработка нового транскрипта (используем useRef для предотвращения дублей)
-	const lastTranscriptRef = useRef('');
-
-	// ✅ FIX: Используем useRef для onTranscriptReady и onClose чтобы всегда иметь актуальные версии
-	const onTranscriptReadyRef = useRef(onTranscriptReady);
-	const onCloseRef = useRef(onClose);
-
-	// Обновляем refs при каждом рендере
+	// ✅ FIX: Упрощенная обработка transcript (ТОЧНО КАК В ChatGPTInput)
+	// Используем state вместо ref, добавляем onTranscriptReady в dependencies
 	useEffect(() => {
-		onTranscriptReadyRef.current = onTranscriptReady;
-		onCloseRef.current = onClose;
-	}, [onTranscriptReady, onClose]);
-
-	// ✅ FIX: Упрощенная обработка transcript (как в ChatGPTInput)
-	// НЕТ автоматического закрытия - пользователь сам нажимает "Готово"
-	useEffect(() => {
-		if (transcript?.trim() && transcript !== lastTranscriptRef.current) {
-			console.log('[VoicePoweredOrb] New transcript:', transcript);
+		if (transcript?.trim() && transcript !== lastTranscript) {
+			console.log('[VoicePoweredOrb] New transcript received:', transcript);
 			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`);
 
-			lastTranscriptRef.current = transcript;
-
-			// ✅ FIX: Вызываем onTranscriptReady НЕМЕДЛЕННО
+			// ✅ FIX: Вызываем onTranscriptReady НАПРЯМУЮ (как в ChatGPTInput)
 			console.log('[VoicePoweredOrb] Calling onTranscriptReady with:', transcript);
-			onTranscriptReadyRef.current(transcript);
+			onTranscriptReady(transcript);
 			console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+
+			// Обновляем lastTranscript ПОСЛЕ вызова onTranscriptReady
+			setLastTranscript(transcript);
 
 			// ✅ НЕТ автоматического закрытия - пользователь видит текст и нажимает "Готово"
 		}
-	}, [transcript]); // ✅ Теперь можно безопасно использовать только transcript в зависимостях
-
-	// Сброс состояния при закрытии
-	useEffect(() => {
-		if (!isOpen) {
-			console.log('[VoicePoweredOrb] Modal closed, resetting state');
-			lastTranscriptRef.current = '';
-			setError(null);
-			if (isListening) {
-				console.log('[VoicePoweredOrb] Stopping listening on close');
-				stopListening();
-			}
-		}
-	}, [isOpen, isListening, stopListening]);
+	}, [transcript, lastTranscript, onTranscriptReady]); // ✅ FIX: Добавляем onTranscriptReady в dependencies (как в ChatGPTInput)
 
 	// WebGL орб инициализация
 	// biome-ignore lint/correctness/useExhaustiveDependencies: t is stable from useTranslation
