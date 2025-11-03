@@ -34,7 +34,7 @@ export function AchievementHomeScreen({
 }: AchievementHomeScreenProps) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentStreak, setCurrentStreak] = useState(0);
-	const [feedRefreshKey, setFeedRefreshKey] = useState(0);
+	// ✅ REMOVED: feedRefreshKey больше не нужен - используем Supabase Realtime
 	const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
 
 	// Загрузка статистики при монтировании
@@ -62,7 +62,7 @@ export function AchievementHomeScreen({
 
 	// Обработчик создания новой записи
 	const handleNewEntry = (_entry: DiaryEntry) => {
-		console.log('New entry created:', _entry);
+		console.log('[AchievementHomeScreen] New entry created:', _entry);
 
 		// Перезагружаем статистику
 		const userId = userData?.user?.id || userData?.id || 'anonymous';
@@ -74,8 +74,8 @@ export function AchievementHomeScreen({
 				console.error('Error updating stats:', err);
 			});
 
-		// Trigger feed refresh
-		setFeedRefreshKey((prev) => prev + 1);
+		// ✅ FIX: Больше НЕ нужен manual refresh - Supabase Realtime автоматически обновит UI
+		// setFeedRefreshKey((prev) => prev + 1); // DEPRECATED
 	};
 
 	// Получаем имя пользователя из userData.profile.name или userData.name или используем дефолтное
@@ -164,7 +164,7 @@ export function AchievementHomeScreen({
 						console.log('Navigate to History');
 						onNavigateToHistory?.();
 					}}
-					refreshTrigger={feedRefreshKey} // ✅ FIX: Используем refreshTrigger вместо key для автообновления
+					// ✅ REMOVED: refreshTrigger больше не нужен - Supabase Realtime автоматически обновляет
 					userData={userData}
 				/>
 			)}

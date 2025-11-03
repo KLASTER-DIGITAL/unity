@@ -1,9 +1,9 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { AIAnalysisBlock } from '@/shared/components/ui/AIAnalysisBlock';
 import { Badge } from '@/shared/components/ui/badge';
-import { type DiaryEntry, getEntries } from '@/shared/lib/api';
+import { useEntries } from '@/shared/hooks/useEntries';
+import type { DiaryEntry } from '@/shared/lib/api';
 import type { Language } from '@/shared/lib/i18n';
 
 type RecentEntriesFeedProps = {
@@ -11,7 +11,7 @@ type RecentEntriesFeedProps = {
 	language?: Language;
 	onEntryClick?: (entry: DiaryEntry) => void;
 	onViewAllClick?: () => void;
-	refreshTrigger?: number; // ✅ NEW: Trigger для автообновления ленты
+	refreshTrigger?: number; // ✅ DEPRECATED: Больше не нужен, используем Supabase Realtime
 };
 
 export function RecentEntriesFeed({
@@ -19,36 +19,23 @@ export function RecentEntriesFeed({
 	language: _language = 'ru',
 	onEntryClick,
 	onViewAllClick,
-	refreshTrigger,
+	refreshTrigger: _refreshTrigger, // ✅ Оставляем для обратной совместимости, но не используем
 }: RecentEntriesFeedProps) {
-	const [entries, setEntries] = useState<DiaryEntry[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
 	const [emblaRef] = useEmblaCarousel({
 		align: 'start',
 		containScroll: 'trimSnaps',
 		dragFree: true,
 	});
 
-	// Memoized loader to avoid recreation
-	const loadRecentEntries = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || 'anonymous'; // ✅ FIXED: Try user.id first
-			const allEntries = await getEntries(userId, 3); // Загружаем только последние 3
-			console.log('[RecentEntriesFeed] Loaded entries:', allEntries);
-			console.log('[RecentEntriesFeed] First entry text:', allEntries[0]?.text);
-			setEntries(allEntries);
-		} catch (error) {
-			console.error('Error loading recent entries:', error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [userData?.user?.id, userData?.id]);
+	// ✅ FIX: Используем useEntries hook с Supabase Realtime
+	// Автоматическое обновление UI при INSERT/UPDATE/DELETE в таблице entries
+	const userId = userData?.user?.id || userData?.id;
+	const { entries, isLoading } = useEntries(userId, 3); // Загружаем только последние 3
 
-	// ✅ FIX: Автообновление при изменении refreshTrigger
-	useEffect(() => {
-		loadRecentEntries();
-	}, [loadRecentEntries, refreshTrigger]);
+	console.log('[RecentEntriesFeed] Loaded entries:', entries.length);
+	if (entries.length > 0) {
+		console.log('[RecentEntriesFeed] First entry text:', entries[0]?.text);
+	}
 
 	const formatTimeAgo = (dateString: string): string => {
 		const date = new Date(dateString);

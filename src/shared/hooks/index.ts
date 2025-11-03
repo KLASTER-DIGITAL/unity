@@ -1,5 +1,6 @@
 // Hooks exports
 
+export { useEntries } from './useEntries';
 export { useImageCompressionWorker } from './useImageCompressionWorker';
 export { useKeyboardVisible } from './useKeyboardVisible';
 export { useMediaUploader } from './useMediaUploader';
