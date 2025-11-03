@@ -20,14 +20,16 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			return;
 		}
 
-		// ✅ FIX: Сохраняем последний результат (даже если isFinal=false)
+		// ✅ FIX: Используем флаг для отслеживания финального результата
 		// На мобильных браузерах Web Speech API может НЕ отправлять isFinal=true
 		let lastTranscript = '';
+		let hasFinalResult = false;
 
 		// Set up callbacks
 		speech.onStart(() => {
 			console.log('[useSpeechRecognition] Speech started');
 			lastTranscript = ''; // Сбрасываем при старте
+			hasFinalResult = false; // Сбрасываем флаг
 			setIsListening(true);
 		});
 
@@ -44,17 +46,18 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
 				console.log('[useSpeechRecognition] Final result, setting transcript');
+				hasFinalResult = true;
 				setTranscript(result.transcript);
 			}
 		});
 
 		speech.onEnd(() => {
-			console.log('[useSpeechRecognition] Speech ended');
+			console.log('[useSpeechRecognition] Speech ended, hasFinalResult:', hasFinalResult, 'lastTranscript:', lastTranscript);
 			setIsListening(false);
 
-			// ✅ FIX: Если есть последний результат но НЕ было финального - используем его
-			if (lastTranscript && !transcript) {
-				console.log('[useSpeechRecognition] Using last interim result:', lastTranscript);
+			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
+			if (!hasFinalResult && lastTranscript) {
+				console.log('[useSpeechRecognition] No final result, using last interim result:', lastTranscript);
 				setTranscript(lastTranscript);
 			}
 		});
@@ -69,7 +72,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				speech.abort();
 			}
 		};
-	}, [isSupported, transcript]); // ✅ Добавляем transcript в зависимости
+	}, [isSupported]); // ✅ Убираем transcript из зависимостей (не нужен)
 
 	const startListening = () => {
 		if (!isSupported) {
@@ -80,7 +83,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		speech.startListening({
 			language: 'ru-RU',
 			continuous: false,
-			interimResults: false,
+			interimResults: true, // ✅ ВКЛЮЧАЕМ interim results для мобильных браузеров!
 		});
 	};
 
