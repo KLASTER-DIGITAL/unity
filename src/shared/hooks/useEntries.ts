@@ -124,10 +124,15 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			return;
 		}
 
-		console.log('[useEntries] Setting up real-time subscription for user:', userId);
+		console.log(
+			'[useEntries] Setting up real-time subscription for user:',
+			userId,
+			'limit:',
+			limit
+		);
 
 		const channel = supabase
-			.channel(`entries:${userId}`)
+			.channel(`entries:${userId}:${limit || 'all'}`)
 			.on(
 				'postgres_changes',
 				{
@@ -141,6 +146,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 
 					// ✅ FIX: Используем fetchEntriesRef.current вместо fetchEntries
 					// Это гарантирует что subscription НЕ пересоздается при каждом обновлении
+					// При получении события перезагружаем данные с учетом limit
 					if (fetchEntriesRef.current) {
 						console.log('[useEntries] 🔄 Calling fetchEntriesRef.current()...');
 						fetchEntriesRef.current();
@@ -164,7 +170,8 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			console.log('[useEntries] Cleaning up real-time subscription');
 			supabase.removeChannel(channel);
 		};
-	}, [userId]); // ✅ FIX: Только userId в dependencies, НЕ fetchEntries!
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [userId, limit]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	return {
 		entries,

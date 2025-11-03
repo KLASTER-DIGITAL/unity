@@ -11,11 +11,12 @@
  */
 
 import { X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
 import type { Language } from '@/shared/lib/i18n';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import { createClient } from '@/utils/supabase/client';
 import type { AchievementCard } from './achievement';
 // Import modular components
 import { getDefaultMotivations, SwipeCard } from './achievement';
@@ -33,12 +34,12 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 	const [isLoading, setIsLoading] = useState(true);
 	const [showAllRead, setShowAllRead] = useState(false);
 
-	// Load motivation cards on mount
-	useEffect(() => {
-		loadMotivationCards();
-	}, []);
+	// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для realtime подписки
+	const supabase = createClient();
+	const loadMotivationCardsRef = useRef<(() => Promise<void>) | null>(null);
 
-	const loadMotivationCards = async () => {
+	// Load motivation cards function - используем useCallback для стабильной ссылки
+	const loadMotivationCards = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const userId = userData?.user?.id || userData?.id || 'anonymous';
@@ -61,7 +62,67 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userData?.user?.id, userData?.id, userData?.language]);
+
+	// ✅ FIX: Сохраняем ссылку на функцию загрузки для realtime подписки
+	useEffect(() => {
+		loadMotivationCardsRef.current = loadMotivationCards;
+	}, [loadMotivationCards]);
+
+	// Load motivation cards on mount
+	useEffect(() => {
+		loadMotivationCards();
+	}, [loadMotivationCards]);
+
+	// ✅ НОВОЕ: Real-time subscription для автообновления карточек при создании новых записей
+	useEffect(() => {
+		const userId = userData?.user?.id || userData?.id;
+		if (!userId || userId === 'anonymous') {
+			console.log('[MotivationCardsSection] No userId, skipping real-time subscription');
+			return;
+		}
+
+		console.log('[MotivationCardsSection] Setting up real-time subscription for entries:', userId);
+
+		const channel = supabase
+			.channel(`motivation-cards:${userId}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT', // Слушаем только INSERT (новые записи)
+					schema: 'public',
+					table: 'entries',
+					filter: `user_id=eq.${userId}`,
+				},
+				(payload) => {
+					console.log('[MotivationCardsSection] 🔔 New entry created, reloading cards:', payload);
+
+					// Перезагружаем карточки при создании новой записи
+					if (loadMotivationCardsRef.current) {
+						console.log('[MotivationCardsSection] 🔄 Reloading motivation cards...');
+						loadMotivationCardsRef.current();
+					} else {
+						console.error('[MotivationCardsSection] ❌ loadMotivationCardsRef.current is null!');
+					}
+				}
+			)
+			.subscribe((status) => {
+				console.log('[MotivationCardsSection] 📡 Subscription status:', status);
+				if (status === 'SUBSCRIBED') {
+					console.log('[MotivationCardsSection] ✅ Successfully subscribed to real-time updates');
+				} else if (status === 'CHANNEL_ERROR') {
+					console.error('[MotivationCardsSection] ❌ Channel error!');
+				} else if (status === 'TIMED_OUT') {
+					console.error('[MotivationCardsSection] ❌ Subscription timed out!');
+				}
+			});
+
+		return () => {
+			console.log('[MotivationCardsSection] Cleaning up real-time subscription');
+			supabase.removeChannel(channel);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [userData?.user?.id, userData?.id]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	const handleSwipe = async (direction: 'left' | 'right') => {
 		const currentCard = cards[currentIndex];

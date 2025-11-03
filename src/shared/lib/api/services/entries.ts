@@ -115,7 +115,8 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
 		media: data.media,
 	};
 
-	console.log('[ENTRIES] Entry created successfully:', createdEntry);
+	console.log('[ENTRIES] ✅ Entry created successfully:', createdEntry.id);
+	console.log('[ENTRIES] 🔔 Realtime event will be triggered automatically by Supabase');
 	return createdEntry;
 }
 
