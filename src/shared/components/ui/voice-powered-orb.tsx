@@ -49,6 +49,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [debugInfo, setDebugInfo] = useState<string>(''); // ✅ DEBUG: визуальный индикатор
+	const [isIOS, setIsIOS] = useState(false); // ✅ iOS Safari детект
+	const [needsTapToStart, setNeedsTapToStart] = useState(false); // ✅ Требуется тап для старта на iOS
 
 	const {
 		isListening,
@@ -111,6 +113,15 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				return;
 			}
 
+			// ✅ iOS Safari требует явного пользовательского жеста в том же callstack
+			// Показываем кнопку "Начать запись" вместо автостарта
+			if (isIOS) {
+				console.log('[VoicePoweredOrb] iOS Safari detected, requiring tap to start');
+				setHasAutoStarted(true);
+				setNeedsTapToStart(true);
+				return;
+			}
+
 			// ✅ FIX: Автоматически начинаем запись при открытии БЕЗ setTimeout
 			// На мобильных браузерах Web Speech API требует вызов в контексте пользовательского взаимодействия
 			// setTimeout разрывает эту цепочку, поэтому вызываем напрямую
@@ -136,10 +147,26 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			console.log('[VoicePoweredOrb] Already listening, setting hasAutoStarted flag');
 			setHasAutoStarted(true);
 		}
-	}, [isOpen, hasAutoStarted, isSupported, isListening, startListening]);
+	}, [isOpen, hasAutoStarted, isSupported, isListening, startListening, isIOS]);
+
+	// ✅ Детект iOS Safari при открытии модального окна
+	useEffect(() => {
+		if (!isOpen) return;
+		try {
+			const ua = navigator.userAgent;
+			const isiOSDevice = /iPhone|iPad|iPod/i.test(ua);
+			const isSafari = /Safari/i.test(ua) && !/Chrome|CriOS|Edg/i.test(ua);
+			const result = isiOSDevice && isSafari;
+			setIsIOS(result);
+			setNeedsTapToStart(result);
+			console.log('[VoicePoweredOrb] UA detection', { isiOSDevice, isSafari, result });
+		} catch {}
+	}, [isOpen]);
 
 	// Получить реальный уровень звука через Web Audio API
-	const audioLevel = useAudioLevel(isListening);
+	// ⚠️ На iOS Safari микрофон нельзя использовать одновременно с SpeechRecognition
+	// поэтому отключаем визуализацию уровня звука на iOS
+	const audioLevel = useAudioLevel(isListening && !isIOS, !isIOS);
 	const audioLevelRef = useRef(audioLevel);
 
 	// Обновлять ref при изменении audioLevel
@@ -160,6 +187,12 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Используем state вместо ref, используем ref для onTranscriptReady чтобы избежать повторных вызовов
 	useEffect(() => {
 		const trimmedTranscript = transcript?.trim();
+
+		if (
+			trimmedTranscript &&
+			trimmedTranscript !== lastTranscript &&
+			!processedTranscriptsRef.current.has(trimmedTranscript)
+		) {
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
 				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
@@ -171,6 +204,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 			// Обновляем lastTranscript ПОСЛЕ вызова onTranscriptReady
 			setLastTranscript(trimmedTranscript);
+			processedTranscriptsRef.current.add(trimmedTranscript);
 
 			// ✅ НЕТ автоматического закрытия - пользователь видит текст и нажимает "Готово"
 		} else if (trimmedTranscript && trimmedTranscript === lastTranscript) {
@@ -428,6 +462,34 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 							)}
 						</div>
 					</motion.div>
+
+					{/* ✅ КНОПКА "НАЧАТЬ ЗАПИСЬ" для iOS Safari (требуется пользовательский жест) */}
+					{!isListening && needsTapToStart && (
+						<motion.div
+							animate={{ opacity: 1, scale: 1 }}
+							className="pointer-events-auto fixed bottom-44 left-1/2 z-100 -translate-x-1/2"
+							exit={{ opacity: 0, scale: 0.95 }}
+							initial={{ opacity: 0, scale: 0.95 }}
+							transition={{ duration: 0.2 }}
+						>
+							<Button
+								onClick={() => {
+									console.log('[VoicePoweredOrb] User tapped start, starting listening');
+									setNeedsTapToStart(false);
+									try {
+										startListening();
+									} catch (err) {
+										console.error('[VoicePoweredOrb] Failed to start on tap', err);
+									}
+								}}
+								size="lg"
+								variant="default"
+								className="bg-primary hover:bg-primary/90 text-white shadow-2xl"
+							>
+								🎤 Начать запись
+							</Button>
+						</motion.div>
+					)}
 
 					{/* ✅ КНОПКА "ГОТОВО" - появляется когда есть transcript */}
 					{transcript && (

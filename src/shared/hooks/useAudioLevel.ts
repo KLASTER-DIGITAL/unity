@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
  * Hook для получения реального уровня звука через Web Audio API
  * Используется для синхронизации WebGL орба с голосом пользователя
  */
-export function useAudioLevel(isListening: boolean) {
+export function useAudioLevel(isListening: boolean, enabled: boolean = true) {
 	const [audioLevel, setAudioLevel] = useState(0);
 	const audioContextRef = useRef<AudioContext | null>(null);
 	const analyserRef = useRef<AnalyserNode | null>(null);
@@ -13,7 +13,7 @@ export function useAudioLevel(isListening: boolean) {
 	const streamRef = useRef<MediaStream | null>(null);
 
 	useEffect(() => {
-		if (!isListening) {
+		if (!isListening || !enabled) {
 			// Остановить анализ и очистить ресурсы
 			if (animationFrameRef.current) {
 				cancelAnimationFrame(animationFrameRef.current);
@@ -122,7 +122,7 @@ export function useAudioLevel(isListening: boolean) {
 				audioContextRef.current.close();
 			}
 		};
-	}, [isListening]);
+	}, [isListening, enabled]);
 
 	return audioLevel;
 }
