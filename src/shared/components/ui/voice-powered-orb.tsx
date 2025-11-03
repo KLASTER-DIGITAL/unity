@@ -378,55 +378,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* WebGL Canvas (орб) - z-modal (ПОВЕРХ backdrop) */}
 					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
 
-					{/* Кнопка управления В ЦЕНТРЕ орба - z-popover (САМЫЙ ВЕРХНИЙ, ПОВЕРХ орба) */}
-					<motion.div
-						animate={{ opacity: 1, scale: 1 }}
-						className="fixed left-1/2 top-1/2 z-popover flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4"
-						exit={{ opacity: 0, scale: 0.8 }}
-						initial={{ opacity: 0, scale: 0.8 }}
-					>
-						<button
-							className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 shadow-2xl backdrop-blur-md transition-all duration-300 hover:bg-white/30 active:scale-95"
-							onClick={() => {
-								if (isListening) {
-									stopListening();
-								} else {
-									setError(null);
-									startListening();
-								}
-							}}
-							type="button"
-							aria-label={isListening ? 'Остановить запись' : 'Начать запись'}
-						>
-							{/* Иконка микрофона */}
-							<svg
-								className="h-10 w-10 text-white drop-shadow-lg"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth={2}
-								viewBox="0 0 24 24"
-								aria-hidden="true"
-							>
-								<title>{isListening ? 'Остановить' : 'Начать'}</title>
-								{isListening ? (
-									// Иконка стоп (квадрат)
-									<rect height="12" rx="2" width="12" x="6" y="6" />
-								) : (
-									// Иконка микрофона
-									<>
-										<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-										<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-										<line x1="12" x2="12" y1="19" y2="23" />
-										<line x1="8" x2="16" y1="23" y2="23" />
-									</>
-								)}
-							</svg>
-						</button>
-						{/* Текст под кнопкой */}
-						<p className="text-center text-sm font-medium text-white drop-shadow-lg">
-							{isListening ? 'Остановить запись' : 'Начать запись'}
-						</p>
-					</motion.div>
+					{/* ✅ УБРАЛИ кнопку старт/стоп - она мешала вставке текста!
+					    Теперь ТОЛЬКО автоматический старт при открытии + кнопка "Готово" когда есть текст */}
 
 					{/* DEBUG INFO - показываем ВСЕГДА для отладки */}
 					<motion.div

@@ -104,10 +104,12 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 		fetchEntriesRef.current = fetchEntries;
 	}, [fetchEntries]);
 
-	// Initial fetch
+	// ✅ КРИТИЧНО: Initial fetch ТОЛЬКО при изменении userId или limit
+	// НЕ включаем fetchEntries в dependencies чтобы избежать бесконечного цикла!
 	useEffect(() => {
 		fetchEntries();
-	}, [fetchEntries]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [userId, limit]); // ✅ FIX: ТОЛЬКО userId и limit, НЕ fetchEntries!
 
 	// ✅ КРИТИЧНО: Real-time subscription для автоматического обновления UI
 	// FIX: Убираем fetchEntries из dependencies, используем fetchEntriesRef.current
