@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/universal';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
-import { useTranslation } from '@/shared/lib/i18n/useTranslation';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 interface VoicePoweredOrbProps {
@@ -50,7 +49,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [debugInfo, setDebugInfo] = useState<string>(''); // ✅ DEBUG: визуальный индикатор
-	const { t } = useTranslation();
 
 	const {
 		isListening,
@@ -101,22 +99,23 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				return;
 			}
 
-			// Автоматически начинаем запись при открытии
-			console.log('[VoicePoweredOrb] Auto-starting recording on open');
+			// ✅ FIX: Автоматически начинаем запись при открытии БЕЗ setTimeout
+			// На мобильных браузерах Web Speech API требует вызов в контексте пользовательского взаимодействия
+			// setTimeout разрывает эту цепочку, поэтому вызываем напрямую
+			console.log('[VoicePoweredOrb] Auto-starting recording on open (immediate for mobile)');
 			setHasAutoStarted(true);
-			setTimeout(() => {
-				try {
-					startListening();
-				} catch (err) {
-					const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
-					setError(`Ошибка запуска записи: ${errorMessage}`);
-					toast.error('Не удалось начать запись', {
-						description: errorMessage,
-						duration: 5000,
-					});
-					console.error('[VoicePoweredOrb] Failed to start listening:', err);
-				}
-			}, 300);
+			// Вызываем напрямую без задержки для сохранения user gesture context
+			try {
+				startListening();
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+				setError(`Ошибка запуска записи: ${errorMessage}`);
+				toast.error('Не удалось начать запись', {
+					description: errorMessage,
+					duration: 5000,
+				});
+				console.error('[VoicePoweredOrb] Failed to start listening:', err);
+			}
 		}
 	}, [isOpen, hasAutoStarted, isSupported, startListening]);
 
@@ -158,7 +157,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	}, [transcript, lastTranscript, onTranscriptReady]); // ✅ FIX: Добавляем onTranscriptReady в dependencies (как в ChatGPTInput)
 
 	// WebGL орб инициализация
-	// biome-ignore lint/correctness/useExhaustiveDependencies: t is stable from useTranslation
 	useEffect(() => {
 		if (!isOpen || !canvasRef.current) return;
 
@@ -167,7 +165,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		if (!gl) {
 			console.error('[VoicePoweredOrb] WebGL2 not supported');
-			setError(t('voice_orb_error_webgl', 'WebGL не поддерживается в вашем браузере'));
+			setError('WebGL не поддерживается в вашем браузере');
 			return;
 		}
 
@@ -279,7 +277,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
 
 		if (!vertexShader || !fragmentShader) {
-			setError(t('voice_orb_error_shader', 'Ошибка компиляции шейдеров'));
+			setError('Ошибка компиляции шейдеров');
 			return;
 		}
 
@@ -293,7 +291,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 			console.error('Program link error:', gl.getProgramInfoLog(program));
-			setError(t('voice_orb_error_shader_link', 'Ошибка линковки шейдеров'));
+			setError('Ошибка линковки шейдеров');
 			return;
 		}
 
