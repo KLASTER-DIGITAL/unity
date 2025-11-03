@@ -193,13 +193,15 @@ class WebSpeechAdapter implements SpeechAdapter {
 			return false;
 		}
 
-		// CRITICAL: iOS Safari in PWA mode does NOT support Web Speech API
-		// Source: https://webreflection.medium.com/taming-the-web-speech-api-ef64f5a245e1
+		// ✅ ИЗМЕНЕНИЕ: НЕ блокируем iOS PWA, позволяем попробовать
+		// Если не работает - пользователь увидит ошибку и сможет использовать текстовый ввод
+		// Это соответствует поведению OnboardingScreen4 где голосовой ввод работает
+
+		// iOS Safari in PWA mode: Web Speech API может не работать, но позволяем попробовать
 		if (this.browserInfo.isIOS && this.browserInfo.isPWA) {
 			console.warn(
-				'[WebSpeechAdapter] iOS Safari PWA does not support Web Speech API. Use MediaRecorder fallback.'
+				'[WebSpeechAdapter] iOS Safari PWA: Web Speech API may not work. Allowing user to try.'
 			);
-			return false;
 		}
 
 		// iOS Safari in browser mode has limited support
@@ -207,11 +209,9 @@ class WebSpeechAdapter implements SpeechAdapter {
 			console.warn(
 				'[WebSpeechAdapter] iOS Safari has limited Web Speech API support. May not work reliably.'
 			);
-			// Still return true to try, but warn user
-			return true;
 		}
 
-		return true;
+		return true; // ✅ Всегда возвращаем true если API существует
 	}
 
 	async requestPermissions(): Promise<boolean> {
@@ -400,36 +400,6 @@ class WebSpeechAdapter implements SpeechAdapter {
 			}
 		};
 	}
-
-	/**
-	 * Get browser information
-	 */
-	getBrowserInfo(): BrowserInfo {
-		return this.browserInfo;
-	}
-
-	/**
-	 * Get user-friendly error message for unsupported browsers
-	 */
-	getUnsupportedMessage(): string | null {
-		if (this.isSupported()) {
-			return null;
-		}
-
-		if (this.browserInfo.isIOS && this.browserInfo.isPWA) {
-			return 'Голосовой ввод недоступен в PWA на iOS. Пожалуйста, используйте Safari браузер или введите текст вручную.';
-		}
-
-		if (this.browserInfo.isIOS) {
-			return 'Голосовой ввод имеет ограниченную поддержку на iOS. Если не работает, введите текст вручную.';
-		}
-
-		if (this.browserInfo.isMobile) {
-			return 'Голосовой ввод недоступен в вашем браузере. Попробуйте Chrome или введите текст вручную.';
-		}
-
-		return 'Голосовой ввод не поддерживается в вашем браузере. Пожалуйста, используйте Chrome, Edge или Firefox.';
-	}
 }
 
 // ============================================================================
@@ -438,7 +408,4 @@ class WebSpeechAdapter implements SpeechAdapter {
 
 // ✅ PWA + React Native Architecture: ONLY export web implementation in PWA build
 // React Native implementation is in /app/shared/lib/platform/speech.native.ts
-export const speech: SpeechAdapter & {
-	getBrowserInfo?: () => BrowserInfo;
-	getUnsupportedMessage?: () => string | null;
-} = new WebSpeechAdapter();
+export const speech: SpeechAdapter = new WebSpeechAdapter();
