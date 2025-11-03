@@ -43,25 +43,37 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const { isListening, transcript, startListening, stopListening, isSupported } =
 		useSpeechRecognition();
 
-	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись сразу при открытии (как OnboardingScreen4)
+	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись ТОЛЬКО ОДИН РАЗ при открытии
+	// Используем ref чтобы предотвратить повторный запуск когда isListening меняется
+	const hasAutoStartedRef = useRef(false);
+
 	useEffect(() => {
-		if (isOpen && !isListening) {
+		if (isOpen) {
+			// Сбрасываем флаг при открытии
+			hasAutoStartedRef.current = false;
+		}
+	}, [isOpen]);
+
+	useEffect(() => {
+		if (isOpen && !hasAutoStartedRef.current) {
 			// Проверяем поддержку браузера
 			if (!isSupported) {
 				setError(
 					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.'
 				);
 				console.warn('[VoicePoweredOrb] Speech recognition not supported');
+				hasAutoStartedRef.current = true; // Помечаем что попытались
 				return;
 			}
 
-			// Автоматически начинаем запись при открытии
-			console.log('[VoicePoweredOrb] Auto-starting recording on open');
+			// Автоматически начинаем запись при открытии ТОЛЬКО ОДИН РАЗ
+			console.log('[VoicePoweredOrb] Auto-starting recording on open (ONCE)');
+			hasAutoStartedRef.current = true; // Помечаем что запустили
 			setTimeout(() => {
 				startListening();
 			}, 300); // Небольшая задержка для плавности анимации
 		}
-	}, [isOpen, isListening, isSupported, startListening]);
+	}, [isOpen, isSupported, startListening]);
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
@@ -71,6 +83,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	useEffect(() => {
 		audioLevelRef.current = audioLevel;
 	}, [audioLevel]);
+
+	// Логирование изменений isListening для отладки
+	useEffect(() => {
+		console.log('[VoicePoweredOrb] isListening changed:', isListening);
+	}, [isListening]);
 
 	// Обработка нового транскрипта (используем useRef для предотвращения дублей)
 	const lastTranscriptRef = useRef('');
@@ -82,6 +99,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			onTranscriptReady(transcript);
 			// Закрываем модальное окно после получения текста
 			setTimeout(() => {
+				console.log('[VoicePoweredOrb] Closing modal after transcript');
 				onClose();
 			}, 500);
 		}
@@ -91,9 +109,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Сброс состояния при закрытии
 	useEffect(() => {
 		if (!isOpen) {
+			console.log('[VoicePoweredOrb] Modal closed, resetting state');
 			lastTranscriptRef.current = '';
 			setError(null);
 			if (isListening) {
+				console.log('[VoicePoweredOrb] Stopping listening on close');
 				stopListening();
 			}
 		}
