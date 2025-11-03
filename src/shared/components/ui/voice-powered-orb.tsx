@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
 import { useTranslation } from '@/shared/lib/i18n/useTranslation';
@@ -41,8 +42,14 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [debugInfo, setDebugInfo] = useState<string>(''); // ✅ DEBUG: визуальный индикатор
 	const { t } = useTranslation();
 
-	const { isListening, transcript, startListening, stopListening, isSupported, debugInfo: speechDebugInfo } =
-		useSpeechRecognition();
+	const {
+		isListening,
+		transcript,
+		startListening,
+		stopListening,
+		isSupported,
+		debugInfo: speechDebugInfo,
+	} = useSpeechRecognition();
 
 	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись ТОЛЬКО ОДИН РАЗ при открытии
 	// Используем ref чтобы предотвратить повторный запуск когда isListening меняется
@@ -50,8 +57,12 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 	useEffect(() => {
 		if (isOpen) {
+			console.log('[VoicePoweredOrb] Modal opened, resetting state');
 			// Сбрасываем флаг при открытии
 			hasAutoStartedRef.current = false;
+			// ✅ FIX: Сбрасываем lastTranscriptRef при открытии модального окна
+			// Это предотвращает проблемы с повторным использованием старого transcript
+			lastTranscriptRef.current = '';
 		}
 	}, [isOpen]);
 
@@ -97,21 +108,71 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Обработка нового транскрипта (используем useRef для предотвращения дублей)
 	const lastTranscriptRef = useRef('');
 
+	// ✅ FIX: Используем useRef для onTranscriptReady и onClose чтобы всегда иметь актуальные версии
+	const onTranscriptReadyRef = useRef(onTranscriptReady);
+	const onCloseRef = useRef(onClose);
+
+	// Обновляем refs при каждом рендере
+	useEffect(() => {
+		onTranscriptReadyRef.current = onTranscriptReady;
+		onCloseRef.current = onClose;
+	}, [onTranscriptReady, onClose]);
+
 	useEffect(() => {
 		if (transcript?.trim() && transcript !== lastTranscriptRef.current) {
 			console.log('[VoicePoweredOrb] New transcript:', transcript);
-			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`); // ✅ DEBUG
+			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`);
+
+			// 🚨 ВИЗУАЛЬНЫЙ DEBUG для мобильных (консоль недоступна)
+			const debugMessage = `📝 Текст: "${transcript.substring(0, 20)}..."`;
+			toast.success(debugMessage, {
+				duration: 2000,
+				position: 'top-center',
+			});
+
 			lastTranscriptRef.current = transcript;
-			onTranscriptReady(transcript);
+
+			// ✅ FIX: Используем актуальные версии функций из refs
+			console.log('[VoicePoweredOrb] Calling onTranscriptReady with:', transcript);
+			onTranscriptReadyRef.current(transcript);
+			console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+
+			toast.info('✅ onTranscriptReady вызван', {
+				duration: 1500,
+				position: 'top-center',
+			});
+
 			// Закрываем модальное окно после получения текста
 			setTimeout(() => {
 				console.log('[VoicePoweredOrb] Closing modal after transcript');
-				setDebugInfo('Закрываем окно...'); // ✅ DEBUG
-				onClose();
+				setDebugInfo('Закрываем окно...');
+				onCloseRef.current();
+				console.log('[VoicePoweredOrb] onClose called successfully');
+
+				toast.info('🚪 Закрываем окно', {
+					duration: 1000,
+					position: 'top-center',
+				});
 			}, 500);
+		} else if (transcript === '' && lastTranscriptRef.current !== '') {
+			// 🚨 DEBUG: Обнаружен СБРОС transcript
+<<<<<<< Updated upstream
+			console.warn(
+				'[VoicePoweredOrb] TRANSCRIPT RESET DETECTED! Was:',
+				lastTranscriptRef.current,
+				'Now:',
+				transcript
+			);
+=======
+			console.warn('[VoicePoweredOrb] TRANSCRIPT RESET DETECTED! Was:', lastTranscriptRef.current, 'Now:', transcript);
+>>>>>>> Stashed changes
+			setDebugInfo('⚠️ Transcript сброшен!');
+			toast.warning('⚠️ Transcript сброшен!', {
+				duration: 2000,
+				position: 'top-center',
+			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [transcript]);
+	}, [transcript]); // ✅ Теперь можно безопасно использовать только transcript в зависимостях
 
 	// Сброс состояния при закрытии
 	useEffect(() => {
@@ -409,7 +470,9 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								{debugInfo || 'Ожидание...'}
 							</div>
 							{/* Показываем статус записи */}
-							<div className={`rounded-lg px-4 py-2 text-xs font-mono text-white shadow-lg ${isListening ? 'bg-green-500/90' : 'bg-gray-500/90'}`}>
+							<div
+								className={`rounded-lg px-4 py-2 text-xs font-mono text-white shadow-lg ${isListening ? 'bg-green-500/90' : 'bg-gray-500/90'}`}
+							>
 								{isListening ? '🔴 ЗАПИСЬ' : '⏸️ ПАУЗА'}
 							</div>
 						</div>

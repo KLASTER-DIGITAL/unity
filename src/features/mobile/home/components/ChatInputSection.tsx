@@ -98,10 +98,27 @@ export function ChatInputSection({
 
 	// Обработка готового транскрипта из Voice Powered Orb
 	const handleTranscriptReady = (text: string) => {
+		console.log('[ChatInputSection] handleTranscriptReady called with:', text);
+
+		// 🚨 ВИЗУАЛЬНЫЙ DEBUG для мобильных
+		toast.success(`💬 Текст добавлен в чат: "${text.substring(0, 20)}..."`, {
+			duration: 2000,
+			position: 'top-center',
+		});
+
 		setInputText((prev) => {
 			const newText = prev ? `${prev} ${text}` : text;
+			console.log('[ChatInputSection] Updated inputText:', newText);
+
+			// 🚨 ВИЗУАЛЬНЫЙ DEBUG: Показываем новое значение inputText
+			toast.info(`📝 inputText обновлен: "${newText.substring(0, 20)}..."`, {
+				duration: 1500,
+				position: 'top-center',
+			});
+
 			return newText;
 		});
+		console.log('[ChatInputSection] handleTranscriptReady completed');
 	};
 
 	// Обработка загрузки медиа

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { speech } from '../lib/platform/speech';
 
 type SpeechRecognitionHook = {
@@ -47,28 +47,55 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			lastTranscript = result.transcript;
 
 			// ✅ DEBUG: показываем что получили
-			setDebugInfo(`📝 ${result.isFinal ? 'FINAL' : 'interim'}: "${result.transcript.substring(0, 30)}..."`);
+			setDebugInfo(
+				`📝 ${result.isFinal ? 'FINAL' : 'interim'}: "${result.transcript.substring(0, 30)}..."`
+			);
 
 			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
-				console.log('[useSpeechRecognition] Final result, setting transcript');
+<<<<<<< Updated upstream
+				console.log(
+					'[useSpeechRecognition] Final result, calling setTranscript with:',
+					result.transcript
+				);
+=======
+				console.log('[useSpeechRecognition] Final result, calling setTranscript with:', result.transcript);
+>>>>>>> Stashed changes
 				hasFinalResult = true;
 				setTranscript(result.transcript);
+				console.log('[useSpeechRecognition] setTranscript called (final)');
+			} else {
+				console.log('[useSpeechRecognition] Interim result, NOT calling setTranscript yet');
 			}
 		});
 
 		speech.onEnd(() => {
-			console.log('[useSpeechRecognition] Speech ended, hasFinalResult:', hasFinalResult, 'lastTranscript:', lastTranscript);
+			console.log(
+				'[useSpeechRecognition] Speech ended, hasFinalResult:',
+				hasFinalResult,
+				'lastTranscript:',
+				lastTranscript
+			);
 			setIsListening(false);
 
 			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
 			if (!hasFinalResult && lastTranscript) {
-				console.log('[useSpeechRecognition] No final result, using last interim result:', lastTranscript);
+<<<<<<< Updated upstream
+				console.log(
+					'[useSpeechRecognition] No final result, calling setTranscript with last interim:',
+					lastTranscript
+				);
+=======
+				console.log('[useSpeechRecognition] No final result, calling setTranscript with last interim:', lastTranscript);
+>>>>>>> Stashed changes
 				setDebugInfo(`✅ Используем interim: "${lastTranscript.substring(0, 30)}..."`); // ✅ DEBUG
 				setTranscript(lastTranscript);
+				console.log('[useSpeechRecognition] setTranscript called (interim from onEnd)');
 			} else if (hasFinalResult) {
+				console.log('[useSpeechRecognition] Final result already set, no action needed');
 				setDebugInfo('✅ Получен финальный результат'); // ✅ DEBUG
 			} else {
+				console.warn('[useSpeechRecognition] No result at all!');
 				setDebugInfo('❌ Нет результата'); // ✅ DEBUG
 			}
 		});
@@ -85,22 +112,31 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		};
 	}, [isSupported]); // ✅ Убираем transcript из зависимостей (не нужен)
 
-	const startListening = () => {
+	// ✅ FIX: Используем useCallback чтобы функция была стабильной
+	// Это предотвращает повторные вызовы useEffect в VoicePoweredOrb
+	const startListening = useCallback(() => {
 		if (!isSupported) {
+			console.warn('[useSpeechRecognition] startListening called but not supported');
 			return;
 		}
 
-		setTranscript('');
+		console.log('[useSpeechRecognition] startListening called');
+
+		// ⚠️ КРИТИЧНО: НЕ сбрасываем transcript здесь!
+		// Это вызывало проблемы с useEffect в VoicePoweredOrb
+		// setTranscript(''); // ❌ УБРАНО - сброс перенесен в VoicePoweredOrb при открытии
+
 		speech.startListening({
 			language: 'ru-RU',
 			continuous: false,
 			interimResults: true, // ✅ ВКЛЮЧАЕМ interim results для мобильных браузеров!
 		});
-	};
+	}, [isSupported]);
 
-	const stopListening = () => {
+	const stopListening = useCallback(() => {
+		console.log('[useSpeechRecognition] stopListening called');
 		speech.stopListening();
-	};
+	}, []);
 
 	return {
 		isListening,
