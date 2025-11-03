@@ -20,23 +20,47 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			return;
 		}
 
+		// ✅ FIX: Сохраняем последний результат (даже если isFinal=false)
+		// На мобильных браузерах Web Speech API может НЕ отправлять isFinal=true
+		let lastTranscript = '';
+
 		// Set up callbacks
 		speech.onStart(() => {
+			console.log('[useSpeechRecognition] Speech started');
+			lastTranscript = ''; // Сбрасываем при старте
 			setIsListening(true);
 		});
 
 		speech.onResult((result) => {
+			console.log('[useSpeechRecognition] Result received:', {
+				transcript: result.transcript,
+				isFinal: result.isFinal,
+				confidence: result.confidence,
+			});
+
+			// ✅ ВСЕГДА сохраняем последний результат
+			lastTranscript = result.transcript;
+
+			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
+				console.log('[useSpeechRecognition] Final result, setting transcript');
 				setTranscript(result.transcript);
 			}
 		});
 
 		speech.onEnd(() => {
+			console.log('[useSpeechRecognition] Speech ended');
 			setIsListening(false);
+
+			// ✅ FIX: Если есть последний результат но НЕ было финального - используем его
+			if (lastTranscript && !transcript) {
+				console.log('[useSpeechRecognition] Using last interim result:', lastTranscript);
+				setTranscript(lastTranscript);
+			}
 		});
 
 		speech.onError((error) => {
-			console.error('Speech recognition error:', error);
+			console.error('[useSpeechRecognition] Speech recognition error:', error);
 			setIsListening(false);
 		});
 
@@ -45,7 +69,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				speech.abort();
 			}
 		};
-	}, [isSupported]);
+	}, [isSupported, transcript]); // ✅ Добавляем transcript в зависимости
 
 	const startListening = () => {
 		if (!isSupported) {
