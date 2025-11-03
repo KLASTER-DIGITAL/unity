@@ -30,11 +30,14 @@ export function RecentEntriesFeed({
 	// ✅ FIX: Используем useEntries hook с Supabase Realtime
 	// Автоматическое обновление UI при INSERT/UPDATE/DELETE в таблице entries
 	const userId = userData?.user?.id || userData?.id;
+	console.log('[RecentEntriesFeed] 🔑 userId:', userId);
+	console.log('[RecentEntriesFeed] 📦 userData:', userData);
+
 	const { entries, isLoading } = useEntries(userId, 3); // Загружаем только последние 3
 
-	console.log('[RecentEntriesFeed] Loaded entries:', entries.length);
+	console.log('[RecentEntriesFeed] 📊 Loaded entries:', entries.length);
 	if (entries.length > 0) {
-		console.log('[RecentEntriesFeed] First entry text:', entries[0]?.text);
+		console.log('[RecentEntriesFeed] 📝 First entry text:', entries[0]?.text);
 	}
 
 	const formatTimeAgo = (dateString: string): string => {

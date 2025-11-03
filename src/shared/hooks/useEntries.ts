@@ -34,6 +34,10 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
 
+	// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для ВСЕГО hook
+	// Это предотвращает проблемы с Real-time subscription
+	const supabase = createClient();
+
 	// ✅ FIX: Используем useRef для стабильной ссылки на fetchEntries
 	// Это предотвращает повторное создание Realtime subscription при каждом обновлении
 	const fetchEntriesRef = useRef<(() => Promise<void>) | null>(null);
@@ -41,6 +45,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 	// Fetch entries from Supabase
 	const fetchEntries = useCallback(async () => {
 		if (!userId) {
+			console.log('[useEntries] No userId provided, skipping fetch');
 			setEntries([]);
 			setIsLoading(false);
 			return;
@@ -48,7 +53,6 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 
 		try {
 			setIsLoading(true);
-			const supabase = createClient();
 
 			let query = supabase
 				.from('entries')
@@ -115,9 +119,10 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 	// FIX: Убираем fetchEntries из dependencies, используем fetchEntriesRef.current
 	// Это предотвращает повторное создание subscription при каждом обновлении
 	useEffect(() => {
-		if (!userId) return;
-
-		const supabase = createClient();
+		if (!userId) {
+			console.log('[useEntries] No userId, skipping real-time subscription');
+			return;
+		}
 
 		console.log('[useEntries] Setting up real-time subscription for user:', userId);
 
@@ -132,17 +137,27 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 					filter: `user_id=eq.${userId}`,
 				},
 				(payload) => {
-					console.log('[useEntries] Real-time update received:', payload);
+					console.log('[useEntries] 🔔 Real-time update received:', payload.eventType, payload);
 
 					// ✅ FIX: Используем fetchEntriesRef.current вместо fetchEntries
 					// Это гарантирует что subscription НЕ пересоздается при каждом обновлении
 					if (fetchEntriesRef.current) {
+						console.log('[useEntries] 🔄 Calling fetchEntriesRef.current()...');
 						fetchEntriesRef.current();
+					} else {
+						console.error('[useEntries] ❌ fetchEntriesRef.current is null!');
 					}
 				}
 			)
 			.subscribe((status) => {
-				console.log('[useEntries] Subscription status:', status);
+				console.log('[useEntries] 📡 Subscription status:', status);
+				if (status === 'SUBSCRIBED') {
+					console.log('[useEntries] ✅ Successfully subscribed to real-time updates');
+				} else if (status === 'CHANNEL_ERROR') {
+					console.error('[useEntries] ❌ Channel error!');
+				} else if (status === 'TIMED_OUT') {
+					console.error('[useEntries] ❌ Subscription timed out!');
+				}
 			});
 
 		return () => {
