@@ -40,11 +40,28 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [error, setError] = useState<string | null>(null);
 	const { t } = useTranslation();
 
-	const { isListening, transcript, startListening, stopListening } = useSpeechRecognition();
+	const { isListening, transcript, startListening, stopListening, isSupported } =
+		useSpeechRecognition();
 
-	// ✅ УДАЛЕНО: Не блокируем заранее, позволяем пользователю попробовать
-	// Если не работает - покажем ошибку при попытке записи
-	// Это соответствует поведению OnboardingScreen4
+	// ✅ АВТОМАТИЧЕСКИЙ СТАРТ: Начинаем запись сразу при открытии (как OnboardingScreen4)
+	useEffect(() => {
+		if (isOpen && !isListening) {
+			// Проверяем поддержку браузера
+			if (!isSupported) {
+				setError(
+					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.'
+				);
+				console.warn('[VoicePoweredOrb] Speech recognition not supported');
+				return;
+			}
+
+			// Автоматически начинаем запись при открытии
+			console.log('[VoicePoweredOrb] Auto-starting recording on open');
+			setTimeout(() => {
+				startListening();
+			}, 300); // Небольшая задержка для плавности анимации
+		}
+	}, [isOpen, isListening, isSupported, startListening]);
 
 	// Получить реальный уровень звука через Web Audio API
 	const audioLevel = useAudioLevel(isListening);
