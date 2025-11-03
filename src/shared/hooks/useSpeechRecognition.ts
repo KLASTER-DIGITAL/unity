@@ -53,7 +53,10 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// Если финальный результат - сразу устанавливаем
 			if (result.isFinal) {
-				console.log('[useSpeechRecognition] Final result, calling setTranscript with:', result.transcript);
+				console.log(
+					'[useSpeechRecognition] Final result, calling setTranscript with:',
+					result.transcript
+				);
 				hasFinalResult = true;
 				setTranscript(result.transcript);
 				console.log('[useSpeechRecognition] setTranscript called (final)');
@@ -73,7 +76,10 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
 			if (!hasFinalResult && lastTranscript) {
-				console.log('[useSpeechRecognition] No final result, calling setTranscript with last interim:', lastTranscript);
+				console.log(
+					'[useSpeechRecognition] No final result, calling setTranscript with last interim:',
+					lastTranscript
+				);
 				setDebugInfo(`✅ Используем interim: "${lastTranscript.substring(0, 30)}..."`); // ✅ DEBUG
 				setTranscript(lastTranscript);
 				console.log('[useSpeechRecognition] setTranscript called (interim from onEnd)');
@@ -114,7 +120,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 		speech.startListening({
 			language: 'ru-RU',
-			continuous: false,
+			continuous: true, // ✅ ИЗМЕНЕНО: true для мобильных браузеров (дольше слушает)
 			interimResults: true, // ✅ ВКЛЮЧАЕМ interim results для мобильных браузеров!
 		});
 	}, [isSupported]);

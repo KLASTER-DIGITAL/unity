@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/shared/components/ui/universal';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
 import { useTranslation } from '@/shared/lib/i18n/useTranslation';
@@ -22,19 +23,28 @@ interface VoicePoweredOrbProps {
  * - GLSL шейдеры (procedural noise, color shifting, lighting)
  * - Web Speech API (useSpeechRecognition)
  * - Framer Motion для анимаций
+ * - Universal Components (Button) для кросс-платформенности
  *
  * ЛОГИКА:
  * 1. Клик на микрофон в InputArea → открывается полноэкранный компонент
- * 2. Клик на орб → начинается запись (Web Speech API)
- * 3. Автоматическая остановка когда пользователь перестает говорить
- * 4. Текст вставляется в input через onTranscriptReady
- * 5. Модальное окно закрывается автоматически
+ * 2. Автостарт записи при открытии (Web Speech API)
+ * 3. Continuous mode для мобильных браузеров (дольше слушает)
+ * 4. Текст вставляется в input через onTranscriptReady НЕМЕДЛЕННО
+ * 5. Пользователь видит распознанный текст и нажимает "Готово"
+ * 6. Модальное окно закрывается ВРУЧНУЮ (НЕ автоматически)
  *
  * ДИЗАЙН:
  * - Полноэкранный backdrop с blur
  * - WebGL орб с GLSL шейдерами
  * - Пульсация и вращение при записи
  * - Визуализатор звука
+ * - Кнопка "Готово" (Universal Button) для ручного закрытия
+ *
+ * МОБИЛЬНАЯ ОПТИМИЗАЦИЯ:
+ * - Continuous mode (дольше слушает на мобильных)
+ * - Interim results (показывает текст в процессе)
+ * - Ручное закрытие (НЕТ автоматического setTimeout)
+ * - Визуальная обратная связь (debug info, статус, transcript preview)
  */
 export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePoweredOrbProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,9 +80,14 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		if (isOpen && !hasAutoStartedRef.current) {
 			// Проверяем поддержку браузера
 			if (!isSupported) {
-				setError(
-					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.'
-				);
+				const errorMessage =
+					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.';
+				setError(errorMessage);
+				// ✅ TOAST ERROR для критических ошибок
+				toast.error('Голосовой ввод недоступен', {
+					description: 'Ваш браузер не поддерживает Web Speech API',
+					duration: 5000,
+				});
 				console.warn('[VoicePoweredOrb] Speech recognition not supported');
 				hasAutoStartedRef.current = true; // Помечаем что попытались
 				return;
@@ -82,7 +97,18 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			console.log('[VoicePoweredOrb] Auto-starting recording on open (ONCE)');
 			hasAutoStartedRef.current = true; // Помечаем что запустили
 			setTimeout(() => {
-				startListening();
+				try {
+					startListening();
+				} catch (err) {
+					const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+					setError(`Ошибка запуска записи: ${errorMessage}`);
+					// ✅ TOAST ERROR для критических ошибок
+					toast.error('Не удалось начать запись', {
+						description: errorMessage,
+						duration: 5000,
+					});
+					console.error('[VoicePoweredOrb] Failed to start listening:', err);
+				}
 			}, 300); // Небольшая задержка для плавности анимации
 		}
 	}, [isOpen, isSupported, startListening]);
@@ -118,50 +144,21 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		onCloseRef.current = onClose;
 	}, [onTranscriptReady, onClose]);
 
+	// ✅ FIX: Упрощенная обработка transcript (как в ChatGPTInput)
+	// НЕТ автоматического закрытия - пользователь сам нажимает "Готово"
 	useEffect(() => {
 		if (transcript?.trim() && transcript !== lastTranscriptRef.current) {
 			console.log('[VoicePoweredOrb] New transcript:', transcript);
 			setDebugInfo(`✅ Получен текст: "${transcript.substring(0, 30)}..."`);
 
-			// 🚨 ВИЗУАЛЬНЫЙ DEBUG для мобильных (консоль недоступна)
-			const debugMessage = `📝 Текст: "${transcript.substring(0, 20)}..."`;
-			toast.success(debugMessage, {
-				duration: 2000,
-				position: 'top-center',
-			});
-
 			lastTranscriptRef.current = transcript;
 
-			// ✅ FIX: Используем актуальные версии функций из refs
+			// ✅ FIX: Вызываем onTranscriptReady НЕМЕДЛЕННО
 			console.log('[VoicePoweredOrb] Calling onTranscriptReady with:', transcript);
 			onTranscriptReadyRef.current(transcript);
 			console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
 
-			toast.info('✅ onTranscriptReady вызван', {
-				duration: 1500,
-				position: 'top-center',
-			});
-
-			// Закрываем модальное окно после получения текста
-			setTimeout(() => {
-				console.log('[VoicePoweredOrb] Closing modal after transcript');
-				setDebugInfo('Закрываем окно...');
-				onCloseRef.current();
-				console.log('[VoicePoweredOrb] onClose called successfully');
-
-				toast.info('🚪 Закрываем окно', {
-					duration: 1000,
-					position: 'top-center',
-				});
-			}, 500);
-		} else if (transcript === '' && lastTranscriptRef.current !== '') {
-			// 🚨 DEBUG: Обнаружен СБРОС transcript
-			console.warn('[VoicePoweredOrb] TRANSCRIPT RESET DETECTED! Was:', lastTranscriptRef.current, 'Now:', transcript);
-			setDebugInfo('⚠️ Transcript сброшен!');
-			toast.warning('⚠️ Transcript сброшен!', {
-				duration: 2000,
-				position: 'top-center',
-			});
+			// ✅ НЕТ автоматического закрытия - пользователь видит текст и нажимает "Готово"
 		}
 	}, [transcript]); // ✅ Теперь можно безопасно использовать только transcript в зависимостях
 
@@ -466,8 +463,37 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 							>
 								{isListening ? '🔴 ЗАПИСЬ' : '⏸️ ПАУЗА'}
 							</div>
+							{/* Показываем распознанный текст если есть */}
+							{transcript && (
+								<div className="rounded-lg bg-purple-500/90 px-4 py-2 text-xs font-mono text-white shadow-lg">
+									📝 {transcript.substring(0, 50)}...
+								</div>
+							)}
 						</div>
 					</motion.div>
+
+					{/* ✅ КНОПКА "ГОТОВО" - появляется когда есть transcript */}
+					{transcript && (
+						<motion.div
+							animate={{ opacity: 1, scale: 1 }}
+							className="pointer-events-auto fixed bottom-32 left-1/2 z-100 -translate-x-1/2"
+							exit={{ opacity: 0, scale: 0.9 }}
+							initial={{ opacity: 0, scale: 0.9 }}
+							transition={{ duration: 0.2 }}
+						>
+							<Button
+								onClick={() => {
+									console.log('[VoicePoweredOrb] User clicked "Готово", closing modal');
+									onClose();
+								}}
+								size="lg"
+								variant="default"
+								className="bg-primary hover:bg-primary/90 text-white shadow-2xl"
+							>
+								✅ Готово
+							</Button>
+						</motion.div>
+					)}
 
 					{/* Ошибки - показываем только если есть */}
 					{error && (
