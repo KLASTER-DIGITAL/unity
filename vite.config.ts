@@ -322,7 +322,10 @@ export default defineConfig(({ mode }) => ({
 	server: {
 		port: 3000,
 		host: '0.0.0.0',
-		open: true,
+		// Автоматическое открытие браузера
+		// Отключено в CI/Builder.io окружении (избегаем ошибки xdg-open ENOENT)
+		// Включено локально для удобства разработки
+		open: !process.env.CI && !process.env.BUILDER_IO,
 		// Оптимизация dev server
 		hmr: {
 			overlay: false, // Отключаем overlay для лучшей производительности

@@ -35,9 +35,10 @@
 4. 📝 [changelog/CHANGELOG.md](changelog/CHANGELOG.md) - что сделано
 
 ### Для дизайнеров
-1. 🎨 [IOS_DESIGN_SYSTEM.md](design/IOS_DESIGN_SYSTEM.md) - дизайн система
-2. 📝 [IOS_TYPOGRAPHY_IMPLEMENTATION.md](archive/completed/2025-10/design/IOS_TYPOGRAPHY_IMPLEMENTATION.md) - типографика
-3. 🌙 [DARK_THEME_CHECKLIST.md](design/DARK_THEME_CHECKLIST.md) - темная тема
+1. 🤖 [ai-design-system.md](design/ai-design-system.md) - AI Guide для дизайн-системы
+2. 🎨 [IOS_DESIGN_SYSTEM.md](design/IOS_DESIGN_SYSTEM.md) - дизайн система
+3. 📝 [IOS_TYPOGRAPHY_IMPLEMENTATION.md](archive/completed/2025-10/design/IOS_TYPOGRAPHY_IMPLEMENTATION.md) - типографика
+4. 🌙 [DARK_THEME_CHECKLIST.md](design/DARK_THEME_CHECKLIST.md) - темная тема
 
 ---
 
@@ -71,6 +72,7 @@
 - [EDGE_FUNCTIONS_REFACTORING_REPORT.md](archive/completed/2025-10/architecture/EDGE_FUNCTIONS_REFACTORING_REPORT.md) - отчет рефакторинга
 
 ### 🎨 Дизайн система
+- [ai-design-system.md](design/ai-design-system.md) - 🆕 AI Guide для дизайн-системы
 - [IOS_DESIGN_SYSTEM.md](design/IOS_DESIGN_SYSTEM.md) - iOS дизайн система
 - [IOS_TYPOGRAPHY_IMPLEMENTATION.md](archive/completed/2025-10/design/IOS_TYPOGRAPHY_IMPLEMENTATION.md) - типографика
 - [DESIGN_SYSTEM_FINAL_REPORT.md](archive/completed/2025-10/design/DESIGN_SYSTEM_FINAL_REPORT.md) - финальный отчет

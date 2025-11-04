@@ -130,6 +130,7 @@
 	},
 	"scripts": {
 		"dev": "vite",
+		"dev:ci": "vite --no-open",
 		"build": "vite build",
 		"build:analyze": "ANALYZE=true vite build",
 		"preview": "vite preview",
