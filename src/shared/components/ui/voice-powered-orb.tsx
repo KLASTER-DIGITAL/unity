@@ -485,8 +485,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						</motion.div>
 					)}
 
-					{/* ✅ КНОПКА "СТОП/ГОТОВО" - по центру орба, показывается ВСЕГДА (кроме iOS где кнопка "Начать") */}
-					{!needsTapToStart && (
+					{/* ✅ КНОПКА "СТОП/ГОТОВО" - по центру орба, показывается ВСЕГДА когда НЕ показывается кнопка "Начать" */}
+					{!(needsTapToStart && !isListening) && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
 							className="pointer-events-auto fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2"
@@ -504,7 +504,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								>
 									{isListening ? '⏹ СТОП' : '✅ ГОТОВО'}
 								</Button>
-								
+
 								{/* Debug статус */}
 								<div className="text-white text-sm font-mono bg-black/50 px-4 py-2 rounded-lg">
 									{isListening ? '🔴 Запись идёт' : '⏸️ Пауза'}
