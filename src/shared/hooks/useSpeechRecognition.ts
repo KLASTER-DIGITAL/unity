@@ -6,6 +6,7 @@ type SpeechRecognitionHook = {
 	transcript: string;
 	startListening: () => void;
 	stopListening: () => void;
+	abortListening: () => void;
 	isSupported: boolean;
 	debugInfo: string; // ✅ DEBUG: информация для отладки
 };
@@ -26,7 +27,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// На мобильных браузерах Web Speech API может НЕ отправлять isFinal=true
 		let lastTranscript = '';
 		let hasFinalResult = false;
-		let interimDebounceId: number | null = null; // ✅ Дебаунс для стабильного interim
 
 		// Set up callbacks
 		speech.onStart(() => {
@@ -34,10 +34,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			setDebugInfo('🎤 Запись началась'); // ✅ DEBUG
 			lastTranscript = ''; // Сбрасываем при старте
 			hasFinalResult = false; // Сбрасываем флаг
-			if (interimDebounceId) {
-				clearTimeout(interimDebounceId);
-				interimDebounceId = null;
-			}
 			setIsListening(true);
 		});
 
@@ -56,7 +52,8 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				`📝 ${result.isFinal ? 'FINAL' : 'interim'}: "${result.transcript.substring(0, 30)}..."`
 			);
 
-			// Если финальный результат - сразу устанавливаем
+			// ✅ Для мобильных: устанавливаем transcript СРАЗУ при любом результате
+			// Не ждём final - на iOS Safari он может не прийти
 			if (result.isFinal) {
 				console.log(
 					'[useSpeechRecognition] Final result, calling setTranscript with:',
@@ -65,23 +62,10 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				hasFinalResult = true;
 				setTranscript(result.transcript);
 				console.log('[useSpeechRecognition] setTranscript called (final)');
-				if (interimDebounceId) {
-					clearTimeout(interimDebounceId);
-					interimDebounceId = null;
-				}
-			} else {
-				console.log('[useSpeechRecognition] Interim result, scheduling debounce setTranscript');
-				// ✅ Мобильный кейс: если финал не приходит — берем стабильный interim через дебаунс
-				if (interimDebounceId) {
-					clearTimeout(interimDebounceId);
-				}
-				interimDebounceId = window.setTimeout(() => {
-					if (!hasFinalResult && lastTranscript) {
-						console.log('[useSpeechRecognition] Debounced interim, setTranscript');
-						setDebugInfo(`✅ Debounced interim: "${lastTranscript.substring(0, 30)}..."`);
-						setTranscript(lastTranscript);
-					}
-				}, 800);
+			} else if (result.transcript && result.transcript.length > 3) {
+				// ✅ Interim с минимальной длиной (избегаем шум/мусор)
+				console.log('[useSpeechRecognition] Interim result with length, calling setTranscript');
+				setTranscript(result.transcript);
 			}
 		});
 
@@ -110,11 +94,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				console.warn('[useSpeechRecognition] No result at all!');
 				setDebugInfo('❌ Нет результата'); // ✅ DEBUG
 			}
-
-			if (interimDebounceId) {
-				clearTimeout(interimDebounceId);
-				interimDebounceId = null;
-			}
 		});
 
 		speech.onError((error) => {
@@ -125,10 +104,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		return () => {
 			if (speech.isListening()) {
 				speech.abort();
-			}
-			// Очистим возможный дебаунс при размонтаже
-			if (interimDebounceId) {
-				clearTimeout(interimDebounceId);
 			}
 		};
 	}, [isSupported]); // ✅ Убираем transcript из зависимостей (не нужен)
@@ -147,18 +122,10 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// Это вызывало проблемы с useEffect в VoicePoweredOrb
 		// setTranscript(''); // ❌ УБРАНО - сброс перенесен в VoicePoweredOrb при открытии
 
-		// ✅ Адаптация под мобильные (iOS Safari): выключаем continuous, чтобы избежать onend-циклов
-		let isIOS = false;
-		try {
-			const ua = navigator.userAgent;
-			isIOS = /iPhone|iPad|iPod/i.test(ua);
-		} catch (_e) {
-			// ignore
-		}
-
+		// ✅ ВСЕГДА используем continuous=false чтобы избежать циклов на мобильных
 		speech.startListening({
 			language: 'ru-RU',
-			continuous: !isIOS,
+			continuous: false, // ✅ ВСЕГДА false - предотвращает зацикливание
 			interimResults: true,
 		});
 	}, [isSupported]);
@@ -168,11 +135,17 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		speech.stopListening();
 	}, []);
 
+	const abortListening = useCallback(() => {
+		console.log('[useSpeechRecognition] abortListening called');
+		speech.abort();
+	}, []);
+
 	return {
 		isListening,
 		transcript,
 		startListening,
 		stopListening,
+		abortListening,
 		isSupported,
 		debugInfo, // ✅ DEBUG
 	};

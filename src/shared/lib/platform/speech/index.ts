@@ -160,6 +160,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 	private browserInfo: BrowserInfo;
 	private recognition: any = null;
 	private listening = false;
+	private shuttingDown = false; // ✅ Гард: игнорировать события после abort/stop
 	private resultCallback: ((result: SpeechRecognitionResult) => void) | null = null;
 	private errorCallback: ((error: Error) => void) | null = null;
 	private startCallback: (() => void) | null = null;
@@ -171,7 +172,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		console.log('[WebSpeechAdapter] Browser info:', this.browserInfo);
 
 		if (this.isSupported()) {
-			this.initializeRecognition();
+			this.initializeRecognition(true);
 		} else {
 			console.warn('[WebSpeechAdapter] Speech recognition not supported:', {
 				browser: this.browserInfo.name,
@@ -236,13 +237,9 @@ class WebSpeechAdapter implements SpeechAdapter {
 			options,
 		});
 
-		if (!this.recognition) {
-			console.error('[WebSpeechAdapter] No recognition instance');
-			if (this.errorCallback) {
-				this.errorCallback(new Error('Speech recognition not initialized'));
-			}
-			return;
-		}
+		// ✅ КРИТИЧНО для мобильных: пересоздаём инстанс SpeechRecognition перед каждым стартом
+		// Это предотвращает зацикливание на iOS Safari
+		this.initializeRecognition(true);
 
 		if (this.listening) {
 			console.warn('[WebSpeechAdapter] Already listening');
@@ -269,6 +266,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		});
 
 		try {
+			this.shuttingDown = false; // ✅ Сбрасываем гард перед стартом
 			this.recognition.start();
 			console.log('[WebSpeechAdapter] recognition.start() called successfully');
 		} catch (error: any) {
@@ -285,6 +283,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		}
 
 		try {
+			this.shuttingDown = true; // ✅ Устанавливаем гард перед stop
 			this.recognition.stop();
 		} catch (error) {
 			console.error('Error stopping recognition:', error);
@@ -297,6 +296,7 @@ class WebSpeechAdapter implements SpeechAdapter {
 		}
 
 		try {
+			this.shuttingDown = true; // ✅ Устанавливаем гард перед abort
 			this.recognition.abort();
 			this.listening = false;
 		} catch (error) {
@@ -324,9 +324,12 @@ class WebSpeechAdapter implements SpeechAdapter {
 		this.endCallback = callback;
 	}
 
-	private initializeRecognition(): void {
+	private initializeRecognition(force = false): void {
 		const SpeechRecognition =
 			(window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+
+		// ✅ Пересоздаём инстанс если force=true (на каждый startListening для мобильных)
+		if (!force && this.recognition) return;
 		this.recognition = new SpeechRecognition();
 
 		this.recognition.onstart = () => {
@@ -339,6 +342,13 @@ class WebSpeechAdapter implements SpeechAdapter {
 
 		this.recognition.onresult = (event: any) => {
 			console.log('[WebSpeechAdapter] onresult event fired', event);
+
+			// ✅ Игнорируем события если идёт shutdown (предотвращает повторные вызовы на мобильных)
+			if (this.shuttingDown) {
+				console.log('[WebSpeechAdapter] Ignoring result - shutting down');
+				return;
+			}
+
 			if (!this.resultCallback) {
 				return;
 			}
@@ -363,6 +373,14 @@ class WebSpeechAdapter implements SpeechAdapter {
 		this.recognition.onend = () => {
 			console.log('[WebSpeechAdapter] onend event fired');
 			this.listening = false;
+
+			// ✅ НЕ вызываем endCallback если это результат ручной остановки
+			// Это предотвращает перезапуск на мобильных
+			if (this.shuttingDown) {
+				console.log('[WebSpeechAdapter] Ignoring onend - shutting down');
+				return;
+			}
+
 			if (this.endCallback) {
 				this.endCallback();
 			}

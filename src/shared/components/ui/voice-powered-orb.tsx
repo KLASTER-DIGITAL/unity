@@ -56,7 +56,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		isListening,
 		transcript,
 		startListening,
-		stopListening,
+		abortListening,
 		isSupported,
 		debugInfo: speechDebugInfo,
 	} = useSpeechRecognition();
@@ -67,7 +67,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [lastTranscript, setLastTranscript] = useState(''); // ✅ FIX: Используем state вместо ref
 	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
 	const processedTranscriptsRef = useRef<Set<string>>(new Set()); // ✅ FIX: Защита от повторных вызовов
-	const hasSubmittedRef = useRef(false); // ✅ Гард от повторной передачи и перезапуска на мобильных
+	const hasSubmittedRef = useRef(false); // ✅ Гард: предотвращает повторную передачу текста
+	const isShuttingDownRef = useRef(false); // ✅ Гард: блокирует перезапуски после закрытия
 
 	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
 	useEffect(() => {
@@ -83,6 +84,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setError(null);
 			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем обработанные transcript при открытии
 			hasSubmittedRef.current = false; // ✅ Сбрасываем гард
+			isShuttingDownRef.current = false; // ✅ Сбрасываем гард
 			// ✅ FIX: НЕ сбрасываем transcript здесь - он должен остаться до начала новой записи
 			// Это позволяет увидеть последний результат если запись уже была
 		} else {
@@ -91,16 +93,16 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setLastTranscript('');
 			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем при закрытии
 			if (isListening) {
-				console.log('[VoicePoweredOrb] Stopping listening on close');
-				stopListening();
+				console.log('[VoicePoweredOrb] Aborting listening on close');
+				abortListening(); // ✅ Используем abort вместо stop - жёстче
 			}
 		}
-	}, [isOpen, isListening, stopListening]);
+	}, [isOpen, isListening, abortListening]);
 
 	// ✅ FIX: Автостарт записи при открытии (упрощенная логика)
 	useEffect(() => {
 		// ✅ FIX: Проверяем что модальное окно открыто, еще не запускали и не слушаем уже
-		if (isOpen && !hasAutoStarted && !isListening) {
+		if (isOpen && !hasAutoStarted && !isListening && !isShuttingDownRef.current) {
 			// Проверяем поддержку браузера
 			if (!isSupported) {
 				const errorMessage =
@@ -197,41 +199,45 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			trimmedTranscript !== lastTranscript &&
 			!processedTranscriptsRef.current.has(trimmedTranscript)
 		) {
-			if (hasSubmittedRef.current) {
-				console.log('[VoicePoweredOrb] Submission already done, ignoring transcript');
+			if (hasSubmittedRef.current || isShuttingDownRef.current) {
+				console.log('[VoicePoweredOrb] Already submitted or shutting down, ignoring transcript');
 				return;
 			}
+
+			console.log('[VoicePoweredOrb] Processing transcript:', trimmedTranscript);
+
+			// ✅ СРАЗУ блокируем повторные вызовы
+			hasSubmittedRef.current = true;
+			isShuttingDownRef.current = true;
+			processedTranscriptsRef.current.add(trimmedTranscript);
+			setLastTranscript(trimmedTranscript);
+
+			// ✅ ЖЁСТКО останавливаем распознавание ПЕРЕД передачей текста
+			if (isListening) {
+				console.log('[VoicePoweredOrb] Aborting listening before submit');
+				try {
+					abortListening();
+				} catch (_e) {
+					// ignore
+				}
+			}
+
+			// ✅ Передаём текст в чат
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
 				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
-				// ✅ Жёстко останавливаем прослушивание перед закрытием, чтобы предотвратить циклы на мобильных
-				hasSubmittedRef.current = true;
-				if (isListening) {
-					try {
-						stopListening();
-					} catch (_e) {
-						// ignore
-					}
-				}
-				// ✅ Автозакрытие после успешной передачи текста
-				onClose();
 			} catch (err) {
 				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
-				// Удаляем из обработанных если была ошибка
-				processedTranscriptsRef.current.delete(trimmedTranscript);
 			}
 
-			// Обновляем lastTranscript ПОСЛЕ вызова onTranscriptReady
-			setLastTranscript(trimmedTranscript);
-			processedTranscriptsRef.current.add(trimmedTranscript);
-
-			// ✅ НЕТ автоматического закрытия - пользователь видит текст и нажимает "Готово"
+			// ✅ Закрываем орб
+			onClose();
 		} else if (trimmedTranscript && trimmedTranscript === lastTranscript) {
 			console.log('[VoicePoweredOrb] Duplicate transcript, ignoring:', trimmedTranscript);
 		} else if (trimmedTranscript && processedTranscriptsRef.current.has(trimmedTranscript)) {
 			console.log('[VoicePoweredOrb] Already processed transcript, ignoring:', trimmedTranscript);
 		}
-	}, [transcript, lastTranscript, isListening, onClose, stopListening]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
+	}, [transcript, lastTranscript, isListening, onClose, abortListening]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
 
 	// WebGL орб инициализация
 	useEffect(() => {
