@@ -147,10 +147,19 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// Это вызывало проблемы с useEffect в VoicePoweredOrb
 		// setTranscript(''); // ❌ УБРАНО - сброс перенесен в VoicePoweredOrb при открытии
 
+		// ✅ Адаптация под мобильные (iOS Safari): выключаем continuous, чтобы избежать onend-циклов
+		let isIOS = false;
+		try {
+			const ua = navigator.userAgent;
+			isIOS = /iPhone|iPad|iPod/i.test(ua);
+		} catch (_e) {
+			// ignore
+		}
+
 		speech.startListening({
 			language: 'ru-RU',
-			continuous: true, // ✅ ИЗМЕНЕНО: true для мобильных браузеров (дольше слушает)
-			interimResults: true, // ✅ ВКЛЮЧАЕМ interim results для мобильных браузеров!
+			continuous: !isIOS,
+			interimResults: true,
 		});
 	}, [isSupported]);
 

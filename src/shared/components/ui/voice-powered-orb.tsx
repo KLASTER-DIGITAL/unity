@@ -67,6 +67,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [lastTranscript, setLastTranscript] = useState(''); // ✅ FIX: Используем state вместо ref
 	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
 	const processedTranscriptsRef = useRef<Set<string>>(new Set()); // ✅ FIX: Защита от повторных вызовов
+	const hasSubmittedRef = useRef(false); // ✅ Гард от повторной передачи и перезапуска на мобильных
 
 	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
 	useEffect(() => {
@@ -81,6 +82,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setLastTranscript('');
 			setError(null);
 			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем обработанные transcript при открытии
+			hasSubmittedRef.current = false; // ✅ Сбрасываем гард
 			// ✅ FIX: НЕ сбрасываем transcript здесь - он должен остаться до начала новой записи
 			// Это позволяет увидеть последний результат если запись уже была
 		} else {
@@ -160,7 +162,9 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setIsIOS(result);
 			setNeedsTapToStart(result);
 			console.log('[VoicePoweredOrb] UA detection', { isiOSDevice, isSafari, result });
-		} catch {}
+		} catch (_e) {
+			// ignore
+		}
 	}, [isOpen]);
 
 	// Получить реальный уровень звука через Web Audio API
@@ -193,9 +197,22 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			trimmedTranscript !== lastTranscript &&
 			!processedTranscriptsRef.current.has(trimmedTranscript)
 		) {
+			if (hasSubmittedRef.current) {
+				console.log('[VoicePoweredOrb] Submission already done, ignoring transcript');
+				return;
+			}
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
 				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+				// ✅ Жёстко останавливаем прослушивание перед закрытием, чтобы предотвратить циклы на мобильных
+				hasSubmittedRef.current = true;
+				if (isListening) {
+					try {
+						stopListening();
+					} catch (_e) {
+						// ignore
+					}
+				}
 				// ✅ Автозакрытие после успешной передачи текста
 				onClose();
 			} catch (err) {
@@ -214,7 +231,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		} else if (trimmedTranscript && processedTranscriptsRef.current.has(trimmedTranscript)) {
 			console.log('[VoicePoweredOrb] Already processed transcript, ignoring:', trimmedTranscript);
 		}
-	}, [transcript, lastTranscript]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
+	}, [transcript, lastTranscript, isListening, onClose, stopListening]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
 
 	// WebGL орб инициализация
 	useEffect(() => {
