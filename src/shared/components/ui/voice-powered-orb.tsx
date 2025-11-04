@@ -64,10 +64,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// ✅ FIX: Упрощенная логика автостарта (как в ChatGPTInput)
 	// Используем простой флаг для отслеживания первого запуска
 	const [hasAutoStarted, setHasAutoStarted] = useState(false);
-	const [lastTranscript, setLastTranscript] = useState(''); // ✅ FIX: Используем state вместо ref
 	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
-	const processedTranscriptsRef = useRef<Set<string>>(new Set()); // ✅ FIX: Защита от повторных вызовов
-	const hasSubmittedRef = useRef(false); // ✅ Гард: предотвращает повторную передачу текста
 	const isShuttingDownRef = useRef(false); // ✅ Гард: блокирует перезапуски после закрытия
 
 	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
@@ -80,18 +77,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		if (isOpen) {
 			console.log('[VoicePoweredOrb] Modal opened, resetting state');
 			setHasAutoStarted(false);
-			setLastTranscript('');
 			setError(null);
-			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем обработанные transcript при открытии
-			hasSubmittedRef.current = false; // ✅ Сбрасываем гард
 			isShuttingDownRef.current = false; // ✅ Сбрасываем гард
-			// ✅ FIX: НЕ сбрасываем transcript здесь - он должен остаться до начала новой записи
-			// Это позволяет увидеть последний результат если запись уже была
 		} else {
 			console.log('[VoicePoweredOrb] Modal closed, resetting state');
 			setHasAutoStarted(false);
-			setLastTranscript('');
-			processedTranscriptsRef.current.clear(); // ✅ FIX: Очищаем при закрытии
 			if (isListening) {
 				console.log('[VoicePoweredOrb] Aborting listening on close');
 				abortListening(); // ✅ Используем abort вместо stop - жёстче
@@ -189,55 +179,34 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		}
 	}, [isListening, speechDebugInfo]);
 
-	// ✅ FIX: Упрощенная обработка transcript (ТОЧНО КАК В ChatGPTInput)
-	// Используем state вместо ref, используем ref для onTranscriptReady чтобы избежать повторных вызовов
-	useEffect(() => {
+	// ✅ Обработчик кнопки "Стоп" - пользователь сам контролирует когда остановить
+	const handleStopClick = () => {
 		const trimmedTranscript = transcript?.trim();
 
-		if (
-			trimmedTranscript &&
-			trimmedTranscript !== lastTranscript &&
-			!processedTranscriptsRef.current.has(trimmedTranscript)
-		) {
-			if (hasSubmittedRef.current || isShuttingDownRef.current) {
-				console.log('[VoicePoweredOrb] Already submitted or shutting down, ignoring transcript');
-				return;
+		console.log('[VoicePoweredOrb] Stop button clicked, transcript:', trimmedTranscript);
+
+		// Останавливаем распознавание
+		if (isListening) {
+			try {
+				abortListening();
+			} catch (_e) {
+				// ignore
 			}
+		}
 
-			console.log('[VoicePoweredOrb] Processing transcript:', trimmedTranscript);
-
-			// ✅ СРАЗУ блокируем повторные вызовы
-			hasSubmittedRef.current = true;
-			isShuttingDownRef.current = true;
-			processedTranscriptsRef.current.add(trimmedTranscript);
-			setLastTranscript(trimmedTranscript);
-
-			// ✅ ЖЁСТКО останавливаем распознавание ПЕРЕД передачей текста
-			if (isListening) {
-				console.log('[VoicePoweredOrb] Aborting listening before submit');
-				try {
-					abortListening();
-				} catch (_e) {
-					// ignore
-				}
-			}
-
-			// ✅ Передаём текст в чат
+		// Передаём текст в чат если есть
+		if (trimmedTranscript) {
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
-				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+				console.log('[VoicePoweredOrb] Text submitted to chat');
 			} catch (err) {
 				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
 			}
-
-			// ✅ Закрываем орб
-			onClose();
-		} else if (trimmedTranscript && trimmedTranscript === lastTranscript) {
-			console.log('[VoicePoweredOrb] Duplicate transcript, ignoring:', trimmedTranscript);
-		} else if (trimmedTranscript && processedTranscriptsRef.current.has(trimmedTranscript)) {
-			console.log('[VoicePoweredOrb] Already processed transcript, ignoring:', trimmedTranscript);
 		}
-	}, [transcript, lastTranscript, isListening, onClose, abortListening]); // ✅ FIX: Убрали onTranscriptReady из dependencies, используем ref
+
+		// Закрываем орб
+		onClose();
+	};
 
 	// WebGL орб инициализация
 	useEffect(() => {
@@ -492,7 +461,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{!isListening && needsTapToStart && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed bottom-44 left-1/2 z-100 -translate-x-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.95 }}
 							initial={{ opacity: 0, scale: 0.95 }}
 							transition={{ duration: 0.2 }}
@@ -509,32 +478,29 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								}}
 								size="lg"
 								variant="default"
-								className="bg-primary hover:bg-primary/90 text-white shadow-2xl"
+								className="bg-primary hover:bg-primary/90 text-white shadow-2xl px-8 py-6 text-lg"
 							>
 								🎤 Начать запись
 							</Button>
 						</motion.div>
 					)}
 
-					{/* ✅ КНОПКА "ГОТОВО" - появляется когда есть transcript */}
-					{transcript && (
+					{/* ✅ КНОПКА "СТОП" - по центру орба, показывается во время записи */}
+					{isListening && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed bottom-32 left-1/2 z-100 -translate-x-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.9 }}
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
 						>
 							<Button
-								onClick={() => {
-									console.log('[VoicePoweredOrb] User clicked "Готово", closing modal');
-									onClose();
-								}}
+								onClick={handleStopClick}
 								size="lg"
-								variant="default"
-								className="bg-primary hover:bg-primary/90 text-white shadow-2xl"
+								variant="destructive"
+								className="bg-red-500 hover:bg-red-600 text-white shadow-2xl px-12 py-8 text-xl font-bold rounded-full"
 							>
-								✅ Готово
+								⏹ СТОП
 							</Button>
 						</motion.div>
 					)}
