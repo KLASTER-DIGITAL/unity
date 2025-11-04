@@ -106,22 +106,9 @@ export function ChatInputSection({
 			return;
 		}
 
-		// 🚨 ВИЗУАЛЬНЫЙ DEBUG для мобильных
-		toast.success(`💬 Текст добавлен в чат: "${text.substring(0, 20)}..."`, {
-			duration: 2000,
-			position: 'top-center',
-		});
-
 		setInputText((prev) => {
 			const newText = prev?.trim() ? `${prev.trim()} ${text.trim()}` : text.trim();
 			console.log('[ChatInputSection] Updated inputText:', newText);
-
-			// 🚨 ВИЗУАЛЬНЫЙ DEBUG: Показываем новое значение inputText
-			toast.info(`📝 inputText обновлен: "${newText.substring(0, 20)}..."`, {
-				duration: 1500,
-				position: 'top-center',
-			});
-
 			return newText;
 		});
 		console.log('[ChatInputSection] handleTranscriptReady completed');

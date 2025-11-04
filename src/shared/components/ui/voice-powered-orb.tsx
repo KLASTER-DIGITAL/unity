@@ -196,6 +196,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
 				console.log('[VoicePoweredOrb] onTranscriptReady called successfully');
+				// ✅ Автозакрытие после успешной передачи текста
+				onClose();
 			} catch (err) {
 				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
 				// Удаляем из обработанных если была ошибка
