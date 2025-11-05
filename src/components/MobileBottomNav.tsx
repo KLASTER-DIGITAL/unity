@@ -58,10 +58,10 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 				'fixed left-1/2 z-9999 -translate-x-1/2',
 				// Width - full width для sticky, max-w-md для floating
 				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
-				// Floating effect - УВЕЛИЧЕН отступ для мобильных браузеров
-				// bottom-0 для sticky (прилипает к низу с safe area)
-				// bottom-20 (80px) для floating (видно над браузерными панелями)
-				stickyBottom ? 'bottom-0' : 'bottom-20',
+				// Adaptive positioning - Mobile-first approach
+				// Mobile (default): bottom-20 (80px) - видно над браузерными панелями
+				// Desktop (md: ≥768px): md:bottom-4 (16px) - ближе к низу экрана
+				stickyBottom ? 'bottom-0' : 'bottom-20 md:bottom-4',
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 10px для floating, none для sticky
