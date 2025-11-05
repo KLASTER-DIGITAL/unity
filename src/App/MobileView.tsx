@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
-import { ThemeProvider } from '@/shared/components/theme-provider';
+import { ThemeProvider, useTheme } from '@/shared/components/theme-provider';
 
 const MobileApp = lazy(() =>
 	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
@@ -49,7 +49,11 @@ interface MobileViewProps {
 	setSyncComplete: (value: boolean) => void;
 }
 
-export function MobileView({
+/**
+ * Inner component that manages theme based on workflow
+ * Must be inside ThemeProvider to access useTheme hook
+ */
+function MobileViewContent({
 	userData,
 	showInstallPrompt,
 	showSyncComplete,
@@ -73,8 +77,23 @@ export function MobileView({
 	onWelcomeSkip,
 	setSyncComplete,
 }: MobileViewProps) {
+	const { setTheme } = useTheme();
+
+	// Проблема 4: Автоматическая смена темы при переходе между Onboarding и Кабинетом
+	useEffect(() => {
+		const isOnboarding = !onboardingComplete || currentStep <= 4;
+
+		// Onboarding workflow → light theme
+		// Cabinet workflow → dark theme
+		if (isOnboarding) {
+			setTheme('light');
+		} else if (onboardingComplete && userData) {
+			setTheme('dark');
+		}
+	}, [onboardingComplete, currentStep, userData, setTheme]);
+
 	return (
-		<ThemeProvider defaultTheme="light" storageKey="unity-theme">
+		<>
 			<Suspense fallback={null}>
 				<PWAHead />
 				<PWASplash />
@@ -117,6 +136,23 @@ export function MobileView({
 				showAuth={showAuth}
 				userData={userData}
 			/>
+		</>
+	);
+}
+
+/**
+ * Main MobileView component with ThemeProvider wrapper
+ */
+export function MobileView(props: MobileViewProps) {
+	// Проблема 4: Разные темы для Onboarding и Кабинета
+	// Onboarding (currentStep 1-4, !onboardingComplete) → light theme (default)
+	// Cabinet (onboardingComplete && userData) → dark theme (auto-switched by useEffect)
+	const isOnboarding = !props.onboardingComplete || props.currentStep <= 4;
+	const defaultTheme = isOnboarding ? 'light' : 'dark';
+
+	return (
+		<ThemeProvider defaultTheme={defaultTheme} storageKey="unity-theme">
+			<MobileViewContent {...props} />
 		</ThemeProvider>
 	);
 }
