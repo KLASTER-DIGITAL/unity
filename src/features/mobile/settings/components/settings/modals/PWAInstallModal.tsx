@@ -47,25 +47,25 @@ export function PWAInstallModal({ isOpen, onClose, t }: PWAInstallModalProps) {
 				<p className="mb-4 text-footnote text-muted-foreground">Добавьте UNITY на главный экран</p>
 
 				<div className="space-y-4">
-					<div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-						<h4 className="mb-2 text-blue-900 text-headline">iOS (Safari)</h4>
-						<ol className="list-inside list-decimal space-y-1 text-blue-800 text-footnote">
+					<div className="rounded-lg border border-border bg-accent/10 p-4 transition-colors duration-300">
+						<h4 className="mb-2 text-foreground text-headline font-semibold">iOS (Safari)</h4>
+						<ol className="list-inside list-decimal space-y-1 text-muted-foreground text-footnote">
 							<li>Нажмите кнопку "Поделиться" внизу экрана</li>
 							<li>Выберите "На экран Домой"</li>
 							<li>Нажмите "Добавить"</li>
 						</ol>
 					</div>
-					<div className="rounded-lg border border-green-200 bg-green-50 p-4">
-						<h4 className="mb-2 text-green-900 text-headline">Android (Chrome)</h4>
-						<ol className="list-inside list-decimal space-y-1 text-footnote text-green-800">
+					<div className="rounded-lg border border-border bg-accent/10 p-4 transition-colors duration-300">
+						<h4 className="mb-2 text-foreground text-headline font-semibold">Android (Chrome)</h4>
+						<ol className="list-inside list-decimal space-y-1 text-footnote text-muted-foreground">
 							<li>Нажмите меню (три точки) в правом верхнем углу</li>
 							<li>Выберите "Установить приложение"</li>
 							<li>Нажмите "Установить"</li>
 						</ol>
 					</div>
-					<div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
-						<h4 className="mb-2 font-semibold text-purple-900">Преимущества PWA</h4>
-						<ul className="list-inside list-disc space-y-1 text-purple-800 text-sm">
+					<div className="rounded-lg border border-border bg-primary/10 p-4 transition-colors duration-300">
+						<h4 className="mb-2 font-semibold text-foreground">Преимущества PWA</h4>
+						<ul className="list-inside list-disc space-y-1 text-muted-foreground text-sm">
 							<li>Работает офлайн</li>
 							<li>Быстрая загрузка</li>
 							<li>Иконка на главном экране</li>

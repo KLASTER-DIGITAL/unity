@@ -27,7 +27,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 			>
 				<motion.div
 					animate={{ y: 0, opacity: 1, scale: 1 }}
-					className="relative w-full overflow-hidden rounded-t-[32px] bg-background shadow-2xl md:max-w-md md:rounded-[32px]"
+					className="relative w-full overflow-hidden rounded-t-[32px] bg-card shadow-2xl transition-colors duration-300 md:max-w-md md:rounded-[32px]"
 					exit={{ y: 400, opacity: 0, scale: 0.9 }}
 					initial={{ y: 400, opacity: 0, scale: 0.9 }}
 					onClick={(e) => e.stopPropagation()}
@@ -46,7 +46,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 						{/* Icon with animation */}
 						<motion.div
 							animate={{ scale: 1, rotate: 0 }}
-							className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-accent to-blue-600 shadow-xl"
+							className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-primary to-accent shadow-xl transition-colors duration-300"
 							initial={{ scale: 0, rotate: -180 }}
 							transition={{ delay: 0.2, type: 'spring', damping: 15 }}
 						>

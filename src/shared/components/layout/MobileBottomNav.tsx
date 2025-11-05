@@ -54,8 +54,10 @@ export function MobileBottomNav({
 				opacity: isKeyboardVisible ? 0 : 1,
 			}}
 			className={cn(
-				// Position & Layout
-				'fixed right-0 left-0 z-navigation mx-auto max-w-md',
+				// Position & Layout - центрирование через left-1/2 + -translate-x-1/2
+				'fixed left-1/2 z-9999 -translate-x-1/2',
+				// Width - full width для sticky, max-w-md для floating
+				stickyBottom ? 'w-full' : 'max-w-md',
 				// Floating effect (unless sticky)
 				stickyBottom ? 'bottom-0' : 'bottom-4',
 				// Horizontal margins for floating effect
@@ -74,6 +76,8 @@ export function MobileBottomNav({
 				// iOS-style blur effect
 				WebkitBackdropFilter: 'blur(20px)',
 				backdropFilter: 'blur(20px)',
+				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
+				paddingBottom: stickyBottom ? 'calc(0.75rem + env(safe-area-inset-bottom))' : '0.75rem',
 			}}
 			transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 		>
