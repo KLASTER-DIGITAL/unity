@@ -57,14 +57,14 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 				// Position & Layout - центрирование через left-1/2 + -translate-x-1/2
 				'fixed left-1/2 z-9999 -translate-x-1/2',
 				// Width - full width для sticky, max-w-md для floating
-				stickyBottom ? 'w-full' : 'max-w-md',
-				// Floating effect (unless sticky)
-				stickyBottom ? 'bottom-0' : 'bottom-4',
-				// Horizontal margins for floating effect
-				stickyBottom ? '' : 'mx-4',
+				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
+				// Floating effect - УВЕЛИЧЕН отступ для мобильных браузеров
+				// bottom-0 для sticky (прилипает к низу с safe area)
+				// bottom-20 (80px) для floating (видно над браузерными панелями)
+				stickyBottom ? 'bottom-0' : 'bottom-20',
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
-				// Rounded corners - 10px for floating, none for sticky
+				// Rounded corners - 10px для floating, none для sticky
 				stickyBottom ? 'rounded-none border-t' : 'rounded-[10px] shadow-xl',
 				// Padding
 				'px-2 py-3',
