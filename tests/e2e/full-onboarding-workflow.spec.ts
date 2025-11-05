@@ -372,5 +372,3 @@ test.describe('Full Onboarding Workflow', () => {
 		}
 	});
 });
-
-

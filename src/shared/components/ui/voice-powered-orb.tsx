@@ -179,6 +179,33 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		}
 	}, [isListening, speechDebugInfo]);
 
+	// ✅ FIX: Автоматическая передача текста после паузы (как у ChatGPT)
+	// Когда запись останавливается (isListening становится false) и есть распознанный текст
+	useEffect(() => {
+		// Проверяем что:
+		// 1. Модальное окно открыто
+		// 2. Запись НЕ идёт (isListening = false)
+		// 3. Есть распознанный текст
+		// 4. НЕ закрываем модальное окно (isShuttingDownRef)
+		if (isOpen && !isListening && transcript && transcript.trim() && !isShuttingDownRef.current) {
+			console.log('[VoicePoweredOrb] Auto-submitting transcript after pause:', transcript);
+
+			// Передаём текст в чат автоматически
+			try {
+				onTranscriptReadyRef.current(transcript.trim());
+				console.log('[VoicePoweredOrb] Text auto-submitted to chat');
+
+				// Закрываем орб после передачи текста
+				// Небольшая задержка для визуальной обратной связи
+				setTimeout(() => {
+					onClose();
+				}, 300);
+			} catch (err) {
+				console.error('[VoicePoweredOrb] Error auto-submitting transcript:', err);
+			}
+		}
+	}, [isOpen, isListening, transcript, onClose]);
+
 	// ✅ Обработчик кнопки "Стоп" - пользователь сам контролирует когда остановить
 	const handleStopClick = () => {
 		const trimmedTranscript = transcript?.trim();
@@ -425,8 +452,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						transition={{ duration: 0.2 }}
 					/>
 
-					{/* WebGL Canvas (орб) - z-modal (ПОВЕРХ backdrop) */}
-					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
+					{/* WebGL Canvas (орб) - z-70 (ПОВЕРХ backdrop) */}
+					<canvas className="pointer-events-none fixed inset-0 z-70" ref={canvasRef} />
 
 					{/* ✅ УБРАЛИ кнопку старт/стоп - она мешала вставке текста!
 					    Теперь ТОЛЬКО автоматический старт при открытии + кнопка "Готово" когда есть текст */}
@@ -434,7 +461,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* DEBUG INFO - показываем ВСЕГДА для отладки */}
 					<motion.div
 						animate={{ opacity: 1, y: 0 }}
-						className="pointer-events-none fixed top-20 left-1/2 z-100 w-full max-w-md -translate-x-1/2 px-4 text-center"
+						className="pointer-events-none fixed top-20 left-1/2 z-80 w-full max-w-md -translate-x-1/2 px-4 text-center"
 						exit={{ opacity: 0, y: -10 }}
 						initial={{ opacity: 0, y: -10 }}
 					>
@@ -461,7 +488,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{!isListening && needsTapToStart && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-80 -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.95 }}
 							initial={{ opacity: 0, scale: 0.95 }}
 							transition={{ duration: 0.2 }}
@@ -489,7 +516,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{!(needsTapToStart && !isListening) && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-80 -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.9 }}
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
@@ -517,7 +544,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{error && (
 						<motion.div
 							animate={{ opacity: 1, y: 0 }}
-							className="pointer-events-none fixed bottom-52 left-1/2 z-100 w-full max-w-md -translate-x-1/2 px-4 text-center"
+							className="pointer-events-none fixed bottom-52 left-1/2 z-80 w-full max-w-md -translate-x-1/2 px-4 text-center"
 							exit={{ opacity: 0, y: 10 }}
 							initial={{ opacity: 0, y: 10 }}
 						>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { speech } from '../lib/platform/speech';
 
 type SpeechRecognitionHook = {
@@ -15,6 +15,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
 	const [transcript, setTranscript] = useState('');
 	const [debugInfo, setDebugInfo] = useState(''); // ✅ DEBUG
+	const isManualStopRef = useRef(false); // ✅ FIX: Гард для предотвращения зацикливания
 
 	const isSupported = speech.isSupported();
 
@@ -74,9 +75,19 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 				'[useSpeechRecognition] Speech ended, hasFinalResult:',
 				hasFinalResult,
 				'lastTranscript:',
-				lastTranscript
+				lastTranscript,
+				'isManualStop:',
+				isManualStopRef.current
 			);
 			setIsListening(false);
+
+			// ✅ FIX: Если это ручная остановка - НЕ обрабатываем результаты
+			// Это предотвращает зацикливание на мобильных
+			if (isManualStopRef.current) {
+				console.log('[useSpeechRecognition] Manual stop detected, skipping result processing');
+				isManualStopRef.current = false; // Сбрасываем флаг
+				return;
+			}
 
 			// ✅ FIX: Если НЕ было финального результата но есть последний - используем его
 			if (!hasFinalResult && lastTranscript) {
@@ -122,6 +133,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// Это вызывало проблемы с useEffect в VoicePoweredOrb
 		// setTranscript(''); // ❌ УБРАНО - сброс перенесен в VoicePoweredOrb при открытии
 
+		// ✅ FIX: Сбрасываем флаг ручной остановки при старте
+		isManualStopRef.current = false;
+
 		// ✅ ВСЕГДА используем continuous=false чтобы избежать циклов на мобильных
 		speech.startListening({
 			language: 'ru-RU',
@@ -132,11 +146,13 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 	const stopListening = useCallback(() => {
 		console.log('[useSpeechRecognition] stopListening called');
+		isManualStopRef.current = true; // ✅ FIX: Устанавливаем флаг ручной остановки
 		speech.stopListening();
 	}, []);
 
 	const abortListening = useCallback(() => {
 		console.log('[useSpeechRecognition] abortListening called');
+		isManualStopRef.current = true; // ✅ FIX: Устанавливаем флаг ручной остановки
 		speech.abort();
 	}, []);
 

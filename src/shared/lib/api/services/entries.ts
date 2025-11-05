@@ -117,7 +117,9 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
 
 	console.log('[ENTRIES] ✅ Entry created successfully:', createdEntry.id);
 	console.log('[ENTRIES] 🔔 Realtime event will be triggered automatically by Supabase');
-	console.log('[ENTRIES] 📡 Subscribed components (useEntries, MotivationCardsSection) will receive INSERT event');
+	console.log(
+		'[ENTRIES] 📡 Subscribed components (useEntries, MotivationCardsSection) will receive INSERT event'
+	);
 	return createdEntry;
 }
 
