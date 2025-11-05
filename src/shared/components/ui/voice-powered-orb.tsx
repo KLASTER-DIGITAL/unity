@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/universal';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
@@ -47,18 +48,11 @@ interface VoicePoweredOrbProps {
 export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePoweredOrbProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [debugInfo, setDebugInfo] = useState<string>(''); // ✅ DEBUG: визуальный индикатор
 	const [isIOS, setIsIOS] = useState(false); // ✅ iOS Safari детект
 	const [needsTapToStart, setNeedsTapToStart] = useState(false); // ✅ Требуется тап для старта на iOS
 
-	const {
-		isListening,
-		transcript,
-		startListening,
-		abortListening,
-		isSupported,
-		debugInfo: speechDebugInfo,
-	} = useSpeechRecognition();
+	const { isListening, transcript, startListening, abortListening, isSupported } =
+		useSpeechRecognition();
 
 	// ✅ FIX: Упрощенная логика автостарта (как в ChatGPTInput)
 	// Используем простой флаг для отслеживания первого запуска
@@ -126,6 +120,11 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
 				setError(`Ошибка запуска записи: ${errorMessage}`);
 				console.error('[VoicePoweredOrb] Failed to start listening:', err);
+				// ✅ КРИТИЧНО: Показываем toast только для критичной ошибки записи
+				toast.error('Не удалось начать запись', {
+					description: errorMessage,
+					duration: 5000,
+				});
 				// ✅ FIX: Сбрасываем флаг если ошибка чтобы можно было попробовать снова
 				setHasAutoStarted(false);
 			}
@@ -166,11 +165,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	// Логирование изменений isListening для отладки
 	useEffect(() => {
 		console.log('[VoicePoweredOrb] isListening changed:', isListening);
-		// ✅ DEBUG: показываем информацию из hook
-		if (speechDebugInfo) {
-			setDebugInfo(speechDebugInfo);
-		}
-	}, [isListening, speechDebugInfo]);
+	}, [isListening]);
 
 	// ✅ УДАЛЕНО: Автоматическая передача текста (вызывала дублирование)
 	// Теперь текст передаётся ТОЛЬКО через handleStopClick (ручное управление)
@@ -430,31 +425,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* ✅ УБРАЛИ кнопку старт/стоп - она мешала вставке текста!
 					    Теперь ТОЛЬКО автоматический старт при открытии + кнопка "Готово" когда есть текст */}
 
-					{/* DEBUG INFO - показываем ВСЕГДА для отладки */}
-					<motion.div
-						animate={{ opacity: 1, y: 0 }}
-						className="pointer-events-none fixed top-20 left-1/2 z-popover w-full max-w-md -translate-x-1/2 px-4 text-center"
-						exit={{ opacity: 0, y: -10 }}
-						initial={{ opacity: 0, y: -10 }}
-					>
-						<div className="space-y-2">
-							<div className="rounded-lg bg-blue-500/90 px-4 py-2 text-xs font-mono text-white shadow-lg">
-								{debugInfo || 'Ожидание...'}
-							</div>
-							{/* Показываем статус записи */}
-							<div
-								className={`rounded-lg px-4 py-2 text-xs font-mono text-white shadow-lg ${isListening ? 'bg-green-500/90' : 'bg-gray-500/90'}`}
-							>
-								{isListening ? '🔴 ЗАПИСЬ' : '⏸️ ПАУЗА'}
-							</div>
-							{/* Показываем распознанный текст если есть */}
-							{transcript && (
-								<div className="rounded-lg bg-purple-500/90 px-4 py-2 text-xs font-mono text-white shadow-lg">
-									📝 {transcript.substring(0, 50)}...
-								</div>
-							)}
-						</div>
-					</motion.div>
+					{/* ✅ УДАЛЕНО: DEBUG INFO блоки (показывали "❌ Нет результата" и другие тестовые сообщения) */}
 
 					{/* ✅ КНОПКА "НАЧАТЬ ЗАПИСЬ" для iOS Safari (требуется пользовательский жест) */}
 					{!isListening && needsTapToStart && (
@@ -493,14 +464,14 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
 						>
-							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО иконка без текста */}
+							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО белая иконка стоп */}
 							<Button
 								onClick={handleStopClick}
 								size="lg"
 								variant="destructive"
-								className="bg-red-500 hover:bg-red-600 text-white shadow-2xl p-8 text-5xl rounded-full w-24 h-24 flex items-center justify-center"
+								className="bg-red-500 hover:bg-red-600 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center"
 							>
-								⏹
+								<span className="text-white">⏹</span>
 							</Button>
 						</motion.div>
 					)}

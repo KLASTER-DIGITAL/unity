@@ -8,13 +8,11 @@ type SpeechRecognitionHook = {
 	stopListening: () => void;
 	abortListening: () => void;
 	isSupported: boolean;
-	debugInfo: string; // ✅ DEBUG: информация для отладки
 };
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
 	const [transcript, setTranscript] = useState('');
-	const [debugInfo, setDebugInfo] = useState(''); // ✅ DEBUG
 	const isManualStopRef = useRef(false); // ✅ FIX: Гард для предотвращения зацикливания
 
 	const isSupported = speech.isSupported();
@@ -32,7 +30,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// Set up callbacks
 		speech.onStart(() => {
 			console.log('[useSpeechRecognition] Speech started');
-			setDebugInfo('🎤 Запись началась'); // ✅ DEBUG
 			lastTranscript = ''; // Сбрасываем при старте
 			hasFinalResult = false; // Сбрасываем флаг
 			setIsListening(true);
@@ -47,11 +44,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 			// ✅ ВСЕГДА сохраняем последний результат
 			lastTranscript = result.transcript;
-
-			// ✅ DEBUG: показываем что получили
-			setDebugInfo(
-				`📝 ${result.isFinal ? 'FINAL' : 'interim'}: "${result.transcript.substring(0, 30)}..."`
-			);
 
 			// ✅ Для мобильных: устанавливаем transcript СРАЗУ при любом результате
 			// Не ждём final - на iOS Safari он может не прийти
@@ -95,15 +87,12 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 					'[useSpeechRecognition] No final result, calling setTranscript with last interim:',
 					lastTranscript
 				);
-				setDebugInfo(`✅ Используем interim: "${lastTranscript.substring(0, 30)}..."`); // ✅ DEBUG
 				setTranscript(lastTranscript);
 				console.log('[useSpeechRecognition] setTranscript called (interim from onEnd)');
 			} else if (hasFinalResult) {
 				console.log('[useSpeechRecognition] Final result already set, no action needed');
-				setDebugInfo('✅ Получен финальный результат'); // ✅ DEBUG
 			} else {
 				console.warn('[useSpeechRecognition] No result at all!');
-				setDebugInfo('❌ Нет результата'); // ✅ DEBUG
 			}
 		});
 
@@ -163,6 +152,5 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		stopListening,
 		abortListening,
 		isSupported,
-		debugInfo, // ✅ DEBUG
 	};
 }
