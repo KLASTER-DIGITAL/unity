@@ -378,8 +378,18 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 		const render = () => {
 			const currentTime = (Date.now() - startTime) / 1000;
-			// Использовать реальный audioLevel из Web Audio API
-			const currentAudioLevel = isListening ? 0.3 + audioLevelRef.current * 0.7 : 0.2;
+
+			// ✅ FIX: На iOS Safari используем синтетическую пульсацию (sin wave)
+			// потому что Web Audio API нельзя использовать одновременно с SpeechRecognition
+			let currentAudioLevel: number;
+			if (isIOS && isListening) {
+				// Синтетическая пульсация для iOS: sin wave с частотой 2 Hz
+				const syntheticPulse = Math.sin(currentTime * 2 * Math.PI * 2) * 0.5 + 0.5; // 0.0 - 1.0
+				currentAudioLevel = 0.3 + syntheticPulse * 0.4; // 0.3 - 0.7
+			} else {
+				// Реальный audioLevel из Web Audio API для НЕ-iOS
+				currentAudioLevel = isListening ? 0.3 + audioLevelRef.current * 0.7 : 0.2;
+			}
 
 			gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 			gl.uniform1f(timeLocation, currentTime);
@@ -402,7 +412,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			gl.deleteShader(fragmentShader);
 			gl.deleteBuffer(positionBuffer);
 		};
-	}, [isOpen, isListening]);
+	}, [isOpen, isListening, isIOS]); // ✅ FIX: Добавлен isIOS для синтетической пульсации
 
 	const handleBackdropClick = () => {
 		if (!isListening) {
@@ -437,6 +447,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* ✅ УДАЛЕНО: DEBUG INFO блоки (показывали "❌ Нет результата" и другие тестовые сообщения) */}
 
 					{/* ✅ КНОПКА "НАЧАТЬ ЗАПИСЬ" для iOS Safari (требуется пользовательский жест) */}
+					{/* ✅ FIX: Убран текст, оставлена ТОЛЬКО иконка микрофона (как кнопка Stop) */}
 					{!isListening && needsTapToStart && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
@@ -457,9 +468,9 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 								}}
 								size="lg"
 								variant="default"
-								className="bg-primary hover:bg-primary/90 text-white shadow-2xl px-8 py-6 text-lg"
+								className="bg-primary hover:bg-primary/90 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
 							>
-								🎤 Начать запись
+								<span className="text-white">🎤</span>
 							</Button>
 						</motion.div>
 					)}
