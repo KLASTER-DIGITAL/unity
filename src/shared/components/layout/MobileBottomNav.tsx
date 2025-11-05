@@ -17,6 +17,7 @@
 
 import { BarChart3, History, Home, Settings, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/shared/components/ui/utils';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { useTranslation } from '@/shared/lib/i18n';
@@ -34,6 +35,26 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
 	const { t } = useTranslation();
 	const isKeyboardVisible = useKeyboardVisible();
+	const [isScrolledDown, setIsScrolledDown] = useState(false);
+
+	// Проблема 3: Автоматическое поднятие меню при прокрутке вниз
+	useEffect(() => {
+		const handleScroll = () => {
+			const scrollTop = window.scrollY;
+			const windowHeight = window.innerHeight;
+			const documentHeight = document.documentElement.scrollHeight;
+
+			// Если прокрутили вниз больше чем на 100px или близко к концу страницы
+			if (scrollTop > 100 || scrollTop + windowHeight >= documentHeight - 50) {
+				setIsScrolledDown(true);
+			} else {
+				setIsScrolledDown(false);
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
 	const tabs = [
 		{ id: 'home', label: t('home', 'Главная'), icon: Home },
@@ -48,30 +69,31 @@ export function MobileBottomNav({
 	];
 
 	return (
-		<motion.nav
-			animate={{
-				y: isKeyboardVisible ? 100 : 0,
-				opacity: isKeyboardVisible ? 0 : 1,
-			}}
+		<nav
 			className={cn(
-				// Position & Layout - центрирование через left-1/2 + -translate-x-1/2
+				// Position & Layout - FIXED позиционирование (НЕ двигается при скролле)
 				'fixed left-1/2 z-9999 -translate-x-1/2',
 				// Width - full width для sticky, max-w-md для floating
 				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
-				// Adaptive positioning - Mobile-first approach
-				// Mobile (default): bottom-20 (80px) - видно над браузерными панелями
-				// Desktop (md: ≥768px): md:bottom-4 (16px) - ближе к низу экрана
-				stickyBottom ? 'bottom-0' : 'bottom-20 md:bottom-4',
+				// Adaptive positioning - Mobile-first + Scroll-aware
+				// Проблема 1: FIXED позиционирование (не используем Framer Motion y)
+				// Проблема 3: Автоматическое поднятие при скролле
+				stickyBottom
+					? 'bottom-0'
+					: isScrolledDown
+						? 'bottom-20' // При скролле вниз - поднимаем выше
+						: 'bottom-20 md:bottom-4', // По умолчанию - адаптивно
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 16px для floating, none для sticky
 				stickyBottom ? 'rounded-none border-t' : 'rounded-[16px] shadow-xl',
 				// Padding
 				'px-2 py-3',
-				// Transitions
-				'transition-colors duration-300'
+				// Transitions - smooth transitions для всех изменений
+				'transition-all duration-300',
+				// Проблема 1: Скрытие при клавиатуре через CSS transform (НЕ Framer Motion)
+				isKeyboardVisible ? 'translate-y-full opacity-0' : 'translate-y-0 opacity-100'
 			)}
-			initial={{ y: 100, opacity: 0 }}
 			style={{
 				// iOS-style blur effect
 				WebkitBackdropFilter: 'blur(20px)',
@@ -79,7 +101,6 @@ export function MobileBottomNav({
 				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
 				paddingBottom: stickyBottom ? 'calc(0.75rem + env(safe-area-inset-bottom))' : '0.75rem',
 			}}
-			transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 		>
 			<div className="flex items-center justify-around gap-1">
 				{tabs.map((tab) => {
@@ -135,6 +156,6 @@ export function MobileBottomNav({
 					);
 				})}
 			</div>
-		</motion.nav>
+		</nav>
 	);
 }

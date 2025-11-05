@@ -119,6 +119,8 @@ input {
 	margin-left: auto;
 	margin-right: auto;
 	padding: 1.5rem; /* p-6 */
+	/* Проблема 2: Добавлен padding-bottom для Яндекс Браузера toolbar */
+	padding-bottom: 5rem; /* pb-20 (80px) - видно над браузерными панелями */
 	border-top-left-radius: 1.5rem; /* rounded-t-3xl */
 	border-top-right-radius: 1.5rem;
 	box-shadow:
@@ -126,4 +128,6 @@ input {
 		0 -8px 10px -6px rgb(0 0 0 / 0.1);
 	overflow-y: auto; /* Enable vertical scrolling */
 	-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+	/* iOS Safe Area support */
+	padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
