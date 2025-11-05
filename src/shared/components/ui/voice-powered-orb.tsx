@@ -452,8 +452,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						transition={{ duration: 0.2 }}
 					/>
 
-					{/* WebGL Canvas (орб) - z-70 (ПОВЕРХ backdrop) - pointer-events-none чтобы НЕ блокировать клики по кнопкам */}
-					<canvas className="pointer-events-none fixed inset-0 z-70" ref={canvasRef} />
+					{/* WebGL Canvas (орб) - z-modal (70) - ПОВЕРХ backdrop (z-60), pointer-events-none чтобы НЕ блокировать клики по кнопкам */}
+					<canvas className="pointer-events-none fixed inset-0 z-modal" ref={canvasRef} />
 
 					{/* ✅ УБРАЛИ кнопку старт/стоп - она мешала вставке текста!
 					    Теперь ТОЛЬКО автоматический старт при открытии + кнопка "Готово" когда есть текст */}
@@ -461,7 +461,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{/* DEBUG INFO - показываем ВСЕГДА для отладки */}
 					<motion.div
 						animate={{ opacity: 1, y: 0 }}
-						className="pointer-events-none fixed top-20 left-1/2 z-80 w-full max-w-md -translate-x-1/2 px-4 text-center"
+						className="pointer-events-none fixed top-20 left-1/2 z-popover w-full max-w-md -translate-x-1/2 px-4 text-center"
 						exit={{ opacity: 0, y: -10 }}
 						initial={{ opacity: 0, y: -10 }}
 					>
@@ -488,7 +488,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{!isListening && needsTapToStart && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-80 -translate-x-1/2 -translate-y-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-popover -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.95 }}
 							initial={{ opacity: 0, scale: 0.95 }}
 							transition={{ duration: 0.2 }}
@@ -516,7 +516,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{!(needsTapToStart && !isListening) && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-80 -translate-x-1/2 -translate-y-1/2"
+							className="pointer-events-auto fixed top-1/2 left-1/2 z-popover -translate-x-1/2 -translate-y-1/2"
 							exit={{ opacity: 0, scale: 0.9 }}
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
@@ -544,7 +544,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 					{error && (
 						<motion.div
 							animate={{ opacity: 1, y: 0 }}
-							className="pointer-events-none fixed bottom-52 left-1/2 z-80 w-full max-w-md -translate-x-1/2 px-4 text-center"
+							className="pointer-events-none fixed bottom-52 left-1/2 z-popover w-full max-w-md -translate-x-1/2 px-4 text-center"
 							exit={{ opacity: 0, y: 10 }}
 							initial={{ opacity: 0, y: 10 }}
 						>

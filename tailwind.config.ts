@@ -16,7 +16,8 @@ export default {
 				50: 50, // (не используется)
 				51: 51, // (не используется)
 				'modal-backdrop': 60, // Voice Orb - backdrop (ПОВЕРХ navigation, затемняет ВСЁ)
-				modal: 70, // Voice Orb - WebGL canvas (ПОВЕРХ backdrop, pointer-events-none)
+				70: 70, // Voice Orb - WebGL canvas (ПОВЕРХ backdrop, pointer-events-none)
+				modal: 70, // Alias для z-70 (для совместимости)
 				80: 80, // Voice Orb - кнопки (САМЫЙ ВЕРХНИЙ слой, pointer-events-auto)
 				99: 99,
 				100: 100,
