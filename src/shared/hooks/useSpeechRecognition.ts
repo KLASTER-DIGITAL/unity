@@ -94,6 +94,18 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			} else {
 				console.warn('[useSpeechRecognition] No result at all!');
 			}
+
+			// ✅ КРИТИЧНО для мобильных: ВСЕГДА останавливаем распознавание после onEnd
+			// Это предотвращает автоматический перезапуск на мобильных браузерах
+			// На десктопе это не нужно, но на мобильных Web Speech API может перезапуститься
+			console.log(
+				'[useSpeechRecognition] Calling speech.abort() to prevent auto-restart on mobile'
+			);
+			try {
+				speech.abort();
+			} catch (e) {
+				console.warn('[useSpeechRecognition] Failed to abort after onEnd:', e);
+			}
 		});
 
 		speech.onError((error) => {

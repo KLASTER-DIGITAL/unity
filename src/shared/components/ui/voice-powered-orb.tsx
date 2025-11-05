@@ -174,11 +174,16 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const handleStopClick = () => {
 		const trimmedTranscript = transcript?.trim();
 
-		console.log('[VoicePoweredOrb] Stop button clicked, transcript:', trimmedTranscript);
+		console.log('[VoicePoweredOrb] Stop button clicked');
+		console.log('[VoicePoweredOrb] transcript:', transcript);
+		console.log('[VoicePoweredOrb] trimmedTranscript:', trimmedTranscript);
+		console.log('[VoicePoweredOrb] lastSubmittedTextRef.current:', lastSubmittedTextRef.current);
+		console.log('[VoicePoweredOrb] isListening:', isListening);
 
 		// Останавливаем распознавание
 		if (isListening) {
 			try {
+				console.log('[VoicePoweredOrb] Calling abortListening()');
 				abortListening();
 			} catch (_e) {
 				// ignore
@@ -188,17 +193,21 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		// ✅ FIX: Передаём текст в чат ТОЛЬКО если есть И он НЕ был уже отправлен
 		if (trimmedTranscript && trimmedTranscript !== lastSubmittedTextRef.current) {
 			try {
+				console.log('[VoicePoweredOrb] Calling onTranscriptReady with:', trimmedTranscript);
 				onTranscriptReadyRef.current(trimmedTranscript);
 				lastSubmittedTextRef.current = trimmedTranscript; // ✅ Запоминаем отправленный текст
-				console.log('[VoicePoweredOrb] Text submitted to chat');
+				console.log('[VoicePoweredOrb] Text submitted to chat successfully');
 			} catch (err) {
 				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
 			}
 		} else if (trimmedTranscript === lastSubmittedTextRef.current) {
 			console.log('[VoicePoweredOrb] Text already submitted, skipping duplicate');
+		} else if (!trimmedTranscript) {
+			console.warn('[VoicePoweredOrb] No transcript to submit (empty or undefined)');
 		}
 
 		// Закрываем орб
+		console.log('[VoicePoweredOrb] Closing orb');
 		onClose();
 	};
 
@@ -464,12 +473,12 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
 						>
-							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО белая иконка стоп */}
+							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО белая иконка стоп, БЕЗ желтого контура */}
 							<Button
 								onClick={handleStopClick}
 								size="lg"
 								variant="destructive"
-								className="bg-red-500 hover:bg-red-600 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center"
+								className="bg-red-500 hover:bg-red-600 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
 							>
 								<span className="text-white">⏹</span>
 							</Button>
