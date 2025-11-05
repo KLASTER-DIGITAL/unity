@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/universal';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
@@ -66,6 +65,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [hasAutoStarted, setHasAutoStarted] = useState(false);
 	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
 	const isShuttingDownRef = useRef(false); // ✅ Гард: блокирует перезапуски после закрытия
+	const lastSubmittedTextRef = useRef<string>(''); // ✅ FIX: Предотвращает дублирование текста
 
 	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
 	useEffect(() => {
@@ -79,6 +79,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setHasAutoStarted(false);
 			setError(null);
 			isShuttingDownRef.current = false; // ✅ Сбрасываем гард
+			lastSubmittedTextRef.current = ''; // ✅ FIX: Сбрасываем отправленный текст
 		} else {
 			console.log('[VoicePoweredOrb] Modal closed, resetting state');
 			setHasAutoStarted(false);
@@ -98,10 +99,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				const errorMessage =
 					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.';
 				setError(errorMessage);
-				toast.error('Голосовой ввод недоступен', {
-					description: 'Ваш браузер не поддерживает Web Speech API',
-					duration: 5000,
-				});
 				console.warn('[VoicePoweredOrb] Speech recognition not supported');
 				setHasAutoStarted(true);
 				return;
@@ -128,10 +125,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
 				setError(`Ошибка запуска записи: ${errorMessage}`);
-				toast.error('Не удалось начать запись', {
-					description: errorMessage,
-					duration: 5000,
-				});
 				console.error('[VoicePoweredOrb] Failed to start listening:', err);
 				// ✅ FIX: Сбрасываем флаг если ошибка чтобы можно было попробовать снова
 				setHasAutoStarted(false);
@@ -179,32 +172,8 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		}
 	}, [isListening, speechDebugInfo]);
 
-	// ✅ FIX: Автоматическая передача текста после паузы (как у ChatGPT)
-	// Когда запись останавливается (isListening становится false) и есть распознанный текст
-	useEffect(() => {
-		// Проверяем что:
-		// 1. Модальное окно открыто
-		// 2. Запись НЕ идёт (isListening = false)
-		// 3. Есть распознанный текст
-		// 4. НЕ закрываем модальное окно (isShuttingDownRef)
-		if (isOpen && !isListening && transcript && transcript.trim() && !isShuttingDownRef.current) {
-			console.log('[VoicePoweredOrb] Auto-submitting transcript after pause:', transcript);
-
-			// Передаём текст в чат автоматически
-			try {
-				onTranscriptReadyRef.current(transcript.trim());
-				console.log('[VoicePoweredOrb] Text auto-submitted to chat');
-
-				// Закрываем орб после передачи текста
-				// Небольшая задержка для визуальной обратной связи
-				setTimeout(() => {
-					onClose();
-				}, 300);
-			} catch (err) {
-				console.error('[VoicePoweredOrb] Error auto-submitting transcript:', err);
-			}
-		}
-	}, [isOpen, isListening, transcript, onClose]);
+	// ✅ УДАЛЕНО: Автоматическая передача текста (вызывала дублирование)
+	// Теперь текст передаётся ТОЛЬКО через handleStopClick (ручное управление)
 
 	// ✅ Обработчик кнопки "Стоп" - пользователь сам контролирует когда остановить
 	const handleStopClick = () => {
@@ -221,14 +190,17 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			}
 		}
 
-		// Передаём текст в чат если есть
-		if (trimmedTranscript) {
+		// ✅ FIX: Передаём текст в чат ТОЛЬКО если есть И он НЕ был уже отправлен
+		if (trimmedTranscript && trimmedTranscript !== lastSubmittedTextRef.current) {
 			try {
 				onTranscriptReadyRef.current(trimmedTranscript);
+				lastSubmittedTextRef.current = trimmedTranscript; // ✅ Запоминаем отправленный текст
 				console.log('[VoicePoweredOrb] Text submitted to chat');
 			} catch (err) {
 				console.error('[VoicePoweredOrb] Error calling onTranscriptReady:', err);
 			}
+		} else if (trimmedTranscript === lastSubmittedTextRef.current) {
+			console.log('[VoicePoweredOrb] Text already submitted, skipping duplicate');
 		}
 
 		// Закрываем орб
@@ -521,22 +493,15 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
 						>
-							<div className="flex flex-col items-center gap-4">
-								{/* Большая кнопка - меняет текст в зависимости от статуса */}
-								<Button
-									onClick={handleStopClick}
-									size="lg"
-									variant="destructive"
-									className="bg-red-500 hover:bg-red-600 text-white shadow-2xl px-12 py-8 text-xl font-bold rounded-full min-w-[200px]"
-								>
-									{isListening ? '⏹ СТОП' : '✅ ГОТОВО'}
-								</Button>
-
-								{/* Debug статус */}
-								<div className="text-white text-sm font-mono bg-black/50 px-4 py-2 rounded-lg">
-									{isListening ? '🔴 Запись идёт' : '⏸️ Пауза'}
-								</div>
-							</div>
+							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО иконка без текста */}
+							<Button
+								onClick={handleStopClick}
+								size="lg"
+								variant="destructive"
+								className="bg-red-500 hover:bg-red-600 text-white shadow-2xl p-8 text-5xl rounded-full w-24 h-24 flex items-center justify-center"
+							>
+								⏹
+							</Button>
 						</motion.div>
 					)}
 
