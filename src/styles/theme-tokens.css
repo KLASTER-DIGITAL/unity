@@ -165,9 +165,9 @@
   --z-dropdown: 10;
   --z-sticky: 20;
   --z-fixed: 30;
-  --z-navigation: 50; /* Mobile bottom navigation */
-  --z-modal-backdrop: 60; /* Modal backdrop (above navigation) */
-  --z-modal: 70; /* Modal content (above backdrop) */
+  --z-navigation: 40; /* Mobile bottom navigation (НИЖЕ modal backdrop) */
+  --z-modal-backdrop: 60; /* Modal backdrop (ПОВЕРХ navigation, затемняет ВСЁ) */
+  --z-modal: 70; /* Modal content (ПОВЕРХ backdrop) */
   --z-popover: 80; /* Popovers and tooltips */
-  --z-tooltip: 90; /* Tooltips (highest) */
+  --z-tooltip: 90; /* Tooltips (САМЫЙ ВЕРХНИЙ) */
 }

@@ -89,19 +89,19 @@ input {
 /* ===== Z-Index Utility Classes ===== */
 /* Direct z-index values for consistent layering */
 .z-navigation {
-	z-index: 50; /* Mobile bottom navigation */
+	z-index: 40; /* Mobile bottom navigation (НИЖЕ modal backdrop) */
 }
 
 .z-modal-backdrop {
-	z-index: 60; /* Modal backdrop (above navigation) */
+	z-index: 60; /* Modal backdrop (ПОВЕРХ navigation, затемняет ВСЁ) */
 }
 
 .z-modal {
-	z-index: 70; /* Modal content (above backdrop) */
+	z-index: 70; /* Modal content (ПОВЕРХ backdrop) */
 }
 
 .z-popover {
-	z-index: 80; /* Popovers and tooltips */
+	z-index: 80; /* Popovers and tooltips (САМЫЙ ВЕРХНИЙ) */
 }
 
 .z-tooltip {

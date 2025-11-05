@@ -55,7 +55,7 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 			animate={{ y: 0, opacity: 1 }}
 			className={cn(
 				// Position & Layout
-				'fixed right-0 left-0 z-50 mx-auto max-w-md',
+				'fixed right-0 left-0 z-40 mx-auto max-w-md',
 				// Floating effect (unless sticky)
 				stickyBottom ? 'bottom-0' : 'bottom-4',
 				// Horizontal margins for floating effect

@@ -438,10 +438,10 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 		<AnimatedPresence>
 			{isOpen && (
 				<>
-					{/* Backdrop с blur - z-50 (САМЫЙ НИЖНИЙ слой) - КЛИКАБЕЛЬНЫЙ для закрытия */}
+					{/* Backdrop с blur - z-modal-backdrop (60) - КЛИКАБЕЛЬНЫЙ для закрытия, ПОВЕРХ navigation (z-40) */}
 					<motion.div
 						animate={{ opacity: 1 }}
-						className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+						className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
 						exit={{ opacity: 0 }}
 						initial={{ opacity: 0 }}
 						onClick={handleBackdropClick}
