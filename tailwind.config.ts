@@ -12,11 +12,11 @@ export default {
 			},
 			colors: {},
 			zIndex: {
-				50: 50, // Voice Orb - canvas (под backdrop)
-				51: 51, // Voice Orb - button (под backdrop)
-				'modal-backdrop': 60, // Modal backdrop (above navigation)
-				modal: 70, // Modal content (Voice Orb canvas поверх backdrop)
-				80: 80, // Voice Orb - button (поверх backdrop, поверх canvas)
+				50: 50, // Voice Orb - backdrop (САМЫЙ НИЖНИЙ слой, кликабельный для закрытия)
+				51: 51, // (не используется)
+				'modal-backdrop': 60, // (не используется, оставлен для совместимости)
+				modal: 70, // Voice Orb - WebGL canvas (поверх backdrop, pointer-events-none)
+				80: 80, // Voice Orb - кнопки (САМЫЙ ВЕРХНИЙ слой, pointer-events-auto)
 				99: 99,
 				100: 100,
 				101: 101,
