@@ -126,6 +126,16 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["scripts/**/*.js", "scripts/**/*.ts"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noExcessiveCognitiveComplexity": "off"
+					}
+				}
+			}
 		}
 	]
 }

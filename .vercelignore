@@ -46,8 +46,8 @@ dist/
 supabase/migrations/
 supabase/seed.sql
 
-# Scripts
-scripts/
+# Scripts (ВАЖНО: НЕ исключать scripts/generate-sw-version.js - нужен для prebuild!)
+# scripts/
 
 # React Native / Expo (не нужны для web build)
 # ВАЖНО: /app/ с ведущим слэшем исключает только корневую директорию app/,

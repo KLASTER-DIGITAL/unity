@@ -71,9 +71,10 @@ export function TimePickerModal({
 			<div className="space-y-6">
 				{/* Time Selectors */}
 				<div>
-					<label className="mb-3 block text-muted-foreground text-sm">Выберите время</label>
+					<label htmlFor="hour-select" className="mb-3 block text-muted-foreground text-sm">Выберите время</label>
 					<div className="flex items-center justify-center space-x-4">
 						<select
+							id="hour-select"
 							className="h-14 w-24 rounded-xl border-2 border-border bg-background text-center font-medium text-foreground text-lg outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
 							onChange={(e) => setSelectedHour(Number.parseInt(e.target.value, 10))}
 							value={selectedHour}
