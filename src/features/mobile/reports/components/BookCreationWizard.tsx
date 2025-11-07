@@ -51,6 +51,7 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 	const [userId, setUserId] = useState<string | null>(null);
 	const [diaryName, setDiaryName] = useState<string>('');
 	const [diaryEmoji, setDiaryEmoji] = useState<string>('');
+	const [generationError, setGenerationError] = useState<string | null>(null);
 
 	const [config, setConfig] = useState<BookConfig>({
 		periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
@@ -155,6 +156,65 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 				return;
 			}
 
+			// ✅ Check minimum entries requirement (at least 5 entries)
+			const { data: entriesInPeriod, error: entriesError } = await supabase
+				.from('entries')
+				.select('id')
+				.eq('user_id', userId)
+				.gte('created_at', config.periodStart)
+				.lte('created_at', config.periodEnd);
+
+			if (entriesError) {
+				console.error('[WIZARD] Error checking entries:', entriesError);
+				toast.error('Ошибка проверки записей');
+				setIsGenerating(false);
+				setShowProgress(false);
+				return;
+			}
+
+			if (!entriesInPeriod || entriesInPeriod.length < 5) {
+				toast.error('Недостаточно записей', {
+					description: `Для создания книги нужно минимум 5 записей. У вас: ${entriesInPeriod?.length || 0}`,
+				});
+				setIsGenerating(false);
+				setShowProgress(false);
+				return;
+			}
+
+			// ✅ Check generation limit (Free: 1/month, Premium: unlimited)
+			const { data: profile } = await supabase
+				.from('profiles')
+				.select('is_premium')
+				.eq('id', userId)
+				.single();
+
+			const isPremium = profile?.is_premium || false;
+
+			if (!isPremium) {
+				// Check how many books created in the last 30 days
+				const thirtyDaysAgo = new Date();
+				thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+				const { data: recentBooks, error: booksError } = await supabase
+					.from('books_archive')
+					.select('id')
+					.eq('user_id', userId)
+					.gte('created_at', thirtyDaysAgo.toISOString());
+
+				if (booksError) {
+					console.error('[WIZARD] Error checking books limit:', booksError);
+					// Continue anyway - don't block on error
+				} else if (recentBooks && recentBooks.length >= 1) {
+					toast.error('Лимит исчерпан', {
+						description:
+							'Free пользователи могут создавать 1 книгу в месяц. Перейдите на Premium для неограниченной генерации.',
+					});
+					setIsGenerating(false);
+					setShowProgress(false);
+					return;
+				}
+			}
+
 			console.log('[WIZARD] Generating book with config:', {
 				userId: session.user.id,
 				periodStart: config.periodStart,
@@ -197,14 +257,26 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 
 			// ✅ Store draft ID for later
 			setGeneratedDraftId(result.draftId);
+			setGenerationError(null); // Clear any previous errors
 			toast.success('Черновик книги создан!');
 		} catch (error) {
 			console.error('[WIZARD] Error generating book:', error);
-			toast.error(error instanceof Error ? error.message : 'Произошла ошибка при создании книги');
+			const errorMessage =
+				error instanceof Error ? error.message : 'Произошла ошибка при создании книги';
+			setGenerationError(errorMessage);
+			toast.error('Ошибка генерации', {
+				description: errorMessage,
+			});
 			setShowProgress(false); // ✅ Hide progress on error
 		} finally {
 			setIsGenerating(false);
 		}
+	};
+
+	// Handle retry generation
+	const handleRetry = () => {
+		setGenerationError(null);
+		handleGenerate();
 	};
 
 	// Validate current step
@@ -514,6 +586,19 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 									>
 										<span className="text-sm sm:text-base">Отмена</span>
 									</Button>
+								)}
+
+								{/* Error message with Retry button */}
+								{generationError && (
+									<div className="mt-4 rounded-lg border-destructive border bg-destructive/10 p-4">
+										<p className="mb-3 font-medium text-destructive text-sm">
+											Ошибка генерации книги
+										</p>
+										<p className="mb-4 text-muted-foreground text-xs">{generationError}</p>
+										<Button className="w-full" onClick={handleRetry} size="sm" variant="outline">
+											Повторить попытку
+										</Button>
+									</div>
 								)}
 							</div>
 						</CardContent>

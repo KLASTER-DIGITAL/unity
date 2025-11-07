@@ -20,6 +20,10 @@ export const API_URLS = {
 	AI_ANALYSIS: `https://${projectId}.supabase.co/functions/v1/ai-analysis/analyze`,
 	MOTIVATIONS: `https://${projectId}.supabase.co/functions/v1/motivations`,
 
+	// Books API
+	BOOKS_GENERATE_DRAFT: `https://${projectId}.supabase.co/functions/v1/books-generate-draft`,
+	BOOKS_RENDER_PDF: `https://${projectId}.supabase.co/functions/v1/books-render-pdf`,
+
 	// Media microservices (split from media)
 	MEDIA_UPLOAD: `https://${projectId}.supabase.co/functions/v1/media-upload-api`,
 	MEDIA_MANAGE: `https://${projectId}.supabase.co/functions/v1/media-manage-api`,

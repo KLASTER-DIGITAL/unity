@@ -35,6 +35,18 @@
 - Fallback значения: 'Мой дневник' и '📝'
 - ИСПРАВЛЕНО: UI теперь отображает поля для редактирования diary_name!
 
+**BookCreationWizard - Добавлены валидации и улучшения**:
+- Проверка лимита генерации: Free (1/месяц) vs Premium (∞)
+  - Запрос к books_archive для подсчета книг за последние 30 дней
+  - Проверка is_premium в profiles
+- Валидация минимального количества записей: минимум 5 записей в выбранном периоде
+- Error handling: state generationError + handleRetry функция
+- UI: красный блок с ошибкой + кнопка "Повторить попытку"
+
+**API URLs - Добавлены Books API endpoints**:
+- BOOKS_GENERATE_DRAFT: `/functions/v1/books-generate-draft`
+- BOOKS_RENDER_PDF: `/functions/v1/books-render-pdf`
+
 ### 🔄 Изменено
 
 **TypeScript типы - is_premium поддержка**:
