@@ -10,6 +10,15 @@
 
 ### 🔄 Изменено
 
+**UsersManagementTab - Реальная интеграция с admin-subscriptions-api**:
+- Удалена заглушка `handleTogglePremium`
+- Добавлена реальная логика активации/деактивации Premium
+- Активация: POST `/admin-subscriptions-api/subscriptions` с planType=monthly, amount=499 RUB
+- Деактивация: GET активной подписки → PUT `/admin-subscriptions-api/subscriptions/:id` с status=cancelled
+- Error handling и toast notifications
+
+### 🔄 Изменено
+
 **TypeScript типы - is_premium поддержка**:
 - Обновлен `src/shared/lib/offline/helpers.ts`:
   - Добавлена поддержка `is_premium` (snake_case из БД)

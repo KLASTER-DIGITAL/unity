@@ -95,13 +95,97 @@ export function UsersManagementTab() {
 		}
 	};
 
-	const handleTogglePremium = async (_userId: string, currentStatus: string) => {
+	const handleTogglePremium = async (userId: string, currentStatus: string) => {
 		try {
 			const newIsPremium = currentStatus !== 'premium';
-			// await updateUserSubscription(userId, newIsPremium);
-			// Заглушка - будет заменено на работу с Edge Function
 
-			toast.success(`Подписка ${newIsPremium ? 'активирована' : 'деактивирована'}`);
+			// Получаем токен авторизации
+			const supabase = createClient();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session?.access_token) {
+				throw new Error('No session');
+			}
+
+			if (newIsPremium) {
+				// Активация Premium: создаем подписку
+				const response = await fetch(
+					'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-subscriptions-api/subscriptions',
+					{
+						method: 'POST',
+						headers: {
+							Authorization: `Bearer ${session.access_token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							userId,
+							planType: 'monthly',
+							status: 'active',
+							amount: 499,
+							currency: 'RUB',
+							paymentMethod: 'manual',
+							metadata: {
+								activatedBy: 'admin',
+								note: 'Активировано через админ-панель',
+							},
+						}),
+					}
+				);
+
+				if (!response.ok) {
+					throw new Error('Failed to activate subscription');
+				}
+
+				toast.success('Premium подписка активирована');
+			} else {
+				// Деактивация Premium: получаем активную подписку и отменяем её
+				const getResponse = await fetch(
+					`https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-subscriptions-api/subscriptions/${userId}`,
+					{
+						headers: {
+							Authorization: `Bearer ${session.access_token}`,
+							'Content-Type': 'application/json',
+						},
+					}
+				);
+
+				if (!getResponse.ok) {
+					throw new Error('Failed to get subscriptions');
+				}
+
+				const result = await getResponse.json();
+				const activeSubscription = result.subscriptions?.find(
+					(sub: { status: string }) => sub.status === 'active'
+				);
+
+				if (activeSubscription) {
+					// Отменяем активную подписку
+					const updateResponse = await fetch(
+						`https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-subscriptions-api/subscriptions/${activeSubscription.id}`,
+						{
+							method: 'PUT',
+							headers: {
+								Authorization: `Bearer ${session.access_token}`,
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								status: 'cancelled',
+							}),
+						}
+					);
+
+					if (!updateResponse.ok) {
+						throw new Error('Failed to cancel subscription');
+					}
+
+					toast.success('Premium подписка отменена');
+				} else {
+					toast.error('Активная подписка не найдена');
+				}
+			}
+
 			loadUsers(); // Перезагружаем список
 		} catch (error) {
 			console.error('Error updating subscription:', error);
