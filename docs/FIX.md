@@ -54,11 +54,30 @@
 - ИСПРАВЛЕНО: Premium пользователи теперь могут создавать PDF книги!
 
 **IMPLEMENTATION_STATUS.md - Создан полный аудит реализации**:
-- Проверены все функции из user-logic.md
+- Проверены все функции из user-logic.md и ai-logic.md
 - Добавлены маркеры статуса: ✅ (реализовано), ⚠️ (частично), ❌ (не реализовано)
-- Разделы: Роли, Регистрация, Создание записей, AI-обработка, Разделы приложения, Premium, Админ-панель
+- Разделы: Роли, Регистрация, Создание записей, AI-обработка, Разделы приложения, Premium, Админ-панель, AI-логика
 - Итого: ~65% реализовано, ~20% частично, ~15% не реализовано
+- AI-функции: ~70% реализовано
 - Критичные проблемы: лимит записей, offline режим, Google OAuth, фото/видео, расширенная аналитика
+
+**MIGRATION_CHECKLIST.md - Создан чеклист миграции на React Native**:
+- Общая готовность: 70%
+- Platform Adapters: 6/8 созданы (75%) - Animation, Storage, Media, Navigation, Offline, Speech
+- Отсутствующие адаптеры: i18n (КРИТИЧНО), Push Notifications (ВАЖНО)
+- Universal Components: 0/12 (КРИТИЧНО) - все UI компоненты используют Radix UI (НЕ совместим с RN)
+- Feature Components: 3/11 имеют .native.tsx версии (27%)
+- Edge Functions: 100% platform-agnostic
+- Database: 100% совместимо
+- i18n система: НЕ адаптирована для React Native (КРИТИЧНО)
+- Оценка: 9-12 дней до полной готовности к миграции
+
+**Supabase Advisors - Проверка безопасности и производительности**:
+- Security: 1 WARN - Leaked Password Protection отключена (требует ручного включения в настройках Auth)
+- Performance: 10 WARN
+  - 6 unindexed foreign keys (media_files, push_notifications_history, subscriptions, usage)
+  - 4 auth_rls_initplan (subscriptions, books_archive) - нужно заменить auth.uid() на (select auth.uid())
+- Критичных проблем НЕТ, все WARN можно исправить постепенно
 
 ### 🔄 Изменено
 
