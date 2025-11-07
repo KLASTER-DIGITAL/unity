@@ -105,6 +105,16 @@ Deno.serve(async (req) => {
 			);
 		}
 
+		// Get user language from profile
+		const { data: profile } = await supabaseAdmin
+			.from('profiles')
+			.select('language')
+			.eq('id', userId)
+			.single();
+
+		const userLanguage = profile?.language || 'ru';
+		console.log('[BOOKS-DRAFT] User language:', userLanguage);
+
 		// Fetch entries for the period
 		const { data: entries, error: entriesError } = await supabaseAdmin
 			.from('entries')
@@ -142,9 +152,21 @@ Deno.serve(async (req) => {
 			console.log('[BOOKS-DRAFT] Filtered to', filteredEntries.length, 'entries by contexts');
 		}
 
+		// Map language code to locale for date formatting
+		const localeMap: Record<string, string> = {
+			ru: 'ru-RU',
+			en: 'en-US',
+			es: 'es-ES',
+			de: 'de-DE',
+			fr: 'fr-FR',
+			zh: 'zh-CN',
+			ja: 'ja-JP',
+		};
+		const locale = localeMap[userLanguage] || 'ru-RU';
+
 		// Prepare data for AI
 		const entriesSummary = filteredEntries.map((entry) => ({
-			date: new Date(entry.created_at).toLocaleDateString('ru-RU'),
+			date: new Date(entry.created_at).toLocaleDateString(locale),
 			category: entry.category,
 			sentiment: entry.sentiment,
 			summary: entry.ai_summary || entry.text.substring(0, 200),
@@ -170,25 +192,27 @@ Deno.serve(async (req) => {
 				'Создай мотивационную историю успеха, выделяя достижения, преодоление трудностей и рост.',
 		};
 
-		const systemPrompt = `Ты - AI писатель, создающий персональные книги достижений.
+		const systemPrompt = `You are an AI writer creating personalized achievement books.
 
-Стиль: ${stylePrompts[style as keyof typeof stylePrompts]}
+Style: ${stylePrompts[style as keyof typeof stylePrompts]}
 
-Создай JSON структуру книги с полями:
-- title: Название книги (креативное, вдохновляющее)
-- subtitle: Подзаголовок с периодом
-- prologue: Вступление (2-3 абзаца)
-- chapters: Массив глав, каждая с:
-  - title: Название главы
-  - content: Текст главы (3-5 абзацев)
-  - highlights: Ключевые моменты (массив строк)
-- epilogue: Заключение (2-3 абзаца)
-- dedication: Посвящение (опционально)
+Create a JSON book structure with fields:
+- title: Book title (creative, inspiring)
+- subtitle: Subtitle with period
+- prologue: Introduction (2-3 paragraphs)
+- chapters: Array of chapters, each with:
+  - title: Chapter title
+  - content: Chapter text (3-5 paragraphs)
+  - highlights: Key moments (array of strings)
+- epilogue: Conclusion (2-3 paragraphs)
+- dedication: Dedication (optional)
 
-Используй данные записей для создания связного повествования.`;
+Use the diary entries data to create a cohesive narrative.
+IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
 
-		const userPrompt = `Период: ${new Date(periodStart).toLocaleDateString('ru-RU')} - ${new Date(periodEnd).toLocaleDateString('ru-RU')}
-Дневник: ${diaryName || 'Мой дневник'} ${diaryEmoji || '📝'}
+		const userPrompt = `Period: ${new Date(periodStart).toLocaleDateString(locale)} - ${new Date(periodEnd).toLocaleDateString(locale)}
+Diary: ${diaryName || 'My Diary'} ${diaryEmoji || '📝'}
+User Language: ${userLanguage}
 
 Статистика:
 - Всего записей: ${stats.totalEntries}
