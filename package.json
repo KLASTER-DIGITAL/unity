@@ -132,6 +132,7 @@
 	"scripts": {
 		"dev": "vite",
 		"dev:ci": "vite --no-open",
+		"prebuild": "node scripts/generate-sw-version.js",
 		"build": "vite build",
 		"build:analyze": "ANALYZE=true vite build",
 		"preview": "vite preview",
