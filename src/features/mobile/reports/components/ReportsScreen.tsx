@@ -21,6 +21,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui
 import { type DiaryEntry, getEntries } from '@/shared/lib/api';
 import { calculateUserStats, type UserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
+import { BookCreationWizard } from './BookCreationWizard';
+import { BookDraftEditor } from './BookDraftEditor';
+import { BooksLibraryScreen } from './BooksLibraryScreen';
 
 export function ReportsScreen({ userData }: { userData?: any }) {
 	// Получаем переводы для языка пользователя
@@ -29,6 +32,9 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
+	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
+	const [showBookWizard, setShowBookWizard] = useState(false);
+	const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
 
 	useEffect(() => {
 		loadData();
@@ -102,6 +108,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
 	if (isLoading) {
 		return (
+			<>
 			<div className="min-h-screen bg-background pb-20 transition-colors duration-300">
 				{/* Skeleton for reports header */}
 				<div className="space-y-4 p-4">
@@ -157,10 +164,12 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 					))}
 				</div>
 			</div>
+			</>
 		);
 	}
 
 	return (
+		<>
 		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-20">
 			{/* Заголовок */}
 			<div className="bg-linear-to-r from-purple-600 to-blue-600 p-6 text-white">
@@ -234,10 +243,17 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<div className="space-y-4">
 							<Button
 								className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
-								onClick={() => toast.info('Эта функция доступна в премиум версии')}
+								onClick={() => {
+									const isPremium = userData?.profile?.subscription_status === 'active';
+									if (!isPremium) {
+										toast.error('Создание PDF книг доступно только для Premium пользователей');
+										return;
+									}
+									setShowBooksLibrary(true);
+								}}
 							>
 								<Download className="mr-2 h-5 w-5" strokeWidth={2} />
-								Скачать PDF отчет
+								Мои PDF книги
 							</Button>
 							<Button
 								className="w-full"
@@ -431,6 +447,51 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				</Tabs>
 			</div>
 		</div>
+
+		{/* Books Library Modal */}
+		{showBooksLibrary && !editingDraftId && (
+			<div className="fixed inset-0 z-50 bg-background">
+				<BooksLibraryScreen
+					onBack={() => setShowBooksLibrary(false)}
+					onCreateBook={() => {
+						setShowBooksLibrary(false);
+						setShowBookWizard(true);
+					}}
+					onEditDraft={(draftId) => {
+						setShowBooksLibrary(false);
+						setEditingDraftId(draftId);
+					}}
+				/>
+			</div>
+		)}
+
+		{/* Book Creation Wizard Modal */}
+		{showBookWizard && (
+			<div className="fixed inset-0 z-50 bg-background">
+				<BookCreationWizard
+					onBack={() => setShowBookWizard(false)}
+					onComplete={() => {
+						setShowBookWizard(false);
+						setShowBooksLibrary(true);
+					}}
+					userData={userData}
+				/>
+			</div>
+		)}
+
+		{/* Book Draft Editor Modal */}
+		{editingDraftId && (
+			<div className="fixed inset-0 z-50 bg-background">
+				<BookDraftEditor
+					draftId={editingDraftId}
+					onComplete={() => {
+						setEditingDraftId(null);
+						setShowBooksLibrary(true);
+					}}
+				/>
+			</div>
+		)}
+	</>
 	);
 }
 export default ReportsScreen;
