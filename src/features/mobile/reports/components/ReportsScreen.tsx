@@ -35,9 +35,12 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
 	const [showBookWizard, setShowBookWizard] = useState(false);
 	const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
+	const [isPremium, setIsPremium] = useState(false);
 
 	useEffect(() => {
 		loadData();
+		loadPremiumStatus();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const loadData = async () => {
@@ -61,6 +64,36 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 			toast.error('Не удалось загрузить данные');
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const loadPremiumStatus = async () => {
+		try {
+			const userId = userData?.user?.id || userData?.id;
+			if (!userId) {
+				console.log('[REPORTS] No user ID, skipping premium check');
+				return;
+			}
+
+			// Import createClient dynamically to avoid circular dependencies
+			const { createClient } = await import('@/utils/supabase/client');
+			const supabase = createClient();
+
+			const { data: profile, error } = await supabase
+				.from('profiles')
+				.select('is_premium')
+				.eq('id', userId)
+				.single();
+
+			if (error) {
+				console.error('[REPORTS] Error loading premium status:', error);
+				return;
+			}
+
+			console.log('[REPORTS] Premium status loaded:', profile?.is_premium);
+			setIsPremium(profile?.is_premium || false);
+		} catch (error) {
+			console.error('[REPORTS] Error in loadPremiumStatus:', error);
 		}
 	};
 
@@ -246,7 +279,6 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 								<Button
 									className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
 									onClick={() => {
-										const isPremium = userData?.profile?.is_premium || false;
 										if (!isPremium) {
 											toast.error('Создание PDF книг доступно только для Premium пользователей');
 											return;

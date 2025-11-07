@@ -47,6 +47,12 @@
 - BOOKS_GENERATE_DRAFT: `/functions/v1/books-generate-draft`
 - BOOKS_RENDER_PDF: `/functions/v1/books-render-pdf`
 
+**ReportsScreen - Исправлена проверка Premium статуса**:
+- Добавлен state `isPremium` для хранения статуса
+- Добавлена функция `loadPremiumStatus`: загрузка is_premium из profiles
+- Исправлена кнопка "Мои PDF книги": использует state `isPremium` вместо `userData?.profile?.is_premium`
+- ИСПРАВЛЕНО: Premium пользователи теперь могут создавать PDF книги!
+
 ### 🔄 Изменено
 
 **TypeScript типы - is_premium поддержка**:
