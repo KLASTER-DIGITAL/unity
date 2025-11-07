@@ -339,6 +339,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 					name: profile?.name || '',
 					email: profile?.email || '',
 					avatar: profile?.avatar || '',
+					diaryName: profile?.diaryName || profile?.diary_name || 'Мой дневник',
+					diaryEmoji: profile?.diaryEmoji || profile?.diary_emoji || '📝',
 				}}
 			/>
 		</div>

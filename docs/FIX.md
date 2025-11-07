@@ -29,6 +29,12 @@
 - Дизайн: rounded-full badge с border и muted background
 - Условное отображение: только если есть diaryName или diaryEmoji
 
+**SettingsScreen - Исправлена передача данных в ProfileEditModal**:
+- Добавлены diaryName и diaryEmoji в props ProfileEditModal (строки 342-343)
+- Поддержка обоих форматов: camelCase (diaryName) и snake_case (diary_name)
+- Fallback значения: 'Мой дневник' и '📝'
+- ИСПРАВЛЕНО: UI теперь отображает поля для редактирования diary_name!
+
 ### 🔄 Изменено
 
 **TypeScript типы - is_premium поддержка**:

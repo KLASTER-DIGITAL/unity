@@ -418,9 +418,7 @@ export function ProfileEditModal({
 
 								{/* Diary Name */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">
-										Название дневника
-									</label>
+									<label className="font-semibold text-foreground text-sm">Название дневника</label>
 									<Input
 										disabled={isSaving}
 										maxLength={30}
@@ -461,9 +459,7 @@ export function ProfileEditModal({
 											))}
 										</div>
 									</div>
-									<p className="text-muted-foreground text-xs">
-										Выберите эмодзи или введите свой
-									</p>
+									<p className="text-muted-foreground text-xs">Выберите эмодзи или введите свой</p>
 								</div>
 							</div>
 						</div>
