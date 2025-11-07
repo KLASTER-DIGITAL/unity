@@ -9,6 +9,14 @@
 ## [Unreleased] - 2025-11-08
 
 ### 🏗️ Инфраструктура
+**GitHub Actions - Lighthouse CI**:
+- Исправлено: "Context access might be invalid" warnings
+- Добавлены fallback значения для VITE_* переменных
+- Теперь workflow работает БЕЗ GitHub Secrets
+- Использует публичные значения из .env.production
+- Безопасно: anon key и URL публичные, Sentry DSN тоже
+
+### 🏗️ Инфраструктура (ранее)
 **i18n Platform Adapter для React Native**:
 - Создан `src/shared/lib/platform/i18n/i18n.native.ts` (150 строк)
 - Создан `app-shared/lib/platform/i18n/` для React Native build
