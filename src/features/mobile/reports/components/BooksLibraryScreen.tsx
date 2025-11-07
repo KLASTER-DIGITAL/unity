@@ -15,7 +15,6 @@ import {
 	Download,
 	Edit,
 	Eye,
-	FileText,
 	Filter,
 	Plus,
 	Sparkles,
@@ -409,7 +408,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 													</span>
 												</Button>
 											</AlertDialogTrigger>
-											<AlertDialogContent className="sm:max-w-md">
+											<AlertDialogContent className="mx-auto max-w-[90vw] sm:max-w-md">
 												<AlertDialogHeader>
 													<AlertDialogTitle className="flex items-center gap-2">
 														<AlertCircle className="h-5 w-5 text-red-500" strokeWidth={2} />

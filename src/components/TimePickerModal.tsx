@@ -71,7 +71,9 @@ export function TimePickerModal({
 			<div className="space-y-6">
 				{/* Time Selectors */}
 				<div>
-					<label htmlFor="hour-select" className="mb-3 block text-muted-foreground text-sm">Выберите время</label>
+					<label htmlFor="hour-select" className="mb-3 block text-muted-foreground text-sm">
+						Выберите время
+					</label>
 					<div className="flex items-center justify-center space-x-4">
 						<select
 							id="hour-select"

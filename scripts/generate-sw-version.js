@@ -27,7 +27,7 @@ function getGitHash() {
 		const hash = execSync('git rev-parse --short=7 HEAD', { encoding: 'utf-8' }).trim();
 		console.log(`[SW Version] Git hash from local git: ${hash}`);
 		return hash;
-	} catch (error) {
+	} catch (_error) {
 		// Приоритет 3: Timestamp fallback (если нет ни Vercel, ни git)
 		console.warn('[SW Version] Failed to get git hash, using timestamp');
 		return Date.now().toString(36);
@@ -95,4 +95,3 @@ function main() {
 }
 
 main();
-

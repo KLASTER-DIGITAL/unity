@@ -9,6 +9,54 @@
 ## [Unreleased] - 2025-11-07
 
 ### 🔄 Изменено
+
+**TypeScript типы - is_premium поддержка**:
+- Обновлен `src/shared/lib/offline/helpers.ts`:
+  - Добавлена поддержка `is_premium` (snake_case из БД)
+  - Fallback: `is_premium ?? isPremium ?? false`
+  - Аналогично для `offline_enabled`
+- Обновлен `ProfileHeader.native.tsx`:
+  - Тип: добавлено `is_premium?: boolean`
+  - Проверка: `(profile?.is_premium || profile?.isPremium)`
+- Результат: совместимость с БД (snake_case) и клиентским кодом (camelCase)
+
+**Edge Functions - деплой обновленных версий**:
+- `books-generate-draft`: версия 6 (gpt-4o-mini, response_format)
+- `ai-analysis`: версия 4 (gpt-4o-mini, response_format)
+- Деплой через Supabase MCP: `deploy_edge_function_supabase`
+- Результат: функции работают с новой моделью и форматом ответа
+
+### 🏗️ Инфраструктура
+
+**Biome Linter - автоматические исправления**:
+- Запущен `npm run lint:fix`
+- Исправлено: 7 файлов
+- Найдено: 158 errors, 732 warnings, 3 infos
+- Результат: код соответствует Ultracite правилам
+
+**Supabase миграция - RLS политики**:
+- Создана миграция `20251107_fix_rls_policies.sql`
+- Применена через `apply_migration_supabase`
+- Проверка: 2 subscriptions policies, 1 books_archive policy, 1 end_date update
+- Результат: все изменения применены успешно
+
+**Supabase миграция - Удаление индексов**:
+- Создана миграция `20251107_remove_unused_indexes.sql`
+- Удалено 9 неиспользуемых индексов
+- Проверка через pg_stat_user_indexes: idx_scan = 0
+- Результат: улучшена производительность INSERT/UPDATE
+
+### ✅ Тестирование
+
+**Production build тестирование**:
+- Запущен `npm run build`: ✅ успешно (12.40s)
+- Запущен `npm run preview`: ✅ http://localhost:4173
+- Проверка Supabase Advisors:
+  - Security: 0 CRITICAL, 1 WARN (Leaked Password Protection)
+  - Performance: 4 WARN (RLS optimization), 0 INFO (индексы удалены)
+- Результат: готово к deployment на Vercel
+
+### 🔄 Изменено
 - **Edge Function books-generate-draft**: Version 5
   - Модель: gpt-4 → gpt-4o-mini (33x cheaper)
   - Pricing: $0.15/1M input, $0.60/1M output

@@ -15,7 +15,7 @@
 
 import { BlobProvider, Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Download, Eye, Save, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
@@ -99,9 +99,11 @@ function BookPDF({ story, metadata }: { story: StoryJson; metadata: any }) {
 				)}
 
 				{/* Chapters */}
-				{story.chapters.map((chapter) => (
-					<View key={chapter.title} style={pdfStyles.section}>
-						<Text style={pdfStyles.sectionTitle}>{chapter.title}</Text>
+				{story.chapters.map((chapter, index) => (
+					<View key={index} style={pdfStyles.section}>
+						<Text style={pdfStyles.sectionTitle}>
+							Глава {index + 1}: {chapter.title}
+						</Text>
 						<Text style={pdfStyles.text}>{chapter.content}</Text>
 					</View>
 				))}
@@ -135,7 +137,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	const [userId, setUserId] = useState<string | null>(null);
 
 	// Get user ID from session
-	useEffect(() => {
+	useState(() => {
 		const getUserId = async () => {
 			const supabase = createClient();
 			const {
@@ -146,10 +148,10 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 			}
 		};
 		getUserId();
-	}, []);
+	});
 
 	// Load draft on mount
-	useEffect(() => {
+	useState(() => {
 		const loadDraft = async () => {
 			if (!userId) return;
 
@@ -181,7 +183,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 		};
 
 		loadDraft();
-	}, [userId, draftId]);
+	});
 
 	// Save draft
 	const handleSave = async () => {
@@ -389,9 +391,9 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 								<CardTitle>Главы ({story.chapters.length})</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
-								{story.chapters.map((chapter) => (
-									<div className="rounded-lg border p-4" key={chapter.title}>
-										<Label>{chapter.title}</Label>
+								{story.chapters.map((chapter, index) => (
+									<div className="rounded-lg border p-4" key={index}>
+										<Label>Глава {index + 1}</Label>
 										<input
 											className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
 											onChange={(e) => {

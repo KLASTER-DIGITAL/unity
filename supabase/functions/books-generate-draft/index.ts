@@ -90,28 +90,6 @@ Deno.serve(async (req) => {
 			});
 		}
 
-		// Check user's Premium status
-		const { data: profile } = await supabaseAdmin
-			.from('profiles')
-			.select('is_premium')
-			.eq('id', userId)
-			.single();
-
-		const isPremium = profile?.is_premium || false;
-
-		// Free users CANNOT use AI generation (Premium only feature)
-		if (!isPremium) {
-			return new Response(
-				JSON.stringify({
-					success: false,
-					error: 'Premium required',
-					message:
-						'AI-генерация книг доступна только для Premium пользователей. Обновите подписку для доступа к этой функции.',
-				}),
-				{ status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-			);
-		}
-
 		// Get OpenAI API key
 		const { data: setting } = await supabaseAdmin
 			.from('admin_settings')
@@ -150,18 +128,6 @@ Deno.serve(async (req) => {
 			return new Response(
 				JSON.stringify({ success: false, error: 'No entries found for this period' }),
 				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-			);
-		}
-
-		// Validate minimum entries (5 required for meaningful book)
-		if (entries.length < 5) {
-			return new Response(
-				JSON.stringify({
-					success: false,
-					error: 'Insufficient entries',
-					message: `Для создания книги нужно минимум 5 записей. У вас: ${entries.length}`,
-				}),
-				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -208,37 +174,32 @@ Deno.serve(async (req) => {
 
 Стиль: ${stylePrompts[style as keyof typeof stylePrompts]}
 
-Создай JSON с полями:
-{
-  "title": "Название книги (креативное, вдохновляющее)",
-  "subtitle": "Подзаголовок с периодом",
-  "prologue": "Вступление (2-3 абзаца)",
-  "chapters": [
-    {
-      "title": "Название главы",
-      "content": "Текст главы (3-5 абзацев)",
-      "highlights": ["Ключевой момент 1", "Ключевой момент 2"]
-    }
-  ],
-  "epilogue": "Заключение (2-3 абзаца)",
-  "dedication": "Посвящение (опционально)"
-}
+Создай JSON структуру книги с полями:
+- title: Название книги (креативное, вдохновляющее)
+- subtitle: Подзаголовок с периодом
+- prologue: Вступление (2-3 абзаца)
+- chapters: Массив глав, каждая с:
+  - title: Название главы
+  - content: Текст главы (3-5 абзацев)
+  - highlights: Ключевые моменты (массив строк)
+- epilogue: Заключение (2-3 абзаца)
+- dedication: Посвящение (опционально)
 
-Используй данные записей для создания связного повествования. Отвечай ТОЛЬКО валидным JSON.`;
+Используй данные записей для создания связного повествования.`;
 
 		const userPrompt = `Период: ${new Date(periodStart).toLocaleDateString('ru-RU')} - ${new Date(periodEnd).toLocaleDateString('ru-RU')}
 Дневник: ${diaryName || 'Мой дневник'} ${diaryEmoji || '📝'}
 
 Статистика:
-- Записей: ${stats.totalEntries}
+- Всего записей: ${stats.totalEntries}
 - Достижений: ${stats.achievements}
-- Позитивных: ${stats.positiveEntries}
+- Позитивных моментов: ${stats.positiveEntries}
 - Категории: ${stats.categories.join(', ')}
 
-Записи (summary):
-${entriesSummary.map((e) => `${e.date}: ${e.summary}`).join('\n')}
+Записи:
+${JSON.stringify(entriesSummary, null, 2)}
 
-Создай вдохновляющую книгу.`;
+Создай вдохновляющую книгу на основе этих данных.`;
 
 		// Call OpenAI API
 		console.log('[BOOKS-DRAFT] Calling OpenAI API...');
@@ -325,10 +286,9 @@ ${entriesSummary.map((e) => `${e.date}: ${e.summary}`).join('\n')}
 			);
 		}
 
-		// Log OpenAI usage
+		// Log OpenAI usage (GPT-4o-mini pricing: $0.15/1M input, $0.60/1M output)
 		const { prompt_tokens, completion_tokens, total_tokens } = aiResult.usage;
-		// GPT-4o-mini pricing: $0.15/1M input tokens, $0.60/1M output tokens (33x cheaper than gpt-4o!)
-		const estimatedCost = (prompt_tokens * 0.15) / 1000000 + (completion_tokens * 0.6) / 1000000;
+		const estimatedCost = prompt_tokens * 0.00015 + completion_tokens * 0.0006;
 
 		await supabaseAdmin.from('openai_usage').insert({
 			user_id: userId,

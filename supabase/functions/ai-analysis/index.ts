@@ -156,13 +156,14 @@ Deno.serve(async (req) => {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					model: 'gpt-4',
+					model: 'gpt-4o-mini',
 					messages: [
 						{ role: 'system', content: systemPrompt },
 						{ role: 'user', content: text },
 					],
 					temperature: 0.7,
 					max_tokens: 1000,
+					response_format: { type: 'json_object' },
 				}),
 			});
 
@@ -195,6 +196,7 @@ Deno.serve(async (req) => {
 			const usage = result.usage;
 			if (usage) {
 				const pricing: Record<string, { prompt: number; completion: number }> = {
+					'gpt-4o-mini': { prompt: 0.15 / 1000000, completion: 0.6 / 1000000 },
 					'gpt-4': { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
 					'gpt-4-turbo-preview': {
 						prompt: 0.01 / 1000,
@@ -206,7 +208,7 @@ Deno.serve(async (req) => {
 					},
 				};
 
-				const modelPricing = pricing['gpt-4'] || pricing['gpt-3.5-turbo'];
+				const modelPricing = pricing['gpt-4o-mini'] || pricing['gpt-3.5-turbo'];
 				const promptTokens = usage.prompt_tokens || 0;
 				const completionTokens = usage.completion_tokens || 0;
 				const totalTokens = usage.total_tokens || promptTokens + completionTokens;
@@ -217,7 +219,7 @@ Deno.serve(async (req) => {
 				await supabaseAdmin.from('openai_usage').insert({
 					user_id: finalUserId,
 					operation_type: 'ai_card',
-					model: 'gpt-4',
+					model: 'gpt-4o-mini',
 					prompt_tokens: promptTokens,
 					completion_tokens: completionTokens,
 					total_tokens: totalTokens,

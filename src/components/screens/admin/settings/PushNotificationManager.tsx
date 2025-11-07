@@ -277,7 +277,9 @@ export function PushNotificationManager() {
 						) : (
 							<div className="space-y-4">
 								<div>
-									<label htmlFor="vapid-public-key" className="mb-2 block font-medium text-sm">Public Key</label>
+									<label htmlFor="vapid-public-key" className="mb-2 block font-medium text-sm">
+										Public Key
+									</label>
 									<input
 										id="vapid-public-key"
 										className="w-full rounded-lg border bg-muted px-3 py-2 font-mono text-xs dark:bg-muted"
@@ -287,7 +289,9 @@ export function PushNotificationManager() {
 									/>
 								</div>
 								<div>
-									<label htmlFor="vapid-private-key" className="mb-2 block font-medium text-sm">Private Key</label>
+									<label htmlFor="vapid-private-key" className="mb-2 block font-medium text-sm">
+										Private Key
+									</label>
 									<input
 										id="vapid-private-key"
 										className="w-full rounded-lg border bg-muted px-3 py-2 font-mono text-xs dark:bg-muted"
@@ -365,7 +369,9 @@ export function PushNotificationManager() {
 					{useTemplate && (
 						<>
 							<div>
-								<label htmlFor="push-language" className="mb-2 block font-medium text-sm">Язык</label>
+								<label htmlFor="push-language" className="mb-2 block font-medium text-sm">
+									Язык
+								</label>
 								<select
 									id="push-language"
 									className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
@@ -389,7 +395,9 @@ export function PushNotificationManager() {
 							</div>
 
 							<div>
-								<label htmlFor="push-template" className="mb-2 block font-medium text-sm">Шаблон</label>
+								<label htmlFor="push-template" className="mb-2 block font-medium text-sm">
+									Шаблон
+								</label>
 								<select
 									id="push-template"
 									className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
@@ -415,7 +423,9 @@ export function PushNotificationManager() {
 					)}
 
 					<div>
-						<label htmlFor="push-title" className="mb-2 block font-medium text-sm">Заголовок</label>
+						<label htmlFor="push-title" className="mb-2 block font-medium text-sm">
+							Заголовок
+						</label>
 						<input
 							id="push-title"
 							className="w-full rounded-lg border px-3 py-2 dark:bg-muted"

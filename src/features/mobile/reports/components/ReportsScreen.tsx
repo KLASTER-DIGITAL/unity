@@ -246,7 +246,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 								<Button
 									className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
 									onClick={() => {
-										const isPremium = userData?.profile?.subscription_status === 'active';
+										const isPremium = userData?.profile?.is_premium || false;
 										if (!isPremium) {
 											toast.error('Создание PDF книг доступно только для Premium пользователей');
 											return;

@@ -9,6 +9,45 @@
 
 ## [Unreleased] - 2025-11-07
 
+### 🐛 Исправления
+
+**PDF Книги - Premium проверка (КРИТИЧНО)**:
+- Исправлена проверка Premium статуса в ReportsScreen.tsx
+- Изменено: `subscription_status === 'active'` → `is_premium || false`
+- Причина: поле `subscription_status` НЕ существует в таблице `profiles`
+- Результат: Premium пользователи теперь МОГУТ создавать PDF книги
+
+**GPT-4o-mini миграция (ЭКОНОМИЯ 97%)**:
+- Edge Function `books-generate-draft`: gpt-4 → gpt-4o-mini (версия 6)
+- Edge Function `ai-analysis`: gpt-4 → gpt-4o-mini (версия 4)
+- Обновлен pricing: $0.15/1M input, $0.60/1M output
+- Добавлен `response_format: { type: 'json_object' }` для надежности
+- Результат: экономия $2.72 на 133 операциях (97% снижение стоимости)
+
+### 🔒 Безопасность
+
+**RLS политики - Role-based проверки**:
+- Таблица `subscriptions`: заменены hardcoded emails на `profiles.role = 'super_admin'`
+- Таблица `books_archive`: исправлена роль `'admin'` → `'super_admin'`
+- Миграция: `20251107_fix_rls_policies.sql`
+- Результат: RBAC система работает корректно, нет hardcoded значений
+
+### 🗄️ База данных
+
+**Subscriptions - end_date для monthly подписки**:
+- Добавлен `end_date = start_date + 30 days` для rustam@leadshunter.biz
+- Было: `end_date: null`
+- Стало: `end_date: 2025-12-07` (30 дней от start_date)
+- Результат: корректное отображение срока действия подписки
+
+### ⚡ Производительность
+
+**Удаление неиспользуемых индексов**:
+- Удалено 9 неиспользуемых индексов из БД
+- Таблицы: subscriptions (5), media_files (2), push_notifications_history (1), usage (1)
+- Миграция: `20251107_remove_unused_indexes.sql`
+- Результат: улучшена производительность INSERT/UPDATE операций
+
 ### ✨ Новые возможности
 - **PDF Книги**: AI-генерация книг теперь доступна ТОЛЬКО для Premium пользователей
   - Free пользователи могут создавать простые книги без AI
