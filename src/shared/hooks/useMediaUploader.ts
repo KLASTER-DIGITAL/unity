@@ -12,7 +12,7 @@ import {
 	generateVideoThumbnail,
 	getVideoMetadata,
 	validateVideo,
-} from '../../utils/videoCompression';
+} from '../lib/media/videoCompression';
 import { mediaPicker } from '../lib/platform/media-picker';
 
 // Export MediaFile as UploadedMedia for backward compatibility

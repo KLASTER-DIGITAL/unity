@@ -7,6 +7,25 @@
 
 ---
 
+## [Unreleased] - 2025-11-08
+
+### 🗑️ Удалено
+- **Дубликаты UI компонентов**: Удалена директория `src/components/ui/` (48 файлов)
+  - Все импорты УЖЕ мигрированы на `@/shared/components/ui/`
+  - Файлы были идентичны, отличались только импортами
+- **Дубликат utils.ts**: Удален файл `src/lib/utils.ts`
+  - Полный дубликат `src/shared/components/ui/utils.ts`
+  - НЕ использовался нигде в кодовой базе
+- **Дубликаты videoCompression**: Удалены файлы `src/utils/videoCompression.ts` и `src/utils/videoCompression.web.ts`
+  - Полные дубликаты `src/shared/lib/media/videoCompression*`
+  - Импорты обновлены на правильные пути
+
+### 🔄 Изменено
+- **useMediaUploader.ts**: Обновлен импорт videoCompression с `../../utils/` на `../lib/media/`
+- **hooks.test.ts**: Обновлен mock videoCompression с `@/utils/` на `@/shared/lib/media/`
+
+---
+
 ## [Unreleased] - 2025-11-07
 
 ### 📚 Документация

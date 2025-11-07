@@ -158,7 +158,7 @@ vi.mock('@/utils/imageCompression', () => ({
 }));
 
 // Mock video compression utilities
-vi.mock('@/utils/videoCompression', () => ({
+vi.mock('@/shared/lib/media/videoCompression', () => ({
 	compressVideo: vi
 		.fn()
 		.mockResolvedValue(new File(['compressed'], 'compressed.mp4', { type: 'video/mp4' })),

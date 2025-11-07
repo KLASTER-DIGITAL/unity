@@ -6,6 +6,43 @@
 
 ---
 
+## [Unreleased] - 2025-11-08
+
+### 🗑️ Удалено
+
+**Дубликаты UI компонентов (src/components/ui/)**:
+- Удалено 48 файлов shadcn UI компонентов
+- Причина: Полные дубликаты `src/shared/components/ui/`
+- Отличия: Только в импортах (абсолютные vs относительные)
+- Статус импортов: ВСЕ УЖЕ мигрированы на `@/shared/components/ui/`
+- Файлы: accordion.tsx, alert-dialog.tsx, alert.tsx, avatar.tsx, badge.tsx, button.tsx, calendar.tsx, card.tsx, checkbox.tsx, dialog.tsx, input.tsx, select.tsx, switch.tsx, tabs.tsx, textarea.tsx, и еще 33 файла
+
+**Дубликат utils.ts (src/lib/utils.ts)**:
+- Удален файл `src/lib/utils.ts` (7 строк)
+- Причина: 100% дубликат `src/shared/components/ui/utils.ts`
+- Статус: НЕ использовался нигде в кодовой базе
+- Функция: `cn(...inputs: ClassValue[])` для Tailwind CSS
+
+**Дубликаты videoCompression (src/utils/)**:
+- Удалено 2 файла: `videoCompression.ts` (20 строк), `videoCompression.web.ts` (254 строки)
+- Причина: Полные дубликаты `src/shared/lib/media/videoCompression*`
+- Отличия: Только в относительных путях импортов
+- Функции: compressVideo, generateVideoThumbnail, getVideoMetadata, validateVideo
+
+### 🔄 Изменено
+
+**useMediaUploader.ts - Обновлен импорт videoCompression**:
+- Было: `from '../../utils/videoCompression'`
+- Стало: `from '../lib/media/videoCompression'`
+- Причина: Удаление дубликатов из `src/utils/`
+
+**hooks.test.ts - Обновлен mock videoCompression**:
+- Было: `vi.mock('@/utils/videoCompression', ...)`
+- Стало: `vi.mock('@/shared/lib/media/videoCompression', ...)`
+- Причина: Удаление дубликатов из `src/utils/`
+
+---
+
 ## [Unreleased] - 2025-11-07
 
 ### 🔄 Изменено
