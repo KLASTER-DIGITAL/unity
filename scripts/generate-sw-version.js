@@ -15,13 +15,22 @@ const path = require('node:path');
 
 // Получаем git commit hash (короткий, 7 символов)
 function getGitHash() {
+	// Приоритет 1: Vercel environment variable (доступен в Vercel build)
+	if (process.env.VERCEL_GIT_COMMIT_SHA) {
+		const hash = process.env.VERCEL_GIT_COMMIT_SHA.substring(0, 7);
+		console.log(`[SW Version] Git hash from Vercel: ${hash}`);
+		return hash;
+	}
+
+	// Приоритет 2: Локальный git (для local development)
 	try {
 		const hash = execSync('git rev-parse --short=7 HEAD', { encoding: 'utf-8' }).trim();
-		console.log(`[SW Version] Git hash: ${hash}`);
+		console.log(`[SW Version] Git hash from local git: ${hash}`);
 		return hash;
 	} catch (error) {
+		// Приоритет 3: Timestamp fallback (если нет ни Vercel, ни git)
 		console.warn('[SW Version] Failed to get git hash, using timestamp');
-		return Date.now().toString(36); // Fallback для CI без git
+		return Date.now().toString(36);
 	}
 }
 
