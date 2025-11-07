@@ -34,6 +34,8 @@ type ProfileEditModalProps = {
 		name?: string;
 		email?: string;
 		avatar?: string;
+		diaryName?: string;
+		diaryEmoji?: string;
 	};
 	onProfileUpdated?: (updatedProfile: any) => void;
 };
@@ -48,6 +50,8 @@ export function ProfileEditModal({
 	const [email, setEmail] = useState(profile?.email || '');
 	const [avatarUrl, setAvatarUrl] = useState(profile?.avatar || '');
 	const [avatarFile, setAvatarFile] = useState<File | null>(null);
+	const [diaryName, setDiaryName] = useState(profile?.diaryName || 'Мой дневник');
+	const [diaryEmoji, setDiaryEmoji] = useState(profile?.diaryEmoji || '📝');
 	const [isUploading, setIsUploading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -124,6 +128,22 @@ export function ProfileEditModal({
 			return;
 		}
 
+		// Validate diary name
+		if (!diaryName.trim()) {
+			toast.error('Введите название дневника', {
+				description: 'Название не может быть пустым',
+			});
+			return;
+		}
+
+		// Validate diary name length
+		if (diaryName.trim().length > 30) {
+			toast.error('Название слишком длинное', {
+				description: 'Максимум 30 символов',
+			});
+			return;
+		}
+
 		// Validate email
 		if (!(email.trim() && email.includes('@'))) {
 			toast.error('Неверный email', {
@@ -191,6 +211,8 @@ export function ProfileEditModal({
 				name: name.trim(),
 				avatar: uploadedAvatarUrl,
 				email: email.trim(), // Update email in profiles table
+				diaryName: diaryName.trim(),
+				diaryEmoji: diaryEmoji,
 			});
 
 			toast.success('Профиль обновлен', {
@@ -261,6 +283,8 @@ export function ProfileEditModal({
 		setEmail(profile?.email || '');
 		setAvatarUrl(profile?.avatar || '');
 		setAvatarFile(null);
+		setDiaryName(profile?.diaryName || 'Мой дневник');
+		setDiaryEmoji(profile?.diaryEmoji || '📝');
 		onClose();
 	};
 
@@ -389,6 +413,56 @@ export function ProfileEditModal({
 										{email !== profile?.email
 											? 'После смены email потребуется подтверждение'
 											: 'Введите новый email для изменения'}
+									</p>
+								</div>
+
+								{/* Diary Name */}
+								<div className="space-y-2">
+									<label className="font-semibold text-foreground text-sm">
+										Название дневника
+									</label>
+									<Input
+										disabled={isSaving}
+										maxLength={30}
+										onChange={(e) => setDiaryName(e.target.value)}
+										placeholder="Мой дневник"
+										type="text"
+										value={diaryName}
+									/>
+									<p className="text-muted-foreground text-xs">
+										{diaryName.length}/30 символов • Используется в PDF книгах
+									</p>
+								</div>
+
+								{/* Diary Emoji */}
+								<div className="space-y-2">
+									<label className="font-semibold text-foreground text-sm">Эмодзи дневника</label>
+									<div className="flex gap-2">
+										<Input
+											className="text-2xl text-center"
+											disabled={isSaving}
+											maxLength={2}
+											onChange={(e) => setDiaryEmoji(e.target.value)}
+											placeholder="📝"
+											type="text"
+											value={diaryEmoji}
+										/>
+										<div className="flex flex-wrap gap-2">
+											{['📝', '📖', '✨', '🌟', '💫', '🎯', '🚀', '💎'].map((emoji) => (
+												<button
+													key={emoji}
+													className="rounded-lg border-border border bg-muted p-2 text-2xl transition-colors hover:bg-accent disabled:opacity-50"
+													disabled={isSaving}
+													onClick={() => setDiaryEmoji(emoji)}
+													type="button"
+												>
+													{emoji}
+												</button>
+											))}
+										</div>
+									</div>
+									<p className="text-muted-foreground text-xs">
+										Выберите эмодзи или введите свой
 									</p>
 								</div>
 							</div>

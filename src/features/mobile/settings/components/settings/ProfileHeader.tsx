@@ -44,6 +44,16 @@ export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
 						{profile?.name || 'Мой аккаунт'}
 					</h1>
 					<p className="text-muted-foreground text-sm">{profile?.email}</p>
+
+					{/* Diary Name */}
+					{(profile?.diaryName || profile?.diaryEmoji) && (
+						<div className="mt-3 inline-flex items-center gap-2 rounded-full border-border border bg-muted/30 px-4 py-2">
+							<span className="text-xl">{profile?.diaryEmoji || '📝'}</span>
+							<span className="font-medium text-foreground text-sm">
+								{profile?.diaryName || 'Мой дневник'}
+							</span>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

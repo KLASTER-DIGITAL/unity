@@ -17,6 +17,18 @@
 - Деактивация: GET активной подписки → PUT `/admin-subscriptions-api/subscriptions/:id` с status=cancelled
 - Error handling и toast notifications
 
+**ProfileEditModal - Добавлены поля diary_name и diary_emoji**:
+- Добавлены state: `diaryName`, `diaryEmoji`
+- Добавлена валидация: не пустое, максимум 30 символов
+- Добавлены UI поля: Input для названия, Input + кнопки для эмодзи
+- Обновлен `handleSave`: передача diaryName и diaryEmoji в API
+- Обновлен `handleCancel`: сброс значений
+
+**ProfileHeader - Отображение diary_name**:
+- Добавлен блок с diary_emoji и diary_name
+- Дизайн: rounded-full badge с border и muted background
+- Условное отображение: только если есть diaryName или diaryEmoji
+
 ### 🔄 Изменено
 
 **TypeScript типы - is_premium поддержка**:
