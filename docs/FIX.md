@@ -41,6 +41,18 @@
 - Стало: `vi.mock('@/shared/lib/media/videoCompression', ...)`
 - Причина: Удаление дубликатов из `src/utils/`
 
+**Дубликат imageCompression (src/shared/lib/media/imageCompression.ts)**:
+- Удален файл `src/shared/lib/media/imageCompression.ts` (124 строки)
+- Причина: 100% дубликат `src/utils/imageCompression.ts`
+- Статус: НЕ использовался нигде в кодовой базе
+- Функции: compressImage, generateThumbnail, getImageDimensions
+
+**Мертвый код (src/utils/)**:
+- Удалено 3 файла неиспользуемых утилит
+- `lazyLoad.ts` (174 строки) - НЕ использовался, заменен на LazyComponents
+- `chunkUpload.ts` (129 строк) - НЕ использовался, функционал не нужен
+- `generatePWAIcons.ts` (82 строки) - НЕ использовался, PWA иконки статичные
+
 ---
 
 ## [Unreleased] - 2025-11-07

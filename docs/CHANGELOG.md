@@ -19,6 +19,13 @@
 - **Дубликаты videoCompression**: Удалены файлы `src/utils/videoCompression.ts` и `src/utils/videoCompression.web.ts`
   - Полные дубликаты `src/shared/lib/media/videoCompression*`
   - Импорты обновлены на правильные пути
+- **Дубликат imageCompression**: Удален файл `src/shared/lib/media/imageCompression.ts`
+  - Полный дубликат `src/utils/imageCompression.ts`
+  - НЕ использовался нигде в кодовой базе
+- **Мертвый код**: Удалены неиспользуемые утилиты (3 файла)
+  - `src/utils/lazyLoad.ts` - НЕ использовался
+  - `src/utils/chunkUpload.ts` - НЕ использовался
+  - `src/utils/generatePWAIcons.ts` - НЕ использовался
 
 ### 🔄 Изменено
 - **useMediaUploader.ts**: Обновлен импорт videoCompression с `../../utils/` на `../lib/media/`
