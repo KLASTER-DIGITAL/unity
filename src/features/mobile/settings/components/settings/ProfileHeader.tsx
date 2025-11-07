@@ -1,5 +1,6 @@
-import { Edit2 } from 'lucide-react';
+import { Crown, Edit2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Badge } from '@/shared/components/ui/badge';
 import { DEFAULT_AVATAR_URL } from './constants';
 
 type ProfileHeaderProps = {
@@ -53,6 +54,14 @@ export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
 								{profile?.diaryName || 'Мой дневник'}
 							</span>
 						</div>
+					)}
+
+					{/* Premium Badge */}
+					{profile?.is_premium && (
+						<Badge className="mt-3 border-yellow-500/20 bg-yellow-500/10 text-yellow-600">
+							<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
+							Premium
+						</Badge>
 					)}
 				</div>
 			</div>
