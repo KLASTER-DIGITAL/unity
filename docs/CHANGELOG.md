@@ -7,6 +7,68 @@
 
 ---
 
+## [Unreleased] - 2025-11-07
+
+### ✨ Новые возможности
+- **PDF Книги**: AI-генерация книг теперь доступна ТОЛЬКО для Premium пользователей
+  - Free пользователи могут создавать простые книги без AI
+  - Premium пользователи получают AI-генерацию с GPT-4o-mini (в 33 раза дешевле!)
+  - Минимум 5 записей для создания книги
+
+### ⚡ Производительность
+- **OpenAI API**: Обновлена модель с gpt-4 → gpt-4o-mini
+  - Снижение стоимости в 33 раза ($0.15/1M input vs $5/1M)
+  - Оптимизация промптов: использование ai_summary вместо полного текста
+  - Гарантированный JSON ответ через response_format
+
+### 🐛 Исправления
+- **AlertDialog**: Исправлено центрирование модального окна удаления книги
+- **BookDraftEditor**: Исправлена бесконечная загрузка при редактировании черновика
+  - Критический баг: useState вместо useEffect для загрузки данных
+- **Зависимости**: Установлен отсутствующий пакет @react-pdf/renderer
+
+### 🐛 Исправления
+
+- **PDF Книги - Исправление критических багов**: Исправлены 4 критических бага в системе PDF книг ✅
+  - ✅ **Баг 1**: Premium проверка для кнопки "Скачать PDF отчет" - теперь корректно проверяет статус подписки
+  - ✅ **Баг 2**: OpenAI API failed - добавлено детальное логирование, валидация структуры ответа, обработка ошибок парсинга JSON
+  - ✅ **Баг 3**: Кнопка "Редактировать черновик" не работала - добавлен state editingDraftId, импорт BookDraftEditor, обработчик onEditDraft
+  - ✅ **Баг 4**: Модальное окно удаления в углу - проверено центрирование AlertDialog (базовый компонент правильный)
+  - ✅ Edge Function `books-generate-draft` обновлен до version 4 с улучшенным логированием
+  - ✅ Файлы: ReportsScreen.tsx, BooksLibraryScreen.tsx, books-generate-draft/index.ts
+
+- **PDF Книги - Упрощение wizard**: Удален шаг 5 (выбор темы) из BookCreationWizard ✅
+  - ✅ Wizard теперь имеет 4 шага вместо 5
+  - ✅ Theme всегда 'light' по умолчанию
+  - ✅ Обновлены типы: `WizardStep = 1 | 2 | 3 | 4`
+  - ✅ Обновлена валидация, прогресс бар, UI
+  - ✅ Удалено ~50 строк кода
+  - ✅ Файл: BookCreationWizard.tsx
+
+### ✨ Новые возможности
+
+- **Настройки профиля - Название дневника**: Добавлена возможность редактирования названия и эмодзи дневника ✅
+  - ✅ Поля `diary_name` и `diary_emoji` в ProfileEditModal (PWA)
+  - ✅ Поля `diary_name` и `diary_emoji` в ProfileEditModal.native.tsx (React Native)
+  - ✅ Отображение названия дневника в ProfileHeader
+  - ✅ Emoji picker с 10 предустановленными эмодзи (🏆📔✨💪🎯📝🌟❤️🔥📖)
+  - ✅ Валидация: название не может быть пустым, максимум 50 символов
+  - ✅ Используется в PDF книгах для персонализации
+  - ✅ Dual-platform: PWA + React Native готовность
+
+- **Премиум подписка - Система управления**: Реализована полноценная система управления подписками ✅
+  - ✅ Таблица `subscriptions` в Supabase с полями: plan_type, status, start_date, end_date, auto_renew, payment_method, amount, currency
+  - ✅ Edge Function `admin-subscriptions-api` для CRUD операций (GET/POST/PUT/DELETE)
+  - ✅ Интеграция в UsersManagementTab - активация/деактивация подписок
+  - ✅ SubscriptionModal для создания подписок в админ-панели
+  - ✅ Автоматическое обновление поля `is_premium` в профиле пользователя
+  - ✅ RLS policies для безопасности (пользователи видят только свои подписки, админы - все)
+  - ✅ Поддержка 3 типов подписок: monthly, yearly, lifetime
+  - ✅ Поддержка 3 способов оплаты: stripe, manual, promo
+  - ✅ Premium badge в ProfileHeader (PWA + React Native) - клик открывает SubscriptionInfoModal
+  - ✅ SubscriptionInfoModal для пользователей - просмотр деталей подписки
+  - ✅ Dual-platform готовность: ProfileHeader.native.tsx с premium badge
+
 ## [Unreleased] - 2025-10-30
 
 ### ✨ Новые возможности

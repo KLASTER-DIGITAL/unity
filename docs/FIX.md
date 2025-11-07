@@ -6,6 +6,160 @@
 
 ---
 
+## [Unreleased] - 2025-11-07
+
+### 🔄 Изменено
+- **Edge Function books-generate-draft**: Version 5
+  - Модель: gpt-4 → gpt-4o-mini (33x cheaper)
+  - Pricing: $0.15/1M input, $0.60/1M output
+  - Premium check: Free users blocked from AI generation
+  - Minimum entries: 5 required
+  - Optimized prompts: ai_summary instead of full text
+  - Response format: guaranteed JSON via response_format
+
+### 🐛 Исправления
+- **BooksLibraryScreen.tsx**: Удалены конфликтующие классы `mx-auto max-w-[90vw]` из AlertDialog
+- **BookDraftEditor.tsx**: Критический баг useState → useEffect для загрузки данных
+  - Добавлен импорт useEffect
+  - Исправлены строки 140 и 154: useState(() => {}) → useEffect(() => {}, [deps])
+
+### 📦 Зависимости
+- **Добавлено**: @react-pdf/renderer (50 packages)
+  - Требуется для BookDraftEditor PDF preview
+
+### 🔄 Изменено
+
+**PDF Books - Bug Fixes (2025-11-07)**:
+- **package.json**: Установлен пакет @react-pdf/renderer
+  - Команда: `npm install @react-pdf/renderer`
+  - Причина: BookDraftEditor использует @react-pdf/renderer для предпросмотра PDF
+  - Добавлено 50 пакетов (зависимости @react-pdf/renderer)
+  - Vite автоматически оптимизировал новые зависимости
+- **src/features/mobile/reports/components/ReportsScreen.tsx**: Исправлена Premium проверка
+  - Строки 247-283: Обновлен onClick handler для кнопки "Скачать PDF отчет"
+  - Добавлена проверка `if (!isPremium) { setShowPremiumModal(true); return; }`
+  - Premium пользователи теперь видят "Генерация PDF отчета... (в разработке)"
+  - Добавлен Premium badge для Free пользователей
+  - Добавлен state `editingDraftId` для редактирования черновиков
+  - Добавлен импорт `BookDraftEditor`
+  - Добавлено модальное окно BookDraftEditor с callbacks onBack и onComplete
+- **src/features/mobile/reports/components/BooksLibraryScreen.tsx**: Исправлена кнопка "Редактировать черновик"
+  - Добавлен prop `onEditDraft?: (draftId: string) => void`
+  - Обновлен handleEditDraft: теперь вызывает onEditDraft(book.id)
+  - Добавлен класс `mx-auto` в AlertDialogContent для центрирования
+- **supabase/functions/books-generate-draft/index.ts**: Улучшено логирование и обработка ошибок
+  - Строки 204-283: Полностью переписан блок вызова OpenAI API
+  - Добавлено логирование длины промпта
+  - Добавлено детальное логирование ошибок OpenAI (status, body, JSON details)
+  - Добавлена валидация структуры ответа: проверка `aiResult.choices[0].message`
+  - Добавлена обработка ошибок парсинга JSON с try-catch
+  - Добавлено логирование длины AI content
+  - Добавлен вывод первых 500 символов при ошибке парсинга
+  - Edge Function задеплоен как version 4
+
+**PDF Books - Wizard Simplification (2025-11-07)**:
+- **src/features/mobile/reports/components/BookCreationWizard.tsx**: Удален шаг 5 (выбор темы)
+  - Строка 1-16: Обновлен комментарий - теперь "4-step wizard"
+  - Строка 35: Изменен тип `WizardStep = 1 | 2 | 3 | 4` (было 1 | 2 | 3 | 4 | 5)
+  - Строка 35-43: Удалено поле `theme` из типа `BookConfig`
+  - Строка 58-61: Удалена инициализация `theme: '' as any`
+  - Строка 118-125: Изменено условие `if (currentStep < 4)` (было < 5)
+  - Строка 162-168: Добавлено `theme: 'light'` в вызов Edge Function (всегда light)
+  - Строка 181-187: Добавлено `theme: 'light'` в body JSON
+  - Строка 217-223: Удален case 5 из валидации
+  - Строка 245-254: Обновлен прогресс "Шаг X из 4" и `(currentStep / 4) * 100`
+  - Строка 261-266: Удален заголовок для шага 5
+  - Строка 465-467: Удален весь UI блок шага 5 (43 строки кода)
+  - Строка 470-505: Изменено условие `currentStep < 4` для кнопки "Далее"
+
+**Profile Settings - Diary Name (2025-11-07)**:
+- **ProfileEditModal.tsx**: Добавлены поля diary_name и diary_emoji
+  - Добавлены state variables: `diaryName`, `diaryEmoji`
+  - Добавлена валидация: название не может быть пустым
+  - Добавлен emoji picker с 10 предустановленными эмодзи
+  - Добавлен character counter (0/50 символов)
+  - Обновлен API call: передача `diaryName` и `diaryEmoji`
+  - Обновлен handleCancel: сброс новых полей
+- **ProfileEditModal.native.tsx**: Создана React Native версия (372 строки)
+  - Использованы React Native компоненты: Modal, ScrollView, TextInput, Pressable
+  - Использованы DesignTokens для styling consistency
+  - Реализована та же валидация что и в PWA версии
+  - Создан emoji picker grid с теми же 10 эмодзи
+  - Упрощенная версия без avatar upload (future enhancement)
+- **ProfileHeader.tsx**: Добавлено отображение diary_name и diary_emoji
+  - Обновлен ProfileHeaderProps type: добавлены `diaryName` и `diaryEmoji`
+  - Добавлен UI блок для отображения названия дневника с эмодзи
+  - Используется bg-muted/50 для визуального выделения
+  - Responsive design с gap-2 и rounded-lg
+- **SettingsScreen.tsx**: Обновлена передача данных в ProfileEditModal
+
+**Premium Subscription System (2025-11-07)**:
+- **supabase/migrations/20251107_create_subscriptions.sql**: Создана таблица subscriptions
+  - Поля: id, user_id, plan_type, status, start_date, end_date, auto_renew, payment_method, amount, currency, stripe_subscription_id, stripe_customer_id, metadata, created_at, updated_at, created_by, updated_by
+  - Индексы: user_id, status, end_date, created_at, composite user_status, created_by, updated_by
+  - RLS policies: users can view own, admins can view/insert/update/delete all
+  - Trigger: updated_at автоматически обновляется
+- **supabase/migrations/20251107_fix_subscriptions_issues.sql**: Исправлены Supabase Advisors issues
+  - Исправлен function_search_path_mutable: добавлен SET search_path = public
+  - Исправлен auth_rls_initplan: использование (SELECT auth.uid()) вместо auth.uid()
+  - Исправлен multiple_permissive_policies: консолидация SELECT policies
+  - Добавлены индексы для created_by и updated_by
+- **supabase/functions/admin-subscriptions-api/index.ts**: Создан Edge Function (322 строки)
+  - GET /subscriptions - список всех подписок
+  - GET /subscriptions/:userId - подписки пользователя
+  - POST /subscriptions - создание подписки
+  - PUT /subscriptions/:id - обновление подписки
+  - DELETE /subscriptions/:id - удаление подписки
+  - Автоматическое обновление is_premium в profiles при изменении статуса
+- **src/shared/lib/api/config/urls.ts**: Добавлен ADMIN_SUBSCRIPTIONS URL
+- **src/features/admin/dashboard/components/UsersManagementTab.tsx**: Интегрирован admin-subscriptions-api
+  - Заменен stub handleTogglePremium на реальную реализацию
+  - Активация: POST /subscriptions с planType=monthly, amount=499 RUB
+  - Деактивация: GET user subscriptions, затем PUT /subscriptions/:id с status=cancelled
+- **src/features/admin/dashboard/components/SubscriptionModal.tsx**: Создан модальный компонент (150 строк)
+  - Форма для создания подписок в админ-панели
+  - Поля: planType, status, amount, currency, paymentMethod
+  - Интеграция с admin-subscriptions-api
+  - Валидация и error handling
+- **src/features/mobile/settings/components/settings/ProfileHeader.tsx**: Добавлен premium badge
+  - Обновлен ProfileHeaderProps: добавлены isPremium и onPremiumClick
+  - Premium badge с Crown icon и gradient background
+  - Клик на badge открывает SubscriptionInfoModal
+  - Responsive design с transition-all
+- **src/features/mobile/settings/components/settings/ProfileHeader.native.tsx**: Создана React Native версия (202 строки)
+  - Premium badge с Ionicons crown icon
+  - Haptic feedback при нажатии
+  - DesignTokens для styling consistency
+  - Полная parity с PWA версией
+- **src/features/mobile/settings/components/SubscriptionInfoModal.tsx**: Создан модальный компонент (232 строки)
+  - Отображение деталей подписки пользователя
+  - Загрузка данных через admin-subscriptions-api
+  - Отображение: plan type, status, dates, amount
+  - Premium features grid с 6 возможностями
+  - Fallback для пользователей без подписки
+- **src/features/mobile/settings/components/SettingsScreen.tsx**: Интегрирован SubscriptionInfoModal
+  - Добавлен state showSubscriptionInfo
+  - ProfileHeader onPremiumClick открывает SubscriptionInfoModal
+  - Передача userId в SubscriptionInfoModal
+  - Автоматическое обновление is_premium в profiles
+- **src/shared/lib/api/config/urls.ts**: Добавлен ADMIN_SUBSCRIPTIONS URL
+- **src/features/admin/dashboard/components/UsersManagementTab.tsx**: Интегрирован admin-subscriptions-api
+  - Заменена заглушка handleTogglePremium на реальную реализацию
+  - Активация подписки: POST /subscriptions с planType=monthly, amount=499 RUB
+  - Деактивация подписки: PUT /subscriptions/:id с status=cancelled
+- **src/features/admin/dashboard/components/SubscriptionModal.tsx**: Создан модальный компонент (150 строк)
+  - Форма создания подписки: plan_type, status, amount, currency, payment_method
+  - Валидация полей
+  - Интеграция с admin-subscriptions-api
+  - Добавлены `diaryName` и `diaryEmoji` в profile prop
+  - Используются дефолтные значения: 'Мой дневник' и '📝'
+
+### 📚 Документация
+
+**Task 3 Completion (2025-11-07)**:
+- **CHANGELOG.md**: Добавлена запись о новой возможности редактирования названия дневника
+- **FIX.md**: Добавлена запись о технических изменениях в ProfileEditModal, ProfileHeader, SettingsScreen
+
 ## [Unreleased] - 2025-11-01
 
 ### 🐛 Исправлено
