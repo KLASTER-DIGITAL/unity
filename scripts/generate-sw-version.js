@@ -39,15 +39,15 @@ function updateServiceWorker(gitHash) {
 	// Заменяем CACHE_NAME версии
 	const cacheVersion = `v${gitHash}`;
 	swContent = swContent.replace(
-		/const CACHE_NAME = 'achievement-diary-v\d+';/,
+		/const CACHE_NAME = 'achievement-diary-v[^']+';/,
 		`const CACHE_NAME = 'achievement-diary-${cacheVersion}';`
 	);
 	swContent = swContent.replace(
-		/const CACHE_NAME_API = 'achievement-diary-api-v\d+';/,
+		/const CACHE_NAME_API = 'achievement-diary-api-v[^']+';/,
 		`const CACHE_NAME_API = 'achievement-diary-api-${cacheVersion}';`
 	);
 	swContent = swContent.replace(
-		/const CACHE_NAME_STATIC = 'achievement-diary-static-v\d+';/,
+		/const CACHE_NAME_STATIC = 'achievement-diary-static-v[^']+';/,
 		`const CACHE_NAME_STATIC = 'achievement-diary-static-${cacheVersion}';`
 	);
 
