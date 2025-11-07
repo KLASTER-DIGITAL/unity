@@ -1,83 +1,95 @@
 /**
  * Universal Checkbox Component - React Native Implementation
  *
- * Uses Pressable with custom checkmark for native platform
+ * Uses custom Pressable component for native platform
  *
  * @module components/ui/universal/Checkbox.native
  */
 
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { DesignTokens } from '../../../design-system/tokens';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface CheckboxProps {
+export type CheckboxProps = {
 	/** Checked state */
-	checked?: boolean;
+	checked?: boolean | 'indeterminate';
 	/** Callback when checked state changes */
-	onCheckedChange?: (checked: boolean) => void;
+	onCheckedChange?: (checked: boolean | 'indeterminate') => void;
 	/** Default checked state (uncontrolled) */
-	defaultChecked?: boolean;
+	defaultChecked?: boolean | 'indeterminate';
 	/** Disabled state */
 	disabled?: boolean;
-	/** Custom className (ignored in native) */
+	/** Custom className (ignored in React Native) */
 	className?: string;
 	/** Accessibility label */
 	'aria-label'?: string;
-	/** Test ID */
-	testID?: string;
-	/** Label text */
-	label?: string;
-}
+};
 
 // ============================================================================
-// COMPONENT
+// COMPONENTS
 // ============================================================================
 
 export function Checkbox({
 	checked,
 	onCheckedChange,
-	defaultChecked = false,
+	defaultChecked,
 	disabled,
 	'aria-label': ariaLabel,
-	testID,
-	label,
 }: CheckboxProps) {
-	const [internalChecked, setInternalChecked] = useState(defaultChecked);
+	const [internalChecked, setInternalChecked] = React.useState<boolean | 'indeterminate'>(
+		defaultChecked ?? false
+	);
+
 	const isControlled = checked !== undefined;
-	const currentChecked = isControlled ? checked : internalChecked;
+	const currentValue = isControlled ? checked : internalChecked;
 
 	const handlePress = () => {
-		const newValue = !currentChecked;
+		if (disabled) return;
+
+		const newValue = currentValue !== true;
+
 		if (!isControlled) {
 			setInternalChecked(newValue);
 		}
 		onCheckedChange?.(newValue);
 	};
 
+	const getCheckboxStyle = (): ViewStyle => {
+		if (currentValue === true) {
+			return styles.checked;
+		}
+		if (currentValue === 'indeterminate') {
+			return styles.indeterminate;
+		}
+		return styles.unchecked;
+	};
+
 	return (
 		<Pressable
-			accessibilityLabel={ariaLabel || label}
+			accessibilityLabel={ariaLabel}
 			accessibilityRole="checkbox"
-			accessibilityState={{ checked: currentChecked, disabled }}
+			accessibilityState={{
+				checked: currentValue === true,
+				disabled,
+			}}
 			disabled={disabled}
 			onPress={handlePress}
-			style={({ pressed }) => [styles.container, pressed && !disabled && styles.pressed]}
-			testID={testID}
+			style={({ pressed }) => [
+				styles.container,
+				getCheckboxStyle(),
+				disabled && styles.disabled,
+				pressed && !disabled && styles.pressed,
+			]}
 		>
-			<View
-				style={[
-					styles.checkbox,
-					currentChecked && styles.checkboxChecked,
-					disabled && styles.checkboxDisabled,
-				]}
-			>
-				{currentChecked && <Text style={styles.checkmark}>✓</Text>}
-			</View>
-			{label && <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>}
+			{currentValue === true && (
+				<View style={styles.checkmark}>
+					<Text style={styles.checkmarkText}>✓</Text>
+				</View>
+			)}
+			{currentValue === 'indeterminate' && <View style={styles.indeterminateLine} />}
 		</Pressable>
 	);
 }
@@ -88,41 +100,46 @@ export function Checkbox({
 
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: 'row',
+		width: 20,
+		height: 20,
+		borderRadius: 4,
+		borderWidth: 1,
 		alignItems: 'center',
-		gap: DesignTokens.spacing.sm,
+		justifyContent: 'center',
+	},
+	unchecked: {
+		borderColor: '#d1d5db',
+		backgroundColor: '#f9fafb',
+	},
+	checked: {
+		borderColor: '#007aff',
+		backgroundColor: '#007aff',
+	},
+	indeterminate: {
+		borderColor: '#007aff',
+		backgroundColor: '#007aff',
+	},
+	disabled: {
+		opacity: 0.5,
 	},
 	pressed: {
 		opacity: 0.7,
 	},
-	checkbox: {
-		width: 20,
-		height: 20,
-		borderRadius: DesignTokens.borderRadius.sm,
-		borderWidth: 2,
-		borderColor: DesignTokens.colors.border,
-		backgroundColor: DesignTokens.colors.background,
+	checkmark: {
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	checkboxChecked: {
-		backgroundColor: DesignTokens.colors.primary,
-		borderColor: DesignTokens.colors.primary,
-	},
-	checkboxDisabled: {
-		opacity: 0.5,
-	},
-	checkmark: {
-		color: '#FFFFFF',
+	checkmarkText: {
+		color: '#ffffff',
 		fontSize: 14,
-		fontWeight: 'bold',
+		fontWeight: '600',
+		lineHeight: 16,
 	},
-	label: {
-		fontSize: DesignTokens.fontSize.md,
-		color: DesignTokens.colors.text,
-	},
-	labelDisabled: {
-		opacity: 0.5,
+	indeterminateLine: {
+		width: 10,
+		height: 2,
+		backgroundColor: '#ffffff',
+		borderRadius: 1,
 	},
 });
 
@@ -151,8 +168,6 @@ export const CheckboxUtils = {
 // ============================================================================
 // EXPORTS
 // ============================================================================
-
-Checkbox.displayName = 'Checkbox';
 
 export default {
 	Checkbox,

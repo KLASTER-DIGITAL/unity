@@ -10,6 +10,16 @@
 ## [Unreleased] - 2025-11-08
 
 ### ✨ Новые возможности
+- **Universal Components для React Native**: Созданы .native.tsx версии для 6 компонентов
+  - Switch - переключатель (React Native Switch)
+  - Checkbox - чекбокс (custom Pressable)
+  - Toast - уведомления (custom Animated API)
+  - Select - выпадающий список (custom Modal + Pressable)
+  - Dialog - модальное окно (React Native Modal)
+  - RadioGroup - радио кнопки (custom Pressable)
+  - Визуальная parity с PWA через DesignTokens
+  - Готовность к React Native миграции (Q3 2025)
+
 - **i18n Platform Adapter для React Native**: Добавлена поддержка определения языка устройства через expo-localization
   - Автоматическое определение языка устройства
   - Поддержка списка предпочитаемых языков

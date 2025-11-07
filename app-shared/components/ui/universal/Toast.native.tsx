@@ -1,222 +1,255 @@
 /**
  * Universal Toast Component - React Native Implementation
  *
- * Uses react-native-toast-message for native platform
- *
- * @module components/ui/universal/Toast.native
+ * Uses custom implementation with Animated API for React Native
  */
 
-import type React from 'react';
-import RNToast from 'react-native-toast-message';
+import React from 'react';
+import { Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import type { ToastProps } from './types';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface ToastProps {
-	/** Toast title */
-	title?: string;
-	/** Toast description */
-	description?: string;
-	/** Toast duration in ms */
-	duration?: number;
-	/** Toast action button */
-	action?: {
-		label: string;
-		onClick: () => void;
-	};
-	/** Callback when toast is dismissed */
-	onDismiss?: () => void;
-	/** Toast ID */
-	id?: string;
+type ToastItem = ToastProps & {
+	id: string;
+	variant: 'default' | 'success' | 'error' | 'warning' | 'info';
+};
+
+// ============================================================================
+// TOAST MANAGER
+// ============================================================================
+
+class ToastManager {
+	private toasts: ToastItem[] = [];
+	private listeners: Array<(toasts: ToastItem[]) => void> = [];
+
+	subscribe(listener: (toasts: ToastItem[]) => void) {
+		this.listeners.push(listener);
+		return () => {
+			this.listeners = this.listeners.filter((l) => l !== listener);
+		};
+	}
+
+	private notify() {
+		for (const listener of this.listeners) {
+			listener([...this.toasts]);
+		}
+	}
+
+	private show(variant: ToastItem['variant'], title: string, options?: Partial<ToastProps>) {
+		const id = options?.id || `toast-${Date.now()}-${Math.random()}`;
+		const toast: ToastItem = {
+			id,
+			title,
+			variant,
+			duration: options?.duration ?? 4000,
+			description: options?.description,
+			action: options?.action,
+			onDismiss: options?.onDismiss,
+		};
+
+		this.toasts.push(toast);
+		this.notify();
+
+		// Auto dismiss
+		setTimeout(() => {
+			this.dismiss(id);
+		}, toast.duration);
+
+		return id;
+	}
+
+	success(title: string, options?: Partial<ToastProps>) {
+		return this.show('success', title, options);
+	}
+
+	error(title: string, options?: Partial<ToastProps>) {
+		return this.show('error', title, options);
+	}
+
+	info(title: string, options?: Partial<ToastProps>) {
+		return this.show('info', title, options);
+	}
+
+	warning(title: string, options?: Partial<ToastProps>) {
+		return this.show('warning', title, options);
+	}
+
+	dismiss(id: string) {
+		const toast = this.toasts.find((t) => t.id === id);
+		if (toast?.onDismiss) {
+			toast.onDismiss();
+		}
+		this.toasts = this.toasts.filter((t) => t.id !== id);
+		this.notify();
+	}
 }
 
-export interface ToasterProps {
-	/** Toast position */
-	position?:
-		| 'top'
-		| 'bottom'
-		| 'top-center'
-		| 'top-left'
-		| 'top-right'
-		| 'bottom-center'
-		| 'bottom-left'
-		| 'bottom-right';
-	/** Theme */
-	theme?: 'light' | 'dark' | 'system';
-	/** Rich colors */
-	richColors?: boolean;
-	/** Expand toasts */
-	expand?: boolean;
-	/** Visible toasts count */
-	visibleToasts?: number;
-	/** Show close button */
-	closeButton?: boolean;
-}
+const toastManager = new ToastManager();
 
 // ============================================================================
 // TOAST API
 // ============================================================================
 
 export const toast = {
-	/**
-	 * Show success toast
-	 */
-	success: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'success',
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 4000,
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show error toast
-	 */
-	error: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'error',
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 4000,
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show warning toast
-	 */
-	warning: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'info', // react-native-toast-message doesn't have warning type
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 4000,
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show info toast
-	 */
-	info: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'info',
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 4000,
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show default toast
-	 */
-	message: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'success', // Use success as default
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 4000,
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show loading toast
-	 */
-	loading: (title: string, options?: Partial<ToastProps>) => {
-		RNToast.show({
-			type: 'info',
-			text1: title,
-			text2: options?.description,
-			visibilityTime: options?.duration ?? 0, // Don't auto-hide loading
-			onHide: options?.onDismiss,
-		});
-	},
-
-	/**
-	 * Show promise toast
-	 */
-	promise: async <T,>(
-		promise: Promise<T>,
-		messages: {
-			loading: string;
-			success: string | ((data: T) => string);
-			error: string | ((error: any) => string);
-		},
-		options?: Partial<ToastProps>
-	): Promise<T> => {
-		// Show loading toast
-		toast.loading(messages.loading, options);
-
-		try {
-			const data = await promise;
-
-			// Show success toast
-			const successMessage =
-				typeof messages.success === 'function' ? messages.success(data) : messages.success;
-			toast.success(successMessage, options);
-
-			return data;
-		} catch (error) {
-			// Show error toast
-			const errorMessage =
-				typeof messages.error === 'function' ? messages.error(error) : messages.error;
-			toast.error(errorMessage, options);
-
-			throw error;
-		}
-	},
-
-	/**
-	 * Dismiss toast
-	 */
-	dismiss: (id?: string) => {
-		if (id) {
-			// react-native-toast-message doesn't support dismissing by ID
-			RNToast.hide();
-		} else {
-			RNToast.hide();
-		}
-	},
-
-	/**
-	 * Custom toast
-	 */
-	custom: (_component: React.ReactNode, options?: Partial<ToastProps>) => {
-		// react-native-toast-message doesn't support custom components easily
-		// Fallback to info toast
-		console.warn('Custom toast not fully supported in React Native, using info toast');
-		toast.info('Custom toast', options);
-	},
+	success: (title: string, options?: Partial<ToastProps>) => toastManager.success(title, options),
+	error: (title: string, options?: Partial<ToastProps>) => toastManager.error(title, options),
+	info: (title: string, options?: Partial<ToastProps>) => toastManager.info(title, options),
+	warning: (title: string, options?: Partial<ToastProps>) => toastManager.warning(title, options),
+	dismiss: (id: string) => toastManager.dismiss(id),
 };
 
 // ============================================================================
-// TOASTER COMPONENT
+// TOAST CONTAINER COMPONENT
 // ============================================================================
 
-export function Toaster({ position = 'top' }: ToasterProps = {}) {
-	// Map position to react-native-toast-message position
-	const rnPosition = position.includes('top') ? 'top' : 'bottom';
+export function ToastContainer() {
+	const [toasts, setToasts] = React.useState<ToastItem[]>([]);
+
+	React.useEffect(() => {
+		return toastManager.subscribe(setToasts);
+	}, []);
 
 	return (
-		<RNToast
-			position={rnPosition}
-			// Additional config can be added here
-		/>
+		<View pointerEvents="box-none" style={styles.container}>
+			{toasts.map((item) => (
+				<ToastItem key={item.id} toast={item} />
+			))}
+		</View>
 	);
 }
+
+// ============================================================================
+// TOAST ITEM COMPONENT
+// ============================================================================
+
+function ToastItem({ toast: item }: { toast: ToastItem }) {
+	const opacity = React.useRef(new Animated.Value(0)).current;
+	const translateY = React.useRef(new Animated.Value(-20)).current;
+
+	React.useEffect(() => {
+		Animated.parallel([
+			Animated.timing(opacity, {
+				toValue: 1,
+				duration: 200,
+				useNativeDriver: true,
+			}),
+			Animated.timing(translateY, {
+				toValue: 0,
+				duration: 200,
+				useNativeDriver: true,
+			}),
+		]).start();
+	}, []);
+
+	const getBackgroundColor = () => {
+		switch (item.variant) {
+			case 'success':
+				return '#10b981';
+			case 'error':
+				return '#ef4444';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#374151';
+		}
+	};
+
+	return (
+		<Animated.View
+			style={[
+				styles.toast,
+				{
+					opacity,
+					transform: [{ translateY }],
+					backgroundColor: getBackgroundColor(),
+				},
+			]}
+		>
+			<View style={styles.toastContent}>
+				<Text style={styles.toastTitle}>{item.title}</Text>
+				{item.description && <Text style={styles.toastDescription}>{item.description}</Text>}
+			</View>
+			{item.action && (
+				<TouchableOpacity
+					onPress={() => {
+						item.action?.onClick();
+						toastManager.dismiss(item.id);
+					}}
+					style={styles.toastAction}
+				>
+					<Text style={styles.toastActionText}>{item.action.label}</Text>
+				</TouchableOpacity>
+			)}
+		</Animated.View>
+	);
+}
+
+// ============================================================================
+// STYLES
+// ============================================================================
+
+const { width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+	container: {
+		position: 'absolute',
+		top: 50,
+		left: 0,
+		right: 0,
+		alignItems: 'center',
+		zIndex: 9999,
+	},
+	toast: {
+		width: width - 32,
+		marginBottom: 8,
+		padding: 16,
+		borderRadius: 12,
+		flexDirection: 'row',
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.25,
+		shadowRadius: 3.84,
+		elevation: 5,
+	},
+	toastContent: {
+		flex: 1,
+	},
+	toastTitle: {
+		color: '#ffffff',
+		fontSize: 16,
+		fontWeight: '600',
+		marginBottom: 4,
+	},
+	toastDescription: {
+		color: '#ffffff',
+		fontSize: 14,
+		opacity: 0.9,
+	},
+	toastAction: {
+		marginLeft: 12,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		backgroundColor: 'rgba(255, 255, 255, 0.2)',
+		borderRadius: 6,
+	},
+	toastActionText: {
+		color: '#ffffff',
+		fontSize: 14,
+		fontWeight: '600',
+	},
+});
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-Toaster.displayName = 'Toaster';
-
 export default {
 	toast,
-	Toaster,
+	ToastContainer,
 };

@@ -9,6 +9,13 @@
 ## [Unreleased] - 2025-11-08
 
 ### 🏗️ Инфраструктура
+**Universal Components .native.tsx**:
+- Создано 6 файлов (Switch, Checkbox, Toast, Select, Dialog, RadioGroup)
+- Скопировано в app-shared/components/ui/universal/ для React Native build
+- Использованы React Native компоненты: Switch, Modal, Pressable, Animated
+- Визуальная консистентность с PWA (цвета, размеры, spacing)
+- Готовность к React Native миграции (Q3 2025)
+
 **GitHub Actions - Lighthouse CI**:
 - Исправлено: "Context access might be invalid" warnings
 - Добавлены fallback значения для VITE_* переменных

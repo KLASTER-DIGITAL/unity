@@ -1,108 +1,143 @@
 /**
  * Universal Select Component - React Native Implementation
  *
- * Uses @react-native-picker/picker for native platform
+ * Uses custom Modal + Pressable for native platform
+ * (Picker component will be added when @react-native-picker/picker is installed)
  *
  * @module components/ui/universal/Select.native
  */
 
-import { Picker } from '@react-native-picker/picker';
-import { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
-import { DesignTokens } from '../../../design-system/tokens';
+import React from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface SelectOption {
+export type SelectOption = {
+	/** Option value */
 	value: string;
+	/** Option label */
 	label: string;
+	/** Option disabled state */
 	disabled?: boolean;
-}
+};
 
-export interface SelectProps {
+export type SelectProps = {
 	/** Selected value */
 	value?: string;
 	/** Callback when value changes */
 	onValueChange?: (value: string) => void;
 	/** Default value (uncontrolled) */
 	defaultValue?: string;
-	/** Disabled state */
-	disabled?: boolean;
 	/** Placeholder text */
 	placeholder?: string;
-	/** Select options */
+	/** Options array */
 	options: SelectOption[];
-	/** Custom className (ignored in native) */
+	/** Disabled state */
+	disabled?: boolean;
+	/** Custom className (ignored in React Native) */
 	className?: string;
-	/** Accessibility label */
-	'aria-label'?: string;
-	/** Test ID */
-	testID?: string;
-	/** Label text */
-	label?: string;
-}
+	/** Size variant */
+	size?: 'sm' | 'default';
+};
 
 // ============================================================================
-// COMPONENT
+// COMPONENTS
 // ============================================================================
 
 export function Select({
 	value,
 	onValueChange,
 	defaultValue,
-	disabled,
 	placeholder = 'Select an option',
 	options,
-	'aria-label': ariaLabel,
-	testID,
-	label,
+	disabled,
+	size = 'default',
 }: SelectProps) {
-	const [internalValue, setInternalValue] = useState(defaultValue || '');
+	const [internalValue, setInternalValue] = React.useState(defaultValue || '');
+	const [modalVisible, setModalVisible] = React.useState(false);
+
 	const isControlled = value !== undefined;
 	const currentValue = isControlled ? value : internalValue;
 
-	const handleValueChange = (itemValue: string) => {
+	const selectedOption = options.find((opt) => opt.value === currentValue);
+
+	const handleSelect = (optionValue: string) => {
 		if (!isControlled) {
-			setInternalValue(itemValue);
+			setInternalValue(optionValue);
 		}
-		onValueChange?.(itemValue);
+		onValueChange?.(optionValue);
+		setModalVisible(false);
+	};
+
+	const getContainerStyle = (): ViewStyle => {
+		return size === 'sm' ? styles.containerSm : styles.containerDefault;
 	};
 
 	return (
-		<View style={styles.container}>
-			{label && <Text style={styles.label}>{label}</Text>}
-			<View style={[styles.pickerContainer, disabled && styles.pickerContainerDisabled]}>
-				<Picker
-					accessibilityLabel={ariaLabel || label}
-					enabled={!disabled}
-					itemStyle={styles.pickerItem}
-					onValueChange={handleValueChange}
-					selectedValue={currentValue}
-					style={styles.picker}
-					testID={testID}
-				>
-					{placeholder && !currentValue && (
-						<Picker.Item
-							color={DesignTokens.colors.textSecondary}
-							enabled={false}
-							label={placeholder}
-							value=""
-						/>
-					)}
-					{options.map((option) => (
-						<Picker.Item
-							color={option.disabled ? DesignTokens.colors.textSecondary : DesignTokens.colors.text}
-							enabled={!option.disabled}
-							key={option.value}
-							label={option.label}
-							value={option.value}
-						/>
-					))}
-				</Picker>
-			</View>
-		</View>
+		<>
+			<Pressable
+				disabled={disabled}
+				onPress={() => !disabled && setModalVisible(true)}
+				style={({ pressed }) => [
+					styles.trigger,
+					getContainerStyle(),
+					disabled && styles.disabled,
+					pressed && !disabled && styles.pressed,
+				]}
+			>
+				<Text style={[styles.triggerText, !selectedOption && styles.placeholderText]}>
+					{selectedOption?.label || placeholder}
+				</Text>
+				<Text style={styles.chevron}>▼</Text>
+			</Pressable>
+
+			<Modal
+				animationType="slide"
+				onRequestClose={() => setModalVisible(false)}
+				transparent
+				visible={modalVisible}
+			>
+				<Pressable onPress={() => setModalVisible(false)} style={styles.modalOverlay}>
+					<View style={styles.modalContent}>
+						<View style={styles.modalHeader}>
+							<Text style={styles.modalTitle}>{placeholder}</Text>
+							<Pressable onPress={() => setModalVisible(false)}>
+								<Text style={styles.modalClose}>✕</Text>
+							</Pressable>
+						</View>
+
+						<ScrollView style={styles.optionsList}>
+							{options.map((option) => (
+								<Pressable
+									disabled={option.disabled}
+									key={option.value}
+									onPress={() => handleSelect(option.value)}
+									style={({ pressed }) => [
+										styles.option,
+										option.value === currentValue && styles.optionSelected,
+										option.disabled && styles.optionDisabled,
+										pressed && !option.disabled && styles.optionPressed,
+									]}
+								>
+									<Text
+										style={[
+											styles.optionText,
+											option.value === currentValue && styles.optionTextSelected,
+											option.disabled && styles.optionTextDisabled,
+										]}
+									>
+										{option.label}
+									</Text>
+									{option.value === currentValue && <Text style={styles.checkmark}>✓</Text>}
+								</Pressable>
+							))}
+						</ScrollView>
+					</View>
+				</Pressable>
+			</Modal>
+		</>
 	);
 }
 
@@ -111,52 +146,104 @@ export function Select({
 // ============================================================================
 
 const styles = StyleSheet.create({
-	container: {
-		width: '100%',
-	},
-	label: {
-		fontSize: DesignTokens.fontSize.sm,
-		fontWeight: DesignTokens.fontWeight.medium,
-		color: DesignTokens.colors.text,
-		marginBottom: DesignTokens.spacing.xs,
-	},
-	pickerContainer: {
+	trigger: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
 		borderWidth: 1,
-		borderColor: DesignTokens.colors.border,
-		borderRadius: DesignTokens.borderRadius.md,
-		backgroundColor: DesignTokens.colors.background,
-		overflow: 'hidden',
-		...Platform.select({
-			ios: {
-				// iOS picker has no border, so we add container styling
-			},
-			android: {
-				// Android picker styling
-			},
-		}),
+		borderColor: '#d1d5db',
+		borderRadius: 6,
+		backgroundColor: '#f9fafb',
+		paddingHorizontal: 12,
 	},
-	pickerContainerDisabled: {
+	containerDefault: {
+		height: 36,
+	},
+	containerSm: {
+		height: 32,
+	},
+	triggerText: {
+		fontSize: 14,
+		color: '#111827',
+		flex: 1,
+	},
+	placeholderText: {
+		color: '#9ca3af',
+	},
+	chevron: {
+		fontSize: 12,
+		color: '#9ca3af',
+		marginLeft: 8,
+	},
+	disabled: {
 		opacity: 0.5,
-		backgroundColor: DesignTokens.colors.surface,
 	},
-	picker: {
-		...Platform.select({
-			ios: {
-				height: 180, // iOS picker needs explicit height
-			},
-			android: {
-				height: 50,
-				color: DesignTokens.colors.text,
-			},
-		}),
+	pressed: {
+		opacity: 0.7,
 	},
-	pickerItem: {
-		...Platform.select({
-			ios: {
-				fontSize: DesignTokens.fontSize.md,
-				color: DesignTokens.colors.text,
-			},
-		}),
+	modalOverlay: {
+		flex: 1,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		justifyContent: 'flex-end',
+	},
+	modalContent: {
+		backgroundColor: '#ffffff',
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+		maxHeight: '70%',
+	},
+	modalHeader: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		padding: 16,
+		borderBottomWidth: 1,
+		borderBottomColor: '#e5e7eb',
+	},
+	modalTitle: {
+		fontSize: 18,
+		fontWeight: '600',
+		color: '#111827',
+	},
+	modalClose: {
+		fontSize: 24,
+		color: '#9ca3af',
+	},
+	optionsList: {
+		padding: 8,
+	},
+	option: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		padding: 12,
+		borderRadius: 8,
+	},
+	optionSelected: {
+		backgroundColor: '#eff6ff',
+	},
+	optionDisabled: {
+		opacity: 0.5,
+	},
+	optionPressed: {
+		backgroundColor: '#f3f4f6',
+	},
+	optionText: {
+		fontSize: 16,
+		color: '#111827',
+		flex: 1,
+	},
+	optionTextSelected: {
+		color: '#007aff',
+		fontWeight: '600',
+	},
+	optionTextDisabled: {
+		color: '#9ca3af',
+	},
+	checkmark: {
+		fontSize: 18,
+		color: '#007aff',
+		fontWeight: '600',
 	},
 });
 
@@ -189,8 +276,6 @@ export const SelectUtils = {
 // ============================================================================
 // EXPORTS
 // ============================================================================
-
-Select.displayName = 'Select';
 
 export default {
 	Select,

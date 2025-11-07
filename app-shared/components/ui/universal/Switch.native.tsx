@@ -1,20 +1,19 @@
 /**
  * Universal Switch Component - React Native Implementation
  *
- * Uses React Native Switch with iOS-style design
+ * Uses React Native Switch for native platform
  *
  * @module components/ui/universal/Switch.native
  */
 
-import { useState } from 'react';
-import { Switch as RNSwitch } from 'react-native';
-import { DesignTokens } from '../../../design-system/tokens';
+import React from 'react';
+import { Platform, Switch as RNSwitch, StyleSheet } from 'react-native';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface SwitchProps {
+export type SwitchProps = {
 	/** Checked state */
 	checked?: boolean;
 	/** Callback when checked state changes */
@@ -23,29 +22,27 @@ export interface SwitchProps {
 	defaultChecked?: boolean;
 	/** Disabled state */
 	disabled?: boolean;
-	/** Custom className (ignored in native) */
+	/** Custom className (ignored in React Native) */
 	className?: string;
 	/** Accessibility label */
 	'aria-label'?: string;
-	/** Test ID */
-	testID?: string;
-}
+};
 
 // ============================================================================
-// COMPONENT
+// COMPONENTS
 // ============================================================================
 
 export function Switch({
 	checked,
 	onCheckedChange,
-	defaultChecked = false,
+	defaultChecked,
 	disabled,
 	'aria-label': ariaLabel,
-	testID,
 }: SwitchProps) {
-	const [internalChecked, setInternalChecked] = useState(defaultChecked);
+	const [internalChecked, setInternalChecked] = React.useState(defaultChecked ?? false);
+
 	const isControlled = checked !== undefined;
-	const currentChecked = isControlled ? checked : internalChecked;
+	const currentValue = isControlled ? checked : internalChecked;
 
 	const handleValueChange = (value: boolean) => {
 		if (!isControlled) {
@@ -58,19 +55,31 @@ export function Switch({
 		<RNSwitch
 			accessibilityLabel={ariaLabel}
 			disabled={disabled}
-			ios_backgroundColor={DesignTokens.colors.border}
+			ios_backgroundColor="#e5e5ea"
 			onValueChange={handleValueChange}
-			testID={testID}
-			// iOS colors matching web design
-			thumbColor="#FFFFFF"
+			style={styles.switch}
+			thumbColor="#ffffff"
 			trackColor={{
-				false: DesignTokens.colors.border,
-				true: DesignTokens.colors.primary,
+				false: '#e5e5ea',
+				true: '#007aff',
 			}}
-			value={currentChecked}
+			value={currentValue}
 		/>
 	);
 }
+
+// ============================================================================
+// STYLES
+// ============================================================================
+
+const styles = StyleSheet.create({
+	switch: {
+		transform: Platform.select({
+			android: [{ scaleX: 0.9 }, { scaleY: 0.9 }],
+			ios: [],
+		}),
+	},
+});
 
 // ============================================================================
 // UTILITIES
@@ -97,8 +106,6 @@ export const SwitchUtils = {
 // ============================================================================
 // EXPORTS
 // ============================================================================
-
-Switch.displayName = 'Switch';
 
 export default {
 	Switch,
