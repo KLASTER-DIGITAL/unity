@@ -8,6 +8,17 @@
 
 ## [Unreleased] - 2025-11-08
 
+### 🏗️ Инфраструктура
+**i18n Platform Adapter для React Native**:
+- Создан `src/shared/lib/platform/i18n/i18n.native.ts` (150 строк)
+- Создан `app-shared/lib/platform/i18n/` для React Native build
+- Установлен `expo-localization` (2 пакета)
+- Функции: getDeviceLanguage(), getPreferredLanguages(), getLocaleInfo()
+- Поддержка: 7 языков (ru/en/es/de/fr/zh/ja), RTL detection, currency/timezone
+- Цель: Готовность к React Native миграции (Q3 2025)
+
+## [2025-11-08] - Удаление дубликатов
+
 ### 🗑️ Удалено
 
 **Дубликаты UI компонентов (src/components/ui/)**:

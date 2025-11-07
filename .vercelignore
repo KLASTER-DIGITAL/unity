@@ -53,6 +53,7 @@ supabase/seed.sql
 # ВАЖНО: /app/ с ведущим слэшем исключает только корневую директорию app/,
 # НЕ затрагивая src/app/ (PWA компоненты)
 /app/
+/app-shared/
 /index.js
 /.expo/
 /.expo-shared/
@@ -60,3 +61,7 @@ supabase/seed.sql
 /babel.config.js
 /eas.json
 /app.json
+
+# React Native Platform Adapters (только для React Native build)
+**/*.native.ts
+**/*.native.tsx
