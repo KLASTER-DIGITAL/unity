@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
 import { ThemeProvider, useTheme } from '@/shared/components/theme-provider';
+import { storage } from '@/shared/lib/platform/storage';
 
 const MobileApp = lazy(() =>
 	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
@@ -78,18 +79,27 @@ function MobileViewContent({
 	setSyncComplete,
 }: MobileViewProps) {
 	const { setTheme } = useTheme();
+	const hasManuallyChangedTheme = useRef(false);
 
-	// Проблема 4: Автоматическая смена темы при переходе между Onboarding и Кабинетом
+	// Проблема 4 FIX: Автоматическая смена темы с учетом ручного выбора пользователя
 	useEffect(() => {
-		const isOnboarding = !onboardingComplete || currentStep <= 4;
+		// Проверяем флаг ручного изменения темы в localStorage
+		storage.getItem('unity-theme-manual-override').then((manualOverride) => {
+			if (manualOverride === 'true') {
+				hasManuallyChangedTheme.current = true;
+				return; // НЕ переопределяем тему если пользователь уже выбрал вручную
+			}
 
-		// Onboarding workflow → light theme
-		// Cabinet workflow → dark theme
-		if (isOnboarding) {
-			setTheme('light');
-		} else if (onboardingComplete && userData) {
-			setTheme('dark');
-		}
+			const isOnboarding = !onboardingComplete || currentStep <= 4;
+
+			// Onboarding workflow → light theme
+			// Cabinet workflow → dark theme
+			if (isOnboarding) {
+				setTheme('light');
+			} else if (onboardingComplete && userData) {
+				setTheme('dark');
+			}
+		});
 	}, [onboardingComplete, currentStep, userData, setTheme]);
 
 	return (
@@ -147,6 +157,7 @@ export function MobileView(props: MobileViewProps) {
 	// Проблема 4: Разные темы для Onboarding и Кабинета
 	// Onboarding (currentStep 1-4, !onboardingComplete) → light theme (default)
 	// Cabinet (onboardingComplete && userData) → dark theme (auto-switched by useEffect)
+	// Ручной выбор пользователя → сохраняется в localStorage, НЕ переопределяется
 	const isOnboarding = !props.onboardingComplete || props.currentStep <= 4;
 	const defaultTheme = isOnboarding ? 'light' : 'dark';
 

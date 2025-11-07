@@ -35,19 +35,18 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 	const { t } = useTranslation();
 	const [isScrolledDown, setIsScrolledDown] = useState(false);
 
-	// Проблема 3: Автоматическое поднятие меню при прокрутке вниз
+	// Проблема 3 FIX: Корректная логика scroll detection
+	// Меню поднимается ТОЛЬКО когда близко к концу страницы
 	useEffect(() => {
 		const handleScroll = () => {
 			const scrollTop = window.scrollY;
 			const windowHeight = window.innerHeight;
 			const documentHeight = document.documentElement.scrollHeight;
 
-			// Если прокрутили вниз больше чем на 100px или близко к концу страницы
-			if (scrollTop > 100 || scrollTop + windowHeight >= documentHeight - 50) {
-				setIsScrolledDown(true);
-			} else {
-				setIsScrolledDown(false);
-			}
+			// Поднимаем меню ТОЛЬКО когда близко к концу страницы (в пределах 100px от низа)
+			// НЕ поднимаем при обычном скролле вниз
+			const isNearBottom = scrollTop + windowHeight >= documentHeight - 100;
+			setIsScrolledDown(isNearBottom);
 		};
 
 		window.addEventListener('scroll', handleScroll);
