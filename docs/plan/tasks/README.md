@@ -1,6 +1,6 @@
 # 📁 Tasks - Детальные планы задач
 
-**Последнее обновление**: 2025-10-21
+**Последнее обновление**: 2025-11-08 (MVP Cleanup)
 
 > Эта папка содержит детальные технические планы для всех задач из [BACKLOG.md](../BACKLOG.md)
 
@@ -13,6 +13,9 @@ tasks/
 ├── active/          # 🔄 Задачи в работе (max 5 - WIP limit)
 ├── planned/         # 📅 Готовые к старту (max 10)
 ├── archive/         # 📦 Завершенные (автоочистка через 3 месяца)
+│   ├── 2025-10/     # Октябрь 2025
+│   └── 2025-11/     # Ноябрь 2025 (NEW)
+├── PRIORITY_ROADMAP_2025-11-08.md  # Приоритизация задач
 └── README.md        # Этот файл
 ```
 
@@ -39,10 +42,10 @@ tasks/
 
 **Текущие задачи**: 6
 
-1. **pwa-enhancements.md** - PWA улучшения (Push Notifications + Offline Mode)
-2. **ai-pdf-books.md** - AI PDF Книги достижений
-3. **advanced-analytics.md** - Расширенная аналитика
-4. **react-native-expo-migration.md** - React Native миграция
+1. **admin-test-lab.md** - Admin Test Lab (тестирование функций)
+2. **pwa-enhancements.md** - PWA улучшения (Push Notifications + Offline Mode)
+3. **ai-pdf-books.md** - AI PDF Книги достижений
+4. **advanced-analytics.md** - Расширенная аналитика
 5. **monetization-system.md** - Система монетизации
 6. **ecosystem-expansion.md** - Расширение экосистемы
 
@@ -64,7 +67,15 @@ archive/
 ├── 2025-10/
 │   ├── performance-optimization.md
 │   └── react-native-preparation.md
-└── README.md
+└── 2025-11/
+    ├── MVP_CLEANUP_COMPLETED_2025-11-08.md (NEW)
+    ├── MVP_CLEANUP_ANALYSIS_2025-11-08.md
+    ├── MVP_DECISION_QUICK_SUMMARY.md
+    ├── PLANNED_TASKS_ANALYSIS_2025-11-08.md
+    ├── PROFESSIONAL_RECOMMENDATIONS_2025-11-08.md
+    ├── QUICK_SUMMARY_2025-11-08.md
+    ├── QUICK_SUMMARY_PLANNED_ANALYSIS.md
+    └── TASK_ANALYSIS_2025-11-08.md
 ```
 
 **Правила**:
@@ -206,19 +217,24 @@ docs/changelog/archive/2025-10/YYYY-MM-DD_название_задачи.md
 ### Текущее состояние
 - **Active**: 0 задач (WIP limit: 5)
 - **Planned**: 6 задач (Limit: 10)
-- **Archive**: 2 задачи (2025-10)
+- **Archive**: 10 задач (2 в 2025-10, 8 в 2025-11)
 
 ### По приоритетам (Planned)
-- 🔴 P0: 2 задачи
-- 🟡 P1: 2 задачи
-- 🟢 P2: 2 задачи
+- 🔴 P0: 1 задача (Admin Test Lab)
+- 🟡 P1: 3 задачи (PWA Enhancements, AI PDF Books, Advanced Analytics)
+- 🟢 P2: 2 задачи (Monetization, Ecosystem Expansion)
 - 🔵 P3: 0 задач
 
 ### По командам (Planned)
 - Frontend Team: 2 задачи
-- AI Team: 1 задача
-- Mobile Team: 1 задача
+- AI Team: 2 задачи
+- Mobile Team: 0 задач
 - Full Stack Team: 2 задачи
+
+### Завершенные задачи (2025-11-08)
+- ✅ MVP Cleanup - Lint errors fix (96% улучшение)
+- ✅ MVP Cleanup - Database optimization (33% улучшение)
+- ✅ MVP Cleanup - Quality check (0 TypeScript errors)
 
 ---
 
@@ -248,5 +264,5 @@ docs/changelog/archive/2025-10/YYYY-MM-DD_название_задачи.md
 
 **Автор**: Product Team UNITY
 **Дата создания**: 21 октября 2025
-**Последнее обновление**: 21 октября 2025
+**Последнее обновление**: 8 ноября 2025 (MVP Cleanup)
 

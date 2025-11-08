@@ -267,6 +267,7 @@ export function PushNotificationManager() {
 									VAPID keys не настроены. Сгенерируйте их для работы Web Push API.
 								</p>
 								<button
+									type="button"
 									className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
 									disabled={isGenerating}
 									onClick={generateVapidKeys}
@@ -301,6 +302,7 @@ export function PushNotificationManager() {
 									/>
 								</div>
 								<button
+									type="button"
 									className="rounded-lg bg-muted px-4 py-2 text-sm text-white hover:bg-muted disabled:opacity-50"
 									disabled={isGenerating}
 									onClick={generateVapidKeys}
@@ -438,8 +440,11 @@ export function PushNotificationManager() {
 					</div>
 
 					<div>
-						<label className="mb-2 block font-medium text-sm">Текст</label>
+						<label htmlFor="push-body" className="mb-2 block font-medium text-sm">
+							Текст
+						</label>
 						<textarea
+							id="push-body"
 							className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
 							disabled={useTemplate && selectedTemplate !== 'custom'}
 							onChange={(e) => setBody(e.target.value)}
@@ -450,8 +455,11 @@ export function PushNotificationManager() {
 					</div>
 
 					<div>
-						<label className="mb-2 block font-medium text-sm">Иконка (URL)</label>
+						<label htmlFor="push-icon" className="mb-2 block font-medium text-sm">
+							Иконка (URL)
+						</label>
 						<input
+							id="push-icon"
 							className="w-full rounded-lg border px-3 py-2 dark:bg-muted"
 							onChange={(e) => setIcon(e.target.value)}
 							type="text"
@@ -460,6 +468,7 @@ export function PushNotificationManager() {
 					</div>
 
 					<button
+						type="button"
 						className="w-full rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
 						disabled={isSending || !vapidPublicKey}
 						onClick={sendPushNotification}

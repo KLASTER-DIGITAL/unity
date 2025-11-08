@@ -272,7 +272,7 @@
 
     <script>
         let recognition = null;
-        let isRecording = false;
+        let _isRecording = false;
         
         // Detect browser
         function detectBrowser() {
@@ -327,12 +327,12 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
         
-        function clearLog() {
+        function _clearLog() {
             document.getElementById('eventLog').innerHTML = '';
             log('Лог очищен', 'info');
         }
         
-        function startRecording() {
+        function _startRecording() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             
             if (!SpeechRecognition) {
@@ -358,7 +358,7 @@
             
             // Event handlers
             recognition.onstart = () => {
-                isRecording = true;
+                _isRecording = true;
                 document.getElementById('recordingStatus').innerHTML = '<span class="recording-indicator"></span>🔴 ЗАПИСЬ ИДЕТ';
                 document.getElementById('startBtn').style.display = 'none';
                 document.getElementById('stopBtn').style.display = 'block';
@@ -395,7 +395,7 @@
             };
             
             recognition.onend = () => {
-                isRecording = false;
+                _isRecording = false;
                 document.getElementById('recordingStatus').textContent = '⏹️ Запись остановлена';
                 document.getElementById('startBtn').style.display = 'block';
                 document.getElementById('stopBtn').style.display = 'none';
@@ -432,7 +432,7 @@
             }
         }
         
-        function stopRecording() {
+        function _stopRecording() {
             if (recognition) {
                 recognition.stop();
                 log('⏹️ recognition.stop() вызван', 'info');

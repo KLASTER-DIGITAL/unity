@@ -61,6 +61,8 @@ export {
 	getEntry,
 	updateEntry,
 } from './services/entries';
+// Home Screen API
+export { getHomeScreenData, type HomeScreenData } from './services/homeScreen';
 // Media API
 export {
 	deleteMedia,

@@ -90,7 +90,7 @@ export function ReactNativeReadinessTest() {
 			</div>
 
 			<button
-				className="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+				className="rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors duration-300 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted"
 				disabled={loading}
 				onClick={runTest}
 			>

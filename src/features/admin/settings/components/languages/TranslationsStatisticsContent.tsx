@@ -7,7 +7,7 @@ import {
 	Loader2,
 	TrendingUp,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import {
@@ -56,11 +56,8 @@ export function TranslationsStatisticsContent() {
 
 	const supabase = createClient();
 
-	useEffect(() => {
-		loadStatistics();
-	}, []);
-
-	const loadStatistics = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadStatistics = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const {
@@ -147,7 +144,12 @@ export function TranslationsStatisticsContent() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [supabase]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadStatistics();
+	}, [loadStatistics]);
 
 	if (isLoading) {
 		return (

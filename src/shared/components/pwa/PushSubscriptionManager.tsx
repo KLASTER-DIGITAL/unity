@@ -7,7 +7,7 @@
  * - Отображение статуса подписки
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	trackPushDenied,
 	trackPushSubscribed,
@@ -36,16 +36,11 @@ export function PushSubscriptionManager({
 	const [isSubscribed, setIsSubscribed] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		checkSupport();
-		checkSubscription();
-		initWebPush(userId);
-	}, [userId]);
-
 	/**
 	 * Проверяет поддержку Web Push API
 	 */
-	const checkSupport = () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const checkSupport = useCallback(() => {
 		const supported = isPushSupported();
 		setIsSupported(supported);
 
@@ -53,16 +48,24 @@ export function PushSubscriptionManager({
 			const currentPermission = getNotificationPermission();
 			setPermission(currentPermission);
 		}
-	};
+	}, []);
 
 	/**
 	 * Проверяет текущую подписку
 	 */
-	const checkSubscription = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const checkSubscription = useCallback(async () => {
 		const subscribed = await isPushSubscribed();
 		setIsSubscribed(subscribed);
 		onSubscriptionChange?.(subscribed);
-	};
+	}, [onSubscriptionChange]);
+
+	// ✅ FIX: useEffect AFTER function definitions
+	useEffect(() => {
+		checkSupport();
+		checkSubscription();
+		initWebPush(userId);
+	}, [userId, checkSubscription, checkSupport]);
 
 	/**
 	 * Подписывается на push уведомления

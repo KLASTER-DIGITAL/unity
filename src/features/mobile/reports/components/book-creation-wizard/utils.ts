@@ -1,0 +1,174 @@
+/**
+ * Utility functions for Book Creation Wizard
+ */
+
+import { API_URLS } from '@/shared/lib/api/config/urls';
+import { createClient } from '@/utils/supabase/client';
+import { FREE_TIER_LIMIT, MIN_ENTRIES_REQUIRED } from './constants';
+import type { BookConfig } from './types';
+
+/**
+ * Validate minimum entries in selected period
+ */
+export async function validateMinimumEntries(
+	userId: string,
+	periodStart: string,
+	periodEnd: string,
+	contexts: string[]
+): Promise<{ valid: boolean; count: number }> {
+	const supabase = createClient();
+
+	let query = supabase
+		.from('entries')
+		.select('id', { count: 'exact' })
+		.eq('user_id', userId)
+		.gte('created_at', periodStart)
+		.lte('created_at', periodEnd);
+
+	if (contexts.length > 0) {
+		query = query.in('category', contexts);
+	}
+
+	const { count, error } = await query;
+
+	if (error) {
+		console.error('[WIZARD] Error checking entries:', error);
+		return { valid: false, count: 0 };
+	}
+
+	return {
+		valid: (count || 0) >= MIN_ENTRIES_REQUIRED,
+		count: count || 0,
+	};
+}
+
+/**
+ * Check if user has reached free tier limit
+ */
+export async function checkFreeTierLimit(
+	userId: string,
+	isPremium: boolean
+): Promise<{ canGenerate: boolean; booksCount: number }> {
+	if (isPremium) {
+		return { canGenerate: true, booksCount: 0 };
+	}
+
+	const supabase = createClient();
+	const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+	const { data: recentBooks, error } = await supabase
+		.from('books_archive')
+		.select('id')
+		.eq('user_id', userId)
+		.gte('created_at', thirtyDaysAgo.toISOString());
+
+	if (error) {
+		console.error('[WIZARD] Error checking books limit:', error);
+		return { canGenerate: true, booksCount: 0 }; // Don't block on error
+	}
+
+	const booksCount = recentBooks?.length || 0;
+	return {
+		canGenerate: booksCount < FREE_TIER_LIMIT,
+		booksCount,
+	};
+}
+
+/**
+ * Generate book draft via Edge Function
+ */
+export async function generateBookDraft(
+	config: BookConfig,
+	userId: string,
+	diaryName: string,
+	diaryEmoji: string
+): Promise<{ success: boolean; draftId?: string; error?: string }> {
+	try {
+		const supabase = createClient();
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+
+		if (!session?.access_token) {
+			return { success: false, error: 'Не авторизован' };
+		}
+
+		console.log('[WIZARD] Generating book with config:', {
+			userId,
+			periodStart: config.periodStart,
+			periodEnd: config.periodEnd,
+			contexts: config.contexts,
+			style: config.style,
+			layout: config.layout,
+			theme: 'light',
+			diaryName: diaryName || 'Мой дневник',
+			diaryEmoji: diaryEmoji || '📝',
+		});
+
+		const response = await fetch(API_URLS.BOOKS_GENERATE_DRAFT, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${session.access_token}`,
+			},
+			body: JSON.stringify({
+				userId,
+				periodStart: config.periodStart,
+				periodEnd: config.periodEnd,
+				contexts: config.contexts,
+				style: config.style,
+				layout: config.layout,
+				theme: 'light', // Always use light theme
+				diaryName: diaryName || 'Мой дневник',
+				diaryEmoji: diaryEmoji || '📝',
+			}),
+		});
+
+		const result = await response.json();
+
+		console.log('[WIZARD] API response:', result);
+
+		if (!result.success) {
+			return {
+				success: false,
+				error: result.error || 'Не удалось создать черновик',
+			};
+		}
+
+		return {
+			success: true,
+			draftId: result.draftId,
+		};
+	} catch (error) {
+		console.error('[WIZARD] Error generating book:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Произошла ошибка при создании книги',
+		};
+	}
+}
+
+/**
+ * Fetch available categories from user's entries
+ */
+export async function fetchAvailableCategories(userId: string): Promise<string[]> {
+	try {
+		const supabase = createClient();
+		const { data, error } = await supabase
+			.from('entries')
+			.select('category')
+			.eq('user_id', userId)
+			.not('category', 'is', null);
+
+		if (error) {
+			console.error('[WIZARD] Error fetching categories:', error);
+			return [];
+		}
+
+		const uniqueCategories = Array.from(new Set(data.map((entry) => entry.category)));
+		return uniqueCategories.filter((cat) => cat && cat.trim() !== '');
+	} catch (error) {
+		console.error('[WIZARD] Error fetching categories:', error);
+		return [];
+	}
+}

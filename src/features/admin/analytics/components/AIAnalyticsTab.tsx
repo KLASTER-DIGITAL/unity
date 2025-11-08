@@ -1,5 +1,5 @@
 import { Brain, Download, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { SimpleChart } from '@/shared/components/SimpleChart';
 import { Badge } from '@/shared/components/ui/badge';
@@ -58,11 +58,8 @@ export function AIAnalyticsTab() {
 	const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
 	const [forecast, setForecast] = useState<CostForecast | null>(null);
 
-	useEffect(() => {
-		loadAIAnalytics();
-	}, []);
-
-	const loadAIAnalytics = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadAIAnalytics = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const supabase = createClient();
@@ -210,7 +207,12 @@ export function AIAnalyticsTab() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [period]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadAIAnalytics();
+	}, [loadAIAnalytics]);
 
 	// ✅ REMOVED: exportToCSV() moved to ./ai-analytics/utils.ts
 	// ✅ REMOVED: generateRecommendations() moved to ./ai-analytics/utils.ts

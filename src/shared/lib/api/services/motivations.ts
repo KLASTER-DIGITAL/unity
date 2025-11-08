@@ -1,13 +1,39 @@
+import { DATA_CACHE_TTL, DataCacheManager } from '@/shared/lib/cache/DataCacheManager';
 import { createClient } from '@/utils/supabase/client';
 import { API_URLS } from '../config/urls';
 import type { MotivationCard } from '../types';
 
 /**
- * Get motivation cards for a user
+ * Get motivation cards for a user (with caching)
  * @param userId - User ID
+ * @param useCache - Use cache (default: true)
  * @returns Array of motivation cards
  */
-export async function getMotivationCards(userId: string): Promise<MotivationCard[]> {
+export async function getMotivationCards(
+	userId: string,
+	useCache = true
+): Promise<MotivationCard[]> {
+	// ✅ Try cache first
+	if (useCache) {
+		const cached = await DataCacheManager.get<MotivationCard[]>(`motivations_${userId}`);
+		if (cached) {
+			console.log('[MOTIVATIONS] 🚀 Returning cached cards for user:', userId);
+			// Background refresh (don't await)
+			fetchFreshMotivationCards(userId).catch((err) => {
+				console.error('[MOTIVATIONS] ❌ Background refresh failed:', err);
+			});
+			return cached;
+		}
+	}
+
+	// ✅ No cache, fetch fresh data
+	return await fetchFreshMotivationCards(userId);
+}
+
+/**
+ * Fetch fresh motivation cards from API
+ */
+async function fetchFreshMotivationCards(userId: string): Promise<MotivationCard[]> {
 	const supabase = createClient();
 	const {
 		data: { session },
@@ -40,7 +66,12 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
 
 		const data = await response.json();
 		console.log('[MOTIVATIONS] ✅ Microservice success');
-		return data.cards || [];
+		const cards = data.cards || [];
+
+		// ✅ Cache the cards
+		await DataCacheManager.set(`motivations_${userId}`, cards, DATA_CACHE_TTL.MOTIVATIONS);
+
+		return cards;
 	} catch (_microserviceError: any) {
 		console.error('[MOTIVATIONS] ❌ Microservice failed, using fallback...');
 
@@ -57,7 +88,12 @@ export async function getMotivationCards(userId: string): Promise<MotivationCard
 		}
 
 		console.log('[MOTIVATIONS] ✅ Fallback success');
-		return data || [];
+		const cards = data || [];
+
+		// ✅ Cache the cards
+		await DataCacheManager.set(`motivations_${userId}`, cards, DATA_CACHE_TTL.MOTIVATIONS);
+
+		return cards;
 	}
 }
 
@@ -105,6 +141,9 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
 		}
 
 		console.log('[MOTIVATIONS] ✅ Card marked as read via microservice');
+
+		// ✅ Invalidate cache
+		await DataCacheManager.remove(`motivations_${userId}`);
 		return;
 	} catch (_microserviceError: any) {
 		console.error('[MOTIVATIONS] ❌ Microservice failed, using fallback...');
@@ -122,5 +161,8 @@ export async function markCardAsRead(userId: string, cardId: string): Promise<vo
 		}
 
 		console.log('[MOTIVATIONS] ✅ Card marked as read via fallback');
+
+		// ✅ Invalidate cache
+		await DataCacheManager.remove(`motivations_${userId}`);
 	}
 }

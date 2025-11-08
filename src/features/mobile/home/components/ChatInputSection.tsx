@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { MediaLightbox, PermissionGuide } from '@/features/mobile/media';
 import { VoicePoweredOrb } from '@/shared/components/ui/voice-powered-orb';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
+import { clearDraft, getDraftAge, loadDraft, saveDraft } from '@/shared/lib/storage/draftStorage';
+import { debounce } from '@/shared/lib/utils/debounce';
 import type { ChatInputSectionProps, ChatMessage } from './chat-input';
 // Import modular components, handlers and types
 import {
@@ -50,25 +52,85 @@ export function ChatInputSection({
 		clearMedia,
 	} = useMediaUploader();
 
+	// ✅ DRAFT AUTO-SAVE: Загрузить черновик при монтировании
+	useEffect(() => {
+		if (!userId || userId === 'anonymous') {
+			return;
+		}
+
+		const draft = loadDraft(userId);
+		if (draft) {
+			const age = getDraftAge(userId);
+			console.log(`[DRAFT] Found draft (${age} min old), restoring...`);
+
+			setInputText(draft.text);
+			if (draft.category) {
+				setSelectedCategory(draft.category);
+			}
+
+			// Показать уведомление
+			toast.info('Черновик восстановлен', {
+				description: `Сохранен ${age} мин назад`,
+				duration: 3000,
+			});
+		}
+	}, [userId]);
+
+	// ✅ DRAFT AUTO-SAVE: Автосохранение при изменении текста (debounced)
+	useEffect(() => {
+		if (!userId || userId === 'anonymous') {
+			return;
+		}
+
+		// Не сохранять пустой текст
+		if (!inputText.trim()) {
+			return;
+		}
+
+		const timeoutId = setTimeout(() => {
+			saveDraft(userId, {
+				text: inputText,
+				category: selectedCategory,
+				mediaUrls: uploadedMedia.map((m) => m.url).filter((url): url is string => !!url),
+			});
+		}, 1000); // Debounce 1 секунда
+
+		return () => clearTimeout(timeoutId);
+	}, [inputText, selectedCategory, uploadedMedia, userId]);
+
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	}, []);
 
-	// Auto-resize textarea
+	// ✅ OPTIMIZATION: Debounced auto-resize textarea для улучшения INP
+	const debouncedResizeTextarea = useMemo(
+		() =>
+			debounce(() => {
+				if (textareaRef.current) {
+					textareaRef.current.style.height = 'auto';
+					textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+				}
+			}, 100),
+		[]
+	);
+
+	// Auto-resize textarea on input change
 	useEffect(() => {
-		if (textareaRef.current) {
-			textareaRef.current.style.height = 'auto';
-			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-		}
-	}, []);
+		debouncedResizeTextarea();
+	}, [debouncedResizeTextarea]);
 
 	// Обработка отправки сообщения - СРАЗУ показать Success Modal
 	const handleSendMessage = () => {
 		// 1. Сразу показать Success Modal (НЕ ждать обработки)
 		setShowSuccessModal(true);
 
-		// 2. Обработка в фоновом режиме
+		// 2. Очистить черновик (запись успешно отправлена)
+		if (userId && userId !== 'anonymous') {
+			clearDraft(userId);
+		}
+
+		// 3. Обработка в фоновом режиме
 		sendMessage({
 			inputText,
 			uploadedMedia,

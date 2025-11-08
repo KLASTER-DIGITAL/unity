@@ -10,7 +10,7 @@ import {
 	Trophy,
 	Zap,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -62,11 +62,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		nextLevelProgress: 0,
 	});
 
-	useEffect(() => {
-		loadData();
-	}, []);
-
-	const loadData = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadData = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
@@ -100,7 +97,12 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userData]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
 
 	// Преобразовать достижения в формат для UI
 	const badges = achievements.map((achievement) => {
@@ -200,23 +202,30 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 					</div>
 				</div>
 
-				{/* Skeleton for achievement cards */}
-				<div className="space-y-3 p-4">
-					{[...new Array(3)].map((_, i) => (
-						<div className="rounded-[16px] bg-card p-4 transition-colors duration-300" key={i}>
-							<div className="flex items-start gap-4">
-								<Skeleton className="h-12 w-12 flex-shrink-0 rounded-full" />
-								<div className="flex-1 space-y-2">
-									<Skeleton className="h-5 w-3/4" />
-									<Skeleton className="h-4 w-full" />
-									<div className="mt-2 flex items-center gap-2">
-										<Skeleton className="h-6 w-16 rounded-full" />
-										<Skeleton className="h-6 w-20 rounded-full" />
+				{/* ✅ FIX: Skeleton for achievement cards - ТОЧНЫЕ размеры для предотвращения CLS */}
+				<div className="p-4">
+					<div className="grid grid-cols-2 gap-4">
+						{[...new Array(6)].map((_, i) => (
+							<div
+								className="rounded-[16px] border-0 bg-card p-4 shadow-sm transition-colors duration-300"
+								key={i}
+								style={{ minHeight: '180px' }}
+							>
+								<div className="text-center">
+									{/* Icon skeleton - ТОЧНЫЙ размер как в реальной карточке */}
+									<div className="relative mb-3">
+										<Skeleton className="mx-auto h-16 w-16 rounded-full" />
 									</div>
+									{/* Title skeleton */}
+									<Skeleton className="mx-auto mb-1 h-5 w-3/4" />
+									{/* Description skeleton */}
+									<Skeleton className="mx-auto mb-2 h-4 w-full" />
+									{/* Badge/Progress skeleton */}
+									<Skeleton className="mx-auto h-6 w-20 rounded-full" />
 								</div>
 							</div>
-						</div>
-					))}
+						))}
+					</div>
 				</div>
 			</div>
 		);
@@ -290,8 +299,9 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 									badge.earned ? '' : 'opacity-60'
 								}`}
 								key={badge.id}
+								style={{ minHeight: '180px' }}
 							>
-								<CardContent className="p-4 text-center">
+								<CardContent className="p-4 text-center" style={{ minHeight: '164px' }}>
 									<div className="relative mb-3">
 										<div
 											className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
@@ -344,12 +354,12 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 												<div
 													className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
 													style={{
-														width: `${((badge.progress || 0) / (badge.rarity === 'legendary' ? 30 : 20)) * 100}%`,
+														width: `${Math.min(((badge.progress || 0) / (badge.rarity === 'legendary' ? 30 : 20)) * 100, 100)}%`,
 													}}
 												/>
 											</div>
 											<p className="text-[#787486] text-xs">
-												{badge.progress}/{badge.rarity === 'legendary' ? 30 : 20}
+												{Math.round(badge.progress || 0)}/{badge.rarity === 'legendary' ? 30 : 20}
 											</p>
 										</div>
 									)}
@@ -396,13 +406,14 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 									) : (
 										<div className="text-right">
 											<p className="mb-1 text-[#787486] text-sm">
-												{milestone.progress}/{milestone.total}
+												{Math.round(milestone.progress || 0)}/{milestone.total}
 											</p>
-											<div className="h-2 w-20 rounded-full bg-muted">
+											{/* ✅ FIX: Added max-w-full and overflow-hidden to prevent progress bar overflow */}
+											<div className="h-2 w-20 max-w-full overflow-hidden rounded-full bg-muted">
 												<div
 													className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
 													style={{
-														width: `${(milestone.progress! / milestone.total!) * 100}%`,
+														width: `${Math.min(((milestone.progress || 0) / (milestone.total || 1)) * 100, 100)}%`,
 													}}
 												/>
 											</div>

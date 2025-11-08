@@ -2,7 +2,9 @@
  * AdminDashboard - Constants
  */
 
-export const SUPER_ADMIN_EMAIL = 'diary@leadshunter.biz';
+// ✅ SECURITY FIX: Removed hardcoded SUPER_ADMIN_EMAIL
+// Use profile.role === 'super_admin' instead for role checks
+// This allows multiple super admins and follows Single Source of Truth principle
 
 export const INITIAL_STATS = {
 	totalUsers: 0,

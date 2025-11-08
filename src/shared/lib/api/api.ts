@@ -77,7 +77,7 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
 		if (!response.ok) {
 			console.error(`API Error [${endpoint}]:`, jsonData);
 			throw new Error(
-				jsonData.error || `API request failed: ${response.status} ${response.statusText}`
+				(jsonData as any)?.error || `API request failed: ${response.status} ${response.statusText}`
 			);
 		}
 
@@ -380,14 +380,14 @@ export async function generateBookDraft(request: BookGenerationRequest): Promise
 			requireOpenAI: true,
 		});
 
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to generate book draft');
+		if (!(response as any)?.success) {
+			throw new Error((response as any)?.error || 'Failed to generate book draft');
 		}
 
 		return {
-			draftId: response.draftId,
-			storyJson: response.storyJson,
-			estimatedPages: response.estimatedPages,
+			draftId: (response as any)?.draftId,
+			storyJson: (response as any)?.storyJson,
+			estimatedPages: (response as any)?.estimatedPages,
 		};
 	} catch (error) {
 		console.error('Error in generateBookDraft:', error);
@@ -399,11 +399,11 @@ export async function getBookDraft(draftId: string): Promise<BookDraft> {
 	try {
 		const response = await apiRequest(`/books/${draftId}`);
 
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to get book draft');
+		if (!(response as any)?.success) {
+			throw new Error((response as any)?.error || 'Failed to get book draft');
 		}
 
-		return response.book;
+		return (response as any)?.book;
 	} catch (error) {
 		console.error('Error in getBookDraft:', error);
 		throw error;
@@ -417,8 +417,8 @@ export async function saveBookDraft(draftId: string, storyJson: any): Promise<vo
 			body: { storyJson },
 		});
 
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to save book draft');
+		if (!(response as any)?.success) {
+			throw new Error((response as any)?.error || 'Failed to save book draft');
 		}
 	} catch (error) {
 		console.error('Error in saveBookDraft:', error);
@@ -430,11 +430,11 @@ export async function getBooksArchive(userId: string): Promise<BookDraft[]> {
 	try {
 		const response = await apiRequest(`/books/archive/${userId}`);
 
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to get books archive');
+		if (!(response as any)?.success) {
+			throw new Error((response as any)?.error || 'Failed to get books archive');
 		}
 
-		return response.books || [];
+		return (response as any)?.books || [];
 	} catch (error) {
 		console.error('Error in getBooksArchive:', error);
 		throw error;
@@ -452,14 +452,14 @@ export async function renderBookPDF(draftId: string): Promise<{
 			requireOpenAI: true,
 		});
 
-		if (!response.success) {
-			throw new Error(response.error || 'Failed to render PDF');
+		if (!(response as any)?.success) {
+			throw new Error((response as any)?.error || 'Failed to render PDF');
 		}
 
 		return {
-			pdfUrl: response.pdfUrl,
-			pages: response.pages,
-			wordCount: response.wordCount,
+			pdfUrl: (response as any)?.pdfUrl,
+			pages: (response as any)?.pages,
+			wordCount: (response as any)?.wordCount,
 		};
 	} catch (error) {
 		console.error('Error in renderBookPDF:', error);
@@ -470,7 +470,7 @@ export async function renderBookPDF(draftId: string): Promise<{
 export async function healthCheck(): Promise<boolean> {
 	try {
 		const response = await apiRequest('/health');
-		return response.status === 'ok';
+		return (response as any)?.status === 'ok';
 	} catch (error) {
 		console.error('Health check failed:', error);
 		return false;

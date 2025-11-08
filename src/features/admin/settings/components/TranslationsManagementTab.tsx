@@ -1,5 +1,5 @@
 import { AlertCircle, Languages as LanguagesIcon, Loader2, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
@@ -38,18 +38,8 @@ export function TranslationsManagementTab({
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState('translations');
 
-	useEffect(() => {
-		loadData();
-	}, []);
-
-	// Update selected language when initialLanguage prop changes
-	useEffect(() => {
-		if (initialLanguage) {
-			setSelectedLanguage(initialLanguage);
-		}
-	}, [initialLanguage]);
-
-	const loadData = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadData = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const [translationsData, languagesData, missingKeysData] = await Promise.all([
@@ -63,7 +53,19 @@ export function TranslationsManagementTab({
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
+
+	// Update selected language when initialLanguage prop changes
+	useEffect(() => {
+		if (initialLanguage) {
+			setSelectedLanguage(initialLanguage);
+		}
+	}, [initialLanguage]);
 
 	const handleSaveTranslation = async (key: string, value: string) => {
 		const success = await saveTranslation(key, selectedLanguage, value);

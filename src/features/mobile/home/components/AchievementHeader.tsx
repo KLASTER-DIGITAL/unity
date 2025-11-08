@@ -98,11 +98,11 @@ export const AchievementHeader = memo(function AchievementHeader({
 			{/* FAB кнопка скрыта по запросу пользователя */}
 			{/* <motion.button
         onClick={() => setShowMenu(true)}
-        className="fixed bottom-28 right-6 z-50 w-14 h-14 backdrop-blur-md bg-black/30 dark:bg-white/10 border border-white/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+        className="fixed bottom-28 right-6 z-50 w-14 h-14 backdrop-blur-md bg-card/30 border border-border/20 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all duration-300"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Menu className="h-6 w-6 text-white" strokeWidth={2.5} />
+        <Menu className="h-6 w-6 text-foreground" strokeWidth={2.5} />
       </motion.button>
 
       <QuickActionsMenu

@@ -59,7 +59,7 @@ export function EditEntryModal({
 			setLocalMedia(newMedia);
 			onMediaChange(newMedia);
 		}
-	}, [uploadedMedia]);
+	}, [uploadedMedia, localMedia, onMediaChange]);
 
 	if (!isOpen) {
 		return null;

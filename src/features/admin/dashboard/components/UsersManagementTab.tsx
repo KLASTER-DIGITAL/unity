@@ -1,5 +1,5 @@
 import { Ban, CheckCircle, Mail, MoreVertical, RefreshCw, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -25,6 +25,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/shared/components/ui/table';
+import { logUserAction } from '@/shared/lib/api/services/auditLog';
 import { createClient } from '@/utils/supabase/client';
 
 export function UsersManagementTab() {
@@ -35,11 +36,8 @@ export function UsersManagementTab() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 
-	useEffect(() => {
-		loadUsers();
-	}, []);
-
-	const loadUsers = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadUsers = useCallback(async () => {
 		try {
 			setIsLoading(true);
 
@@ -93,7 +91,12 @@ export function UsersManagementTab() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadUsers();
+	}, [loadUsers]);
 
 	const handleTogglePremium = async (userId: string, currentStatus: string) => {
 		try {
@@ -139,6 +142,15 @@ export function UsersManagementTab() {
 				}
 
 				toast.success('Premium подписка активирована');
+
+				// ✅ AUDIT LOG: Log premium activation
+				await logUserAction('update', userId, {
+					action: 'premium_activated',
+					plan: 'monthly',
+					amount: 499,
+					currency: 'RUB',
+					method: 'admin_panel',
+				});
 			} else {
 				// Деактивация Premium: получаем активную подписку и отменяем её
 				const getResponse = await fetch(
@@ -181,6 +193,13 @@ export function UsersManagementTab() {
 					}
 
 					toast.success('Premium подписка отменена');
+
+					// ✅ AUDIT LOG: Log premium cancellation
+					await logUserAction('update', userId, {
+						action: 'premium_cancelled',
+						subscription_id: activeSubscription.id,
+						method: 'admin_panel',
+					});
 				} else {
 					toast.error('Активная подписка не найдена');
 				}

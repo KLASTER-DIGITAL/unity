@@ -10,7 +10,7 @@ import {
 	Target,
 	TrendingUp,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -37,13 +37,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 	const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
 	const [isPremium, setIsPremium] = useState(false);
 
-	useEffect(() => {
-		loadData();
-		loadPremiumStatus();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const loadData = async () => {
+	// ✅ FIX: Define functions BEFORE useEffect with useCallback
+	const loadData = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
@@ -65,9 +60,9 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userData]);
 
-	const loadPremiumStatus = async () => {
+	const loadPremiumStatus = useCallback(async () => {
 		try {
 			const userId = userData?.user?.id || userData?.id;
 			if (!userId) {
@@ -95,7 +90,13 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 		} catch (error) {
 			console.error('[REPORTS] Error in loadPremiumStatus:', error);
 		}
-	};
+	}, [userData]);
+
+	// ✅ FIX: useEffect AFTER function definitions
+	useEffect(() => {
+		loadData();
+		loadPremiumStatus();
+	}, [loadData, loadPremiumStatus]);
 
 	// Получить текущий месяц и год
 	const currentPeriod = new Date().toLocaleDateString('ru-RU', {
@@ -141,63 +142,61 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
 	if (isLoading) {
 		return (
-			<>
-				<div className="min-h-screen bg-background pb-20 transition-colors duration-300">
-					{/* Skeleton for reports header */}
-					<div className="space-y-4 p-4">
-						{/* Period selector skeleton */}
-						<div className="flex gap-2">
-							{[...new Array(3)].map((_, i) => (
-								<Skeleton className="h-10 flex-1 rounded-[12px]" key={i} />
-							))}
-						</div>
-
-						{/* AI Report card skeleton */}
-						<Card className="bg-card transition-colors duration-300">
-							<CardHeader>
-								<div className="flex items-center justify-between">
-									<div className="flex-1 space-y-2">
-										<Skeleton className="h-6 w-48" />
-										<Skeleton className="h-4 w-40" />
-									</div>
-									<Skeleton className="h-6 w-20 rounded-full" />
-								</div>
-							</CardHeader>
-							<CardContent>
-								{/* Stats grid skeleton */}
-								<div className="mb-6 grid grid-cols-2 gap-4">
-									{[...new Array(2)].map((_, i) => (
-										<div className="space-y-1 text-center" key={i}>
-											<Skeleton className="mx-auto h-8 w-16" />
-											<Skeleton className="mx-auto h-4 w-20" />
-										</div>
-									))}
-								</div>
-
-								{/* AI insights skeleton */}
-								<div className="space-y-3">
-									<Skeleton className="h-4 w-full" />
-									<Skeleton className="h-4 w-5/6" />
-									<Skeleton className="h-4 w-4/6" />
-								</div>
-							</CardContent>
-						</Card>
-
-						{/* Stats cards skeleton */}
-						{[...new Array(2)].map((_, i) => (
-							<Card className="bg-card transition-colors duration-300" key={i}>
-								<CardHeader>
-									<Skeleton className="h-6 w-32" />
-								</CardHeader>
-								<CardContent className="space-y-3">
-									<Skeleton className="h-4 w-full" />
-									<Skeleton className="h-4 w-4/5" />
-								</CardContent>
-							</Card>
+			<div className="min-h-screen bg-background pb-20 transition-colors duration-300">
+				{/* Skeleton for reports header */}
+				<div className="space-y-4 p-4">
+					{/* Period selector skeleton */}
+					<div className="flex gap-2">
+						{[...new Array(3)].map((_, i) => (
+							<Skeleton className="h-10 flex-1 rounded-[12px]" key={i} />
 						))}
 					</div>
+
+					{/* AI Report card skeleton */}
+					<Card className="bg-card transition-colors duration-300">
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<div className="flex-1 space-y-2">
+									<Skeleton className="h-6 w-48" />
+									<Skeleton className="h-4 w-40" />
+								</div>
+								<Skeleton className="h-6 w-20 rounded-full" />
+							</div>
+						</CardHeader>
+						<CardContent>
+							{/* Stats grid skeleton */}
+							<div className="mb-6 grid grid-cols-2 gap-4">
+								{[...new Array(2)].map((_, i) => (
+									<div className="space-y-1 text-center" key={i}>
+										<Skeleton className="mx-auto h-8 w-16" />
+										<Skeleton className="mx-auto h-4 w-20" />
+									</div>
+								))}
+							</div>
+
+							{/* AI insights skeleton */}
+							<div className="space-y-3">
+								<Skeleton className="h-4 w-full" />
+								<Skeleton className="h-4 w-5/6" />
+								<Skeleton className="h-4 w-4/6" />
+							</div>
+						</CardContent>
+					</Card>
+
+					{/* Stats cards skeleton */}
+					{[...new Array(2)].map((_, i) => (
+						<Card className="bg-card transition-colors duration-300" key={i}>
+							<CardHeader>
+								<Skeleton className="h-6 w-32" />
+							</CardHeader>
+							<CardContent className="space-y-3">
+								<Skeleton className="h-4 w-full" />
+								<Skeleton className="h-4 w-4/5" />
+							</CardContent>
+						</Card>
+					))}
 				</div>
-			</>
+			</div>
 		);
 	}
 
@@ -218,11 +217,14 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						</div>
 					</div>
 
+					{/* ✅ FIX: Improved period buttons with better visual feedback */}
 					<div className="scrollbar-hide flex gap-2 overflow-x-auto">
 						{['week', 'month', 'quarter'].map((period) => (
 							<Button
 								className={
-									selectedPeriod === period ? '' : 'border-card/30 text-white hover:bg-card/10'
+									selectedPeriod === period
+										? 'transition-all duration-300'
+										: 'border-card/30 text-white transition-all duration-300 hover:bg-card/10'
 								}
 								key={period}
 								onClick={() => setSelectedPeriod(period)}

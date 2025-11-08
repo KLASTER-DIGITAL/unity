@@ -6,6 +6,7 @@ import { useTranslation } from '@/shared/lib/i18n';
 import { PremiumModal } from './PremiumModal';
 import { ProfileEditModal } from './ProfileEditModal';
 import { SettingsRow, SettingsSection } from './SettingsRow';
+import { SettingsScreenSkeleton } from './SettingsScreenSkeleton';
 import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
 import {
@@ -75,15 +76,17 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 	// Динамическая загрузка языков из API
 	const [languages, setLanguages] = useState(DEFAULT_LANGUAGES);
+	const [isLoading, setIsLoading] = useState(!profile?.id);
 
 	// Загрузка языков из API при монтировании
 	useEffect(() => {
+		setIsLoading(!profile?.id);
 		loadLanguages().then((langs) => {
 			if (langs) {
 				setLanguages(langs);
 			}
 		});
-	}, []);
+	}, [profile?.id]);
 
 	// Проверка поддержки WebAuthn для биометрии
 	useEffect(() => {
@@ -182,6 +185,11 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 			setShowLanguage,
 		});
 	};
+
+	// ✅ Show skeleton loader while loading
+	if (isLoading) {
+		return <SettingsScreenSkeleton />;
+	}
 
 	return (
 		<div className="min-h-screen bg-background pb-20">

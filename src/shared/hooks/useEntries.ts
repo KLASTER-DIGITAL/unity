@@ -109,7 +109,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 		} finally {
 			setIsLoading(false);
 		}
-	}, [userId, limit]); // ✅ FIX: supabase - singleton, не включаем в dependencies
+	}, [userId, limit, supabase.from]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	// ✅ FIX: Обновляем ref при каждом изменении fetchEntries
 	useEffect(() => {
@@ -122,7 +122,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 		console.log('[useEntries] 🚀 Initial fetch triggered, userId:', userId, 'limit:', limit);
 		fetchEntries();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userId, limit]); // ✅ FIX: Только userId и limit для предотвращения бесконечного цикла
+	}, [userId, limit, fetchEntries]); // ✅ FIX: Только userId и limit для предотвращения бесконечного цикла
 
 	// ✅ КРИТИЧНО: Real-time subscription для автоматического обновления UI
 	// FIX: Убираем fetchEntries из dependencies, используем fetchEntriesRef.current
@@ -208,7 +208,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			supabase.removeChannel(channel);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userId, limit]); // ✅ FIX: supabase - singleton, не включаем в dependencies
+	}, [userId, limit, fetchEntries, supabase.channel, supabase.removeChannel]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	return {
 		entries,

@@ -144,7 +144,7 @@ export function BottomSheet({
 	};
 
 	return (
-		<AnimatePresence mode="wait">
+		<AnimatePresence mode="sync">
 			{isOpen && (
 				<>
 					{/* Backdrop */}

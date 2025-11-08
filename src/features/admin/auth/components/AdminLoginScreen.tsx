@@ -159,6 +159,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 					<CardHeader className="space-y-4 pb-6 text-center">
 						{/* Back Button */}
 						<button
+							type="button"
 							className="absolute top-6 left-6 flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent/10"
 							onClick={onBack}
 						>
@@ -256,7 +257,11 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 				<div className="mt-6 text-center text-muted-foreground">
 					<p>
 						Нет доступа?{' '}
-						<button className="font-semibold text-accent hover:underline" onClick={onBack}>
+						<button
+							type="button"
+							className="font-semibold text-accent hover:underline"
+							onClick={onBack}
+						>
 							Вернуться на главную
 						</button>
 					</p>

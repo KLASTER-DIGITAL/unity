@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
 import { createClient } from '@/utils/supabase/client';
 
@@ -61,11 +61,8 @@ export function usePWASettings() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		loadPWASettings();
-	}, []);
-
-	const loadPWASettings = async () => {
+	// ✅ FIX: Определяем функцию ДО useEffect с useCallback
+	const loadPWASettings = useCallback(async () => {
 		setIsLoading(true);
 		setError(null);
 
@@ -110,7 +107,12 @@ export function usePWASettings() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
+
+	// ✅ FIX: useEffect ПОСЛЕ определения функции
+	useEffect(() => {
+		loadPWASettings();
+	}, [loadPWASettings]);
 
 	return {
 		settings,

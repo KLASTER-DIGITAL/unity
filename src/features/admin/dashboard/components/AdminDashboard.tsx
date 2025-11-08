@@ -14,17 +14,13 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { AIAnalyticsTab } from '@/features/admin/analytics';
-import { PerformanceDashboard } from '@/features/admin/components/PerformanceDashboard';
-import { ReactNativeReadinessTest } from '@/features/admin/components/ReactNativeReadinessTest';
-import { TestLab } from '@/features/admin/components/TestLab';
-import {
-	PushNotifications,
-	PWAAnalytics,
-	PWACache,
-	PWAOverview,
-	PWASettings,
-} from '@/features/admin/pwa';
-import { SettingsTab, SubscriptionsTab } from '@/features/admin/settings';
+// ✅ PERFORMANCE: Removed heavy imports, using lazy versions from LazyTabs
+// import { PerformanceDashboard } from '@/features/admin/components/PerformanceDashboard';
+// import { ReactNativeReadinessTest } from '@/features/admin/components/ReactNativeReadinessTest';
+// import { TestLab } from '@/features/admin/components/TestLab';
+// import { PushNotifications, PWAAnalytics, PWACache, PWAOverview, PWASettings } from '@/features/admin/pwa';
+// import { SettingsTab, SubscriptionsTab } from '@/features/admin/settings';
+import { SubscriptionsTab } from '@/features/admin/settings';
 import { CompactErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -36,7 +32,6 @@ import type {
 	PWASubTab,
 	TabId,
 } from './admin-dashboard';
-
 // Import modular components
 import {
 	isSuperAdmin as checkSuperAdmin,
@@ -46,6 +41,17 @@ import {
 	MobileSidebar,
 	OverviewTab,
 } from './admin-dashboard';
+import {
+	LazyDeveloperTab,
+	LazyPushNotifications,
+	LazyPWAAnalytics,
+	LazyPWACache,
+	LazyPWAOverview,
+	LazyPWASettings,
+	LazySettingsTab,
+	LazyTestLab,
+	useTabPreload,
+} from './tabs/LazyTabs';
 import { UsersManagementTab } from './UsersManagementTab';
 
 // Re-export types for backward compatibility
@@ -59,6 +65,9 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	const [settingsSubTab, setSettingsSubTab] = useState('pwa');
 	const [pwaSubTab, setPwaSubTab] = useState<PWASubTab>('overview');
 	const [stats, setStats] = useState<AdminStats>(INITIAL_STATS);
+
+	// ✅ PERFORMANCE: Preload tabs on hover
+	const { preloadOnHover } = useTabPreload();
 
 	// Проверка прав супер-админа
 	const isSuperAdmin = checkSuperAdmin(userData);
@@ -268,23 +277,22 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 											))}
 										</div>
 
-										{/* PWA Content */}
-										{pwaSubTab === 'overview' && <PWAOverview />}
-										{pwaSubTab === 'settings' && <PWASettings />}
-										{pwaSubTab === 'push' && <PushNotifications />}
-										{pwaSubTab === 'analytics' && <PWAAnalytics />}
-										{pwaSubTab === 'cache' && <PWACache />}
+										{/* PWA Content - ✅ PERFORMANCE: Lazy loaded */}
+										{pwaSubTab === 'overview' && <LazyPWAOverview />}
+										{pwaSubTab === 'settings' && <LazyPWASettings />}
+										{pwaSubTab === 'push' && <LazyPushNotifications />}
+										{pwaSubTab === 'analytics' && <LazyPWAAnalytics />}
+										{pwaSubTab === 'cache' && <LazyPWACache />}
 									</div>
 								)}
-								{activeTab === 'test-lab' && <TestLab />}
-								{activeTab === 'developer' && (
-									<div className="space-y-6">
-										<PerformanceDashboard />
-										<ReactNativeReadinessTest />
-									</div>
-								)}
+								{/* ✅ PERFORMANCE: Lazy loaded tabs */}
+								{activeTab === 'test-lab' && <LazyTestLab />}
+								{activeTab === 'developer' && <LazyDeveloperTab />}
 								{activeTab === 'settings' && (
-									<SettingsTab activeSubTab={settingsSubTab} onSubTabChange={setSettingsSubTab} />
+									<LazySettingsTab
+										activeSubTab={settingsSubTab}
+										onSubTabChange={setSettingsSubTab}
+									/>
 								)}
 							</CompactErrorBoundary>
 						</motion.div>

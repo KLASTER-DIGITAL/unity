@@ -136,6 +136,7 @@ export function AdvancedPWAAnalytics() {
 			</div>
 
 			{/* Period Filter */}
+			{/* ✅ FIX: Improved period buttons with better visual feedback */}
 			<Card>
 				<CardContent className="pt-6">
 					<div className="flex items-center gap-2">
@@ -144,6 +145,7 @@ export function AdvancedPWAAnalytics() {
 						<div className="flex gap-2">
 							{(['7d', '30d', '90d'] as const).map((p) => (
 								<Button
+									className="transition-all duration-300"
 									key={p}
 									onClick={() => setPeriod(p)}
 									size="sm"

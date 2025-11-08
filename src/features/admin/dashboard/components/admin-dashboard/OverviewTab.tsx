@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { useTranslation } from '@/shared/lib/i18n';
+import { OverviewTabSkeleton } from './OverviewTabSkeleton';
 import { QuickActions } from './QuickActions';
 import { StatsCard } from './StatsCard';
 import { SystemStatus } from './SystemStatus';
@@ -20,6 +21,11 @@ import type { OverviewTabProps } from './types';
  */
 export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
 	const { t } = useTranslation();
+
+	// Show skeleton during initial load
+	if (isLoading && stats.totalUsers === 0) {
+		return <OverviewTabSkeleton />;
+	}
 
 	return (
 		<div className="space-y-6">

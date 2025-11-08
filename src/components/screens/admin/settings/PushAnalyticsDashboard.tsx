@@ -113,8 +113,10 @@ export const PushAnalyticsDashboard: React.FC = () => {
 					</h3>
 					<p className="text-muted-foreground text-sm">Статистика эффективности push уведомлений</p>
 				</div>
+				{/* ✅ FIX: Improved period buttons with better visual feedback */}
 				<div className="flex gap-2">
 					<Button
+						className="transition-all duration-300"
 						onClick={() => setPeriod('7d')}
 						size="sm"
 						variant={period === '7d' ? 'default' : 'outline'}
@@ -122,6 +124,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						7 дней
 					</Button>
 					<Button
+						className="transition-all duration-300"
 						onClick={() => setPeriod('30d')}
 						size="sm"
 						variant={period === '30d' ? 'default' : 'outline'}
@@ -129,6 +132,7 @@ export const PushAnalyticsDashboard: React.FC = () => {
 						30 дней
 					</Button>
 					<Button
+						className="transition-all duration-300"
 						onClick={() => setPeriod('all')}
 						size="sm"
 						variant={period === 'all' ? 'default' : 'outline'}

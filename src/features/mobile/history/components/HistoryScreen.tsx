@@ -1,5 +1,6 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
 	type DiaryEntry,
@@ -9,6 +10,7 @@ import {
 	updateEntry,
 } from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
+import { debounce } from '@/shared/lib/utils/debounce';
 import {
 	DeleteConfirmModal,
 	EditEntryModal,
@@ -45,16 +47,18 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
 
-	useEffect(() => {
-		loadEntries();
-	}, []);
+	// ✅ OPTIMIZATION: Virtualization для улучшения INP при большом количестве записей (>20)
+	const parentRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const filtered = filterEntries(entries, searchQuery, selectedCategory, selectedSentiment);
-		setFilteredEntries(filtered);
-	}, [searchQuery, selectedCategory, selectedSentiment, entries]);
+	const virtualizer = useVirtualizer({
+		count: filteredEntries.length,
+		getScrollElement: () => parentRef.current,
+		estimateSize: () => 200, // Примерная высота EntryCard (180-220px)
+		overscan: 5, // Рендерим 5 дополнительных элементов сверху/снизу для плавности
+	});
 
-	const loadEntries = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadEntries = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
@@ -71,7 +75,26 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userData]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadEntries();
+	}, [loadEntries]);
+
+	// ✅ OPTIMIZATION: Debounced filtering для улучшения INP (300ms delay)
+	const debouncedFilterEntries = useMemo(
+		() =>
+			debounce((query: string, category: string | null, sentiment: string | null) => {
+				const filtered = filterEntries(entries, query, category, sentiment);
+				setFilteredEntries(filtered);
+			}, 300),
+		[entries]
+	);
+
+	useEffect(() => {
+		debouncedFilterEntries(searchQuery, selectedCategory, selectedSentiment);
+	}, [searchQuery, selectedCategory, selectedSentiment, debouncedFilterEntries]);
 
 	const handleEditEntry = (entry: DiaryEntry) => {
 		console.log('[HISTORY] Editing entry:', entry);
@@ -189,23 +212,46 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 
 			{/* Stats Bar - REMOVED per user request */}
 
-			{/* Entries List */}
-			<div className="px-6 py-4">
+			{/* ✅ OPTIMIZATION: Virtualized Entries List для улучшения INP */}
+			<div className="px-6 py-4" ref={parentRef} style={{ height: '100vh', overflow: 'auto' }}>
 				{isLoading ? (
 					<EntryListSkeleton count={5} />
 				) : filteredEntries.length === 0 ? (
 					<EmptyState hasFilters={!!(searchQuery || selectedCategory || selectedSentiment)} />
 				) : (
-					<div className="space-y-3">
-						<AnimatePresence>
-							{filteredEntries.map((entry, index) => (
-								<EntryCard
-									entry={entry}
-									index={index}
-									key={entry.id}
-									onOpenActions={setSelectedEntry}
-								/>
-							))}
+					<div
+						style={{
+							height: `${virtualizer.getTotalSize()}px`,
+							width: '100%',
+							position: 'relative',
+						}}
+					>
+						<AnimatePresence mode="sync">
+							{virtualizer.getVirtualItems().map((virtualItem) => {
+								const entry = filteredEntries[virtualItem.index];
+								return (
+									<div
+										data-index={virtualItem.index}
+										key={entry.id}
+										ref={virtualizer.measureElement}
+										style={{
+											position: 'absolute',
+											top: 0,
+											left: 0,
+											width: '100%',
+											transform: `translateY(${virtualItem.start}px)`,
+										}}
+									>
+										<div className="mb-3">
+											<EntryCard
+												entry={entry}
+												index={virtualItem.index}
+												onOpenActions={setSelectedEntry}
+											/>
+										</div>
+									</div>
+								);
+							})}
 						</AnimatePresence>
 					</div>
 				)}

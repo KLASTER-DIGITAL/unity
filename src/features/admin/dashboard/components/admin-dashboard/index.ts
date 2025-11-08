@@ -2,7 +2,8 @@
  * AdminDashboard - Modular exports
  */
 
-export { INITIAL_STATS, PWA_SUB_TABS, SUPER_ADMIN_EMAIL } from './constants';
+// ✅ SECURITY FIX: Removed SUPER_ADMIN_EMAIL export (hardcoded email removed)
+export { INITIAL_STATS, PWA_SUB_TABS } from './constants';
 export { DesktopSidebar } from './DesktopSidebar';
 export { MobileSidebar } from './MobileSidebar';
 export { OverviewTab } from './OverviewTab';

@@ -1,13 +1,15 @@
 /**
  * Universal Dialog Component - React Native Implementation
  *
- * Uses React Native Modal for native platform
+ * Uses React Native Modal with iOS-style design
+ * Simplified version of Modal for dialog-specific use cases
  *
  * @module components/ui/universal/Dialog.native
  */
 
-import React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import type React from 'react';
+import { Dimensions, Modal as RNModal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DesignTokens } from '../../../design-system/tokens';
 
 // ============================================================================
 // TYPES
@@ -27,8 +29,6 @@ export type DialogProps = {
 export type DialogContentProps = {
 	/** Content children */
 	children?: React.ReactNode;
-	/** Custom className (ignored in React Native) */
-	className?: string;
 	/** Show close button */
 	showClose?: boolean;
 	/** Close button aria label */
@@ -38,128 +38,117 @@ export type DialogContentProps = {
 export type DialogHeaderProps = {
 	/** Header children */
 	children?: React.ReactNode;
-	/** Custom className (ignored in React Native) */
-	className?: string;
 };
 
 export type DialogFooterProps = {
 	/** Footer children */
 	children?: React.ReactNode;
-	/** Custom className (ignored in React Native) */
-	className?: string;
 };
 
 export type DialogTitleProps = {
 	/** Title text */
 	children?: React.ReactNode;
-	/** Custom className (ignored in React Native) */
-	className?: string;
 };
 
 export type DialogDescriptionProps = {
 	/** Description text */
 	children?: React.ReactNode;
-	/** Custom className (ignored in React Native) */
-	className?: string;
 };
 
 // ============================================================================
-// CONTEXT
+// HELPERS
 // ============================================================================
 
-type DialogContextValue = {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-};
-
-const DialogContext = React.createContext<DialogContextValue | null>(null);
-
-function useDialogContext() {
-	const context = React.useContext(DialogContext);
-	if (!context) {
-		throw new Error('Dialog components must be used within Dialog');
-	}
-	return context;
-}
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ============================================================================
 // COMPONENTS
 // ============================================================================
 
-export function Dialog({ children, open, onOpenChange, defaultOpen }: DialogProps) {
-	const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
-
-	const isControlled = open !== undefined;
-	const currentOpen = isControlled ? open : internalOpen;
-
-	const handleOpenChange = (newOpen: boolean) => {
-		if (!isControlled) {
-			setInternalOpen(newOpen);
-		}
-		onOpenChange?.(newOpen);
-	};
-
+/**
+ * Dialog Root Component
+ */
+export function Dialog({ children, open = false, onOpenChange }: DialogProps) {
 	return (
-		<DialogContext.Provider value={{ open: currentOpen, onOpenChange: handleOpenChange }}>
-			{children}
-		</DialogContext.Provider>
-	);
-}
-
-export function DialogTrigger({ children, ...props }: { children: React.ReactNode }) {
-	const { onOpenChange } = useDialogContext();
-
-	return (
-		<Pressable onPress={() => onOpenChange(true)} {...props}>
-			{children}
-		</Pressable>
-	);
-}
-
-export function DialogContent({
-	children,
-	showClose = true,
-	closeLabel = 'Close',
-}: DialogContentProps) {
-	const { open, onOpenChange } = useDialogContext();
-
-	return (
-		<Modal
+		<RNModal
 			animationType="fade"
-			onRequestClose={() => onOpenChange(false)}
+			onRequestClose={() => onOpenChange?.(false)}
 			transparent
 			visible={open}
 		>
-			<Pressable onPress={() => onOpenChange(false)} style={styles.overlay}>
-				<Pressable onPress={(e) => e.stopPropagation()} style={styles.content}>
-					<ScrollView style={styles.scrollView}>{children}</ScrollView>
-					{showClose && (
-						<Pressable
-							accessibilityLabel={closeLabel}
-							onPress={() => onOpenChange(false)}
-							style={styles.closeButton}
-						>
-							<Text style={styles.closeButtonText}>✕</Text>
-						</Pressable>
-					)}
-				</Pressable>
-			</Pressable>
-		</Modal>
+			{children}
+		</RNModal>
 	);
 }
 
+/**
+ * Dialog Trigger (not used in React Native, kept for API compatibility)
+ */
+export function DialogTrigger({ children }: { children?: React.ReactNode }) {
+	return <>{children}</>;
+}
+
+/**
+ * Dialog Portal (not used in React Native, kept for API compatibility)
+ */
+export function DialogPortal({ children }: { children?: React.ReactNode }) {
+	return <>{children}</>;
+}
+
+/**
+ * Dialog Close (not used in React Native, kept for API compatibility)
+ */
+export function DialogClose({ children }: { children?: React.ReactNode }) {
+	return <>{children}</>;
+}
+
+/**
+ * Dialog Overlay
+ */
+export function DialogOverlay() {
+	return <View style={styles.overlay} />;
+}
+
+/**
+ * Dialog Content
+ */
+export function DialogContent({ children }: DialogContentProps) {
+	return (
+		<View style={styles.container}>
+			<DialogOverlay />
+			<View style={styles.content}>
+				<ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+					{children}
+				</ScrollView>
+			</View>
+		</View>
+	);
+}
+
+/**
+ * Dialog Header
+ */
 export function DialogHeader({ children }: DialogHeaderProps) {
 	return <View style={styles.header}>{children}</View>;
 }
 
+/**
+ * Dialog Footer
+ */
 export function DialogFooter({ children }: DialogFooterProps) {
 	return <View style={styles.footer}>{children}</View>;
 }
 
+/**
+ * Dialog Title
+ */
 export function DialogTitle({ children }: DialogTitleProps) {
 	return <Text style={styles.title}>{children}</Text>;
 }
 
+/**
+ * Dialog Description
+ */
 export function DialogDescription({ children }: DialogDescriptionProps) {
 	return <Text style={styles.description}>{children}</Text>;
 }
@@ -169,76 +158,71 @@ export function DialogDescription({ children }: DialogDescriptionProps) {
 // ============================================================================
 
 const styles = StyleSheet.create({
-	overlay: {
+	container: {
 		flex: 1,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 16,
+	},
+	overlay: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
 	},
 	content: {
-		backgroundColor: '#ffffff',
-		borderRadius: 12,
-		width: '100%',
-		maxWidth: 500,
-		maxHeight: '80%',
+		width: Math.min(SCREEN_WIDTH * 0.9, 500),
+		maxHeight: SCREEN_HEIGHT * 0.8,
+		backgroundColor: DesignTokens.colors.card,
+		borderRadius: DesignTokens.borderRadius.lg,
+		padding: DesignTokens.spacing.lg,
 		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.25,
-		shadowRadius: 3.84,
+		shadowRadius: 8,
 		elevation: 5,
 	},
-	scrollView: {
-		padding: 24,
-	},
-	closeButton: {
-		position: 'absolute',
-		top: 16,
-		right: 16,
-		width: 32,
-		height: 32,
-		borderRadius: 16,
-		backgroundColor: '#f3f4f6',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	closeButtonText: {
-		fontSize: 18,
-		color: '#6b7280',
-		fontWeight: '600',
-	},
 	header: {
-		marginBottom: 16,
+		marginBottom: DesignTokens.spacing.md,
 	},
 	footer: {
-		marginTop: 24,
+		marginTop: DesignTokens.spacing.md,
 		flexDirection: 'row',
 		justifyContent: 'flex-end',
-		gap: 8,
+		gap: DesignTokens.spacing.sm,
 	},
 	title: {
-		fontSize: 20,
-		fontWeight: '600',
-		color: '#111827',
-		marginBottom: 8,
+		fontSize: DesignTokens.typography.fontSize.xl,
+		fontWeight: DesignTokens.typography.fontWeight.semibold,
+		color: DesignTokens.colors.text,
+		marginBottom: DesignTokens.spacing.xs,
 	},
 	description: {
-		fontSize: 14,
-		color: '#6b7280',
-		lineHeight: 20,
+		fontSize: DesignTokens.typography.fontSize.sm,
+		color: DesignTokens.colors.textSecondary,
+		lineHeight: DesignTokens.typography.lineHeight.relaxed,
 	},
 });
 
 // ============================================================================
-// EXPORTS
+// UTILITIES
 // ============================================================================
 
-export default {
-	Dialog,
-	DialogTrigger,
-	DialogContent,
-	DialogHeader,
-	DialogFooter,
-	DialogTitle,
-	DialogDescription,
+export const DialogUtils = {
+	/**
+	 * Validate dialog props
+	 */
+	validateProps: (props: DialogProps) => {
+		const errors: string[] = [];
+
+		if (props.open !== undefined && typeof props.open !== 'boolean') {
+			errors.push('open must be a boolean');
+		}
+
+		if (props.onOpenChange !== undefined && typeof props.onOpenChange !== 'function') {
+			errors.push('onOpenChange must be a function');
+		}
+
+		return {
+			valid: errors.length === 0,
+			errors,
+		};
+	},
 };

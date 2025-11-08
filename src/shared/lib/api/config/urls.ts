@@ -35,6 +35,7 @@ export const API_URLS = {
 	ADMIN_USERS: `https://${projectId}.supabase.co/functions/v1/admin-users-api`,
 	ADMIN_SETTINGS: `https://${projectId}.supabase.co/functions/v1/admin-settings-api`,
 	ADMIN_SYSTEM: `https://${projectId}.supabase.co/functions/v1/admin-system-api`,
+	ADMIN_SUBSCRIPTIONS: `https://${projectId}.supabase.co/functions/v1/admin-subscriptions-api`,
 	// Legacy (deprecated, use specific admin microservices above)
 	ADMIN: `https://${projectId}.supabase.co/functions/v1/admin-api`,
 	TRANSLATIONS: `https://${projectId}.supabase.co/functions/v1/translations-api`,

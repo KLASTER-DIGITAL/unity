@@ -1,5 +1,5 @@
 import { Bell, Download, Loader2, Save, Settings, Smartphone, Wifi } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -64,11 +64,8 @@ export function PWASettings() {
 
 	const supabase = createClient();
 
-	useEffect(() => {
-		loadSettings();
-	}, []);
-
-	const loadSettings = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadSettings = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const {
@@ -112,7 +109,12 @@ export function PWASettings() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [supabase]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadSettings();
+	}, [loadSettings]);
 
 	const handleSave = async () => {
 		console.log('[PWASettings] Saving settings:', settings);

@@ -1,5 +1,5 @@
 import { DollarSign, TrendingUp, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
@@ -26,11 +26,8 @@ export function SubscriptionsTab() {
 		mrr: 15_600,
 	});
 
-	useEffect(() => {
-		loadSubscriptions();
-	}, []);
-
-	const loadSubscriptions = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadSubscriptions = useCallback(async () => {
 		try {
 			// TODO: Загрузка подписок с сервера
 			setSubscriptions([
@@ -58,7 +55,12 @@ export function SubscriptionsTab() {
 		} catch (error) {
 			console.error('Error loading subscriptions:', error);
 		}
-	};
+	}, []);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadSubscriptions();
+	}, [loadSubscriptions]);
 
 	const getPlanBadge = (plan: string) => {
 		if (plan === 'premium_yearly') {

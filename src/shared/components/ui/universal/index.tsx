@@ -18,6 +18,9 @@ export * from './types';
 import { ButtonUtils } from './Button';
 import { ModalUtils } from './Modal';
 
+export type { AccordionItem, AccordionProps } from './Accordion';
+// Accordion
+export { Accordion, AccordionUtils } from './Accordion';
 export type { ButtonProps } from './Button';
 export { Button, ButtonUtils } from './Button';
 export type {
@@ -40,12 +43,27 @@ export {
 	DialogTitle,
 	DialogTrigger,
 } from './Dialog';
+export type { InputProps } from './Input';
+// Input
+export { Input, InputUtils } from './Input';
 export type { ExtendedModalProps as ModalProps } from './Modal';
 export { Modal, ModalUtils } from './Modal';
 export type { PressableProps } from './Pressable';
 export { Pressable } from './Pressable';
 export type { RadioGroupOption, RadioGroupProps } from './RadioGroup';
 export { RadioGroup, RadioGroupUtils } from './RadioGroup';
+export type { SelectProps } from './Select';
+// Select
+export { Select } from './Select';
+export type { SliderProps } from './Slider';
+// Slider
+export { Slider, SliderUtils } from './Slider';
+export type { SwitchProps } from './Switch';
+// Switch
+export { Switch } from './Switch';
+export type { TabItem, TabsProps } from './Tabs';
+// Tabs
+export { Tabs, TabsUtils } from './Tabs';
 export type { ToasterProps } from './Toast';
 export { Toaster, toast } from './Toast';
 // Re-export common types for convenience
@@ -72,9 +90,9 @@ export type {
 	SelectOption,
 	SelectProps as UniversalSelectProps,
 } from './UniversalSelect';
-export { SelectUtils, UniversalSelect } from './UniversalSelect';
+export { UniversalSelect } from './UniversalSelect';
 export type { SwitchProps as UniversalSwitchProps } from './UniversalSwitch';
-export { SwitchUtils, UniversalSwitch } from './UniversalSwitch';
+export { UniversalSwitch } from './UniversalSwitch';
 
 /**
  * Universal component utilities

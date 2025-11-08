@@ -18,7 +18,7 @@ export function DesktopSidebar({
 		<aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64 lg:overflow-y-auto lg:border-border lg:border-r lg:bg-card">
 			{/* Sidebar Header */}
 			<div className="flex h-16 items-center gap-3 border-border border-b bg-accent px-6">
-				<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-white/20 backdrop-blur-sm">
+				<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius) bg-accent-foreground/20 backdrop-blur-sm transition-colors duration-300">
 					<Shield className="h-6 w-6 text-white" />
 				</div>
 				<div>

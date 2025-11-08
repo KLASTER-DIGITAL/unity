@@ -45,10 +45,12 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 			</div>
 
 			{/* Progress Bar */}
+			{/* ✅ FIX: Added max-w-full to prevent progress bar overflow */}
 			{(status === 'processing' || status === 'uploading') && (
-				<div className="mt-2 h-1 overflow-hidden rounded-full bg-muted dark:bg-muted">
+				<div className="mt-2 h-1 max-w-full overflow-hidden rounded-full bg-muted dark:bg-muted">
 					<motion.div
-						animate={{ width: `${progress}%` }}
+						// ✅ FIX: Clamp progress between 0-100
+						animate={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
 						className="h-full bg-blue-500"
 						initial={{ width: 0 }}
 						transition={{ duration: 0.3 }}

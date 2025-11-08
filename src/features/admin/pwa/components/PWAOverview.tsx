@@ -8,7 +8,7 @@ import {
 	TrendingUp,
 	Users,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import {
@@ -85,11 +85,8 @@ export function PWAOverview() {
 
 	const supabase = createClient();
 
-	useEffect(() => {
-		loadStats();
-	}, []);
-
-	const loadStats = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadStats = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const {
@@ -143,7 +140,12 @@ export function PWAOverview() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [supabase]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadStats();
+	}, [loadStats]);
 
 	const handleQuickAction = (action: string) => {
 		toast.info(`Действие "${action}" будет реализовано в следующих версиях`);

@@ -23,11 +23,6 @@ export class WebHapticAdapter implements HapticAdapter {
 	private enabled = true;
 	private enabledStateLoaded = false;
 
-	constructor() {
-		// DO NOT load from storage in constructor - localStorage.getItem() blocks main thread!
-		// Load lazily on first trigger() call instead
-	}
-
 	/**
 	 * Load haptic enabled state from storage (lazy loading)
 	 * Called on first trigger() to avoid blocking constructor

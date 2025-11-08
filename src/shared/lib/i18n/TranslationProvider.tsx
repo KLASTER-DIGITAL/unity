@@ -259,7 +259,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 
 		initialize();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialLanguage, loadTranslations]);
+	}, [initialLanguage, loadTranslations, state.currentLanguage]);
 
 	// Значение контекста
 	const value: TranslationContextValue = {

@@ -1,3 +1,4 @@
+import { DATA_CACHE_TTL, DataCacheManager } from '@/shared/lib/cache/DataCacheManager';
 import { API_URLS } from '../config/urls';
 import { getAuthHeaders } from '../core/request';
 import type { UserProfile } from '../types';
@@ -89,13 +90,40 @@ export async function createUserProfile(profile: Partial<UserProfile>): Promise<
 }
 
 /**
- * Get user profile by ID
+ * Get user profile by ID (with caching)
  * @param userId - User ID
+ * @param useCache - Use cache (default: true)
  * @returns User profile or null if not found
  */
-export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+export async function getUserProfile(userId: string, useCache = true): Promise<UserProfile | null> {
 	try {
-		console.log('[PROFILES] Fetching profile for user:', userId);
+		// ✅ Try cache first
+		if (useCache) {
+			const cached = await DataCacheManager.get<UserProfile>(`profile_${userId}`);
+			if (cached) {
+				console.log('[PROFILES] 🚀 Returning cached profile for user:', userId);
+				// Background refresh (don't await)
+				fetchFreshProfile(userId).catch((err) => {
+					console.error('[PROFILES] ❌ Background refresh failed:', err);
+				});
+				return cached;
+			}
+		}
+
+		// ✅ No cache, fetch fresh data
+		return await fetchFreshProfile(userId);
+	} catch (error) {
+		console.error('[PROFILES] Error fetching profile:', error);
+		return null;
+	}
+}
+
+/**
+ * Fetch fresh profile from API
+ */
+async function fetchFreshProfile(userId: string): Promise<UserProfile | null> {
+	try {
+		console.log('[PROFILES] Fetching fresh profile for user:', userId);
 
 		const response = await profilesApiRequest<{
 			success: boolean;
@@ -108,9 +136,13 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 		}
 
 		console.log('[PROFILES] Profile found:', response.profile);
+
+		// ✅ Cache the profile
+		await DataCacheManager.set(`profile_${userId}`, response.profile, DATA_CACHE_TTL.PROFILE);
+
 		return response.profile;
 	} catch (error) {
-		console.error('[PROFILES] Error fetching profile:', error);
+		console.error('[PROFILES] Error fetching fresh profile:', error);
 		return null;
 	}
 }
@@ -141,5 +173,9 @@ export async function updateUserProfile(
 	}
 
 	console.log('[PROFILES] Profile updated successfully:', response.profile);
+
+	// ✅ Update cache with new profile
+	await DataCacheManager.set(`profile_${userId}`, response.profile, DATA_CACHE_TTL.PROFILE);
+
 	return response.profile;
 }

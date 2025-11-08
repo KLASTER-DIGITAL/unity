@@ -11,13 +11,18 @@ const Progress = ({
 	ref?: React.RefObject<React.ElementRef<typeof ProgressPrimitive.Root> | null>;
 }) => (
 	<ProgressPrimitive.Root
-		className={cn('relative h-2 w-full overflow-hidden rounded-full bg-secondary', className)}
+		// ✅ FIX: Added max-w-full to prevent progress bar from exceeding container width
+		className={cn(
+			'relative h-2 w-full max-w-full overflow-hidden rounded-full bg-secondary',
+			className
+		)}
 		ref={ref}
 		{...props}
 	>
 		<ProgressPrimitive.Indicator
 			className="h-full w-full flex-1 bg-primary transition-all"
-			style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+			// ✅ FIX: Clamp value between 0-100 to prevent overflow
+			style={{ transform: `translateX(-${100 - Math.min(Math.max(value || 0, 0), 100)}%)` }}
 		/>
 	</ProgressPrimitive.Root>
 );

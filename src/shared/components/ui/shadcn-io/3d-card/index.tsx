@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { cn } from '../../utils';
 
 const MouseEnterContext = createContext<
@@ -106,11 +106,8 @@ export const CardItem = ({
 	const ref = useRef<any>(null);
 	const [isMouseEntered] = useMouseEnter();
 
-	useEffect(() => {
-		handleAnimations();
-	}, []);
-
-	const handleAnimations = () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const handleAnimations = useCallback(() => {
 		if (!ref.current) {
 			return;
 		}
@@ -120,7 +117,12 @@ export const CardItem = ({
 			ref.current.style.transform =
 				'translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
 		}
-	};
+	}, [isMouseEntered, translateX, translateY, translateZ, rotateX, rotateY, rotateZ]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		handleAnimations();
+	}, [handleAnimations]);
 
 	return React.createElement(
 		Tag,

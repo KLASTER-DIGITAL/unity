@@ -141,15 +141,15 @@ Deno.serve(async (req) => {
 		let newUsersToday = 0;
 		const activeTodaySet = new Set();
 
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		// ✅ FIX: Use UTC date string comparison (YYYY-MM-DD) instead of timestamp
+		// This is timezone-independent and more reliable
+		const todayUTC = new Date().toISOString().split('T')[0]; // "2025-11-08"
 
 		// Count new users today
 		for (const profile of profiles || []) {
 			if (profile.created_at) {
-				const createdDate = new Date(profile.created_at);
-				createdDate.setHours(0, 0, 0, 0);
-				if (createdDate.getTime() === today.getTime()) {
+				const createdDateUTC = new Date(profile.created_at).toISOString().split('T')[0];
+				if (createdDateUTC === todayUTC) {
 					newUsersToday++;
 				}
 			}
@@ -160,9 +160,8 @@ Deno.serve(async (req) => {
 			activeUsersSet.add(entry.user_id);
 
 			// Active today
-			const entryDate = new Date(entry.created_at);
-			entryDate.setHours(0, 0, 0, 0);
-			if (entryDate.getTime() === today.getTime()) {
+			const entryDateUTC = new Date(entry.created_at).toISOString().split('T')[0];
+			if (entryDateUTC === todayUTC) {
 				activeTodaySet.add(entry.user_id);
 			}
 		}

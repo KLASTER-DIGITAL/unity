@@ -1,8 +1,8 @@
 # 📋 Product Backlog UNITY-v2
 
-**Последнее обновление**: 2025-10-29 21:35
-**Версия проекта**: 2.0.0 ✅
-**Всего задач**: 26 | **В работе**: 0 | **Готово к старту**: 20 | **Завершено**: 5 | **Идеи**: 2
+**Последнее обновление**: 2025-11-08 (MVP Cleanup)
+**Версия проекта**: 2.0.1 ✅
+**Всего задач**: 27 | **В работе**: 0 | **Готово к старту**: 21 | **Завершено**: 7 | **Идеи**: 2
 
 > **Единый источник истины** для всех задач проекта с приоритетами и статусами
 
@@ -10,31 +10,74 @@
 
 ## 🎉 Текущий статус проекта
 
-**UNITY-v2 v2.0** - Production Ready! ✅
+**UNITY-v2 v2.0.1** - MVP Ready! ✅
 
 **Завершённые фазы**:
 - ✅ ФАЗА 1: Stabilize (146 тестов, Edge Functions оптимизированы)
-- ✅ ФАЗА 2: React Native готовность (6 Platform Adapters, 6 Universal Components)
+- ✅ ФАЗА 2: React Native готовность (6 Platform Adapters, 11 Universal Components)
 - ✅ ФАЗА 3: Тестирование (277 тестов, 100% passing)
 - ✅ ФАЗА 4: Финальная проверка (0 ошибок в консоли, финальный отчёт)
 - ✅ ФАЗА 5: PWA + React Native Architecture Separation (2025-10-29)
+- ✅ ФАЗА 6: MVP Cleanup (Lint errors fix, Database optimization) (2025-11-08)
 
 **Ключевые метрики**:
 - Тесты: 277/277 (100% passing)
 - React Native готовность: 95%+ (архитектура готова)
-- TypeScript errors: 0 ✅ (исправлено 150 ошибок 2025-10-29)
-- Консоль браузера: 0 ошибок ✅
+- TypeScript errors: 0 ✅
+- Lint errors: 160 (было 3,901 → улучшение 96%) ✅
+- Lint warnings: 701 (было 3,240 → улучшение 78%) ✅
+- Total lint issues: 861 (было 7,141 → улучшение 88%) ✅
+- Консоль браузера: 0 критических ошибок ✅
 - Coverage: 85%+
-- Production build: работает ИДЕАЛЬНО (8.42s)
+- Production build: работает ИДЕАЛЬНО (10.01s)
+- Database: оптимизирован (удалены 2 unused indexes)
 
 **Документация**:
 - `docs/FINAL_REPORT_2025-10-26.md`
-- `docs/architecture/ARCHITECTURE_PWA_RN.md` (NEW - 2025-10-29)
-- `docs/plan/PRIORITY_TASKS_2025-10-29.md` (NEW - 2025-10-29)
+- `docs/architecture/ARCHITECTURE_PWA_RN.md` (2025-10-29)
+- `docs/plan/PRIORITY_TASKS_2025-10-29.md` (2025-10-29)
+- `docs/plan/MVP_CLEANUP_COMPLETED_2025-11-08.md` (NEW - 2025-11-08)
 
 ---
 
 ## 🔥 Критический приоритет (P0)
+
+### [TASK-028] MVP Cleanup - Подготовка к тестированию
+**Статус**: ✅ Завершено (2025-11-08)
+**Приоритет**: 🔴 P0 - Критический
+**Оценка**: 4-6 часов
+**Фактически**: ~2 часа
+**Команда**: AI Assistant
+**Зависимости**: Нет
+**Основание**: Подготовка MVP к тестированию 20-50 пользователей
+**Отчет**: → [MVP_CLEANUP_COMPLETED_2025-11-08.md](./tasks/archive/2025-11/MVP_CLEANUP_COMPLETED_2025-11-08.md)
+
+**Описание**:
+Подготовка чистой кодовой базы для MVP запуска с реальными пользователями.
+
+**Ключевые метрики**:
+- ✅ Lint errors: 3,901 → 160 (улучшение 96%)
+- ✅ Lint warnings: 3,240 → 701 (улучшение 78%)
+- ✅ Total lint issues: 7,141 → 861 (улучшение 88%)
+- ✅ Unused indexes: 6 → 4 (улучшение 33%)
+- ✅ Production build: успешный (10.01s)
+- ✅ TypeScript errors: 0
+
+**Прогресс**:
+- [x] Шаг 1: Исправление lint ошибок (автоматически + вручную)
+- [x] Шаг 2: Удаление неиспользуемых индексов (subscriptions)
+- [x] Шаг 3: Тестирование и проверка качества
+- [x] Шаг 4: Обновление структуры задач (BACKLOG.md)
+- [ ] Шаг 5: Продолжение Варианта 3 (UX + Performance + Bug fixes)
+
+**Acceptance Criteria**:
+- ✅ Lint issues <1,000 (цель достигнута: 861)
+- ✅ Production build успешный
+- ✅ TypeScript errors: 0
+- ✅ Database оптимизирован
+- ✅ Документация обновлена (CHANGELOG.md, FIX.md)
+
+---
 
 ### [TASK-027] Протестировать Invalid Hook Call Error fix через unit tests
 **Статус**: 📅 Готово к старту

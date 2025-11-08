@@ -32,12 +32,8 @@ export function useTheme(): UseThemeResult {
 	const systemColorScheme = useColorScheme();
 	const [themeMode, setThemeMode] = useState<ThemeMode>('system');
 
-	// Load theme preference from AsyncStorage
-	useEffect(() => {
-		loadThemePreference();
-	}, []);
-
-	const loadThemePreference = async () => {
+	// ✅ FIX: Определяем функцию ДО useEffect с useCallback
+	const loadThemePreference = useCallback(async () => {
 		try {
 			const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
 			if (
@@ -49,7 +45,12 @@ export function useTheme(): UseThemeResult {
 		} catch (error) {
 			console.error('[useTheme] Error loading theme preference:', error);
 		}
-	};
+	}, []);
+
+	// ✅ FIX: useEffect ПОСЛЕ определения функции
+	useEffect(() => {
+		loadThemePreference();
+	}, [loadThemePreference]);
 
 	// Determine active theme
 	const getActiveTheme = useCallback((): ActiveTheme => {

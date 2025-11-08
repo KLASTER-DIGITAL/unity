@@ -122,7 +122,7 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 			supabase.removeChannel(channel);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userData?.user?.id, userData?.id]); // ✅ FIX: supabase - singleton, не включаем в dependencies
+	}, [userData?.user?.id, userData?.id, supabase.channel, supabase.removeChannel]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 
 	const handleSwipe = async (direction: 'left' | 'right') => {
 		const currentCard = cards[currentIndex];

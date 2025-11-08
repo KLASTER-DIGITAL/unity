@@ -14,7 +14,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Alert,
@@ -54,7 +54,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isRendering, setIsRendering] = useState(false);
-	const [draft, setDraft] = useState<any>(null);
+	const [_draft, setDraft] = useState<any>(null);
 	const [story, setStory] = useState<StoryJson | null>(null);
 
 	// Load draft on mount

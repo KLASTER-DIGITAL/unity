@@ -1,6 +1,6 @@
-import { Check, Crown, X } from 'lucide-react';
+import { Crown, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { API_URLS } from '@/shared/lib/api/config/urls';
@@ -27,13 +27,8 @@ export function SubscriptionInfoModal({ open, onClose, userId }: SubscriptionInf
 	const [subscription, setSubscription] = useState<Subscription | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		if (open && userId) {
-			loadSubscription();
-		}
-	}, [open, userId]);
-
-	const loadSubscription = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadSubscription = useCallback(async () => {
 		try {
 			setIsLoading(true);
 
@@ -69,7 +64,14 @@ export function SubscriptionInfoModal({ open, onClose, userId }: SubscriptionInf
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userId]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		if (open && userId) {
+			loadSubscription();
+		}
+	}, [open, userId, loadSubscription]);
 
 	const getPlanName = (planType: string) => {
 		switch (planType) {

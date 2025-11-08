@@ -187,7 +187,7 @@ export function PerformanceDashboard() {
 
 					<div className="flex items-center gap-2">
 						<div
-							className={`h-2 w-2 rounded-full ${isMonitoring ? 'animate-pulse bg-green-500' : 'bg-gray-400'}`}
+							className={`h-2 w-2 rounded-full transition-colors duration-300 ${isMonitoring ? 'animate-pulse bg-green-500' : 'bg-muted-foreground'}`}
 						/>
 						<span className="text-muted-foreground text-sm">
 							{isMonitoring ? 'Monitoring' : 'Stopped'}

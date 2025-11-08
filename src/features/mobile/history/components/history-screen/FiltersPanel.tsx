@@ -10,6 +10,22 @@ type FiltersPanelProps = {
 };
 
 /**
+ * Category emojis mapping
+ */
+const CATEGORY_EMOJIS: { [key: string]: string } = {
+	Другое: '✨',
+	Семья: '👨‍👩‍👧‍👦',
+	Работа: '💼',
+	Финансы: '💰',
+	Благодарность: '🙏',
+	Здоровье: '💪',
+	'Личное развитие': '📈',
+	Обучение: '📚',
+	Творчество: '🎨',
+	Отношения: '❤️',
+};
+
+/**
  * Filters Panel Component
  * Category and sentiment filters
  */
@@ -45,26 +61,29 @@ export function FiltersPanel({
 								>
 									Все
 								</button>
-								{categories.map((cat) => (
-									<button
-										className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
-											selectedCategory === cat
-												? 'bg-accent text-white'
-												: 'bg-muted text-foreground hover:bg-accent/10'
-										}`}
-										key={cat}
-										onClick={() => onCategoryChange(cat)}
-									>
-										{cat}
-									</button>
-								))}
+								{categories.map((cat) => {
+									const emoji = CATEGORY_EMOJIS[cat] || '✨';
+									return (
+										<button
+											className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
+												selectedCategory === cat
+													? 'bg-accent text-white'
+													: 'bg-muted text-foreground hover:bg-accent/10'
+											}`}
+											key={cat}
+											onClick={() => onCategoryChange(cat)}
+										>
+											{emoji} {cat}
+										</button>
+									);
+								})}
 							</div>
 						</div>
 
 						{/* Sentiment */}
 						<div>
 							<p className="mb-2 font-medium! text-[13px]! text-muted-foreground">Настроение</p>
-							<div className="flex gap-2">
+							<div className="flex flex-wrap gap-2">
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										!selectedSentiment
@@ -83,7 +102,7 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange('positive')}
 								>
-									Позитив
+									😊 Позитив
 								</button>
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -93,7 +112,17 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange('neutral')}
 								>
-									Нейтрал
+									😐 Нейтрал
+								</button>
+								<button
+									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
+										selectedSentiment === 'negative'
+											? 'bg-red-500 text-white'
+											: 'bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-400'
+									}`}
+									onClick={() => onSentimentChange('negative')}
+								>
+									😔 Грусть
 								</button>
 							</div>
 						</div>

@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowRight, CheckCircle, Globe, Loader2, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -64,11 +64,8 @@ export function LanguagesManagementTab({
 
 	const supabase = createClient();
 
-	useEffect(() => {
-		loadLanguages();
-	}, []);
-
-	const loadLanguages = async () => {
+	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	const loadLanguages = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const {
@@ -102,7 +99,12 @@ export function LanguagesManagementTab({
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [supabase]);
+
+	// ✅ FIX: useEffect AFTER function definition
+	useEffect(() => {
+		loadLanguages();
+	}, [loadLanguages]);
 
 	const handleAddLanguage = async () => {
 		if (!(newLanguage.code && newLanguage.name && newLanguage.native_name)) {

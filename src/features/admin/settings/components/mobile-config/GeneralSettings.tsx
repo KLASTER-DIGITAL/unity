@@ -47,7 +47,7 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({ settings, onCha
 								value={settings.logo_light_url || ''}
 							/>
 							{settings.logo_light_url && (
-								<div className="mt-2 rounded-lg border bg-white p-4">
+								<div className="mt-2 rounded-lg border bg-card p-4 transition-colors duration-300">
 									<img
 										alt="Logo Light"
 										className="h-12 object-contain"
@@ -66,7 +66,7 @@ export const GeneralSettings: React.FC<MobileSettingsProps> = ({ settings, onCha
 								value={settings.logo_dark_url || ''}
 							/>
 							{settings.logo_dark_url && (
-								<div className="mt-2 rounded-lg border bg-gray-900 p-4">
+								<div className="mt-2 rounded-lg border bg-muted p-4 transition-colors duration-300">
 									<img
 										alt="Logo Dark"
 										className="h-12 object-contain"

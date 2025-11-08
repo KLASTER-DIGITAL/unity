@@ -55,7 +55,7 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 						className="relative flex h-full w-full items-center justify-center p-4"
 						onClick={(e) => e.stopPropagation()}
 					>
-						<AnimatePresence mode="wait">
+						<AnimatePresence mode="sync">
 							<motion.div
 								animate={{ opacity: 1, scale: 1 }}
 								className="flex max-h-full max-w-full items-center justify-center"
