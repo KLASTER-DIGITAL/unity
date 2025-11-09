@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { PushNotificationSettingsModal } from '@/features/mobile/notifications';
 import {
 	trackPushDenied,
@@ -82,29 +83,36 @@ export function PushSubscriptionManager({
 	const handleSubscribe = async () => {
 		setIsLoading(true);
 		try {
+			console.log('[PushSubscriptionManager] Starting subscription for user:', userId);
 			const subscription = await subscribeToPush(userId);
 
 			if (subscription) {
+				console.log('[PushSubscriptionManager] Subscription successful:', subscription);
 				setIsSubscribed(true);
 				setPermission('granted');
 				trackPushSubscribed(userId);
 				onSubscriptionChange?.(true);
 				setShowSettingsModal(false);
-				alert('✅ Вы подписались на уведомления!');
+				toast.success('✅ Уведомления включены!');
 			} else {
 				const currentPermission = getNotificationPermission();
 				setPermission(currentPermission);
 
 				if (currentPermission === 'denied') {
+					console.warn('[PushSubscriptionManager] Permission denied by user');
 					trackPushDenied(userId);
-					alert('❌ Вы запретили уведомления. Разрешите их в настройках браузера.');
+					toast.error('❌ Вы запретили уведомления. Разрешите их в настройках браузера.');
 				} else {
-					alert('❌ Не удалось подписаться на уведомления');
+					console.error(
+						'[PushSubscriptionManager] Subscription failed, permission:',
+						currentPermission
+					);
+					toast.error('❌ Не удалось подписаться на уведомления');
 				}
 			}
 		} catch (error) {
-			console.error('Error subscribing to push:', error);
-			alert('❌ Ошибка при подписке на уведомления');
+			console.error('[PushSubscriptionManager] Error subscribing to push:', error);
+			toast.error('❌ Ошибка при подписке на уведомления');
 		} finally {
 			setIsLoading(false);
 		}
@@ -116,19 +124,22 @@ export function PushSubscriptionManager({
 	const handleUnsubscribe = async () => {
 		setIsLoading(true);
 		try {
+			console.log('[PushSubscriptionManager] Unsubscribing user:', userId);
 			const success = await unsubscribeFromPush(userId);
 
 			if (success) {
+				console.log('[PushSubscriptionManager] Unsubscribe successful');
 				setIsSubscribed(false);
 				trackPushUnsubscribed(userId);
 				onSubscriptionChange?.(false);
-				alert('✅ Вы отписались от уведомлений');
+				toast.success('✅ Вы отписались от уведомлений');
 			} else {
-				alert('❌ Не удалось отписаться от уведомлений');
+				console.error('[PushSubscriptionManager] Unsubscribe failed');
+				toast.error('❌ Не удалось отписаться от уведомлений');
 			}
 		} catch (error) {
-			console.error('Error unsubscribing from push:', error);
-			alert('❌ Ошибка при отписке от уведомлений');
+			console.error('[PushSubscriptionManager] Error unsubscribing from push:', error);
+			toast.error('❌ Ошибка при отписке от уведомлений');
 		} finally {
 			setIsLoading(false);
 		}

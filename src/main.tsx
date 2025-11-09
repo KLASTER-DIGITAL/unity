@@ -40,9 +40,9 @@ if (STORED_VERSION !== APP_VERSION) {
 	console.log('[PWA] Version is up to date');
 }
 
-// ✅ PWA: Регистрация Service Worker (ТОЛЬКО в production)
-// В dev режиме Service Worker вызывает ошибки из-за динамической обработки файлов Vite
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+// ✅ PWA: Регистрация Service Worker
+// ВАЖНО: Регистрируем в dev режиме для тестирования push notifications
+if ('serviceWorker' in navigator) {
 	window.addEventListener('load', () => {
 		navigator.serviceWorker
 			.register('/service-worker.js')

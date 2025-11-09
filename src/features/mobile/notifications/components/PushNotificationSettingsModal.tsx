@@ -90,7 +90,7 @@ export function PushNotificationSettingsModal({
 					{/* Modal */}
 					<motion.div
 						animate={{ opacity: 1, scale: 1 }}
-						className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-2xl border border-border bg-card p-6 shadow-xl transition-colors duration-300"
+						className="fixed inset-x-4 sm:inset-x-6 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xl transition-colors duration-300"
 						exit={{ opacity: 0, scale: 0.95 }}
 						initial={{ opacity: 0, scale: 0.95 }}
 					>

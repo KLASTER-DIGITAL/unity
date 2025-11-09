@@ -28,7 +28,7 @@ export function PushNotifications() {
 
 			{/* Tabs */}
 			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-				<TabsList className="grid w-full max-w-3xl grid-cols-5">
+				<TabsList className="grid w-full max-w-3xl grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
 					<TabsTrigger className="flex items-center gap-2" value="campaigns">
 						<Send className="h-4 w-4" />
 						Рассылки
