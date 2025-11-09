@@ -1,9 +1,11 @@
 /**
  * Утилита для генерации PWA иконок
- * Создает иконки с градиентным фоном и эмодзи
+ * Создает иконки с градиентным фоном и логотипом UNITY (буква U)
+ *
+ * ОБНОВЛЕНО (2025-11-09): Заменено эмодзи 🏆 на букву "U" для нового логотипа UNITY
  */
 
-export function generatePWAIcon(size: number, emoji = '🏆'): Promise<Blob> {
+export function generatePWAIcon(size: number): Promise<Blob> {
 	return new Promise((resolve, reject) => {
 		const canvas = document.createElement('canvas');
 		canvas.width = size;
@@ -36,18 +38,22 @@ export function generatePWAIcon(size: number, emoji = '🏆'): Promise<Blob> {
 		ctx.closePath();
 		ctx.fill();
 
-		// Эмодзи в центре
-		const fontSize = size * 0.55;
-		ctx.font = `${fontSize}px Arial`;
+		// Буква "U" в центре (логотип UNITY)
+		const fontSize = size * 0.6;
+		ctx.font = `bold ${fontSize}px Arial, sans-serif`;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 
-		// Небольшая тень для эмодзи
+		// Белый цвет для буквы
+		ctx.fillStyle = 'white';
+
+		// Небольшая тень для буквы
 		ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
 		ctx.shadowBlur = size * 0.02;
 		ctx.shadowOffsetY = size * 0.01;
 
-		ctx.fillText(emoji, size / 2, size / 2);
+		// Рисуем букву "U" (логотип UNITY)
+		ctx.fillText('U', size / 2, size / 2);
 
 		// Преобразуем в blob
 		canvas.toBlob((blob) => {
@@ -110,7 +116,7 @@ function updateIconLink(size: number, url: string) {
 /**
  * Генерирует скриншот для PWA (для app stores)
  */
-export async function generatePWAScreenshot(width = 390, height = 844): Promise<Blob> {
+export function generatePWAScreenshot(width = 390, height = 844): Promise<Blob> {
 	return new Promise((resolve, reject) => {
 		const canvas = document.createElement('canvas');
 		canvas.width = width;

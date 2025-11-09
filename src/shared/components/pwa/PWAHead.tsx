@@ -5,10 +5,10 @@ export function PWAHead() {
 	useEffect(() => {
 		// Динамически добавляем метатеги для PWA
 		const meta = [
-			{ name: 'application-name', content: 'Дневник Достижений' },
+			{ name: 'application-name', content: 'UNITY - Дневник достижений' },
 			{ name: 'apple-mobile-web-app-capable', content: 'yes' },
 			{ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-			{ name: 'apple-mobile-web-app-title', content: 'Дневник' },
+			{ name: 'apple-mobile-web-app-title', content: 'UNITY' },
 			{ name: 'mobile-web-app-capable', content: 'yes' },
 			{ name: 'theme-color', content: '#000000' },
 			{

@@ -2,9 +2,22 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// ✅ ПРИНУДИТЕЛЬНАЯ ОЧИСТКА КЕША при обновлении версии
+// ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ (2025-11-09): Предотвращение зацикливания обновлений
+// Версия обновляется скриптом generate-sw-version.js перед build
 const APP_VERSION = '2.0.1';
 const STORED_VERSION = localStorage.getItem('app_version');
+const UPDATE_IN_PROGRESS = localStorage.getItem('pwa_update_in_progress');
+
+console.log(
+	`[PWA] Version check: stored=${STORED_VERSION}, current=${APP_VERSION}, updateInProgress=${UPDATE_IN_PROGRESS}`
+);
+
+// Проверяем если обновление было в процессе
+if (UPDATE_IN_PROGRESS && UPDATE_IN_PROGRESS === APP_VERSION) {
+	console.log('[PWA] Update completed successfully, clearing update flag');
+	localStorage.removeItem('pwa_update_in_progress');
+	localStorage.setItem('app_version', APP_VERSION);
+}
 
 if (STORED_VERSION !== APP_VERSION) {
 	console.log(`[PWA] Version changed: ${STORED_VERSION} → ${APP_VERSION}. Clearing cache...`);
@@ -19,38 +32,27 @@ if (STORED_VERSION !== APP_VERSION) {
 		});
 	}
 
-	// Удалить Service Worker и перезагрузить
-	if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.getRegistrations().then((registrations) => {
-			registrations.forEach((registration) => {
-				console.log('[PWA] Unregistering Service Worker:', registration);
-				registration.unregister();
-			});
-
-			// Сохранить новую версию и перезагрузить страницу
-			localStorage.setItem('app_version', APP_VERSION);
-			console.log('[PWA] Reloading page with new version...');
-			window.location.reload();
-		});
-	} else {
-		localStorage.setItem('app_version', APP_VERSION);
-		window.location.reload();
-	}
+	// Сохранить новую версию
+	localStorage.setItem('app_version', APP_VERSION);
+	localStorage.removeItem('pwa_update_in_progress');
+	console.log('[PWA] Version updated in localStorage');
 } else {
-	// ✅ PWA: Регистрация Service Worker (ТОЛЬКО в production)
-	// В dev режиме Service Worker вызывает ошибки из-за динамической обработки файлов Vite
-	if ('serviceWorker' in navigator && import.meta.env.PROD) {
-		window.addEventListener('load', () => {
-			navigator.serviceWorker
-				.register('/service-worker.js')
-				.then((registration) => {
-					console.log('✅ [PWA] Service Worker registered:', registration.scope);
-				})
-				.catch((error) => {
-					console.error('❌ [PWA] Service Worker registration failed:', error);
-				});
-		});
-	}
+	console.log('[PWA] Version is up to date');
+}
+
+// ✅ PWA: Регистрация Service Worker (ТОЛЬКО в production)
+// В dev режиме Service Worker вызывает ошибки из-за динамической обработки файлов Vite
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+	window.addEventListener('load', () => {
+		navigator.serviceWorker
+			.register('/service-worker.js')
+			.then((registration) => {
+				console.log('✅ [PWA] Service Worker registered:', registration.scope);
+			})
+			.catch((error) => {
+				console.error('❌ [PWA] Service Worker registration failed:', error);
+			});
+	});
 }
 
 // ✅ LAZY LOADING: Sentry загружается асинхронно для уменьшения initial bundle на ~83 KB

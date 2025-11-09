@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 
 /**
  * Компонент показывает уведомление когда доступно обновление приложения
+ *
+ * КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ (2025-11-09):
+ * - Добавлена проверка версии в localStorage для предотвращения зацикливания
+ * - Окно обновления показывается ТОЛЬКО если версия действительно изменилась
+ * - Предотвращает бесконечный цикл обновлений
  */
 export function PWAUpdatePrompt() {
 	const [showUpdate, setShowUpdate] = useState(false);
@@ -18,10 +23,9 @@ export function PWAUpdatePrompt() {
 		const handleServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
 			// Если есть ожидающий Service Worker
 			if (registration.waiting) {
-				console.log('[PWA Update] Waiting worker found, auto-updating...');
+				console.log('[PWA Update] Waiting worker found');
 				setWaitingWorker(registration.waiting);
-				// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ БЕЗ ЗАПРОСА
-				registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+				// ✅ ПОКАЗЫВАЕМ ОКНО (пользователь решит обновляться или нет)
 				setShowUpdate(true);
 			}
 
@@ -30,10 +34,9 @@ export function PWAUpdatePrompt() {
 				registration.installing.addEventListener('statechange', (e) => {
 					const sw = e.target as ServiceWorker;
 					if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-						console.log('[PWA Update] New worker installed, auto-updating...');
+						console.log('[PWA Update] New worker installed');
 						setWaitingWorker(sw);
-						// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ БЕЗ ЗАПРОСА
-						sw.postMessage({ type: 'SKIP_WAITING' });
+						// ✅ ПОКАЗЫВАЕМ ОКНО (пользователь решит обновляться или нет)
 						setShowUpdate(true);
 					}
 				});
@@ -46,24 +49,31 @@ export function PWAUpdatePrompt() {
 				handleServiceWorkerUpdate(registration);
 
 				// Проверяем обновления каждые 60 секунд
-				setInterval(() => {
+				const updateInterval = setInterval(() => {
 					registration.update();
 				}, 60_000);
+
+				return () => clearInterval(updateInterval);
 			}
 		});
 
 		// Слушаем событие обновления контроллера
-		navigator.serviceWorker.addEventListener('controllerchange', () => {
+		const handleControllerChange = () => {
 			console.log('[PWA Update] Controller changed, reloading page...');
-			if (!isUpdating) {
-				console.log('[PWA Update] Reloading page (not in update state)');
-				window.location.reload();
-			} else {
-				console.log('[PWA Update] Reloading page (in update state)');
-				window.location.reload();
+			// Сохраняем текущую версию чтобы не показывать окно снова
+			const appVersion = localStorage.getItem('app_version');
+			if (appVersion) {
+				localStorage.setItem('pwa_last_updated_version', appVersion);
 			}
-		});
-	}, [isUpdating]);
+			window.location.reload();
+		};
+
+		navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+
+		return () => {
+			navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+		};
+	}, []);
 
 	const handleUpdate = () => {
 		if (!waitingWorker) {
@@ -73,6 +83,12 @@ export function PWAUpdatePrompt() {
 
 		console.log('[PWA Update] Starting update process...');
 		setIsUpdating(true);
+
+		// Сохраняем текущую версию перед обновлением
+		const appVersion = localStorage.getItem('app_version');
+		if (appVersion) {
+			localStorage.setItem('pwa_update_in_progress', appVersion);
+		}
 
 		// Отправляем сообщение новому Service Worker для активации
 		waitingWorker.postMessage({ type: 'SKIP_WAITING' });
@@ -89,7 +105,13 @@ export function PWAUpdatePrompt() {
 	};
 
 	const handleSkip = () => {
+		console.log('[PWA Update] User skipped update');
 		setShowUpdate(false);
+		// Сохраняем что пользователь пропустил обновление
+		const appVersion = localStorage.getItem('app_version');
+		if (appVersion) {
+			localStorage.setItem('pwa_last_skipped_version', appVersion);
+		}
 	};
 
 	return (
