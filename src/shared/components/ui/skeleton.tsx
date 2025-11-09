@@ -67,7 +67,7 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 					skeletonVariants({ variant, size }),
 					shimmer && 'relative overflow-hidden',
 					shimmer &&
-						'before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-linear-to-r before:from-transparent before:via-white/10 before:to-transparent',
+						'before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-linear-to-r before:from-transparent before:via-white/5 before:to-transparent before:will-change-transform',
 					className
 				)}
 				style={customStyle}

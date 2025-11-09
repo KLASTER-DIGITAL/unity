@@ -9,6 +9,33 @@ const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: mo
 // Используется ТОЛЬКО для первой загрузки страницы (page-level loading)
 // Для component-level loading используйте Skeleton компоненты
 
+// ===== Animation Cache for Performance =====
+// Кэшируем загруженные анимации чтобы избежать повторной загрузки
+const animationCache = new Map<string, any>();
+
+/**
+ * Загружает анимацию с использованием requestIdleCallback для оптимизации
+ * Кэширует результаты для повторного использования
+ */
+async function loadAnimationOptimized(theme: string): Promise<any> {
+	const cacheKey = `lottie-${theme}`;
+
+	// Проверяем кэш
+	if (animationCache.has(cacheKey)) {
+		return animationCache.get(cacheKey);
+	}
+
+	// Загружаем анимацию
+	const data =
+		theme === 'dark'
+			? (await import('@/components/preloader/Black-2.json')).default
+			: (await import('@/components/preloader/White-2.json')).default;
+
+	// Кэшируем результат
+	animationCache.set(cacheKey, data);
+	return data;
+}
+
 type LottiePreloaderProps = {
 	/**
 	 * Текст сообщения под анимацией
@@ -47,28 +74,21 @@ type LottiePreloaderProps = {
 	 * Callback когда минимальное время истекло
 	 */
 	onMinDurationComplete?: () => void;
-
-	/**
-	 * Тип анимации прелоадера (DEPRECATED - теперь всегда используется 'transition')
-	 * @deprecated Используйте Skeleton компоненты для component-level loading
-	 * @default "transition" - Black-2.json/White-2.json для page-level loading
-	 */
-	animationType?: 'initial' | 'transition';
 };
 
 /**
- * Универсальный Lottie прелоадер с поддержкой тем и типов анимации
+ * Универсальный Lottie прелоадер с поддержкой тем
  *
  * Автоматически переключается между черной и белой анимацией
- * в зависимости от текущей темы (light/dark) и типа анимации
+ * в зависимости от текущей темы (light/dark)
  *
  * @example
  * ```tsx
  * // Для первой загрузки (Welcome screen)
- * <LottiePreloader message="Загрузка..." minDuration={5000} animationType="initial" />
+ * <LottiePreloader message="Загрузка..." minDuration={5000} />
  *
  * // Для переходов между страницами
- * <LottiePreloader showMessage={false} animationType="transition" size="md" />
+ * <LottiePreloader showMessage={false} size="md" />
  * ```
  */
 export function LottiePreloader({
@@ -78,7 +98,6 @@ export function LottiePreloader({
 	size = 'md',
 	className = '',
 	onMinDurationComplete,
-	animationType: _animationType = 'initial', // Deprecated parameter, kept for backwards compatibility
 }: LottiePreloaderProps) {
 	const { theme } = useTheme();
 	const [_minDurationElapsed, setMinDurationElapsed] = useState(false);
@@ -89,15 +108,25 @@ export function LottiePreloader({
 	//   - White-2.json - для светлой темы
 	//   - Black-2.json - для темной темы
 	// Для component-level loading используйте Skeleton компоненты
+	// Используем requestIdleCallback для оптимизации загрузки
 	useEffect(() => {
 		const loadAnimation = async () => {
-			const data =
-				theme === 'dark'
-					? (await import('@/components/preloader/Black-2.json')).default
-					: (await import('@/components/preloader/White-2.json')).default;
+			const data = await loadAnimationOptimized(theme);
 			setAnimationData(data);
 		};
-		loadAnimation();
+
+		// Используем requestIdleCallback если доступен, иначе setTimeout
+		if ('requestIdleCallback' in window) {
+			const id = requestIdleCallback(() => {
+				loadAnimation();
+			});
+			return () => cancelIdleCallback(id);
+		} else {
+			const timer = setTimeout(() => {
+				loadAnimation();
+			}, 100);
+			return () => clearTimeout(timer);
+		}
 	}, [theme]);
 
 	// Размеры анимации
@@ -140,7 +169,6 @@ export function LottiePreloader({
 /**
  * Компактный вариант прелоадера для использования внутри компонентов
  * Поддерживает опциональный minDuration для страниц
- * Используется для переходов между страницами (animationType="transition")
  */
 export function LottiePreloaderCompact({
 	message = 'Загрузка...',
@@ -149,7 +177,6 @@ export function LottiePreloaderCompact({
 	minDuration,
 	onMinDurationComplete,
 	className = '',
-	animationType: _animationType = 'transition', // Deprecated parameter, kept for backwards compatibility
 }: Omit<LottiePreloaderProps, 'minDuration' | 'onMinDurationComplete'> & {
 	minDuration?: number;
 	onMinDurationComplete?: () => void;
@@ -160,15 +187,25 @@ export function LottiePreloaderCompact({
 
 	// DEPRECATED: Используйте Skeleton компоненты вместо LottiePreloaderCompact
 	// Динамически загружаем анимацию page-level loading (Black-2.json/White-2.json)
+	// Используем requestIdleCallback для оптимизации загрузки
 	useEffect(() => {
 		const loadAnimation = async () => {
-			const data =
-				theme === 'dark'
-					? (await import('@/components/preloader/Black-2.json')).default
-					: (await import('@/components/preloader/White-2.json')).default;
+			const data = await loadAnimationOptimized(theme);
 			setAnimationData(data);
 		};
-		loadAnimation();
+
+		// Используем requestIdleCallback если доступен, иначе setTimeout
+		if ('requestIdleCallback' in window) {
+			const id = requestIdleCallback(() => {
+				loadAnimation();
+			});
+			return () => cancelIdleCallback(id);
+		} else {
+			const timer = setTimeout(() => {
+				loadAnimation();
+			}, 100);
+			return () => clearTimeout(timer);
+		}
 	}, [theme]);
 
 	// Если указан minDuration, запускаем таймер
@@ -206,28 +243,38 @@ export function LottiePreloaderCompact({
 
 /**
  * Inline вариант прелоадера для использования в кнопках и других элементах
- * Используется для переходов между страницами (animationType="transition")
  */
 export function LottiePreloaderInline({
 	size = 'sm',
 	className = '',
-	animationType: _animationType = 'transition', // Deprecated parameter, kept for backwards compatibility
-}: Pick<LottiePreloaderProps, 'size' | 'className' | 'animationType'>) {
+}: Pick<LottiePreloaderProps, 'size' | 'className'>) {
 	const { theme } = useTheme();
 	const [animationData, setAnimationData] = useState<any>(null);
 
 	// DEPRECATED: Используйте Skeleton компоненты вместо LottiePreloaderInline
 	// Динамически загружаем анимацию page-level loading (Black-2.json/White-2.json)
 	// Инвертируем цвета для inline элементов (светлая анимация на темном фоне и наоборот)
+	// Используем requestIdleCallback для оптимизации загрузки
 	useEffect(() => {
 		const loadAnimation = async () => {
-			const data =
-				theme === 'dark'
-					? (await import('@/components/preloader/White-2.json')).default
-					: (await import('@/components/preloader/Black-2.json')).default;
+			// Инвертируем тему для inline элементов
+			const invertedTheme = theme === 'dark' ? 'light' : 'dark';
+			const data = await loadAnimationOptimized(invertedTheme);
 			setAnimationData(data);
 		};
-		loadAnimation();
+
+		// Используем requestIdleCallback если доступен, иначе setTimeout
+		if ('requestIdleCallback' in window) {
+			const id = requestIdleCallback(() => {
+				loadAnimation();
+			});
+			return () => cancelIdleCallback(id);
+		} else {
+			const timer = setTimeout(() => {
+				loadAnimation();
+			}, 100);
+			return () => clearTimeout(timer);
+		}
 	}, [theme]);
 
 	const sizeClasses = {

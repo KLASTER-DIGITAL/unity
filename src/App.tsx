@@ -76,18 +76,6 @@ export default function App() {
 		);
 	}
 
-	// Test route (disabled - I18nE2ETest moved to .example.tsx)
-	if (state.isTestRoute) {
-		return (
-			<ThemeProvider defaultTheme="light" storageKey="unity-theme">
-				<div className="p-8">
-					<h1 className="font-bold text-2xl">Test Route Disabled</h1>
-					<p className="mt-4">I18nE2ETest component has been moved to .example.tsx file</p>
-				</div>
-			</ThemeProvider>
-		);
-	}
-
 	// Performance dashboard route
 	if (state.isPerformanceRoute) {
 		return (
