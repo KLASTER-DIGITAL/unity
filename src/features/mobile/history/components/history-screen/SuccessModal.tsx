@@ -32,7 +32,7 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 			>
 				<div className="flex flex-col items-center gap-4 text-center">
 					<div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ios-green)]/10">
-						<CheckCircle2 className="h-8 w-8 text-[var(--ios-green)]" strokeWidth={2} />
+						<CheckCircle2 className="h-8 w-8 text-(--ios-green)" strokeWidth={2} />
 					</div>
 
 					<h3 className="font-semibold! text-[20px]! text-foreground">Успешно!</h3>

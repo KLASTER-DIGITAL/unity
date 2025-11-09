@@ -238,7 +238,7 @@ export class CompactErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
 			return (
 				<div className="rounded-lg border border-red-200 bg-red-50 p-4">
 					<div className="flex items-start gap-3">
-						<AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+						<AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
 						<div className="min-w-0 flex-1">
 							<p className="font-medium text-red-900 text-sm">Ошибка отображения</p>
 							{this.state.error && (

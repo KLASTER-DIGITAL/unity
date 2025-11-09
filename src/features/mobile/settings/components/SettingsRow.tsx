@@ -20,8 +20,8 @@ type SettingsRowProps = {
 
 export const SettingsRow: React.FC<SettingsRowProps> = ({
 	icon: Icon,
-	iconColor = 'text-[var(--ios-blue)]',
-	iconBgColor = 'bg-[var(--ios-blue)]/10',
+	iconColor = 'text-(--ios-blue)',
+	iconBgColor = 'bg-(--ios-blue)/10',
 	title,
 	description,
 	onClick,

@@ -210,8 +210,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 					customRightElement={<ThemeToggle />}
 					description={t('appearanceDescription' as any, 'Переключение темы')}
 					icon={Palette}
-					iconBgColor="bg-[var(--ios-purple)]/10"
-					iconColor="text-[var(--ios-purple)]"
+					iconBgColor="bg-(--ios-purple)/10"
+					iconColor="text-(--ios-purple)"
 					rightElement="custom"
 					title={t('appearance' as any, 'Внешний вид')}
 				/>

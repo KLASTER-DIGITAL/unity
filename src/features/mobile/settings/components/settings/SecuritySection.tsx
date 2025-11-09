@@ -48,8 +48,8 @@ export function SecuritySection({
 				description={biometricAvailable ? 'Доступно' : 'Недоступно в браузере'}
 				disabled={!biometricAvailable}
 				icon={Lock}
-				iconBgColor="bg-[var(--ios-blue)]/10"
-				iconColor="text-[var(--ios-blue)]"
+				iconBgColor="bg-(--ios-blue)/10"
+				iconColor="text-(--ios-blue)"
 				onSwitchChange={onBiometricChange}
 				rightElement="switch"
 				switchChecked={biometricEnabled}
@@ -60,7 +60,7 @@ export function SecuritySection({
 				disabled={!isPremium}
 				icon={Shield}
 				iconBgColor="bg-[var(--ios-green)]/10"
-				iconColor="text-[var(--ios-green)]"
+				iconColor="text-(--ios-green)"
 				onClick={handleAutoBackupClick}
 				onSwitchChange={handleAutoBackupChange}
 				rightElement="switch"

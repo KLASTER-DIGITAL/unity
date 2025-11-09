@@ -112,7 +112,7 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 						<div className="-translate-x-1/2 scrollbar-hide absolute bottom-4 left-1/2 flex max-w-full gap-2 overflow-x-auto px-4">
 							{media.map((item, index) => (
 								<button
-									className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-[8px] border-2 transition-all ${
+									className={`h-16 w-16 shrink-0 overflow-hidden rounded-[8px] border-2 transition-all ${
 										index === currentIndex
 											? 'scale-110 border-white'
 											: 'border-white/30 opacity-60 hover:opacity-100'

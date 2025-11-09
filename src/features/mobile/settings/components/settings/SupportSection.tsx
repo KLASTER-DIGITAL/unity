@@ -27,8 +27,8 @@ export function SupportSection({
 			<SettingsRow
 				description="Напишите нам"
 				icon={MessageCircle}
-				iconBgColor="bg-[var(--ios-blue)]/10"
-				iconColor="text-[var(--ios-blue)]"
+				iconBgColor="bg-(--ios-blue)/10"
+				iconColor="text-(--ios-blue)"
 				onClick={onSupportClick}
 				title={t.contactSupport || 'Связаться с поддержкой'}
 			/>
@@ -60,15 +60,15 @@ export function SupportSection({
 				description="Часто задаваемые вопросы"
 				icon={HelpCircle}
 				iconBgColor="bg-[var(--ios-green)]/10"
-				iconColor="text-[var(--ios-green)]"
+				iconColor="text-(--ios-green)"
 				onClick={onFAQClick}
 				title={t.faq || 'FAQ'}
 			/>
 			<SettingsRow
 				description="PWA на главный экран"
 				icon={Smartphone}
-				iconBgColor="bg-[var(--ios-purple)]/10"
-				iconColor="text-[var(--ios-purple)]"
+				iconBgColor="bg-(--ios-purple)/10"
+				iconColor="text-(--ios-purple)"
 				onClick={onPWAInstallClick}
 				title={t.installPWA || 'Установить приложение'}
 			/>

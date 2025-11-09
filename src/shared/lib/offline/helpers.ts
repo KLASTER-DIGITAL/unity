@@ -73,7 +73,10 @@ export function canUseOfflineMode(
 	// Extract isPremium and offlineEnabled from userData
 	// Support both camelCase (isPremium) and snake_case (is_premium) from database
 	const isPremium =
-		(userData.profile as any)?.is_premium ?? userData.profile?.isPremium ?? userData.isPremium ?? false;
+		(userData.profile as any)?.is_premium ??
+		userData.profile?.isPremium ??
+		userData.isPremium ??
+		false;
 	const offlineEnabled =
 		(userData.profile as any)?.offline_enabled ??
 		userData.profile?.offlineEnabled ??

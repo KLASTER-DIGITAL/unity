@@ -34,8 +34,8 @@ export function AdditionalSection({
 			<SettingsRow
 				description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
 				icon={Calendar}
-				iconBgColor="bg-[var(--ios-blue)]/10"
-				iconColor="text-[var(--ios-blue)]"
+				iconBgColor="bg-(--ios-blue)/10"
+				iconColor="text-(--ios-blue)"
 				onClick={() => toast.info('Feature coming soon')}
 				title={t.firstDayOfWeek || 'Первый день недели'}
 			/>
@@ -43,15 +43,15 @@ export function AdditionalSection({
 				description="JSON, CSV, ZIP"
 				icon={Download}
 				iconBgColor="bg-[var(--ios-green)]/10"
-				iconColor="text-[var(--ios-green)]"
+				iconColor="text-(--ios-green)"
 				onClick={() => toast.info('Feature coming soon')}
 				title={t.exportData || 'Экспортировать данные'}
 			/>
 			<SettingsRow
 				description="Восстановить из файла"
 				icon={Upload}
-				iconBgColor="bg-[var(--ios-purple)]/10"
-				iconColor="text-[var(--ios-purple)]"
+				iconBgColor="bg-(--ios-purple)/10"
+				iconColor="text-(--ios-purple)"
 				onClick={() => toast.info('Feature coming soon')}
 				title={t.importData || 'Импортировать данные'}
 			/>

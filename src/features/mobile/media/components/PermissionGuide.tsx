@@ -58,7 +58,7 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 					{/* Instructions */}
 					<div className="mb-4 space-y-3">
 						<div className="flex items-start gap-3">
-							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+							<div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10">
 								<span className="font-semibold! text-[13px]! text-accent">1</span>
 							</div>
 							<div className="flex-1">
@@ -69,7 +69,7 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 						</div>
 
 						<div className="flex items-start gap-3">
-							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+							<div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10">
 								<span className="font-semibold! text-[13px]! text-accent">2</span>
 							</div>
 							<div className="flex-1">
@@ -80,7 +80,7 @@ export function PermissionGuide({ type, isOpen, onClose }: PermissionGuideProps)
 						</div>
 
 						<div className="flex items-start gap-3">
-							<div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+							<div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10">
 								<span className="font-semibold! text-[13px]! text-accent">3</span>
 							</div>
 							<div className="flex-1">

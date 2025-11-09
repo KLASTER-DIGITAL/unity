@@ -101,7 +101,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 								<h4 className="text-foreground text-headline">Что входит в Premium:</h4>
 								{premiumFeatures.map((feature, index) => (
 									<div className="flex items-start gap-responsive-sm" key={index}>
-										<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-500/10">
+										<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
 											<Check className="h-4 w-4 text-green-700 dark:text-green-400" />
 										</div>
 										<div className="flex-1">

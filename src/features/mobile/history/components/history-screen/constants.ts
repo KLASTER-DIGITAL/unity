@@ -20,8 +20,8 @@ export const CATEGORY_ICONS: { [key: string]: any } = {
  * Sentiment colors mapping
  */
 export const SENTIMENT_COLORS = {
-	positive: 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]',
-	neutral: 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]',
+	positive: 'bg-[var(--ios-green)]/10 text-(--ios-green)',
+	neutral: 'bg-(--ios-blue)/10 text-(--ios-blue)',
 	negative: 'bg-[var(--ios-orange)]/10 text-[var(--ios-orange)]',
 };
 

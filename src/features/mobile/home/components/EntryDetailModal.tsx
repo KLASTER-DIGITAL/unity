@@ -31,9 +31,9 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 	const getSentimentColor = (sentiment: string): string => {
 		switch (sentiment) {
 			case 'positive':
-				return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)]';
+				return 'bg-[var(--ios-green)]/10 text-(--ios-green)';
 			case 'neutral':
-				return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)]';
+				return 'bg-(--ios-blue)/10 text-(--ios-blue)';
 			case 'negative':
 				return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)]';
 			default:

@@ -41,8 +41,8 @@ export function NotificationsSection({
 			<SettingsRow
 				description="Напоминания о записях"
 				icon={Bell}
-				iconBgColor="bg-[var(--ios-blue)]/10"
-				iconColor="text-[var(--ios-blue)]"
+				iconBgColor="bg-(--ios-blue)/10"
+				iconColor="text-(--ios-blue)"
 				onSwitchChange={(checked) => handleToggle('dailyReminder', checked)}
 				rightElement="switch"
 				switchChecked={notifications.dailyReminder}
@@ -51,8 +51,8 @@ export function NotificationsSection({
 			<SettingsRow
 				description="Статистика за неделю"
 				icon={Calendar}
-				iconBgColor="bg-[var(--ios-purple)]/10"
-				iconColor="text-[var(--ios-purple)]"
+				iconBgColor="bg-(--ios-purple)/10"
+				iconColor="text-(--ios-purple)"
 				onSwitchChange={(checked) => handleToggle('weeklyReport', checked)}
 				rightElement="switch"
 				switchChecked={notifications.weeklyReport}
@@ -62,7 +62,7 @@ export function NotificationsSection({
 				description="Уведомления о наградах"
 				icon={Star}
 				iconBgColor="bg-[var(--ios-green)]/10"
-				iconColor="text-[var(--ios-green)]"
+				iconColor="text-(--ios-green)"
 				onSwitchChange={(checked) => handleToggle('achievements', checked)}
 				rightElement="switch"
 				switchChecked={notifications.achievements}

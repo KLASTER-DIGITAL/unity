@@ -73,8 +73,8 @@ export function OfflineSection({
 				description={getDescription()}
 				disabled={!isPremium}
 				icon={CloudOff}
-				iconBgColor="bg-[var(--ios-purple)]/10"
-				iconColor="text-[var(--ios-purple)]"
+				iconBgColor="bg-(--ios-purple)/10"
+				iconColor="text-(--ios-purple)"
 				onClick={handleOfflineClick}
 				onSwitchChange={handleOfflineChange}
 				rightElement="switch"
@@ -87,8 +87,8 @@ export function OfflineSection({
 				<SettingsRow
 					description="Синхронизация и конфликты"
 					icon={Settings}
-					iconBgColor="bg-[var(--ios-blue)]/10"
-					iconColor="text-[var(--ios-blue)]"
+					iconBgColor="bg-(--ios-blue)/10"
+					iconColor="text-(--ios-blue)"
 					onClick={handleSettingsClick}
 					title={t.offlineSettings || 'Настройки offline'}
 				/>

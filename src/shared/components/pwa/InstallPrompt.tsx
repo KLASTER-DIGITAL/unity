@@ -81,7 +81,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							transition={{ delay: 0.5 }}
 						>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">⚡️</span>
 								</div>
 								<p className="font-normal! text-[14px]! text-foreground">
@@ -89,13 +89,13 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								</p>
 							</div>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">📱</span>
 								</div>
 								<p className="font-normal! text-[14px]! text-foreground">Работает без интернета</p>
 							</div>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">🔔</span>
 								</div>
 								<p className="font-normal! text-[14px]! text-foreground">

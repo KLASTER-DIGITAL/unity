@@ -52,7 +52,7 @@ export function PWAStatus() {
 					initial={{ opacity: 0, y: -100 }}
 				>
 					<div className="flex items-center gap-3 rounded-xl bg-accent p-4 text-accent-foreground shadow-2xl">
-						<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+						<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
 							<Smartphone className="h-5 w-5" />
 						</div>
 						<div className="flex-1">

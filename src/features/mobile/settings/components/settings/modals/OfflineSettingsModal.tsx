@@ -111,7 +111,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 						{/* Header */}
 						<div className="mb-4 flex items-center justify-between">
 							<div className="flex items-center gap-responsive-sm">
-								<CloudOff className="h-6 w-6 text-[var(--ios-purple)]" />
+								<CloudOff className="h-6 w-6 text-(--ios-purple)" />
 								<h3 className="text-foreground text-title-2">
 									{t.offlineSettings || 'Настройки Offline'}
 								</h3>
@@ -147,8 +147,8 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 							<SettingsRow
 								description="Синхронизировать при появлении сети"
 								icon={RefreshCw}
-								iconBgColor="bg-[var(--ios-blue)]/10"
-								iconColor="text-[var(--ios-blue)]"
+								iconBgColor="bg-(--ios-blue)/10"
+								iconColor="text-(--ios-blue)"
 								onSwitchChange={handleAutoSyncChange}
 								rightElement="switch"
 								switchChecked={autoSync}
@@ -164,7 +164,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 										<button
 											className={`w-full rounded-lg border p-3 text-left transition-colors ${
 												conflictStrategy === strategy
-													? 'border-[var(--ios-blue)] bg-[var(--ios-blue)]/5'
+													? 'border-(--ios-blue) bg-(--ios-blue)/5'
 													: 'border-border hover:bg-accent/5'
 											}`}
 											key={strategy}
@@ -223,7 +223,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 						{/* Warning */}
 						<div className="mt-4 rounded-lg border border-orange-500/20 bg-orange-500/10 p-3">
 							<div className="flex items-start gap-2">
-								<AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
+								<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
 								<p className="text-caption-1 text-orange-600">
 									Offline режим использует локальное хранилище браузера. Не очищайте данные
 									браузера, чтобы не потерять несинхронизированные записи.

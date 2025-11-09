@@ -92,9 +92,9 @@ export function RecentEntriesFeed({
 	const getSentimentColor = (sentiment: string): string => {
 		switch (sentiment) {
 			case 'positive':
-				return 'bg-[var(--ios-green)]/10 text-[var(--ios-green)] border-[var(--ios-green)]/20';
+				return 'bg-[var(--ios-green)]/10 text-(--ios-green) border-[var(--ios-green)]/20';
 			case 'neutral':
-				return 'bg-[var(--ios-blue)]/10 text-[var(--ios-blue)] border-[var(--ios-blue)]/20';
+				return 'bg-(--ios-blue)/10 text-(--ios-blue) border-(--ios-blue)/20';
 			case 'negative':
 				return 'bg-[var(--ios-red)]/10 text-[var(--ios-red)] border-[var(--ios-red)]/20';
 			default:

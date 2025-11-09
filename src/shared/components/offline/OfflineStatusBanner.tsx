@@ -134,7 +134,7 @@ export function OfflineStatusBanner() {
 						<div className="flex items-center justify-between gap-4">
 							{/* Left: Icon + Message */}
 							<div className="flex min-w-0 flex-1 items-center gap-3">
-								<div className="flex-shrink-0">{getIcon()}</div>
+								<div className="shrink-0">{getIcon()}</div>
 
 								<div className="min-w-0 flex-1">
 									<p className="truncate font-medium text-sm">{message}</p>
@@ -147,7 +147,7 @@ export function OfflineStatusBanner() {
 							</div>
 
 							{/* Right: Actions */}
-							<div className="flex flex-shrink-0 items-center gap-2">
+							<div className="flex shrink-0 items-center gap-2">
 								{isOnline && pendingCount > 0 && !syncInProgress && (
 									<button
 										className="flex items-center gap-2 rounded-lg bg-primary/20 px-3 py-1.5 font-medium text-sm transition-colors duration-300 hover:bg-primary/30"

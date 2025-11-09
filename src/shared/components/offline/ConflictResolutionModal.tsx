@@ -201,7 +201,7 @@ export function ConflictResolutionModal({
 						{/* Warning */}
 						<div className="mt-4 rounded-lg border border-orange-500/20 bg-orange-500/10 p-3">
 							<div className="flex items-start gap-2">
-								<AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600" />
+								<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
 								<p className="text-caption-1 text-orange-600">
 									Выбранное действие нельзя будет отменить. Убедитесь что выбрали правильную версию
 									данных.

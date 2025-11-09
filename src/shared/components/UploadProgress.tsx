@@ -18,7 +18,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 		>
 			<div className="flex items-center gap-3">
 				{/* Status Icon */}
-				<div className="flex-shrink-0">
+				<div className="shrink-0">
 					{status === 'processing' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
 					{status === 'uploading' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
 					{status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
@@ -38,7 +38,7 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 
 				{/* Progress */}
 				{(status === 'processing' || status === 'uploading') && (
-					<div className="flex-shrink-0 font-medium text-muted-foreground text-xs dark:text-muted-foreground">
+					<div className="shrink-0 font-medium text-muted-foreground text-xs dark:text-muted-foreground">
 						{progress}%
 					</div>
 				)}

@@ -248,12 +248,12 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							<div className="flex items-center justify-between">
 								<div>
 									<CardTitle className="flex items-center gap-2">
-										<Sparkles className="h-5 w-5 text-[var(--action-ai)]" strokeWidth={2} />
+										<Sparkles className="h-5 w-5 text-(--action-ai)" strokeWidth={2} />
 										Отчет за {monthlyReport.period}
 									</CardTitle>
 									<p className="text-muted-foreground text-sm">Персональный анализ от AI</p>
 								</div>
-								<Badge className="bg-[var(--ios-bg-secondary)] text-[var(--ios-purple)]">
+								<Badge className="bg-(--ios-bg-secondary) text-(--ios-purple)">
 									<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
 									Премиум
 								</Badge>
@@ -262,7 +262,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<CardContent>
 							<div className="mb-6 grid grid-cols-2 gap-4">
 								<div className="text-center">
-									<div className="mb-1 text-2xl text-[var(--ios-purple)]">
+									<div className="mb-1 text-2xl text-(--ios-purple)">
 										{monthlyReport.totalEntries}
 									</div>
 									<div className="text-muted-foreground text-sm">
@@ -270,16 +270,14 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 									</div>
 								</div>
 								<div className="text-center">
-									<div className="mb-1 text-2xl text-[var(--ios-green)]">
-										{monthlyReport.streakDays}
-									</div>
+									<div className="mb-1 text-2xl text-(--ios-green)">{monthlyReport.streakDays}</div>
 									<div className="text-muted-foreground text-sm">Активных дней</div>
 								</div>
 							</div>
 
 							<div className="space-y-4">
 								<Button
-									className="w-full bg-[var(--ios-purple)] hover:bg-[var(--ios-purple)]/90"
+									className="w-full bg-(--ios-purple) hover:bg-(--ios-purple)/90"
 									onClick={() => {
 										if (!isPremium) {
 											toast.error('Создание PDF книг доступно только для Premium пользователей');
@@ -407,7 +405,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 								<Card>
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2">
-											<Brain className="h-5 w-5 text-[var(--ios-purple)]" strokeWidth={2} />
+											<Brain className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
 											Персональные инсайты
 										</CardTitle>
 									</CardHeader>
@@ -415,11 +413,11 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 										<div className="space-y-3">
 											{monthlyReport.personalInsights.map((insight, index) => (
 												<div
-													className="flex items-start gap-3 rounded-lg bg-[var(--ios-bg-secondary)] p-3"
+													className="flex items-start gap-3 rounded-lg bg-(--ios-bg-secondary) p-3"
 													key={index}
 												>
 													<Star
-														className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--ios-purple)]"
+														className="mt-0.5 h-5 w-5 shrink-0 text-(--ios-purple)"
 														strokeWidth={2}
 													/>
 													<p className="text-foreground text-sm">{insight}</p>
@@ -453,26 +451,26 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 								<Card>
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2">
-											<Target className="h-5 w-5 text-[var(--ios-green)]" strokeWidth={2} />
+											<Target className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
 											Рекомендации на следующий месяц
 										</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-3">
-											<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-												<h4 className="mb-1 text-[var(--ios-green)]">Продолжай бегать</h4>
+											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
+												<h4 className="mb-1 text-(--ios-green)">Продолжай бегать</h4>
 												<p className="text-muted-foreground text-sm">
 													Ты на правильном пути к цели в 10км!
 												</p>
 											</div>
-											<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-												<h4 className="mb-1 text-[var(--ios-blue)]">Больше записей о работе</h4>
+											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
+												<h4 className="mb-1 text-(--ios-blue)">Больше записей о работе</h4>
 												<p className="text-muted-foreground text-sm">
 													Попробуй фиксировать небольшие рабочие победы
 												</p>
 											</div>
-											<div className="rounded-lg bg-[var(--ios-bg-secondary)] p-3">
-												<h4 className="mb-1 text-[var(--ios-purple)]">Новая категория</h4>
+											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
+												<h4 className="mb-1 text-(--ios-purple)">Новая категория</h4>
 												<p className="text-muted-foreground text-sm">
 													Как насчет добавить записи о творчестве?
 												</p>
@@ -507,12 +505,11 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 			{showBookWizard && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BookCreationWizard
-						onBack={() => setShowBookWizard(false)}
+						onCancel={() => setShowBookWizard(false)}
 						onComplete={() => {
 							setShowBookWizard(false);
 							setShowBooksLibrary(true);
 						}}
-						userData={userData}
 					/>
 				</div>
 			)}

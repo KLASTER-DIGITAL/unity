@@ -53,7 +53,7 @@ export function MediaPreview({
 	// ✅ FIX: Динамический класс элемента в зависимости от layout
 	const itemClass =
 		layout === 'row'
-			? 'flex-shrink-0 w-32 h-32' // Фиксированный размер для row
+			? 'shrink-0 w-32 h-32' // Фиксированный размер для row
 			: 'aspect-square'; // Квадрат для grid
 
 	return (
