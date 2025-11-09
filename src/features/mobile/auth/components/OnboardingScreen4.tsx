@@ -1,16 +1,13 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
-import { TimePickerModal } from '@/components/TimePickerModal';
 
 // Import modular components and types
 import {
 	BackgroundElements,
 	ChatGPTInput,
 	NextButton,
-	NotificationSettings,
 	type NotificationSettingsType,
 	type OnboardingScreen4Props,
-	PermissionModal,
 	Sliedbar,
 	SuccessModal,
 	onboarding4Translations as translations,
@@ -33,80 +30,14 @@ function HabitsAndEntryForm({
 	onNext: (entry: string, settings: NotificationSettingsType) => void;
 	onUpdate?: (entry: string, settings: NotificationSettingsType) => void;
 }) {
-	const [notificationSettings, setNotificationSettings] = useState<NotificationSettingsType>({
+	// Simplified: no notification settings on this screen
+	const notificationSettings: NotificationSettingsType = {
 		selectedTime: 'none',
 		morningTime: '08:00',
 		eveningTime: '21:00',
 		permissionGranted: false,
-	});
+	};
 	const [firstEntry, setFirstEntry] = useState('');
-	const [showPermissionRequest, setShowPermissionRequest] = useState(false);
-	const [showTimePicker, setShowTimePicker] = useState<{
-		show: boolean;
-		type: 'morning' | 'evening';
-		title: string;
-	}>({
-		show: false,
-		type: 'morning',
-		title: '',
-	});
-
-	const handleNotificationSelect = (type: 'none' | 'morning' | 'evening' | 'both') => {
-		const newSettings = {
-			...notificationSettings,
-			selectedTime: type,
-		};
-
-		setNotificationSettings(newSettings);
-		onUpdate?.(firstEntry, newSettings);
-
-		if (type !== 'none' && !notificationSettings.permissionGranted) {
-			setShowPermissionRequest(true);
-		}
-	};
-
-	const handleTimeClick = (type: 'morning' | 'evening') => {
-		setShowTimePicker({
-			show: true,
-			type,
-			title: type === 'morning' ? 'Утреннее напоминание' : 'Вечернее напоминание',
-		});
-	};
-
-	const handleTimeSelect = (time: string) => {
-		const newSettings = {
-			...notificationSettings,
-			[showTimePicker.type === 'morning' ? 'morningTime' : 'eveningTime']: time,
-		};
-
-		setNotificationSettings(newSettings);
-		onUpdate?.(firstEntry, newSettings);
-	};
-
-	const handlePermissionRequest = async (allow: boolean) => {
-		setShowPermissionRequest(false);
-
-		if (allow) {
-			try {
-				const permission = await Notification.requestPermission();
-				const newSettings = {
-					...notificationSettings,
-					permissionGranted: permission === 'granted',
-				};
-				setNotificationSettings(newSettings);
-				onUpdate?.(firstEntry, newSettings);
-			} catch (error) {
-				console.log('Notification permission request failed:', error);
-			}
-		} else {
-			const newSettings: NotificationSettingsType = {
-				...notificationSettings,
-				selectedTime: 'none' as const,
-			};
-			setNotificationSettings(newSettings);
-			onUpdate?.(firstEntry, newSettings);
-		}
-	};
 
 	const handleEntryChange = (value: string) => {
 		setFirstEntry(value);
@@ -157,18 +88,6 @@ function HabitsAndEntryForm({
 				</p>
 			</motion.div>
 
-			<NotificationSettings
-				bothLabel={currentTranslations.both}
-				eveningLabel={currentTranslations.evening}
-				eveningTime={notificationSettings.eveningTime}
-				morningLabel={currentTranslations.morning}
-				morningTime={notificationSettings.morningTime}
-				onSelect={handleNotificationSelect}
-				onTimeClick={handleTimeClick}
-				reminderTitle={currentTranslations.reminderTitle}
-				selectedTime={notificationSettings.selectedTime}
-			/>
-
 			{/* First Entry Section */}
 			<motion.div
 				animate={{ opacity: 1, y: 0 }}
@@ -192,28 +111,6 @@ function HabitsAndEntryForm({
 					value={firstEntry}
 				/>
 			</motion.div>
-
-			<PermissionModal
-				allowLabel={currentTranslations.allow}
-				isOpen={showPermissionRequest}
-				laterLabel={currentTranslations.later}
-				onAllow={() => handlePermissionRequest(true)}
-				onLater={() => handlePermissionRequest(false)}
-				title={currentTranslations.permissionRequest}
-			/>
-
-			{/* Time Picker Modal */}
-			<TimePickerModal
-				initialTime={
-					showTimePicker.type === 'morning'
-						? notificationSettings.morningTime
-						: notificationSettings.eveningTime
-				}
-				isOpen={showTimePicker.show}
-				onClose={() => setShowTimePicker({ ...showTimePicker, show: false })}
-				onTimeSelect={handleTimeSelect}
-				title={showTimePicker.title}
-			/>
 		</motion.div>
 	);
 }
