@@ -47,7 +47,7 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({
 			fallback || (
 				<div className="flex items-center justify-center p-8">
 					<div className="text-center">
-						<Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin text-primary" />
+						<TranslationLoadingIndicator showText={true} size="md" />
 						<p className="text-muted-foreground text-sm">
 							{isLoaded ? 'Updating translations...' : 'Loading translations...'}
 						</p>

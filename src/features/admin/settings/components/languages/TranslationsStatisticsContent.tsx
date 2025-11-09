@@ -1,14 +1,7 @@
-import {
-	AlertCircle,
-	BarChart3,
-	CheckCircle,
-	FileText,
-	Languages,
-	Loader2,
-	TrendingUp,
-} from 'lucide-react';
+import { AlertCircle, BarChart3, CheckCircle, FileText, Languages, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { LottiePreloaderInline } from '@/shared/components/LottiePreloader';
 import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
@@ -154,7 +147,7 @@ export function TranslationsStatisticsContent() {
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
-				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+				<LottiePreloaderInline size="lg" />
 			</div>
 		);
 	}

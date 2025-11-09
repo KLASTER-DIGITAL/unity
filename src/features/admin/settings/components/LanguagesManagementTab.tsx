@@ -1,6 +1,7 @@
-import { AlertCircle, ArrowRight, CheckCircle, Globe, Loader2, Plus } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle, Globe, Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { LottiePreloaderInline } from '@/shared/components/LottiePreloader';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -358,7 +359,7 @@ export function LanguagesManagementTab({
 			{/* Active Languages */}
 			{isLoading ? (
 				<div className="flex items-center justify-center py-12">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					<LottiePreloaderInline size="lg" />
 				</div>
 			) : (
 				<>

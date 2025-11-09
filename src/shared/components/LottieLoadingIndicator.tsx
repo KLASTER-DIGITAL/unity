@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useTheme } from '@/shared/components/theme-provider';
+import { LottiePreloaderInline } from './LottiePreloader';
 
 // Lazy load lottie-react для уменьшения bundle
 const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: module.default })));
@@ -15,6 +16,9 @@ interface LottieLoadingIndicatorProps {
  * Lottie Loading Indicator Component
  * Replaces Loader2 spinner with animated Lottie preloader
  * Supports light and dark themes automatically
+ *
+ * ✅ FIXED: Suspense fallback now shows LottiePreloaderInline instead of empty div
+ * This prevents double loading indicators (spinner + lottie)
  */
 export function LottieLoadingIndicator({
 	size = 'sm',
@@ -47,7 +51,7 @@ export function LottieLoadingIndicator({
 		<div className={`flex items-center gap-2 ${className}`}>
 			<div className={sizeClasses[size]}>
 				{animationData && (
-					<Suspense fallback={<div className={sizeClasses[size]} />}>
+					<Suspense fallback={<LottiePreloaderInline size={size} />}>
 						<Lottie animationData={animationData} autoplay={true} loop={true} />
 					</Suspense>
 				)}

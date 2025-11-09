@@ -1,5 +1,6 @@
-import { AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { AlertCircle, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { LottiePreloaderInline } from '@/shared/components/LottiePreloader';
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -122,8 +123,8 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 					>
 						{isTranslating ? (
 							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Перевод в процессе...
+								<LottiePreloaderInline size="sm" />
+								<span className="ml-2">Перевод в процессе...</span>
 							</>
 						) : (
 							<>
