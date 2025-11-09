@@ -7,7 +7,25 @@
 
 ---
 
-## [Unreleased] - 2025-11-08
+## [Unreleased] - 2025-11-09
+
+### 🐛 Исправления
+- **PWA Update Loop Fix**: Исправлена бесконечная петля обновления PWA
+  - Добавлена проверка версии в localStorage (`pwa_update_in_progress` флаг)
+  - Синхронизация версии Service Worker с APP_VERSION
+  - Предотвращение повторного показа окна обновления после успешного обновления
+  - Файлы: `src/shared/components/pwa/PWAUpdatePrompt.tsx`, `src/main.tsx`
+
+- **PWA Logo Update**: Замена старого логотипа на новый
+  - Заменено эмодзи 🏆 на букву "U" с градиентом (#007AFF → #0051D5)
+  - Обновлены все размеры иконок (192x192, 192x192 maskable, 512x512)
+  - Поддержка maskable иконок для iOS
+  - Файлы: `public/manifest.json`, `src/shared/lib/api/generatePWAIcons.ts`
+
+- **PWA App Name Fix**: Исправлено название приложения
+  - Изменено с "Дневник Достижений" на "UNITY - Дневник достижений"
+  - Обновлены meta теги в `PWAHead.tsx`
+  - Файлы: `public/manifest.json`, `src/shared/components/pwa/PWAHead.tsx`
 
 ### 🔒 Безопасность
 - **Hardcoded SUPER_ADMIN_EMAIL**: Удалена hardcoded константа
