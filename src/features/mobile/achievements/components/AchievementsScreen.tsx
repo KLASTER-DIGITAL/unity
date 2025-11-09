@@ -40,16 +40,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
 
-	// ✅ SAFETY: Ensure t function is available
-	if (!t) {
-		console.error('[ACHIEVEMENTS] Translation function not available');
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-background pb-20">
-				<p className="text-foreground">Loading translations...</p>
-			</div>
-		);
-	}
-
+	// ✅ HOOKS FIRST: All hooks must be called before any early returns
 	const [isLoading, setIsLoading] = useState(true);
 	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -97,12 +88,22 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [userData]);
+	}, [userData, userStats]);
 
 	// ✅ FIX: useEffect AFTER function definition
 	useEffect(() => {
 		loadData();
 	}, [loadData]);
+
+	// ✅ EARLY RETURN AFTER ALL HOOKS: Check t function availability
+	if (!t) {
+		console.error('[ACHIEVEMENTS] Translation function not available');
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-background pb-20">
+				<p className="text-foreground">Loading translations...</p>
+			</div>
+		);
+	}
 
 	// Преобразовать достижения в формат для UI
 	const badges = achievements.map((achievement) => {
@@ -184,8 +185,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
 					{/* Skeleton for stats grid */}
 					<div className="mb-6 grid grid-cols-4 gap-4">
-						{[...new Array(4)].map((_, i) => (
-							<div className="text-center" key={i}>
+						{Array.from({ length: 4 }, (_, i) => ({ id: `stat-${i}` })).map((item) => (
+							<div className="text-center" key={item.id}>
 								<Skeleton className="mx-auto mb-1 h-8 w-12" />
 								<Skeleton className="mx-auto h-3 w-16" />
 							</div>
@@ -205,10 +206,10 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 				{/* ✅ FIX: Skeleton for achievement cards - ТОЧНЫЕ размеры для предотвращения CLS */}
 				<div className="p-4">
 					<div className="grid grid-cols-2 gap-4">
-						{[...new Array(6)].map((_, i) => (
+						{Array.from({ length: 6 }, (_, i) => ({ id: `achievement-${i}` })).map((item) => (
 							<div
 								className="rounded-[16px] border-0 bg-card p-4 shadow-sm transition-colors duration-300"
-								key={i}
+								key={item.id}
 								style={{ minHeight: '180px' }}
 							>
 								<div className="text-center">
