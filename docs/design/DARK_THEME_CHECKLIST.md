@@ -278,42 +278,47 @@ grep -n "bg-white\|bg-gray-\|text-gray-\|border-gray-" src/path/to/your/file.tsx
 
 ### **Фоны (iOS Backgrounds)**
 
-- [ ] Primary background: `bg-[var(--ios-bg-primary)]` (white → black)
-- [ ] Secondary background: `bg-[var(--ios-bg-secondary)]` (#F2F2F7 → #1C1C1E)
-- [ ] Tertiary background: `bg-[var(--ios-bg-tertiary)]` (white → #2C2C2E)
+- [ ] Primary background: `bg-(--ios-bg-primary)` (white → black)
+- [ ] Secondary background: `bg-(--ios-bg-secondary)` (#F2F2F7 → #1C1C1E)
+- [ ] Tertiary background: `bg-(--ios-bg-tertiary)` (white → #2C2C2E)
 
 ### **Текст (iOS Labels)**
 
-- [ ] Primary text: `text-[var(--ios-text-primary)]` (black → white)
-- [ ] Secondary text: `text-[var(--ios-text-secondary)]` (60% opacity)
-- [ ] Tertiary text: `text-[var(--ios-text-tertiary)]` (30% opacity)
+- [ ] Primary text: `text-(--ios-text-primary)` (black → white)
+- [ ] Secondary text: `text-(--ios-text-secondary)` (60% opacity)
+- [ ] Tertiary text: `text-(--ios-text-tertiary)` (30% opacity)
 
 ### **System Colors**
 
-- [ ] Blue: `bg-[var(--ios-blue)]` (#007AFF → #0A84FF)
-- [ ] Green: `bg-[var(--ios-green)]` (#34C759 → #30D158)
-- [ ] Red: `bg-[var(--ios-red)]` (#FF3B30 → #FF453A)
-- [ ] Orange: `bg-[var(--ios-orange)]` (#FF9500 → #FF9F0A)
-- [ ] Purple: `bg-[var(--ios-purple)]` (#AF52DE → #BF5AF2)
+- [ ] Blue: `bg-(--ios-blue)` (#007AFF → #0A84FF)
+- [ ] Green: `bg-(--ios-green)` (#34C759 → #30D158)
+- [ ] Red: `bg-(--ios-red)` (#FF3B30 → #FF453A)
+- [ ] Orange: `bg-(--ios-orange)` (#FF9500 → #FF9F0A)
+- [ ] Purple: `bg-(--ios-purple)` (#AF52DE → #BF5AF2)
 
 ### **Градиенты (Theme-aware)**
 
-- [ ] Positive: `from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]`
-- [ ] Neutral: `from-[var(--gradient-neutral-1-start)] to-[var(--gradient-neutral-1-end)]`
-- [ ] Negative: `from-[var(--gradient-negative-1-start)] to-[var(--gradient-negative-1-end)]`
+- [ ] Positive: `from-(--gradient-positive-1-start) to-(--gradient-positive-1-end)`
+- [ ] Neutral: `from-(--gradient-neutral-1-start) to-(--gradient-neutral-1-end)`
+- [ ] Negative: `from-(--gradient-negative-1-start) to-(--gradient-negative-1-end)`
 
 ### **Action Colors**
 
-- [ ] Primary action: `bg-[var(--action-primary)]` (iOS blue)
-- [ ] Voice action: `bg-[var(--action-voice)]` (purple)
-- [ ] Photo action: `bg-[var(--action-photo)]` (iOS green)
-- [ ] AI action: `bg-[var(--action-ai)]` (iOS orange)
+- [ ] Primary action: `bg-(--action-primary)` (iOS blue)
+- [ ] Voice action: `bg-(--action-voice)` (purple)
+- [ ] Photo action: `bg-(--action-photo)` (iOS green)
+- [ ] AI action: `bg-(--action-ai)` (iOS orange)
 
 ### **Icon Colors**
 
 - [ ] Primary icon: `stroke="var(--icon-primary)"` (black → white)
 - [ ] Secondary icon: `stroke="var(--icon-secondary)"` (60% opacity)
 - [ ] Accent icon: `stroke="var(--icon-accent)"` (iOS blue)
+
+**Tailwind v4 синтаксис для иконок:**
+- [ ] Primary icon: `text-(--icon-primary)` или `stroke-(--icon-primary)`
+- [ ] Secondary icon: `text-(--icon-secondary)` или `stroke-(--icon-secondary)`
+- [ ] Accent icon: `text-(--icon-accent)` или `stroke-(--icon-accent)`
 
 ---
 

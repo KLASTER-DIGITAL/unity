@@ -314,7 +314,7 @@ import { RadioGroup } from '@/shared/components/ui/universal/RadioGroup';
 <div className="bg-card text-foreground border-border">
   <h1 className="text-primary">Title</h1>
   <p className="text-muted-foreground">Description</p>
-  <button className="bg-[var(--action-primary)] text-white">Action</button>
+  <button className="bg-(--action-primary) text-white">Action</button>
 </div>
 ```
 
@@ -364,11 +364,11 @@ import { RadioGroup } from '@/shared/components/ui/universal/RadioGroup';
 ### Использование типографики
 
 ```tsx
-<h1 className="text-[var(--text-large-title)] font-bold">Large Title</h1>
-<h2 className="text-[var(--text-title-1)] font-semibold">Title 1</h2>
-<h3 className="text-[var(--text-title-2)] font-semibold">Title 2</h3>
-<p className="text-[var(--text-body)] font-normal">Body text</p>
-<span className="text-[var(--text-footnote)] text-muted-foreground">Footnote</span>
+<h1 className="text-(--text-large-title) font-bold">Large Title</h1>
+<h2 className="text-(--text-title-1) font-semibold">Title 1</h2>
+<h3 className="text-(--text-title-2) font-semibold">Title 2</h3>
+<p className="text-(--text-body) font-normal">Body text</p>
+<span className="text-(--text-footnote) text-muted-foreground">Footnote</span>
 ```
 
 ---

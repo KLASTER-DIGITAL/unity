@@ -189,49 +189,49 @@ font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
 
 ```tsx
 // Primary background
-<div className="bg-[var(--ios-bg-primary)]">
+<div className="bg-(--ios-bg-primary)">
 
 // Secondary background (карточки)
-<div className="bg-[var(--ios-bg-secondary)]">
+<div className="bg-(--ios-bg-secondary)">
 
 // Tertiary background (вложенные элементы)
-<div className="bg-[var(--ios-bg-tertiary)]">
+<div className="bg-(--ios-bg-tertiary)">
 ```
 
 ### **4. Цвета текста**
 
 ```tsx
 // Primary text
-<p className="text-[var(--ios-text-primary)]">Основной текст</p>
+<p className="text-(--ios-text-primary)">Основной текст</p>
 
 // Secondary text
-<p className="text-[var(--ios-text-secondary)]">Подзаголовок</p>
+<p className="text-(--ios-text-secondary)">Подзаголовок</p>
 
 // Tertiary text
-<p className="text-[var(--ios-text-tertiary)]">Placeholder</p>
+<p className="text-(--ios-text-tertiary)">Placeholder</p>
 ```
 
 ### **5. System Colors**
 
 ```tsx
 // iOS Blue
-<button className="bg-[var(--ios-blue)]">Сохранить</button>
+<button className="bg-(--ios-blue)">Сохранить</button>
 
 // iOS Green
-<span className="text-[var(--ios-green)]">Успешно</span>
+<span className="text-(--ios-green)">Успешно</span>
 
 // iOS Red
-<span className="text-[var(--ios-red)]">Ошибка</span>
+<span className="text-(--ios-red)">Ошибка</span>
 
 // iOS Purple
-<div className="text-[var(--ios-purple)]">AI анализ</div>
+<div className="text-(--ios-purple)">AI анализ</div>
 ```
 
 ### **6. Градиенты**
 
 ```tsx
 // Positive gradient
-<div className="bg-gradient-to-r from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]">
+<div className="bg-gradient-to-r from-(--gradient-positive-1-start) to-(--gradient-positive-1-end)">
   Позитивная запись
 </div>
 
