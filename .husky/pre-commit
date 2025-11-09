@@ -27,8 +27,8 @@ PARTIALLY_STAGED=$(git diff --name-only)
 
 # Stash unstaged changes to preserve working directory
 # --keep-index keeps staged changes in working tree
-git stash push --quiet --keep-index --message "pre-commit-stash" || true
-STASHED=$?
+# TEMPORARILY DISABLED: git stash push --quiet --keep-index --message "pre-commit-stash" || true
+STASHED=1  # Pretend no stash was created
 
 # Run Ultracite fix on staged files ONLY
 # Filter only .ts, .tsx, .js, .jsx files
@@ -47,7 +47,8 @@ if [ $FORMAT_EXIT_CODE -ne 0 ]; then
   echo "❌ Ultracite found errors! Fix them before committing."
   # Restore working directory state
   if [ $STASHED -eq 0 ]; then
-    git stash pop --quiet || true
+    # TEMPORARILY DISABLED: git stash pop --quiet || true
+    true  # No-op
   fi
   exit 1
 fi
@@ -64,7 +65,7 @@ if [ $STASHED -eq 0 ]; then
   fi
 
   # Restore unstaged changes
-  git stash pop --quiet || true
+  # TEMPORARILY DISABLED: git stash pop --quiet || true
 
   # Restore partial staging if files were partially staged
   if [ -n "$PARTIALLY_STAGED" ]; then
