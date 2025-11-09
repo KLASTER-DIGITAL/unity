@@ -62,9 +62,9 @@ export function PushNotificationSettingsModal({
 			if (error) throw error;
 
 			// Call parent's onEnableNotifications (subscribes to push)
+			// ✅ FIX: Removed duplicate toast.success - parent already shows it
 			await onEnableNotifications();
 
-			toast.success('Уведомления включены!');
 			onClose();
 		} catch (error) {
 			console.error('Error enabling notifications:', error);
@@ -90,7 +90,7 @@ export function PushNotificationSettingsModal({
 					{/* Modal */}
 					<motion.div
 						animate={{ opacity: 1, scale: 1 }}
-						className="fixed inset-x-4 sm:inset-x-6 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xl transition-colors duration-300"
+						className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-4 shadow-xl transition-colors duration-300 sm:w-[calc(100%-3rem)] sm:p-6"
 						exit={{ opacity: 0, scale: 0.95 }}
 						initial={{ opacity: 0, scale: 0.95 }}
 					>
