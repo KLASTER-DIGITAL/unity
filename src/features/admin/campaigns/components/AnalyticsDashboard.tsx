@@ -17,7 +17,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
-import { supabase } from '@/shared/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 interface CampaignStats {
 	id: string;

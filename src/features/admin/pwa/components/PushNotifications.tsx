@@ -1,18 +1,15 @@
-import { Bell, FileText, History, Send, TestTube } from 'lucide-react';
+import { BarChart3, Bell, FileText, History, Send, TestTube } from 'lucide-react';
 import { useState } from 'react';
-import { PushNotificationManager } from '@/components/screens/admin/settings/PushNotificationManager';
 import { PushNotificationTester } from '@/components/screens/admin/settings/PushNotificationTester';
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/shared/components/ui/card';
+	AnalyticsDashboard,
+	CampaignCreator,
+	CampaignHistory,
+} from '@/features/admin/campaigns/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
 export function PushNotifications() {
-	const [activeTab, setActiveTab] = useState('send');
+	const [activeTab, setActiveTab] = useState('campaigns');
 
 	return (
 		<div className="space-y-6">
@@ -24,25 +21,29 @@ export function PushNotifications() {
 						Push Notifications
 					</h2>
 					<p className="mt-1 text-muted-foreground text-sm">
-						Управление push уведомлениями для пользователей
+						Управление push уведомлениями и рассылками для пользователей
 					</p>
 				</div>
 			</div>
 
 			{/* Tabs */}
 			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-				<TabsList className="grid w-full max-w-2xl grid-cols-4">
-					<TabsTrigger className="flex items-center gap-2" value="send">
+				<TabsList className="grid w-full max-w-3xl grid-cols-5">
+					<TabsTrigger className="flex items-center gap-2" value="campaigns">
 						<Send className="h-4 w-4" />
-						Отправить
+						Рассылки
 					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="test">
-						<TestTube className="h-4 w-4" />
-						Тестирование
+					<TabsTrigger className="flex items-center gap-2" value="analytics">
+						<BarChart3 className="h-4 w-4" />
+						Аналитика
 					</TabsTrigger>
 					<TabsTrigger className="flex items-center gap-2" value="history">
 						<History className="h-4 w-4" />
 						История
+					</TabsTrigger>
+					<TabsTrigger className="flex items-center gap-2" value="test">
+						<TestTube className="h-4 w-4" />
+						Тестирование
 					</TabsTrigger>
 					<TabsTrigger className="flex items-center gap-2" value="templates">
 						<FileText className="h-4 w-4" />
@@ -50,22 +51,19 @@ export function PushNotifications() {
 					</TabsTrigger>
 				</TabsList>
 
-				{/* Send Push */}
-				<TabsContent className="space-y-6" value="send">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Send className="h-5 w-5" />
-								Отправка Push Уведомлений
-							</CardTitle>
-							<CardDescription>
-								Отправить уведомление всем пользователям или выбранным сегментам
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<PushNotificationManager />
-						</CardContent>
-					</Card>
+				{/* Campaign Creator */}
+				<TabsContent className="space-y-6" value="campaigns">
+					<CampaignCreator />
+				</TabsContent>
+
+				{/* Analytics Dashboard */}
+				<TabsContent className="space-y-6" value="analytics">
+					<AnalyticsDashboard />
+				</TabsContent>
+
+				{/* Campaign History */}
+				<TabsContent className="space-y-6" value="history">
+					<CampaignHistory />
 				</TabsContent>
 
 				{/* Test Push */}
@@ -73,43 +71,18 @@ export function PushNotifications() {
 					<PushNotificationTester />
 				</TabsContent>
 
-				{/* History */}
-				<TabsContent className="space-y-6" value="history">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<History className="h-5 w-5" />
-								История отправок
-							</CardTitle>
-							<CardDescription>Все отправленные push уведомления</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="py-12 text-center text-muted-foreground">
-								<History className="mx-auto mb-4 h-12 w-12 opacity-50" />
-								<p>История отправок будет реализована в следующей версии</p>
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
-
-				{/* Templates */}
+				{/* Templates - Coming Soon */}
 				<TabsContent className="space-y-6" value="templates">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<FileText className="h-5 w-5" />
-								Шаблоны уведомлений
-							</CardTitle>
-							<CardDescription>Мультиязычные шаблоны для разных типов уведомлений</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="py-12 text-center text-muted-foreground">
-								<FileText className="mx-auto mb-4 h-12 w-12 opacity-50" />
-								<p>Управление шаблонами будет реализовано в следующей версии</p>
-								<p className="mt-2 text-sm">Сейчас используются встроенные шаблоны для 7 языков</p>
-							</div>
-						</CardContent>
-					</Card>
+					<div className="rounded-lg border border-dashed p-12 text-center">
+						<FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground opacity-50" />
+						<h3 className="mb-2 font-semibold text-lg">Шаблоны уведомлений</h3>
+						<p className="text-muted-foreground text-sm">
+							Управление шаблонами будет реализовано в следующей версии
+						</p>
+						<p className="mt-2 text-muted-foreground text-sm">
+							Сейчас используются встроенные шаблоны для 7 языков (ru/en/es/de/fr/zh/ja)
+						</p>
+					</div>
 				</TabsContent>
 			</Tabs>
 		</div>

@@ -20,10 +20,12 @@ import {
 	CardTitle,
 } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { supabase } from '@/shared/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { ScheduleManager } from './ScheduleManager';
 import { SegmentBuilder } from './SegmentBuilder';
 import { TemplateEditor } from './TemplateEditor';
+
+const supabase = createClient();
 
 interface CampaignData {
 	title: string;
