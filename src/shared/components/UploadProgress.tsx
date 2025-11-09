@@ -1,5 +1,6 @@
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
+import { LottieLoadingIndicator } from './LottieLoadingIndicator';
 
 type UploadProgressProps = {
 	fileName: string;
@@ -19,8 +20,9 @@ export function UploadProgress({ fileName, progress, status, error }: UploadProg
 			<div className="flex items-center gap-3">
 				{/* Status Icon */}
 				<div className="shrink-0">
-					{status === 'processing' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
-					{status === 'uploading' && <Loader2 className="h-5 w-5 animate-spin text-blue-500" />}
+					{(status === 'processing' || status === 'uploading') && (
+						<LottieLoadingIndicator size="sm" />
+					)}
 					{status === 'success' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
 					{status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
 				</div>

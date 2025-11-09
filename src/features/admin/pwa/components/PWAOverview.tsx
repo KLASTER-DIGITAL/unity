@@ -1,15 +1,7 @@
-import {
-	BarChart3,
-	Bell,
-	Database,
-	Loader2,
-	Settings,
-	Smartphone,
-	TrendingUp,
-	Users,
-} from 'lucide-react';
+import { BarChart3, Bell, Database, Settings, Smartphone, TrendingUp, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { LottieLoadingIndicator } from '@/shared/components/LottieLoadingIndicator';
 import { Badge } from '@/shared/components/ui/badge';
 import {
 	Card,
@@ -42,8 +34,8 @@ function SimpleChart({ data }: { data: InstallationData[] }) {
 
 	return (
 		<div className="space-y-4">
-			{data.map((item, index) => (
-				<div className="space-y-2" key={index}>
+			{data.map((item) => (
+				<div className="space-y-2" key={item.month}>
 					<div className="flex items-center justify-between text-sm">
 						<span className="font-medium">{item.month}</span>
 						<div className="flex gap-4">
@@ -154,7 +146,7 @@ export function PWAOverview() {
 	if (isLoading) {
 		return (
 			<div className="flex h-96 items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<LottieLoadingIndicator size="lg" />
 			</div>
 		);
 	}

@@ -1,6 +1,7 @@
-import { Bell, Download, Loader2, Save, Settings, Smartphone, Wifi } from 'lucide-react';
+import { Bell, Download, Save, Settings, Smartphone, Wifi } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { LottieLoadingIndicator } from '@/shared/components/LottieLoadingIndicator';
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -172,9 +173,10 @@ export function PWASettings() {
 			}
 
 			toast.success('Настройки PWA успешно сохранены! 📱');
-		} catch (error: any) {
+		} catch (error) {
 			console.error('[PWASettings] Error saving PWA settings:', error);
-			toast.error(`Ошибка сохранения: ${error.message}`);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			toast.error(`Ошибка сохранения: ${errorMessage}`);
 		} finally {
 			setIsSaving(false);
 		}
@@ -183,7 +185,7 @@ export function PWASettings() {
 	if (isLoading) {
 		return (
 			<div className="flex h-96 items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<LottieLoadingIndicator size="lg" />
 			</div>
 		);
 	}
@@ -204,7 +206,7 @@ export function PWASettings() {
 				<Button disabled={isSaving} onClick={handleSave}>
 					{isSaving ? (
 						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							<LottieLoadingIndicator className="mr-2" size="sm" />
 							Сохраняю...
 						</>
 					) : (
@@ -433,7 +435,7 @@ export function PWASettings() {
 						<div className="space-y-2">
 							<Label>Когда показывать</Label>
 							<Select
-								onValueChange={(value: any) =>
+								onValueChange={(value: string) =>
 									setSettings({ ...settings, installPromptTiming: value })
 								}
 								options={[
@@ -487,7 +489,7 @@ export function PWASettings() {
 						<div className="space-y-2">
 							<Label>Где показывать</Label>
 							<Select
-								onValueChange={(value: any) =>
+								onValueChange={(value: string) =>
 									setSettings({ ...settings, installPromptLocation: value })
 								}
 								options={[

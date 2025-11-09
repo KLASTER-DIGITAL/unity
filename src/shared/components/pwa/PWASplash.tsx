@@ -1,12 +1,32 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
+
+// Lazy load lottie-react для уменьшения bundle
+const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: module.default })));
 
 /**
  * Splash screen для PWA
  * Показывается только при запуске установленного приложения в standalone режиме
+ * Улучшенная версия с Lottie анимацией и i18n поддержкой
  */
 export function PWASplash() {
 	const [showSplash, setShowSplash] = useState(false);
+	const [animationData, setAnimationData] = useState<Record<string, unknown> | null>(null);
+	const { t } = useTranslation();
+
+	// Загружаем Lottie анимацию
+	useEffect(() => {
+		const loadAnimation = async () => {
+			try {
+				const data = (await import('@/components/preloader/White-2.json')).default;
+				setAnimationData(data);
+			} catch (error) {
+				console.error('Failed to load splash animation:', error);
+			}
+		};
+		loadAnimation();
+	}, []);
 
 	useEffect(() => {
 		// Проверяем standalone режим
@@ -35,78 +55,51 @@ export function PWASplash() {
 			{showSplash && (
 				<motion.div
 					animate={{ opacity: 1 }}
-					className="fixed inset-0 z-[100] flex items-center justify-center bg-linear-to-br from-accent via-blue-500 to-blue-600"
+					className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-linear-to-br from-background via-card to-background transition-colors duration-300"
 					exit={{ opacity: 0 }}
 					initial={{ opacity: 0 }}
 					transition={{ duration: 0.3 }}
 				>
 					<motion.div
 						animate={{ scale: 1, opacity: 1 }}
-						className="text-center"
+						className="flex flex-col items-center justify-center"
 						exit={{ scale: 1.2, opacity: 0 }}
 						initial={{ scale: 0.8, opacity: 0 }}
 						transition={{ duration: 0.5, ease: 'easeOut' }}
 					>
-						{/* Icon */}
-						<motion.div
-							animate={{
-								scale: [1, 1.1, 1],
-								rotate: [0, 5, -5, 0],
-							}}
-							className="mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-[32px] bg-white/20 shadow-2xl backdrop-blur-xl"
-							transition={{
-								duration: 1.5,
-								repeat: Number.POSITIVE_INFINITY,
-								ease: 'easeInOut',
-							}}
-						>
-							<span className="text-[64px]">🏆</span>
-						</motion.div>
-
-						{/* Title */}
-						<motion.h1
-							animate={{ y: 0, opacity: 1 }}
-							className="mb-2 font-semibold! text-[32px]! text-white tracking-tight"
-							initial={{ y: 20, opacity: 0 }}
-							transition={{ delay: 0.2 }}
-						>
-							Дневник Достижений
-						</motion.h1>
-
-						{/* Subtitle */}
-						<motion.p
-							animate={{ y: 0, opacity: 1 }}
-							className="font-normal! text-[16px]! text-white/90"
-							initial={{ y: 20, opacity: 0 }}
-							transition={{ delay: 0.3 }}
-						>
-							Фиксируйте успехи каждый день
-						</motion.p>
-
-						{/* Loading indicator */}
+						{/* Lottie Animation Logo */}
 						<motion.div
 							animate={{ opacity: 1 }}
-							className="mt-8 flex justify-center gap-2"
+							className="mb-8 h-32 w-32"
 							initial={{ opacity: 0 }}
-							transition={{ delay: 0.5 }}
+							transition={{ delay: 0.1, duration: 0.5 }}
 						>
-							{[0, 1, 2].map((i) => (
-								<motion.div
-									animate={{
-										scale: [1, 1.3, 1],
-										opacity: [0.5, 1, 0.5],
-									}}
-									className="h-2 w-2 rounded-full bg-white/80"
-									key={i}
-									transition={{
-										duration: 1,
-										repeat: Number.POSITIVE_INFINITY,
-										delay: i * 0.2,
-										ease: 'easeInOut',
-									}}
-								/>
-							))}
+							{animationData && (
+								<Suspense fallback={<div className="h-32 w-32" />}>
+									<Lottie animationData={animationData} autoplay={true} loop={true} />
+								</Suspense>
+							)}
 						</motion.div>
+
+						{/* Title - UNITY */}
+						<motion.h1
+							animate={{ y: 0, opacity: 1 }}
+							className="mb-2 font-bold text-4xl text-foreground tracking-tight transition-colors duration-300"
+							initial={{ y: 20, opacity: 0 }}
+							transition={{ delay: 0.3, duration: 0.5 }}
+						>
+							UNITY
+						</motion.h1>
+
+						{/* Subtitle - i18n translated */}
+						<motion.p
+							animate={{ y: 0, opacity: 1 }}
+							className="text-center font-normal text-base text-muted-foreground transition-colors duration-300"
+							initial={{ y: 20, opacity: 0 }}
+							transition={{ delay: 0.5, duration: 0.5 }}
+						>
+							{t('splash.subtitle', 'Ваш дневник достижений')}
+						</motion.p>
 					</motion.div>
 				</motion.div>
 			)}

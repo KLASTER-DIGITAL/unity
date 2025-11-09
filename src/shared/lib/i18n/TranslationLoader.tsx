@@ -1,5 +1,6 @@
-import { AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import React, { useEffect } from 'react';
+import { LottieLoadingIndicator } from '@/shared/components/LottieLoadingIndicator';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
 import { useTranslation } from './useTranslation';
@@ -93,17 +94,13 @@ export const TranslationLoadingIndicator: React.FC<{
 		return null;
 	}
 
-	const sizeClasses = {
-		sm: 'w-4 h-4',
-		md: 'w-6 h-6',
-		lg: 'w-8 h-8',
-	};
-
 	return (
-		<div className={`flex items-center gap-2 ${className}`}>
-			<Loader2 className={`animate-spin text-primary ${sizeClasses[size]}`} />
-			{showText && <span className="text-muted-foreground text-xs">Loading...</span>}
-		</div>
+		<LottieLoadingIndicator
+			className={className}
+			showText={showText}
+			size={size}
+			text="Loading..."
+		/>
 	);
 };
 
