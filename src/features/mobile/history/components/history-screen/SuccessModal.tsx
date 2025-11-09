@@ -31,7 +31,7 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 				initial={{ opacity: 0, scale: 0.9 }}
 			>
 				<div className="flex flex-col items-center gap-4 text-center">
-					<div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ios-green)]/10">
+					<div className="flex h-16 w-16 items-center justify-center rounded-full bg-(--ios-green)/10">
 						<CheckCircle2 className="h-8 w-8 text-(--ios-green)" strokeWidth={2} />
 					</div>
 

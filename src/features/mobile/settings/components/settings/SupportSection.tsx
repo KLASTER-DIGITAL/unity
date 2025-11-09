@@ -35,16 +35,16 @@ export function SupportSection({
 			<SettingsRow
 				description="Поделитесь отзывом"
 				icon={Star}
-				iconBgColor="bg-[var(--ios-yellow)]/10"
-				iconColor="text-[var(--ios-yellow)]"
+				iconBgColor="bg-(--ios-yellow)/10"
+				iconColor="text-(--ios-yellow)"
 				onClick={onRateAppClick}
 				title={t.rateApp || 'Оценить приложение'}
 			/>
 			<SettingsRow
 				description="Помогите улучшить приложение"
 				icon={Bug}
-				iconBgColor="bg-[var(--ios-red)]/10"
-				iconColor="text-[var(--ios-red)]"
+				iconBgColor="bg-(--ios-red)/10"
+				iconColor="text-(--ios-red)"
 				onClick={() => {
 					try {
 						// Открываем форму сразу в раскрытом состоянии
@@ -59,7 +59,7 @@ export function SupportSection({
 			<SettingsRow
 				description="Часто задаваемые вопросы"
 				icon={HelpCircle}
-				iconBgColor="bg-[var(--ios-green)]/10"
+				iconBgColor="bg-(--ios-green)/10"
 				iconColor="text-(--ios-green)"
 				onClick={onFAQClick}
 				title={t.faq || 'FAQ'}

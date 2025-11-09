@@ -17,8 +17,8 @@ export function CategoriesSection({ onCategoriesClick, t }: CategoriesSectionPro
 			<SettingsRow
 				description={t.categoriesDescription || 'Управление категориями записей'}
 				icon={Tag}
-				iconBgColor="bg-[var(--ios-orange)]/10"
-				iconColor="text-[var(--ios-orange)]"
+				iconBgColor="bg-(--ios-orange)/10"
+				iconColor="text-(--ios-orange)"
 				onClick={onCategoriesClick}
 				title={t.categories || 'Мои категории'}
 			/>

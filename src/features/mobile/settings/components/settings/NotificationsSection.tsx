@@ -61,7 +61,7 @@ export function NotificationsSection({
 			<SettingsRow
 				description="Уведомления о наградах"
 				icon={Star}
-				iconBgColor="bg-[var(--ios-green)]/10"
+				iconBgColor="bg-(--ios-green)/10"
 				iconColor="text-(--ios-green)"
 				onSwitchChange={(checked) => handleToggle('achievements', checked)}
 				rightElement="switch"
@@ -71,8 +71,8 @@ export function NotificationsSection({
 			<SettingsRow
 				description="Мотивационные карточки"
 				icon={Crown}
-				iconBgColor="bg-[var(--ios-orange)]/10"
-				iconColor="text-[var(--ios-orange)]"
+				iconBgColor="bg-(--ios-orange)/10"
+				iconColor="text-(--ios-orange)"
 				onSwitchChange={(checked) => handleToggle('motivational', checked)}
 				rightElement="switch"
 				switchChecked={notifications.motivational}

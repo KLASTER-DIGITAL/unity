@@ -26,8 +26,8 @@ export function AdditionalSection({
 			<SettingsRow
 				description={languageName}
 				icon={Globe}
-				iconBgColor="bg-[var(--ios-indigo)]/10"
-				iconColor="text-[var(--ios-indigo)]"
+				iconBgColor="bg-(--ios-indigo)/10"
+				iconColor="text-(--ios-indigo)"
 				onClick={onLanguageClick}
 				title={t.language || 'Язык'}
 			/>
@@ -42,7 +42,7 @@ export function AdditionalSection({
 			<SettingsRow
 				description="JSON, CSV, ZIP"
 				icon={Download}
-				iconBgColor="bg-[var(--ios-green)]/10"
+				iconBgColor="bg-(--ios-green)/10"
 				iconColor="text-(--ios-green)"
 				onClick={() => toast.info('Feature coming soon')}
 				title={t.exportData || 'Экспортировать данные'}
@@ -58,8 +58,8 @@ export function AdditionalSection({
 			<SettingsRow
 				description="Необратимое действие"
 				icon={Trash2}
-				iconBgColor="bg-[var(--ios-red)]/10"
-				iconColor="text-[var(--ios-red)]"
+				iconBgColor="bg-(--ios-red)/10"
+				iconColor="text-(--ios-red)"
 				onClick={() => toast.error('Требуется подтверждение')}
 				title={t.deleteAllData || 'Удалить все данные'}
 			/>

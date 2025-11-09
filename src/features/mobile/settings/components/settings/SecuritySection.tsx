@@ -59,7 +59,7 @@ export function SecuritySection({
 				description={isPremium ? 'Премиум функция' : 'Требуется премиум'}
 				disabled={!isPremium}
 				icon={Shield}
-				iconBgColor="bg-[var(--ios-green)]/10"
+				iconBgColor="bg-(--ios-green)/10"
 				iconColor="text-(--ios-green)"
 				onClick={handleAutoBackupClick}
 				onSwitchChange={handleAutoBackupChange}

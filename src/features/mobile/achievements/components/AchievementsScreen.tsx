@@ -156,9 +156,9 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 	// const getRarityColor = (rarity: string) => {
 	//   switch (rarity) {
 	//     case "common": return "bg-muted text-foreground border-border";
-	//     case "uncommon": return "bg-[var(--ios-green)]/10 text-(--ios-green) border-[var(--ios-green)]/20";
+	//     case "uncommon": return "bg-(--ios-green)/10 text-(--ios-green) border-(--ios-green)/20";
 	//     case "rare": return "bg-(--ios-blue)/10 text-(--ios-blue) border-(--ios-blue)/20";
-	//     case "legendary": return "bg-(--ios-purple)/10 text-(--ios-purple) border-[var(--ios-purple)]/20";
+	//     case "legendary": return "bg-(--ios-purple)/10 text-(--ios-purple) border-(--ios-purple)/20";
 	//     default: return "bg-muted text-foreground border-border";
 	//   }
 	// };

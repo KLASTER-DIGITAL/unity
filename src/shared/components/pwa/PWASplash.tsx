@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { useTranslation } from '@/shared/lib/i18n';
 
 // Lazy load lottie-react для уменьшения bundle
 const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: module.default })));
@@ -8,12 +7,12 @@ const Lottie = lazy(() => import('lottie-react').then((module) => ({ default: mo
 /**
  * Splash screen для PWA
  * Показывается только при запуске установленного приложения в standalone режиме
- * Улучшенная версия с Lottie анимацией и i18n поддержкой
+ * Улучшенная версия с Lottie анимацией
  */
 export function PWASplash() {
 	const [showSplash, setShowSplash] = useState(false);
 	const [animationData, setAnimationData] = useState<Record<string, unknown> | null>(null);
-	const { t } = useTranslation();
+	const [subtitle] = useState('Ваш дневник достижений');
 
 	// Загружаем Lottie анимацию
 	useEffect(() => {
@@ -98,7 +97,7 @@ export function PWASplash() {
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.5, duration: 0.5 }}
 						>
-							{t('splash.subtitle', 'Ваш дневник достижений')}
+							{subtitle}
 						</motion.p>
 					</motion.div>
 				</motion.div>
