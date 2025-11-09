@@ -1,28 +1,48 @@
 # 📚 UNITY-v2 - Документация проекта
 
-**Дата обновления**: 2025-10-21
-**Статус**: ✅ PRODUCTION READY
-**Версия проекта**: UNITY-v2
-**Documentation Ratio**: 27% (92 docs / 334 source files) ✅
+**Дата обновления**: 2025-11-09
+**Статус**: ✅ MVP READY
+**Версия проекта**: UNITY-v2 v2.0.1
+**Documentation Ratio**: 31% (177 docs / 545 source files) ✅
 
-🎉 **Проект завершен на 100%!** Все задачи выполнены, приложение готово к production deployment.
+🎉 **MVP готов к тестированию!** Все критические задачи выполнены, приложение готово к тестированию с 20-50 пользователями.
 
 Добро пожаловать в документацию проекта UNITY - кроссплатформенного PWA приложения для личностного роста через ведение дневника достижений с AI-анализом.
 
 ---
 
-## 🆕 Новая структура документации (2025-10-21)
+## 🚨 ВАЖНОЕ ИЗМЕНЕНИЕ (2025-11-09)
 
-### 📋 Планирование (`/plan`) - НОВОЕ!
+### **Управление проектом переехало в Notion!**
+
+👉 **[Unity Project Hub в Notion](https://www.notion.so/Unity-Project-Hub-be47b86245634bf08c2a02888fec4a11)**
+
+**Что изменилось**:
+- ❌ ~~BACKLOG.md~~ → ✅ **Notion Tasks Database**
+- ❌ ~~ROADMAP.md~~ → ✅ **Notion Roadmap Database**
+- ❌ ~~SPRINT.md~~ → ✅ **Notion Tasks Database** (фильтр по Sprint)
+
+**Автоматизация**:
+- GitHub Issues/PRs → автоматически синхронизируются с Notion
+- GitHub Releases → автоматически создают Releases в Notion
+- Vercel Deployments → автоматически добавляют Preview URLs в Tasks
+
+**Документация**:
+- 📖 [docs/notion/README.md](notion/README.md) - Обзор интеграции
+- 🔧 [docs/notion/NOTION_SETUP_GUIDE.md](notion/NOTION_SETUP_GUIDE.md) - Настройка
+- 📋 [docs/plan/README.md](plan/README.md) - Новое местоположение задач
+
+---
+
+## 🆕 Структура документации (обновлено 2025-11-09)
+
+### 📋 Планирование (`/plan`)
 Все, что связано с планированием задач и стратегией проекта.
 
-- **[plan/BACKLOG.md](plan/BACKLOG.md)** - единый источник истины для всех задач (8 задач, P0-P3)
-- **[plan/ROADMAP.md](plan/ROADMAP.md)** - долгосрочное видение (Q4 2025 - Q3 2026)
-- **[plan/SPRINT.md](plan/SPRINT.md)** - текущий спринт #13 (2025-10-21 to 2025-11-03)
+- **[plan/README.md](plan/README.md)** - указатель на Notion (НОВОЕ!)
 - **[plan/tasks/](plan/tasks/)** - детальные технические планы
-  - `active/` - задачи в работе (WIP limit: 5)
-  - `planned/` - готовые к старту (WIP limit: 10)
-  - `archive/` - завершенные задачи (автоархивация через 3 месяца)
+  - `active/` - задачи в работе
+  - `archive/` - завершенные задачи
 
 ### 📝 История изменений (`/changelog`) - НОВОЕ!
 Все завершенные изменения и обновления проекта.

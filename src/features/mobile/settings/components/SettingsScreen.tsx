@@ -200,6 +200,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 			<NotificationsSection
 				notifications={notifications}
 				onNotificationsChange={setNotifications}
+				profile={profile}
 				t={t}
 				userId={profile?.id}
 			/>

@@ -98,6 +98,56 @@ type: "always_apply"
 
 ---
 
+## 📋 Notion Project Management (НОВОЕ - 2025-11-09)
+
+### Структура Notion
+- **Unity Project Hub**: https://www.notion.so/Unity-Project-Hub-be47b86245634bf08c2a02888fec4a11
+- **4 базы данных**:
+  1. **Tasks** (ID: `33d47291493f43b988a331ca975521d7`) - все задачи проекта
+  2. **Roadmap** (ID: `04e2b6d469bd4e2c8a5af8480b6d715d`) - стратегические планы
+  3. **Releases** (ID: `603c0f2896224c819e1ec68883dd9841`) - релизы и changelog
+  4. **Stakeholder Comms** (ID: `c8ea309c4e70454192681f7e4c41c866`) - коммуникация со стейкхолдерами
+
+### Tasks Database Schema
+- **title** (Title) - название задачи
+- **Status** (Status) - статус: "In progress", "Done", "Blocked", etc.
+- **Priority** (Select) - приоритет: P0 (Critical), P1 (High), P2 (Medium), P3 (Low)
+- **Labels** (Multi-select) - категории: Security, Performance, UX, Bugs, General
+- **Estimate (h)** (Number) - оценка времени в часах
+- **Epic** (Text) - связь с эпиком
+- **Sprint** (Text) - номер спринта
+- **GitHub Issue URL** (URL) - ссылка на GitHub Issue
+- **PR URL** (URL) - ссылка на Pull Request
+- **Vercel Preview URL** (URL) - ссылка на preview deployment
+- **Assignee** (Person) - исполнитель
+- **Due** (Date) - дедлайн
+
+### Автоматизация
+- **GitHub Actions**: автоматическая синхронизация Issues/PRs/Releases → Notion
+- **Workflows**:
+  - `.github/workflows/sync-pr-issue-to-notion.yml` - синхронизация Issues и PRs
+  - `.github/workflows/release-to-notion.yml` - создание записей о релизах
+  - `.github/workflows/vercel-deploy-to-notion.yml` - обновление Vercel Preview URLs
+- **Scripts**:
+  - `scripts/import-to-notion.js` - импорт задач из PRIORITY_ROADMAP
+  - `scripts/check-notion-schema.js` - проверка схемы базы данных
+  - `scripts/setup-notion-database.js` - настройка структуры базы данных
+
+### Правила работы с Notion
+- **ВСЕГДА** создавать задачи в Notion Tasks database (НЕ в BACKLOG.md)
+- **ВСЕГДА** обновлять статус задач при изменениях
+- **ВСЕГДА** добавлять GitHub Issue URL и PR URL для связи с кодом
+- **ВСЕГДА** указывать Priority (P0/P1/P2/P3) для новых задач
+- **ВСЕГДА** добавлять Labels для категоризации
+- **ЗАПРЕТ**: НЕ использовать BACKLOG.md, ROADMAP.md, SPRINT.md (deprecated)
+
+### Notion API
+- **API Key**: Хранится в `NOTION_API_KEY` environment variable (GitHub Secrets)
+- **GitHub Secrets**: NOTION_API_KEY, NOTION_TASKS_DB_ID, NOTION_ROADMAP_DB_ID, NOTION_RELEASES_DB_ID
+- **Библиотека**: `@notionhq/client` для программного доступа
+
+---
+
 ## ⚠️ Критические правила
 
 ### Обязательные проверки
@@ -142,10 +192,17 @@ type: "always_apply"
 ## 📚 Документация
 
 ### Single Source of Truth
-- **BACKLOG.md**: единый источник истины всех задач
-- **ROADMAP.md**: стратегия 6-12 месяцев
-- **SPRINT.md**: тактика 1-2 недели
+- **Notion Tasks Database**: единый источник истины всех задач (BACKLOG.md deprecated)
+- **Notion Roadmap Database**: стратегия 6-12 месяцев (ROADMAP.md deprecated)
+- **Notion Releases Database**: changelog и релизы
 - **RECOMMENDATIONS.md**: AI-рекомендации, обновляется еженедельно через `codebase-retrieval`
+
+### Принцип ведения документации
+- **Краткость**: документация должна быть минимальной но достаточной
+- **Актуальность**: обновлять при изменениях, удалять устаревшее
+- **Структурированность**: использовать четкую иерархию и naming conventions
+- **Автоматизация**: предпочитать автогенерацию (Notion sync, GitHub Actions)
+- **Documentation Ratio**: docs count ≤ source files count (правило 1:1)
 
 ### Naming conventions
 - `changelog/archive/`: `YYYY-MM-DD_snake_case.md`

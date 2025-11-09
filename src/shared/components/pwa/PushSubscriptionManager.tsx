@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { PushNotificationSettingsModal } from '@/features/mobile/notifications';
 import {
 	trackPushDenied,
 	trackPushSubscribed,
@@ -35,6 +36,7 @@ export function PushSubscriptionManager({
 	const [permission, setPermission] = useState<NotificationPermission>('default');
 	const [isSubscribed, setIsSubscribed] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showSettingsModal, setShowSettingsModal] = useState(false);
 
 	/**
 	 * Проверяет поддержку Web Push API
@@ -68,7 +70,14 @@ export function PushSubscriptionManager({
 	}, [userId, checkSubscription, checkSupport]);
 
 	/**
-	 * Подписывается на push уведомления
+	 * Открывает модалку настроек
+	 */
+	const handleOpenSettings = () => {
+		setShowSettingsModal(true);
+	};
+
+	/**
+	 * Подписывается на push уведомления (вызывается из модалки)
 	 */
 	const handleSubscribe = async () => {
 		setIsLoading(true);
@@ -80,6 +89,7 @@ export function PushSubscriptionManager({
 				setPermission('granted');
 				trackPushSubscribed(userId);
 				onSubscriptionChange?.(true);
+				setShowSettingsModal(false);
 				alert('✅ Вы подписались на уведомления!');
 			} else {
 				const currentPermission = getNotificationPermission();
@@ -168,20 +178,30 @@ export function PushSubscriptionManager({
 					<button
 						className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
 						disabled={isLoading || permission === 'denied'}
-						onClick={handleSubscribe}
+						onClick={handleOpenSettings}
+						type="button"
 					>
-						{isLoading ? 'Подписка...' : '🔔 Подписаться'}
+						🔔 Включить уведомления
 					</button>
 				) : (
 					<button
 						className="flex-1 rounded-xl bg-muted px-4 py-2.5 font-medium text-foreground transition-all duration-200 hover:bg-muted/80 disabled:opacity-50"
 						disabled={isLoading}
 						onClick={handleUnsubscribe}
+						type="button"
 					>
 						{isLoading ? 'Отписка...' : '🔕 Отписаться'}
 					</button>
 				)}
 			</div>
+
+			{/* Settings Modal */}
+			<PushNotificationSettingsModal
+				isOpen={showSettingsModal}
+				onClose={() => setShowSettingsModal(false)}
+				onEnableNotifications={handleSubscribe}
+				userId={userId}
+			/>
 
 			{permission === 'denied' && (
 				<div className="mt-3 text-caption-2 text-muted-foreground">

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Toaster } from 'sonner';
+import { PushNotificationOnboardingModal } from '@/features/mobile/notifications';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
 import { TranslationManager, TranslationProvider } from '@/shared/lib/i18n';
@@ -122,9 +123,35 @@ export function MobileApp({
 	>('home');
 	const [direction, setDirection] = useState(0);
 	const prevScreenRef = useRef<string>('home');
+	const [showPushOnboarding, setShowPushOnboarding] = useState(false);
 
 	// Tab order for directional animations
 	const tabOrder = ['home', 'history', 'achievements', 'reports', 'settings'];
+
+	// Check if user needs to see push notification onboarding
+	useEffect(() => {
+		if (userData && onboardingComplete) {
+			// Check if user has completed push notification onboarding
+			const profile = userData.profile || userData;
+			const hasCompletedPushOnboarding = profile?.has_completed_onboarding;
+
+			// ВАЖНО: Показываем модалку ТОЛЬКО ОДИН РАЗ
+			// Проверяем localStorage чтобы не показывать снова после закрытия
+			const hasSeenModal = localStorage.getItem(`push_onboarding_seen_${userData.id}`);
+
+			// Show modal if user hasn't completed push onboarding AND hasn't seen it yet
+			if (!hasCompletedPushOnboarding && !hasSeenModal && !showPushOnboarding) {
+				// Delay showing modal by 1 second for better UX
+				const timer = setTimeout(() => {
+					setShowPushOnboarding(true);
+					// Mark as seen in localStorage
+					localStorage.setItem(`push_onboarding_seen_${userData.id}`, 'true');
+				}, 1000);
+
+				return () => clearTimeout(timer);
+			}
+		}
+	}, [userData, onboardingComplete, showPushOnboarding]);
 
 	// Register routes for smart prefetching
 	useEffect(() => {
@@ -338,6 +365,26 @@ export function MobileApp({
 
 					{/* Mobile Bottom Navigation - FIXED poверх всего */}
 					<MobileBottomNav activeTab={activeScreen} onTabChange={handleTabChange} />
+
+					{/* Push Notification Onboarding Modal */}
+					{userData && (
+						<PushNotificationOnboardingModal
+							isOpen={showPushOnboarding}
+							onClose={() => setShowPushOnboarding(false)}
+							onComplete={() => {
+								setShowPushOnboarding(false);
+								// Optionally refresh user data to update has_completed_onboarding
+								if (onProfileUpdate) {
+									const profile = userData.profile || userData;
+									onProfileUpdate({
+										...profile,
+										has_completed_onboarding: true,
+									});
+								}
+							}}
+							userId={userData.user?.id || userData.id}
+						/>
+					)}
 
 					<Toaster position="top-center" />
 				</div>

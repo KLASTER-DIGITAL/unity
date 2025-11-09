@@ -1,4 +1,5 @@
 import { Bell, Calendar, Crown, Star } from 'lucide-react';
+import { NotificationTimeSelector } from '@/features/mobile/notifications';
 import { PushSubscriptionManager } from '@/shared/components/pwa/PushSubscriptionManager';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 import type { NotificationSettings } from './types';
@@ -7,6 +8,7 @@ type NotificationsSectionProps = {
 	notifications: NotificationSettings;
 	onNotificationsChange: (notifications: NotificationSettings) => void;
 	userId?: string;
+	profile?: any; // User profile with notification_time_preferences
 	t: any; // Translation object
 };
 
@@ -23,6 +25,7 @@ export function NotificationsSection({
 	notifications,
 	onNotificationsChange,
 	userId,
+	profile,
 	t,
 }: NotificationsSectionProps) {
 	const handleToggle = (key: keyof NotificationSettings, checked: boolean) => {
@@ -78,6 +81,16 @@ export function NotificationsSection({
 				switchChecked={notifications.motivational}
 				title={t.motivationalMessages || 'Мотивационные сообщения'}
 			/>
+
+			{/* Notification Time Selector */}
+			{userId && (
+				<NotificationTimeSelector
+					initialEveningTime={profile?.notification_time_preferences?.eveningTime}
+					initialMorningTime={profile?.notification_time_preferences?.morningTime}
+					initialSelectedTimes={profile?.notification_time_preferences?.selectedTimes}
+					userId={userId}
+				/>
+			)}
 		</SettingsSection>
 	);
 }

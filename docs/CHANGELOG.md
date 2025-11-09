@@ -9,6 +9,29 @@
 
 ## [Unreleased] - 2025-11-09
 
+### 📚 Документация
+- **Notion Integration**: Полная интеграция управления проектом с Notion
+  - Миграция BACKLOG.md, ROADMAP.md, SPRINT.md в Notion
+  - Автоматическая синхронизация GitHub Issues/PRs → Notion Tasks
+  - Автоматическая синхронизация GitHub Releases → Notion Releases
+  - Автоматическое добавление Vercel Preview URLs в Tasks
+  - 4 базы данных: Tasks, Roadmap, Releases, Stakeholder Communications
+  - **Успешный импорт**: 21 задача в Notion Tasks
+    - 15 задач из PRIORITY_ROADMAP (P1-P2, текущий спринт)
+    - 6 задач из planned (P3, будущие спринты)
+  - **Схема базы данных**: title, Status, Priority (P0/P1/P2/P3), Labels, Estimate (h), Epic, Sprint, GitHub Issue URL, PR URL, Vercel Preview URL, Assignee, Due
+  - Документация: `docs/notion/` (6 файлов)
+  - Workflows: `.github/workflows/` (3 файла)
+  - Scripts: `.github/scripts/` (6 файлов) + `scripts/import-to-notion.js`, `scripts/check-notion-schema.js`, `scripts/setup-notion-database.js`
+  - Обновлены правила: `.augment/rules/unity.md` с инструкциями по Notion
+
+- **Documentation Cleanup**: Массовая очистка неактуальной документации
+  - Архивировано 92 файла в `docs/archive/2025-11-09_cleanup/`
+  - Удалены дублирующиеся отчеты (50+ файлов `*2025-11-08*.md`)
+  - Архивированы BACKLOG.md, ROADMAP.md, SPRINT.md
+  - Соотношение документации: 49% → 31% (улучшение 37%)
+  - Скрипт: `.github/scripts/cleanup-docs.sh`
+
 ### 🐛 Исправления
 - **PWA Update Loop Fix**: Исправлена бесконечная петля обновления PWA
   - Добавлена проверка версии в localStorage (`pwa_update_in_progress` флаг)
