@@ -122,6 +122,33 @@ export function ChatInputSection({
 
 	// Обработка отправки сообщения - СРАЗУ показать Success Modal
 	const handleSendMessage = () => {
+		// ✅ НОВОЕ: Проверка авторизации ПЕРЕД отправкой
+		if (!userId || userId === 'anonymous') {
+			toast.error('Требуется авторизация', {
+				description: 'Войдите в систему для создания записей',
+				duration: 5000,
+				action: {
+					label: 'Войти',
+					onClick: () => {
+						// Перезагрузить страницу для повторной авторизации
+						window.location.reload();
+					},
+				},
+			});
+			console.error('[CHAT INPUT] User not authenticated - userId:', userId);
+			return;
+		}
+
+		// ✅ НОВОЕ: Проверка что текст не пустой
+		if (!inputText || inputText.trim().length === 0) {
+			toast.error('Пустое сообщение', {
+				description: 'Введите текст для создания записи',
+				duration: 3000,
+			});
+			console.error('[CHAT INPUT] Empty message - cannot send');
+			return;
+		}
+
 		// 1. Сразу показать Success Modal (НЕ ждать обработки)
 		setShowSuccessModal(true);
 
@@ -146,9 +173,12 @@ export function ChatInputSection({
 			onMessageSent,
 			onEntrySaved,
 		}).catch((error) => {
-			console.error('Error sending message:', error);
+			console.error('[CHAT INPUT] Error sending message:', error);
+			// Скрыть Success Modal при ошибке
+			setShowSuccessModal(false);
 			toast.error('Не удалось отправить сообщение', {
 				description: error.message,
+				duration: 5000,
 			});
 		});
 	};

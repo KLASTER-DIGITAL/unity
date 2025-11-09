@@ -184,22 +184,73 @@ export async function handleSendMessage({
 		// Hide success modal on error
 		setShowSuccessModal(false);
 
-		// Detailed error message
+		// ✅ IMPROVED: Детальная обработка ошибок по типам
+		let errorTitle = 'Ошибка обработки';
 		let errorMessage = 'Не удалось сохранить запись. Попробуйте снова.';
+		let errorAction: { label: string; onClick: () => void } | undefined;
+
 		if (error instanceof Error) {
-			if (error.message.includes('OpenAI')) {
-				errorMessage = 'Ошибка AI анализа. Попробуйте позже.';
-			} else if (error.message.includes('network')) {
-				errorMessage = 'Проблема с интернетом. Проверьте подключение.';
-			} else if (error.message.includes('auth')) {
-				errorMessage = 'Ошибка авторизации. Перезагрузите приложение.';
+			const errorMsg = error.message.toLowerCase();
+
+			// RLS / Permission errors
+			if (
+				errorMsg.includes('row-level security') ||
+				errorMsg.includes('policy') ||
+				errorMsg.includes('permission denied') ||
+				errorMsg.includes('insufficient privileges')
+			) {
+				errorTitle = 'Ошибка доступа';
+				errorMessage =
+					'У вас нет прав для создания записей. Проверьте авторизацию и перезагрузите приложение.';
+				console.error('[MESSAGE HANDLER] RLS Policy Error - user may not be authenticated');
+			}
+			// AI / OpenAI errors
+			else if (errorMsg.includes('openai') || errorMsg.includes('ai analysis')) {
+				errorTitle = 'Ошибка AI анализа';
+				errorMessage =
+					'Сервис AI временно недоступен. Попробуйте позже или обратитесь в поддержку.';
+				console.error(
+					'[MESSAGE HANDLER] AI Analysis Error - OpenAI API may be down or rate limited'
+				);
+			}
+			// Network errors
+			else if (
+				errorMsg.includes('network') ||
+				errorMsg.includes('fetch') ||
+				errorMsg.includes('failed to fetch')
+			) {
+				errorTitle = 'Проблема с интернетом';
+				errorMessage = 'Проверьте подключение к интернету и попробуйте снова.';
+				console.error('[MESSAGE HANDLER] Network Error - check internet connection');
+			}
+			// Validation errors
+			else if (errorMsg.includes('required') || errorMsg.includes('invalid')) {
+				errorTitle = 'Ошибка валидации';
+				errorMessage = error.message;
+				console.error('[MESSAGE HANDLER] Validation Error:', error.message);
+			}
+			// Auth errors
+			else if (errorMsg.includes('auth') || errorMsg.includes('unauthorized')) {
+				errorTitle = 'Ошибка авторизации';
+				errorMessage = 'Сессия истекла. Перезагрузите приложение и войдите снова.';
+				errorAction = {
+					label: 'Перезагрузить',
+					onClick: () => window.location.reload(),
+				};
+				console.error('[MESSAGE HANDLER] Auth Error - session may have expired');
+			}
+			// Generic error with message
+			else if (error.message) {
+				errorMessage = error.message;
+				console.error('[MESSAGE HANDLER] Generic Error:', error.message);
 			}
 		}
 
-		// Error toast
-		toast.error('Ошибка обработки', {
+		// Error toast with action button if available
+		toast.error(errorTitle, {
 			description: errorMessage,
 			duration: 5000,
+			action: errorAction,
 		});
 
 		// ✅ FIX #4: НЕ добавляем fallback ответ в чат

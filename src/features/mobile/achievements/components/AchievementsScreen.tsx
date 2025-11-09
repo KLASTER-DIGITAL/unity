@@ -81,14 +81,14 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 			});
 
 			console.log('Calculated achievements:', calculatedAchievements);
-			console.log('User stats:', userStats);
+			console.log('User stats:', stats);
 		} catch (error) {
 			console.error('Error loading data:', error);
 			toast.error('Не удалось загрузить достижения');
 		} finally {
 			setIsLoading(false);
 		}
-	}, [userData, userStats]);
+	}, [userData]); // ✅ FIX: Удалили userStats из dependencies для предотвращения бесконечного цикла
 
 	// ✅ FIX: useEffect AFTER function definition
 	useEffect(() => {

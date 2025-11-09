@@ -67,7 +67,40 @@ async function entriesApiRequest<T = any>(endpoint: string, options: any = {}): 
 export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntry> {
 	console.log('[ENTRIES] Creating entry via direct Supabase client:', entry);
 
+	// ✅ НОВОЕ: Валидация перед отправкой в БД
+	if (!entry.userId || entry.userId === 'anonymous') {
+		console.error('[ENTRIES] Invalid userId:', entry.userId);
+		throw new Error('User ID is required and cannot be "anonymous"');
+	}
+
+	if (!entry.text || entry.text.trim().length === 0) {
+		console.error('[ENTRIES] Empty text field');
+		throw new Error('Text is required and cannot be empty');
+	}
+
 	const supabase = createClient();
+
+	// ✅ НОВОЕ: Проверка авторизации перед INSERT
+	const {
+		data: { user },
+		error: authError,
+	} = await supabase.auth.getUser();
+
+	if (authError || !user) {
+		console.error('[ENTRIES] User not authenticated:', authError);
+		throw new Error('User not authenticated. Please log in and try again.');
+	}
+
+	// ✅ НОВОЕ: Проверка что userId совпадает с auth.uid()
+	if (user.id !== entry.userId) {
+		console.error('[ENTRIES] userId mismatch:', {
+			authUserId: user.id,
+			entryUserId: entry.userId,
+		});
+		throw new Error('User ID mismatch. Please refresh the page and try again.');
+	}
+
+	console.log('[ENTRIES] User authenticated:', user.id);
 
 	const { data, error } = await supabase
 		.from('entries')
@@ -93,6 +126,12 @@ export async function createEntry(entry: Partial<DiaryEntry>): Promise<DiaryEntr
 
 	if (error) {
 		console.error('[ENTRIES] Failed to create entry:', error);
+		// ✅ НОВОЕ: Более детальное сообщение об ошибке
+		if (error.message.includes('row-level security') || error.message.includes('policy')) {
+			throw new Error(
+				'Permission denied: You do not have access to create entries. Please check your authentication.'
+			);
+		}
 		throw new Error(error.message || 'Failed to create entry');
 	}
 

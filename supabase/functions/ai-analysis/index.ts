@@ -58,26 +58,45 @@ Deno.serve(async (req) => {
 		let openaiApiKey = headerKey;
 
 		if (!openaiApiKey) {
-			const { data: setting } = await supabaseAdmin
+			const { data: setting, error: settingError } = await supabaseAdmin
 				.from('admin_settings')
 				.select('value')
 				.eq('key', 'openai_api_key')
 				.single();
 
+			if (settingError) {
+				console.error(
+					'[AI-ANALYSIS] ❌ Error fetching OpenAI key from admin_settings:',
+					settingError
+				);
+			}
+
 			if (setting?.value) {
 				openaiApiKey = setting.value;
-				console.log('[AI-ANALYSIS] Using OpenAI key from admin_settings');
+				console.log('[AI-ANALYSIS] ✅ Using OpenAI key from admin_settings');
+				console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
+				console.log('[AI-ANALYSIS] 🔑 Key prefix:', openaiApiKey.substring(0, 20));
+				console.log(
+					'[AI-ANALYSIS] 🔑 Key suffix:',
+					openaiApiKey.substring(openaiApiKey.length - 20)
+				);
 			} else {
+				console.log('[AI-ANALYSIS] ⚠️ No key in admin_settings, trying env variable');
 				openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 				if (openaiApiKey) {
-					console.log('[AI-ANALYSIS] Using OpenAI key from env variable (fallback)');
+					console.log('[AI-ANALYSIS] ✅ Using OpenAI key from env variable (fallback)');
+					console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
+				} else {
+					console.log('[AI-ANALYSIS] ❌ No key in env variable either');
 				}
 			}
 		} else {
-			console.log('[AI-ANALYSIS] Using OpenAI key from header');
+			console.log('[AI-ANALYSIS] ✅ Using OpenAI key from header');
+			console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
 		}
 
 		if (!openaiApiKey) {
+			console.error('[AI-ANALYSIS] ❌ CRITICAL: No OpenAI API key found anywhere!');
 			return new Response(
 				JSON.stringify({
 					success: false,
@@ -149,6 +168,10 @@ Deno.serve(async (req) => {
 Отвечай на языке пользователя: ${finalUserLanguage}`;
 
 			// Call OpenAI API
+			console.log('[AI-ANALYSIS] 🚀 Calling OpenAI API...');
+			console.log('[AI-ANALYSIS] 📝 Model: gpt-4o-mini');
+			console.log('[AI-ANALYSIS] 📝 Text length:', text.length);
+
 			const response = await fetch('https://api.openai.com/v1/chat/completions', {
 				method: 'POST',
 				headers: {
@@ -167,20 +190,40 @@ Deno.serve(async (req) => {
 				}),
 			});
 
+			console.log('[AI-ANALYSIS] 📡 OpenAI API response status:', response.status);
+			console.log('[AI-ANALYSIS] 📡 OpenAI API response statusText:', response.statusText);
+
 			if (!response.ok) {
 				const error = await response.text();
-				console.error('[AI-ANALYSIS] OpenAI API error:', error);
+				console.error('[AI-ANALYSIS] ❌ OpenAI API error response:', error);
+				console.error('[AI-ANALYSIS] ❌ OpenAI API status:', response.status);
+				console.error('[AI-ANALYSIS] ❌ OpenAI API statusText:', response.statusText);
+
+				// Попробуем распарсить ошибку
+				try {
+					const errorJson = JSON.parse(error);
+					console.error(
+						'[AI-ANALYSIS] ❌ OpenAI API error details:',
+						JSON.stringify(errorJson, null, 2)
+					);
+				} catch (_e) {
+					console.error('[AI-ANALYSIS] ❌ Could not parse error as JSON');
+				}
+
 				return new Response(
 					JSON.stringify({
 						success: false,
 						error: `OpenAI API failed: ${response.status}`,
+						details: error,
 					}),
 					{
-						status: 500,
+						status: 400,
 						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 					}
 				);
 			}
+
+			console.log('[AI-ANALYSIS] ✅ OpenAI API call successful!');
 
 			const result = await response.json();
 			const aiResponse = result.choices[0]?.message?.content;
@@ -232,7 +275,7 @@ Deno.serve(async (req) => {
 			}
 
 			// Parse AI response
-			let analysis;
+			let analysis: { sentiment?: string; category?: string; mood?: string };
 			try {
 				analysis = JSON.parse(aiResponse);
 			} catch (e) {

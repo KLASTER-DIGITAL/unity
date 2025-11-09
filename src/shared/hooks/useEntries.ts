@@ -159,20 +159,94 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 					console.log('[useEntries] 📋 Payload new record:', payload.new);
 					console.log('[useEntries] 📋 Payload old record:', payload.old);
 
-					// ✅ FIX: Используем fetchEntriesRef.current вместо fetchEntries
-					// Это гарантирует что subscription НЕ пересоздается при каждом обновлении
-					// При получении события перезагружаем данные с учетом limit
+					// ✅ ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ: обновляем state НЕМЕДЛЕННО
+					// Это дает мгновенное обновление UI без ожидания репликации БД
+					if (payload.eventType === 'INSERT' && payload.new) {
+						console.log('[useEntries] ⚡ Optimistic INSERT: adding new entry to state');
+
+						// Конвертируем snake_case → camelCase
+						const newEntry: DiaryEntry = {
+							id: payload.new.id,
+							userId: payload.new.user_id,
+							text: payload.new.text,
+							sentiment: payload.new.sentiment,
+							category: payload.new.category,
+							mood: payload.new.mood,
+							isFirstEntry: payload.new.is_first_entry,
+							media: payload.new.media,
+							aiReply: payload.new.ai_reply,
+							aiSummary: payload.new.ai_summary,
+							aiInsight: payload.new.ai_insight,
+							isAchievement: payload.new.is_achievement,
+							tags: payload.new.tags,
+							streakDay: payload.new.streak_day,
+							focusArea: payload.new.focus_area,
+							createdAt: payload.new.created_at,
+							voiceUrl: payload.new.voice_url,
+							mediaUrl: payload.new.media_url,
+						};
+
+						// Добавляем в начало списка и обрезаем до limit
+						setEntries((prev) => {
+							const updated = [newEntry, ...prev];
+							const result = currentLimit ? updated.slice(0, currentLimit) : updated;
+							console.log('[useEntries] ⚡ Optimistic state updated:', result.length, 'entries');
+							return result;
+						});
+					} else if (payload.eventType === 'UPDATE' && payload.new) {
+						console.log('[useEntries] ⚡ Optimistic UPDATE: updating entry in state');
+
+						// Обновляем существующую запись
+						setEntries((prev) => {
+							const updated = prev.map((entry) =>
+								entry.id === payload.new.id
+									? {
+											id: payload.new.id,
+											userId: payload.new.user_id,
+											text: payload.new.text,
+											sentiment: payload.new.sentiment,
+											category: payload.new.category,
+											mood: payload.new.mood,
+											isFirstEntry: payload.new.is_first_entry,
+											media: payload.new.media,
+											aiReply: payload.new.ai_reply,
+											aiSummary: payload.new.ai_summary,
+											aiInsight: payload.new.ai_insight,
+											isAchievement: payload.new.is_achievement,
+											tags: payload.new.tags,
+											streakDay: payload.new.streak_day,
+											focusArea: payload.new.focus_area,
+											createdAt: payload.new.created_at,
+											voiceUrl: payload.new.voice_url,
+											mediaUrl: payload.new.media_url,
+										}
+									: entry
+							);
+							console.log('[useEntries] ⚡ Optimistic state updated:', updated.length, 'entries');
+							return updated;
+						});
+					} else if (payload.eventType === 'DELETE' && payload.old) {
+						console.log('[useEntries] ⚡ Optimistic DELETE: removing entry from state');
+
+						// Удаляем запись
+						setEntries((prev) => {
+							const updated = prev.filter((entry) => entry.id !== payload.old.id);
+							console.log('[useEntries] ⚡ Optimistic state updated:', updated.length, 'entries');
+							return updated;
+						});
+					}
+
+					// ✅ Затем обновляем данные из БД для синхронизации
+					// Это гарантирует что state соответствует БД (на случай конфликтов)
 					const refreshEntries = async () => {
-						// Небольшая задержка чтобы убедиться что ref установлен
-						await new Promise((resolve) => setTimeout(resolve, 100));
+						// Задержка для репликации БД (1000ms для надежности)
+						await new Promise((resolve) => setTimeout(resolve, 1000));
 
 						try {
 							if (fetchEntriesRef.current) {
-								console.log(
-									'[useEntries] 🔄 Calling fetchEntriesRef.current() to refresh entries...'
-								);
+								console.log('[useEntries] 🔄 Calling fetchEntriesRef.current() to sync with DB...');
 								await fetchEntriesRef.current();
-								console.log('[useEntries] ✅ Entries refreshed successfully');
+								console.log('[useEntries] ✅ Entries synced with DB successfully');
 							} else {
 								console.warn(
 									'[useEntries] ⚠️ fetchEntriesRef.current is null, using fetchEntries directly'
@@ -181,7 +255,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 								await fetchEntries();
 							}
 						} catch (err) {
-							console.error('[useEntries] ❌ Error refreshing entries:', err);
+							console.error('[useEntries] ❌ Error syncing entries with DB:', err);
 						}
 					};
 

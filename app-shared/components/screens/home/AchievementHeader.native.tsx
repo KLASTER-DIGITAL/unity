@@ -92,7 +92,9 @@ export const AchievementHeader = memo(function AchievementHeader({
 					{/* Кружок с обводкой */}
 					<View style={styles.circle}>
 						<Text style={styles.daysNumber}>{daysInApp}</Text>
-						<Text style={styles.daysLabel}>День</Text>
+						<Text style={styles.daysLabel}>
+							{daysInApp === 1 ? 'День подряд' : daysInApp < 5 ? 'Дня подряд' : 'Дней подряд'}
+						</Text>
 					</View>
 				</View>
 			</View>
