@@ -150,7 +150,7 @@ export function BottomSheet({
 					{/* Backdrop */}
 					<motion.div
 						animate={{ opacity: 1 }}
-						className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/40 backdrop-blur-sm"
+						className="fixed inset-0 z-(z-modal-backdrop) bg-black/40 backdrop-blur-sm"
 						data-testid={`${testID}-backdrop`}
 						exit={{ opacity: 0 }}
 						initial={{ opacity: 0 }}
@@ -166,7 +166,7 @@ export function BottomSheet({
 					<motion.div
 						animate={{ y: 0 }}
 						className={cn(
-							'fixed right-0 bottom-0 left-0 z-[var(--z-modal)]',
+							'fixed right-0 bottom-0 left-0 z-(z-modal)',
 							'border-border border-t bg-card',
 							'rounded-t-3xl shadow-2xl',
 							'mx-auto max-w-md',

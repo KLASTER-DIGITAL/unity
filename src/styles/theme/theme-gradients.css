@@ -3,9 +3,9 @@
  * AI-Friendly: Градиенты адаптируются к light/dark режиму
  *
  * Использование в компонентах:
- * - from-[var(--gradient-positive-1-start)] to-[var(--gradient-positive-1-end)]
- * - from-[var(--gradient-neutral-1-start)] to-[var(--gradient-neutral-1-end)]
- * - from-[var(--gradient-negative-1-start)] to-[var(--gradient-negative-1-end)]
+ * - from-(gradient-positive-1-start) to-(gradient-positive-1-end)
+ * - from-(gradient-neutral-1-start) to-(gradient-neutral-1-end)
+ * - from-(gradient-negative-1-start) to-(gradient-negative-1-end)
  *
  * Файл: 78 строк
  */

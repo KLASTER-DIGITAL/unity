@@ -159,7 +159,7 @@
   /* ===== NEW: Z-Index Hierarchy ===== */
   /*
    * Consistent z-index values for layering
-   * Usage: className="z-[var(--z-navigation)]"
+   * Usage: className="z-(z-navigation)"
    */
   --z-base: 0;
   --z-dropdown: 10;
