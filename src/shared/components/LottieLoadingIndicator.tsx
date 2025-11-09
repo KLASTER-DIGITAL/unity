@@ -49,7 +49,7 @@ export function LottieLoadingIndicator({
 
 	return (
 		<div className={`flex items-center gap-2 ${className}`}>
-			<div className={sizeClasses[size]}>
+			<div className={`${sizeClasses[size]} flex items-center justify-center`}>
 				{animationData && (
 					<Suspense fallback={<LottiePreloaderInline size={size} />}>
 						<Lottie animationData={animationData} autoplay={true} loop={true} />
