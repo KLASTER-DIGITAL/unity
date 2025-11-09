@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 type LoadingScreenProps = {
 	message?: string;
@@ -34,12 +35,12 @@ export function LoadingScreen({
 		}
 	}, [minDuration, onMinDurationComplete]);
 
-	// Легкий Skeleton вместо тяжелой Lottie анимации
+	// Skeleton с shimmer эффектом вместо простого animate-pulse
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background">
 			<div className="flex flex-col items-center gap-4">
-				{/* Быстрый pulsing circle вместо Lottie */}
-				<div className="h-12 w-12 animate-pulse rounded-full bg-primary/20" />
+				{/* Skeleton с shimmer эффектом для лучшего UX */}
+				<Skeleton variant="circle" size="2xl" />
 			</div>
 		</div>
 	);

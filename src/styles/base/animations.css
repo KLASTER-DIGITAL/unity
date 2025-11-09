@@ -125,3 +125,13 @@
 		opacity: 0.5;
 	}
 }
+
+/* ===== Shimmer Animation for Skeleton Loaders ===== */
+@keyframes shimmer {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
+}

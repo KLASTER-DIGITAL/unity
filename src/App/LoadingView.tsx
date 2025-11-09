@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { LottiePreloader } from '@/shared/components/LottiePreloader';
 import { ThemeProvider } from '@/shared/components/theme-provider';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 interface LoadingViewProps {
 	shouldShowLottie: boolean;
@@ -34,7 +35,7 @@ export function LoadingView({
 					/>
 				) : (
 					<div className="flex min-h-screen items-center justify-center">
-						<div className="h-12 w-12 animate-pulse rounded-full bg-primary/20" />
+						<Skeleton variant="circle" size="2xl" />
 					</div>
 				)}
 			</div>
