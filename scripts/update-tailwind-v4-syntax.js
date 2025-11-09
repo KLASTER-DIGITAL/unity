@@ -15,37 +15,31 @@ console.log(`${colors.cyan}🎨 Updating Tailwind CSS v4 syntax...${colors.reset
 
 // Patterns to replace
 const patterns = [
-	// text-[var(...)] → text-(...)
 	{
 		regex: /text-\[var\(--([^)]+)\)\]/g,
 		replacement: 'text-($1)',
 		name: 'text-[var(...)]',
 	},
-	// bg-[var(...)] → bg-(...)
 	{
 		regex: /bg-\[var\(--([^)]+)\)\]/g,
 		replacement: 'bg-($1)',
 		name: 'bg-[var(...)]',
 	},
-	// border-[var(...)] → border-(...)
 	{
 		regex: /border-\[var\(--([^)]+)\)\]/g,
 		replacement: 'border-($1)',
 		name: 'border-[var(...)]',
 	},
-	// z-[var(...)] → z-(...)
 	{
 		regex: /z-\[var\(--([^)]+)\)\]/g,
 		replacement: 'z-($1)',
 		name: 'z-[var(...)]',
 	},
-	// from-[var(...)] → from-(...)
 	{
 		regex: /from-\[var\(--([^)]+)\)\]/g,
 		replacement: 'from-($1)',
 		name: 'from-[var(...)]',
 	},
-	// to-[var(...)] → to-(...)
 	{
 		regex: /to-\[var\(--([^)]+)\)\]/g,
 		replacement: 'to-($1)',
