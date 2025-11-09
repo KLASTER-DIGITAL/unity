@@ -110,12 +110,25 @@ export function PWAOverview() {
 					return lastActive >= weekAgo;
 				}).length;
 
-				// Загрузка push подписок
-				const { data: pushSubs } = await supabase.from('push_subscriptions').select('id');
+				// Загрузка push подписок (только активные)
+				const { data: pushSubs, error: pushError } = await supabase
+					.from('push_subscriptions')
+					.select('id, user_id, is_active')
+					.eq('is_active', true);
+
+				if (pushError) {
+					console.error('[PWA Overview] Error loading push subscriptions:', pushError);
+				}
 
 				const pushSubscriptions = pushSubs?.length || 0;
 				const pushSubscriptionRate =
 					totalInstalls > 0 ? Math.round((pushSubscriptions / totalInstalls) * 100) : 0;
+
+				console.log('[PWA Overview] Push subscriptions:', {
+					total: pushSubscriptions,
+					rate: pushSubscriptionRate,
+					totalInstalls,
+				});
 
 				setStats({
 					totalInstalls,

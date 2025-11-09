@@ -65,9 +65,6 @@ export async function handleSendMessage({
 		console.log('Analyzing text with AI...');
 		const analysis = await analyzeTextWithAI(userText, userName, userId);
 
-		// ✅ Показываем success modal ПОСЛЕ AI анализа (когда уже быстро)
-		setShowSuccessModal(true);
-
 		console.log('AI Analysis result:', analysis);
 
 		// Сохраняем запись в БД
@@ -142,6 +139,9 @@ export async function handleSendMessage({
 
 			console.log('Entry saved offline:', pendingEntry);
 
+			// ✅ Показываем success modal ТОЛЬКО после успешного сохранения offline
+			setShowSuccessModal(true);
+
 			// Show offline toast
 			toast.success('Сохранено offline', {
 				description: 'Запись будет синхронизирована когда появится интернет',
@@ -152,15 +152,15 @@ export async function handleSendMessage({
 			// Callbacks with pending entry
 			onMessageSent?.(userMessage);
 
-			// Автоматически скрываем modal через 2 секунды
-			setTimeout(() => {
-				setShowSuccessModal(false);
-			}, 2000);
+			// ✅ Modal автоматически закроется через 3 секунды (autoCloseDuration в SuccessModal)
 		} else {
 			// Save online
 			const savedEntry = await createEntry(entryData);
 
 			console.log('Entry saved successfully:', savedEntry);
+
+			// ✅ Показываем success modal ТОЛЬКО после успешного сохранения
+			setShowSuccessModal(true);
 
 			// Обновляем сообщение пользователя с ID записи
 			userMessage.entryId = savedEntry.id;
@@ -169,18 +169,37 @@ export async function handleSendMessage({
 			onMessageSent?.(userMessage);
 			onEntrySaved?.(savedEntry);
 
-			// Автоматически скрываем modal через 2 секунды после успешного сохранения
-			setTimeout(() => {
-				setShowSuccessModal(false);
-			}, 2000);
+			// ✅ Modal автоматически закроется через 3 секунды (autoCloseDuration в SuccessModal)
+			// ✅ UI обновится автоматически через Supabase Realtime (useEntries hook)
 		}
 	} catch (error) {
-		console.error('Error processing message:', error);
+		console.error('[MESSAGE HANDLER] ❌ Error processing message:', error);
+		console.error('[MESSAGE HANDLER] Error details:', {
+			message: error instanceof Error ? error.message : 'Unknown error',
+			stack: error instanceof Error ? error.stack : undefined,
+			userText: userText.substring(0, 100),
+			userId,
+		});
+
+		// Hide success modal on error
+		setShowSuccessModal(false);
+
+		// Detailed error message
+		let errorMessage = 'Не удалось сохранить запись. Попробуйте снова.';
+		if (error instanceof Error) {
+			if (error.message.includes('OpenAI')) {
+				errorMessage = 'Ошибка AI анализа. Попробуйте позже.';
+			} else if (error.message.includes('network')) {
+				errorMessage = 'Проблема с интернетом. Проверьте подключение.';
+			} else if (error.message.includes('auth')) {
+				errorMessage = 'Ошибка авторизации. Перезагрузите приложение.';
+			}
+		}
 
 		// Error toast
 		toast.error('Ошибка обработки', {
-			description: 'Не удалось сохранить запись. Попробуйте снова.',
-			duration: 4000,
+			description: errorMessage,
+			duration: 5000,
 		});
 
 		// ✅ FIX #4: НЕ добавляем fallback ответ в чат

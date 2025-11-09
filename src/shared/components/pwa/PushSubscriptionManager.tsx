@@ -7,6 +7,7 @@
  * - Отображение статуса подписки
  */
 
+import { Bell } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PushNotificationSettingsModal } from '@/features/mobile/notifications';
@@ -145,9 +146,33 @@ export function PushSubscriptionManager({
 		}
 	};
 
-	// Если не поддерживается, не показываем компонент
+	// Если не поддерживается, показываем информационное сообщение
 	if (!isSupported) {
-		return null;
+		return (
+			<div className="rounded-xl border border-border bg-card p-4 transition-colors duration-300">
+				<div className="flex items-start gap-3">
+					<div className="shrink-0 rounded-full bg-muted p-2">
+						<Bell className="h-5 w-5 text-muted-foreground" />
+					</div>
+					<div className="flex-1">
+						<h3 className="mb-2 font-semibold text-callout text-foreground">🔔 Push Уведомления</h3>
+						<div className="mb-3 rounded-lg border border-warning/20 bg-warning/10 p-3">
+							<p className="mb-2 font-medium text-footnote text-warning">
+								⚠️ Ваш браузер не поддерживает push уведомления
+							</p>
+							<p className="text-footnote text-muted-foreground">
+								Для получения уведомлений используйте:
+							</p>
+							<ul className="mt-2 list-inside list-disc space-y-1 text-footnote text-muted-foreground">
+								<li>Chrome, Edge, Firefox (Desktop & Android)</li>
+								<li>Safari 16+ (macOS Ventura или новее)</li>
+								<li>Opera, Samsung Internet</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
 	}
 
 	return (

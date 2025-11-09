@@ -7,7 +7,7 @@ type SuccessModalProps = {
 	isOpen: boolean;
 	userName?: string;
 	onClose?: () => void;
-	autoCloseDuration?: number; // Время автозакрытия в миллисекундах (по умолчанию 5000)
+	autoCloseDuration?: number; // Время автозакрытия в миллисекундах (по умолчанию 3000)
 };
 
 /**
@@ -18,15 +18,15 @@ type SuccessModalProps = {
  * - User name personalization
  * - AI processing message
  * - Offline mode indicator
- * - Auto-close after 5 seconds
+ * - Auto-close after 3 seconds
  */
 export function SuccessModal({
 	isOpen,
 	userName = 'Анна',
 	onClose,
-	autoCloseDuration = 5000,
+	autoCloseDuration = 3000,
 }: SuccessModalProps) {
-	// Автозакрытие через 5 секунд
+	// Автозакрытие через 3 секунды
 	useEffect(() => {
 		if (isOpen && onClose) {
 			const timer = setTimeout(() => {

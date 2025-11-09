@@ -169,8 +169,13 @@ Deno.serve(async (req) => {
 		// Count premium users
 		const premiumUsers = profiles?.filter((p) => p.is_premium).length || 0;
 
-		// Calculate revenue (estimate: 499 RUB/month per premium user)
-		const totalRevenue = premiumUsers * 499;
+		// Calculate revenue from subscriptions table
+		const { data: subscriptions } = await supabaseAdmin
+			.from('subscriptions')
+			.select('amount, currency, status')
+			.eq('status', 'active');
+
+		const totalRevenue = subscriptions?.reduce((sum, sub) => sum + (sub.amount || 0), 0) || 0;
 
 		const stats = {
 			totalUsers,
