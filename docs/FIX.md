@@ -8,6 +8,17 @@
 
 ## [Unreleased] - 2025-11-10
 
+### 🆕 Создано
+- **push-ai-personalize Edge Function**: AI персонализация уведомлений для Premium
+  - Файл: `supabase/functions/push-ai-personalize/index.ts` (293 строк)
+  - Функция `getUserContext()` - получение контекста пользователя (profile, entries, streak, achievements)
+  - Функция `generatePersonalizedMessage()` - генерация через GPT-4o-mini
+  - Функция `sendPersonalizedNotification()` - отправка через push-sender
+  - Функция `getPremiumUsersWithPushEnabled()` - фильтрация Premium пользователей
+  - Endpoints: `?type=daily_reminder`, `?type=weekly_motivation`, `?user_id=xxx`
+  - OpenAI API: model gpt-4o-mini, temperature 0.8, max_tokens 200
+  - Deployed через Supabase MCP, Version 1, Status: ACTIVE
+
 ### 🔄 Изменено
 - **push-realtime-trigger Edge Function**: Добавлена поддержка Streak Milestones
   - Файл: `supabase/functions/push-realtime-trigger/index.ts` (511 строк)
