@@ -3,9 +3,11 @@ import { Toaster } from 'sonner';
 import { PushNotificationOnboardingModal } from '@/features/mobile/notifications';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
+import { WelcomeTrialModal } from '@/shared/components/modals/WelcomeTrialModal';
 import { TranslationManager, TranslationProvider } from '@/shared/lib/i18n';
 import { prefetchOnIdle, routePrefetcher } from '@/shared/lib/performance';
 import { AnimatedPresence, AnimatedView, ScreenTransitions } from '@/shared/lib/platform/animation';
+import { createClient } from '@/utils/supabase/client';
 
 // ✅ ROUTE-BASED CODE SPLITTING: Все screens загружаются lazy для уменьшения main bundle
 // Onboarding screens - lazy loading (показываются только при первом запуске)
@@ -124,9 +126,40 @@ export function MobileApp({
 	const [direction, setDirection] = useState(0);
 	const prevScreenRef = useRef<string>('home');
 	const [showPushOnboarding, setShowPushOnboarding] = useState(false);
+	const [showWelcomeTrialModal, setShowWelcomeTrialModal] = useState(false);
+	const supabase = createClient();
 
 	// Tab order for directional animations
 	const tabOrder = ['home', 'history', 'achievements', 'reports', 'settings'];
+
+	// Check if user needs to see Welcome Trial Modal
+	useEffect(() => {
+		if (userData && onboardingComplete) {
+			const userId = userData.user?.id || userData.id;
+
+			// Check if user has trial subscription with welcome_modal_shown = false
+			supabase
+				.from('subscriptions')
+				.select('id, metadata')
+				.eq('user_id', userId)
+				.eq('status', 'active')
+				.single()
+				.then(({ data, error }) => {
+					if (error) {
+						console.log('[WelcomeTrialModal] No active subscription found');
+						return;
+					}
+
+					if (data?.metadata?.is_trial && !data?.metadata?.welcome_modal_shown) {
+						console.log('[WelcomeTrialModal] Showing Welcome Trial Modal');
+						// Delay showing modal by 2 seconds for better UX (after push onboarding)
+						setTimeout(() => {
+							setShowWelcomeTrialModal(true);
+						}, 2000);
+					}
+				});
+		}
+	}, [userData, onboardingComplete, supabase]);
 
 	// Check if user needs to see push notification onboarding
 	useEffect(() => {
@@ -383,6 +416,39 @@ export function MobileApp({
 								}
 							}}
 							userId={userData.user?.id || userData.id}
+						/>
+					)}
+
+					{/* Welcome Trial Modal */}
+					{userData && (
+						<WelcomeTrialModal
+							open={showWelcomeTrialModal}
+							onClose={async () => {
+								setShowWelcomeTrialModal(false);
+
+								// Update metadata to mark welcome modal as shown
+								const userId = userData.user?.id || userData.id;
+								const { data: subscription } = await supabase
+									.from('subscriptions')
+									.select('id, metadata')
+									.eq('user_id', userId)
+									.eq('status', 'active')
+									.single();
+
+								if (subscription) {
+									await supabase
+										.from('subscriptions')
+										.update({
+											metadata: {
+												...subscription.metadata,
+												welcome_modal_shown: true,
+											},
+										})
+										.eq('id', subscription.id);
+
+									console.log('[WelcomeTrialModal] Metadata updated: welcome_modal_shown = true');
+								}
+							}}
 						/>
 					)}
 
