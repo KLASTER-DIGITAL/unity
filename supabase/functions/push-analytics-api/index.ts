@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
 			}
 			if (path === '/trends') {
 				// Get trends over time
-				const days = parseInt(url.searchParams.get('days') || '7');
+				const days = parseInt(url.searchParams.get('days') || '7', 10);
 				return await getTrends(supabase, days);
 			}
 		}

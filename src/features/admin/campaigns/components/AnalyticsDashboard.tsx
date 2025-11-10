@@ -69,6 +69,68 @@ interface TrendData {
 	openRate: string;
 }
 
+interface CampaignCardProps {
+	campaign: any;
+	calculateDeliveryRate: (campaign: any) => string;
+	calculateOpenRate: (campaign: any) => string;
+	getStatusBadge: (status: string) => JSX.Element;
+}
+
+function CampaignCard({
+	campaign,
+	calculateDeliveryRate,
+	calculateOpenRate,
+	getStatusBadge,
+}: CampaignCardProps) {
+	return (
+		<div className="space-y-3 rounded-lg border p-4 transition-colors hover:bg-accent">
+			<div className="flex items-start justify-between">
+				<div>
+					<h3 className="font-semibold">{campaign.title}</h3>
+					<p className="text-sm text-muted-foreground">
+						Создано: {new Date(campaign.created_at).toLocaleString('ru-RU')}
+					</p>
+					{campaign.sent_at && (
+						<p className="text-sm text-muted-foreground">
+							Отправлено: {new Date(campaign.sent_at).toLocaleString('ru-RU')}
+						</p>
+					)}
+				</div>
+				<div className="flex items-center gap-2">{getStatusBadge(campaign.status)}</div>
+			</div>
+
+			<div className="grid grid-cols-5 gap-4">
+				<div className="space-y-1">
+					<p className="text-xs text-muted-foreground">Получателей</p>
+					<p className="text-2xl font-bold">{campaign.total_recipients}</p>
+				</div>
+				<div className="space-y-1">
+					<p className="text-xs text-muted-foreground">Отправлено</p>
+					<p className="text-2xl font-bold">{campaign.total_sent}</p>
+				</div>
+				<div className="space-y-1">
+					<p className="text-xs text-muted-foreground">Доставлено</p>
+					<p className="text-2xl font-bold">{campaign.total_delivered}</p>
+					<p className="text-xs text-green-600 dark:text-green-400">
+						{calculateDeliveryRate(campaign)}%
+					</p>
+				</div>
+				<div className="space-y-1">
+					<p className="text-xs text-muted-foreground">Открыто</p>
+					<p className="text-2xl font-bold">{campaign.total_opened}</p>
+					<p className="text-xs text-blue-600 dark:text-blue-400">{calculateOpenRate(campaign)}%</p>
+				</div>
+				<div className="space-y-1">
+					<p className="text-xs text-muted-foreground">Ошибки</p>
+					<p className="text-2xl font-bold text-red-600 dark:text-red-400">
+						{campaign.total_failed}
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function AnalyticsDashboard() {
 	const [campaigns, setCampaigns] = useState<CampaignStats[]>([]);
 	const [overallAnalytics, setOverallAnalytics] = useState<OverallAnalytics | null>(null);
@@ -87,6 +149,7 @@ export function AnalyticsDashboard() {
 				realtimeChannel.unsubscribe();
 			}
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const loadCampaigns = async () => {
@@ -314,80 +377,13 @@ export function AnalyticsDashboard() {
 							<p className="text-sm text-muted-foreground">Нет кампаний для отображения</p>
 						) : (
 							campaigns.map((campaign) => (
-								<div
+								<CampaignCard
 									key={campaign.id}
-									className="rounded-lg border p-4 space-y-3 transition-colors hover:bg-accent"
-								>
-									<div className="flex items-start justify-between">
-										<div>
-											<h3 className="font-semibold">{campaign.title}</h3>
-											<p className="text-sm text-muted-foreground">
-												Создано: {new Date(campaign.created_at).toLocaleString('ru-RU')}
-											</p>
-											{campaign.sent_at && (
-												<p className="text-sm text-muted-foreground">
-													Отправлено: {new Date(campaign.sent_at).toLocaleString('ru-RU')}
-												</p>
-											)}
-										</div>
-										<div className="flex items-center gap-2">
-											<span
-												className={`px-2 py-1 rounded text-xs font-medium ${
-													campaign.status === 'sent'
-														? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-														: campaign.status === 'sending'
-															? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-															: campaign.status === 'scheduled'
-																? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-																: campaign.status === 'failed'
-																	? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-																	: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-												}`}
-											>
-												{campaign.status === 'sent'
-													? 'Отправлено'
-													: campaign.status === 'sending'
-														? 'Отправка...'
-														: campaign.status === 'scheduled'
-															? 'Запланировано'
-															: campaign.status === 'failed'
-																? 'Ошибка'
-																: 'Черновик'}
-											</span>
-										</div>
-									</div>
-
-									<div className="grid grid-cols-5 gap-4">
-										<div className="space-y-1">
-											<p className="text-xs text-muted-foreground">Получателей</p>
-											<p className="text-2xl font-bold">{campaign.total_recipients}</p>
-										</div>
-										<div className="space-y-1">
-											<p className="text-xs text-muted-foreground">Отправлено</p>
-											<p className="text-2xl font-bold">{campaign.total_sent}</p>
-										</div>
-										<div className="space-y-1">
-											<p className="text-xs text-muted-foreground">Доставлено</p>
-											<p className="text-2xl font-bold">{campaign.total_delivered}</p>
-											<p className="text-xs text-green-600 dark:text-green-400">
-												{calculateDeliveryRate(campaign)}%
-											</p>
-										</div>
-										<div className="space-y-1">
-											<p className="text-xs text-muted-foreground">Открыто</p>
-											<p className="text-2xl font-bold">{campaign.total_opened}</p>
-											<p className="text-xs text-blue-600 dark:text-blue-400">
-												{calculateOpenRate(campaign)}%
-											</p>
-										</div>
-										<div className="space-y-1">
-											<p className="text-xs text-muted-foreground">Ошибки</p>
-											<p className="text-2xl font-bold text-red-600 dark:text-red-400">
-												{campaign.total_failed}
-											</p>
-										</div>
-									</div>
-								</div>
+									campaign={campaign}
+									calculateDeliveryRate={calculateDeliveryRate}
+									calculateOpenRate={calculateOpenRate}
+									getStatusBadge={getStatusBadge}
+								/>
 							))
 						)}
 					</div>
