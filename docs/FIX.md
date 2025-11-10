@@ -8,6 +8,16 @@
 
 ## [Unreleased] - 2025-11-10
 
+### 🔄 Изменено
+- **push-realtime-trigger Edge Function**: Добавлена поддержка Streak Milestones
+  - Файл: `supabase/functions/push-realtime-trigger/index.ts` (511 строк)
+  - Новая функция `calculateCurrentStreak()` - расчет текущего streak пользователя
+  - Новая функция `getUserLanguage()` - получение языка из profiles.language
+  - Новая функция `checkAndSendStreakMilestone()` - проверка и отправка milestone уведомлений
+  - Обновлена `handleEntryInsert()` - автоматическая проверка milestones при создании entry
+  - Константа `STREAK_MILESTONE_TEMPLATES` - i18n шаблоны для 5 milestones × 7 языков
+  - Deployed через Supabase MCP, Version 4, Status: ACTIVE
+
 ### 🗄️ База данных
 - **Premium Trial Trigger**: Создан автоматический триггер для trial подписок
   - Функция `create_trial_subscription()` с SECURITY DEFINER
