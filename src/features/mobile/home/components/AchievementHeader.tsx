@@ -90,7 +90,7 @@ export const AchievementHeader = memo(function AchievementHeader({
 						<p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
 							{daysInApp}
 						</p>
-						<p className="text-[10px]! text-muted-foreground leading-none">
+						<p className="text-[8px]! text-muted-foreground leading-none">
 							{daysInApp === 1 ? 'День подряд' : daysInApp < 5 ? 'Дня подряд' : 'Дней подряд'}
 						</p>
 					</div>
