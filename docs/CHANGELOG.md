@@ -7,7 +7,30 @@
 
 ---
 
-## [Unreleased] - 2025-11-09
+## [Unreleased] - 2025-11-10
+
+### 🔒 Безопасность
+- **Push Notifications**: Исправлена RLS политика для VAPID public key
+  - Разрешен доступ всем пользователям к `vapid_public_key` в `admin_settings`
+  - Исправлена ошибка 406 Not Acceptable при подписке на уведомления
+  - VAPID public key это публичный ключ, безопасно для всех пользователей
+
+### ⚡ Производительность
+- **PWA Caching**: Настроены правильные Cache-Control заголовки
+  - `service-worker.js`: `max-age=0, must-revalidate` (всегда свежий)
+  - `index.html`: `max-age=0, must-revalidate` (всегда свежий)
+  - `manifest.json`: `max-age=0, must-revalidate` (всегда свежий)
+  - `assets/*`: `max-age=31536000, immutable` (кэш на 1 год)
+  - Пользователи получают обновления автоматически без hard refresh
+
+### 🐛 Исправления
+- **Premium Button**: Улучшен контраст на светлом фоне
+  - Заменен `ring-yellow-600/30` на `ring-orange-600/60` (лучше видно)
+  - Обновлен синтаксис Tailwind v4: `bg-linear-to-r` вместо `bg-gradient-to-r`
+
+---
+
+## [2025-11-09] - Notion Integration
 
 ### 📚 Документация
 - **Notion Integration**: Полная интеграция управления проектом с Notion

@@ -6,7 +6,31 @@
 
 ---
 
-## [Unreleased] - 2025-11-09
+## [Unreleased] - 2025-11-10
+
+### 🗄️ База данных
+- **RLS Policy**: Обновлена политика `admin_settings_select_policy`
+  - Добавлен `vapid_public_key` в список публичных ключей
+  - Создана миграция `supabase/migrations/20251110_fix_vapid_public_key_rls.sql`
+  - Обновлена политика для `anon` пользователей
+  - Исправлена ошибка 406 при чтении VAPID public key
+
+### 🏗️ Инфраструктура
+- **Vercel Configuration**: Добавлен `vercel.json` с Cache-Control headers
+  - Service Worker: `public, max-age=0, must-revalidate`
+  - HTML/Manifest: `public, max-age=0, must-revalidate`
+  - Assets: `public, max-age=31536000, immutable`
+  - Добавлен `Service-Worker-Allowed: /` header
+  - Решена проблема с кэшированием PWA обновлений
+
+### 🔄 Изменено
+- **ProfileHeader.tsx**: Обновлен стиль кнопки Premium
+  - `ring-yellow-600/30` → `ring-orange-600/60` (лучше контраст)
+  - `bg-gradient-to-r` → `bg-linear-to-r` (Tailwind v4 синтаксис)
+
+---
+
+## [2025-11-09] - Notion Integration
 
 ### 🏗️ Инфраструктура
 
