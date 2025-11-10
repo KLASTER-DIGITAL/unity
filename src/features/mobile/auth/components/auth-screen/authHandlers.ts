@@ -291,9 +291,22 @@ export async function handleEmailAuth({
 				toast.success('Аккаунт создан! 🎉');
 				handleComplete?.(userData);
 			} else {
-				toast.error('Ошибка регистрации', {
-					description: result.error || 'Попробуйте другой email',
-				});
+				// Улучшенный error handling для 422 ошибки
+				const errorMessage = result.error || 'Попробуйте другой email';
+
+				// Если пользователь уже существует, предложить войти
+				if (
+					errorMessage.includes('already registered') ||
+					errorMessage.includes('User already registered')
+				) {
+					toast.error('Email уже зарегистрирован', {
+						description: 'Попробуйте войти в аккаунт',
+					});
+				} else {
+					toast.error('Ошибка регистрации', {
+						description: errorMessage,
+					});
+				}
 			}
 		}
 	} catch (error: any) {
@@ -318,7 +331,7 @@ export async function handleSocialAuth({ provider, setIsLoading }: SocialAuthPar
 	setIsLoading(true);
 
 	try {
-		let result;
+		let result: { error?: string } | null = null;
 
 		switch (provider) {
 			case 'google':

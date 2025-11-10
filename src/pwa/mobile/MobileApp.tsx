@@ -137,16 +137,35 @@ export function MobileApp({
 		if (userData && onboardingComplete) {
 			const userId = userData.user?.id || userData.id;
 
-			// Check if user has trial subscription with welcome_modal_shown = false
-			supabase
-				.from('subscriptions')
-				.select('id, metadata')
-				.eq('user_id', userId)
-				.eq('status', 'active')
-				.single()
-				.then(({ data, error }) => {
+			// Retry logic для чтения subscriptions (fix 403 error после signup)
+			const checkTrialSubscription = async (retryCount = 0) => {
+				try {
+					// Сначала проверяем что сессия активна
+					const {
+						data: { session },
+					} = await supabase.auth.getSession();
+
+					if (!session) {
+						console.log('[WelcomeTrialModal] No active session, skipping');
+						return;
+					}
+
+					const { data, error } = await supabase
+						.from('subscriptions')
+						.select('id, metadata')
+						.eq('user_id', userId)
+						.eq('status', 'active')
+						.single();
+
 					if (error) {
-						console.log('[WelcomeTrialModal] No active subscription found');
+						// Если 403 и это первая попытка, retry через 2 секунды
+						if (error.code === 'PGRST301' && retryCount < 3) {
+							console.log(`[WelcomeTrialModal] Retry ${retryCount + 1}/3 after 2s...`);
+							setTimeout(() => checkTrialSubscription(retryCount + 1), 2000);
+							return;
+						}
+
+						console.log('[WelcomeTrialModal] No active subscription found:', error);
 						return;
 					}
 
@@ -157,28 +176,30 @@ export function MobileApp({
 							setShowWelcomeTrialModal(true);
 						}, 2000);
 					}
-				});
+				} catch (err) {
+					console.error('[WelcomeTrialModal] Error:', err);
+				}
+			};
+
+			checkTrialSubscription();
 		}
 	}, [userData, onboardingComplete, supabase]);
 
 	// Check if user needs to see push notification onboarding
 	useEffect(() => {
 		if (userData && onboardingComplete) {
-			// Check if user has completed push notification onboarding
-			const profile = userData.profile || userData;
-			const hasCompletedPushOnboarding = profile?.has_completed_onboarding;
+			const userId = userData.user?.id || userData.id;
 
 			// ВАЖНО: Показываем модалку ТОЛЬКО ОДИН РАЗ
 			// Проверяем localStorage чтобы не показывать снова после закрытия
-			const hasSeenModal = localStorage.getItem(`push_onboarding_seen_${userData.id}`);
+			const hasSeenModal = localStorage.getItem(`push_onboarding_seen_${userId}`);
 
-			// Show modal if user hasn't completed push onboarding AND hasn't seen it yet
-			if (!hasCompletedPushOnboarding && !hasSeenModal && !showPushOnboarding) {
+			// Show modal if user hasn't seen it yet
+			if (!hasSeenModal && !showPushOnboarding) {
+				console.log('[PushOnboarding] Showing Push Onboarding Modal');
 				// Delay showing modal by 1 second for better UX
 				const timer = setTimeout(() => {
 					setShowPushOnboarding(true);
-					// Mark as seen in localStorage
-					localStorage.setItem(`push_onboarding_seen_${userData.id}`, 'true');
 				}, 1000);
 
 				return () => clearTimeout(timer);
@@ -403,8 +424,16 @@ export function MobileApp({
 					{userData && (
 						<PushNotificationOnboardingModal
 							isOpen={showPushOnboarding}
-							onClose={() => setShowPushOnboarding(false)}
+							onClose={() => {
+								const userId = userData.user?.id || userData.id;
+								// Mark as seen in localStorage
+								localStorage.setItem(`push_onboarding_seen_${userId}`, 'true');
+								setShowPushOnboarding(false);
+							}}
 							onComplete={() => {
+								const userId = userData.user?.id || userData.id;
+								// Mark as seen in localStorage
+								localStorage.setItem(`push_onboarding_seen_${userId}`, 'true');
 								setShowPushOnboarding(false);
 								// Optionally refresh user data to update has_completed_onboarding
 								if (onProfileUpdate) {
