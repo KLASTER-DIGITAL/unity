@@ -1,4 +1,4 @@
-import { BarChart3, Bell, FileText, History, Send, TestTube } from 'lucide-react';
+import { BarChart3, Bell, FileText, History, Send, TestTube, Users } from 'lucide-react';
 import { useState } from 'react';
 import { PushNotificationTester } from '@/components/screens/admin/settings/PushNotificationTester';
 import {
@@ -7,6 +7,7 @@ import {
 	CampaignHistory,
 } from '@/features/admin/campaigns/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { SegmentManager } from './SegmentManager';
 
 export function PushNotifications() {
 	const [activeTab, setActiveTab] = useState('campaigns');
@@ -28,10 +29,14 @@ export function PushNotifications() {
 
 			{/* Tabs */}
 			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-				<TabsList className="grid w-full max-w-3xl grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+				<TabsList className="grid w-full max-w-4xl grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
 					<TabsTrigger className="flex items-center gap-2" value="campaigns">
 						<Send className="h-4 w-4" />
 						Рассылки
+					</TabsTrigger>
+					<TabsTrigger className="flex items-center gap-2" value="segments">
+						<Users className="h-4 w-4" />
+						Сегменты
 					</TabsTrigger>
 					<TabsTrigger className="flex items-center gap-2" value="analytics">
 						<BarChart3 className="h-4 w-4" />
@@ -54,6 +59,11 @@ export function PushNotifications() {
 				{/* Campaign Creator */}
 				<TabsContent className="space-y-6" value="campaigns">
 					<CampaignCreator />
+				</TabsContent>
+
+				{/* Segment Manager */}
+				<TabsContent className="space-y-6" value="segments">
+					<SegmentManager />
 				</TabsContent>
 
 				{/* Analytics Dashboard */}
