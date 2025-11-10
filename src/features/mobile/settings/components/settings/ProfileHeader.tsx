@@ -82,7 +82,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 									<Button
 										size="sm"
 										onClick={onUpgradeToPremium}
-										className="h-9 gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 px-4 font-medium text-white shadow-lg ring-2 ring-yellow-600/30 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:ring-yellow-600/50 active:scale-95"
+										className="h-9 gap-2 bg-linear-to-r from-yellow-500 to-orange-500 px-4 font-medium text-white shadow-lg ring-2 ring-orange-600/60 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:ring-orange-600/80 active:scale-95"
 									>
 										<Sparkles className="h-4 w-4" strokeWidth={2} />
 										Активировать Premium
