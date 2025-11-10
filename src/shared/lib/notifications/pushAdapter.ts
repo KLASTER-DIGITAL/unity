@@ -90,10 +90,18 @@ export async function isPushSubscribed(): Promise<boolean> {
 
 export async function subscribeToPush(userId: string): Promise<PushSubscriptionResult> {
 	try {
+		console.log('[Push Adapter] 🚀 Starting push subscription for user:', userId);
+
 		// 1. Проверяем поддержку платформы
 		const platformInfo = getPushPlatformInfo();
+		console.log('[Push Adapter] 📱 Platform info:', {
+			pushSupported: platformInfo.pushSupported,
+			reason: platformInfo.pushSupportReason,
+			platform: platformInfo.platform,
+		});
+
 		if (!platformInfo.pushSupported) {
-			console.warn('[Push Adapter] Platform not supported:', platformInfo.pushSupportReason);
+			console.warn('[Push Adapter] ❌ Platform not supported:', platformInfo.pushSupportReason);
 			return {
 				success: false,
 				error: platformInfo.pushSupportReason as PushSubscriptionError,
@@ -104,7 +112,7 @@ export async function subscribeToPush(userId: string): Promise<PushSubscriptionR
 
 		// 2. Проверяем регистрацию Service Worker
 		if (!('serviceWorker' in navigator)) {
-			console.error('[Push Adapter] Service Worker not supported');
+			console.error('[Push Adapter] ❌ Service Worker not supported');
 			return {
 				success: false,
 				error: 'service_worker_not_registered',
@@ -114,10 +122,10 @@ export async function subscribeToPush(userId: string): Promise<PushSubscriptionR
 
 		// Ждем готовности Service Worker
 		try {
-			await navigator.serviceWorker.ready;
-			console.log('[Push Adapter] Service Worker is ready');
+			const registration = await navigator.serviceWorker.ready;
+			console.log('[Push Adapter] ✅ Service Worker is ready:', registration.active?.scriptURL);
 		} catch (error) {
-			console.error('[Push Adapter] Service Worker not ready:', error);
+			console.error('[Push Adapter] ❌ Service Worker not ready:', error);
 			return {
 				success: false,
 				error: 'service_worker_not_registered',
@@ -125,18 +133,35 @@ export async function subscribeToPush(userId: string): Promise<PushSubscriptionR
 			};
 		}
 
-		// 3. Проверяем разрешение
-		const permission = await pushNotifications.getPermissionStatus();
-		if (permission !== 'granted') {
+		// 3. Проверяем текущее разрешение
+		const currentPermission = await pushNotifications.getPermissionStatus();
+		console.log('[Push Adapter] 🔔 Current permission status:', currentPermission);
+
+		if (currentPermission === 'denied') {
+			console.warn('[Push Adapter] ❌ Permission was previously denied');
+			return {
+				success: false,
+				error: 'permission_denied',
+				errorMessage:
+					'Разрешение на уведомления было запрещено ранее. Разрешите в настройках браузера.',
+			};
+		}
+
+		if (currentPermission !== 'granted') {
+			console.log('[Push Adapter] 🔔 Requesting permission...');
 			const newPermission = await pushNotifications.requestPermission();
+			console.log('[Push Adapter] 🔔 Permission result:', newPermission);
+
 			if (newPermission !== 'granted') {
-				console.warn('[Push Adapter] Permission not granted:', newPermission);
+				console.warn('[Push Adapter] ❌ Permission not granted:', newPermission);
 				return {
 					success: false,
 					error: 'permission_denied',
 					errorMessage: 'Разрешение на уведомления не предоставлено',
 				};
 			}
+		} else {
+			console.log('[Push Adapter] ✅ Permission already granted');
 		}
 
 		// 4. Загружаем VAPID ключ

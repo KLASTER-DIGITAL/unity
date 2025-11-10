@@ -76,11 +76,13 @@ Deno.serve(async (req) => {
 			theme,
 			diaryName,
 			diaryEmoji,
+			regenerate = false, // ✅ NEW: Force regeneration flag
 		} = body;
 
 		console.log('[BOOKS-DRAFT] Generating draft for user:', userId);
 		console.log('[BOOKS-DRAFT] Period:', periodStart, '-', periodEnd);
 		console.log('[BOOKS-DRAFT] Style:', style, 'Layout:', layout, 'Theme:', theme);
+		console.log('[BOOKS-DRAFT] Regenerate:', regenerate);
 
 		// Validate user owns this request
 		if (user.id !== userId) {
@@ -114,6 +116,39 @@ Deno.serve(async (req) => {
 
 		const userLanguage = profile?.language || 'ru';
 		console.log('[BOOKS-DRAFT] User language:', userLanguage);
+
+		// ✅ CHECK FOR EXISTING DRAFT (AI Optimization - save tokens!)
+		if (!regenerate) {
+			const { data: existingDraft } = await supabaseAdmin
+				.from('books_archive')
+				.select('*')
+				.eq('user_id', userId)
+				.eq('period_start', periodStart)
+				.eq('period_end', periodEnd)
+				.eq('style', style)
+				.eq('is_draft', true)
+				.order('created_at', { ascending: false })
+				.limit(1)
+				.single();
+
+			if (existingDraft && existingDraft.story_json) {
+				console.log('[BOOKS-DRAFT] ✅ Using cached story_json (AI tokens saved!)');
+				return new Response(
+					JSON.stringify({
+						success: true,
+						draftId: existingDraft.id,
+						storyJson: existingDraft.story_json,
+						cached: true, // ✅ Flag that this is cached
+						estimatedPages: Math.ceil(existingDraft.metadata?.entriesCount || 0 / 10),
+					}),
+					{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				);
+			}
+
+			console.log('[BOOKS-DRAFT] No cached draft found, generating new...');
+		} else {
+			console.log('[BOOKS-DRAFT] Regenerate flag set, generating new draft...');
+		}
 
 		// Fetch entries for the period
 		const { data: entries, error: entriesError } = await supabaseAdmin

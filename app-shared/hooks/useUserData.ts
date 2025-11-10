@@ -16,6 +16,7 @@ export interface UserProfile {
 	diaryName: string;
 	diaryEmoji: string;
 	createdAt: string;
+	isPremium: boolean;
 }
 
 export interface UserStats {
@@ -77,6 +78,7 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 					diaryName: 'Мой дневник',
 					diaryEmoji: '🏆',
 					createdAt: new Date().toISOString(),
+					isPremium: false,
 				};
 				setProfile(defaultProfile);
 			} else if (profileError) {
@@ -91,6 +93,7 @@ export function useUserData(userId: string | undefined): UseUserDataResult {
 					diaryName: profileData.diary_name || 'Мой дневник',
 					diaryEmoji: profileData.diary_emoji || '🏆',
 					createdAt: profileData.created_at,
+					isPremium: profileData.is_premium || false,
 				};
 				setProfile(userProfile);
 			}
