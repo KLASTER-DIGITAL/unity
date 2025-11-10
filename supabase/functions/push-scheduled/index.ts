@@ -23,27 +23,75 @@ const corsHeaders = {
 };
 
 // Supabase Admin Client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+	throw new Error('Missing Supabase environment variables');
+}
+
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
  * Получает всех пользователей с активными push subscriptions
+ * и определенным типом уведомлений включенным
  */
-async function getUsersWithPushEnabled() {
-	const { data, error } = await supabaseAdmin
+async function getUsersWithPushEnabled(notificationType?: string) {
+	// Получаем пользователей с активными подписками
+	const { data: subscriptions, error: subError } = await supabaseAdmin
 		.from('push_subscriptions')
 		.select('user_id')
 		.eq('is_active', true);
 
-	if (error) {
-		console.error('[PUSH-SCHEDULED] Failed to get users:', error);
+	if (subError) {
+		console.error('[PUSH-SCHEDULED] Failed to get subscriptions:', subError);
 		return [];
 	}
 
 	// Уникальные user_id
-	const uniqueUserIds = [...new Set(data.map((sub) => sub.user_id))];
-	return uniqueUserIds;
+	const uniqueUserIds = [...new Set(subscriptions.map((sub) => sub.user_id))];
+
+	// Если тип уведомления не указан, возвращаем всех
+	if (!notificationType) {
+		return uniqueUserIds;
+	}
+
+	// Получаем настройки уведомлений пользователей
+	const { data: profiles, error: profileError } = await supabaseAdmin
+		.from('profiles')
+		.select('id, notification_settings, notification_time_preferences')
+		.in('id', uniqueUserIds);
+
+	if (profileError) {
+		console.error('[PUSH-SCHEDULED] Failed to get profiles:', profileError);
+		return uniqueUserIds; // Fallback: отправляем всем
+	}
+
+	// Фильтруем пользователей по настройкам
+	const filteredUserIds = profiles
+		.filter((profile) => {
+			const settings = profile.notification_settings || {};
+
+			// Проверяем соответствие типа уведомления настройкам
+			switch (notificationType) {
+				case 'daily_reminder':
+					return settings.dailyReminder === true;
+				case 'weekly_report':
+					return settings.weeklyReport === true;
+				case 'achievement_unlocked':
+					return settings.achievements === true;
+				case 'motivational':
+					return settings.motivational === true;
+				default:
+					return true; // Для других типов отправляем всем
+			}
+		})
+		.map((profile) => profile.id);
+
+	console.log(
+		`[PUSH-SCHEDULED] Filtered users: ${filteredUserIds.length}/${uniqueUserIds.length} for ${notificationType}`
+	);
+	return filteredUserIds;
 }
 
 /**
@@ -54,7 +102,7 @@ async function sendPushNotification(
 	title: string,
 	body: string,
 	icon?: string,
-	data?: Record<string, any>
+	data?: Record<string, unknown>
 ) {
 	try {
 		const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
@@ -87,9 +135,10 @@ async function sendPushNotification(
 async function sendDailyReminder() {
 	console.log('[PUSH-SCHEDULED] Sending daily reminder...');
 
-	const userIds = await getUsersWithPushEnabled();
+	// Получаем только пользователей с включенным dailyReminder
+	const userIds = await getUsersWithPushEnabled('daily_reminder');
 	if (userIds.length === 0) {
-		console.log('[PUSH-SCHEDULED] No users with push enabled');
+		console.log('[PUSH-SCHEDULED] No users with daily reminder enabled');
 		return { sent: 0, total: 0 };
 	}
 
@@ -113,9 +162,10 @@ async function sendDailyReminder() {
 async function sendWeeklyMotivation() {
 	console.log('[PUSH-SCHEDULED] Sending weekly motivation...');
 
-	const userIds = await getUsersWithPushEnabled();
+	// Получаем только пользователей с включенным motivational
+	const userIds = await getUsersWithPushEnabled('motivational');
 	if (userIds.length === 0) {
-		console.log('[PUSH-SCHEDULED] No users with push enabled');
+		console.log('[PUSH-SCHEDULED] No users with motivational enabled');
 		return { sent: 0, total: 0 };
 	}
 
@@ -177,7 +227,7 @@ Deno.serve(async (req) => {
 
 		console.log('[PUSH-SCHEDULED] Processing scheduled push:', type);
 
-		let result;
+		let result: { success: boolean; message: string; count?: number };
 		switch (type) {
 			case 'daily_reminder':
 				result = await sendDailyReminder();

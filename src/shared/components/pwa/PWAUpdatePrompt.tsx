@@ -9,11 +9,17 @@ import { useEffect, useState } from 'react';
  * - Добавлена проверка версии в localStorage для предотвращения зацикливания
  * - Окно обновления показывается ТОЛЬКО если версия действительно изменилась
  * - Предотвращает бесконечный цикл обновлений
+ *
+ * АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ (2025-11-10):
+ * - Автоматически обновляет PWA при обнаружении новой версии
+ * - НЕ требует подтверждения пользователя
+ * - Показывает уведомление "Обновление..." на 2 секунды перед перезагрузкой
  */
 export function PWAUpdatePrompt() {
 	const [showUpdate, setShowUpdate] = useState(false);
 	const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [autoUpdateEnabled] = useState(true); // ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ВКЛЮЧЕНО
 
 	useEffect(() => {
 		if (!('serviceWorker' in navigator)) {
@@ -25,8 +31,21 @@ export function PWAUpdatePrompt() {
 			if (registration.waiting) {
 				console.log('[PWA Update] Waiting worker found');
 				setWaitingWorker(registration.waiting);
-				// ✅ ПОКАЗЫВАЕМ ОКНО (пользователь решит обновляться или нет)
-				setShowUpdate(true);
+
+				// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ
+				if (autoUpdateEnabled) {
+					console.log('[PWA Update] Auto-update enabled, updating immediately...');
+					setShowUpdate(true);
+					setIsUpdating(true);
+
+					// Отправляем SKIP_WAITING через 500ms (чтобы пользователь увидел уведомление)
+					setTimeout(() => {
+						registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+					}, 500);
+				} else {
+					// Ручное обновление (показываем окно)
+					setShowUpdate(true);
+				}
 			}
 
 			// Слушаем изменения состояния
@@ -36,8 +55,21 @@ export function PWAUpdatePrompt() {
 					if (sw.state === 'installed' && navigator.serviceWorker.controller) {
 						console.log('[PWA Update] New worker installed');
 						setWaitingWorker(sw);
-						// ✅ ПОКАЗЫВАЕМ ОКНО (пользователь решит обновляться или нет)
-						setShowUpdate(true);
+
+						// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ
+						if (autoUpdateEnabled) {
+							console.log('[PWA Update] Auto-update enabled, updating immediately...');
+							setShowUpdate(true);
+							setIsUpdating(true);
+
+							// Отправляем SKIP_WAITING через 500ms
+							setTimeout(() => {
+								sw.postMessage({ type: 'SKIP_WAITING' });
+							}, 500);
+						} else {
+							// Ручное обновление (показываем окно)
+							setShowUpdate(true);
+						}
 					}
 				});
 			}
@@ -73,7 +105,7 @@ export function PWAUpdatePrompt() {
 		return () => {
 			navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
 		};
-	}, []);
+	}, [autoUpdateEnabled]);
 
 	const handleUpdate = () => {
 		if (!waitingWorker) {
@@ -131,31 +163,42 @@ export function PWAUpdatePrompt() {
 
 							<div className="flex-1">
 								<h3 className="mb-1 font-semibold! text-[15px]! text-foreground">
-									Доступно обновление
+									{isUpdating ? 'Обновление...' : 'Доступно обновление'}
 								</h3>
 								<p className="mb-3 font-normal! text-[13px]! text-muted-foreground">
 									Новая версия приложения готова к установке
 								</p>
 
-								<div className="flex gap-2">
-									<button
-										className="flex-1 rounded-lg bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-										disabled={isUpdating}
-										onClick={handleUpdate}
-										type="button"
-									>
-										<span className="font-semibold! text-[13px]!">
-											{isUpdating ? 'Обновление...' : 'Обновить'}
+								{autoUpdateEnabled ? (
+									// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ: только показываем прогресс
+									<div className="flex items-center gap-2">
+										<RefreshCw className="h-4 w-4 animate-spin text-accent" />
+										<span className="font-medium! text-[13px]! text-muted-foreground">
+											Приложение обновляется...
 										</span>
-									</button>
-									<button
-										className="px-3 text-muted-foreground transition-colors hover:text-foreground"
-										onClick={handleSkip}
-										type="button"
-									>
-										<X className="h-5 w-5" />
-									</button>
-								</div>
+									</div>
+								) : (
+									// Ручное обновление: показываем кнопки
+									<div className="flex gap-2">
+										<button
+											className="flex-1 rounded-lg bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+											disabled={isUpdating}
+											onClick={handleUpdate}
+											type="button"
+										>
+											<span className="font-semibold! text-[13px]!">
+												{isUpdating ? 'Обновление...' : 'Обновить'}
+											</span>
+										</button>
+										<button
+											className="px-3 text-muted-foreground transition-colors hover:text-foreground"
+											onClick={handleSkip}
+											type="button"
+										>
+											<X className="h-5 w-5" />
+										</button>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>

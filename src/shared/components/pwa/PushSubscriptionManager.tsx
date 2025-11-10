@@ -11,17 +11,21 @@ import { Bell } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PushNotificationSettingsModal } from '@/features/mobile/notifications';
+import { PlatformSpecificInstructions } from '@/shared/components/notifications/PlatformSpecificInstructions';
 import {
 	trackPushDenied,
 	trackPushSubscribed,
 	trackPushUnsubscribed,
 } from '@/shared/lib/analytics/pwa-tracking';
 import {
+	type PushSubscriptionResult,
+	subscribeToPush,
+} from '@/shared/lib/notifications/pushAdapter';
+import {
 	getNotificationPermission,
 	initWebPush,
 	isPushSubscribed,
 	isPushSupported,
-	subscribeToPush,
 	unsubscribeFromPush,
 } from '@/shared/lib/notifications/webPush';
 
@@ -39,6 +43,8 @@ export function PushSubscriptionManager({
 	const [isSubscribed, setIsSubscribed] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [showInstructions, setShowInstructions] = useState(false);
+	const [subscriptionError, setSubscriptionError] = useState<PushSubscriptionResult | null>(null);
 
 	/**
 	 * Проверяет поддержку Web Push API
@@ -83,12 +89,13 @@ export function PushSubscriptionManager({
 	 */
 	const handleSubscribe = async () => {
 		setIsLoading(true);
+		setSubscriptionError(null);
 		try {
 			console.log('[PushSubscriptionManager] Starting subscription for user:', userId);
-			const subscription = await subscribeToPush(userId);
+			const result = await subscribeToPush(userId);
 
-			if (subscription) {
-				console.log('[PushSubscriptionManager] Subscription successful:', subscription);
+			if (result.success && result.subscription) {
+				console.log('[PushSubscriptionManager] Subscription successful:', result.subscription);
 				setIsSubscribed(true);
 				setPermission('granted');
 				trackPushSubscribed(userId);
@@ -96,6 +103,15 @@ export function PushSubscriptionManager({
 				setShowSettingsModal(false);
 				toast.success('✅ Уведомления включены!');
 			} else {
+				// Ошибка подписки
+				console.error('[PushSubscriptionManager] Subscription failed:', result.error);
+				setSubscriptionError(result);
+
+				// Показываем инструкции если платформа не поддерживается
+				if (result.instructions) {
+					setShowInstructions(true);
+				}
+
 				const currentPermission = getNotificationPermission();
 				setPermission(currentPermission);
 
@@ -230,6 +246,13 @@ export function PushSubscriptionManager({
 					</button>
 				)}
 			</div>
+
+			{/* Platform-Specific Instructions */}
+			{showInstructions && subscriptionError && (
+				<div className="mt-4">
+					<PlatformSpecificInstructions onClose={() => setShowInstructions(false)} />
+				</div>
+			)}
 
 			{/* Settings Modal */}
 			<PushNotificationSettingsModal

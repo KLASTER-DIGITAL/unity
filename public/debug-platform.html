@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0f0;
+        }
+        .info { margin: 10px 0; }
+        .label { color: #0ff; }
+        .value { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Platform Detection Debug</h1>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(label, value) {
+            output.innerHTML += `<div class="info"><span class="label">${label}:</span> <span class="value">${value}</span></div>`;
+        }
+
+        // User Agent
+        log('User Agent', navigator.userAgent);
+        
+        // Platform
+        log('Platform', navigator.platform);
+        
+        // Vendor
+        log('Vendor', navigator.vendor);
+        
+        // iOS Detection
+        const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        log('Is iOS (regex)', isIOS);
+        
+        // Mac Detection
+        const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(navigator.userAgent) || 
+                      /Mac/.test(navigator.platform);
+        log('Is Mac', isMac);
+        
+        // Android Detection
+        const isAndroid = /Android/.test(navigator.userAgent);
+        log('Is Android', isAndroid);
+        
+        // PWA Detection
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                      (window.navigator as any).standalone === true;
+        log('Is PWA', isPWA);
+        
+        // Display Mode
+        log('Display Mode (standalone)', window.matchMedia('(display-mode: standalone)').matches);
+        log('Display Mode (browser)', window.matchMedia('(display-mode: browser)').matches);
+        
+        // Service Worker
+        log('Service Worker supported', 'serviceWorker' in navigator);
+        
+        // Push Manager
+        log('Push Manager supported', 'PushManager' in window);
+        
+        // Notification
+        log('Notification supported', typeof Notification !== 'undefined');
+        log('Notification permission', Notification.permission);
+    </script>
+</body>
+</html>
+

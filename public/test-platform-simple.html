@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #000;
+            color: #0f0;
+        }
+        .result { margin: 10px 0; font-size: 18px; }
+        .label { color: #0ff; }
+        .value { color: #ff0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Platform Detection Test</h1>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(label, value) {
+            output.innerHTML += `<div class="result"><span class="label">${label}:</span> <span class="value">${value}</span></div>`;
+        }
+
+        // User Agent
+        log('User Agent', navigator.userAgent);
+        log('Platform', navigator.platform);
+        
+        // iOS Detection
+        const hasIPhoneInUA = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        const hasMacInUA = /Macintosh|MacIntel|MacPPC|Mac68K/.test(navigator.userAgent);
+        const hasMacInPlatform = /Mac/.test(navigator.platform);
+        
+        log('Has iPhone/iPad/iPod in UA', hasIPhoneInUA);
+        log('Has Mac in UA', hasMacInUA);
+        log('Has Mac in Platform', hasMacInPlatform);
+        
+        // Final Detection
+        function isIOSDevice() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+
+            // ВАЖНО: Исключаем Mac (Desktop)
+            if (/Macintosh|MacIntel|MacPPC|Mac68K/.test(userAgent)) {
+                return false;
+            }
+
+            if (/Mac/.test(platform) && !/iPhone|iPad|iPod/.test(userAgent)) {
+                return false;
+            }
+
+            return /iPhone|iPad|iPod/.test(userAgent);
+        }
+        
+        function detectDevice() {
+            if (isIOSDevice()) {
+                return 'ios';
+            }
+            
+            if (/Android/.test(navigator.userAgent)) {
+                return 'android';
+            }
+            
+            return 'desktop';
+        }
+        
+        log('Is iOS Device', isIOSDevice());
+        log('Detected Device', detectDevice());
+        
+        // PWA Mode
+        const isPWA = (window.navigator as any).standalone === true || 
+                      window.matchMedia('(display-mode: standalone)').matches;
+        log('Is PWA Mode', isPWA);
+        
+        // Push Support
+        log('Has Service Worker', 'serviceWorker' in navigator);
+        log('Has PushManager', 'PushManager' in window);
+        log('Has Notification', 'Notification' in window);
+    </script>
+</body>
+</html>
+
