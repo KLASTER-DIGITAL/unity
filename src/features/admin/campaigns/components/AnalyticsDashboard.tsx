@@ -16,6 +16,8 @@ import { useEffect, useState } from 'react';
 import {
 	Area,
 	AreaChart,
+	Bar,
+	BarChart,
 	CartesianGrid,
 	ResponsiveContainer,
 	Tooltip,
@@ -29,6 +31,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/shared/components/ui/select';
 import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
@@ -70,9 +79,9 @@ interface TrendData {
 }
 
 interface CampaignCardProps {
-	campaign: any;
-	calculateDeliveryRate: (campaign: any) => string;
-	calculateOpenRate: (campaign: any) => string;
+	campaign: CampaignStats;
+	calculateDeliveryRate: (campaign: CampaignStats) => string;
+	calculateOpenRate: (campaign: CampaignStats) => string;
 	getStatusBadge: (status: string) => JSX.Element;
 }
 
@@ -137,6 +146,7 @@ export function AnalyticsDashboard() {
 	const [trends, setTrends] = useState<TrendData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
+	const [trendsDays, setTrendsDays] = useState<number>(7);
 
 	useEffect(() => {
 		loadCampaigns();
@@ -199,7 +209,7 @@ export function AnalyticsDashboard() {
 		}
 	};
 
-	const loadTrends = async () => {
+	const loadTrends = async (days: number = trendsDays) => {
 		try {
 			const {
 				data: { session },
@@ -207,7 +217,7 @@ export function AnalyticsDashboard() {
 			if (!session) return;
 
 			const response = await fetch(
-				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-analytics-api/trends?days=7`,
+				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-analytics-api/trends?days=${days}`,
 				{
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
@@ -335,8 +345,33 @@ export function AnalyticsDashboard() {
 			{trends.length > 0 && (
 				<Card>
 					<CardHeader>
-						<CardTitle>Тренды за последние 7 дней</CardTitle>
-						<CardDescription>Динамика отправки и открытия уведомлений</CardDescription>
+						<div className="flex items-center justify-between">
+							<div>
+								<CardTitle>
+									Тренды за последние {trendsDays} {trendsDays === 1 ? 'день' : 'дней'}
+								</CardTitle>
+								<CardDescription>Динамика отправки и открытия уведомлений</CardDescription>
+							</div>
+							<Select
+								value={trendsDays.toString()}
+								onValueChange={(value) => {
+									const days = parseInt(value, 10);
+									setTrendsDays(days);
+									loadTrends(days);
+								}}
+							>
+								<SelectTrigger className="w-[180px]">
+									<SelectValue placeholder="Выберите период" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="1">1 день</SelectItem>
+									<SelectItem value="7">7 дней</SelectItem>
+									<SelectItem value="14">14 дней</SelectItem>
+									<SelectItem value="30">30 дней</SelectItem>
+									<SelectItem value="90">90 дней</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 					</CardHeader>
 					<CardContent>
 						<ResponsiveContainer height={300} width="100%">
@@ -363,6 +398,69 @@ export function AnalyticsDashboard() {
 						</ResponsiveContainer>
 					</CardContent>
 				</Card>
+			)}
+
+			{/* Device & Browser Breakdown */}
+			{overallAnalytics && (
+				<div className="grid gap-4 md:grid-cols-2">
+					{/* Device Breakdown */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Распределение по устройствам</CardTitle>
+							<CardDescription>Типы устройств получателей</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<ResponsiveContainer height={250} width="100%">
+								<BarChart
+									data={Object.entries(overallAnalytics.deviceBreakdown).map(([name, value]) => ({
+										name:
+											name === 'mobile'
+												? 'Мобильные'
+												: name === 'desktop'
+													? 'Десктоп'
+													: name === 'tablet'
+														? 'Планшеты'
+														: 'Неизвестно',
+										value,
+									}))}
+								>
+									<CartesianGrid strokeDasharray="3 3" />
+									<XAxis dataKey="name" />
+									<YAxis />
+									<Tooltip />
+									<Bar dataKey="value" fill="hsl(var(--primary))" name="Количество" />
+								</BarChart>
+							</ResponsiveContainer>
+						</CardContent>
+					</Card>
+
+					{/* Browser Breakdown */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Распределение по браузерам</CardTitle>
+							<CardDescription>Браузеры получателей</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<ResponsiveContainer height={250} width="100%">
+								<BarChart
+									data={Object.entries(overallAnalytics.browserBreakdown)
+										.sort((a, b) => b[1] - a[1])
+										.slice(0, 5)
+										.map(([name, value]) => ({
+											name: name === 'unknown' ? 'Неизвестно' : name,
+											value,
+										}))}
+								>
+									<CartesianGrid strokeDasharray="3 3" />
+									<XAxis dataKey="name" />
+									<YAxis />
+									<Tooltip />
+									<Bar dataKey="value" fill="hsl(var(--chart-2))" name="Количество" />
+								</BarChart>
+							</ResponsiveContainer>
+						</CardContent>
+					</Card>
+				</div>
 			)}
 
 			{/* Campaign Statistics */}
