@@ -11,7 +11,7 @@
  */
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { BarChart3, TrendingUp } from 'lucide-react';
+import { BarChart3, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
 	Area,
@@ -24,6 +24,7 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
+import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
 	CardContent,
@@ -32,12 +33,19 @@ import {
 	CardTitle,
 } from '@/shared/components/ui/card';
 import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
+import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from '@/shared/components/ui/select';
+import { exportToCSV, exportToExcel, exportToPDF } from '@/shared/lib/export/dataExport';
 import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
@@ -266,6 +274,58 @@ export function AnalyticsDashboard() {
 		return Math.round((campaign.total_opened / campaign.total_delivered) * 100);
 	};
 
+	// Export functions
+	const handleExportCSV = () => {
+		const exportData = campaigns.map((c) => ({
+			Название: c.title,
+			Статус: c.status,
+			Получателей: c.total_recipients,
+			Отправлено: c.total_sent,
+			Доставлено: c.total_delivered,
+			Открыто: c.total_opened,
+			Ошибки: c.total_failed,
+			'Delivery Rate %': calculateDeliveryRate(c),
+			'Open Rate %': calculateOpenRate(c),
+			Создано: new Date(c.created_at).toLocaleString('ru-RU'),
+		}));
+		exportToCSV(exportData, `push-campaigns-${new Date().toISOString().split('T')[0]}`);
+	};
+
+	const handleExportExcel = () => {
+		const exportData = campaigns.map((c) => ({
+			Название: c.title,
+			Статус: c.status,
+			Получателей: c.total_recipients,
+			Отправлено: c.total_sent,
+			Доставлено: c.total_delivered,
+			Открыто: c.total_opened,
+			Ошибки: c.total_failed,
+			'Delivery Rate %': calculateDeliveryRate(c),
+			'Open Rate %': calculateOpenRate(c),
+			Создано: new Date(c.created_at).toLocaleString('ru-RU'),
+		}));
+		exportToExcel(exportData, `push-campaigns-${new Date().toISOString().split('T')[0]}`);
+	};
+
+	const handleExportPDF = () => {
+		const exportData = campaigns.map((c) => ({
+			Название: c.title,
+			Статус: c.status,
+			Получателей: c.total_recipients,
+			Отправлено: c.total_sent,
+			Доставлено: c.total_delivered,
+			Открыто: c.total_opened,
+			Ошибки: c.total_failed,
+			'Delivery Rate %': calculateDeliveryRate(c),
+			'Open Rate %': calculateOpenRate(c),
+		}));
+		exportToPDF(
+			exportData,
+			`push-campaigns-${new Date().toISOString().split('T')[0]}`,
+			'Push Notifications Analytics'
+		);
+	};
+
 	if (isLoading) {
 		return (
 			<Card>
@@ -466,8 +526,34 @@ export function AnalyticsDashboard() {
 			{/* Campaign Statistics */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Статистика кампаний</CardTitle>
-					<CardDescription>Последние 10 кампаний</CardDescription>
+					<div className="flex items-center justify-between">
+						<div>
+							<CardTitle>Статистика кампаний</CardTitle>
+							<CardDescription>Последние 10 кампаний</CardDescription>
+						</div>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline" size="sm">
+									<Download className="mr-2 h-4 w-4" />
+									Экспорт
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem onClick={handleExportCSV}>
+									<FileText className="mr-2 h-4 w-4" />
+									Экспорт в CSV
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={handleExportExcel}>
+									<FileSpreadsheet className="mr-2 h-4 w-4" />
+									Экспорт в Excel
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={handleExportPDF}>
+									<FileText className="mr-2 h-4 w-4" />
+									Экспорт в PDF
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
