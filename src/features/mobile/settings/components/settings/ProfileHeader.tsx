@@ -1,11 +1,13 @@
-import { Crown, Edit2 } from 'lucide-react';
+import { Crown, Edit2, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import { DEFAULT_AVATAR_URL } from './constants';
 
 type ProfileHeaderProps = {
 	profile: any;
 	onEditClick: () => void;
+	onUpgradeToPremium?: () => void;
 };
 
 /**
@@ -14,8 +16,11 @@ type ProfileHeaderProps = {
  * - User avatar with fallback
  * - Edit button overlay
  * - User name and email display
+ * - Subscription badge (Premium or Free)
+ * - Upgrade button for Free users
  */
-export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: ProfileHeaderProps) {
+	const isPremium = profile?.is_premium || false;
 	return (
 		<div className="border-border border-b bg-card px-6 py-8 transition-colors duration-300">
 			<div className="flex flex-col items-center">
@@ -56,13 +61,36 @@ export function ProfileHeader({ profile, onEditClick }: ProfileHeaderProps) {
 						</div>
 					)}
 
-					{/* Premium Badge */}
-					{profile?.is_premium && (
-						<Badge className="mt-3 border-yellow-500/20 bg-yellow-500/10 text-yellow-600">
-							<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
-							Premium
-						</Badge>
-					)}
+					{/* Subscription Badge - ALWAYS show (Premium or Free) */}
+					<div className="mt-4 flex flex-col items-center gap-3">
+						{isPremium ? (
+							// Premium Badge
+							<Badge className="border-yellow-500/20 bg-yellow-500/10 text-yellow-600 transition-colors duration-300">
+								<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
+								Premium
+							</Badge>
+						) : (
+							// Free Badge + Upgrade Button
+							<>
+								<Badge
+									variant="outline"
+									className="border-muted-foreground/20 bg-muted/30 text-muted-foreground transition-colors duration-300"
+								>
+									Free Plan
+								</Badge>
+								{onUpgradeToPremium && (
+									<Button
+										size="sm"
+										onClick={onUpgradeToPremium}
+										className="h-9 gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 px-4 font-medium text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95"
+									>
+										<Sparkles className="h-4 w-4" strokeWidth={2} />
+										Активировать Premium
+									</Button>
+								)}
+							</>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

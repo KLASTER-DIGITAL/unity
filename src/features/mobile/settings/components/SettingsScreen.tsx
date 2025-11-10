@@ -1,8 +1,10 @@
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { PremiumActivatedModal } from '@/shared/components/modals/PremiumActivatedModal';
 import { Button } from '@/shared/components/ui/button';
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle';
 import { useTranslation } from '@/shared/lib/i18n';
+import { createClient } from '@/utils/supabase/client';
 import { PremiumModal } from './PremiumModal';
 import { ProfileEditModal } from './ProfileEditModal';
 import { SettingsRow, SettingsSection } from './SettingsRow';
@@ -73,6 +75,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 	const [showPWAInstall, setShowPWAInstall] = useState(false);
 	const [showCategories, setShowCategories] = useState(false);
 	const [showOfflineSettings, setShowOfflineSettings] = useState(false);
+	const [showPremiumActivated, setShowPremiumActivated] = useState(false);
 
 	// Динамическая загрузка языков из API
 	const [languages, setLanguages] = useState(DEFAULT_LANGUAGES);
@@ -92,6 +95,48 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 	useEffect(() => {
 		checkBiometricAvailability().then(setBiometricAvailable);
 	}, []);
+
+	// ✅ REAL-TIME: Подписка на изменения is_premium для показа модального окна
+	useEffect(() => {
+		const userId = profile?.id;
+		if (!userId) return;
+
+		const supabase = createClient();
+		const channel = supabase
+			.channel(`premium-activation:${userId}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'profiles',
+					filter: `id=eq.${userId}`,
+				},
+				(payload: any) => {
+					console.log('[SettingsScreen] 🔔 Profile updated:', payload);
+
+					// Проверяем изменился ли is_premium с false на true
+					const oldIsPremium = payload.old?.is_premium || false;
+					const newIsPremium = payload.new?.is_premium || false;
+
+					if (!oldIsPremium && newIsPremium) {
+						console.log('[SettingsScreen] 🎉 Premium activated! Showing modal...');
+						setShowPremiumActivated(true);
+
+						// Обновляем локальный профиль
+						setProfile((prev: any) => ({
+							...prev,
+							is_premium: true,
+						}));
+					}
+				}
+			)
+			.subscribe();
+
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [profile?.id]);
 
 	// Синхронизация локального профиля с userData
 	useEffect(() => {
@@ -194,7 +239,11 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 	return (
 		<div className="min-h-screen bg-background pb-20">
 			{/* Profile Section */}
-			<ProfileHeader onEditClick={() => setShowEditProfile(true)} profile={profile} />
+			<ProfileHeader
+				onEditClick={() => setShowEditProfile(true)}
+				onUpgradeToPremium={() => setShowPremium(true)}
+				profile={profile}
+			/>
 
 			{/* Уведомления */}
 			<NotificationsSection
@@ -329,6 +378,12 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 			{/* Premium Modal */}
 			<PremiumModal onClose={() => setShowPremium(false)} open={showPremium} />
+
+			{/* Premium Activated Modal - показывается когда админ активирует Premium */}
+			<PremiumActivatedModal
+				onClose={() => setShowPremiumActivated(false)}
+				open={showPremiumActivated}
+			/>
 
 			{/* Profile Edit Modal */}
 			<ProfileEditModal

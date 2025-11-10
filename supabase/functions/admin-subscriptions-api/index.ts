@@ -235,6 +235,13 @@ Deno.serve(async (req) => {
 			// Update user's is_premium field
 			if (status === 'active') {
 				await supabaseAdmin.from('profiles').update({ is_premium: true }).eq('id', userId);
+
+				// ✅ REAL-TIME UPDATE: Supabase Realtime автоматически отправит UPDATE event
+				// PWA подписан на изменения profiles таблицы и покажет PremiumActivatedModal
+				console.log('[ADMIN-SUBSCRIPTIONS] ✅ Premium activated for user:', userId);
+				console.log(
+					'[ADMIN-SUBSCRIPTIONS] 📡 Real-time update will trigger PremiumActivatedModal in PWA'
+				);
 			}
 
 			console.log('[ADMIN-SUBSCRIPTIONS] ✅ Subscription created:', data.id);

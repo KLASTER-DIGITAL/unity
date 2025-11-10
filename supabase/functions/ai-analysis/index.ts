@@ -53,6 +53,45 @@ Deno.serve(async (req) => {
 
 		console.log('[AI-ANALYSIS] Authenticated user:', user.id);
 
+		// ✅ CHECK PREMIUM: AI analysis is ONLY available for Premium users
+		// Free users can create entries, but AI analysis requires Premium subscription
+		const { data: profile, error: profileError } = await supabaseClient
+			.from('profiles')
+			.select('is_premium')
+			.eq('id', user.id)
+			.single();
+
+		if (profileError) {
+			console.error('[AI-ANALYSIS] ❌ Error fetching profile:', profileError);
+			return new Response(
+				JSON.stringify({
+					error: 'Failed to fetch user profile',
+					details: profileError.message,
+				}),
+				{
+					status: 500,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		if (!profile?.is_premium) {
+			console.log('[AI-ANALYSIS] ❌ User is not Premium, AI analysis blocked');
+			return new Response(
+				JSON.stringify({
+					error: 'Premium subscription required',
+					message: 'AI анализ доступен только для Premium подписки',
+					upgrade_url: '/?view=settings#premium',
+				}),
+				{
+					status: 403,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		console.log('[AI-ANALYSIS] ✅ User is Premium, proceeding with AI analysis');
+
 		// Get OpenAI API key from admin_settings or header
 		const headerKey = req.headers.get('X-OpenAI-Key');
 		let openaiApiKey = headerKey;
