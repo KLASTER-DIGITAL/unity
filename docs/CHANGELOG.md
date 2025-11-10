@@ -9,6 +9,15 @@
 
 ## [Unreleased] - 2025-11-10
 
+### ✨ Новые возможности
+- **Premium Trial Automation**: Автоматический 14-дневный Premium trial для новых пользователей
+  - Database Trigger автоматически создает trial подписку при регистрации
+  - Welcome Trial Modal показывает 6 Premium features с иконками
+  - Автоматическое обновление `is_premium = true` для trial пользователей
+  - Metadata tracking: `is_trial`, `trial_days`, `welcome_modal_shown`
+  - iOS Design System: smooth animations, responsive typography, touch targets 44x44px
+  - UX оптимизация: показ модала через 2 секунды после onboarding
+
 ### 🔒 Безопасность
 - **Push Notifications**: Исправлена RLS политика для VAPID public key
   - Разрешен доступ всем пользователям к `vapid_public_key` в `admin_settings`
@@ -27,6 +36,13 @@
 - **Premium Button**: Улучшен контраст на светлом фоне
   - Заменен `ring-yellow-600/30` на `ring-orange-600/60` (лучше видно)
   - Обновлен синтаксис Tailwind v4: `bg-linear-to-r` вместо `bg-gradient-to-r`
+- **PWA Overview**: Исправлены нереальные данные в админ-панели
+  - `totalInstalls`: реальный COUNT(*) вместо `pwa_installed` (17 пользователей)
+  - `pushSubscriptionRate`: 7/17 = 41% (было 0%)
+  - График "Динамика установок": загружается из БД (группировка по месяцам)
+- **Profile Header**: Убрано дублирование "Дневник", оставлено только "UNITY"
+- **Premium блокировки**: Убраны для Premium пользователей, показывается только Crown иконка
+- **PWA Push Notifications**: Добавлен `gcm_sender_id` в manifest.json для работы в установленных PWA
 
 ---
 

@@ -9,6 +9,12 @@
 ## [Unreleased] - 2025-11-10
 
 ### 🗄️ База данных
+- **Premium Trial Trigger**: Создан автоматический триггер для trial подписок
+  - Функция `create_trial_subscription()` с SECURITY DEFINER
+  - Триггер `on_profile_created_trial` на INSERT в `profiles`
+  - Автоматическое создание 14-дневной подписки для новых пользователей
+  - Metadata: `is_trial`, `trial_days`, `created_via`, `welcome_modal_shown`
+  - Миграция: `supabase/migrations/20251110_create_trial_subscription_trigger.sql`
 - **RLS Policy**: Обновлена политика `admin_settings_select_policy`
   - Добавлен `vapid_public_key` в список публичных ключей
   - Создана миграция `supabase/migrations/20251110_fix_vapid_public_key_rls.sql`
@@ -24,9 +30,29 @@
   - Решена проблема с кэшированием PWA обновлений
 
 ### 🔄 Изменено
+- **MobileApp.tsx**: Интеграция Welcome Trial Modal
+  - Добавлен state `showWelcomeTrialModal` для управления показом
+  - useEffect для проверки trial подписки через Supabase
+  - Автоматическое обновление `metadata.welcome_modal_shown = true`
+  - Delay 2 секунды для лучшего UX (после push onboarding modal)
+  - Graceful error handling если подписка не найдена
+- **WelcomeTrialModal.tsx**: Новый компонент для приветствия trial пользователей
+  - 6 Premium features с иконками и описаниями
+  - Framer Motion animations для smooth transitions
+  - iOS Design System: responsive typography, touch targets 44x44px
+  - Gradient background для premium feel
 - **ProfileHeader.tsx**: Обновлен стиль кнопки Premium
   - `ring-yellow-600/30` → `ring-orange-600/60` (лучше контраст)
   - `bg-gradient-to-r` → `bg-linear-to-r` (Tailwind v4 синтаксис)
+- **PremiumActivatedModal.tsx**: Tailwind CSS v4 canonical syntax
+  - `flex-shrink-0` → `shrink-0`
+  - `bg-gradient-to-r` → `bg-linear-to-r`
+- **PWAOverview.tsx**: Исправлены расчеты метрик
+  - `totalInstalls`: COUNT(*) вместо `pwa_installed`
+  - `pushSubscriptionRate`: реальный расчет 7/17 = 41%
+  - График установок: загрузка из БД с группировкой по месяцам
+- **OfflineSection.tsx**: Добавлена Crown иконка для Free users
+- **manifest.json**: Добавлен `gcm_sender_id` для PWA push support
 
 ---
 
