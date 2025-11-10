@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
+import { subscribeToPush } from '@/shared/lib/notifications/pushAdapter';
 import { createClient } from '@/utils/supabase/client';
 
 type PushNotificationOnboardingModalProps = {
@@ -42,10 +43,19 @@ export function PushNotificationOnboardingModal({
 		setIsLoading(true);
 
 		try {
-			// Request notification permission
-			const permission = await Notification.requestPermission();
+			console.log('[PushOnboardingModal] Starting push subscription for user:', userId);
 
-			if (permission === 'granted') {
+			// 1. Subscribe to push notifications using Platform Adapter
+			// This will:
+			// - Request permission
+			// - Create push subscription
+			// - Save to push_subscriptions table
+			const result = await subscribeToPush(userId);
+
+			if (result.success && result.subscription) {
+				console.log('[PushOnboardingModal] Push subscription successful');
+
+				// 2. Update user profile with notification preferences
 				const supabase = createClient();
 
 				// Build selectedTimes array based on checkboxes
@@ -53,7 +63,6 @@ export function PushNotificationOnboardingModal({
 				if (morningEnabled) selectedTimes.push('morning');
 				if (eveningEnabled) selectedTimes.push('evening');
 
-				// Update user profile with notification preferences
 				const { error } = await supabase
 					.from('profiles')
 					.update({
@@ -72,16 +81,31 @@ export function PushNotificationOnboardingModal({
 					})
 					.eq('id', userId);
 
-				if (error) throw error;
+				if (error) {
+					console.error('[PushOnboardingModal] Error updating profile:', error);
+					throw error;
+				}
 
+				console.log('[PushOnboardingModal] Profile updated successfully');
 				toast.success('Уведомления включены!');
 				onComplete?.();
 				onClose();
 			} else {
-				toast.error('Разрешение на уведомления отклонено');
+				// Push subscription failed
+				console.error('[PushOnboardingModal] Push subscription failed:', result.error);
+
+				if (result.error === 'permission_denied') {
+					toast.error('Разрешение на уведомления отклонено');
+				} else if (result.error === 'not_supported') {
+					toast.error('Ваш браузер не поддерживает уведомления');
+				} else if (result.error === 'vapid_key_missing') {
+					toast.error('Ошибка конфигурации сервера');
+				} else {
+					toast.error('Ошибка при включении уведомлений');
+				}
 			}
 		} catch (error) {
-			console.error('Error enabling notifications:', error);
+			console.error('[PushOnboardingModal] Error enabling notifications:', error);
 			toast.error('Ошибка при включении уведомлений');
 		} finally {
 			setIsLoading(false);
