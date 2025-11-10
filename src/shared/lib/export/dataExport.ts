@@ -5,9 +5,14 @@
  */
 
 /**
+ * Generic data type for export functions
+ */
+type ExportData = Record<string, string | number | boolean | null | undefined>;
+
+/**
  * Convert data to CSV format
  */
-export function exportToCSV(data: any[], filename: string) {
+export function exportToCSV(data: ExportData[], filename: string) {
 	if (!data || data.length === 0) {
 		console.warn('[Export] No data to export');
 		return;
@@ -43,7 +48,7 @@ export function exportToCSV(data: any[], filename: string) {
  * Note: This creates a CSV file with .xlsx extension for simplicity
  * For true Excel format, would need a library like xlsx
  */
-export function exportToExcel(data: any[], filename: string) {
+export function exportToExcel(data: ExportData[], filename: string) {
 	if (!data || data.length === 0) {
 		console.warn('[Export] No data to export');
 		return;
@@ -77,7 +82,7 @@ export function exportToExcel(data: any[], filename: string) {
  * Note: This creates a simple text-based PDF
  * For advanced PDF features, consider using jsPDF library
  */
-export function exportToPDF(data: any[], filename: string, title?: string) {
+export function exportToPDF(data: ExportData[], filename: string, title?: string) {
 	if (!data || data.length === 0) {
 		console.warn('[Export] No data to export');
 		return;
