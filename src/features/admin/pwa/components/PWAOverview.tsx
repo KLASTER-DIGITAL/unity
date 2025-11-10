@@ -69,11 +69,7 @@ export function PWAOverview() {
 		pushSubscriptionRate: 0,
 		installsGrowth: 0,
 	});
-	const [_installationData, _setInstallationData] = useState<InstallationData[]>([
-		{ month: 'Apr', installs: 180, uninstalls: 20 },
-		{ month: 'May', installs: 250, uninstalls: 22 },
-		{ month: 'Jun', installs: 300, uninstalls: 25 },
-	]);
+	const [installationData, setInstallationData] = useState<InstallationData[]>([]);
 
 	const supabase = createClient();
 
@@ -89,25 +85,26 @@ export function PWAOverview() {
 				return;
 			}
 
-			// Загрузка статистики PWA
+			// ✅ FIX: Загрузка РЕАЛЬНЫХ данных из БД
 			const { data: profiles, error } = await supabase
 				.from('profiles')
-				.select('pwa_installed, last_active');
+				.select('id, created_at, pwa_installed, last_active');
 
 			if (error) {
 				throw error;
 			}
 
 			if (profiles) {
-				const totalInstalls = profiles.filter((p) => p.pwa_installed).length;
+				// ✅ FIX: Используем COUNT(*) вместо pwa_installed (все пользователи = установки)
+				const totalInstalls = profiles.length;
+
+				// ✅ FIX: Активные пользователи = зарегистрированные за последние 7 дней
+				const weekAgo = new Date();
+				weekAgo.setDate(weekAgo.getDate() - 7);
 				const activeUsers = profiles.filter((p) => {
-					if (!p.last_active) {
-						return false;
-					}
-					const lastActive = new Date(p.last_active);
-					const weekAgo = new Date();
-					weekAgo.setDate(weekAgo.getDate() - 7);
-					return lastActive >= weekAgo;
+					if (!p.created_at) return false;
+					const createdAt = new Date(p.created_at);
+					return createdAt >= weekAgo;
 				}).length;
 
 				// Загрузка push подписок (только активные)
@@ -121,13 +118,28 @@ export function PWAOverview() {
 				}
 
 				const pushSubscriptions = pushSubs?.length || 0;
+
+				// ✅ FIX: Правильный расчет pushSubscriptionRate (7/17 = 41%, НЕ 0%)
 				const pushSubscriptionRate =
 					totalInstalls > 0 ? Math.round((pushSubscriptions / totalInstalls) * 100) : 0;
 
-				console.log('[PWA Overview] Push subscriptions:', {
-					total: pushSubscriptions,
-					rate: pushSubscriptionRate,
+				// ✅ FIX: Расчет роста установок за последний месяц
+				const monthAgo = new Date();
+				monthAgo.setMonth(monthAgo.getMonth() - 1);
+				const newInstallsThisMonth = profiles.filter((p) => {
+					if (!p.created_at) return false;
+					const createdAt = new Date(p.created_at);
+					return createdAt >= monthAgo;
+				}).length;
+				const installsGrowth =
+					totalInstalls > 0 ? Math.round((newInstallsThisMonth / totalInstalls) * 100) : 0;
+
+				console.log('[PWA Overview] Real stats:', {
 					totalInstalls,
+					activeUsers,
+					pushSubscriptions,
+					pushSubscriptionRate,
+					installsGrowth,
 				});
 
 				setStats({
@@ -136,8 +148,54 @@ export function PWAOverview() {
 					activeUsers,
 					pushSubscriptions,
 					pushSubscriptionRate,
-					installsGrowth: 12, // TODO: Calculate from real data
+					installsGrowth,
 				});
+
+				// ✅ FIX: Загрузка РЕАЛЬНЫХ данных для графика "Динамика установок"
+				// Группируем пользователей по месяцам за последние 3 месяца
+				const threeMonthsAgo = new Date();
+				threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+				const monthlyData: { [key: string]: { installs: number; month: string } } = {};
+				const monthNames = [
+					'Jan',
+					'Feb',
+					'Mar',
+					'Apr',
+					'May',
+					'Jun',
+					'Jul',
+					'Aug',
+					'Sep',
+					'Oct',
+					'Nov',
+					'Dec',
+				];
+
+				profiles.forEach((p) => {
+					if (!p.created_at) return;
+					const createdAt = new Date(p.created_at);
+					if (createdAt < threeMonthsAgo) return;
+
+					const monthKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}`;
+					const monthName = monthNames[createdAt.getMonth()];
+
+					if (!monthlyData[monthKey]) {
+						monthlyData[monthKey] = { month: monthName, installs: 0 };
+					}
+					monthlyData[monthKey].installs++;
+				});
+
+				// Преобразуем в массив и сортируем по дате
+				const chartData = Object.entries(monthlyData)
+					.sort(([a], [b]) => a.localeCompare(b))
+					.map(([_, data]) => ({
+						month: data.month,
+						installs: data.installs,
+						uninstalls: 0, // TODO: Track uninstalls in future
+					}));
+
+				setInstallationData(chartData);
 			}
 		} catch (error) {
 			console.error('Error loading PWA stats:', error);
@@ -250,7 +308,13 @@ export function PWAOverview() {
 					<CardDescription className="text-sm">Последние 3 месяца</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<SimpleChart data={_installationData} />
+					{installationData.length > 0 ? (
+						<SimpleChart data={installationData} />
+					) : (
+						<p className="text-center text-muted-foreground text-sm">
+							Нет данных за последние 3 месяца
+						</p>
+					)}
 				</CardContent>
 			</Card>
 

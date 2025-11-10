@@ -1,4 +1,4 @@
-import { CloudOff, Settings } from 'lucide-react';
+import { CloudOff, Crown, Settings } from 'lucide-react';
 import { useOfflineMode } from '@/shared/lib/offline';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 
@@ -50,21 +50,33 @@ export function OfflineSection({
 		}
 	};
 
-	// Формируем description с учетом pending syncs
+	// ✅ FIX: Формируем description с учетом pending syncs
 	const getDescription = () => {
-		if (!isPremium) {
-			return 'Требуется премиум';
+		// Для Premium пользователей - показываем статус
+		if (isPremium) {
+			if (!offlineEnabled) {
+				return 'Премиум функция';
+			}
+			if (syncInProgress) {
+				return `Синхронизация ${pendingCount} записей...`;
+			}
+			if (pendingCount > 0) {
+				return `${pendingCount} записей ожидают синхронизации`;
+			}
+			return 'Работает в фоновом режиме';
 		}
-		if (!offlineEnabled) {
-			return 'Премиум функция';
+
+		// Для Free пользователей - показываем что это Premium функция
+		return 'Премиум функция';
+	};
+
+	// ✅ FIX: Для Premium пользователей показываем Crown иконку
+	const getRightElement = () => {
+		if (isPremium) {
+			return 'switch';
 		}
-		if (syncInProgress) {
-			return `Синхронизация ${pendingCount} записей...`;
-		}
-		if (pendingCount > 0) {
-			return `${pendingCount} записей ожидают синхронизации`;
-		}
-		return 'Работает в фоновом режиме';
+		// Для Free пользователей показываем Crown иконку
+		return <Crown className="h-4 w-4 text-yellow-500" />;
 	};
 
 	return (
@@ -76,8 +88,8 @@ export function OfflineSection({
 				iconBgColor="bg-(--ios-purple)/10"
 				iconColor="text-(--ios-purple)"
 				onClick={handleOfflineClick}
-				onSwitchChange={handleOfflineChange}
-				rightElement="switch"
+				onSwitchChange={isPremium ? handleOfflineChange : undefined}
+				rightElement={getRightElement()}
 				switchChecked={offlineEnabled}
 				title={t.enableOfflineMode || 'Включить offline режим'}
 			/>
