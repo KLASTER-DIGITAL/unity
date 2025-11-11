@@ -9,6 +9,13 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🐛 Исправления
+
+- **Настройки профиля**: Исправлено отображение тарифа Premium и названия дневника
+  - Тариф теперь корректно показывает "Premium" для пользователей с активной подпиской
+  - Название дневника отображается в ProfileHeader (было скрыто)
+  - Поддержка обоих форматов полей: camelCase (isPremium, diaryName) и snake_case (is_premium, diary_name)
+
 ### ✨ Новые возможности
 - **Telegram Bot Integration**: Полная интеграция Telegram уведомлений
   - **telegram-bot-webhook Edge Function**: обработчик webhook событий от Telegram Bot

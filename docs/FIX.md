@@ -8,6 +8,21 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🔄 Исправления
+
+**ProfileHeader.tsx - Исправлено отображение тарифа и названия дневника**:
+- Добавлена поддержка обоих форматов: `isPremium` (camelCase) и `is_premium` (snake_case)
+- Добавлено отображение `diary_name` и `diary_emoji` в ProfileHeader
+- Условное отображение: показывается если есть diaryName или diaryEmoji
+- Fallback на "UNITY" если нет названия дневника
+
+**Проблема**: Пользователь rustam@leadshunter.biz видел "Free Plan" хотя в БД is_premium=true и активная подписка
+**Причина**: ProfileHeader использовал только `profile?.is_premium`, но данные приходили в camelCase `isPremium`
+**Решение**: Добавлена поддержка обоих форматов через OR оператор
+
+**Файлы**:
+- src/features/mobile/settings/components/settings/ProfileHeader.tsx
+
 ### 🔄 Изменено
 - **telegram-bot-webhook Edge Function**: Создан новый обработчик Telegram Bot webhook
   - **Файл**: `supabase/functions/telegram-bot-webhook/index.ts` (новый, 250 строк)

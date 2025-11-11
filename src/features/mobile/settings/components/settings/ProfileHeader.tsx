@@ -20,7 +20,8 @@ type ProfileHeaderProps = {
  * - Upgrade button for Free users
  */
 export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: ProfileHeaderProps) {
-	const isPremium = profile?.is_premium || false;
+	// ✅ FIX: Support both camelCase (isPremium) and snake_case (is_premium)
+	const isPremium = profile?.isPremium || profile?.is_premium || false;
 	return (
 		<div className="border-border border-b bg-card px-6 py-8 transition-colors duration-300">
 			<div className="flex flex-col items-center">
@@ -51,11 +52,18 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 					</h1>
 					<p className="text-muted-foreground text-sm">{profile?.email}</p>
 
-					{/* App Name - UNITY */}
-					<div className="mt-3 inline-flex items-center gap-2 rounded-full border-border border bg-muted/30 px-4 py-2">
-						<span className="text-xl">🏆</span>
-						<span className="font-medium text-foreground text-sm">UNITY</span>
-					</div>
+					{/* Diary Name - Support both camelCase and snake_case */}
+					{(profile?.diaryName ||
+						profile?.diary_name ||
+						profile?.diaryEmoji ||
+						profile?.diary_emoji) && (
+						<div className="mt-3 inline-flex items-center gap-2 rounded-full border-border border bg-muted/30 px-4 py-2">
+							<span className="text-xl">{profile?.diaryEmoji || profile?.diary_emoji || '🏆'}</span>
+							<span className="font-medium text-foreground text-sm">
+								{profile?.diaryName || profile?.diary_name || 'UNITY'}
+							</span>
+						</div>
+					)}
 
 					{/* Subscription Badge - ALWAYS show (Premium or Free) */}
 					<div className="mt-4 flex flex-col items-center gap-3">
