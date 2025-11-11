@@ -39,36 +39,46 @@ export function PushNotifications() {
 
 			{/* Tabs */}
 			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-				<TabsList className="grid w-full max-w-4xl grid-cols-2 sm:grid-cols-3 md:grid-cols-7">
-					<TabsTrigger className="flex items-center gap-2" value="campaigns">
-						<Send className="h-4 w-4" />
-						Рассылки
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="segments">
-						<Users className="h-4 w-4" />
-						Сегменты
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="analytics">
-						<BarChart3 className="h-4 w-4" />
-						Аналитика
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="history">
-						<History className="h-4 w-4" />
-						История
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="ab-testing">
-						<FlaskConical className="h-4 w-4" />
-						A/B Testing
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="test">
-						<TestTube className="h-4 w-4" />
-						Тестирование
-					</TabsTrigger>
-					<TabsTrigger className="flex items-center gap-2" value="templates">
-						<FileText className="h-4 w-4" />
-						Шаблоны
-					</TabsTrigger>
-				</TabsList>
+				{/* ✅ FIX: Адаптивный layout с горизонтальным скроллом на маленьких экранах */}
+				<div className="w-full overflow-x-auto">
+					<TabsList className="inline-flex h-auto w-auto min-w-full flex-nowrap gap-1 p-1">
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="campaigns">
+							<Send className="h-4 w-4" />
+							<span className="hidden sm:inline">Рассылки</span>
+							<span className="sm:hidden">Рассылки</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="segments">
+							<Users className="h-4 w-4" />
+							<span className="hidden sm:inline">Сегменты</span>
+							<span className="sm:hidden">Сегменты</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="analytics">
+							<BarChart3 className="h-4 w-4" />
+							<span className="hidden sm:inline">Аналитика</span>
+							<span className="sm:hidden">Аналитика</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="history">
+							<History className="h-4 w-4" />
+							<span className="hidden sm:inline">История</span>
+							<span className="sm:hidden">История</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="ab-testing">
+							<FlaskConical className="h-4 w-4" />
+							<span className="hidden sm:inline">A/B Testing</span>
+							<span className="sm:hidden">A/B</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="test">
+							<TestTube className="h-4 w-4" />
+							<span className="hidden sm:inline">Тестирование</span>
+							<span className="sm:hidden">Тест</span>
+						</TabsTrigger>
+						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="templates">
+							<FileText className="h-4 w-4" />
+							<span className="hidden sm:inline">Шаблоны</span>
+							<span className="sm:hidden">Шаблоны</span>
+						</TabsTrigger>
+					</TabsList>
+				</div>
 
 				{/* Campaign Creator */}
 				<TabsContent className="space-y-6" value="campaigns">

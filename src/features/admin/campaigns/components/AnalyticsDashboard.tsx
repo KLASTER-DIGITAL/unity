@@ -13,17 +13,20 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { BarChart3, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-	Area,
-	AreaChart,
-	Bar,
-	BarChart,
-	CartesianGrid,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from 'recharts';
+
+// ✅ TEMPORARY FIX: Comment out recharts to avoid es-toolkit/compat error
+// TODO: Replace with recharts v2 or alternative charting library
+// import {
+// 	Area,
+// 	AreaChart,
+// 	Bar,
+// 	BarChart,
+// 	CartesianGrid,
+// 	ResponsiveContainer,
+// 	Tooltip,
+// 	XAxis,
+// 	YAxis,
+// } from 'recharts';
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -434,28 +437,18 @@ export function AnalyticsDashboard() {
 						</div>
 					</CardHeader>
 					<CardContent>
-						<ResponsiveContainer height={300} width="100%">
-							<AreaChart data={trends}>
-								<CartesianGrid strokeDasharray="3 3" />
-								<XAxis dataKey="date" />
-								<YAxis />
-								<Tooltip />
-								<Area
-									dataKey="delivered"
-									fill="hsl(var(--primary))"
-									name="Доставлено"
-									stroke="hsl(var(--primary))"
-									type="monotone"
-								/>
-								<Area
-									dataKey="opened"
-									fill="hsl(var(--chart-2))"
-									name="Открыто"
-									stroke="hsl(var(--chart-2))"
-									type="monotone"
-								/>
-							</AreaChart>
-						</ResponsiveContainer>
+						{/* ✅ TEMPORARY: Simple table instead of chart */}
+						<div className="space-y-2">
+							{trends.map((trend) => (
+								<div key={trend.date} className="flex items-center justify-between border-b pb-2">
+									<span className="text-sm">{trend.date}</span>
+									<div className="flex gap-4 text-sm">
+										<span className="text-primary">Доставлено: {trend.delivered}</span>
+										<span className="text-muted-foreground">Открыто: {trend.opened}</span>
+									</div>
+								</div>
+							))}
+						</div>
 					</CardContent>
 				</Card>
 			)}
@@ -470,27 +463,23 @@ export function AnalyticsDashboard() {
 							<CardDescription>Типы устройств получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<ResponsiveContainer height={250} width="100%">
-								<BarChart
-									data={Object.entries(overallAnalytics.deviceBreakdown).map(([name, value]) => ({
-										name:
-											name === 'mobile'
+							{/* ✅ TEMPORARY: Simple list instead of chart */}
+							<div className="space-y-2">
+								{Object.entries(overallAnalytics.deviceBreakdown).map(([name, value]) => (
+									<div key={name} className="flex items-center justify-between border-b pb-2">
+										<span className="text-sm">
+											{name === 'mobile'
 												? 'Мобильные'
 												: name === 'desktop'
 													? 'Десктоп'
 													: name === 'tablet'
 														? 'Планшеты'
-														: 'Неизвестно',
-										value,
-									}))}
-								>
-									<CartesianGrid strokeDasharray="3 3" />
-									<XAxis dataKey="name" />
-									<YAxis />
-									<Tooltip />
-									<Bar dataKey="value" fill="hsl(var(--primary))" name="Количество" />
-								</BarChart>
-							</ResponsiveContainer>
+														: 'Неизвестно'}
+										</span>
+										<span className="font-semibold text-primary">{value}</span>
+									</div>
+								))}
+							</div>
 						</CardContent>
 					</Card>
 
@@ -501,23 +490,18 @@ export function AnalyticsDashboard() {
 							<CardDescription>Браузеры получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<ResponsiveContainer height={250} width="100%">
-								<BarChart
-									data={Object.entries(overallAnalytics.browserBreakdown)
-										.sort((a, b) => b[1] - a[1])
-										.slice(0, 5)
-										.map(([name, value]) => ({
-											name: name === 'unknown' ? 'Неизвестно' : name,
-											value,
-										}))}
-								>
-									<CartesianGrid strokeDasharray="3 3" />
-									<XAxis dataKey="name" />
-									<YAxis />
-									<Tooltip />
-									<Bar dataKey="value" fill="hsl(var(--chart-2))" name="Количество" />
-								</BarChart>
-							</ResponsiveContainer>
+							{/* ✅ TEMPORARY: Simple list instead of chart */}
+							<div className="space-y-2">
+								{Object.entries(overallAnalytics.browserBreakdown)
+									.sort((a, b) => b[1] - a[1])
+									.slice(0, 5)
+									.map(([name, value]) => (
+										<div key={name} className="flex items-center justify-between border-b pb-2">
+											<span className="text-sm">{name === 'unknown' ? 'Неизвестно' : name}</span>
+											<span className="font-semibold text-primary">{value}</span>
+										</div>
+									))}
+							</div>
 						</CardContent>
 					</Card>
 				</div>
