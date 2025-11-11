@@ -7,7 +7,20 @@
 
 ---
 
-## [Unreleased] - 2025-11-10
+## [Unreleased] - 2025-11-11
+
+### 🐛 Исправления
+- **Analytics Dashboard**: Временное исправление recharts error (es-toolkit/compat)
+  - Закомментированы recharts импорты в AnalyticsDashboard.tsx
+  - Графики заменены на простые таблицы/списки (временно)
+  - Trends: таблица с датами и метриками
+  - Device Breakdown: список устройств
+  - Browser Breakdown: список браузеров
+  - TODO: Заменить recharts на альтернативную библиотеку или использовать recharts v2
+- **Push Notifications UI**: Responsive layout для табов
+  - Изменен grid-cols-7 на inline-flex с горизонтальным скроллом
+  - Добавлен whitespace-nowrap для предотвращения переноса текста
+  - Адаптивные названия: полные на sm: экранах, сокращенные на маленьких
 
 ### ✨ Новые возможности
 - **A/B Testing для Push Уведомлений**: Система тестирования эффективности уведомлений

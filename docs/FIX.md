@@ -6,7 +6,27 @@
 
 ---
 
-## [Unreleased] - 2025-11-10
+## [Unreleased] - 2025-11-11
+
+### 🐛 Исправления
+- **AnalyticsDashboard.tsx**: Временное исправление recharts error (es-toolkit/compat)
+  - Файл: `src/features/admin/campaigns/components/AnalyticsDashboard.tsx`
+  - Проблема: recharts@3.4.1 + es-toolkit/compat compatibility issue
+  - Ошибка: "The requested module '/node_modules/es-toolkit/compat/get.js' does not provide an export named 'default'"
+  - Решение: Закомментированы recharts импорты, графики заменены на простые таблицы/списки
+  - Trends chart → таблица с датами и метриками (delivered, opened)
+  - Device Breakdown chart → список устройств (Мобильные, Десктоп, Планшеты)
+  - Browser Breakdown chart → список браузеров (топ 5)
+  - TODO: Заменить recharts на альтернативную библиотеку или использовать recharts v2
+  - Статус: Временное решение, требуется постоянное исправление
+
+- **PushNotifications.tsx**: Responsive layout для табов
+  - Файл: `src/features/admin/pwa/components/PushNotifications.tsx`
+  - Проблема: 7 табов на маленьких экранах = узкие кнопки, текст переносится
+  - Решение: Изменен grid-cols-7 на inline-flex с горизонтальным скроллом
+  - Добавлен whitespace-nowrap для предотвращения переноса текста
+  - Адаптивные названия: полные на sm: экранах, сокращенные на маленьких
+  - Обернут в overflow-x-auto для скролла
 
 ### 🆕 Создано
 - **push-ab-test-api Edge Function**: API для управления A/B тестами push уведомлений
