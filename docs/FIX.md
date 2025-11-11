@@ -26,6 +26,16 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **push_notification_templates таблица**: Создана система управления шаблонами
+  - Таблица с полями: type, title, body, icon, is_premium_only, is_ai_enabled
+  - Поддержка динамических переменных (variables TEXT[])
+  - i18n поддержка через translations JSONB (7 языков)
+  - AI настройки через ai_settings JSONB
+  - RLS политики для super_admin доступа
+  - Trigger для автоматического обновления updated_at
+  - 8 seed шаблонов (5 FREE + 3 PREMIUM)
+  - Файл: `supabase/migrations/20251111_create_push_notification_templates.sql`
+
 - **push-ai-personalize Edge Function**: Добавлен анализ поведения пользователя
   - Функция `analyzeUserBehavior()` - анализ активности за 30 дней
   - Определение самого активного часа и дня недели
