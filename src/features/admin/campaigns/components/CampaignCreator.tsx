@@ -7,8 +7,12 @@
  * - Segment targeting
  * - Scheduling
  * - Template editor
+ * - Real-time preview
+ * - Character counters
+ * - Validation
  */
 
+import { Bell } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
@@ -48,14 +52,38 @@ export function CampaignCreator() {
 	});
 	const [isCreating, setIsCreating] = useState(false);
 	const [activeTab, setActiveTab] = useState('content');
+	const [previewLanguage, setPreviewLanguage] = useState('ru');
+
+	// Validation function
+	const validateCampaign = (): { valid: boolean; errors: string[] } => {
+		const errors: string[] = [];
+
+		if (!campaignData.title.trim()) {
+			errors.push('Заголовок обязателен');
+		}
+		if (campaignData.title.length > 50) {
+			errors.push('Заголовок не должен превышать 50 символов');
+		}
+		if (!campaignData.body.trim()) {
+			errors.push('Текст уведомления обязателен');
+		}
+		if (campaignData.body.length > 120) {
+			errors.push('Текст не должен превышать 120 символов');
+		}
+
+		return { valid: errors.length === 0, errors };
+	};
 
 	const handleCreateCampaign = async () => {
 		try {
 			setIsCreating(true);
 
-			// Validate required fields
-			if (!campaignData.title || !campaignData.body) {
-				toast.error('Заполните обязательные поля');
+			// Validate
+			const validation = validateCampaign();
+			if (!validation.valid) {
+				for (const error of validation.errors) {
+					toast.error(error);
+				}
 				return;
 			}
 
@@ -113,6 +141,15 @@ export function CampaignCreator() {
 	const handleSendNow = async () => {
 		try {
 			setIsCreating(true);
+
+			// Validate
+			const validation = validateCampaign();
+			if (!validation.valid) {
+				for (const error of validation.errors) {
+					toast.error(error);
+				}
+				return;
+			}
 
 			// Create campaign first
 			const {
@@ -216,6 +253,62 @@ export function CampaignCreator() {
 						/>
 					</TabsContent>
 				</Tabs>
+
+				{/* Real-time Preview */}
+				<Card className="mt-6 bg-muted/50">
+					<CardHeader>
+						<div className="flex items-center justify-between">
+							<CardTitle className="text-base">Превью уведомления</CardTitle>
+							<select
+								value={previewLanguage}
+								onChange={(e) => setPreviewLanguage(e.target.value)}
+								className="rounded-md border border-input bg-background px-3 py-1 text-sm"
+							>
+								<option value="ru">Русский</option>
+								<option value="en">English</option>
+								<option value="es">Español</option>
+								<option value="de">Deutsch</option>
+								<option value="fr">Français</option>
+								<option value="zh">中文</option>
+								<option value="ja">日本語</option>
+							</select>
+						</div>
+					</CardHeader>
+					<CardContent>
+						<div className="rounded-lg border bg-background p-4 shadow-sm">
+							<div className="flex items-start gap-3">
+								<div className="flex-shrink-0">
+									<Bell className="h-6 w-6 text-primary" />
+								</div>
+								<div className="flex-1 space-y-1">
+									<p className="font-semibold text-sm">
+										{previewLanguage === 'ru'
+											? campaignData.title || 'Заголовок уведомления'
+											: campaignData.translations[previewLanguage]?.title ||
+												campaignData.title ||
+												'Notification Title'}
+									</p>
+									<p className="text-sm text-muted-foreground">
+										{previewLanguage === 'ru'
+											? campaignData.body || 'Текст уведомления появится здесь'
+											: campaignData.translations[previewLanguage]?.body ||
+												campaignData.body ||
+												'Notification body will appear here'}
+									</p>
+									<div className="flex items-center gap-2 pt-1">
+										<span className="text-xs text-muted-foreground">
+											{campaignData.title.length}/50
+										</span>
+										<span className="text-xs text-muted-foreground">•</span>
+										<span className="text-xs text-muted-foreground">
+											{campaignData.body.length}/120
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 
 				<div className="mt-6 flex gap-3">
 					<Button
