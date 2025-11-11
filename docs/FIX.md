@@ -26,6 +26,17 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **push-templates-api Edge Function**: Создан API для управления шаблонами
+  - GET /push-templates-api - список всех шаблонов
+  - GET /push-templates-api?id=xxx - получить шаблон по ID
+  - GET /push-templates-api?type=xxx - получить шаблон по типу
+  - POST /push-templates-api - создать новый шаблон
+  - PUT /push-templates-api?id=xxx - обновить шаблон
+  - DELETE /push-templates-api?id=xxx - удалить шаблон
+  - Проверка super_admin доступа
+  - Автоматический increment usage_count при обновлении
+  - Файл: `supabase/functions/push-templates-api/index.ts`
+
 - **push_notification_templates таблица**: Создана система управления шаблонами
   - Таблица с полями: type, title, body, icon, is_premium_only, is_ai_enabled
   - Поддержка динамических переменных (variables TEXT[])
