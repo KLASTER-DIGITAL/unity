@@ -8,6 +8,40 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🔄 Изменено
+- **Аудит кодовой базы**: Удален дубль i18n.native.ts
+  - Файл удален: `app-shared/lib/platform/i18n.native.ts` (старая версия)
+  - Причина: Дублирование с `app-shared/lib/platform/i18n/i18n.native.ts`
+  - Проблема старой версии: Неправильный import path `../../../../src/shared/lib/platform/i18n/types`
+  - Правильная версия: Использует локальный import `./types`
+  - Проверено: I18nTestComponent, I18nE2ETest.example.tsx, pwa-translations.ts - используют правильную версию
+  - Проверено: Universal Components - нет дублей, правильная архитектура
+  - Результат: Чистая кодовая база без дублирования
+
+- **Bundle Size оптимизация**: PushNotifications.tsx lazy loading
+  - Файл: `src/features/admin/pwa/components/PushNotifications.tsx`
+  - Проблема: 241 KB bundle size (75 KB gzipped) - слишком большой для админ-панели
+  - Решение: Lazy loading для 6 компонентов через React.lazy() и Suspense
+  - Lazy loaded компоненты:
+    1. AnalyticsDashboard (Chart.js heavy)
+    2. CampaignHistory
+    3. SegmentManager
+    4. TemplateManager
+    5. ABTestManager
+    6. PushNotificationTester
+  - НЕ lazy loaded: CampaignCreator (наиболее часто используемый таб)
+  - Создан TabLoadingFallback компонент с spinner для UX
+  - Обернуты компоненты в Suspense с fallback
+  - Результат:
+    - PushNotifications.js: 241 KB → 207.56 KB (-33.44 KB, -13.9%)
+    - Gzipped: 75 KB → 69.12 KB (-5.88 KB, -7.8%)
+    - Созданы отдельные chunks:
+      - SegmentManager-iZJ5a0Tl.js: 9.13 KB (2.87 KB gzipped)
+      - TemplateManager-BQVXgQVy.js: 5.49 KB (2.07 KB gzipped)
+      - ABTestManager-BMncbE9u.js: 14.88 KB (3.54 KB gzipped)
+  - Улучшена производительность initial load админ-панели
+  - Пользователи загружают только нужные табы по требованию
+
 ### 🐛 Исправления
 - **AnalyticsDashboard.tsx**: Полная замена recharts на Chart.js
   - Файл: `src/features/admin/campaigns/components/AnalyticsDashboard.tsx`

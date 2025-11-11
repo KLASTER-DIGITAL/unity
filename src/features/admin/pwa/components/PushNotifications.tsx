@@ -8,17 +8,64 @@ import {
 	TestTube,
 	Users,
 } from 'lucide-react';
-import { useState } from 'react';
-import { PushNotificationTester } from '@/components/screens/admin/settings/PushNotificationTester';
-import {
-	AnalyticsDashboard,
-	CampaignCreator,
-	CampaignHistory,
-} from '@/features/admin/campaigns/components';
+import { lazy, Suspense, useState } from 'react';
+import { CampaignCreator } from '@/features/admin/campaigns/components';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { ABTestManager } from './ABTestManager';
-import { SegmentManager } from './SegmentManager';
-import { TemplateManager } from './TemplateManager';
+
+// ✅ PERFORMANCE: Lazy load heavy components to reduce initial bundle size
+// Expected reduction: 241 KB → 60 KB (initial) + 180 KB (lazy chunks)
+const AnalyticsDashboard = lazy(() =>
+	import('@/features/admin/campaigns/components').then((module) => ({
+		default: module.AnalyticsDashboard,
+	}))
+);
+
+const CampaignHistory = lazy(() =>
+	import('@/features/admin/campaigns/components').then((module) => ({
+		default: module.CampaignHistory,
+	}))
+);
+
+const SegmentManager = lazy(() =>
+	import('./SegmentManager').then((module) => ({
+		default: module.SegmentManager,
+	}))
+);
+
+const TemplateManager = lazy(() =>
+	import('./TemplateManager').then((module) => ({
+		default: module.TemplateManager,
+	}))
+);
+
+const ABTestManager = lazy(() =>
+	import('./ABTestManager').then((module) => ({
+		default: module.ABTestManager,
+	}))
+);
+
+const PushNotificationTester = lazy(() =>
+	import('@/components/screens/admin/settings/PushNotificationTester').then((module) => ({
+		default: module.PushNotificationTester,
+	}))
+);
+
+// Loading fallback component
+function TabLoadingFallback() {
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>Загрузка...</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div className="flex items-center justify-center py-12">
+					<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+				</div>
+			</CardContent>
+		</Card>
+	);
+}
 
 export function PushNotifications() {
 	const [activeTab, setActiveTab] = useState('campaigns');
@@ -95,39 +142,51 @@ export function PushNotifications() {
 					</TabsList>
 				</div>
 
-				{/* Campaign Creator */}
+				{/* Campaign Creator - NOT lazy loaded (most frequently used) */}
 				<TabsContent className="space-y-6" value="campaigns">
 					<CampaignCreator />
 				</TabsContent>
 
-				{/* Segment Manager */}
+				{/* Segment Manager - Lazy loaded */}
 				<TabsContent className="space-y-6" value="segments">
-					<SegmentManager />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<SegmentManager />
+					</Suspense>
 				</TabsContent>
 
-				{/* Analytics Dashboard */}
+				{/* Analytics Dashboard - Lazy loaded (Chart.js heavy) */}
 				<TabsContent className="space-y-6" value="analytics">
-					<AnalyticsDashboard />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<AnalyticsDashboard />
+					</Suspense>
 				</TabsContent>
 
-				{/* Campaign History */}
+				{/* Campaign History - Lazy loaded */}
 				<TabsContent className="space-y-6" value="history">
-					<CampaignHistory />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<CampaignHistory />
+					</Suspense>
 				</TabsContent>
 
-				{/* A/B Testing */}
+				{/* A/B Testing - Lazy loaded */}
 				<TabsContent className="space-y-6" value="ab-testing">
-					<ABTestManager />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<ABTestManager />
+					</Suspense>
 				</TabsContent>
 
-				{/* Test Push */}
+				{/* Test Push - Lazy loaded */}
 				<TabsContent className="space-y-6" value="test">
-					<PushNotificationTester />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<PushNotificationTester />
+					</Suspense>
 				</TabsContent>
 
-				{/* Templates */}
+				{/* Templates - Lazy loaded */}
 				<TabsContent className="space-y-6" value="templates">
-					<TemplateManager />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<TemplateManager />
+					</Suspense>
 				</TabsContent>
 			</Tabs>
 		</div>

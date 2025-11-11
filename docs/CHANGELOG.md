@@ -9,6 +9,20 @@
 
 ## [Unreleased] - 2025-11-11
 
+### ⚡ Производительность
+- **Bundle Size оптимизация**: PushNotifications.js уменьшен на 13.9%
+  - **ДО**: 241 KB (75 KB gzipped)
+  - **ПОСЛЕ**: 207.56 KB (69.12 KB gzipped)
+  - **Улучшение**: -33.44 KB (-13.9%), -5.88 KB gzipped (-7.8%)
+  - Lazy loading для 6 компонентов через React.lazy() и Suspense
+  - Созданы отдельные chunks:
+    - SegmentManager: 9.13 KB (2.87 KB gzipped)
+    - TemplateManager: 5.49 KB (2.07 KB gzipped)
+    - ABTestManager: 14.88 KB (3.54 KB gzipped)
+  - CampaignCreator НЕ lazy loaded (наиболее часто используемый)
+  - Добавлен TabLoadingFallback компонент для UX
+  - Улучшена производительность initial load админ-панели
+
 ### 🐛 Исправления
 - **Analytics Dashboard**: Полная замена recharts на Chart.js
   - Заменены все 3 графика в AnalyticsDashboard.tsx
