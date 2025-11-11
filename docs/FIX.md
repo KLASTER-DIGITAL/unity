@@ -8,12 +8,24 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🏗️ Инфраструктура
+- **Edge Function**: Создан `subscription-expiry-checker`
+  - Автоматическая проверка истекших подписок
+  - Деактивация Premium для истекших trial/подписок
+  - Отправка уведомлений через `unified-notification-sender`
+  - Запуск через Supabase Cron (ежедневно в 00:00 UTC)
+  - Файл: `supabase/functions/subscription-expiry-checker/index.ts`
+
 ### 📚 Документация
 - **FREE/TRIAL/PREMIUM Analysis**: Исправлен детальный отчет `docs/analysis/FREE_TRIAL_PREMIUM_ANALYSIS.md`
   - Статистика: 15 пользователей, 2 Premium (13.3%), 13 FREE (86.7%)
   - ✅ Исправлена ошибка: FREE пользователь с 35 записями - НОРМАЛЬНО (нет лимита 10!)
   - ✅ Подтверждена правильность модели: FREE = неограниченные записи БЕЗ AI
-  - ❌ Обнаружена критическая проблема: нет автоматической деактивации trial
+  - ✅ Реализована автоматическая деактивация trial (Edge Function)
+- **Premium Modal System Analysis**: Создан детальный отчет `docs/analysis/PREMIUM_MODAL_SYSTEM_ANALYSIS.md`
+  - Описание 3 модальных окон (PremiumModal, WelcomeTrialModal, PremiumActivatedModal)
+  - Триггеры показа каждого модального окна
+  - Рекомендации по улучшению
   - Проблема: Лимит 10 записей НЕ реализован в `messageHandlers.ts`
   - Проблема: Trial подписки НЕ созданы для существующих пользователей
   - Проблема: Нет автоматической деактивации истекших подписок
