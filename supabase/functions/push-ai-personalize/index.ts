@@ -30,6 +30,83 @@ const openaiApiKey = Deno.env.get('OPENAI_API_KEY')!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
+ * Анализирует поведение пользователя для персонализации
+ */
+async function analyzeUserBehavior(userId: string) {
+	// Получаем все записи за последние 30 дней
+	const thirtyDaysAgo = new Date();
+	thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+	const { data: entries } = await supabaseAdmin
+		.from('entries')
+		.select('created_at, mood')
+		.eq('user_id', userId)
+		.gte('created_at', thirtyDaysAgo.toISOString())
+		.order('created_at', { ascending: false });
+
+	if (!entries || entries.length === 0) {
+		return {
+			mostActiveHour: 21, // Default: 21:00
+			mostActiveDay: 'monday',
+			averageMood: 'neutral',
+			activityPattern: 'evening',
+		};
+	}
+
+	// Анализ активности по часам
+	const hourCounts: Record<number, number> = {};
+	const dayCounts: Record<string, number> = {};
+	const moods: string[] = [];
+
+	for (const entry of entries) {
+		const date = new Date(entry.created_at);
+		const hour = date.getHours();
+		const day = date.toLocaleDateString('en-US', { weekday: 'lowercase' });
+
+		hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+		dayCounts[day] = (dayCounts[day] || 0) + 1;
+
+		if (entry.mood) {
+			moods.push(entry.mood);
+		}
+	}
+
+	// Находим самый активный час
+	const mostActiveHour = Object.entries(hourCounts).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+
+	// Находим самый активный день
+	const mostActiveDay = Object.entries(dayCounts).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+
+	// Определяем паттерн активности
+	const hour = Number.parseInt(mostActiveHour);
+	const activityPattern =
+		hour >= 6 && hour < 12
+			? 'morning'
+			: hour >= 12 && hour < 18
+				? 'afternoon'
+				: hour >= 18 && hour < 22
+					? 'evening'
+					: 'night';
+
+	// Анализ настроения
+	const moodCounts: Record<string, number> = {};
+	for (const mood of moods) {
+		moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+	}
+	const averageMood =
+		Object.keys(moodCounts).length > 0
+			? Object.entries(moodCounts).reduce((a, b) => (b[1] > a[1] ? b : a))[0]
+			: 'neutral';
+
+	return {
+		mostActiveHour: Number.parseInt(mostActiveHour),
+		mostActiveDay,
+		averageMood,
+		activityPattern,
+	};
+}
+
+/**
  * Получает данные пользователя для персонализации
  */
 async function getUserContext(userId: string) {
@@ -66,6 +143,9 @@ async function getUserContext(userId: string) {
 		.order('created_at', { ascending: false })
 		.limit(3);
 
+	// Анализируем поведение пользователя
+	const behavior = await analyzeUserBehavior(userId);
+
 	return {
 		name: profile.full_name || 'Пользователь',
 		language: profile.language || 'ru',
@@ -74,6 +154,7 @@ async function getUserContext(userId: string) {
 		recentEntries: entries || [],
 		currentStreak: streakData || 0,
 		recentAchievements: achievements || [],
+		behavior, // NEW: добавлен анализ поведения
 	};
 }
 
@@ -94,16 +175,24 @@ async function generatePersonalizedMessage(
 - Количество записей: ${userContext.recentEntries.length}
 - Количество достижений: ${userContext.recentAchievements.length}
 
+Анализ поведения:
+- Самый активный час: ${userContext.behavior.mostActiveHour}:00
+- Самый активный день: ${userContext.behavior.mostActiveDay}
+- Паттерн активности: ${userContext.behavior.activityPattern} (morning/afternoon/evening/night)
+- Среднее настроение: ${userContext.behavior.averageMood}
+
 Тип уведомления: ${messageType}
 
 Требования:
 1. Используй имя пользователя (если есть)
 2. Упоминай streak если он > 0
-3. Будь мотивирующим и позитивным
-4. Длина title: максимум 50 символов
-5. Длина body: максимум 120 символов
-6. Используй эмодзи (1-2 шт)
-7. Отвечай на языке: ${userContext.language}
+3. Адаптируй тон под среднее настроение пользователя
+4. Учитывай паттерн активности (например, для evening - "Вечер - отличное время для записи")
+5. Будь мотивирующим и позитивным
+6. Длина title: максимум 50 символов
+7. Длина body: максимум 120 символов
+8. Используй эмодзи (1-2 шт)
+9. Отвечай на языке: ${userContext.language}
 
 Верни JSON:
 {
@@ -203,9 +292,39 @@ Deno.serve(async (req) => {
 		const url = new URL(req.url);
 		const type = url.searchParams.get('type') || 'daily_reminder';
 		const userId = url.searchParams.get('user_id');
+		const action = url.searchParams.get('action'); // NEW: action parameter
 
 		console.log('[PUSH-AI-PERSONALIZE] Type:', type);
 		console.log('[PUSH-AI-PERSONALIZE] User ID:', userId);
+		console.log('[PUSH-AI-PERSONALIZE] Action:', action);
+
+		// NEW: Endpoint для получения оптимального времени отправки
+		if (action === 'get_best_time' && userId) {
+			const userContext = await getUserContext(userId);
+
+			if (!userContext) {
+				return new Response(JSON.stringify({ error: 'User not found or not Premium' }), {
+					status: 404,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				});
+			}
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					user_id: userId,
+					best_time: {
+						hour: userContext.behavior.mostActiveHour,
+						day: userContext.behavior.mostActiveDay,
+						pattern: userContext.behavior.activityPattern,
+					},
+					behavior: userContext.behavior,
+				}),
+				{
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
 
 		// Если указан конкретный пользователь
 		if (userId) {

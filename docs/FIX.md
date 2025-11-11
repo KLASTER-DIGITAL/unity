@@ -26,6 +26,16 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **push-ai-personalize Edge Function**: Добавлен анализ поведения пользователя
+  - Функция `analyzeUserBehavior()` - анализ активности за 30 дней
+  - Определение самого активного часа и дня недели
+  - Определение паттерна активности (morning/afternoon/evening/night)
+  - Анализ среднего настроения (mood analysis)
+  - Обновлен `getUserContext()` для включения behavior analysis
+  - Обновлен `generatePersonalizedMessage()` для использования behavior данных
+  - Добавлен endpoint для получения оптимального времени отправки
+  - Файл: `supabase/functions/push-ai-personalize/index.ts`
+
 - **WelcomeTrialModal.tsx**: Responsive адаптация для iPhone SE
   - Добавлены Tailwind breakpoints (sm:) для всех размеров
   - Padding: p-6 → p-4 sm:p-6
