@@ -147,7 +147,8 @@ async function generatePersonalizedMessage(
 }
 
 /**
- * Отправляет персонализированное уведомление
+ * Отправляет персонализированное уведомление через unified sender
+ * (с автоматическим fallback на другие каналы если Web Push недоступен)
  */
 async function sendPersonalizedNotification(
 	userId: string,
@@ -155,7 +156,7 @@ async function sendPersonalizedNotification(
 	body: string,
 	type: string
 ) {
-	const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
+	const response = await fetch(`${supabaseUrl}/functions/v1/unified-notification-sender`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -170,6 +171,7 @@ async function sendPersonalizedNotification(
 				type: `ai_personalized_${type}`,
 				url: '/?view=home',
 			},
+			fallback: true, // Enable fallback to other channels
 		}),
 	});
 

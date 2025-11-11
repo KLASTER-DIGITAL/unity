@@ -53,7 +53,8 @@ async function getUserPushSubscriptions(userId: string) {
 }
 
 /**
- * Вызывает push-sender Edge Function для отправки уведомления
+ * Вызывает unified-notification-sender Edge Function для отправки уведомления
+ * (с автоматическим fallback на другие каналы если Web Push недоступен)
  */
 async function sendPushNotification(
 	userId: string,
@@ -63,7 +64,7 @@ async function sendPushNotification(
 	data?: Record<string, any>
 ) {
 	try {
-		const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
+		const response = await fetch(`${supabaseUrl}/functions/v1/unified-notification-sender`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -75,14 +76,15 @@ async function sendPushNotification(
 				body,
 				icon: icon || '/icon-192.png',
 				data: data || {},
+				fallback: true, // Enable fallback to other channels
 			}),
 		});
 
 		const result = await response.json();
-		console.log('[PUSH-REALTIME] Push sent:', result);
+		console.log('[PUSH-REALTIME] Notification sent via unified sender:', result);
 		return result;
 	} catch (error) {
-		console.error('[PUSH-REALTIME] Failed to send push:', error);
+		console.error('[PUSH-REALTIME] Failed to send notification:', error);
 		return null;
 	}
 }

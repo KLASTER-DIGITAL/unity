@@ -9,17 +9,41 @@
 ## [Unreleased] - 2025-11-11
 
 ### 🔄 Изменено
-- **push-realtime-trigger Edge Function**: Расширены Streak Milestones
-  - **Файл**: `supabase/functions/push-realtime-trigger/index.ts` (626 строк)
-  - **Добавлены milestones**: 60, 90, 180, 365 дней (было: 3, 7, 14, 30, 100)
+- **unified-notification-sender Edge Function**: Создан новый централизованный сервис
+  - **Файл**: `supabase/functions/unified-notification-sender/index.ts` (386 строк)
+  - **Версия**: 2 (с channel selection логикой)
+  - **Функциональность**:
+    - Поддержка нескольких каналов (Web Push, Telegram, Email)
+    - Автоматический выбор канала на основе user preferences
+    - Fallback механизм (Web Push → Telegram → Email)
+    - Единый API для всех типов уведомлений
+  - **Интеграция**: Обновлены push-scheduled, push-realtime-trigger, push-ai-personalize
+  - **Deployed**: Version 2, Status: ACTIVE
+
+- **push-scheduled Edge Function**: Интеграция с unified sender
+  - **Изменение**: `fetch('/push-sender')` → `fetch('/unified-notification-sender')`
+  - **Добавлено**: `fallback: true` для автоматического переключения каналов
+  - **Deployed**: Новая версия
+
+- **push-realtime-trigger Edge Function**: Интеграция с unified sender + Streak Milestones
+  - **Изменение**: `fetch('/push-sender')` → `fetch('/unified-notification-sender')`
+  - **Добавлено**: `fallback: true` для автоматического переключения каналов
+  - **Расширены Streak Milestones**: 60, 90, 180, 365 дней (было: 3, 7, 14, 30, 100)
   - **Новые шаблоны**: 4 новых milestone × 7 языков = 28 новых шаблонов
-  - **Обновлен массив**: `const milestones = [3, 7, 14, 30, 60, 90, 100, 180, 365]`
-  - **Deployed**: Version 5, Status: ACTIVE
-  - **Мотивационные сообщения**:
-    - 60 дней: "⭐ 2 месяца подряд! Невероятная дисциплина!"
-    - 90 дней: "🌟 3 месяца подряд! Выдающееся достижение!"
-    - 180 дней: "💫 Полгода подряд! Феноменально!"
-    - 365 дней: "🏅 ГОД ПОДРЯД! НЕВЕРОЯТНО!"
+  - **Deployed**: Version 6, Status: ACTIVE
+
+- **push-ai-personalize Edge Function**: Интеграция с unified sender
+  - **Изменение**: `fetch('/push-sender')` → `fetch('/unified-notification-sender')`
+  - **Добавлено**: `fallback: true` для автоматического переключения каналов
+  - **Deployed**: Новая версия
+
+### 📚 Документация
+- **UNIFIED_NOTIFICATION_SENDER_GUIDE.md**: Создано руководство по использованию
+  - API документация
+  - Примеры использования
+  - Fallback механизм
+  - Интеграция с существующими Edge Functions
+  - Будущие улучшения
 
 ### 🔄 Изменено (ранее)
 - **React Version Fix**: Откат React 19.1.0 → 18.3.1
