@@ -14,7 +14,8 @@
  * API:
  * POST /unified-notification-sender
  * Body: {
- *   user_ids: string[] | 'all',
+ *   user_ids?: string[] | 'all',  // Optional if segment_id provided
+ *   segment_id?: string,           // Optional: send to users in segment
  *   title: string,
  *   body: string,
  *   icon?: string,
@@ -47,7 +48,8 @@ type NotificationChannel = 'web_push' | 'email' | 'telegram';
  * Notification Payload
  */
 interface NotificationPayload {
-	user_ids: string[] | 'all';
+	user_ids?: string[] | 'all';
+	segment_id?: string;
 	title: string;
 	body: string;
 	icon?: string;
@@ -66,6 +68,58 @@ interface ChannelResult {
 	sent: number;
 	failed: number;
 	error?: string;
+}
+
+/**
+ * Get users by segment criteria
+ */
+async function getUsersBySegmentCriteria(criteria: Record<string, any>): Promise<any[]> {
+	let query = supabaseAdmin
+		.from('profiles')
+		.select('id, email, full_name, role, created_at, last_active');
+
+	// Apply filters based on criteria
+	if (criteria.is_premium !== undefined) {
+		// Check if user has active subscription
+		const { data: subscriptions } = await supabaseAdmin
+			.from('subscriptions')
+			.select('user_id')
+			.eq('status', 'active');
+
+		const premiumUserIds = subscriptions?.map((s: any) => s.user_id) || [];
+
+		if (criteria.is_premium) {
+			query = query.in(
+				'id',
+				premiumUserIds.length > 0 ? premiumUserIds : ['00000000-0000-0000-0000-000000000000']
+			);
+		}
+	}
+
+	if (criteria.language) {
+		query = query.eq('language', criteria.language);
+	}
+
+	if (criteria.last_active_days) {
+		const daysAgo = new Date();
+		daysAgo.setDate(daysAgo.getDate() - Number(criteria.last_active_days));
+		query = query.gte('last_active', daysAgo.toISOString());
+	}
+
+	if (criteria.registered_within_days) {
+		const daysAgo = new Date();
+		daysAgo.setDate(daysAgo.getDate() - Number(criteria.registered_within_days));
+		query = query.gte('created_at', daysAgo.toISOString());
+	}
+
+	const { data: users, error } = await query;
+
+	if (error) {
+		console.error('[UNIFIED-SENDER] Error fetching users by segment:', error);
+		return [];
+	}
+
+	return users || [];
 }
 
 /**
@@ -409,8 +463,41 @@ Deno.serve(async (req) => {
 			});
 		}
 
+		// Validate user_ids or segment_id
+		if (!payload.user_ids && !payload.segment_id) {
+			return new Response(JSON.stringify({ error: 'Missing user_ids or segment_id' }), {
+				status: 400,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
+		// If segment_id provided, fetch users from segment
+		if (payload.segment_id) {
+			const { data: segment } = await supabaseAdmin
+				.from('push_campaign_segments')
+				.select('criteria')
+				.eq('id', payload.segment_id)
+				.single();
+
+			if (!segment) {
+				return new Response(JSON.stringify({ error: 'Segment not found' }), {
+					status: 404,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				});
+			}
+
+			// Get users matching segment criteria
+			const users = await getUsersBySegmentCriteria(segment.criteria);
+			payload.user_ids = users.map((u: any) => u.id);
+
+			console.log('[UNIFIED-SENDER] Segment users:', {
+				segment_id: payload.segment_id,
+				user_count: payload.user_ids.length,
+			});
+		}
+
 		console.log('[UNIFIED-SENDER] Sending notification:', {
-			users: payload.user_ids === 'all' ? 'all' : payload.user_ids.length,
+			users: payload.user_ids === 'all' ? 'all' : payload.user_ids?.length || 0,
 			channels: payload.channels || ['web_push'],
 		});
 
