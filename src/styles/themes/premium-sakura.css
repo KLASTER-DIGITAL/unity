@@ -1,0 +1,52 @@
+/**
+ * Premium Theme: Sakura
+ * Нежные розовые тона японской сакуры
+ * Доступно только для Premium пользователей
+ */
+
+.theme-sakura {
+	/* Backgrounds */
+	--background: oklch(0.98 0.02 350); /* Светло-розовый */
+	--foreground: oklch(0.3 0.05 340); /* Темно-розовый */
+
+	/* Cards */
+	--card: oklch(1 0.01 350); /* Очень светлый розовый */
+	--card-foreground: oklch(0.3 0.05 340);
+
+	/* Popovers */
+	--popover: oklch(1 0.01 350);
+	--popover-foreground: oklch(0.3 0.05 340);
+
+	/* Primary - Сакура розовый */
+	--primary: oklch(0.7 0.12 350); /* #ffb7c5 */
+	--primary-foreground: oklch(0.3 0.05 340);
+
+	/* Secondary - Пурпурный */
+	--secondary: oklch(0.65 0.15 330); /* #db7093 */
+	--secondary-foreground: oklch(1 0 0);
+
+	/* Muted */
+	--muted: oklch(0.96 0.02 350);
+	--muted-foreground: oklch(0.5 0.03 340);
+
+	/* Accent - Коралловый */
+	--accent: oklch(0.75 0.14 10); /* #ff7f7f */
+	--accent-foreground: oklch(0.3 0.05 340);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.92 0.02 350);
+	--input: oklch(0.96 0.02 350);
+	--ring: oklch(0.7 0.12 350);
+
+	/* Charts */
+	--chart-1: oklch(0.7 0.12 350); /* Розовый */
+	--chart-2: oklch(0.65 0.15 330); /* Пурпурный */
+	--chart-3: oklch(0.75 0.14 10); /* Коралловый */
+	--chart-4: oklch(0.85 0.08 350); /* Светло-розовый */
+	--chart-5: oklch(0.55 0.12 340); /* Темно-розовый */
+}
+

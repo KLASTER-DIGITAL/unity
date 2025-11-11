@@ -9,6 +9,15 @@
 @import "./styles/theme-dark.css";
 @import "./styles/theme-tokens.css";
 
+/* Premium Themes (доступно только для Premium пользователей) */
+@import "./styles/themes/premium-sunset.css";
+@import "./styles/themes/premium-ocean.css";
+@import "./styles/themes/premium-forest.css";
+@import "./styles/themes/premium-sakura.css";
+@import "./styles/themes/premium-night.css";
+@import "./styles/themes/premium-coffee.css";
+@import "./styles/themes/premium-lavender.css";
+
 /* NEW: Theme Extensions */
 @import "./styles/theme/theme-gradients.css";
 @import "./styles/theme/theme-actions.css";

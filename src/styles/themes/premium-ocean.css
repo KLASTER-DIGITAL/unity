@@ -1,0 +1,52 @@
+/**
+ * Premium Theme: Ocean
+ * Глубокие сине-бирюзовые тона океана
+ * Доступно только для Premium пользователей
+ */
+
+.theme-ocean {
+	/* Backgrounds */
+	--background: oklch(0.96 0.02 220); /* Светло-голубой */
+	--foreground: oklch(0.2 0.05 240); /* Темно-синий */
+
+	/* Cards */
+	--card: oklch(0.98 0.01 220); /* Очень светлый голубой */
+	--card-foreground: oklch(0.2 0.05 240);
+
+	/* Popovers */
+	--popover: oklch(0.98 0.01 220);
+	--popover-foreground: oklch(0.2 0.05 240);
+
+	/* Primary - Океанский синий */
+	--primary: oklch(0.55 0.15 240); /* #0077be */
+	--primary-foreground: oklch(1 0 0);
+
+	/* Secondary - Бирюзовый */
+	--secondary: oklch(0.65 0.12 200); /* #40e0d0 */
+	--secondary-foreground: oklch(0.2 0.05 240);
+
+	/* Muted */
+	--muted: oklch(0.94 0.02 220);
+	--muted-foreground: oklch(0.5 0.03 240);
+
+	/* Accent - Морская волна */
+	--accent: oklch(0.6 0.14 210); /* #20b2aa */
+	--accent-foreground: oklch(1 0 0);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.88 0.02 220);
+	--input: oklch(0.94 0.02 220);
+	--ring: oklch(0.55 0.15 240);
+
+	/* Charts */
+	--chart-1: oklch(0.55 0.15 240); /* Синий */
+	--chart-2: oklch(0.65 0.12 200); /* Бирюзовый */
+	--chart-3: oklch(0.6 0.14 210); /* Морская волна */
+	--chart-4: oklch(0.75 0.08 220); /* Светло-голубой */
+	--chart-5: oklch(0.45 0.12 250); /* Темно-синий */
+}
+

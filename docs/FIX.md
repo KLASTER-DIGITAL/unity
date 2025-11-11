@@ -29,6 +29,37 @@
   - Установка metadata.welcome_modal_shown = false
   - Файл: `supabase/migrations/20251111_backfill_trial_subscriptions.sql`
 
+### 🎨 Темы
+
+- **Premium темы**: Создано 7 CSS файлов для Premium тем
+  - `src/styles/themes/premium-sunset.css` - Закат (оранжево-розовые тона)
+  - `src/styles/themes/premium-ocean.css` - Океан (сине-бирюзовые тона)
+  - `src/styles/themes/premium-forest.css` - Лес (зеленые тона)
+  - `src/styles/themes/premium-sakura.css` - Сакура (розовые тона)
+  - `src/styles/themes/premium-night.css` - Ночь (темно-синие тона)
+  - `src/styles/themes/premium-coffee.css` - Кофе (коричневые тона)
+  - `src/styles/themes/premium-lavender.css` - Лаванда (фиолетовые тона)
+
+- **Типы и константы**: Создан `src/shared/lib/themes/types.ts`
+  - Типы: `BaseTheme`, `PremiumTheme`, `Theme`, `ThemeInfo`
+  - Константы: `BASE_THEMES`, `PREMIUM_THEMES`, `ALL_THEMES`
+  - Информация о каждой теме: название, описание, иконка, превью цветов
+
+- **Компонент**: Создан `src/features/mobile/settings/components/settings/ThemeSelector.tsx`
+  - Визуальный выбор тем с превью цветов
+  - Проверка Premium статуса перед применением Premium тем
+  - Сохранение темы в localStorage и базу данных
+  - Карточки тем с эмодзи иконками и описанием
+
+- **ThemeProvider**: Обновлен `src/shared/components/theme-provider.tsx`
+  - Поддержка Premium тем (не только light/dark)
+  - Применение CSS классов `theme-{name}` для Premium тем
+  - Удаление всех theme классов перед применением новой темы
+
+- **SettingsScreen**: Обновлен `src/features/mobile/settings/components/SettingsScreen.tsx`
+  - Заменен `ThemeToggle` на `ThemeSelector`
+  - Интеграция с Premium Modal при попытке выбрать Premium тему
+
 ### 📚 Документация
 - **FREE/TRIAL/PREMIUM Analysis**: Исправлен детальный отчет `docs/analysis/FREE_TRIAL_PREMIUM_ANALYSIS.md`
   - Статистика: 15 пользователей, 2 Premium (13.3%), 13 FREE (86.7%)

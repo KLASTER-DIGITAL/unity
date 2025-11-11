@@ -2,7 +2,6 @@ import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { PremiumActivatedModal } from '@/shared/components/modals/PremiumActivatedModal';
 import { Button } from '@/shared/components/ui/button';
-import { ThemeToggle } from '@/shared/components/ui/ThemeToggle';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 import { PremiumModal } from './PremiumModal';
@@ -34,6 +33,7 @@ import {
 	saveOfflineSettings,
 	saveSecuritySettings,
 } from './settings';
+import { ThemeSelector } from './settings/ThemeSelector';
 
 // Re-export types for backward compatibility
 export type { SettingsScreenProps };
@@ -254,17 +254,14 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 				userId={profile?.id}
 			/>
 
-			{/* Темы оформления - shadcn/ui стандарт */}
+			{/* Темы оформления - с поддержкой Premium тем */}
 			<SettingsSection title={t('themes', 'Темы оформления')}>
-				<SettingsRow
-					customRightElement={<ThemeToggle />}
-					description={t('appearanceDescription' as any, 'Переключение темы')}
-					icon={Palette}
-					iconBgColor="bg-(--ios-purple)/10"
-					iconColor="text-(--ios-purple)"
-					rightElement="custom"
-					title={t('appearance' as any, 'Внешний вид')}
-				/>
+				<div className="px-4 py-3">
+					<ThemeSelector
+						isPremium={profile?.isPremium || profile?.is_premium || false}
+						onPremiumRequired={() => setShowPremium(true)}
+					/>
+				</div>
 			</SettingsSection>
 
 			{/* Безопасность и приватность */}

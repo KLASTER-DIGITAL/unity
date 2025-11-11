@@ -1,0 +1,52 @@
+/**
+ * Premium Theme: Forest
+ * Природные зеленые тона леса
+ * Доступно только для Premium пользователей
+ */
+
+.theme-forest {
+	/* Backgrounds */
+	--background: oklch(0.97 0.02 140); /* Светло-зеленый */
+	--foreground: oklch(0.25 0.05 150); /* Темно-зеленый */
+
+	/* Cards */
+	--card: oklch(0.99 0.01 140); /* Очень светлый зеленый */
+	--card-foreground: oklch(0.25 0.05 150);
+
+	/* Popovers */
+	--popover: oklch(0.99 0.01 140);
+	--popover-foreground: oklch(0.25 0.05 150);
+
+	/* Primary - Лесной зеленый */
+	--primary: oklch(0.5 0.15 150); /* #228b22 */
+	--primary-foreground: oklch(1 0 0);
+
+	/* Secondary - Оливковый */
+	--secondary: oklch(0.6 0.1 120); /* #6b8e23 */
+	--secondary-foreground: oklch(1 0 0);
+
+	/* Muted */
+	--muted: oklch(0.95 0.02 140);
+	--muted-foreground: oklch(0.5 0.03 150);
+
+	/* Accent - Мятный */
+	--accent: oklch(0.7 0.12 160); /* #3cb371 */
+	--accent-foreground: oklch(0.25 0.05 150);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.9 0.02 140);
+	--input: oklch(0.95 0.02 140);
+	--ring: oklch(0.5 0.15 150);
+
+	/* Charts */
+	--chart-1: oklch(0.5 0.15 150); /* Зеленый */
+	--chart-2: oklch(0.6 0.1 120); /* Оливковый */
+	--chart-3: oklch(0.7 0.12 160); /* Мятный */
+	--chart-4: oklch(0.8 0.08 140); /* Светло-зеленый */
+	--chart-5: oklch(0.4 0.12 155); /* Темно-зеленый */
+}
+

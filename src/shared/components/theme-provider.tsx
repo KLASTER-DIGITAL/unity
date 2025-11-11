@@ -1,13 +1,12 @@
 /**
  * Theme Provider for UNITY-v2
  * Based on shadcn/ui dark mode implementation
- * Supports: light, dark, system modes with smooth transitions
+ * Supports: light, dark, system modes + 7 Premium themes
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
-
-type Theme = 'dark' | 'light' | 'system';
+import type { Theme } from '@/shared/lib/themes/types';
 
 type ThemeProviderProps = {
 	children: React.ReactNode;
@@ -47,8 +46,18 @@ export function ThemeProvider({
 	useEffect(() => {
 		const root = document.documentElement;
 
-		// Remove both classes first
-		root.classList.remove('light', 'dark');
+		// Remove all theme classes
+		root.classList.remove(
+			'light',
+			'dark',
+			'theme-sunset',
+			'theme-ocean',
+			'theme-forest',
+			'theme-sakura',
+			'theme-night',
+			'theme-coffee',
+			'theme-lavender'
+		);
 
 		if (theme === 'system') {
 			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -59,7 +68,13 @@ export function ThemeProvider({
 			return;
 		}
 
-		root.classList.add(theme);
+		// Apply theme class
+		if (theme === 'light' || theme === 'dark') {
+			root.classList.add(theme);
+		} else {
+			// Premium theme
+			root.classList.add(`theme-${theme}`);
+		}
 	}, [theme]);
 
 	const value = {

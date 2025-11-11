@@ -1,0 +1,52 @@
+/**
+ * Premium Theme: Lavender
+ * Нежные фиолетовые тона лаванды
+ * Доступно только для Premium пользователей
+ */
+
+.theme-lavender {
+	/* Backgrounds */
+	--background: oklch(0.97 0.02 300); /* Светло-лавандовый */
+	--foreground: oklch(0.3 0.05 290); /* Темно-фиолетовый */
+
+	/* Cards */
+	--card: oklch(0.99 0.01 300); /* Очень светлый лавандовый */
+	--card-foreground: oklch(0.3 0.05 290);
+
+	/* Popovers */
+	--popover: oklch(0.99 0.01 300);
+	--popover-foreground: oklch(0.3 0.05 290);
+
+	/* Primary - Лавандовый */
+	--primary: oklch(0.6 0.12 300); /* #9370db */
+	--primary-foreground: oklch(1 0 0);
+
+	/* Secondary - Сиреневый */
+	--secondary: oklch(0.7 0.1 310); /* #dda0dd */
+	--secondary-foreground: oklch(0.3 0.05 290);
+
+	/* Muted */
+	--muted: oklch(0.95 0.02 300);
+	--muted-foreground: oklch(0.5 0.03 290);
+
+	/* Accent - Фиалковый */
+	--accent: oklch(0.55 0.14 290); /* #8a2be2 */
+	--accent-foreground: oklch(1 0 0);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.9 0.02 300);
+	--input: oklch(0.95 0.02 300);
+	--ring: oklch(0.6 0.12 300);
+
+	/* Charts */
+	--chart-1: oklch(0.6 0.12 300); /* Лавандовый */
+	--chart-2: oklch(0.7 0.1 310); /* Сиреневый */
+	--chart-3: oklch(0.55 0.14 290); /* Фиалковый */
+	--chart-4: oklch(0.8 0.08 305); /* Светло-лавандовый */
+	--chart-5: oklch(0.45 0.12 295); /* Темно-фиолетовый */
+}
+
