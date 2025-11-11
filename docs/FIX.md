@@ -9,16 +9,30 @@
 ## [Unreleased] - 2025-11-11
 
 ### 🔄 Изменено
-- **unified-notification-sender Edge Function**: Создан новый централизованный сервис
-  - **Файл**: `supabase/functions/unified-notification-sender/index.ts` (386 строк)
-  - **Версия**: 2 (с channel selection логикой)
+- **telegram-bot-webhook Edge Function**: Создан новый обработчик Telegram Bot webhook
+  - **Файл**: `supabase/functions/telegram-bot-webhook/index.ts` (новый, 250 строк)
   - **Функциональность**:
+    - Обработка /start команды: связывание telegram_chat_id с user_id
+    - Обработка /help команды: справка по командам бота
+    - Обработка /status команды: проверка статуса связывания
+    - Автоматическое сохранение telegram_chat_id в profiles
+  - **Deployed**: Version 1, Status: ACTIVE
+  - **Webhook URL**: https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/telegram-bot-webhook
+
+- **unified-notification-sender Edge Function**: Добавлена Telegram интеграция
+  - **Файл**: `supabase/functions/unified-notification-sender/index.ts` (457 строк)
+  - **Версия**: 3 (с Telegram реализацией)
+  - **Функциональность**:
+    - Полная реализация sendViaTelegram() функции
+    - Отправка через Telegram Bot API
+    - Проверка telegram_chat_id для каждого пользователя
+    - HTML форматирование сообщений
     - Поддержка нескольких каналов (Web Push, Telegram, Email)
     - Автоматический выбор канала на основе user preferences
     - Fallback механизм (Web Push → Telegram → Email)
     - Единый API для всех типов уведомлений
   - **Интеграция**: Обновлены push-scheduled, push-realtime-trigger, push-ai-personalize
-  - **Deployed**: Version 2, Status: ACTIVE
+  - **Deployed**: Version 3, Status: ACTIVE
 
 - **push-scheduled Edge Function**: Интеграция с unified sender
   - **Изменение**: `fetch('/push-sender')` → `fetch('/unified-notification-sender')`
@@ -37,6 +51,12 @@
   - **Добавлено**: `fallback: true` для автоматического переключения каналов
   - **Deployed**: Новая версия
 
+### 🗄️ База данных
+- **20251111_add_telegram_chat_id.sql**: Добавлено поле telegram_chat_id в profiles
+  - Новое поле: telegram_chat_id TEXT
+  - Индекс: idx_profiles_telegram_chat_id
+  - Назначение: хранение chat ID для отправки Telegram уведомлений
+
 ### 📚 Документация
 - **UNIFIED_NOTIFICATION_SENDER_GUIDE.md**: Создано руководство по использованию
   - API документация
@@ -44,6 +64,12 @@
   - Fallback механизм
   - Интеграция с существующими Edge Functions
   - Будущие улучшения
+
+### 🔧 Скрипты
+- **scripts/setup-telegram-webhook.sh**: Скрипт для настройки Telegram Bot webhook
+  - Интерактивная настройка webhook URL
+  - Проверка успешности регистрации
+  - Инструкции по использованию
 
 ### 🔄 Изменено (ранее)
 - **React Version Fix**: Откат React 19.1.0 → 18.3.1

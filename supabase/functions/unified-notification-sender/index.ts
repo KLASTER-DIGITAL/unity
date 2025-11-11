@@ -151,21 +151,76 @@ async function sendViaWebPush(
 }
 
 /**
- * Send notification via Telegram
- * (Подготовка для будущего - пока возвращает placeholder)
+ * Send notification via Telegram Bot API
  */
 async function sendViaTelegram(
 	userIds: string[],
 	title: string,
 	body: string
 ): Promise<ChannelResult> {
-	console.log('[UNIFIED-SENDER] Telegram channel not implemented yet');
+	const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+	if (!botToken) {
+		console.error('[UNIFIED-SENDER] TELEGRAM_BOT_TOKEN not configured');
+		return {
+			channel: 'telegram',
+			success: false,
+			sent: 0,
+			failed: userIds.length,
+			error: 'TELEGRAM_BOT_TOKEN not configured',
+		};
+	}
+
+	let sent = 0;
+	let failed = 0;
+
+	for (const userId of userIds) {
+		try {
+			// Получаем telegram_chat_id пользователя
+			const { data: profile, error: profileError } = await supabaseAdmin
+				.from('profiles')
+				.select('telegram_chat_id')
+				.eq('id', userId)
+				.single();
+
+			if (profileError || !profile?.telegram_chat_id) {
+				console.log(`[UNIFIED-SENDER] User ${userId} has no telegram_chat_id`);
+				failed++;
+				continue;
+			}
+
+			// Форматируем сообщение для Telegram
+			const message = `<b>${title}</b>\n\n${body}`;
+
+			// Отправляем через Telegram Bot API
+			const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					chat_id: profile.telegram_chat_id,
+					text: message,
+					parse_mode: 'HTML',
+				}),
+			});
+
+			if (response.ok) {
+				console.log(`[UNIFIED-SENDER] Telegram sent to user ${userId}`);
+				sent++;
+			} else {
+				const error = await response.text();
+				console.error(`[UNIFIED-SENDER] Telegram failed for user ${userId}:`, error);
+				failed++;
+			}
+		} catch (error) {
+			console.error(`[UNIFIED-SENDER] Error sending Telegram to user ${userId}:`, error);
+			failed++;
+		}
+	}
+
 	return {
 		channel: 'telegram',
-		success: false,
-		sent: 0,
-		failed: userIds.length,
-		error: 'Telegram channel not implemented',
+		success: sent > 0,
+		sent,
+		failed,
 	};
 }
 
@@ -173,11 +228,7 @@ async function sendViaTelegram(
  * Send notification via Email
  * (Подготовка для будущего - пока возвращает placeholder)
  */
-async function sendViaEmail(
-	userIds: string[],
-	title: string,
-	body: string
-): Promise<ChannelResult> {
+function sendViaEmail(userIds: string[], _title: string, _body: string): ChannelResult {
 	console.log('[UNIFIED-SENDER] Email channel not implemented yet');
 	return {
 		channel: 'email',

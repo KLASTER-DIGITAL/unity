@@ -10,13 +10,21 @@
 ## [Unreleased] - 2025-11-11
 
 ### ✨ Новые возможности
+- **Telegram Bot Integration**: Полная интеграция Telegram уведомлений
+  - **telegram-bot-webhook Edge Function**: обработчик webhook событий от Telegram Bot
+  - **Команды бота**: /start, /help, /status для управления подпиской
+  - **Автоматическое связывание**: telegram_chat_id сохраняется при /start команде
+  - **Telegram уведомления**: полная реализация sendViaTelegram() в unified sender
+  - **Fallback на Telegram**: автоматическое переключение если Web Push недоступен
+  - ✅ РЕАЛИЗОВАНО: Telegram Bot готов к использованию, webhook настроен
+
 - **Unified Notification Sender**: Централизованный сервис для отправки уведомлений
-  - **Поддержка нескольких каналов**: Web Push, Telegram (подготовка), Email (подготовка)
+  - **Поддержка нескольких каналов**: Web Push (реализовано), Telegram (реализовано), Email (подготовка)
   - **Автоматический выбор канала**: на основе user preferences и availability
   - **Fallback механизм**: автоматическое переключение на другой канал если основной недоступен
   - **Единый API**: все Edge Functions используют unified sender
   - **Приоритет каналов**: Web Push > Telegram > Email
-  - ✅ РЕАЛИЗОВАНО: Version 2 задеплоена, интеграция с существующими Edge Functions завершена
+  - ✅ РЕАЛИЗОВАНО: Version 3 задеплоена, Telegram интеграция завершена
 
 - **Streak Milestones уведомления**: Расширены milestone уведомления
   - **Добавлены новые milestones**: 60, 90, 180, 365 дней
