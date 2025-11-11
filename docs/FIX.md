@@ -9,6 +9,18 @@
 ## [Unreleased] - 2025-11-10
 
 ### 🆕 Создано
+- **push-ab-test-api Edge Function**: API для управления A/B тестами push уведомлений
+  - Файл: `supabase/functions/push-ab-test-api/index.ts` (400 строк)
+  - Функция `listABTests()` - список всех A/B тестов
+  - Функция `getABTest()` - детали конкретного теста
+  - Функция `createABTest()` - создание нового теста
+  - Функция `updateABTest()` - обновление теста
+  - Функция `deleteABTest()` - удаление теста
+  - Функция `startABTest()` - запуск теста
+  - Функция `stopABTest()` - остановка теста с определением победителя
+  - Функция `getABTestResults()` - получение результатов с метриками
+  - Endpoints: GET/POST/PUT/DELETE `/push-ab-test-api`, POST `/:id/start`, POST `/:id/stop`, GET `/:id/results`
+  - Deployed через Supabase MCP, Version 1, Status: ACTIVE
 - **push-ai-personalize Edge Function**: AI персонализация уведомлений для Premium
   - Файл: `supabase/functions/push-ai-personalize/index.ts` (293 строк)
   - Функция `getUserContext()` - получение контекста пользователя (profile, entries, streak, achievements)
@@ -30,6 +42,14 @@
   - Deployed через Supabase MCP, Version 4, Status: ACTIVE
 
 ### 🗄️ База данных
+- **A/B Testing Tables**: Созданы таблицы для A/B тестирования push уведомлений
+  - Таблица `push_ab_tests` - хранение A/B тестов (draft, running, completed, cancelled)
+  - Таблица `push_ab_test_assignments` - отслеживание вариантов для пользователей
+  - Поля: variant_a/b_title/body/icon, traffic_split, target_segment, winner, confidence_level
+  - Метрики: sent, delivered, opened, clicked для каждого варианта
+  - RLS policies для super_admin (SELECT, INSERT, UPDATE, DELETE)
+  - Индексы: status, created_by, ab_test_id, user_id, variant, status
+  - Миграция: `supabase/migrations/20251110_create_ab_tests.sql` (203 строк)
 - **Premium Trial Trigger**: Создан автоматический триггер для trial подписок
   - Функция `create_trial_subscription()` с SECURITY DEFINER
   - Триггер `on_profile_created_trial` на INSERT в `profiles`

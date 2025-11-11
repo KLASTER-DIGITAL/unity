@@ -10,6 +10,14 @@
 ## [Unreleased] - 2025-11-10
 
 ### ✨ Новые возможности
+- **A/B Testing для Push Уведомлений**: Система тестирования эффективности уведомлений
+  - Создание A/B тестов с двумя вариантами (Variant A vs Variant B)
+  - Настраиваемый traffic split (50/50 или custom распределение)
+  - Targeting: all, premium, active, inactive, custom segments
+  - Автоматический расчет метрик: delivery_rate, open_rate, click_rate
+  - Определение победителя с confidence level (95%)
+  - Управление через админ-панель: создание, запуск, остановка, результаты
+  - Статус тестов: draft, running, completed, cancelled
 - **AI Персонализация для Premium**: Персонализированные push уведомления через GPT-4o-mini
   - Генерация уникальных сообщений для каждого Premium пользователя
   - Учет контекста: имя, streak, количество записей, достижения
