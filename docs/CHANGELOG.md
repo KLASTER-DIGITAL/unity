@@ -9,6 +9,30 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 📚 Документация
+- **Supabase Cron Jobs Setup Guide**: Детальная инструкция по настройке автоматических задач
+  - Настройка subscription-expiry-checker (daily 00:00 UTC)
+  - Настройка trial-expiry-reminder (daily 09:00 UTC)
+  - SQL скрипт для автоматической настройки
+  - Инструкции по тестированию и мониторингу
+
+### 📱 UX улучшения
+- **Welcome Trial Modal**: Адаптирован для маленьких экранов (iPhone SE 320px)
+  - Уменьшены padding и margins для компактности
+  - Responsive размеры иконок (8px/10px → 12px/16px)
+  - Responsive typography (text-xs/text-[10px] → text-sm/text-xs)
+  - Все 6 фич влазят на 1 экран без скролла
+  - Улучшена читаемость на маленьких экранах
+
+### 📊 Аналитика
+- **Push Notifications Analytics**: Добавлены тестовые данные для демонстрации
+  - 10 кампаний (8 sent, 1 scheduled, 1 draft)
+  - 31 запись в push_notification_analytics
+  - Реалистичные метрики (Delivery Rate 71-92%, Open Rate 20-42%)
+  - Seed скрипт для генерации тестовых данных
+
+## [Unreleased] - 2025-11-11
+
 ### ✨ Новые возможности
 - **Автоматическая деактивация trial**: Edge Function `subscription-expiry-checker`
   - Проверяет истекшие подписки (`end_date < NOW()` AND `status = 'active'`)

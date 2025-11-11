@@ -8,6 +8,32 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🔄 Изменено
+- **WelcomeTrialModal.tsx**: Responsive адаптация для iPhone SE
+  - Добавлены Tailwind breakpoints (sm:) для всех размеров
+  - Padding: p-6 → p-4 sm:p-6
+  - Icon sizes: h-16 w-16 → h-12 w-12 sm:h-16 sm:w-16
+  - Typography: text-2xl → text-xl sm:text-2xl
+  - Gap: space-y-3 → space-y-2 sm:space-y-3
+  - Feature cards: p-3 → p-2 sm:p-3
+
+### 📚 Документация
+- **docs/guides/SUPABASE_CRON_JOBS_SETUP.md**: Создан guide по настройке Cron Jobs
+  - Пошаговая инструкция для Supabase Dashboard
+  - SQL команды для создания jobs
+  - Инструкции по тестированию и мониторингу
+  - Troubleshooting секция
+- **scripts/setup-cron-jobs.sql**: SQL скрипт для автоматической настройки
+  - Enable pg_cron extension
+  - Grant permissions
+  - Create 2 cron jobs (subscription-expiry-checker, trial-expiry-reminder)
+  - Verification queries
+  - Cleanup commands
+- **scripts/check-analytics-data.sql**: SQL запросы для проверки данных аналитики
+- **scripts/seed-push-analytics.sql**: Seed скрипт для тестовых данных Push Notifications
+
+## [Unreleased] - 2025-11-11
+
 ### 🏗️ Инфраструктура
 - **Edge Function**: Создан `subscription-expiry-checker`
   - Автоматическая проверка истекших подписок
