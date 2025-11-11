@@ -9,24 +9,43 @@
 ## [Unreleased] - 2025-11-11
 
 ### 🐛 Исправления
-- **AnalyticsDashboard.tsx**: Временное исправление recharts error (es-toolkit/compat)
+- **AnalyticsDashboard.tsx**: Полная замена recharts на Chart.js
   - Файл: `src/features/admin/campaigns/components/AnalyticsDashboard.tsx`
   - Проблема: recharts@3.4.1 + es-toolkit/compat compatibility issue
   - Ошибка: "The requested module '/node_modules/es-toolkit/compat/get.js' does not provide an export named 'default'"
-  - Решение: Закомментированы recharts импорты, графики заменены на простые таблицы/списки
-  - Trends chart → таблица с датами и метриками (delivered, opened)
-  - Device Breakdown chart → список устройств (Мобильные, Десктоп, Планшеты)
-  - Browser Breakdown chart → список браузеров (топ 5)
-  - TODO: Заменить recharts на альтернативную библиотеку или использовать recharts v2
-  - Статус: Временное решение, требуется постоянное исправление
+  - Решение: Полная замена на Chart.js (chart.js@4.4.7, react-chartjs-2@5.3.0)
+  - Trends chart → Line Chart с fill area (delivered vs opened)
+  - Device Breakdown chart → Bar Chart (mobile, desktop, tablet)
+  - Browser Breakdown chart → Bar Chart (top 5 browsers)
+  - Registered Chart.js components: CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler
+  - Настроена responsive конфигурация с CSS variables для theming
+  - ✅ РЕШЕНО: recharts полностью удален из проекта
+  - Статус: Постоянное решение, работает стабильно
 
-- **PushNotifications.tsx**: Responsive layout для табов
+- **PushNotifications.tsx**: Улучшенный UI layout
   - Файл: `src/features/admin/pwa/components/PushNotifications.tsx`
-  - Проблема: 7 табов на маленьких экранах = узкие кнопки, текст переносится
-  - Решение: Изменен grid-cols-7 на inline-flex с горизонтальным скроллом
+  - Проблема 1: Дублирование текстов в табах ("Аналитика Аналитика", "История История")
+  - Решение 1: Убраны адаптивные span, оставлен только один <span> без условий
+  - Проблема 2: 7 табов на маленьких экранах = узкие кнопки
+  - Решение 2: Изменен grid-cols-7 на inline-flex с горизонтальным скроллом
   - Добавлен whitespace-nowrap для предотвращения переноса текста
-  - Адаптивные названия: полные на sm: экранах, сокращенные на маленьких
-  - Обернут в overflow-x-auto для скролла
+  - Добавлен px-3 py-2 padding для лучшего spacing
+
+- **CampaignHistory.tsx**: Улучшенный layout для метрик
+  - Файл: `src/features/admin/campaigns/components/CampaignHistory.tsx`
+  - Проблема: Плохой layout, текст справа вместо таблицы
+  - Решение: Grid layout для метрик (2 cols mobile, 4 cols desktop)
+  - Метрики: отправлено, доставлено, открыто, ошибки
+  - Responsive tabs с inline-flex и horizontal scroll
+  - Улучшенная структура карточек с borders и spacing
+
+- **CampaignCreator.tsx**: Lint ошибка useIterableCallbackReturn
+  - Файл: `src/features/admin/campaigns/components/CampaignCreator.tsx`
+  - Проблема: forEach callback не должен возвращать значение (toast.error возвращает void)
+  - Решение: Заменен forEach на for...of loop
+  - Было: validation.errors.forEach((error) => toast.error(error))
+  - Стало: for (const error of validation.errors) { toast.error(error); }
+  - ✅ Lint проверка пройдена
 
 ### 🆕 Создано
 - **push-ab-test-api Edge Function**: API для управления A/B тестами push уведомлений
@@ -48,6 +67,63 @@
   - Модальное окно создания теста (CreateABTestModal)
   - Валидация полей: название, Variant A/B (title, body), traffic split, target segment
   - Кнопки управления: Запустить (draft → running), Остановить (running → completed), Удалить
+
+- **TemplateManager UI Component**: Управление шаблонами push уведомлений
+  - Файл: `src/features/admin/pwa/components/TemplateManager.tsx` (новый)
+  - 4 встроенных шаблона: streak_milestone, daily_reminder, premium_offer, ai_insight
+  - Поддержка 7 языков (ru/en/es/de/fr/zh/ja) с примерами для каждого
+  - Language tabs для переключения между языками
+  - Preview cards с title и body для каждого шаблона
+  - Placeholder для создания кастомных шаблонов (будущая функциональность)
+  - Интеграция в Push Notifications → Шаблоны таб
+
+- **SQL Migration**: increment_ab_test_metric function
+  - Файл: `supabase/migrations/20250111_ab_test_increment_function.sql` (новый)
+  - Функция для атомарного инкремента метрик A/B тестов
+  - Параметры: test_id (UUID), metric_name (TEXT)
+  - Валидация metric_name для предотвращения SQL injection
+  - Поддерживаемые метрики: variant_a/b_sent/delivered/opened/clicked
+  - SECURITY DEFINER для выполнения с правами владельца
+  - Grants для authenticated и service_role
+  - ✅ Применена через Supabase Dashboard SQL Editor
+
+### 🔄 Изменено
+- **push-campaign-sender Edge Function**: Интеграция A/B Testing
+  - Файл: `supabase/functions/push-campaign-sender/index.ts` (407 строк, +135 строк)
+  - Добавлены helper функции:
+    - `hashUserId(userId: string): number` - детерминированный hash (0-99) для консистентного назначения
+    - `assignVariant(userId: string, trafficSplit: number)` - назначение варианта на основе traffic_split
+    - `getABTest(campaign: any): Promise<any | null>` - получение деталей A/B теста
+    - `createABTestAssignment(abTestId, userId, variant)` - создание записи о назначении
+    - `updateABTestMetrics(abTestId, variant, delivered)` - обновление метрик через RPC
+  - Модифицирован `sendPushNotification()`:
+    - Добавлен параметр `abTest: any | null = null`
+    - Автоматическое назначение варианта для каждого пользователя
+    - Отправка соответствующего варианта (variant_a или variant_b)
+    - Создание записи в push_ab_test_assignments
+    - Автоматическое обновление метрик через increment_ab_test_metric RPC
+  - Модифицирован main flow:
+    - Автоматическое определение A/B теста для кампании
+    - Передача abTest в sendPushNotification()
+  - ✅ Deployed через Supabase CLI (Version 2)
+  - ✅ Протестировано: детерминированное назначение работает корректно
+
+- **CampaignCreator.tsx**: Добавлен real-time preview и валидация
+  - Файл: `src/features/admin/campaigns/components/CampaignCreator.tsx` (+85 строк)
+  - Добавлен state `previewLanguage` для выбора языка превью
+  - Добавлена функция `validateCampaign()`:
+    - Проверка обязательных полей (title, body)
+    - Проверка максимальной длины (title ≤ 50, body ≤ 120)
+    - Возвращает { valid: boolean; errors: string[] }
+  - Интегрирована валидация в `handleCreateCampaign()` и `handleSendNow()`
+  - Добавлен Preview компонент:
+    - Card с muted background
+    - Bell icon для визуализации уведомления
+    - Language selector (7 языков)
+    - Character counters (title/50, body/120)
+    - Fallback текст для пустых полей
+    - Показ переводов на выбранном языке
+  - Bundle size: PushNotifications.js 241.32 KB (75.45 KB gzipped, +2.21 KB)
   - Визуализация результатов: delivery_rate, open_rate для каждого варианта
   - Отображение победителя с confidence level
   - Интеграция в PushNotifications.tsx как новый таб "A/B Testing"

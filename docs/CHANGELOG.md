@@ -10,20 +10,22 @@
 ## [Unreleased] - 2025-11-11
 
 ### 🐛 Исправления
-- **Analytics Dashboard**: Временное исправление recharts error (es-toolkit/compat)
-  - Закомментированы recharts импорты в AnalyticsDashboard.tsx
-  - Графики заменены на простые таблицы/списки (временно)
-  - Trends: таблица с датами и метриками
-  - Device Breakdown: список устройств
-  - Browser Breakdown: список браузеров
-  - TODO: Заменить recharts на альтернативную библиотеку или использовать recharts v2
-- **Push Notifications UI**: Responsive layout для табов
-  - Изменен grid-cols-7 на inline-flex с горизонтальным скроллом
-  - Добавлен whitespace-nowrap для предотвращения переноса текста
-  - Адаптивные названия: полные на sm: экранах, сокращенные на маленьких
+- **Analytics Dashboard**: Полная замена recharts на Chart.js
+  - Заменены все 3 графика в AnalyticsDashboard.tsx
+  - Trends: Line Chart с fill area (delivered vs opened)
+  - Device Breakdown: Bar Chart (mobile, desktop, tablet)
+  - Browser Breakdown: Bar Chart (top 5 browsers)
+  - Установлены пакеты: chart.js@4.4.7, react-chartjs-2@5.3.0
+  - Настроена responsive конфигурация с CSS variables для theming
+  - ✅ РЕШЕНО: recharts полностью удален из проекта
+- **Push Notifications UI**: Улучшенный layout
+  - История кампаний: Grid layout для метрик (2x2 mobile, 4 cols desktop)
+  - Шаблоны: Функциональный TemplateManager с 4 встроенными шаблонами
+  - Responsive tabs с горизонтальным скроллом
+  - Исправлено дублирование текстов в табах
 
 ### ✨ Новые возможности
-- **A/B Testing для Push Уведомлений**: Система тестирования эффективности уведомлений
+- **A/B Testing для Push Уведомлений**: Полная интеграция с системой отправки
   - Создание A/B тестов с двумя вариантами (Variant A vs Variant B)
   - Настраиваемый traffic split (50/50 или custom распределение)
   - Targeting: all, premium, active, inactive, custom segments
@@ -38,6 +40,23 @@
     - Визуализация результатов с процентами открытий
     - Отображение победителя с confidence level
     - Интеграция в Push Notifications → A/B Testing таб
+  - **Интеграция с push-campaign-sender**: Автоматическая отправка вариантов
+    - Детерминированное назначение варианта (hash-based, 0-100%)
+    - Создание записей в push_ab_test_assignments
+    - Автоматическое обновление метрик через RPC
+    - SQL функция increment_ab_test_metric для атомарных инкрементов
+- **CampaignCreator UX улучшения**: Real-time превью и валидация
+  - Real-time превью уведомления с иконкой Bell
+  - Выбор языка для превью (7 языков: ru/en/es/de/fr/zh/ja)
+  - Character counters в превью (title: X/50, body: X/120)
+  - Улучшенная валидация перед отправкой
+  - Preview card с muted background
+  - Fallback текст для пустых полей
+- **TemplateManager**: Управление шаблонами уведомлений
+  - 4 встроенных шаблона: streak_milestone, daily_reminder, premium_offer, ai_insight
+  - Поддержка 7 языков с примерами для каждого
+  - Превью шаблонов с language tabs
+  - Placeholder для создания кастомных шаблонов
 - **AI Персонализация для Premium**: Персонализированные push уведомления через GPT-4o-mini
   - Генерация уникальных сообщений для каждого Premium пользователя
   - Учет контекста: имя, streak, количество записей, достижения
