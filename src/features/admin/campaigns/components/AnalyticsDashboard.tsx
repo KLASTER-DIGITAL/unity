@@ -12,36 +12,10 @@
  */
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-// ✅ Chart.js imports (replaced recharts)
-import {
-	BarElement,
-	CategoryScale,
-	Chart as ChartJS,
-	Filler,
-	Legend,
-	LinearScale,
-	LineElement,
-	PointElement,
-	Title,
-	Tooltip,
-} from 'chart.js';
+// ✅ PERFORMANCE: Lazy loaded Chart.js components для уменьшения bundle size
+// Expected reduction: ~30 KB
 import { BarChart3, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
-
-// Register Chart.js components
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	BarElement,
-	Title,
-	Tooltip,
-	Legend,
-	Filler
-);
-
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -65,6 +39,7 @@ import {
 } from '@/shared/components/ui/select';
 import { exportToCSV, exportToExcel, exportToPDF } from '@/shared/lib/export/dataExport';
 import { createClient } from '@/utils/supabase/client';
+import { LazyBarChart, LazyLineChart } from './charts/LazyCharts';
 
 const supabase = createClient();
 
@@ -452,9 +427,9 @@ export function AnalyticsDashboard() {
 						</div>
 					</CardHeader>
 					<CardContent>
-						{/* ✅ Chart.js Line Chart */}
+						{/* ✅ Lazy Loaded Line Chart */}
 						<div className="h-[300px]">
-							<Line
+							<LazyLineChart
 								data={{
 									labels: trends.map((t) => t.date),
 									datasets: [
@@ -513,9 +488,9 @@ export function AnalyticsDashboard() {
 							<CardDescription>Типы устройств получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							{/* ✅ Chart.js Bar Chart */}
+							{/* ✅ Lazy Loaded Bar Chart */}
 							<div className="h-[250px]">
-								<Bar
+								<LazyBarChart
 									data={{
 										labels: Object.keys(overallAnalytics.deviceBreakdown).map((name) =>
 											name === 'mobile'
@@ -575,9 +550,9 @@ export function AnalyticsDashboard() {
 							<CardDescription>Браузеры получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							{/* ✅ Chart.js Bar Chart */}
+							{/* ✅ Lazy Loaded Bar Chart */}
 							<div className="h-[250px]">
-								<Bar
+								<LazyBarChart
 									data={{
 										labels: Object.entries(overallAnalytics.browserBreakdown)
 											.sort((a, b) => b[1] - a[1])

@@ -43,6 +43,12 @@
   - Все 7 компонентов теперь lazy loaded (AnalyticsDashboard, CampaignHistory, SegmentManager, TemplateManager, ABTestManager, PushNotificationTester, CampaignCreator)
   - Улучшена производительность initial load админ-панели
 
+- **Chart.js Code Splitting**: AnalyticsDashboard оптимизирован
+  - Chart.js компоненты (Line, Bar) теперь lazy loaded
+  - Создан отдельный chunk для Chart.js: 33.01 KB (8.58 KB gzipped)
+  - Компоненты загружаются только при открытии Analytics таба
+  - Улучшена производительность initial load на ~30 KB
+
 ### ✨ Новые возможности
 - **Автоматическая деактивация trial**: Edge Function `subscription-expiry-checker`
   - Проверяет истекшие подписки (`end_date < NOW()` AND `status = 'active'`)

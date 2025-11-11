@@ -15,6 +15,16 @@
   - Bundle size уменьшен на 97% (207.56 KB → 6.29 KB)
   - Файл: src/features/admin/pwa/components/PushNotifications.tsx
 
+- **AnalyticsDashboard.tsx**: Chart.js code splitting
+  - Создан LazyCharts wrapper для Line и Bar компонентов
+  - Chart.js регистрация перенесена в отдельные файлы
+  - Создан отдельный chunk для Chart.js: 33.01 KB (8.58 KB gzipped)
+  - Файлы:
+    - src/features/admin/campaigns/components/AnalyticsDashboard.tsx
+    - src/features/admin/campaigns/components/charts/LazyCharts.tsx
+    - src/features/admin/campaigns/components/charts/LineChart.tsx
+    - src/features/admin/campaigns/components/charts/BarChart.tsx
+
 ### 🔄 Изменено
 - **WelcomeTrialModal.tsx**: Responsive адаптация для iPhone SE
   - Добавлены Tailwind breakpoints (sm:) для всех размеров
