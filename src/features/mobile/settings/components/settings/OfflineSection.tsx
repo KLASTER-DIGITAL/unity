@@ -83,12 +83,12 @@ export function OfflineSection({
 		<SettingsSection title={t.offlineMode || 'Offline режим'}>
 			<SettingsRow
 				description={getDescription()}
-				disabled={!isPremium}
+				disabled={false}
 				icon={CloudOff}
 				iconBgColor="bg-(--ios-purple)/10"
 				iconColor="text-(--ios-purple)"
 				onClick={handleOfflineClick}
-				onSwitchChange={isPremium ? handleOfflineChange : undefined}
+				onSwitchChange={handleOfflineChange}
 				rightElement={getRightElement()}
 				switchChecked={offlineEnabled}
 				title={t.enableOfflineMode || 'Включить offline режим'}

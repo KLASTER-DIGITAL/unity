@@ -272,7 +272,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 				autoBackupEnabled={autoBackupEnabled}
 				biometricAvailable={biometricAvailable}
 				biometricEnabled={biometricEnabled}
-				isPremium={userData?.isPremium}
+				isPremium={profile?.isPremium || profile?.is_premium || false}
 				onAutoBackupChange={setAutoBackupEnabled}
 				onBiometricChange={setBiometricEnabled}
 				onPremiumRequired={() => setShowPremium(true)}
@@ -281,7 +281,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 			{/* Offline режим */}
 			<OfflineSection
-				isPremium={userData?.isPremium}
+				isPremium={profile?.isPremium || profile?.is_premium || false}
 				offlineEnabled={offlineEnabled}
 				onOfflineChange={setOfflineEnabled}
 				onOfflineSettingsClick={() => setShowOfflineSettings(true)}

@@ -10,17 +10,57 @@
 
 ### 🔄 Исправления
 
+**SettingsScreen.tsx - Исправлен доступ к Premium функциям**:
+- Изменено `userData?.isPremium` → `profile?.isPremium || profile?.is_premium || false`
+- Теперь Premium статус берется из profile (который маппится через useUserData hook)
+- Исправлено для SecuritySection и OfflineSection
+
+**OfflineSection.tsx - Убран disabled для Premium пользователей**:
+- Изменено `disabled={!isPremium}` → `disabled={false}`
+- Изменено `onSwitchChange={isPremium ? handleOfflineChange : undefined}` → `onSwitchChange={handleOfflineChange}`
+- Теперь toggle работает для всех пользователей, Premium проверка внутри handleOfflineChange
+
+**SecuritySection.tsx - Скрыта биометрическая защита**:
+- Закомментирован блок с биометрической защитой (строки 47-57)
+- Убран `disabled={!isPremium}` из Auto Backup toggle
+- Теперь Auto Backup toggle работает для всех, Premium проверка внутри handleAutoBackupChange
+
+**SupportModal.tsx - Улучшена система поддержки**:
+- Добавлена кнопка "Связаться в Telegram" с иконкой MessageCircle
+- Добавлена возможность прикрепить скриншот (input type="file" accept="image/*")
+- Валидация файлов: максимум 5MB, только изображения
+- Состояние: subject, message, screenshot, isSubmitting
+- TODO: Реализовать отправку через Edge Function (пока заглушка)
+
+**PremiumModal.tsx - Обновлен список Premium функций**:
+- Убраны: "Приоритетная поддержка", "Без рекламы"
+- Добавлены: "Неограниченные записи", "PDF-книги"
+- Оставлены только реально работающие функции
+
+**Проблема 1**: Premium пользователь rustam@leadshunter.biz видел Premium Modal при попытке включить Offline режим
+**Причина**: `userData?.isPremium` был undefined, т.к. userData создается в authHandlers без поля isPremium
+**Решение**: Использовать `profile?.isPremium` из useUserData hook который правильно маппит is_premium → isPremium
+
+**Проблема 2**: Биометрическая защита отображалась в настройках
+**Причина**: Функция еще не готова к production
+**Решение**: Временно скрыта через комментарий, код сохранен для будущего использования
+
 **ProfileHeader.tsx - Исправлено отображение тарифа и названия дневника**:
 - Добавлена поддержка обоих форматов: `isPremium` (camelCase) и `is_premium` (snake_case)
 - Добавлено отображение `diary_name` и `diary_emoji` в ProfileHeader
 - Условное отображение: показывается если есть diaryName или diaryEmoji
 - Fallback на "UNITY" если нет названия дневника
 
-**Проблема**: Пользователь rustam@leadshunter.biz видел "Free Plan" хотя в БД is_premium=true и активная подписка
+**Проблема 3**: Пользователь rustam@leadshunter.biz видел "Free Plan" хотя в БД is_premium=true и активная подписка
 **Причина**: ProfileHeader использовал только `profile?.is_premium`, но данные приходили в camelCase `isPremium`
 **Решение**: Добавлена поддержка обоих форматов через OR оператор
 
 **Файлы**:
+- src/features/mobile/settings/components/SettingsScreen.tsx
+- src/features/mobile/settings/components/settings/OfflineSection.tsx
+- src/features/mobile/settings/components/settings/SecuritySection.tsx
+- src/features/mobile/settings/components/settings/modals/SupportModal.tsx
+- src/features/mobile/settings/components/PremiumModal.tsx
 - src/features/mobile/settings/components/settings/ProfileHeader.tsx
 
 ### 🔄 Изменено

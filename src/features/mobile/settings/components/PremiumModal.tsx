@@ -11,14 +11,14 @@ type PremiumModalProps = {
 export function PremiumModal({ open, onClose }: PremiumModalProps) {
 	const premiumFeatures = [
 		{
+			title: 'Неограниченные записи',
+			description: 'Создавайте сколько угодно записей в месяц',
+			icon: '∞',
+		},
+		{
 			title: 'Offline режим',
 			description: 'Работайте без интернета, автоматическая синхронизация',
 			icon: '📴',
-		},
-		{
-			title: 'Премиум-темы',
-			description: 'Закат, Океан, Лес - эксклюзивные цветовые схемы',
-			icon: '🎨',
 		},
 		{
 			title: 'Автоматическое резервирование',
@@ -26,24 +26,19 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 			icon: '☁️',
 		},
 		{
+			title: 'PDF-книги',
+			description: 'Генерация красивых PDF отчетов с AI-инсайтами',
+			icon: '📄',
+		},
+		{
 			title: 'Расширенный экспорт',
 			description: 'Экспорт в JSON, CSV и ZIP форматах',
 			icon: '📦',
 		},
 		{
-			title: 'Приоритетная поддержка',
-			description: 'Ответ на ваши вопросы в течение 24 часов',
-			icon: '⚡',
-		},
-		{
 			title: 'Расширенная аналитика',
 			description: 'Детальные отчеты и графики прогресса',
 			icon: '📊',
-		},
-		{
-			title: 'Без рекламы',
-			description: 'Никаких отвлекающих баннеров и объявлений',
-			icon: '🚫',
 		},
 	];
 
@@ -73,6 +68,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 							<button
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
+								type="button"
 							>
 								<X className="h-5 w-5 text-foreground" />
 							</button>
@@ -99,8 +95,8 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 							{/* Features */}
 							<div className="space-y-3">
 								<h4 className="text-foreground text-headline">Что входит в Premium:</h4>
-								{premiumFeatures.map((feature, index) => (
-									<div className="flex items-start gap-responsive-sm" key={index}>
+								{premiumFeatures.map((feature) => (
+									<div className="flex items-start gap-responsive-sm" key={feature.title}>
 										<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
 											<Check className="h-4 w-4 text-green-700 dark:text-green-400" />
 										</div>
