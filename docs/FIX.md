@@ -58,12 +58,25 @@
   - Назначение: хранение chat ID для отправки Telegram уведомлений
 
 ### 📚 Документация
-- **UNIFIED_NOTIFICATION_SENDER_GUIDE.md**: Создано руководство по использованию
-  - API документация
-  - Примеры использования
-  - Fallback механизм
-  - Интеграция с существующими Edge Functions
-  - Будущие улучшения
+- **UNIFIED_NOTIFICATION_SENDER_GUIDE.md**: Создано руководство по использованию (deprecated)
+  - Заменено на UNIFIED_NOTIFICATION_API_GUIDE.md
+
+- **TELEGRAM_NOTIFICATIONS_GUIDE.md**: Руководство пользователя (новый, 150 строк)
+  - Быстрый старт для пользователей
+  - Команды бота (/start, /help, /status)
+  - Типы уведомлений (realtime, scheduled, AI)
+  - Настройки уведомлений
+  - Устранение неполадок
+  - Безопасность и конфиденциальность
+
+- **UNIFIED_NOTIFICATION_API_GUIDE.md**: Руководство разработчика (новый, 150 строк)
+  - API Reference (endpoint, headers, request/response)
+  - Примеры использования (простая отправка, массовая рассылка, с данными)
+  - Fallback механизм (автоматическое переключение каналов)
+  - Интеграция с Edge Functions
+  - Мониторинг и аналитика
+  - Обработка ошибок
+  - Безопасность и rate limiting
 
 ### 🔧 Скрипты
 - **scripts/setup-telegram-webhook.sh**: Скрипт для настройки Telegram Bot webhook
