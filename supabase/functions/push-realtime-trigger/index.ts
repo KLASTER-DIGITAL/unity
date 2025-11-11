@@ -5,7 +5,7 @@
  * - Новая запись создана (entries INSERT)
  * - Новое достижение (achievements INSERT)
  * - AI-анализ готов (entry_summaries INSERT)
- * - Streak Milestones достигнуты (3, 7, 14, 30, 100 дней)
+ * - Streak Milestones достигнуты (3, 7, 14, 30, 60, 90, 100, 180, 365 дней)
  *
  * Вызывается через Database Webhooks или Supabase Realtime
  *
@@ -283,6 +283,66 @@ const STREAK_MILESTONE_TEMPLATES: Record<
 			body: '素晴らしい！あなたは真のチャンピオンです！',
 		},
 	},
+	60: {
+		ru: {
+			title: '⭐ 2 месяца подряд!',
+			body: 'Невероятная дисциплина! Вы вдохновляете!',
+		},
+		en: {
+			title: '⭐ 2 months in a row!',
+			body: 'Incredible discipline! You inspire!',
+		},
+		es: {
+			title: '⭐ ¡2 meses seguidos!',
+			body: '¡Disciplina increíble! ¡Inspiras!',
+		},
+		de: {
+			title: '⭐ 2 Monate in Folge!',
+			body: 'Unglaubliche Disziplin! Sie inspirieren!',
+		},
+		fr: {
+			title: "⭐ 2 mois d'affilée!",
+			body: 'Discipline incroyable! Vous inspirez!',
+		},
+		zh: {
+			title: '⭐ 连续2个月！',
+			body: '令人难以置信的纪律！你很鼓舞人心！',
+		},
+		ja: {
+			title: '⭐ 2ヶ月連続！',
+			body: '信じられない規律！あなたは刺激的です！',
+		},
+	},
+	90: {
+		ru: {
+			title: '🌟 3 месяца подряд!',
+			body: 'Выдающееся достижение! Вы мастер привычек!',
+		},
+		en: {
+			title: '🌟 3 months in a row!',
+			body: 'Outstanding achievement! You are a habit master!',
+		},
+		es: {
+			title: '🌟 ¡3 meses seguidos!',
+			body: '¡Logro sobresaliente! ¡Eres un maestro de hábitos!',
+		},
+		de: {
+			title: '🌟 3 Monate in Folge!',
+			body: 'Herausragende Leistung! Sie sind ein Gewohnheitsmeister!',
+		},
+		fr: {
+			title: "🌟 3 mois d'affilée!",
+			body: 'Réalisation exceptionnelle! Vous êtes un maître des habitudes!',
+		},
+		zh: {
+			title: '🌟 连续3个月！',
+			body: '杰出的成就！你是习惯大师！',
+		},
+		ja: {
+			title: '🌟 3ヶ月連続！',
+			body: '素晴らしい成果！あなたは習慣のマスターです！',
+		},
+	},
 	100: {
 		ru: {
 			title: '👑 100 дней подряд!',
@@ -313,13 +373,73 @@ const STREAK_MILESTONE_TEMPLATES: Record<
 			body: '伝説的！信じられないことを達成しました！',
 		},
 	},
+	180: {
+		ru: {
+			title: '💫 Полгода подряд!',
+			body: 'Феноменально! Вы изменили свою жизнь!',
+		},
+		en: {
+			title: '💫 Half a year in a row!',
+			body: "Phenomenal! You've transformed your life!",
+		},
+		es: {
+			title: '💫 ¡Medio año seguido!',
+			body: '¡Fenomenal! ¡Has transformado tu vida!',
+		},
+		de: {
+			title: '💫 Ein halbes Jahr in Folge!',
+			body: 'Phänomenal! Sie haben Ihr Leben verändert!',
+		},
+		fr: {
+			title: "💫 Six mois d'affilée!",
+			body: 'Phénoménal! Vous avez transformé votre vie!',
+		},
+		zh: {
+			title: '💫 连续半年！',
+			body: '太棒了！你改变了你的生活！',
+		},
+		ja: {
+			title: '💫 半年連続！',
+			body: '素晴らしい！あなたは人生を変えました！',
+		},
+	},
+	365: {
+		ru: {
+			title: '🏅 ГОД ПОДРЯД!',
+			body: 'НЕВЕРОЯТНО! Вы достигли абсолютного мастерства!',
+		},
+		en: {
+			title: '🏅 A FULL YEAR!',
+			body: "INCREDIBLE! You've achieved absolute mastery!",
+		},
+		es: {
+			title: '🏅 ¡UN AÑO COMPLETO!',
+			body: '¡INCREÍBLE! ¡Has alcanzado la maestría absoluta!',
+		},
+		de: {
+			title: '🏅 EIN GANZES JAHR!',
+			body: 'UNGLAUBLICH! Sie haben absolute Meisterschaft erreicht!',
+		},
+		fr: {
+			title: '🏅 UNE ANNÉE ENTIÈRE!',
+			body: 'INCROYABLE! Vous avez atteint la maîtrise absolue!',
+		},
+		zh: {
+			title: '🏅 整整一年！',
+			body: '难以置信！你已经达到了绝对的精通！',
+		},
+		ja: {
+			title: '🏅 丸1年！',
+			body: '信じられない！絶対的なマスタリーを達成しました！',
+		},
+	},
 };
 
 /**
  * Проверяет и отправляет уведомление о streak milestone
  */
 async function checkAndSendStreakMilestone(userId: string, currentStreak: number) {
-	const milestones = [3, 7, 14, 30, 100];
+	const milestones = [3, 7, 14, 30, 60, 90, 100, 180, 365];
 
 	// Проверяем достигнут ли milestone
 	if (!milestones.includes(currentStreak)) {
