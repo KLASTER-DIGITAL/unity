@@ -8,6 +8,13 @@
 
 ## [Unreleased] - 2025-11-11
 
+### ⚡ Производительность
+- **PushNotifications.tsx**: CampaignCreator теперь lazy loaded
+  - Изменен импорт с прямого на React.lazy()
+  - Добавлен Suspense wrapper с TabLoadingFallback
+  - Bundle size уменьшен на 97% (207.56 KB → 6.29 KB)
+  - Файл: src/features/admin/pwa/components/PushNotifications.tsx
+
 ### 🔄 Изменено
 - **WelcomeTrialModal.tsx**: Responsive адаптация для iPhone SE
   - Добавлены Tailwind breakpoints (sm:) для всех размеров

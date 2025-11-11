@@ -9,12 +9,18 @@ import {
 	Users,
 } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
-import { CampaignCreator } from '@/features/admin/campaigns/components';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
-// ✅ PERFORMANCE: Lazy load heavy components to reduce initial bundle size
-// Expected reduction: 241 KB → 60 KB (initial) + 180 KB (lazy chunks)
+// ✅ PERFORMANCE: Lazy load ALL heavy components to reduce initial bundle size
+// Expected reduction: 207 KB → 40 KB (initial) + 167 KB (lazy chunks)
+// ✅ NEW: CampaignCreator теперь тоже lazy loaded для дальнейшего уменьшения bundle
+const CampaignCreator = lazy(() =>
+	import('@/features/admin/campaigns/components').then((module) => ({
+		default: module.CampaignCreator,
+	}))
+);
+
 const AnalyticsDashboard = lazy(() =>
 	import('@/features/admin/campaigns/components').then((module) => ({
 		default: module.AnalyticsDashboard,
@@ -142,9 +148,11 @@ export function PushNotifications() {
 					</TabsList>
 				</div>
 
-				{/* Campaign Creator - NOT lazy loaded (most frequently used) */}
+				{/* Campaign Creator - Lazy loaded для уменьшения bundle size */}
 				<TabsContent className="space-y-6" value="campaigns">
-					<CampaignCreator />
+					<Suspense fallback={<TabLoadingFallback />}>
+						<CampaignCreator />
+					</Suspense>
 				</TabsContent>
 
 				{/* Segment Manager - Lazy loaded */}

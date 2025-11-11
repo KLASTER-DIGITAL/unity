@@ -33,6 +33,16 @@
 
 ## [Unreleased] - 2025-11-11
 
+### ⚡ Производительность
+- **Bundle Size оптимизация**: PushNotifications.js уменьшен на 97%
+  - **ДО**: 207.56 KB (69.13 KB gzipped)
+  - **ПОСЛЕ**: 6.29 KB (1.86 KB gzipped)
+  - **Улучшение**: -201.27 KB (-97%), -67.27 KB gzipped (-97.3%)
+  - CampaignCreator теперь lazy loaded через React.lazy()
+  - Создан отдельный chunk для CampaignCreator: 206.29 KB (68.67 KB gzipped)
+  - Все 7 компонентов теперь lazy loaded (AnalyticsDashboard, CampaignHistory, SegmentManager, TemplateManager, ABTestManager, PushNotificationTester, CampaignCreator)
+  - Улучшена производительность initial load админ-панели
+
 ### ✨ Новые возможности
 - **Автоматическая деактивация trial**: Edge Function `subscription-expiry-checker`
   - Проверяет истекшие подписки (`end_date < NOW()` AND `status = 'active'`)
