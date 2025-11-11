@@ -9,6 +9,15 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🔒 Безопасность
+- **Subscriptions RLS**: Исправлена ошибка 403 Forbidden при запросе subscriptions
+  - **Проблема**: RLS политики использовали `auth.uid()` напрямую вместо `(SELECT auth.uid())`
+  - **Решение**: Создана миграция `20251111_fix_subscriptions_rls_auth_uid.sql`
+  - Консолидированные политики: SELECT, INSERT, UPDATE, DELETE
+  - Использование `profiles.role = 'super_admin'` вместо hardcoded emails
+  - Пользователи могут видеть свои подписки, super_admin - все подписки
+  - ✅ РЕШЕНО: Ошибка 403 больше не появляется
+
 ### ⚡ Производительность
 - **Bundle Size оптимизация**: PushNotifications.js уменьшен на 13.9%
   - **ДО**: 241 KB (75 KB gzipped)

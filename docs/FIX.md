@@ -8,6 +8,14 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🗄️ База данных
+- **Subscriptions RLS миграция**: `20251111_fix_subscriptions_rls_auth_uid.sql`
+  - Исправлена проблема с `auth.uid()` → `(SELECT auth.uid())`
+  - Консолидированные политики вместо множественных
+  - Использование `profiles.role = 'super_admin'` для проверки прав
+  - Добавлены комментарии к политикам для документации
+  - Решена проблема 403 Forbidden при запросе subscriptions
+
 ### 🔄 Изменено
 - **Аудит кодовой базы**: Удален дубль i18n.native.ts
   - Файл удален: `app-shared/lib/platform/i18n.native.ts` (старая версия)
