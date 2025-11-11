@@ -9,6 +9,16 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🐛 Исправления
+- **React Version**: Исправлена критическая ошибка с версией React
+  - **Проблема**: package.json содержал React 19.1.0 вместо 18.3.1
+  - **Симптомы**: "Invalid hook call", "Cannot read properties of null (reading 'useState')"
+  - **Root Cause**: Кто-то изменил версии React на 19.1.0, что сломало PWA build
+  - **Решение**: Откат на React 18.3.1 согласно архитектурной документации
+  - Обновлен `package.json`: `react: 18.3.1`, `react-dom: 18.3.1`
+  - Обновлен `overrides`: `react: 18.3.1`, `react-dom: 18.3.1`
+  - ✅ РЕШЕНО: Приложение работает корректно, консоль чистая
+
 ### 🔒 Безопасность
 - **Subscriptions RLS**: Исправлена ошибка 403 Forbidden при запросе subscriptions
   - **Проблема**: RLS политики использовали `auth.uid()` напрямую вместо `(SELECT auth.uid())`

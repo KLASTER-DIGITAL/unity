@@ -8,6 +8,18 @@
 
 ## [Unreleased] - 2025-11-11
 
+### 🔄 Изменено
+- **React Version Fix**: Откат React 19.1.0 → 18.3.1
+  - **Файл**: `package.json`
+  - **Изменения**:
+    - `"react": "19.1.0"` → `"react": "18.3.1"`
+    - `"react-dom": "19.1.0"` → `"react-dom": "18.3.1"`
+    - `"overrides": { "react": "19.1.0" }` → `"overrides": { "react": "18.3.1" }`
+  - **Причина**: Гибридная архитектура PWA + React Native требует React 18.3.1 для PWA
+  - **Документация**: `docs/architecture/REACT_VERSIONS_STRATEGY.md`
+  - **Проверка**: `npm ls react react-dom` показывает React 18.3.1 для ВСЕХ пакетов
+  - **Консоль**: 0 критических ошибок, приложение работает
+
 ### 🗄️ База данных
 - **Subscriptions RLS миграция**: `20251111_fix_subscriptions_rls_auth_uid.sql`
   - Исправлена проблема с `auth.uid()` → `(SELECT auth.uid())`
