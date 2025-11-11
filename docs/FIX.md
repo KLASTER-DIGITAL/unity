@@ -21,6 +21,17 @@
   - Функция `getABTestResults()` - получение результатов с метриками
   - Endpoints: GET/POST/PUT/DELETE `/push-ab-test-api`, POST `/:id/start`, POST `/:id/stop`, GET `/:id/results`
   - Deployed через Supabase MCP, Version 1, Status: ACTIVE
+
+- **ABTestManager UI Component**: Компонент для управления A/B тестами в админ-панели
+  - Файл: `src/features/admin/pwa/components/ABTestManager.tsx` (600 строк)
+  - Список всех A/B тестов с метриками (sent, delivered, opened, clicked)
+  - Модальное окно создания теста (CreateABTestModal)
+  - Валидация полей: название, Variant A/B (title, body), traffic split, target segment
+  - Кнопки управления: Запустить (draft → running), Остановить (running → completed), Удалить
+  - Визуализация результатов: delivery_rate, open_rate для каждого варианта
+  - Отображение победителя с confidence level
+  - Интеграция в PushNotifications.tsx как новый таб "A/B Testing"
+  - Использует Supabase Functions API для CRUD операций
 - **push-ai-personalize Edge Function**: AI персонализация уведомлений для Premium
   - Файл: `supabase/functions/push-ai-personalize/index.ts` (293 строк)
   - Функция `getUserContext()` - получение контекста пользователя (profile, entries, streak, achievements)

@@ -1,3 +1,4 @@
+export { ABTestManager } from './ABTestManager';
 export { PushNotifications } from './PushNotifications';
 export { PWAAnalytics } from './PWAAnalytics';
 export { PWACache } from './PWACache';

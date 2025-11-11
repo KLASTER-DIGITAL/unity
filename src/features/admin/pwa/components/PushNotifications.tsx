@@ -1,4 +1,13 @@
-import { BarChart3, Bell, FileText, History, Send, TestTube, Users } from 'lucide-react';
+import {
+	BarChart3,
+	Bell,
+	FileText,
+	FlaskConical,
+	History,
+	Send,
+	TestTube,
+	Users,
+} from 'lucide-react';
 import { useState } from 'react';
 import { PushNotificationTester } from '@/components/screens/admin/settings/PushNotificationTester';
 import {
@@ -7,6 +16,7 @@ import {
 	CampaignHistory,
 } from '@/features/admin/campaigns/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { ABTestManager } from './ABTestManager';
 import { SegmentManager } from './SegmentManager';
 
 export function PushNotifications() {
@@ -29,7 +39,7 @@ export function PushNotifications() {
 
 			{/* Tabs */}
 			<Tabs className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-				<TabsList className="grid w-full max-w-4xl grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+				<TabsList className="grid w-full max-w-4xl grid-cols-2 sm:grid-cols-3 md:grid-cols-7">
 					<TabsTrigger className="flex items-center gap-2" value="campaigns">
 						<Send className="h-4 w-4" />
 						Рассылки
@@ -45,6 +55,10 @@ export function PushNotifications() {
 					<TabsTrigger className="flex items-center gap-2" value="history">
 						<History className="h-4 w-4" />
 						История
+					</TabsTrigger>
+					<TabsTrigger className="flex items-center gap-2" value="ab-testing">
+						<FlaskConical className="h-4 w-4" />
+						A/B Testing
 					</TabsTrigger>
 					<TabsTrigger className="flex items-center gap-2" value="test">
 						<TestTube className="h-4 w-4" />
@@ -74,6 +88,11 @@ export function PushNotifications() {
 				{/* Campaign History */}
 				<TabsContent className="space-y-6" value="history">
 					<CampaignHistory />
+				</TabsContent>
+
+				{/* A/B Testing */}
+				<TabsContent className="space-y-6" value="ab-testing">
+					<ABTestManager />
 				</TabsContent>
 
 				{/* Test Push */}
