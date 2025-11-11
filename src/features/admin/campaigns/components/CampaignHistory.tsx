@@ -99,13 +99,26 @@ export function CampaignHistory() {
 			</CardHeader>
 			<CardContent>
 				<Tabs value={activeTab} onValueChange={setActiveTab}>
-					<TabsList className="grid w-full grid-cols-5">
-						<TabsTrigger value="all">Все</TabsTrigger>
-						<TabsTrigger value="sent">Отправлено</TabsTrigger>
-						<TabsTrigger value="scheduled">Запланировано</TabsTrigger>
-						<TabsTrigger value="draft">Черновики</TabsTrigger>
-						<TabsTrigger value="failed">Ошибки</TabsTrigger>
-					</TabsList>
+					{/* ✅ FIX: Responsive tabs layout */}
+					<div className="w-full overflow-x-auto">
+						<TabsList className="inline-flex h-auto w-auto min-w-full flex-nowrap gap-1 p-1">
+							<TabsTrigger className="whitespace-nowrap px-3 py-2" value="all">
+								Все
+							</TabsTrigger>
+							<TabsTrigger className="whitespace-nowrap px-3 py-2" value="sent">
+								Отправлено
+							</TabsTrigger>
+							<TabsTrigger className="whitespace-nowrap px-3 py-2" value="scheduled">
+								Запланировано
+							</TabsTrigger>
+							<TabsTrigger className="whitespace-nowrap px-3 py-2" value="draft">
+								Черновики
+							</TabsTrigger>
+							<TabsTrigger className="whitespace-nowrap px-3 py-2" value="failed">
+								Ошибки
+							</TabsTrigger>
+						</TabsList>
+					</div>
 
 					<TabsContent value={activeTab} className="space-y-4 mt-4">
 						{isLoading ? (
@@ -117,18 +130,38 @@ export function CampaignHistory() {
 								{campaigns.map((campaign) => (
 									<div
 										key={campaign.id}
-										className="rounded-lg border p-4 space-y-2 transition-colors hover:bg-accent"
+										className="rounded-lg border p-4 space-y-3 transition-colors hover:bg-accent"
 									>
-										<div className="flex items-start justify-between">
-											<div className="flex-1">
-												<h4 className="font-semibold">{campaign.title}</h4>
-												<p className="text-sm text-muted-foreground line-clamp-2">
-													{campaign.body}
+										{/* ✅ FIX: Улучшенный layout с метриками */}
+										<div className="space-y-2">
+											<h4 className="font-semibold text-base">{campaign.title}</h4>
+											<p className="text-sm text-muted-foreground line-clamp-2">{campaign.body}</p>
+										</div>
+
+										{/* ✅ FIX: Метрики в grid layout */}
+										<div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t">
+											<div>
+												<p className="text-xs text-muted-foreground">Отправлено</p>
+												<p className="font-semibold text-sm">{campaign.total_sent}</p>
+											</div>
+											<div>
+												<p className="text-xs text-muted-foreground">Доставлено</p>
+												<p className="font-semibold text-sm">{campaign.total_delivered}</p>
+											</div>
+											<div>
+												<p className="text-xs text-muted-foreground">Открыто</p>
+												<p className="font-semibold text-sm">{campaign.total_opened}</p>
+											</div>
+											<div>
+												<p className="text-xs text-muted-foreground">Ошибки</p>
+												<p className="font-semibold text-sm text-destructive">
+													{campaign.total_failed}
 												</p>
 											</div>
 										</div>
 
-										<div className="flex items-center gap-4 text-sm text-muted-foreground">
+										{/* ✅ FIX: Дополнительная информация */}
+										<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t">
 											<span>Сегмент: {getSegmentLabel(campaign.target_segment)}</span>
 											<span>•</span>
 											<span>Получателей: {campaign.total_recipients}</span>

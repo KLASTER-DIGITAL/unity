@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { ABTestManager } from './ABTestManager';
 import { SegmentManager } from './SegmentManager';
+import { TemplateManager } from './TemplateManager';
 
 export function PushNotifications() {
 	const [activeTab, setActiveTab] = useState('campaigns');
@@ -124,18 +125,9 @@ export function PushNotifications() {
 					<PushNotificationTester />
 				</TabsContent>
 
-				{/* Templates - Coming Soon */}
+				{/* Templates */}
 				<TabsContent className="space-y-6" value="templates">
-					<div className="rounded-lg border border-dashed p-12 text-center">
-						<FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground opacity-50" />
-						<h3 className="mb-2 font-semibold text-lg">Шаблоны уведомлений</h3>
-						<p className="text-muted-foreground text-sm">
-							Управление шаблонами будет реализовано в следующей версии
-						</p>
-						<p className="mt-2 text-muted-foreground text-sm">
-							Сейчас используются встроенные шаблоны для 7 языков (ru/en/es/de/fr/zh/ja)
-						</p>
-					</div>
+					<TemplateManager />
 				</TabsContent>
 			</Tabs>
 		</div>
