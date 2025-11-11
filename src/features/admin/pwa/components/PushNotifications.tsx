@@ -42,40 +42,54 @@ export function PushNotifications() {
 				{/* ✅ FIX: Адаптивный layout с горизонтальным скроллом на маленьких экранах */}
 				<div className="w-full overflow-x-auto">
 					<TabsList className="inline-flex h-auto w-auto min-w-full flex-nowrap gap-1 p-1">
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="campaigns">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="campaigns"
+						>
 							<Send className="h-4 w-4" />
-							<span className="hidden sm:inline">Рассылки</span>
-							<span className="sm:hidden">Рассылки</span>
+							<span>Рассылки</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="segments">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="segments"
+						>
 							<Users className="h-4 w-4" />
-							<span className="hidden sm:inline">Сегменты</span>
-							<span className="sm:hidden">Сегменты</span>
+							<span>Сегменты</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="analytics">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="analytics"
+						>
 							<BarChart3 className="h-4 w-4" />
-							<span className="hidden sm:inline">Аналитика</span>
-							<span className="sm:hidden">Аналитика</span>
+							<span>Аналитика</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="history">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="history"
+						>
 							<History className="h-4 w-4" />
-							<span className="hidden sm:inline">История</span>
-							<span className="sm:hidden">История</span>
+							<span>История</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="ab-testing">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="ab-testing"
+						>
 							<FlaskConical className="h-4 w-4" />
-							<span className="hidden sm:inline">A/B Testing</span>
-							<span className="sm:hidden">A/B</span>
+							<span>A/B Testing</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="test">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="test"
+						>
 							<TestTube className="h-4 w-4" />
-							<span className="hidden sm:inline">Тестирование</span>
-							<span className="sm:hidden">Тест</span>
+							<span>Тестирование</span>
 						</TabsTrigger>
-						<TabsTrigger className="flex items-center gap-2 whitespace-nowrap" value="templates">
+						<TabsTrigger
+							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
+							value="templates"
+						>
 							<FileText className="h-4 w-4" />
-							<span className="hidden sm:inline">Шаблоны</span>
-							<span className="sm:hidden">Шаблоны</span>
+							<span>Шаблоны</span>
 						</TabsTrigger>
 					</TabsList>
 				</div>

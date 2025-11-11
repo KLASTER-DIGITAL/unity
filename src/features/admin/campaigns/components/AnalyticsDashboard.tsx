@@ -5,28 +5,43 @@
  * Features:
  * - Overall metrics (sent, delivered, opened, failed)
  * - Campaign statistics
- * - Trends over time (Recharts)
- * - Device/Browser breakdown
+ * - Trends over time (Chart.js Line Chart)
+ * - Device/Browser breakdown (Chart.js Bar Charts)
  * - Supabase Realtime integration
+ * - Export to CSV/Excel/PDF
  */
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
+// ✅ Chart.js imports (replaced recharts)
+import {
+	BarElement,
+	CategoryScale,
+	Chart as ChartJS,
+	Filler,
+	Legend,
+	LinearScale,
+	LineElement,
+	PointElement,
+	Title,
+	Tooltip,
+} from 'chart.js';
 import { BarChart3, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Bar, Line } from 'react-chartjs-2';
 
-// ✅ TEMPORARY FIX: Comment out recharts to avoid es-toolkit/compat error
-// TODO: Replace with recharts v2 or alternative charting library
-// import {
-// 	Area,
-// 	AreaChart,
-// 	Bar,
-// 	BarChart,
-// 	CartesianGrid,
-// 	ResponsiveContainer,
-// 	Tooltip,
-// 	XAxis,
-// 	YAxis,
-// } from 'recharts';
+// Register Chart.js components
+ChartJS.register(
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	LineElement,
+	BarElement,
+	Title,
+	Tooltip,
+	Legend,
+	Filler
+);
+
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -437,17 +452,52 @@ export function AnalyticsDashboard() {
 						</div>
 					</CardHeader>
 					<CardContent>
-						{/* ✅ TEMPORARY: Simple table instead of chart */}
-						<div className="space-y-2">
-							{trends.map((trend) => (
-								<div key={trend.date} className="flex items-center justify-between border-b pb-2">
-									<span className="text-sm">{trend.date}</span>
-									<div className="flex gap-4 text-sm">
-										<span className="text-primary">Доставлено: {trend.delivered}</span>
-										<span className="text-muted-foreground">Открыто: {trend.opened}</span>
-									</div>
-								</div>
-							))}
+						{/* ✅ Chart.js Line Chart */}
+						<div className="h-[300px]">
+							<Line
+								data={{
+									labels: trends.map((t) => t.date),
+									datasets: [
+										{
+											label: 'Доставлено',
+											data: trends.map((t) => t.delivered),
+											borderColor: 'hsl(var(--primary))',
+											backgroundColor: 'hsla(var(--primary), 0.1)',
+											fill: true,
+											tension: 0.4,
+										},
+										{
+											label: 'Открыто',
+											data: trends.map((t) => t.opened),
+											borderColor: 'hsl(var(--chart-2))',
+											backgroundColor: 'hsla(var(--chart-2), 0.1)',
+											fill: true,
+											tension: 0.4,
+										},
+									],
+								}}
+								options={{
+									responsive: true,
+									maintainAspectRatio: false,
+									plugins: {
+										legend: {
+											position: 'top' as const,
+										},
+										tooltip: {
+											mode: 'index' as const,
+											intersect: false,
+										},
+									},
+									scales: {
+										y: {
+											beginAtZero: true,
+											ticks: {
+												precision: 0,
+											},
+										},
+									},
+								}}
+							/>
 						</div>
 					</CardContent>
 				</Card>
@@ -463,22 +513,57 @@ export function AnalyticsDashboard() {
 							<CardDescription>Типы устройств получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							{/* ✅ TEMPORARY: Simple list instead of chart */}
-							<div className="space-y-2">
-								{Object.entries(overallAnalytics.deviceBreakdown).map(([name, value]) => (
-									<div key={name} className="flex items-center justify-between border-b pb-2">
-										<span className="text-sm">
-											{name === 'mobile'
+							{/* ✅ Chart.js Bar Chart */}
+							<div className="h-[250px]">
+								<Bar
+									data={{
+										labels: Object.keys(overallAnalytics.deviceBreakdown).map((name) =>
+											name === 'mobile'
 												? 'Мобильные'
 												: name === 'desktop'
 													? 'Десктоп'
 													: name === 'tablet'
 														? 'Планшеты'
-														: 'Неизвестно'}
-										</span>
-										<span className="font-semibold text-primary">{value}</span>
-									</div>
-								))}
+														: 'Неизвестно'
+										),
+										datasets: [
+											{
+												label: 'Количество',
+												data: Object.values(overallAnalytics.deviceBreakdown),
+												backgroundColor: [
+													'hsla(var(--chart-1), 0.8)',
+													'hsla(var(--chart-2), 0.8)',
+													'hsla(var(--chart-3), 0.8)',
+													'hsla(var(--chart-4), 0.8)',
+												],
+												borderColor: [
+													'hsl(var(--chart-1))',
+													'hsl(var(--chart-2))',
+													'hsl(var(--chart-3))',
+													'hsl(var(--chart-4))',
+												],
+												borderWidth: 1,
+											},
+										],
+									}}
+									options={{
+										responsive: true,
+										maintainAspectRatio: false,
+										plugins: {
+											legend: {
+												display: false,
+											},
+										},
+										scales: {
+											y: {
+												beginAtZero: true,
+												ticks: {
+													precision: 0,
+												},
+											},
+										},
+									}}
+								/>
 							</div>
 						</CardContent>
 					</Card>
@@ -490,17 +575,57 @@ export function AnalyticsDashboard() {
 							<CardDescription>Браузеры получателей</CardDescription>
 						</CardHeader>
 						<CardContent>
-							{/* ✅ TEMPORARY: Simple list instead of chart */}
-							<div className="space-y-2">
-								{Object.entries(overallAnalytics.browserBreakdown)
-									.sort((a, b) => b[1] - a[1])
-									.slice(0, 5)
-									.map(([name, value]) => (
-										<div key={name} className="flex items-center justify-between border-b pb-2">
-											<span className="text-sm">{name === 'unknown' ? 'Неизвестно' : name}</span>
-											<span className="font-semibold text-primary">{value}</span>
-										</div>
-									))}
+							{/* ✅ Chart.js Bar Chart */}
+							<div className="h-[250px]">
+								<Bar
+									data={{
+										labels: Object.entries(overallAnalytics.browserBreakdown)
+											.sort((a, b) => b[1] - a[1])
+											.slice(0, 5)
+											.map(([name]) => (name === 'unknown' ? 'Неизвестно' : name)),
+										datasets: [
+											{
+												label: 'Количество',
+												data: Object.entries(overallAnalytics.browserBreakdown)
+													.sort((a, b) => b[1] - a[1])
+													.slice(0, 5)
+													.map(([, value]) => value),
+												backgroundColor: [
+													'hsla(var(--chart-1), 0.8)',
+													'hsla(var(--chart-2), 0.8)',
+													'hsla(var(--chart-3), 0.8)',
+													'hsla(var(--chart-4), 0.8)',
+													'hsla(var(--chart-5), 0.8)',
+												],
+												borderColor: [
+													'hsl(var(--chart-1))',
+													'hsl(var(--chart-2))',
+													'hsl(var(--chart-3))',
+													'hsl(var(--chart-4))',
+													'hsl(var(--chart-5))',
+												],
+												borderWidth: 1,
+											},
+										],
+									}}
+									options={{
+										responsive: true,
+										maintainAspectRatio: false,
+										plugins: {
+											legend: {
+												display: false,
+											},
+										},
+										scales: {
+											y: {
+												beginAtZero: true,
+												ticks: {
+													precision: 0,
+												},
+											},
+										},
+									}}
+								/>
 							</div>
 						</CardContent>
 					</Card>
