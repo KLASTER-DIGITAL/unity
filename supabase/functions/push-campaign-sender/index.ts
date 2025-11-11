@@ -7,6 +7,7 @@
  * - i18n translations (7 languages)
  * - Analytics tracking
  * - Batch processing
+ * - A/B Testing (variant assignment and tracking)
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -40,15 +41,21 @@ serve(async (req) => {
 			throw new Error(`Campaign not found: ${campaign_id}`);
 		}
 
-		// 2. Update campaign status to 'sending'
+		// 2. Check if campaign is part of A/B test
+		const abTest = await getABTest(campaign);
+		if (abTest) {
+			console.log(`[Push Campaign Sender] A/B Test detected: ${abTest.name}`);
+		}
+
+		// 3. Update campaign status to 'sending'
 		await supabase.from('push_campaigns').update({ status: 'sending' }).eq('id', campaign_id);
 
-		// 3. Get target users based on segment
+		// 4. Get target users based on segment
 		const users = await getTargetUsers(campaign);
 
 		console.log(`[Push Campaign Sender] Target users: ${users.length}`);
 
-		// 4. Get active push subscriptions for target users
+		// 5. Get active push subscriptions for target users
 		const { data: subscriptions, error: subsError } = await supabase
 			.from('push_subscriptions')
 			.select('*')
@@ -64,7 +71,7 @@ serve(async (req) => {
 
 		console.log(`[Push Campaign Sender] Active subscriptions: ${subscriptions?.length || 0}`);
 
-		// 5. Send notifications in batches
+		// 6. Send notifications in batches
 		let totalSent = 0;
 		let totalDelivered = 0;
 		let totalFailed = 0;
@@ -74,7 +81,7 @@ serve(async (req) => {
 			const batch = subscriptions?.slice(i, i + BATCH_SIZE);
 
 			const results = await Promise.allSettled(
-				batch.map((sub) => sendPushNotification(sub, campaign, users))
+				batch.map((sub) => sendPushNotification(sub, campaign, users, abTest))
 			);
 
 			// Track results
@@ -216,16 +223,40 @@ function applySegmentCriteria(query: any, criteria: any): any {
 async function sendPushNotification(
 	subscription: any,
 	campaign: any,
-	users: any[]
+	users: any[],
+	abTest: any | null = null
 ): Promise<{ delivered: boolean }> {
 	try {
 		// Get user language
 		const user = users.find((u) => u.id === subscription.user_id);
 		const userLang = user?.preferred_language || 'ru';
 
-		// Get translated content
-		const title = campaign.translations?.[userLang]?.title || campaign.title;
-		const body = campaign.translations?.[userLang]?.body || campaign.body;
+		let title: string;
+		let body: string;
+		let variant: 'variant_a' | 'variant_b' | null = null;
+
+		// ✅ A/B Testing: Assign variant and get corresponding content
+		if (abTest) {
+			variant = assignVariant(subscription.user_id, abTest.traffic_split);
+
+			// Create A/B test assignment
+			await createABTestAssignment(abTest.id, subscription.user_id, variant);
+
+			// Get variant content
+			if (variant === 'variant_a') {
+				title = abTest.variant_a_title;
+				body = abTest.variant_a_body;
+			} else {
+				title = abTest.variant_b_title;
+				body = abTest.variant_b_body;
+			}
+
+			console.log(`[Push Campaign Sender] User ${subscription.user_id} assigned to ${variant}`);
+		} else {
+			// Regular campaign: Get translated content
+			title = campaign.translations?.[userLang]?.title || campaign.title;
+			body = campaign.translations?.[userLang]?.body || campaign.body;
+		}
 
 		// Prepare Web Push payload
 		const _payload = JSON.stringify({
@@ -236,6 +267,8 @@ async function sendPushNotification(
 			image: campaign.image,
 			data: {
 				campaign_id: campaign.id,
+				ab_test_id: abTest?.id,
+				variant,
 				url: '/',
 			},
 		});
@@ -254,6 +287,11 @@ async function sendPushNotification(
 			os: subscription.os,
 		});
 
+		// ✅ A/B Testing: Update metrics
+		if (abTest && variant) {
+			await updateABTestMetrics(abTest.id, variant, true);
+		}
+
 		return { delivered: true };
 	} catch (error) {
 		console.error(`[Push Campaign Sender] Failed to send to ${subscription.user_id}:`, error);
@@ -268,5 +306,99 @@ async function sendPushNotification(
 		});
 
 		return { delivered: false };
+	}
+}
+
+/**
+ * Hash user ID to determine variant assignment (deterministic)
+ * Returns 0-99 for traffic split percentage
+ */
+function hashUserId(userId: string): number {
+	let hash = 0;
+	for (let i = 0; i < userId.length; i++) {
+		const char = userId.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash; // Convert to 32bit integer
+	}
+	return Math.abs(hash) % 100;
+}
+
+/**
+ * Assign variant (A or B) to user based on traffic split
+ */
+function assignVariant(userId: string, trafficSplit: number): 'variant_a' | 'variant_b' {
+	const hash = hashUserId(userId);
+	return hash < trafficSplit ? 'variant_a' : 'variant_b';
+}
+
+/**
+ * Get A/B test details if campaign is part of A/B test
+ */
+async function getABTest(campaign: any): Promise<any | null> {
+	if (!campaign.ab_test_id) {
+		return null;
+	}
+
+	const { data: abTest, error } = await supabase
+		.from('push_ab_tests')
+		.select('*')
+		.eq('id', campaign.ab_test_id)
+		.single();
+
+	if (error || !abTest) {
+		console.error(`[Push Campaign Sender] Failed to get A/B test: ${error?.message}`);
+		return null;
+	}
+
+	return abTest;
+}
+
+/**
+ * Create A/B test assignment for user
+ */
+async function createABTestAssignment(
+	abTestId: string,
+	userId: string,
+	variant: 'variant_a' | 'variant_b'
+): Promise<void> {
+	try {
+		await supabase.from('push_ab_test_assignments').insert({
+			ab_test_id: abTestId,
+			user_id: userId,
+			variant,
+			status: 'pending',
+		});
+	} catch (error) {
+		console.error(`[Push Campaign Sender] Failed to create A/B test assignment:`, error);
+	}
+}
+
+/**
+ * Update A/B test metrics after sending
+ */
+async function updateABTestMetrics(
+	abTestId: string,
+	variant: 'variant_a' | 'variant_b',
+	delivered: boolean
+): Promise<void> {
+	try {
+		const sentField = variant === 'variant_a' ? 'variant_a_sent' : 'variant_b_sent';
+		const deliveredField = variant === 'variant_a' ? 'variant_a_delivered' : 'variant_b_delivered';
+
+		// Increment sent counter
+		await supabase.rpc('increment_ab_test_metric', {
+			test_id: abTestId,
+			metric_name: sentField,
+		});
+
+		// Increment delivered counter if successful
+		if (delivered) {
+			await supabase.rpc('increment_ab_test_metric', {
+				test_id: abTestId,
+				metric_name: deliveredField,
+			});
+		}
+	} catch (error) {
+		console.error(`[Push Campaign Sender] Failed to update A/B test metrics:`, error);
 	}
 }
