@@ -16,6 +16,13 @@
   - Запуск через Supabase Cron (ежедневно в 00:00 UTC)
   - Файл: `supabase/functions/subscription-expiry-checker/index.ts`
 
+- **Edge Function**: Создан `trial-expiry-reminder`
+  - Проверка trial подписок истекающих в течение 3 дней
+  - Отправка уведомлений за 3 дня до окончания trial
+  - Обновление metadata.reminder_sent для предотвращения дубликатов
+  - Запуск через Supabase Cron (ежедневно в 09:00 UTC)
+  - Файл: `supabase/functions/trial-expiry-reminder/index.ts`
+
 ### 📚 Документация
 - **FREE/TRIAL/PREMIUM Analysis**: Исправлен детальный отчет `docs/analysis/FREE_TRIAL_PREMIUM_ANALYSIS.md`
   - Статистика: 15 пользователей, 2 Premium (13.3%), 13 FREE (86.7%)

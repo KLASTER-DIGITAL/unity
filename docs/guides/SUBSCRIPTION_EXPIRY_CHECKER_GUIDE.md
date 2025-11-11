@@ -1,13 +1,19 @@
-# 🔄 Subscription Expiry Checker - Руководство
+# 🔄 Trial & Subscription Management - Руководство
 
-**Дата**: 2025-11-11  
+**Дата**: 2025-11-11
 **Статус**: ✅ Реализовано
 
 ---
 
 ## 📊 ОБЗОР
 
-Edge Function `subscription-expiry-checker` автоматически проверяет истекшие подписки и деактивирует Premium.
+Две Edge Functions для автоматического управления trial и подписками:
+
+### 1. `subscription-expiry-checker`
+Автоматически проверяет истекшие подписки и деактивирует Premium.
+
+### 2. `trial-expiry-reminder`
+Отправляет уведомления пользователям за 3 дня до окончания trial.
 
 ### Что делает:
 1. ✅ Проверяет `subscriptions.end_date < NOW()` AND `status = 'active'`
@@ -241,21 +247,79 @@ ORDER BY date DESC;
 
 ---
 
-## 📝 ИТОГИ
+---
+
+## � TRIAL EXPIRY REMINDER
+
+### Обзор
+
+Edge Function `trial-expiry-reminder` отправляет уведомления пользователям за 3 дня до окончания trial.
+
+### Что делает:
+1. ✅ Проверяет trial подписки истекающие в течение 3 дней
+2. ✅ Фильтрует только те, которым еще не отправлено уведомление (`metadata.reminder_sent != true`)
+3. ✅ Отправляет уведомление "Trial заканчивается через X дня"
+4. ✅ Обновляет `metadata.reminder_sent = true` и `metadata.reminder_sent_at`
+
+### Настройка Supabase Cron Job
+
+**Name**: `trial-expiry-reminder`
+
+**Schedule**: `0 9 * * *` (ежедневно в 09:00 UTC)
+
+**SQL Command**:
+```sql
+SELECT
+  net.http_post(
+    url := 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/trial-expiry-reminder',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key')
+    ),
+    body := '{}'::jsonb
+  ) as request_id;
+```
+
+### Тестирование
+
+```sql
+-- Проверить trial подписки истекающие в течение 3 дней
+SELECT
+  s.id,
+  s.user_id,
+  p.email,
+  s.end_date,
+  s.metadata->>'reminder_sent' as reminder_sent,
+  s.metadata->>'reminder_sent_at' as reminder_sent_at,
+  EXTRACT(DAY FROM (s.end_date - NOW())) as days_left
+FROM subscriptions s
+JOIN profiles p ON p.id = s.user_id
+WHERE s.status = 'active'
+  AND s.metadata->>'is_trial' = 'true'
+  AND s.end_date BETWEEN NOW() AND NOW() + INTERVAL '3 days'
+ORDER BY s.end_date ASC;
+```
+
+---
+
+## �📝 ИТОГИ
 
 **Статус**: ✅ Реализовано и готово к production
 
 **Что работает**:
-- ✅ Edge Function деплоена
+- ✅ Edge Function `subscription-expiry-checker` деплоена
+- ✅ Edge Function `trial-expiry-reminder` деплоена
 - ✅ Логика проверки истекших подписок
+- ✅ Логика уведомлений за 3 дня до окончания trial
 - ✅ Деактивация Premium
 - ✅ Отправка уведомлений
 
 **Что нужно настроить**:
-- ⚠️ Supabase Cron Job (вручную через Dashboard)
+- ⚠️ Supabase Cron Job для `subscription-expiry-checker` (вручную через Dashboard)
+- ⚠️ Supabase Cron Job для `trial-expiry-reminder` (вручную через Dashboard)
 
 **Следующие шаги**:
-- Настроить Supabase Cron Job
+- Настроить 2 Supabase Cron Jobs
 - Протестировать на тестовых данных
 - Мониторить логи первые несколько дней
 
