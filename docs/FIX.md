@@ -23,6 +23,12 @@
   - Запуск через Supabase Cron (ежедневно в 09:00 UTC)
   - Файл: `supabase/functions/trial-expiry-reminder/index.ts`
 
+- **Миграция**: Создана `20251111_backfill_trial_subscriptions.sql`
+  - Backfill 14-дневного trial для 16 существующих FREE пользователей
+  - Обновление is_premium = true для пользователей с trial
+  - Установка metadata.welcome_modal_shown = false
+  - Файл: `supabase/migrations/20251111_backfill_trial_subscriptions.sql`
+
 ### 📚 Документация
 - **FREE/TRIAL/PREMIUM Analysis**: Исправлен детальный отчет `docs/analysis/FREE_TRIAL_PREMIUM_ANALYSIS.md`
   - Статистика: 15 пользователей, 2 Premium (13.3%), 13 FREE (86.7%)
