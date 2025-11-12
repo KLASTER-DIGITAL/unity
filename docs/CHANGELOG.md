@@ -34,7 +34,7 @@
 ## [Unreleased] - 2025-11-12
 
 ### ✨ Новые возможности
-- **Push Notifications - Персонализированное расписание с АВТООПРЕДЕЛЕНИЕМ timezone**: ✅ ЗАВЕРШЕНО (4/5 задач, 80%)
+- **Push Notifications - Персонализированное расписание с АВТООПРЕДЕЛЕНИЕМ timezone**: ✅ ЗАВЕРШЕНО (5/5 задач, 100%)
   - ✅ Добавлено поле `timezone` в таблицу `profiles` для хранения часового пояса пользователя
   - ✅ Обновлен `push-scheduled` Edge Function с функцией `getUsersForScheduledTime()` для фильтрации пользователей по локальному времени
   - ✅ Настроены Hourly Cron Jobs (каждый час) вместо фиксированного времени (21:00 UTC)
@@ -43,7 +43,10 @@
     - Web: `Intl.DateTimeFormat().resolvedOptions().timeZone`
     - React Native: `expo-localization getCalendars()[0].timeZone`
     - Fallback: UTC если автоопределение не удалось
-  - ⏳ TODO: Тестирование с разными timezone (Moscow, New York, Tokyo)
+  - ✅ **Тестирование завершено** с 3 тестовыми пользователями (Moscow UTC+3, New York UTC-5, Tokyo UTC+9)
+    - Проверена корректность timezone конвертации через SQL
+    - Проверена логика фильтрации пользователей
+    - Создан Testing Guide: `docs/guides/TIMEZONE_TESTING_GUIDE.md`
 
   **Как это работает**:
   - При регистрации: автоматически определяется timezone пользователя (БЕЗ запроса)

@@ -8,6 +8,14 @@
 
 ## [Unreleased] - 2025-11-12
 
+### ✅ Тестирование
+- **Timezone Testing**: Протестировано персонализированное расписание push уведомлений
+  - Созданы 3 тестовых пользователя с разными timezone (Moscow UTC+3, New York UTC-5, Tokyo UTC+9)
+  - Проверена корректность timezone конвертации через SQL запросы
+  - Проверена логика фильтрации пользователей по локальному времени
+  - Создан Testing Guide: `docs/guides/TIMEZONE_TESTING_GUIDE.md`
+  - Результат: Логика работает корректно, пользователи получат уведомления в правильное локальное время
+
 ### 🔄 Изменено
 - **Platform Adapter: Timezone Detection**: Создан новый Platform Adapter для автоопределения timezone
   - `src/shared/lib/platform/timezone/types.ts` - TypeScript типы
