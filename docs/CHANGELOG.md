@@ -34,6 +34,15 @@
 ## [Unreleased] - 2025-11-11
 
 ### ✨ Новые возможности
+- **Push Notifications - AI Персонализация для Premium**: Добавлена AI персонализация уведомлений для Premium пользователей
+  - Обновлен push-ai-personalize с новым endpoint `action=generate_only` для генерации сообщений без отправки
+  - Обновлен push-scheduled для использования AI персонализации когда `template.is_ai_enabled=true`
+  - Premium пользователи получают персонализированные уведомления на основе их поведения и настроения
+  - Автоматический fallback на обычный шаблон если AI генерация не удалась
+  - Все 3 типа уведомлений (daily_reminder, weekly_motivation, goal_reminder) поддерживают AI персонализацию
+  - Логирование статистики: сколько уведомлений отправлено с AI vs без AI
+  - Файлы: `supabase/functions/push-ai-personalize/index.ts`, `supabase/functions/push-scheduled/index.ts`
+
 - **Push Notifications - Интеграция шаблонов**: Обновлен push-scheduled Edge Function для использования шаблонов из БД
   - Заменен хардкод на динамическую загрузку из push_notification_templates
   - Добавлена функция getTemplate() для получения шаблонов с i18n поддержкой

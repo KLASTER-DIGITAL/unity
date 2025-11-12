@@ -77,6 +77,56 @@ function replaceVariables(text: string, variables: Record<string, string>): stri
 }
 
 /**
+ * Генерирует AI-персонализированное уведомление для Premium пользователя
+ */
+async function generateAIPersonalizedNotification(
+	userId: string,
+	type: string
+): Promise<{ title: string; body: string } | null> {
+	try {
+		console.log(`[PUSH-SCHEDULED] Generating AI personalized notification for user ${userId}`);
+
+		// Вызываем push-ai-personalize Edge Function с action=generate_only
+		const response = await fetch(
+			`${supabaseUrl}/functions/v1/push-ai-personalize?user_id=${userId}&type=${type}&action=generate_only`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${supabaseServiceKey}`,
+				},
+			}
+		);
+
+		if (!response.ok) {
+			console.error(
+				`[PUSH-SCHEDULED] AI personalization failed for user ${userId}: ${response.status}`
+			);
+			return null;
+		}
+
+		const result = await response.json();
+
+		if (!result.success || !result.message) {
+			console.error(`[PUSH-SCHEDULED] AI personalization failed for user ${userId}`);
+			return null;
+		}
+
+		console.log(
+			`[PUSH-SCHEDULED] AI personalized message generated for user ${userId}: "${result.message.title}"`
+		);
+
+		return {
+			title: result.message.title,
+			body: result.message.body,
+		};
+	} catch (error) {
+		console.error(`[PUSH-SCHEDULED] AI personalization error for user ${userId}:`, error);
+		return null;
+	}
+}
+
+/**
  * Получает всех пользователей с активными push subscriptions
  * и определенным типом уведомлений включенным
  */
@@ -201,7 +251,45 @@ async function sendDailyReminder() {
 		return { sent: 0, total: 0 };
 	}
 
-	// Заменяем переменные (пока без персонализации)
+	// Если шаблон поддерживает AI персонализацию - отправляем персонализированные уведомления
+	if (template.is_ai_enabled) {
+		console.log(`[PUSH-SCHEDULED] AI personalization enabled for ${userIds.length} users`);
+
+		const results = await Promise.all(
+			userIds.map(async (userId) => {
+				try {
+					// Генерируем AI-персонализированное сообщение
+					const aiMessage = await generateAIPersonalizedNotification(userId, 'daily_reminder');
+
+					// Если AI генерация не удалась - используем обычный шаблон
+					const title = aiMessage?.title || replaceVariables(template.title, {});
+					const body = aiMessage?.body || replaceVariables(template.body, {});
+
+					// Отправляем уведомление конкретному пользователю
+					await sendPushNotification([userId], title, body, template.icon, {
+						type: 'daily_reminder',
+						url: '/?action=new',
+					});
+
+					return { success: true, userId, ai_used: !!aiMessage };
+				} catch (error) {
+					console.error(`[PUSH-SCHEDULED] Error sending to user ${userId}:`, error);
+					return { success: false, userId, error: error.message };
+				}
+			})
+		);
+
+		const sent = results.filter((r) => r.success).length;
+		const aiUsed = results.filter((r) => r.success && r.ai_used).length;
+
+		console.log(
+			`[PUSH-SCHEDULED] Sent ${sent}/${userIds.length} notifications (${aiUsed} with AI)`
+		);
+
+		return { sent, total: userIds.length, ai_used: aiUsed };
+	}
+
+	// Обычная отправка без AI персонализации
 	const title = replaceVariables(template.title, {});
 	const body = replaceVariables(template.body, {});
 
@@ -234,7 +322,45 @@ async function sendWeeklyMotivation() {
 		return { sent: 0, total: 0 };
 	}
 
-	// Заменяем переменные (пока без персонализации)
+	// Если шаблон поддерживает AI персонализацию - отправляем персонализированные уведомления
+	if (template.is_ai_enabled) {
+		console.log(`[PUSH-SCHEDULED] AI personalization enabled for ${userIds.length} users`);
+
+		const results = await Promise.all(
+			userIds.map(async (userId) => {
+				try {
+					// Генерируем AI-персонализированное сообщение
+					const aiMessage = await generateAIPersonalizedNotification(userId, 'weekly_motivation');
+
+					// Если AI генерация не удалась - используем обычный шаблон
+					const title = aiMessage?.title || replaceVariables(template.title, {});
+					const body = aiMessage?.body || replaceVariables(template.body, {});
+
+					// Отправляем уведомление конкретному пользователю
+					await sendPushNotification([userId], title, body, template.icon, {
+						type: 'weekly_motivation',
+						url: '/?view=motivation',
+					});
+
+					return { success: true, userId, ai_used: !!aiMessage };
+				} catch (error) {
+					console.error(`[PUSH-SCHEDULED] Error sending to user ${userId}:`, error);
+					return { success: false, userId, error: error.message };
+				}
+			})
+		);
+
+		const sent = results.filter((r) => r.success).length;
+		const aiUsed = results.filter((r) => r.success && r.ai_used).length;
+
+		console.log(
+			`[PUSH-SCHEDULED] Sent ${sent}/${userIds.length} notifications (${aiUsed} with AI)`
+		);
+
+		return { sent, total: userIds.length, ai_used: aiUsed };
+	}
+
+	// Обычная отправка без AI персонализации
 	const title = replaceVariables(template.title, {});
 	const body = replaceVariables(template.body, {});
 
@@ -266,7 +392,45 @@ async function sendGoalReminder() {
 		return { sent: 0, total: 0 };
 	}
 
-	// Заменяем переменные (пока без персонализации)
+	// Если шаблон поддерживает AI персонализацию - отправляем персонализированные уведомления
+	if (template.is_ai_enabled) {
+		console.log(`[PUSH-SCHEDULED] AI personalization enabled for ${userIds.length} users`);
+
+		const results = await Promise.all(
+			userIds.map(async (userId) => {
+				try {
+					// Генерируем AI-персонализированное сообщение
+					const aiMessage = await generateAIPersonalizedNotification(userId, 'goal_reminder');
+
+					// Если AI генерация не удалась - используем обычный шаблон
+					const title = aiMessage?.title || replaceVariables(template.title, {});
+					const body = aiMessage?.body || replaceVariables(template.body, {});
+
+					// Отправляем уведомление конкретному пользователю
+					await sendPushNotification([userId], title, body, template.icon, {
+						type: 'goal_reminder',
+						url: '/?view=achievements',
+					});
+
+					return { success: true, userId, ai_used: !!aiMessage };
+				} catch (error) {
+					console.error(`[PUSH-SCHEDULED] Error sending to user ${userId}:`, error);
+					return { success: false, userId, error: error.message };
+				}
+			})
+		);
+
+		const sent = results.filter((r) => r.success).length;
+		const aiUsed = results.filter((r) => r.success && r.ai_used).length;
+
+		console.log(
+			`[PUSH-SCHEDULED] Sent ${sent}/${userIds.length} notifications (${aiUsed} with AI)`
+		);
+
+		return { sent, total: userIds.length, ai_used: aiUsed };
+	}
+
+	// Обычная отправка без AI персонализации
 	const title = replaceVariables(template.title, {});
 	const body = replaceVariables(template.body, {});
 

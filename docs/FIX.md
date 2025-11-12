@@ -26,6 +26,21 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **push-ai-personalize Edge Function**: Добавлен новый endpoint `action=generate_only`
+  - Генерирует AI-персонализированное сообщение БЕЗ отправки
+  - Возвращает `{ success: true, user_id, message: { title, body } }`
+  - Используется push-scheduled для интеграции AI персонализации
+  - Файл: `supabase/functions/push-ai-personalize/index.ts` (431 строка)
+
+- **push-scheduled Edge Function**: Добавлена AI персонализация для Premium шаблонов
+  - Новая функция `generateAIPersonalizedNotification(userId, type)` для генерации AI сообщений
+  - Обновлены `sendDailyReminder()`, `sendWeeklyMotivation()`, `sendGoalReminder()` с AI персонализацией
+  - Проверка `template.is_ai_enabled` перед использованием AI
+  - Индивидуальная отправка для каждого Premium пользователя с AI персонализацией
+  - Автоматический fallback на обычный шаблон если AI генерация не удалась
+  - Логирование статистики: `{ sent, total, ai_used }` для отслеживания использования AI
+  - Файл: `supabase/functions/push-scheduled/index.ts` (452 строки)
+
 - **push-scheduled Edge Function**: Рефакторинг для использования шаблонов из БД
   - Удален хардкод title/body для daily_reminder, weekly_motivation, goal_reminder
   - Добавлена функция getTemplate(type, language) для загрузки шаблонов

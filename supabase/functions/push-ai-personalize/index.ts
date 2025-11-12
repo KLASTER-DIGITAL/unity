@@ -326,6 +326,34 @@ Deno.serve(async (req) => {
 			);
 		}
 
+		// NEW: Endpoint для генерации сообщения БЕЗ отправки
+		if (action === 'generate_only' && userId) {
+			const userContext = await getUserContext(userId);
+
+			if (!userContext) {
+				return new Response(JSON.stringify({ error: 'User not found or not Premium' }), {
+					status: 404,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				});
+			}
+
+			const message = await generatePersonalizedMessage(userContext, type);
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					user_id: userId,
+					message: {
+						title: message.title,
+						body: message.body,
+					},
+				}),
+				{
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
 		// Если указан конкретный пользователь
 		if (userId) {
 			const userContext = await getUserContext(userId);
