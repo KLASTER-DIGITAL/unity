@@ -10,3 +10,4 @@ export { CampaignHistory } from './CampaignHistory';
 export { ScheduleManager } from './ScheduleManager';
 export { SegmentBuilder } from './SegmentBuilder';
 export { TemplateEditor } from './TemplateEditor';
+export { TemplateManager } from './TemplateManager';

@@ -40,7 +40,7 @@ const SegmentManager = lazy(() =>
 );
 
 const TemplateManager = lazy(() =>
-	import('./TemplateManager').then((module) => ({
+	import('@/features/admin/campaigns/components').then((module) => ({
 		default: module.TemplateManager,
 	}))
 );

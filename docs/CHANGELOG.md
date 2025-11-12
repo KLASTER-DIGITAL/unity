@@ -42,6 +42,7 @@
   - AI настройки для Premium шаблонов (tone, behavior analysis, mood analysis)
   - RLS политики для безопасного доступа
   - Edge Function push-templates-api для CRUD операций (GET, POST, PUT, DELETE)
+  - UI компонент TemplateManager в админ-панели для управления шаблонами
 
 - **AI Персонализация для Premium**: Улучшена система AI персонализации уведомлений
   - Анализ поведения пользователя (активность по часам и дням недели)

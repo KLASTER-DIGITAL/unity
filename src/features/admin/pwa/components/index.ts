@@ -5,4 +5,4 @@ export { PWACache } from './PWACache';
 export { PWAOverview } from './PWAOverview';
 export { PWASettings } from './PWASettings';
 export { SegmentManager } from './SegmentManager';
-export { TemplateManager } from './TemplateManager';
+// TemplateManager теперь импортируется из campaigns/components (работает с БД)

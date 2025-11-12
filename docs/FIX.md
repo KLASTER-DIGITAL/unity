@@ -26,6 +26,15 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **TemplateManager UI компонент**: Создан интерфейс управления шаблонами
+  - Таблица с шаблонами (type, title, status, usage_count)
+  - Фильтры: All / FREE / PREMIUM
+  - Badges для статуса (PREMIUM, FREE, AI, Неактивен)
+  - Кнопки редактирования и удаления
+  - Интеграция с push-templates-api Edge Function
+  - Lazy loading через React.lazy() для оптимизации bundle size
+  - Файл: `src/features/admin/campaigns/components/TemplateManager.tsx`
+
 - **push-templates-api Edge Function**: Создан API для управления шаблонами
   - GET /push-templates-api - список всех шаблонов
   - GET /push-templates-api?id=xxx - получить шаблон по ID
