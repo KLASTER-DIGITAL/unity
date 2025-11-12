@@ -6,6 +6,27 @@
 
 ---
 
+## [Unreleased] - 2025-11-12
+
+### 🔄 Изменено
+- **Push Templates System**: Завершена интеграция системы шаблонов push уведомлений
+  - Создана таблица `push_notification_templates` с RLS политиками для super_admin
+  - Создан Edge Function `push-templates-api` (273 строки) для CRUD операций
+  - Создан UI компонент `TemplateManager` (260 строк) с фильтрами и badges
+  - Обновлен `push-scheduled` (452 строки) для использования шаблонов из БД
+  - Обновлен `push-ai-personalize` (431 строка) с endpoint `action=generate_only`
+  - Добавлены функции: `getTemplate()`, `replaceVariables()`, `generateAIPersonalizedNotification()`
+  - Все Edge Functions задеплоены через Supabase CLI
+  - Файлы: `supabase/migrations/20251111_create_push_notification_templates.sql`, `supabase/functions/push-templates-api/`, `supabase/functions/push-scheduled/`, `supabase/functions/push-ai-personalize/`, `src/features/admin/campaigns/components/TemplateManager.tsx`
+
+### 📚 Документация
+- **Push Templates Testing Guide**: Создан детальный гайд по тестированию (150 строк)
+  - 3 тестовых сценария с ожидаемыми результатами
+  - Чеклист тестирования (функциональность, UI, производительность, безопасность)
+  - Метрики успеха и критерии приемки
+  - Инструкции по автоматизации через Supabase Cron Jobs
+  - Файл: `docs/guides/PUSH_TEMPLATES_TESTING_GUIDE.md`
+
 ## [Unreleased] - 2025-11-11
 
 ### ⚡ Производительность

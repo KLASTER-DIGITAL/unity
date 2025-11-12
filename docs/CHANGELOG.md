@@ -31,17 +31,34 @@
   - Реалистичные метрики (Delivery Rate 71-92%, Open Rate 20-42%)
   - Seed скрипт для генерации тестовых данных
 
+## [Unreleased] - 2025-11-12
+
+### ✨ Новые возможности
+- **Push Notifications - Система шаблонов с Free/Premium разделением**: ✅ ЗАВЕРШЕНО (5/7 задач, 71%)
+  - ✅ Создана таблица `push_notification_templates` с 8 seed шаблонами (5 FREE + 3 PREMIUM)
+  - ✅ Создан Edge Function `push-templates-api` для CRUD операций над шаблонами
+  - ✅ Создан UI компонент `TemplateManager` в админ-панели для управления шаблонами
+  - ✅ Интегрированы шаблоны в `push-scheduled` Edge Function
+  - ✅ Добавлена AI персонализация для Premium шаблонов через `push-ai-personalize`
+  - ✅ Создан Testing Guide для тестирования системы
+  - Поддержка 7 языков (ru/en/es/de/fr/zh/ja) через i18n
+  - Динамические переменные для персонализации ({name}, {streak}, {goal_title})
+  - Premium пользователи получают AI-персонализированные уведомления на основе поведения и настроения
+  - Автоматический fallback на обычный шаблон если AI генерация не удалась
+  - Логирование статистики использования AI (sent/total/ai_used)
+  - Файлы: `supabase/migrations/20251111_create_push_notification_templates.sql`, `supabase/functions/push-templates-api/`, `supabase/functions/push-scheduled/`, `supabase/functions/push-ai-personalize/`, `src/features/admin/campaigns/components/TemplateManager.tsx`, `docs/guides/PUSH_TEMPLATES_TESTING_GUIDE.md`
+
+### 📚 Документация
+- **Push Templates Testing Guide**: Создан детальный гайд по тестированию системы шаблонов
+  - 3 тестовых сценария (FREE user, PREMIUM user, AI fallback)
+  - Чеклист тестирования (функциональность, UI, производительность, безопасность)
+  - Метрики успеха и критерии приемки
+  - Инструкции по автоматизации через Supabase Cron Jobs
+  - Файл: `docs/guides/PUSH_TEMPLATES_TESTING_GUIDE.md`
+
 ## [Unreleased] - 2025-11-11
 
 ### ✨ Новые возможности
-- **Push Notifications - AI Персонализация для Premium**: Добавлена AI персонализация уведомлений для Premium пользователей
-  - Обновлен push-ai-personalize с новым endpoint `action=generate_only` для генерации сообщений без отправки
-  - Обновлен push-scheduled для использования AI персонализации когда `template.is_ai_enabled=true`
-  - Premium пользователи получают персонализированные уведомления на основе их поведения и настроения
-  - Автоматический fallback на обычный шаблон если AI генерация не удалась
-  - Все 3 типа уведомлений (daily_reminder, weekly_motivation, goal_reminder) поддерживают AI персонализацию
-  - Логирование статистики: сколько уведомлений отправлено с AI vs без AI
-  - Файлы: `supabase/functions/push-ai-personalize/index.ts`, `supabase/functions/push-scheduled/index.ts`
 
 - **Push Notifications - Интеграция шаблонов**: Обновлен push-scheduled Edge Function для использования шаблонов из БД
   - Заменен хардкод на динамическую загрузку из push_notification_templates
