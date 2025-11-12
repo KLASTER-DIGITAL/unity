@@ -9,6 +9,21 @@
 ## [Unreleased] - 2025-11-12
 
 ### 🔄 Изменено
+- **Platform Adapter: Timezone Detection**: Создан новый Platform Adapter для автоопределения timezone
+  - `src/shared/lib/platform/timezone/types.ts` - TypeScript типы
+  - `src/shared/lib/platform/timezone/timezone.web.ts` - Web реализация (Intl.DateTimeFormat API)
+  - `app-shared/platform/timezone/timezone.native.ts` - React Native реализация (expo-localization)
+  - Автоматическое определение timezone при регистрации в `src/utils/auth.ts`
+  - Обновлен `UserProfile` type с полем `timezone?: string`
+
+- **MobileBottomNav**: Уменьшен отступ снизу для более компактного вида
+  - `src/components/MobileBottomNav.tsx`: bottom-20 → bottom-4 (80px → 16px)
+  - `src/shared/components/layout/MobileBottomNav.tsx`: bottom-20 → bottom-4
+  - При скролле: bottom-20 → bottom-8 (80px → 32px)
+
+## [Unreleased] - 2025-11-12
+
+### 🔄 Изменено
 - **Push Templates System**: Завершена интеграция системы шаблонов push уведомлений
   - Создана таблица `push_notification_templates` с RLS политиками для super_admin
   - Создан Edge Function `push-templates-api` (273 строки) для CRUD операций

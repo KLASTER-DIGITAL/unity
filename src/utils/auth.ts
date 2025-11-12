@@ -5,6 +5,7 @@ import {
 	getUserProfile,
 	type UserProfile,
 } from '@/shared/lib/api';
+import { timezoneAdapter } from '@/shared/lib/platform/timezone';
 import { createClient } from './supabase/client';
 
 export interface AuthResult {
@@ -53,6 +54,16 @@ export async function signUpWithEmail(
 
 		console.log('User created:', data.user.id);
 
+		// ✅ АВТООПРЕДЕЛЕНИЕ TIMEZONE (БЕЗ запроса у пользователя)
+		let userTimezone = 'UTC';
+		try {
+			const timezoneInfo = await timezoneAdapter.getCurrentTimezone();
+			userTimezone = timezoneInfo.timezone;
+			console.log('[AUTH] Auto-detected timezone:', userTimezone);
+		} catch (error) {
+			console.error('[AUTH] Timezone detection failed, using UTC:', error);
+		}
+
 		// Создаем профиль пользователя
 		const profile = await createUserProfile({
 			id: data.user.id,
@@ -61,6 +72,7 @@ export async function signUpWithEmail(
 			diaryName: userData.diaryName || 'Мой дневник',
 			diaryEmoji: userData.diaryEmoji || '🏆',
 			language: userData.language || 'ru',
+			timezone: userTimezone, // ✅ Автоматически определенный timezone
 			notificationSettings: userData.notificationSettings || {
 				selectedTime: 'none',
 				morningTime: '08:00',
@@ -78,7 +90,17 @@ export async function signUpWithEmail(
 				console.log('[AUTH] Creating first entry with AI analysis');
 
 				// 1. Анализируем текст с помощью AI
-				let analysis;
+				let analysis: {
+					sentiment: string;
+					category: string;
+					tags: string[];
+					reply: string;
+					summary: string;
+					insight?: string;
+					isAchievement?: boolean;
+					mood?: string;
+					confidence?: number;
+				};
 				try {
 					console.log('[AUTH] Analyzing first entry with AI...');
 					analysis = await analyzeTextWithAI(
@@ -295,6 +317,16 @@ export async function checkSession(): Promise<AuthResult> {
 		if (!profile) {
 			console.log('Profile not found, creating new profile for:', session.user.id);
 
+			// ✅ АВТООПРЕДЕЛЕНИЕ TIMEZONE (БЕЗ запроса у пользователя)
+			let userTimezone = 'UTC';
+			try {
+				const timezoneInfo = await timezoneAdapter.getCurrentTimezone();
+				userTimezone = timezoneInfo.timezone;
+				console.log('[AUTH] Auto-detected timezone:', userTimezone);
+			} catch (error) {
+				console.error('[AUTH] Timezone detection failed, using UTC:', error);
+			}
+
 			try {
 				const newProfile = await createUserProfile({
 					id: session.user.id,
@@ -304,6 +336,7 @@ export async function checkSession(): Promise<AuthResult> {
 					diaryName: 'Мой дневник',
 					diaryEmoji: '🏆',
 					language: 'ru',
+					timezone: userTimezone, // ✅ Автоматически определенный timezone
 					notificationSettings: {
 						selectedTime: 'none',
 						morningTime: '08:00',

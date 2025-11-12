@@ -77,13 +77,12 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 				// Width - full width для sticky, max-w-md для floating
 				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
 				// Adaptive positioning - Mobile-first + Scroll-aware
-				// Проблема 1: FIXED позиционирование (не используем Framer Motion y)
-				// Проблема 3: Автоматическое поднятие при скролле
+				// ✅ ОБНОВЛЕНО: Небольшой отступ снизу (bottom-4 = 16px) вместо bottom-20 (80px)
 				stickyBottom
 					? 'bottom-0'
 					: isScrolledDown
-						? 'bottom-20' // При скролле вниз - поднимаем выше
-						: 'bottom-20 md:bottom-4', // По умолчанию - адаптивно
+						? 'bottom-8' // При скролле вниз - поднимаем немного выше (32px)
+						: 'bottom-4', // По умолчанию - небольшой отступ (16px)
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 10px для floating, none для sticky

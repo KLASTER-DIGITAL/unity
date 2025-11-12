@@ -10,6 +10,7 @@ export type UserProfile = {
 	diaryName?: string;
 	diaryEmoji?: string;
 	language?: string;
+	timezone?: string; // ✅ НОВОЕ: Автоопределенный timezone (e.g., "Europe/Moscow", "America/New_York")
 	notificationSettings?: any;
 	onboardingCompleted?: boolean;
 	createdAt?: string;
