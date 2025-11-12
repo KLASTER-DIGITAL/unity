@@ -34,6 +34,15 @@
 ## [Unreleased] - 2025-11-11
 
 ### ✨ Новые возможности
+- **Push Notifications - Интеграция шаблонов**: Обновлен push-scheduled Edge Function для использования шаблонов из БД
+  - Заменен хардкод на динамическую загрузку из push_notification_templates
+  - Добавлена функция getTemplate() для получения шаблонов с i18n поддержкой
+  - Добавлена функция replaceVariables() для замены переменных в шаблонах
+  - Добавлена проверка is_premium_only - Premium шаблоны отправляются только Premium пользователям
+  - Обновлена функция getUsersWithPushEnabled() с параметром premiumOnly
+  - Все 3 типа уведомлений (daily_reminder, weekly_motivation, goal_reminder) теперь используют шаблоны
+  - Поддержка 7 языков через template.translations
+  - Файл: `supabase/functions/push-scheduled/index.ts`
 - **Push Notifications - Система шаблонов**: Создана централизованная система управления шаблонами уведомлений
   - Таблица push_notification_templates с поддержкой Free/Premium разделения
   - 8 готовых шаблонов (5 FREE + 3 PREMIUM с AI персонализацией)

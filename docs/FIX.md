@@ -26,6 +26,14 @@
     - src/features/admin/campaigns/components/charts/BarChart.tsx
 
 ### 🔄 Изменено
+- **push-scheduled Edge Function**: Рефакторинг для использования шаблонов из БД
+  - Удален хардкод title/body для daily_reminder, weekly_motivation, goal_reminder
+  - Добавлена функция getTemplate(type, language) для загрузки шаблонов
+  - Добавлена функция replaceVariables(text, variables) для замены переменных
+  - Обновлена getUsersWithPushEnabled() с параметром premiumOnly для фильтрации Premium пользователей
+  - Все функции отправки (sendDailyReminder, sendWeeklyMotivation, sendGoalReminder) теперь используют шаблоны
+  - Файл: `supabase/functions/push-scheduled/index.ts` (335 строк)
+
 - **TemplateManager UI компонент**: Создан интерфейс управления шаблонами
   - Таблица с шаблонами (type, title, status, usage_count)
   - Фильтры: All / FREE / PREMIUM

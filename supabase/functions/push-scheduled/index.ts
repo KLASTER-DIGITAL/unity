@@ -33,10 +33,54 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
+ * Получает шаблон уведомления из БД
+ */
+async function getTemplate(type: string, language = 'ru') {
+	try {
+		const { data: template, error } = await supabaseAdmin
+			.from('push_notification_templates')
+			.select('*')
+			.eq('type', type)
+			.eq('is_active', true)
+			.single();
+
+		if (error || !template) {
+			console.error(`[PUSH-SCHEDULED] Template not found: ${type}`, error);
+			return null;
+		}
+
+		// Получаем перевод для языка или используем дефолтный
+		const translation = template.translations?.[language];
+		const title = translation?.title || template.title;
+		const body = translation?.body || template.body;
+
+		return {
+			...template,
+			title,
+			body,
+		};
+	} catch (error) {
+		console.error('[PUSH-SCHEDULED] Failed to get template:', error);
+		return null;
+	}
+}
+
+/**
+ * Заменяет переменные в тексте шаблона
+ */
+function replaceVariables(text: string, variables: Record<string, string>): string {
+	let result = text;
+	for (const [key, value] of Object.entries(variables)) {
+		result = result.replace(new RegExp(`{${key}}`, 'g'), value);
+	}
+	return result;
+}
+
+/**
  * Получает всех пользователей с активными push subscriptions
  * и определенным типом уведомлений включенным
  */
-async function getUsersWithPushEnabled(notificationType?: string) {
+async function getUsersWithPushEnabled(notificationType?: string, premiumOnly = false) {
 	// Получаем пользователей с активными подписками
 	const { data: subscriptions, error: subError } = await supabaseAdmin
 		.from('push_subscriptions')
@@ -51,15 +95,10 @@ async function getUsersWithPushEnabled(notificationType?: string) {
 	// Уникальные user_id
 	const uniqueUserIds = [...new Set(subscriptions.map((sub) => sub.user_id))];
 
-	// Если тип уведомления не указан, возвращаем всех
-	if (!notificationType) {
-		return uniqueUserIds;
-	}
-
 	// Получаем настройки уведомлений пользователей
 	const { data: profiles, error: profileError } = await supabaseAdmin
 		.from('profiles')
-		.select('id, notification_settings, notification_time_preferences')
+		.select('id, notification_settings, notification_time_preferences, is_premium')
 		.in('id', uniqueUserIds);
 
 	if (profileError) {
@@ -67,9 +106,19 @@ async function getUsersWithPushEnabled(notificationType?: string) {
 		return uniqueUserIds; // Fallback: отправляем всем
 	}
 
-	// Фильтруем пользователей по настройкам
+	// Фильтруем пользователей по настройкам и Premium статусу
 	const filteredUserIds = profiles
 		.filter((profile) => {
+			// Проверка Premium статуса
+			if (premiumOnly && !profile.is_premium) {
+				return false;
+			}
+
+			// Если тип уведомления не указан, возвращаем всех (с учетом Premium)
+			if (!notificationType) {
+				return true;
+			}
+
 			const settings = profile.notification_settings || {};
 
 			// Проверяем соответствие типа уведомления настройкам
@@ -89,7 +138,7 @@ async function getUsersWithPushEnabled(notificationType?: string) {
 		.map((profile) => profile.id);
 
 	console.log(
-		`[PUSH-SCHEDULED] Filtered users: ${filteredUserIds.length}/${uniqueUserIds.length} for ${notificationType}`
+		`[PUSH-SCHEDULED] Filtered users: ${filteredUserIds.length}/${uniqueUserIds.length} for ${notificationType}${premiumOnly ? ' (Premium only)' : ''}`
 	);
 	return filteredUserIds;
 }
@@ -137,23 +186,29 @@ async function sendPushNotification(
 async function sendDailyReminder() {
 	console.log('[PUSH-SCHEDULED] Sending daily reminder...');
 
+	// Получаем шаблон из БД
+	const template = await getTemplate('daily_reminder');
+	if (!template) {
+		console.error('[PUSH-SCHEDULED] Template not found for daily_reminder');
+		return { sent: 0, total: 0, error: 'Template not found' };
+	}
+
 	// Получаем только пользователей с включенным dailyReminder
-	const userIds = await getUsersWithPushEnabled('daily_reminder');
+	// Учитываем Premium статус если шаблон только для Premium
+	const userIds = await getUsersWithPushEnabled('daily_reminder', template.is_premium_only);
 	if (userIds.length === 0) {
 		console.log('[PUSH-SCHEDULED] No users with daily reminder enabled');
 		return { sent: 0, total: 0 };
 	}
 
-	const result = await sendPushNotification(
-		userIds,
-		'📝 Время записать достижения!',
-		'Не забудьте записать свои достижения за сегодня',
-		'/icon-192.png',
-		{
-			type: 'daily_reminder',
-			url: '/?action=new',
-		}
-	);
+	// Заменяем переменные (пока без персонализации)
+	const title = replaceVariables(template.title, {});
+	const body = replaceVariables(template.body, {});
+
+	const result = await sendPushNotification(userIds, title, body, template.icon, {
+		type: 'daily_reminder',
+		url: '/?action=new',
+	});
 
 	return result;
 }
@@ -164,24 +219,26 @@ async function sendDailyReminder() {
 async function sendWeeklyMotivation() {
 	console.log('[PUSH-SCHEDULED] Sending weekly motivation...');
 
+	// Получаем шаблон из БД
+	const template = await getTemplate('weekly_motivation');
+	if (!template) {
+		console.error('[PUSH-SCHEDULED] Template not found for weekly_motivation');
+		return { sent: 0, total: 0, error: 'Template not found' };
+	}
+
 	// Получаем только пользователей с включенным motivational
-	const userIds = await getUsersWithPushEnabled('motivational');
+	// Учитываем Premium статус если шаблон только для Premium
+	const userIds = await getUsersWithPushEnabled('motivational', template.is_premium_only);
 	if (userIds.length === 0) {
 		console.log('[PUSH-SCHEDULED] No users with motivational enabled');
 		return { sent: 0, total: 0 };
 	}
 
-	// Получаем случайную мотивационную карточку
-	const { data: cards } = await supabaseAdmin
-		.from('motivation_cards')
-		.select('title, description')
-		.limit(1);
+	// Заменяем переменные (пока без персонализации)
+	const title = replaceVariables(template.title, {});
+	const body = replaceVariables(template.body, {});
 
-	const card = cards?.[0];
-	const title = card?.title || '💪 Мотивация недели';
-	const body = card?.description || 'Продолжайте двигаться к своим целям!';
-
-	const result = await sendPushNotification(userIds, title, body, '/icon-192.png', {
+	const result = await sendPushNotification(userIds, title, body, template.icon, {
 		type: 'weekly_motivation',
 		url: '/?view=motivation',
 	});
@@ -195,22 +252,28 @@ async function sendWeeklyMotivation() {
 async function sendGoalReminder() {
 	console.log('[PUSH-SCHEDULED] Sending goal reminder...');
 
-	const userIds = await getUsersWithPushEnabled();
+	// Получаем шаблон из БД
+	const template = await getTemplate('goal_reminder');
+	if (!template) {
+		console.error('[PUSH-SCHEDULED] Template not found for goal_reminder');
+		return { sent: 0, total: 0, error: 'Template not found' };
+	}
+
+	// Получаем пользователей с учетом Premium статуса
+	const userIds = await getUsersWithPushEnabled(undefined, template.is_premium_only);
 	if (userIds.length === 0) {
 		console.log('[PUSH-SCHEDULED] No users with push enabled');
 		return { sent: 0, total: 0 };
 	}
 
-	const result = await sendPushNotification(
-		userIds,
-		'🎯 Проверьте свои цели',
-		'Как продвигается работа над вашими целями?',
-		'/icon-192.png',
-		{
-			type: 'goal_reminder',
-			url: '/?view=achievements',
-		}
-	);
+	// Заменяем переменные (пока без персонализации)
+	const title = replaceVariables(template.title, {});
+	const body = replaceVariables(template.body, {});
+
+	const result = await sendPushNotification(userIds, title, body, template.icon, {
+		type: 'goal_reminder',
+		url: '/?view=achievements',
+	});
 
 	return result;
 }
