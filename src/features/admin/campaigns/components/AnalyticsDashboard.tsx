@@ -14,7 +14,17 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 // ✅ PERFORMANCE: Lazy loaded Chart.js components для уменьшения bundle size
 // Expected reduction: ~30 KB
-import { BarChart3, Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
+import {
+	ArrowDownAZ,
+	ArrowUpAZ,
+	BarChart3,
+	Calendar,
+	Download,
+	FileSpreadsheet,
+	FileText,
+	Filter,
+	TrendingUp,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -30,6 +40,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -149,6 +161,15 @@ export function AnalyticsDashboard() {
 	const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
 	const [trendsDays, setTrendsDays] = useState<number>(7);
 
+	// Filters state
+	const [dateFrom, setDateFrom] = useState<string>('');
+	const [dateTo, setDateTo] = useState<string>('');
+	const [statusFilter, setStatusFilter] = useState<string>('all');
+	const [segmentFilter, setSegmentFilter] = useState<string>('all');
+	const [sortBy, setSortBy] = useState<string>('created_at');
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+	const [showFilters, setShowFilters] = useState(false);
+
 	useEffect(() => {
 		loadCampaigns();
 		loadOverallAnalytics();
@@ -165,11 +186,34 @@ export function AnalyticsDashboard() {
 
 	const loadCampaigns = async () => {
 		try {
-			const { data, error } = await supabase
-				.from('push_campaigns')
-				.select('*')
-				.order('created_at', { ascending: false })
-				.limit(10);
+			let query = supabase.from('push_campaigns').select('*');
+
+			// Apply date filters
+			if (dateFrom) {
+				query = query.gte('created_at', dateFrom);
+			}
+			if (dateTo) {
+				query = query.lte('created_at', dateTo);
+			}
+
+			// Apply status filter
+			if (statusFilter !== 'all') {
+				query = query.eq('status', statusFilter);
+			}
+
+			// Apply segment filter
+			if (segmentFilter !== 'all') {
+				query = query.eq('segment', segmentFilter);
+			}
+
+			// Apply sorting
+			const ascending = sortOrder === 'asc';
+			query = query.order(sortBy, { ascending });
+
+			// Limit results
+			query = query.limit(50);
+
+			const { data, error } = await query;
 
 			if (error) {
 				throw error;
@@ -613,31 +657,196 @@ export function AnalyticsDashboard() {
 					<div className="flex items-center justify-between">
 						<div>
 							<CardTitle>Статистика кампаний</CardTitle>
-							<CardDescription>Последние 10 кампаний</CardDescription>
+							<CardDescription>
+								{campaigns.length} {campaigns.length === 1 ? 'кампания' : 'кампаний'}
+							</CardDescription>
 						</div>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="sm">
-									<Download className="mr-2 h-4 w-4" />
-									Экспорт
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={handleExportCSV}>
-									<FileText className="mr-2 h-4 w-4" />
-									Экспорт в CSV
-								</DropdownMenuItem>
-								<DropdownMenuItem onClick={handleExportExcel}>
-									<FileSpreadsheet className="mr-2 h-4 w-4" />
-									Экспорт в Excel
-								</DropdownMenuItem>
-								<DropdownMenuItem onClick={handleExportPDF}>
-									<FileText className="mr-2 h-4 w-4" />
-									Экспорт в PDF
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+						<div className="flex items-center gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setShowFilters(!showFilters)}
+							>
+								<Filter className="mr-2 h-4 w-4" />
+								Фильтры
+							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="outline" size="sm">
+										<Download className="mr-2 h-4 w-4" />
+										Экспорт
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem onClick={handleExportCSV}>
+										<FileText className="mr-2 h-4 w-4" />
+										Экспорт в CSV
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleExportExcel}>
+										<FileSpreadsheet className="mr-2 h-4 w-4" />
+										Экспорт в Excel
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleExportPDF}>
+										<FileText className="mr-2 h-4 w-4" />
+										Экспорт в PDF
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</div>
 					</div>
+
+					{/* Filters Panel */}
+					{showFilters && (
+						<div className="mt-4 space-y-4 rounded-lg border bg-muted/50 p-4">
+							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+								{/* Date From */}
+								<div className="space-y-2">
+									<Label htmlFor="date-from" className="flex items-center gap-2">
+										<Calendar className="h-4 w-4" />
+										Дата от
+									</Label>
+									<Input
+										id="date-from"
+										type="date"
+										value={dateFrom}
+										onChange={(e) => {
+											setDateFrom(e.target.value);
+											loadCampaigns();
+										}}
+									/>
+								</div>
+
+								{/* Date To */}
+								<div className="space-y-2">
+									<Label htmlFor="date-to" className="flex items-center gap-2">
+										<Calendar className="h-4 w-4" />
+										Дата до
+									</Label>
+									<Input
+										id="date-to"
+										type="date"
+										value={dateTo}
+										onChange={(e) => {
+											setDateTo(e.target.value);
+											loadCampaigns();
+										}}
+									/>
+								</div>
+
+								{/* Status Filter */}
+								<div className="space-y-2">
+									<Label htmlFor="status-filter">Статус</Label>
+									<Select
+										value={statusFilter}
+										onValueChange={(value) => {
+											setStatusFilter(value);
+											loadCampaigns();
+										}}
+									>
+										<SelectTrigger id="status-filter">
+											<SelectValue placeholder="Все статусы" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">Все статусы</SelectItem>
+											<SelectItem value="draft">Черновик</SelectItem>
+											<SelectItem value="scheduled">Запланировано</SelectItem>
+											<SelectItem value="sent">Отправлено</SelectItem>
+											<SelectItem value="failed">Ошибка</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								{/* Segment Filter */}
+								<div className="space-y-2">
+									<Label htmlFor="segment-filter">Сегмент</Label>
+									<Select
+										value={segmentFilter}
+										onValueChange={(value) => {
+											setSegmentFilter(value);
+											loadCampaigns();
+										}}
+									>
+										<SelectTrigger id="segment-filter">
+											<SelectValue placeholder="Все сегменты" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">Все сегменты</SelectItem>
+											<SelectItem value="all_users">Все пользователи</SelectItem>
+											<SelectItem value="premium">Premium</SelectItem>
+											<SelectItem value="active">Активные</SelectItem>
+											<SelectItem value="inactive">Неактивные</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+							</div>
+
+							{/* Sort Controls */}
+							<div className="flex items-center gap-4">
+								<div className="flex-1 space-y-2">
+									<Label htmlFor="sort-by">Сортировка</Label>
+									<Select
+										value={sortBy}
+										onValueChange={(value) => {
+											setSortBy(value);
+											loadCampaigns();
+										}}
+									>
+										<SelectTrigger id="sort-by">
+											<SelectValue placeholder="Сортировать по" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="created_at">Дата создания</SelectItem>
+											<SelectItem value="sent_at">Дата отправки</SelectItem>
+											<SelectItem value="total_recipients">Получателей</SelectItem>
+											<SelectItem value="total_delivered">Доставлено</SelectItem>
+											<SelectItem value="total_opened">Открыто</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								<div className="pt-8">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+											loadCampaigns();
+										}}
+									>
+										{sortOrder === 'asc' ? (
+											<>
+												<ArrowUpAZ className="mr-2 h-4 w-4" />
+												По возрастанию
+											</>
+										) : (
+											<>
+												<ArrowDownAZ className="mr-2 h-4 w-4" />
+												По убыванию
+											</>
+										)}
+									</Button>
+								</div>
+
+								<div className="pt-8">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => {
+											setDateFrom('');
+											setDateTo('');
+											setStatusFilter('all');
+											setSegmentFilter('all');
+											setSortBy('created_at');
+											setSortOrder('desc');
+											loadCampaigns();
+										}}
+									>
+										Сбросить фильтры
+									</Button>
+								</div>
+							</div>
+						</div>
+					)}
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">

@@ -10,6 +10,24 @@
 
 ### 🔄 Изменено
 
+- **AnalyticsDashboard.tsx**: Улучшен UX для аналитики кампаний
+  - Добавлены state для фильтров: `dateFrom`, `dateTo`, `statusFilter`, `segmentFilter`, `sortBy`, `sortOrder`, `showFilters`
+  - Обновлена функция `loadCampaigns()`:
+    - Применение фильтров по дате (gte/lte)
+    - Применение фильтра по статусу (eq)
+    - Применение фильтра по сегменту (eq)
+    - Применение сортировки (order by)
+    - Увеличен лимит с 10 до 50 кампаний
+  - Добавлен UI для фильтров:
+    - DatePicker для date range (from/to)
+    - Select для status filter (draft/scheduled/sent/failed)
+    - Select для segment filter (all/premium/active/inactive)
+    - Select для sort by (created_at/sent_at/recipients/delivered/opened)
+    - Button для sort order (asc/desc) с иконками ArrowUpAZ/ArrowDownAZ
+    - Button "Сбросить фильтры" для возврата к дефолтным настройкам
+  - Добавлены иконки: Filter, Calendar, ArrowUpAZ, ArrowDownAZ
+  - Счетчик кампаний в CardDescription
+
 - **CampaignCreator.tsx**: Улучшен UX для создания рассылок
   - Добавлена real-time валидация полей (title, body)
   - Добавлен state `validationErrors` для хранения ошибок валидации
