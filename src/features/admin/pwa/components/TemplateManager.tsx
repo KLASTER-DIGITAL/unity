@@ -76,7 +76,7 @@ export function TemplateManager() {
 	useEffect(() => {
 		loadTemplates();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [loadTemplates]);
 
 	// Save template
 	const handleSave = async (templateData: Partial<Template>) => {

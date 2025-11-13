@@ -15,7 +15,6 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { Select } from '@/shared/components/ui/select';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { createClient } from '@/utils/supabase/client';
 
@@ -238,11 +237,11 @@ function CreateSegmentModal({ onClose, onSuccess }: CreateSegmentModalProps) {
 			}
 
 			if (lastActiveDays) {
-				criteria.last_active_days = Number.parseInt(lastActiveDays);
+				criteria.last_active_days = Number.parseInt(lastActiveDays, 10);
 			}
 
 			if (registeredWithinDays) {
-				criteria.registered_within_days = Number.parseInt(registeredWithinDays);
+				criteria.registered_within_days = Number.parseInt(registeredWithinDays, 10);
 			}
 
 			const { data, error } = await supabase.functions.invoke('push-segments-api/calculate', {
@@ -284,11 +283,11 @@ function CreateSegmentModal({ onClose, onSuccess }: CreateSegmentModalProps) {
 			}
 
 			if (lastActiveDays) {
-				criteria.last_active_days = Number.parseInt(lastActiveDays);
+				criteria.last_active_days = Number.parseInt(lastActiveDays, 10);
 			}
 
 			if (registeredWithinDays) {
-				criteria.registered_within_days = Number.parseInt(registeredWithinDays);
+				criteria.registered_within_days = Number.parseInt(registeredWithinDays, 10);
 			}
 
 			const { error } = await supabase.functions.invoke('push-segments-api', {

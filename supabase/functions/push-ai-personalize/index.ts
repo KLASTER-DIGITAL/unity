@@ -78,7 +78,7 @@ async function analyzeUserBehavior(userId: string) {
 	const mostActiveDay = Object.entries(dayCounts).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 
 	// Определяем паттерн активности
-	const hour = Number.parseInt(mostActiveHour);
+	const hour = Number.parseInt(mostActiveHour, 10);
 	const activityPattern =
 		hour >= 6 && hour < 12
 			? 'morning'
@@ -99,7 +99,7 @@ async function analyzeUserBehavior(userId: string) {
 			: 'neutral';
 
 	return {
-		mostActiveHour: Number.parseInt(mostActiveHour),
+		mostActiveHour: Number.parseInt(mostActiveHour, 10),
 		mostActiveDay,
 		averageMood,
 		activityPattern,

@@ -456,7 +456,7 @@ async function checkAndSendStreakMilestone(userId: string, currentStreak: number
 	// Получаем шаблон для milestone и языка
 	const template =
 		STREAK_MILESTONE_TEMPLATES[currentStreak]?.[language] ||
-		STREAK_MILESTONE_TEMPLATES[currentStreak]?.['ru'];
+		STREAK_MILESTONE_TEMPLATES[currentStreak]?.ru;
 
 	if (!template) {
 		console.error('[PUSH-REALTIME] No template found for milestone:', currentStreak);

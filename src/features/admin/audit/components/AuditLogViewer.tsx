@@ -27,7 +27,7 @@ import {
 } from '@/shared/components/ui/select';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useAuditLog } from '@/shared/hooks/useAuditLog';
-import type { AuditLogAction, AuditLogCategory } from '@/shared/types/auditLog';
+import type { AuditLogCategory } from '@/shared/types/auditLog';
 
 export function AuditLogViewer() {
 	const [category, setCategory] = useState<AuditLogCategory | undefined>();
@@ -98,7 +98,7 @@ export function AuditLogViewer() {
 						</SelectContent>
 					</Select>
 
-					<Select value={limit.toString()} onValueChange={(v) => setLimit(parseInt(v))}>
+					<Select value={limit.toString()} onValueChange={(v) => setLimit(parseInt(v, 10))}>
 						<SelectTrigger className="w-[150px]">
 							<SelectValue />
 						</SelectTrigger>

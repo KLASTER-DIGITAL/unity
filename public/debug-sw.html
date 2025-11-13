@@ -94,7 +94,7 @@
             }
         }
 
-        async function updateSW() {
+        async function _updateSW() {
             output.innerHTML = '';
             log('Forcing update...', '');
             
@@ -123,7 +123,7 @@
                     
                     setTimeout(async () => {
                         const reg = await navigator.serviceWorker.getRegistration();
-                        if (reg && reg.waiting) {
+                        if (reg?.waiting) {
                             log('✅ Update found!', 'Click "Force Update" again', false);
                         } else {
                             log('No updates available', 'You have the latest version');
@@ -136,7 +136,7 @@
             }
         }
 
-        async function unregisterSW() {
+        async function _unregisterSW() {
             output.innerHTML = '';
             log('Unregistering Service Worker...', '');
             
@@ -157,7 +157,7 @@
             }
         }
 
-        async function clearCache() {
+        async function _clearCache() {
             output.innerHTML = '';
             log('Clearing cache...', '');
             

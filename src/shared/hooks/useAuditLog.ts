@@ -38,7 +38,7 @@ export function useAuditLog(filters?: AuditLogFilters): UseAuditLogResult {
 
 	useEffect(() => {
 		fetchLogs();
-	}, [filters?.category, filters?.action, filters?.user_id, filters?.limit, filters?.offset]);
+	}, [fetchLogs]);
 
 	return {
 		logs,

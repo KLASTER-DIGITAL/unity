@@ -80,7 +80,7 @@
             el.innerHTML += `<span class="${className}">${message}</span>\n`;
         }
 
-        async function testPlatform() {
+        async function _testPlatform() {
             const el = document.getElementById('platform-result');
             el.innerHTML = '';
             
@@ -92,7 +92,7 @@
             log('platform-result', `Permission: ${Notification.permission}`);
         }
 
-        async function testServiceWorker() {
+        async function _testServiceWorker() {
             const el = document.getElementById('sw-result');
             el.innerHTML = '';
             
@@ -124,7 +124,7 @@
             }
         }
 
-        async function testVapidKey() {
+        async function _testVapidKey() {
             const el = document.getElementById('vapid-result');
             el.innerHTML = '';
             
@@ -151,7 +151,7 @@
             }
         }
 
-        async function testSubscription() {
+        async function _testSubscription() {
             const el = document.getElementById('subscription-result');
             el.innerHTML = '';
             

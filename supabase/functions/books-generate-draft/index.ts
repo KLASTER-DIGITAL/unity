@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
 				.limit(1)
 				.single();
 
-			if (existingDraft && existingDraft.story_json) {
+			if (existingDraft?.story_json) {
 				console.log('[BOOKS-DRAFT] ✅ Using cached story_json (AI tokens saved!)');
 				return new Response(
 					JSON.stringify({

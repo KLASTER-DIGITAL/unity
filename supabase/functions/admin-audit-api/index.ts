@@ -167,8 +167,8 @@ Deno.serve(async (req) => {
 			const category = url.searchParams.get('category');
 			const action = url.searchParams.get('action');
 			const user_id = url.searchParams.get('user_id');
-			const limit = parseInt(url.searchParams.get('limit') || '100');
-			const offset = parseInt(url.searchParams.get('offset') || '0');
+			const limit = parseInt(url.searchParams.get('limit') || '100', 10);
+			const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
 			// Build query
 			let query = supabaseAdmin

@@ -44,7 +44,7 @@ export function CampaignHistory() {
 
 	useEffect(() => {
 		loadCampaigns();
-	}, [activeTab]);
+	}, [loadCampaigns]);
 
 	const loadCampaigns = async () => {
 		try {

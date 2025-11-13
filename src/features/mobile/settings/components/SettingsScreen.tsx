@@ -6,7 +6,7 @@ import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 import { PremiumModal } from './PremiumModal';
 import { ProfileEditModal } from './ProfileEditModal';
-import { SettingsRow, SettingsSection } from './SettingsRow';
+import { SettingsSection } from './SettingsRow';
 import { SettingsScreenSkeleton } from './SettingsScreenSkeleton';
 import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
@@ -38,7 +38,7 @@ import { ThemeSelector } from './settings/ThemeSelector';
 // Re-export types for backward compatibility
 export type { SettingsScreenProps };
 
-import { LogOut, Palette } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 export function SettingsScreen({ userData, onLogout, onProfileUpdate }: SettingsScreenProps) {
 	// Extract profile from userData (userData = { success, user, profile })

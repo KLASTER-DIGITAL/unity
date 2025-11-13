@@ -56,7 +56,7 @@ export function TemplateManager() {
 
 	useEffect(() => {
 		loadTemplates();
-	}, []);
+	}, [loadTemplates]);
 
 	const loadTemplates = async () => {
 		try {

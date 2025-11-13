@@ -33,6 +33,8 @@ interface CampaignData {
 interface TemplateEditorProps {
 	data: CampaignData;
 	onChange: (data: CampaignData) => void;
+	validationErrors?: Record<string, string>;
+	onValidate?: (field: 'title' | 'body', value: string) => void;
 }
 
 const LANGUAGES = [
@@ -45,7 +47,12 @@ const LANGUAGES = [
 	{ code: 'ja', name: '日本語' },
 ];
 
-export function TemplateEditor({ data, onChange }: TemplateEditorProps) {
+export function TemplateEditor({
+	data,
+	onChange,
+	validationErrors = {},
+	onValidate,
+}: TemplateEditorProps) {
 	const [activeLanguage, setActiveLanguage] = useState('ru');
 
 	const handleDefaultChange = (field: keyof CampaignData, value: string) => {
@@ -53,6 +60,11 @@ export function TemplateEditor({ data, onChange }: TemplateEditorProps) {
 			...data,
 			[field]: value,
 		});
+
+		// Trigger validation
+		if (onValidate && (field === 'title' || field === 'body')) {
+			onValidate(field, value);
+		}
 	};
 
 	const handleTranslationChange = (lang: string, field: 'title' | 'body', value: string) => {
@@ -85,8 +97,13 @@ export function TemplateEditor({ data, onChange }: TemplateEditorProps) {
 							onChange={(e) => handleDefaultChange('title', e.target.value)}
 							placeholder="Введите заголовок уведомления"
 							maxLength={50}
+							className={validationErrors.title ? 'border-destructive' : ''}
 						/>
-						<p className="text-sm text-muted-foreground">{data.title.length}/50 символов</p>
+						{validationErrors.title ? (
+							<p className="text-sm text-destructive">{validationErrors.title}</p>
+						) : (
+							<p className="text-sm text-muted-foreground">{data.title.length}/50 символов</p>
+						)}
 					</div>
 
 					<div className="space-y-2">
@@ -98,8 +115,13 @@ export function TemplateEditor({ data, onChange }: TemplateEditorProps) {
 							placeholder="Введите текст уведомления"
 							rows={4}
 							maxLength={200}
+							className={validationErrors.body ? 'border-destructive' : ''}
 						/>
-						<p className="text-sm text-muted-foreground">{data.body.length}/200 символов</p>
+						{validationErrors.body ? (
+							<p className="text-sm text-destructive">{validationErrors.body}</p>
+						) : (
+							<p className="text-sm text-muted-foreground">{data.body.length}/200 символов</p>
+						)}
 					</div>
 
 					<div className="grid grid-cols-3 gap-4">

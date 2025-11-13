@@ -53,6 +53,34 @@ export function CampaignCreator() {
 	const [isCreating, setIsCreating] = useState(false);
 	const [activeTab, setActiveTab] = useState('content');
 	const [previewLanguage, setPreviewLanguage] = useState('ru');
+	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+	// Real-time validation
+	const validateField = (field: 'title' | 'body', value: string) => {
+		const errors: Record<string, string> = { ...validationErrors };
+
+		if (field === 'title') {
+			if (!value.trim()) {
+				errors.title = 'Заголовок обязателен';
+			} else if (value.length > 50) {
+				errors.title = 'Максимум 50 символов';
+			} else {
+				errors.title = undefined;
+			}
+		}
+
+		if (field === 'body') {
+			if (!value.trim()) {
+				errors.body = 'Текст обязателен';
+			} else if (value.length > 120) {
+				errors.body = 'Максимум 120 символов';
+			} else {
+				errors.body = undefined;
+			}
+		}
+
+		setValidationErrors(errors);
+	};
 
 	// Validation function
 	const validateCampaign = (): { valid: boolean; errors: string[] } => {
@@ -224,7 +252,12 @@ export function CampaignCreator() {
 					</TabsList>
 
 					<TabsContent value="content" className="space-y-4">
-						<TemplateEditor data={campaignData} onChange={setCampaignData} />
+						<TemplateEditor
+							data={campaignData}
+							onChange={setCampaignData}
+							validationErrors={validationErrors}
+							onValidate={validateField}
+						/>
 					</TabsContent>
 
 					<TabsContent value="targeting" className="space-y-4">
@@ -254,56 +287,94 @@ export function CampaignCreator() {
 					</TabsContent>
 				</Tabs>
 
-				{/* Real-time Preview */}
-				<Card className="mt-6 bg-muted/50">
+				{/* Real-time Preview - iOS/Android Style */}
+				<Card className="mt-6 bg-gradient-to-br from-muted/30 to-muted/50">
 					<CardHeader>
 						<div className="flex items-center justify-between">
-							<CardTitle className="text-base">Превью уведомления</CardTitle>
+							<div className="space-y-1">
+								<CardTitle className="text-base">Превью уведомления</CardTitle>
+								<p className="text-xs text-muted-foreground">
+									Как это будет выглядеть на устройстве пользователя
+								</p>
+							</div>
 							<select
 								value={previewLanguage}
 								onChange={(e) => setPreviewLanguage(e.target.value)}
-								className="rounded-md border border-input bg-background px-3 py-1 text-sm"
+								className="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm transition-colors hover:bg-accent"
 							>
-								<option value="ru">Русский</option>
-								<option value="en">English</option>
-								<option value="es">Español</option>
-								<option value="de">Deutsch</option>
-								<option value="fr">Français</option>
-								<option value="zh">中文</option>
-								<option value="ja">日本語</option>
+								<option value="ru">🇷🇺 Русский</option>
+								<option value="en">🇬🇧 English</option>
+								<option value="es">🇪🇸 Español</option>
+								<option value="de">🇩🇪 Deutsch</option>
+								<option value="fr">🇫🇷 Français</option>
+								<option value="zh">🇨🇳 中文</option>
+								<option value="ja">🇯🇵 日本語</option>
 							</select>
 						</div>
 					</CardHeader>
 					<CardContent>
-						<div className="rounded-lg border bg-background p-4 shadow-sm">
-							<div className="flex items-start gap-3">
-								<div className="flex-shrink-0">
-									<Bell className="h-6 w-6 text-primary" />
-								</div>
-								<div className="flex-1 space-y-1">
-									<p className="font-semibold text-sm">
-										{previewLanguage === 'ru'
-											? campaignData.title || 'Заголовок уведомления'
-											: campaignData.translations[previewLanguage]?.title ||
-												campaignData.title ||
-												'Notification Title'}
-									</p>
-									<p className="text-sm text-muted-foreground">
-										{previewLanguage === 'ru'
-											? campaignData.body || 'Текст уведомления появится здесь'
-											: campaignData.translations[previewLanguage]?.body ||
-												campaignData.body ||
-												'Notification body will appear here'}
-									</p>
-									<div className="flex items-center gap-2 pt-1">
-										<span className="text-xs text-muted-foreground">
-											{campaignData.title.length}/50
-										</span>
-										<span className="text-xs text-muted-foreground">•</span>
-										<span className="text-xs text-muted-foreground">
-											{campaignData.body.length}/120
-										</span>
+						{/* iOS Style Notification */}
+						<div className="space-y-4">
+							<div className="rounded-2xl border-2 bg-background/95 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+								<div className="flex items-start gap-3">
+									<div className="shrink-0">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+											<Bell className="h-5 w-5 text-primary" />
+										</div>
 									</div>
+									<div className="flex-1 space-y-1.5">
+										<div className="flex items-center justify-between">
+											<p className="font-semibold text-sm">Unity Diary</p>
+											<span className="text-xs text-muted-foreground">сейчас</span>
+										</div>
+										<p className="font-medium text-sm leading-tight">
+											{previewLanguage === 'ru'
+												? campaignData.title || 'Заголовок уведомления'
+												: campaignData.translations[previewLanguage]?.title ||
+													campaignData.title ||
+													'Notification Title'}
+										</p>
+										<p className="text-sm leading-snug text-muted-foreground">
+											{previewLanguage === 'ru'
+												? campaignData.body || 'Текст уведомления появится здесь'
+												: campaignData.translations[previewLanguage]?.body ||
+													campaignData.body ||
+													'Notification body will appear here'}
+										</p>
+									</div>
+								</div>
+							</div>
+
+							{/* Character Counter */}
+							<div className="flex items-center justify-center gap-4 rounded-lg bg-muted/50 p-3">
+								<div className="flex items-center gap-2">
+									<span className="text-xs font-medium text-muted-foreground">Заголовок:</span>
+									<span
+										className={`text-xs font-semibold ${
+											campaignData.title.length > 50
+												? 'text-destructive'
+												: campaignData.title.length > 40
+													? 'text-orange-500'
+													: 'text-muted-foreground'
+										}`}
+									>
+										{campaignData.title.length}/50
+									</span>
+								</div>
+								<span className="text-xs text-muted-foreground">•</span>
+								<div className="flex items-center gap-2">
+									<span className="text-xs font-medium text-muted-foreground">Текст:</span>
+									<span
+										className={`text-xs font-semibold ${
+											campaignData.body.length > 120
+												? 'text-destructive'
+												: campaignData.body.length > 100
+													? 'text-orange-500'
+													: 'text-muted-foreground'
+										}`}
+									>
+										{campaignData.body.length}/120
+									</span>
 								</div>
 							</div>
 						</div>

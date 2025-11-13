@@ -59,7 +59,7 @@ export function loadDraft(userId: string): DraftData | null {
 		console.log('[DRAFT] Loaded:', {
 			userId,
 			textLength: draft.text.length,
-			age: Math.round(age / 1000 / 60) + 'min',
+			age: `${Math.round(age / 1000 / 60)}min`,
 		});
 		return draft;
 	} catch (error) {

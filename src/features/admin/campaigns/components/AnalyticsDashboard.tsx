@@ -161,7 +161,7 @@ export function AnalyticsDashboard() {
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [loadCampaigns, loadOverallAnalytics, loadTrends, realtimeChannel, setupRealtime]);
 
 	const loadCampaigns = async () => {
 		try {
