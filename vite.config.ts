@@ -245,14 +245,23 @@ export default defineConfig(({ mode }) => ({
 							return 'vendor-radix';
 						}
 
-						// Sentry - отдельный чанк (~80KB)
-						if (id.includes('@sentry')) {
+						// Sentry - отдельный чанк (~414KB)
+						// Разделяем на core и integrations для уменьшения initial load
+						if (id.includes('@sentry/react')) {
 							return 'vendor-sentry';
 						}
+						if (id.includes('@sentry/browser') || id.includes('@sentry/core')) {
+							return 'vendor-sentry-core';
+						}
 
-						// Lottie - отдельный чанк (~150KB)
+						// Lottie - отдельный чанк (~308KB)
 						if (id.includes('lottie-web')) {
 							return 'vendor-lottie';
+						}
+
+						// Chart.js - отдельный чанк для admin dashboard
+						if (id.includes('chart.js')) {
+							return 'vendor-chartjs';
 						}
 
 						// ✅ КРИТИЧЕСКИ ВАЖНО: React и React-DOM ДОЛЖНЫ быть в ОДНОМ chunk

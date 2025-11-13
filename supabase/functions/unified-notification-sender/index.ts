@@ -192,14 +192,15 @@ async function sendViaWebPush(
 			sent: result.sent || 0,
 			failed: result.failed || 0,
 		};
-	} catch (error) {
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 		console.error('[UNIFIED-SENDER] Web Push failed:', error);
 		return {
 			channel: 'web_push',
 			success: false,
 			sent: 0,
 			failed: userIds.length,
-			error: error.message,
+			error: errorMessage,
 		};
 	}
 }
@@ -320,9 +321,9 @@ async function sendUnifiedNotification(payload: NotificationPayload) {
 	let userIds: string[];
 	if (user_ids === 'all') {
 		const { data: profiles } = await supabaseAdmin.from('profiles').select('id');
-		userIds = profiles?.map((p) => p.id) || [];
+		userIds = profiles?.map((p: { id: string }) => p.id) || [];
 	} else {
-		userIds = user_ids;
+		userIds = user_ids || [];
 	}
 
 	if (userIds.length === 0) {
@@ -506,12 +507,13 @@ Deno.serve(async (req) => {
 		return new Response(JSON.stringify(result), {
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
-	} catch (error) {
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 		console.error('[UNIFIED-SENDER] Error:', error);
 		return new Response(
 			JSON.stringify({
 				error: 'Internal server error',
-				message: error.message,
+				message: errorMessage,
 			}),
 			{
 				status: 500,

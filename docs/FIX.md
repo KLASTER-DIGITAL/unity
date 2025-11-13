@@ -8,6 +8,18 @@
 
 ## [Unreleased] - 2025-11-13
 
+### 🏗️ Инфраструктура
+
+- **vite.config.ts**: Оптимизация code splitting
+  - Sentry разделен на vendor-sentry и vendor-sentry-core
+  - Chart.js вынесен в отдельный chunk vendor-chartjs
+  - Обновлены комментарии с актуальными размерами
+
+- **unified-notification-sender/index.ts**: Исправлены TypeScript ошибки
+  - Типизированы catch блоки (error: unknown)
+  - Добавлены типы для параметров (p: { id: string })
+  - Исправлена обработка undefined (user_ids || [])
+
 ### 🗄️ База данных
 
 - **20251113_fix_advisors_issues.sql**: Исправлены проблемы Supabase Advisors

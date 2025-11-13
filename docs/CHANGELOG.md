@@ -9,6 +9,14 @@
 
 ## [Unreleased] - 2025-11-13
 
+### ⚡ Производительность
+
+- **Bundle Size оптимизация**: Улучшена структура code splitting
+  - ✅ Sentry разделен на vendor-sentry и vendor-sentry-core (уменьшение initial load)
+  - ✅ Chart.js вынесен в отдельный chunk vendor-chartjs (lazy load для admin)
+  - ✅ Обновлены комментарии с актуальными размерами chunks
+  - ✅ Цель: уменьшение main chunk с 1.5MB
+
 ### 🔒 Безопасность
 
 - **Supabase Advisors исправления**: Исправлены все критические проблемы безопасности и производительности
