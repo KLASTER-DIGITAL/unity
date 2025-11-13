@@ -8,6 +8,14 @@
 
 ## [Unreleased] - 2025-11-13
 
+### ✅ Добавлено
+
+- **20251113_create_mobile_settings.sql**: Создана миграция для таблицы mobile_settings
+  - JSONB поля для конфигурации: splash_screen_config, onboarding_config, auth_config, theme_config, i18n_config
+  - RLS политики: public read access, super_admin update only
+  - Trigger для auto-update updated_at
+  - Default конфигурация для React Native app
+
 ### 🔄 Изменено
 
 - **AnalyticsDashboard.tsx**: Улучшен UX для аналитики кампаний
