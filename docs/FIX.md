@@ -8,6 +8,14 @@
 
 ## [Unreleased] - 2025-11-13
 
+### 🗄️ База данных
+
+- **20251113_fix_advisors_issues.sql**: Исправлены проблемы Supabase Advisors
+  - Удалена функция increment_ab_test_metric (A/B Testing удален)
+  - Добавлено 9 индексов для foreign keys
+  - Удалено 6 неиспользуемых индексов
+  - Оптимизированы RLS политики для push_notification_analytics
+
 ### 🐛 Исправлено
 
 - **TemplateManager.tsx**: Исправлена ошибка "Cannot access 'loadTemplates' before initialization"
