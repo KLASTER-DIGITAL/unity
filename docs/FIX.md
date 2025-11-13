@@ -8,6 +8,19 @@
 
 ## [Unreleased] - 2025-11-13
 
+### 🐛 Исправлено
+
+- **TemplateManager.tsx**: Исправлена ошибка "Cannot access 'loadTemplates' before initialization"
+  - Использован useCallback для loadTemplates
+  - Перемещен useEffect после объявления функции
+  - Исправлена circular dependency
+
+- **AnalyticsDashboard.tsx**: Исправлена ошибка "Cannot access 'loadCampaigns' before initialization"
+  - Использован useCallback для loadCampaigns, loadOverallAnalytics, loadTrends, setupRealtime
+  - Перемещен useEffect после объявления функций
+  - Исправлена circular dependency
+  - Добавлены правильные dependencies для useCallback
+
 ### ✅ Добавлено
 
 - **20251113_create_mobile_settings.sql**: Создана миграция для таблицы mobile_settings

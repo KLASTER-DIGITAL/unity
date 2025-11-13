@@ -9,7 +9,7 @@
  */
 
 import { Pencil, Plus, Sparkles, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -54,11 +54,7 @@ export function TemplateManager() {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'free' | 'premium'>('all');
 
-	useEffect(() => {
-		loadTemplates();
-	}, [loadTemplates]);
-
-	const loadTemplates = async () => {
+	const loadTemplates = useCallback(async () => {
 		try {
 			setLoading(true);
 
@@ -93,7 +89,11 @@ export function TemplateManager() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadTemplates();
+	}, [loadTemplates]);
 
 	const handleDelete = async (id: string) => {
 		if (!confirm('Вы уверены что хотите удалить этот шаблон?')) {

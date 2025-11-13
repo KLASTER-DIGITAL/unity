@@ -25,7 +25,7 @@ import {
 	Filter,
 	TrendingUp,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import {
 	Card,
@@ -170,21 +170,7 @@ export function AnalyticsDashboard() {
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 	const [showFilters, setShowFilters] = useState(false);
 
-	useEffect(() => {
-		loadCampaigns();
-		loadOverallAnalytics();
-		loadTrends();
-		setupRealtime();
-
-		return () => {
-			if (realtimeChannel) {
-				realtimeChannel.unsubscribe();
-			}
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [loadCampaigns, loadOverallAnalytics, loadTrends, realtimeChannel, setupRealtime]);
-
-	const loadCampaigns = async () => {
+	const loadCampaigns = useCallback(async () => {
 		try {
 			let query = supabase.from('push_campaigns').select('*');
 
@@ -225,9 +211,9 @@ export function AnalyticsDashboard() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [dateFrom, dateTo, statusFilter, segmentFilter, sortBy, sortOrder]);
 
-	const loadOverallAnalytics = async () => {
+	const loadOverallAnalytics = useCallback(async () => {
 		try {
 			const {
 				data: { session },
@@ -252,36 +238,39 @@ export function AnalyticsDashboard() {
 		} catch (error) {
 			console.error('[Analytics Dashboard] Error loading overall analytics:', error);
 		}
-	};
+	}, []);
 
-	const loadTrends = async (days: number = trendsDays) => {
-		try {
-			const {
-				data: { session },
-			} = await supabase.auth.getSession();
-			if (!session) return;
+	const loadTrends = useCallback(
+		async (days: number = trendsDays) => {
+			try {
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+				if (!session) return;
 
-			const response = await fetch(
-				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-analytics-api/trends?days=${days}`,
-				{
-					headers: {
-						Authorization: `Bearer ${session.access_token}`,
-					},
+				const response = await fetch(
+					`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-analytics-api/trends?days=${days}`,
+					{
+						headers: {
+							Authorization: `Bearer ${session.access_token}`,
+						},
+					}
+				);
+
+				if (!response.ok) {
+					throw new Error('Failed to load trends');
 				}
-			);
 
-			if (!response.ok) {
-				throw new Error('Failed to load trends');
+				const data = await response.json();
+				setTrends(data);
+			} catch (error) {
+				console.error('[Analytics Dashboard] Error loading trends:', error);
 			}
+		},
+		[trendsDays]
+	);
 
-			const data = await response.json();
-			setTrends(data);
-		} catch (error) {
-			console.error('[Analytics Dashboard] Error loading trends:', error);
-		}
-	};
-
-	const setupRealtime = () => {
+	const setupRealtime = useCallback(() => {
 		const channel = supabase
 			.channel('push_campaigns_changes')
 			.on(
@@ -299,7 +288,20 @@ export function AnalyticsDashboard() {
 			.subscribe();
 
 		setRealtimeChannel(channel);
-	};
+	}, [loadCampaigns]);
+
+	useEffect(() => {
+		loadCampaigns();
+		loadOverallAnalytics();
+		loadTrends();
+		setupRealtime();
+
+		return () => {
+			if (realtimeChannel) {
+				realtimeChannel.unsubscribe();
+			}
+		};
+	}, [loadCampaigns, loadOverallAnalytics, loadTrends, setupRealtime, realtimeChannel]);
 
 	const calculateDeliveryRate = (campaign: CampaignStats) => {
 		if (campaign.total_sent === 0) return 0;
@@ -662,11 +664,7 @@ export function AnalyticsDashboard() {
 							</CardDescription>
 						</div>
 						<div className="flex items-center gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setShowFilters(!showFilters)}
-							>
+							<Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
 								<Filter className="mr-2 h-4 w-4" />
 								Фильтры
 							</Button>
