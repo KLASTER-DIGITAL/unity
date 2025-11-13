@@ -114,7 +114,7 @@ export function PushTemplateEditor({ template, onSave, onCancel }: PushTemplateE
 	const [activeLanguage, setActiveLanguage] = useState('ru');
 	const [newVariable, setNewVariable] = useState('');
 
-	const handleChange = (field: keyof TemplateData, value: any) => {
+	const handleChange = (field: keyof TemplateData, value: string | boolean | string[]) => {
 		setData({ ...data, [field]: value });
 	};
 
@@ -127,7 +127,7 @@ export function PushTemplateEditor({ template, onSave, onCancel }: PushTemplateE
 		setData({ ...data, translations });
 	};
 
-	const handleAISettingChange = (field: string, value: any) => {
+	const handleAISettingChange = (field: string, value: string | boolean | number) => {
 		setData({
 			...data,
 			ai_settings: {
@@ -332,6 +332,7 @@ export function PushTemplateEditor({ template, onSave, onCancel }: PushTemplateE
 								<Badge key={variable} variant="secondary" className="gap-1">
 									{variable}
 									<button
+										type="button"
 										onClick={() => removeVariable(variable)}
 										className="ml-1 rounded-full hover:bg-muted"
 									>
@@ -413,7 +414,7 @@ export function PushTemplateEditor({ template, onSave, onCancel }: PushTemplateE
 								type="number"
 								value={data.ai_settings?.max_length || 120}
 								onChange={(e) =>
-									handleAISettingChange('max_length', Number.parseInt(e.target.value))
+									handleAISettingChange('max_length', Number.parseInt(e.target.value, 10))
 								}
 								min={50}
 								max={200}

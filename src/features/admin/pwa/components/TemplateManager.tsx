@@ -20,7 +20,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { createClient } from '@/shared/lib/supabase/client';
 
 interface Template {
@@ -33,7 +33,12 @@ interface Template {
 	is_ai_enabled: boolean;
 	variables: string[];
 	translations: Record<string, { title: string; body: string }>;
-	ai_settings?: any;
+	ai_settings?: {
+		tone?: string;
+		use_behavior_analysis?: boolean;
+		use_mood_analysis?: boolean;
+		max_length?: number;
+	};
 	description?: string;
 	is_active: boolean;
 	usage_count: number;
@@ -70,10 +75,11 @@ export function TemplateManager() {
 	// Load on mount
 	useEffect(() => {
 		loadTemplates();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Save template
-	const handleSave = async (templateData: any) => {
+	const handleSave = async (templateData: Partial<Template>) => {
 		try {
 			if (editingTemplate) {
 				// Update existing template
@@ -155,7 +161,7 @@ export function TemplateManager() {
 			</div>
 
 			{/* Filters */}
-			<Tabs value={filter} onValueChange={(value: any) => setFilter(value)}>
+			<Tabs value={filter} onValueChange={(value: 'all' | 'free' | 'premium') => setFilter(value)}>
 				<TabsList>
 					<TabsTrigger value="all">Все ({templates.length})</TabsTrigger>
 					<TabsTrigger value="free">
