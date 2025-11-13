@@ -2,12 +2,15 @@
  * Template Manager Component
  *
  * Управление шаблонами push уведомлений:
- * - Просмотр встроенных шаблонов для 7 языков
- * - Создание кастомных шаблонов (будущая функциональность)
+ * - Просмотр шаблонов из БД
+ * - Создание/редактирование шаблонов
+ * - Фильтрация Free/Premium
  */
 
-import { FileText, Globe, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Crown, Edit, FileText, Globe, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { PushTemplateEditor } from '@/features/admin/push/components/PushTemplateEditor';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -18,167 +21,250 @@ import {
 	CardTitle,
 } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { createClient } from '@/shared/lib/supabase/client';
 
-// Встроенные шаблоны для разных типов уведомлений
-const BUILT_IN_TEMPLATES = [
-	{
-		id: 'streak_milestone',
-		name: 'Достижение серии',
-		description: 'Уведомление о достижении milestone серии',
-		languages: ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'],
-		examples: {
-			ru: {
-				title: '🔥 {days} дней подряд!',
-				body: 'Поздравляем! Вы достигли серии в {days} дней. Продолжайте в том же духе!',
-			},
-			en: {
-				title: '🔥 {days} days streak!',
-				body: 'Congratulations! You reached a {days} day streak. Keep it up!',
-			},
-		},
-	},
-	{
-		id: 'daily_reminder',
-		name: 'Ежедневное напоминание',
-		description: 'Напоминание о записи достижения',
-		languages: ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'],
-		examples: {
-			ru: {
-				title: '📝 Время записать достижение',
-				body: 'Не забудьте записать свои достижения за сегодня!',
-			},
-			en: {
-				title: '📝 Time to log your achievement',
-				body: "Don't forget to log your achievements for today!",
-			},
-		},
-	},
-	{
-		id: 'premium_offer',
-		name: 'Предложение Premium',
-		description: 'Специальное предложение Premium подписки',
-		languages: ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'],
-		examples: {
-			ru: {
-				title: '⭐ Специальное предложение Premium',
-				body: 'Получите Premium со скидкой 50% только сегодня!',
-			},
-			en: {
-				title: '⭐ Special Premium Offer',
-				body: 'Get Premium with 50% discount today only!',
-			},
-		},
-	},
-	{
-		id: 'ai_insight',
-		name: 'AI Инсайт',
-		description: 'Персонализированный инсайт от AI',
-		languages: ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'],
-		examples: {
-			ru: {
-				title: '🤖 Персональный инсайт',
-				body: 'Ваш AI помощник заметил интересную закономерность в ваших достижениях!',
-			},
-			en: {
-				title: '🤖 Personal Insight',
-				body: 'Your AI assistant noticed an interesting pattern in your achievements!',
-			},
-		},
-	},
-];
+interface Template {
+	id: string;
+	type: string;
+	title: string;
+	body: string;
+	icon?: string;
+	is_premium_only: boolean;
+	is_ai_enabled: boolean;
+	variables: string[];
+	translations: Record<string, { title: string; body: string }>;
+	ai_settings?: any;
+	description?: string;
+	is_active: boolean;
+	usage_count: number;
+	created_at: string;
+}
 
 export function TemplateManager() {
-	const [activeLanguage, setActiveLanguage] = useState('ru');
+	const [templates, setTemplates] = useState<Template[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [filter, setFilter] = useState<'all' | 'free' | 'premium'>('all');
+	const [showEditor, setShowEditor] = useState(false);
+	const [editingTemplate, setEditingTemplate] = useState<Template | undefined>(undefined);
+	const supabase = createClient();
+
+	// Load templates
+	const loadTemplates = async () => {
+		try {
+			setLoading(true);
+			const { data, error } = await supabase
+				.from('push_notification_templates')
+				.select('*')
+				.order('created_at', { ascending: false });
+
+			if (error) throw error;
+			setTemplates(data || []);
+		} catch (error) {
+			console.error('[Template Manager] Error loading templates:', error);
+			toast.error('Ошибка загрузки шаблонов');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Load on mount
+	useEffect(() => {
+		loadTemplates();
+	}, []);
+
+	// Save template
+	const handleSave = async (templateData: any) => {
+		try {
+			if (editingTemplate) {
+				// Update existing template
+				const { error } = await supabase
+					.from('push_notification_templates')
+					.update(templateData)
+					.eq('id', editingTemplate.id);
+
+				if (error) throw error;
+				toast.success('Шаблон обновлен');
+			} else {
+				// Create new template
+				const { error } = await supabase.from('push_notification_templates').insert(templateData);
+
+				if (error) throw error;
+				toast.success('Шаблон создан');
+			}
+
+			setShowEditor(false);
+			setEditingTemplate(undefined);
+			loadTemplates();
+		} catch (error) {
+			console.error('[Template Manager] Error saving template:', error);
+			toast.error('Ошибка сохранения шаблона');
+		}
+	};
+
+	// Delete template
+	const handleDelete = async (id: string) => {
+		if (!confirm('Удалить этот шаблон?')) return;
+
+		try {
+			const { error } = await supabase.from('push_notification_templates').delete().eq('id', id);
+
+			if (error) throw error;
+			toast.success('Шаблон удален');
+			loadTemplates();
+		} catch (error) {
+			console.error('[Template Manager] Error deleting template:', error);
+			toast.error('Ошибка удаления шаблона');
+		}
+	};
+
+	// Filter templates
+	const filteredTemplates = templates.filter((template) => {
+		if (filter === 'free') return !template.is_premium_only;
+		if (filter === 'premium') return template.is_premium_only;
+		return true;
+	});
+
+	// Show editor
+	if (showEditor) {
+		return (
+			<PushTemplateEditor
+				template={editingTemplate}
+				onSave={handleSave}
+				onCancel={() => {
+					setShowEditor(false);
+					setEditingTemplate(undefined);
+				}}
+			/>
+		);
+	}
 
 	return (
 		<div className="space-y-6">
-			{/* Заголовок */}
+			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
 					<h3 className="font-semibold text-lg">Шаблоны уведомлений</h3>
 					<p className="text-sm text-muted-foreground">
-						Встроенные шаблоны для 7 языков (ru/en/es/de/fr/zh/ja)
+						Управление шаблонами push уведомлений с поддержкой Premium и AI
 					</p>
 				</div>
-				<Button disabled>
+				<Button onClick={() => setShowEditor(true)}>
 					<Plus className="mr-2 h-4 w-4" />
 					Создать шаблон
-					<Badge className="ml-2" variant="secondary">
-						Скоро
-					</Badge>
 				</Button>
 			</div>
 
-			{/* Выбор языка */}
-			<Tabs value={activeLanguage} onValueChange={setActiveLanguage}>
-				<div className="w-full overflow-x-auto">
-					<TabsList className="inline-flex h-auto w-auto min-w-full flex-nowrap gap-1 p-1">
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="ru">
-							<Globe className="mr-2 h-4 w-4" />
-							Русский
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="en">
-							<Globe className="mr-2 h-4 w-4" />
-							English
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="es">
-							<Globe className="mr-2 h-4 w-4" />
-							Español
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="de">
-							<Globe className="mr-2 h-4 w-4" />
-							Deutsch
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="fr">
-							<Globe className="mr-2 h-4 w-4" />
-							Français
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="zh">
-							<Globe className="mr-2 h-4 w-4" />
-							中文
-						</TabsTrigger>
-						<TabsTrigger className="whitespace-nowrap px-3 py-2" value="ja">
-							<Globe className="mr-2 h-4 w-4" />
-							日本語
-						</TabsTrigger>
-					</TabsList>
-				</div>
-
-				<TabsContent value={activeLanguage} className="space-y-4 mt-4">
-					<div className="grid gap-4 md:grid-cols-2">
-						{BUILT_IN_TEMPLATES.map((template) => (
-							<Card key={template.id}>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2 text-base">
-										<FileText className="h-4 w-4" />
-										{template.name}
-									</CardTitle>
-									<CardDescription>{template.description}</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-3">
-									{/* Превью шаблона */}
-									<div className="rounded-lg border bg-muted/50 p-3 space-y-2">
-										<p className="font-semibold text-sm">
-											{template.examples[activeLanguage as keyof typeof template.examples]?.title ||
-												template.examples.en.title}
-										</p>
-										<p className="text-sm text-muted-foreground">
-											{template.examples[activeLanguage as keyof typeof template.examples]?.body ||
-												template.examples.en.body}
-										</p>
-									</div>
-
-									{/* Информация */}
-									<div className="flex items-center gap-2 text-xs text-muted-foreground">
-										<Badge variant="outline">ID: {template.id}</Badge>
-										<Badge variant="outline">{template.languages.length} языков</Badge>
-									</div>
-								</CardContent>
-							</Card>
-						))}
-					</div>
-				</TabsContent>
+			{/* Filters */}
+			<Tabs value={filter} onValueChange={(value: any) => setFilter(value)}>
+				<TabsList>
+					<TabsTrigger value="all">Все ({templates.length})</TabsTrigger>
+					<TabsTrigger value="free">
+						Free ({templates.filter((t) => !t.is_premium_only).length})
+					</TabsTrigger>
+					<TabsTrigger value="premium">
+						<Crown className="mr-1 h-3 w-3" />
+						Premium ({templates.filter((t) => t.is_premium_only).length})
+					</TabsTrigger>
+				</TabsList>
 			</Tabs>
+
+			{/* Templates Grid */}
+			{loading ? (
+				<div className="flex items-center justify-center py-12">
+					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+				</div>
+			) : filteredTemplates.length === 0 ? (
+				<Card>
+					<CardContent className="py-12 text-center">
+						<FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+						<p className="mb-2 font-medium">Нет шаблонов</p>
+						<p className="mb-4 text-muted-foreground text-sm">
+							Создайте первый шаблон для push уведомлений
+						</p>
+						<Button onClick={() => setShowEditor(true)}>
+							<Plus className="mr-2 h-4 w-4" />
+							Создать шаблон
+						</Button>
+					</CardContent>
+				</Card>
+			) : (
+				<div className="grid gap-4 md:grid-cols-2">
+					{filteredTemplates.map((template) => (
+						<Card key={template.id}>
+							<CardHeader>
+								<div className="flex items-start justify-between">
+									<div className="flex-1">
+										<CardTitle className="flex items-center gap-2 text-base">
+											<FileText className="h-4 w-4" />
+											{template.type}
+										</CardTitle>
+										<CardDescription>{template.description}</CardDescription>
+									</div>
+									<div className="flex gap-1">
+										{template.is_premium_only && (
+											<Badge variant="secondary" className="gap-1">
+												<Crown className="h-3 w-3" />
+												Premium
+											</Badge>
+										)}
+										{template.is_ai_enabled && (
+											<Badge variant="secondary" className="gap-1">
+												<Sparkles className="h-3 w-3" />
+												AI
+											</Badge>
+										)}
+									</div>
+								</div>
+							</CardHeader>
+							<CardContent className="space-y-3">
+								{/* Preview */}
+								<div className="rounded-lg border bg-muted/50 p-3 space-y-2">
+									<p className="font-semibold text-sm">{template.title}</p>
+									<p className="text-sm text-muted-foreground">{template.body}</p>
+								</div>
+
+								{/* Variables */}
+								{template.variables.length > 0 && (
+									<div className="flex flex-wrap gap-1">
+										{template.variables.map((variable) => (
+											<Badge key={variable} variant="outline" className="text-xs">
+												{'{'}
+												{variable}
+												{'}'}
+											</Badge>
+										))}
+									</div>
+								)}
+
+								{/* Actions */}
+								<div className="flex items-center justify-between pt-2">
+									<div className="flex items-center gap-2 text-muted-foreground text-xs">
+										<Globe className="h-3 w-3" />
+										<span>{Object.keys(template.translations).length + 1} языков</span>
+										<span>•</span>
+										<span>Использовано: {template.usage_count}</span>
+									</div>
+									<div className="flex gap-1">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => {
+												setEditingTemplate(template);
+												setShowEditor(true);
+											}}
+										>
+											<Edit className="h-4 w-4" />
+										</Button>
+										<Button variant="ghost" size="sm" onClick={() => handleDelete(template.id)}>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			)}
 		</div>
 	);
 }

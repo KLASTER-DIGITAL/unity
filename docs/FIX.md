@@ -6,6 +6,28 @@
 
 ---
 
+## [Unreleased] - 2025-11-13
+
+### 🔄 Изменено
+
+- **TemplateManager.tsx**: Полностью переработан для работы с БД
+  - Заменен BUILT_IN_TEMPLATES на загрузку из `push_notification_templates`
+  - Добавлены CRUD операции через Supabase
+  - Добавлена фильтрация Free/Premium
+  - Добавлена интеграция с PushTemplateEditor
+  - Добавлены кнопки Edit/Delete для каждого шаблона
+  - Добавлен loading state и empty state
+
+### ✅ Добавлено
+
+- **PushTemplateEditor.tsx**: Новый компонент для редактирования шаблонов
+  - Форма с валидацией (title max 50, body max 200)
+  - Поддержка Premium/AI toggles
+  - Мультиязычность (7 языков через Tabs)
+  - Динамические переменные (array input с badges)
+  - AI настройки (tone, behavior analysis, mood analysis, max length)
+  - Интеграция с `push-templates-api` Edge Function
+
 ## [Unreleased] - 2025-11-12
 
 ### ✅ Тестирование
