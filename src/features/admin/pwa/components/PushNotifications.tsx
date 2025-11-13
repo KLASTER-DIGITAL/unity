@@ -1,13 +1,4 @@
-import {
-	BarChart3,
-	Bell,
-	FileText,
-	FlaskConical,
-	History,
-	Send,
-	TestTube,
-	Users,
-} from 'lucide-react';
+import { BarChart3, Bell, FileText, History, Send, TestTube, Users } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
@@ -42,12 +33,6 @@ const SegmentManager = lazy(() =>
 const TemplateManager = lazy(() =>
 	import('@/features/admin/campaigns/components').then((module) => ({
 		default: module.TemplateManager,
-	}))
-);
-
-const ABTestManager = lazy(() =>
-	import('./ABTestManager').then((module) => ({
-		default: module.ABTestManager,
 	}))
 );
 
@@ -126,13 +111,6 @@ export function PushNotifications() {
 						</TabsTrigger>
 						<TabsTrigger
 							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
-							value="ab-testing"
-						>
-							<FlaskConical className="h-4 w-4" />
-							<span>A/B Testing</span>
-						</TabsTrigger>
-						<TabsTrigger
-							className="flex items-center gap-2 whitespace-nowrap px-3 py-2"
 							value="test"
 						>
 							<TestTube className="h-4 w-4" />
@@ -173,13 +151,6 @@ export function PushNotifications() {
 				<TabsContent className="space-y-6" value="history">
 					<Suspense fallback={<TabLoadingFallback />}>
 						<CampaignHistory />
-					</Suspense>
-				</TabsContent>
-
-				{/* A/B Testing - Lazy loaded */}
-				<TabsContent className="space-y-6" value="ab-testing">
-					<Suspense fallback={<TabLoadingFallback />}>
-						<ABTestManager />
 					</Suspense>
 				</TabsContent>
 

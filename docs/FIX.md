@@ -8,6 +8,22 @@
 
 ## [Unreleased] - 2025-11-13
 
+### 🗑️ Удалено
+
+- **A/B Testing System**: Полностью удалена система A/B тестирования
+  - Удалены файлы:
+    - `src/features/admin/pwa/components/ABTestManager.tsx` (600 строк)
+    - `supabase/functions/push-ab-test-api/index.ts` (400 строк)
+    - `supabase/migrations/20251110_create_ab_tests.sql` (203 строки)
+  - Удалены таблицы БД:
+    - `push_ab_tests` (A/B тесты)
+    - `push_ab_test_assignments` (назначения вариантов пользователям)
+  - Упрощен `push-campaign-sender`:
+    - Удалено 90 строк кода A/B Testing логики
+    - Удалены функции: `getABTest()`, `assignVariant()`, `hashUserId()`, `createABTestAssignment()`, `updateABTestMetrics()`
+    - Удалены параметры: `ab_test_id`, `variant` из payload
+  - Причина: Пользователь хочет простую систему рассылок без сложных экспериментов
+
 ### 🔄 Изменено
 
 - **TemplateManager.tsx**: Полностью переработан для работы с БД
