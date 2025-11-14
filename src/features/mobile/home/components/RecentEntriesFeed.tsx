@@ -133,7 +133,12 @@ export function RecentEntriesFeed({
 		<div className="mt-6 mb-6">
 			{/* Заголовок */}
 			<div className="mb-4 flex items-center justify-between px-4">
-				<h2 className="font-semibold! text-[20px]! text-foreground">Лента последних записей</h2>
+				<h2
+					className="max-w-[220px] truncate font-medium! text-foreground leading-[1.2]"
+					style={{ fontSize: '24px' }}
+				>
+					Лента последних записей
+				</h2>
 				<button
 					aria-label="Смотреть все"
 					className="flex h-8 w-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"

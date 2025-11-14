@@ -126,7 +126,8 @@ export function useCategoryNames(userId: string | undefined): string[] {
  * Get categories formatted for UI components
  */
 export function useCategoriesForUI(userId: string | undefined) {
-	const { categories, isLoading, error } = useCategories(userId);
+	const { categories, isLoading, error, addCategory, editCategory, removeCategory, refetch } =
+		useCategories(userId);
 
 	const formattedCategories = categories.map((cat) => ({
 		id: cat.name,
@@ -140,5 +141,9 @@ export function useCategoriesForUI(userId: string | undefined) {
 		categories: formattedCategories,
 		isLoading,
 		error,
+		addCategory,
+		editCategory,
+		removeCategory,
+		refetch,
 	};
 }

@@ -34,9 +34,12 @@ export function AIAnalysisBlock({
 				className={`relative h-[100px] w-full overflow-hidden rounded-[12px] border border-accent/20 bg-accent/5 p-2 ${className}`}
 			>
 				<div className="mb-1 flex items-center gap-1">
-					<Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+					<Sparkles className="h-3 w-3 text-accent" strokeWidth={2} />
 				</div>
-				<p className="wrap-break-word line-clamp-4 text-[11px]! text-muted-foreground leading-relaxed italic">
+				<p
+					className="wrap-break-word line-clamp-4 text-muted-foreground leading-snug"
+					style={{ fontSize: '14px', fontWeight: '300' }}
+				>
 					{aiReply}
 				</p>
 				{/* Градиент затухания */}

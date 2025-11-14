@@ -92,15 +92,19 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 							<p className="text-[13px]! text-muted-foreground">{formatDate(entry.createdAt)}</p>
 						</div>
 
-						{/* Category & Sentiment */}
-						<div className="mb-4 flex flex-wrap items-center gap-2">
+						{/* Category & Sentiment - МИНИМАЛЬНЫЙ РАЗМЕР 8px С УВЕЛИЧЕННЫМ PADDING */}
+						<div className="mb-4 flex flex-wrap items-center gap-1.5">
 							<span
-								className={`rounded-full border px-3 py-1 font-medium! text-[12px]! ${getSentimentColor(entry.sentiment)} border-current/30`}
+								className={`rounded-full border px-3 py-1.5 font-medium! ${getSentimentColor(entry.sentiment)} border-current/30`}
+								style={{ fontSize: '8px' }}
 							>
 								{getSentimentLabel(entry.sentiment)}
 							</span>
 							{entry.category && (
-								<span className="rounded-full border border-muted-foreground/30 bg-muted px-3 py-1 text-[12px]! text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50">
+								<span
+									className="rounded-full border border-muted-foreground/30 bg-muted px-3 py-1.5 text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50"
+									style={{ fontSize: '8px' }}
+								>
 									{entry.category}
 								</span>
 							)}
@@ -113,32 +117,33 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 							</div>
 						)}
 
-						{/* Full Text - Оригинальный текст */}
-						<div className="mb-6">
-							<p className="whitespace-pre-wrap text-[15px]! text-foreground leading-[22px]">
+						{/* Full Text - Оригинальный текст - 14px */}
+						<div className="mb-4">
+							<p className="whitespace-pre-wrap text-[14px]! text-foreground leading-[21px] font-medium">
 								{entry.text}
 							</p>
 						</div>
 
-						{/* AI Analysis - Показывается ТОЛЬКО в модале */}
+						{/* AI Analysis - ПЕРЕМЕСТИЛИ ПОД ТЕКСТ */}
 						{entry.aiReply && (
-							<div className="mb-6 rounded-[16px] border border-accent/20 bg-accent/5 p-4 transition-colors duration-300">
-								<div className="mb-2 flex items-center gap-2">
-									<Sparkles className="h-4 w-4 text-accent" strokeWidth={2} />
+							<div className="mb-4 rounded-[12px] border border-accent/20 bg-accent/5 p-3 transition-colors duration-300">
+								<div className="mb-1.5 flex items-center gap-1.5">
+									<Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
 								</div>
-								<p className="whitespace-pre-wrap text-[14px]! text-muted-foreground leading-[20px] italic">
+								<p className="whitespace-pre-wrap text-[13px]! text-muted-foreground leading-[18px] italic">
 									{entry.aiReply}
 								</p>
 							</div>
 						)}
 
-						{/* Tags */}
+						{/* Tags - МИНИМАЛЬНЫЙ РАЗМЕР 8px С УВЕЛИЧЕННЫМ PADDING */}
 						{entry.tags && entry.tags.length > 0 && (
-							<div className="flex flex-wrap gap-2">
+							<div className="flex flex-wrap gap-1.5">
 								{entry.tags.map((tag) => (
 									<span
-										className="rounded-[6px] border border-muted-foreground/30 bg-muted px-2 py-1 font-medium! text-[11px]! text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50"
+										className="rounded-[4px] border border-muted-foreground/20 bg-muted/50 px-3 py-1.5 text-muted-foreground/70 transition-colors duration-300 dark:border-muted-foreground/30"
 										key={tag}
+										style={{ fontSize: '8px' }}
 									>
 										#{tag}
 									</span>

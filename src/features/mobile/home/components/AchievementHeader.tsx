@@ -79,7 +79,10 @@ export const AchievementHeader = memo(function AchievementHeader({
 								</span>
 							</h1>
 							{/* Вопрос - увеличен до 15px для читаемости */}
-							<p className="mt-0.5 whitespace-nowrap text-[15px]! text-muted-foreground leading-[1.3]!">
+							<p
+								className="whitespace-nowrap text-muted-foreground leading-[1.3]"
+								style={{ fontSize: '15px', marginTop: '0px' }}
+							>
 								Какие твои победы сегодня?
 							</p>
 						</div>
@@ -87,10 +90,13 @@ export const AchievementHeader = memo(function AchievementHeader({
 
 					{/* Right: Days Counter БЕЗ кружка */}
 					<div className="flex shrink-0 flex-col items-center justify-center">
-						<p className="font-semibold! text-(--ios-green) text-[44px]! leading-none">
+						<p
+							className="font-medium! text-(--ios-green) leading-none"
+							style={{ fontSize: '16px' }}
+						>
 							{daysInApp}
 						</p>
-						<p className="text-[8px]! text-muted-foreground leading-none">
+						<p className="mt-0.5 text-muted-foreground leading-none" style={{ fontSize: '8px' }}>
 							{daysInApp === 1 ? 'День подряд' : daysInApp < 5 ? 'Дня подряд' : 'Дней подряд'}
 						</p>
 					</div>

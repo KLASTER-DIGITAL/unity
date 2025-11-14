@@ -39,30 +39,33 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 	const loadMotivationCardsRef = useRef<(() => Promise<void>) | null>(null);
 
 	// Load motivation cards function - используем useCallback для стабильной ссылки
-	const loadMotivationCards = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || 'anonymous';
+	const loadMotivationCards = useCallback(
+		async (useCache = true) => {
+			try {
+				setIsLoading(true);
+				const userId = userData?.user?.id || userData?.id || 'anonymous';
 
-			const motivationCards = await getMotivationCards(userId);
-			console.log('[MotivationCardsSection] Loaded motivation cards:', motivationCards);
+				const motivationCards = await getMotivationCards(userId, useCache);
+				console.log('[MotivationCardsSection] Loaded motivation cards:', motivationCards);
 
-			setCards(motivationCards);
-			setCurrentIndex(0);
-		} catch (error) {
-			console.error('[MotivationCardsSection] Error loading motivation cards:', error);
-			toast.error('Не удалось загрузить карточки', {
-				description: 'Проверьте подключение к интернету',
-			});
+				setCards(motivationCards);
+				setCurrentIndex(0);
+			} catch (error) {
+				console.error('[MotivationCardsSection] Error loading motivation cards:', error);
+				toast.error('Не удалось загрузить карточки', {
+					description: 'Проверьте подключение к интернету',
+				});
 
-			// Fallback to default motivations
-			const userLanguage = (userData?.language || 'ru') as Language;
-			const defaultCards = getDefaultMotivations(userLanguage);
-			setCards(defaultCards);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [userData?.user?.id, userData?.id, userData?.language]);
+				// Fallback to default motivations
+				const userLanguage = (userData?.language || 'ru') as Language;
+				const defaultCards = getDefaultMotivations(userLanguage);
+				setCards(defaultCards);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[userData?.user?.id, userData?.id, userData?.language]
+	);
 
 	// ✅ FIX: Сохраняем ссылку на функцию загрузки для realtime подписки
 	useEffect(() => {
@@ -97,10 +100,10 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 				(payload) => {
 					console.log('[MotivationCardsSection] 🔔 New entry created, reloading cards:', payload);
 
-					// Перезагружаем карточки при создании новой записи
+					// Перезагружаем карточки при создании новой записи БЕЗ кэша
 					if (loadMotivationCardsRef.current) {
-						console.log('[MotivationCardsSection] 🔄 Reloading motivation cards...');
-						loadMotivationCardsRef.current();
+						console.log('[MotivationCardsSection] 🔄 Reloading motivation cards (no cache)...');
+						loadMotivationCardsRef.current(false); // ✅ БЕЗ кэша для мгновенного обновления
 					} else {
 						console.error('[MotivationCardsSection] ❌ loadMotivationCardsRef.current is null!');
 					}
@@ -204,7 +207,7 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 
 	// Cards display
 	return (
-		<div className="p-section">
+		<div className="mt-6 p-section">
 			{/* Undo Button */}
 			{showUndo && lastRemovedCard && (
 				<div className="-translate-x-1/2 fade-in slide-in-from-top-2 fixed top-20 left-1/2 z-50 animate-in duration-300">

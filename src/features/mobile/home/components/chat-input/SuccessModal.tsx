@@ -55,13 +55,14 @@ export function SuccessModal({
 						exit={{ opacity: 0, scale: 0.9 }}
 						initial={{ opacity: 0, scale: 0.9 }}
 						style={{ width: '300px', minHeight: '230px' }}
+						transition={{ type: 'spring', stiffness: 260, damping: 24 }}
 					>
 						{/* Success Icon */}
 						<div className="mx-auto mb-responsive-md flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
 							<motion.div
 								animate={{ scale: 1 }}
 								initial={{ scale: 0 }}
-								transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+								transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 24 }}
 							>
 								<svg
 									aria-label="Success checkmark"

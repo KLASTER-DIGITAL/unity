@@ -186,8 +186,8 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 
 	return (
 		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-24">
-			{/* Header */}
-			<div className="border-border border-b bg-card px-6 pt-16 pb-4 transition-colors duration-300">
+			{/* Header - УМЕНЬШЕН ОТСТУП СВЕРХУ */}
+			<div className="border-border border-b bg-card px-6 pt-6 pb-4 transition-colors duration-300">
 				<h1 className="mb-4 font-semibold! text-[28px]! text-foreground">
 					{t('historyTitle', 'История')}
 				</h1>

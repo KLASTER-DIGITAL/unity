@@ -86,20 +86,23 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 				</div>
 			)}
 
-			<p className="mb-3 text-[15px]! text-foreground leading-[22px] dark:text-white">
+			{/* Текст записи - 14px */}
+			<p className="mb-3 text-[14px]! text-foreground leading-[21px] font-medium dark:text-white">
 				{entry.text}
 			</p>
 
-			{/* AI Анализ - показываем если есть */}
+			{/* AI Анализ - ПЕРЕМЕСТИЛИ ПОД ТЕКСТ */}
 			{entry.aiReply && (
 				<div className="mb-3">
 					<AIAnalysisBlock aiReply={entry.aiReply} variant="compact" />
 				</div>
 			)}
 
-			<div className="flex flex-wrap items-center gap-2">
+			{/* Категория и теги - МИНИМАЛЬНЫЙ РАЗМЕР 8px С УВЕЛИЧЕННЫМ PADDING */}
+			<div className="flex flex-wrap items-center gap-1.5">
 				<span
-					className={`rounded-[6px] border px-2 py-1 font-medium! text-[11px]! ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}
+					className={`rounded-[6px] border px-3 py-1.5 font-medium! ${SENTIMENT_COLORS[entry.sentiment]} border-current/30`}
+					style={{ fontSize: '8px' }}
 				>
 					{entry.sentiment === 'positive'
 						? '😊 Позитив'
@@ -109,8 +112,9 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 				</span>
 				{(entry.tags || []).map((tag) => (
 					<span
-						className="rounded-[6px] border border-muted-foreground/30 bg-muted px-2 py-1 text-[11px]! text-muted-foreground dark:border-muted-foreground/50"
+						className="rounded-[4px] border border-muted-foreground/20 bg-muted/50 px-3 py-1.5 text-muted-foreground/70 dark:border-muted-foreground/30"
 						key={tag}
+						style={{ fontSize: '8px' }}
 					>
 						#{tag}
 					</span>

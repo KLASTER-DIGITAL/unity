@@ -15,6 +15,7 @@ import {
 	handleMediaUpload as mediaUpload,
 	handleSendMessage as sendMessage,
 } from './chat-input';
+import { triggerHapticFeedback } from './chat-input/PermissionUtils';
 // ✅ СТАРЫЙ Success Modal с конфетти (НЕ новый дизайн)
 import { SuccessModal } from './chat-input/SuccessModal';
 
@@ -118,7 +119,7 @@ export function ChatInputSection({
 	// Auto-resize textarea on input change
 	useEffect(() => {
 		debouncedResizeTextarea();
-	}, [debouncedResizeTextarea]);
+	}, [debouncedResizeTextarea, inputText]);
 
 	// Обработка отправки сообщения - СРАЗУ показать Success Modal
 	const handleSendMessage = () => {
@@ -150,6 +151,7 @@ export function ChatInputSection({
 		}
 
 		// 1. Сразу показать Success Modal (НЕ ждать обработки)
+		triggerHapticFeedback();
 		setShowSuccessModal(true);
 
 		// 2. Очистить черновик (запись успешно отправлена)
@@ -242,8 +244,11 @@ export function ChatInputSection({
 	return (
 		<div className="p-section pb-24">
 			{/* Question Header */}
-			<div className="mb-6">
-				<h2 className="text-center font-semibold! text-[20px]! text-black leading-[26px]">
+			<div className="mb-4">
+				<h2
+					className="text-center font-semibold text-foreground"
+					style={{ fontSize: '20px', lineHeight: '26px' }}
+				>
 					Что сегодня получилось
 					<br />
 					лучше всего?

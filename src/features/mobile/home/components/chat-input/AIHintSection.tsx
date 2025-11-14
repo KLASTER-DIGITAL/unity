@@ -22,7 +22,7 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
 					className="mt-6"
 					exit={{ opacity: 0, scale: 0.9 }}
 					initial={{ opacity: 0, y: 10 }}
-					transition={{ delay: 0.5 }}
+					transition={{ delay: 0.15, type: 'spring', stiffness: 260, damping: 24 }}
 				>
 					<div className="relative rounded-[16px] border border-border/20 bg-muted/10 p-card backdrop-blur-md transition-colors duration-300">
 						{/* Close Button */}
