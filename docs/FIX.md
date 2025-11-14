@@ -8,6 +8,22 @@
 
 ## [Unreleased] - 2025-11-14
 
+### 🔄 Изменено
+
+**Performance: Lazy Loading для ProfileEditModal (2025-11-14)**:
+- **Проблема**: ProfileEditModal (500 строк) загружался в main chunk
+- **Решение**: Добавлен lazy loading через React.lazy() + Suspense
+  - Модальное окно загружается только при открытии (по клику)
+  - Создан отдельный chunk: ProfileEditModal-DlYIAabe.js (9.87 KB)
+  - Добавлен Suspense wrapper с fallback={null}
+- **Результат**:
+  - Main chunk уменьшен на ~10 KB
+  - Улучшение FCP/LCP метрик
+  - Модальное окно загружается мгновенно при открытии
+- **Файлы**:
+  - `src/features/mobile/settings/components/SettingsScreen.tsx`
+- **Commit**: pending
+
 ### ⚡ Производительность
 
 **Performance: Оптимизация API запросов HomeScreen (2025-11-14)**:

@@ -1,13 +1,19 @@
 import { AnimatePresence } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { PremiumActivatedModal } from '@/shared/components/modals/PremiumActivatedModal';
 import { Button } from '@/shared/components/ui/button';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 import { PremiumModal } from './PremiumModal';
-import { ProfileEditModal } from './ProfileEditModal';
 import { SettingsSection } from './SettingsRow';
 import { SettingsScreenSkeleton } from './SettingsScreenSkeleton';
+
+// ✅ OPTIMIZATION: Lazy load ProfileEditModal (500 lines)
+// Modal opens on click - perfect candidate for code splitting
+const ProfileEditModal = lazy(() =>
+	import('./ProfileEditModal').then((m) => ({ default: m.ProfileEditModal }))
+);
+
 import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
 import {
@@ -384,28 +390,32 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 				open={showPremiumActivated}
 			/>
 
-			{/* Profile Edit Modal */}
-			<ProfileEditModal
-				isOpen={showEditProfile}
-				onClose={() => setShowEditProfile(false)}
-				onProfileUpdated={(updatedProfile) => {
-					console.log('✅ Profile updated in SettingsScreen:', updatedProfile);
-					// Update local state immediately for real-time display
-					setProfile(updatedProfile);
-					// Update global state in App.tsx
-					if (onProfileUpdate) {
-						onProfileUpdate(updatedProfile);
-					}
-				}}
-				profile={{
-					id: profile?.id || '',
-					name: profile?.name || '',
-					email: profile?.email || '',
-					avatar: profile?.avatar || '',
-					diaryName: profile?.diaryName || profile?.diary_name || 'Мой дневник',
-					diaryEmoji: profile?.diaryEmoji || profile?.diary_emoji || '📝',
-				}}
-			/>
+			{/* Profile Edit Modal - Lazy Loaded */}
+			{showEditProfile && (
+				<Suspense fallback={null}>
+					<ProfileEditModal
+						isOpen={showEditProfile}
+						onClose={() => setShowEditProfile(false)}
+						onProfileUpdated={(updatedProfile) => {
+							console.log('✅ Profile updated in SettingsScreen:', updatedProfile);
+							// Update local state immediately for real-time display
+							setProfile(updatedProfile);
+							// Update global state in App.tsx
+							if (onProfileUpdate) {
+								onProfileUpdate(updatedProfile);
+							}
+						}}
+						profile={{
+							id: profile?.id || '',
+							name: profile?.name || '',
+							email: profile?.email || '',
+							avatar: profile?.avatar || '',
+							diaryName: profile?.diaryName || profile?.diary_name || 'Мой дневник',
+							diaryEmoji: profile?.diaryEmoji || profile?.diary_emoji || '📝',
+						}}
+					/>
+				</Suspense>
+			)}
 		</div>
 	);
 }
