@@ -23,9 +23,16 @@ import { getDefaultMotivations, SwipeCard } from './achievement';
 type MotivationCardsSectionProps = {
 	userData: any;
 	onCardSwipe?: () => void;
+	motivationCards?: AchievementCard[]; // ✅ OPTIMIZATION: Accept cards from parent (unified API)
+	isLoading?: boolean; // ✅ OPTIMIZATION: Accept loading state from parent
 };
 
-export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCardsSectionProps) {
+export function MotivationCardsSection({
+	userData,
+	onCardSwipe,
+	motivationCards: externalCards,
+	isLoading: externalLoading,
+}: MotivationCardsSectionProps) {
 	const [cards, setCards] = useState<AchievementCard[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	// ❌ УДАЛЕНО: showUndo и lastRemovedCard - кнопка "Отменить" больше не нужна
@@ -36,9 +43,26 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 	const supabase = createClient();
 	const loadMotivationCardsRef = useRef<(() => Promise<void>) | null>(null);
 
+	// ✅ OPTIMIZATION: Use external cards if provided (from unified API)
+	useEffect(() => {
+		if (externalCards) {
+			console.log('[MotivationCardsSection] Using external cards from unified API:', externalCards);
+			setCards(externalCards);
+			setCurrentIndex(0);
+			setIsLoading(externalLoading || false);
+			return;
+		}
+	}, [externalCards, externalLoading]);
+
 	// Load motivation cards function - используем useCallback для стабильной ссылки
 	const loadMotivationCards = useCallback(
 		async (useCache = true) => {
+			// ✅ OPTIMIZATION: Skip if using external cards
+			if (externalCards) {
+				console.log('[MotivationCardsSection] Skipping load - using external cards');
+				return;
+			}
+
 			try {
 				setIsLoading(true);
 				const userId = userData?.user?.id || userData?.id || 'anonymous';
@@ -62,7 +86,7 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 				setIsLoading(false);
 			}
 		},
-		[userData?.user?.id, userData?.id, userData?.language]
+		[userData?.user?.id, userData?.id, userData?.language, externalCards]
 	);
 
 	// ✅ FIX: Сохраняем ссылку на функцию загрузки для realtime подписки

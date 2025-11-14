@@ -296,6 +296,8 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 				languageName={languages.find((l) => l.code === profile?.language)?.native_name || 'Русский'}
 				onLanguageClick={() => setShowLanguage(true)}
 				t={t}
+				userEmail={profile?.email || ''}
+				userId={profile?.id || ''}
 			/>
 
 			{/* Поддержка */}

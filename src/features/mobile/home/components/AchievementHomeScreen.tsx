@@ -1,6 +1,7 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { type DiaryEntry, getUserStats } from '@/shared/lib/api';
+import { useHomeScreenData } from '@/shared/hooks/useHomeScreenData';
+import type { DiaryEntry } from '@/shared/lib/api';
 import { AchievementHeader } from './AchievementHeader';
 import { ChatInputSection } from './ChatInputSection';
 import { EntryDetailModal } from './EntryDetailModal';
@@ -32,47 +33,25 @@ export function AchievementHomeScreen({
 	onNavigateToHistory,
 	onNavigateToSettings,
 }: AchievementHomeScreenProps) {
-	const [isLoading, setIsLoading] = useState(true);
-	const [currentStreak, setCurrentStreak] = useState(0);
 	const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | null>(null);
 
-	// ✅ FIX: Определяем функцию ДО useEffect с useCallback
-	const loadStats = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const userId = userData?.user?.id || userData?.id || 'anonymous';
+	// ✅ OPTIMIZATION: Use unified API (3 requests → 1)
+	const userId = userData?.user?.id || userData?.id || 'anonymous';
+	const { data: homeData, isLoading, refetch } = useHomeScreenData(userId);
 
-			// Загружаем только статистику
-			const stats = await getUserStats(userId);
-			console.log('User stats:', stats);
-
-			// Обновляем streak
-			setCurrentStreak(stats.currentStreak);
-		} catch (error) {
-			console.error('Error loading stats:', error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [userData]);
-
-	// ✅ FIX: useEffect ПОСЛЕ определения функции
-	useEffect(() => {
-		loadStats();
-	}, [loadStats]);
+	// Extract data from unified response
+	const currentStreak = homeData?.stats?.currentStreak || 0;
+	const motivationCards = homeData?.motivationCards || [];
+	const recentEntries = homeData?.recentEntries || [];
 
 	// Обработчик создания новой записи
 	const handleNewEntry = (_entry: DiaryEntry) => {
 		console.log('[AchievementHomeScreen] New entry created:', _entry);
 
-		// Перезагружаем статистику
-		const userId = userData?.user?.id || userData?.id || 'anonymous';
-		getUserStats(userId)
-			.then((stats) => {
-				setCurrentStreak(stats.currentStreak);
-			})
-			.catch((err) => {
-				console.error('Error updating stats:', err);
-			});
+		// ✅ OPTIMIZATION: Refetch unified data instead of separate getUserStats()
+		refetch().catch((err) => {
+			console.error('Error updating home screen data:', err);
+		});
 
 		// ✅ FIX: Больше НЕ нужен manual refresh - Supabase Realtime автоматически обновит UI
 		// setFeedRefreshKey((prev) => prev + 1); // DEPRECATED
@@ -142,10 +121,10 @@ export function AchievementHomeScreen({
 							<Skeleton className="h-6 w-40" />
 							<Skeleton className="h-5 w-24" />
 						</div>
-						{[...new Array(3)].map((_, i) => (
+						{['skeleton-1', 'skeleton-2', 'skeleton-3'].map((skeletonId) => (
 							<div
 								className="rounded-[16px] bg-card p-4 shadow-sm transition-colors duration-300"
-								key={`skeleton-card-${i}`}
+								key={skeletonId}
 								style={{ minHeight: '140px' }}
 							>
 								<div className="mb-3 flex items-start justify-between">
@@ -196,6 +175,8 @@ export function AchievementHomeScreen({
 					}
 				>
 					<MotivationCardsSection
+						isLoading={isLoading}
+						motivationCards={motivationCards}
 						onCardSwipe={() => {
 							// ✅ REMOVED: feedRefreshKey больше не нужен - Supabase Realtime автоматически обновляет
 							console.log('Card swiped - Realtime will update feed automatically');
@@ -220,6 +201,7 @@ export function AchievementHomeScreen({
 			{/* Recent Entries Feed - Лента последних записей */}
 			{!isLoading && (
 				<RecentEntriesFeed
+					isLoading={isLoading}
 					language={userData?.language || 'ru'}
 					onEntryClick={(entry) => {
 						setSelectedEntry(entry);
@@ -228,6 +210,7 @@ export function AchievementHomeScreen({
 						console.log('Navigate to History');
 						onNavigateToHistory?.();
 					}}
+					recentEntries={recentEntries}
 					// ✅ REMOVED: refreshTrigger больше не нужен - Supabase Realtime автоматически обновляет
 					userData={userData}
 				/>

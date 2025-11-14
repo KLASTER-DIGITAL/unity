@@ -45,7 +45,8 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
 							/>
 						</View>
 						<Text style={styles.progressText}>
-							{milestone.progress} / {milestone.total}
+							{/* ✅ FIX: Clamp progress to total to prevent overflow display (30/20) */}
+							{Math.min(milestone.progress, milestone.total)} / {milestone.total}
 						</Text>
 					</View>
 				)}

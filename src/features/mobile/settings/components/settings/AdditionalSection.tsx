@@ -3,7 +3,9 @@
  */
 
 import { Calendar, Download, Globe, Trash2, Upload } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { DeleteAllDataDialog } from '../DeleteAllDataDialog';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type AdditionalSectionProps = {
@@ -11,6 +13,8 @@ type AdditionalSectionProps = {
 	languageName: string;
 	firstDayOfWeek?: string;
 	onLanguageClick: () => void;
+	userId: string;
+	userEmail: string;
 	t: any;
 };
 
@@ -19,50 +23,64 @@ export function AdditionalSection({
 	languageName,
 	firstDayOfWeek,
 	onLanguageClick,
+	userId,
+	userEmail,
 	t,
 }: AdditionalSectionProps) {
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
 	return (
-		<SettingsSection title={t.additional || 'Дополнительно'}>
-			<SettingsRow
-				description={languageName}
-				icon={Globe}
-				iconBgColor="bg-(--ios-indigo)/10"
-				iconColor="text-(--ios-indigo)"
-				onClick={onLanguageClick}
-				title={t.language || 'Язык'}
+		<>
+			<SettingsSection title={t.additional || 'Дополнительно'}>
+				<SettingsRow
+					description={languageName}
+					icon={Globe}
+					iconBgColor="bg-(--ios-indigo)/10"
+					iconColor="text-(--ios-indigo)"
+					onClick={onLanguageClick}
+					title={t.language || 'Язык'}
+				/>
+				<SettingsRow
+					description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
+					icon={Calendar}
+					iconBgColor="bg-(--ios-blue)/10"
+					iconColor="text-(--ios-blue)"
+					onClick={() => toast.info('Feature coming soon')}
+					title={t.firstDayOfWeek || 'Первый день недели'}
+				/>
+				<SettingsRow
+					description="JSON, CSV, ZIP"
+					icon={Download}
+					iconBgColor="bg-(--ios-green)/10"
+					iconColor="text-(--ios-green)"
+					onClick={() => toast.info('Feature coming soon')}
+					title={t.exportData || 'Экспортировать данные'}
+				/>
+				<SettingsRow
+					description="Восстановить из файла"
+					icon={Upload}
+					iconBgColor="bg-(--ios-purple)/10"
+					iconColor="text-(--ios-purple)"
+					onClick={() => toast.info('Feature coming soon')}
+					title={t.importData || 'Импортировать данные'}
+				/>
+				<SettingsRow
+					description="Необратимое действие"
+					icon={Trash2}
+					iconBgColor="bg-(--ios-red)/10"
+					iconColor="text-(--ios-red)"
+					onClick={() => setShowDeleteDialog(true)}
+					title={t.deleteAllData || 'Удалить все данные'}
+				/>
+			</SettingsSection>
+
+			{/* Delete All Data Dialog */}
+			<DeleteAllDataDialog
+				onOpenChange={setShowDeleteDialog}
+				open={showDeleteDialog}
+				userEmail={userEmail}
+				userId={userId}
 			/>
-			<SettingsRow
-				description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
-				icon={Calendar}
-				iconBgColor="bg-(--ios-blue)/10"
-				iconColor="text-(--ios-blue)"
-				onClick={() => toast.info('Feature coming soon')}
-				title={t.firstDayOfWeek || 'Первый день недели'}
-			/>
-			<SettingsRow
-				description="JSON, CSV, ZIP"
-				icon={Download}
-				iconBgColor="bg-(--ios-green)/10"
-				iconColor="text-(--ios-green)"
-				onClick={() => toast.info('Feature coming soon')}
-				title={t.exportData || 'Экспортировать данные'}
-			/>
-			<SettingsRow
-				description="Восстановить из файла"
-				icon={Upload}
-				iconBgColor="bg-(--ios-purple)/10"
-				iconColor="text-(--ios-purple)"
-				onClick={() => toast.info('Feature coming soon')}
-				title={t.importData || 'Импортировать данные'}
-			/>
-			<SettingsRow
-				description="Необратимое действие"
-				icon={Trash2}
-				iconBgColor="bg-(--ios-red)/10"
-				iconColor="text-(--ios-red)"
-				onClick={() => toast.error('Требуется подтверждение')}
-				title={t.deleteAllData || 'Удалить все данные'}
-			/>
-		</SettingsSection>
+		</>
 	);
 }

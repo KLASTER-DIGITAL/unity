@@ -360,7 +360,12 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 												/>
 											</div>
 											<p className="text-[#787486] text-xs">
-												{Math.round(badge.progress || 0)}/{badge.rarity === 'legendary' ? 30 : 20}
+												{/* ✅ FIX: Clamp progress to target to prevent overflow display (30/20) */}
+												{Math.min(
+													Math.round(badge.progress || 0),
+													badge.rarity === 'legendary' ? 30 : 20
+												)}
+												/{badge.rarity === 'legendary' ? 30 : 20}
 											</p>
 										</div>
 									)}
@@ -407,7 +412,9 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 									) : (
 										<div className="text-right">
 											<p className="mb-1 text-[#787486] text-sm">
-												{Math.round(milestone.progress || 0)}/{milestone.total}
+												{/* ✅ FIX: Clamp progress to total to prevent overflow display (30/20) */}
+												{Math.min(Math.round(milestone.progress || 0), milestone.total || 0)}/
+												{milestone.total}
 											</p>
 											{/* ✅ FIX: Added max-w-full and overflow-hidden to prevent progress bar overflow */}
 											<div className="h-2 w-20 max-w-full overflow-hidden rounded-full bg-muted">

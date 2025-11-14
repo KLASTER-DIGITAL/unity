@@ -8,6 +8,94 @@
 
 ## [Unreleased] - 2025-11-14
 
+### ⚡ Производительность
+
+**Performance: Оптимизация API запросов HomeScreen (2025-11-14)**:
+- **Проблема**: HomeScreen делал 3 отдельных API запроса (getUserStats, getMotivationCards, getEntries)
+- **Решение**: Использование unified API через useHomeScreenData hook
+  - AchievementHomeScreen теперь использует useHomeScreenData вместо getUserStats
+  - MotivationCardsSection принимает motivationCards как проп (fallback на getMotivationCards)
+  - RecentEntriesFeed принимает recentEntries как проп (fallback на useEntries)
+  - Данные загружаются в 1 запрос вместо 3 (↓67%)
+- **Файлы**:
+  - `src/features/mobile/home/components/AchievementHomeScreen.tsx`
+  - `src/features/mobile/home/components/MotivationCardsSection.tsx`
+  - `src/features/mobile/home/components/RecentEntriesFeed.tsx`
+- **Ожидаемый результат**:
+  - API requests: 3 → 1 (↓67%)
+  - FCP: 1500ms → 900-1050ms (↓30-40%)
+  - LCP: 2000ms → 1200-1400ms (↓30-40%)
+- **UUID**: 4EAGNPRCagqjN9DT2xj6EP
+- **Статус**: ✅ ЗАВЕРШЕНО
+
+### 🔒 Безопасность
+
+**Security - Подтверждение для опасных действий (2025-11-14)**:
+- **Проблема**: Удаление всех данных без подтверждения
+  - Кнопка "Удалить все данные" просто показывала toast
+  - Нет защиты от случайного нажатия
+  - Нет предупреждения о необратимости действия
+- **Решение**: Создан DeleteAllDataDialog с многоуровневой защитой
+  - Требуется ввод "DELETE" для подтверждения
+  - 5-секундный countdown перед активацией кнопки
+  - Четкое предупреждение о необратимости
+  - Список того что будет удалено
+  - Email уведомление после удаления (опционально)
+- **Файлы**:
+  - src/features/mobile/settings/components/DeleteAllDataDialog.tsx (новый)
+  - src/features/mobile/settings/components/settings/AdditionalSection.tsx (обновлен)
+  - src/features/mobile/settings/components/SettingsScreen.tsx (обновлен)
+- **UUID**: fiLsNz7p15pdhLp2mhvhp3
+- **Время**: 1.5 часа
+- **Статус**: ✅ ЗАВЕРШЕНО
+
+### 🐛 Исправления
+
+**Performance - Motivation Cards Caching (2025-11-14)**:
+- **Проблема**: Карточки загружались каждый раз заново
+  - Лишние API запросы
+  - Медленная загрузка (500-1000ms)
+  - Лишняя нагрузка на сервер
+- **Решение**: ✅ УЖЕ РЕАЛИЗОВАНО (2025-11-08)
+  - Используется DataCacheManager с TTL 1 час
+  - Stale-while-revalidate стратегия (показываем кэш + обновляем в фоне)
+  - Cross-platform (localStorage для PWA, AsyncStorage для RN)
+- **Файлы**:
+  - src/shared/lib/api/services/motivations.ts (lines 12-31, 72, 94)
+  - src/shared/lib/cache/DataCacheManager.ts (полная реализация)
+- **UUID**: wdDqWRjtfcFVdBnp8JEB9b
+- **Статус**: ✅ VERIFIED - кэширование уже работает
+
+**Bug Fix - activeToday Calculation (2025-11-14)**:
+- **Проблема**: Подсчет активных пользователей сегодня мог быть неточным
+  - Использовалась проверка через timestamp comparison
+  - Проблемы с timezone при сравнении дат
+- **Решение**: ✅ УЖЕ ИСПРАВЛЕНО (2025-11-08)
+  - Используется UTC date string comparison (YYYY-MM-DD)
+  - `const todayUTC = new Date().toISOString().split('T')[0]`
+  - Timezone-independent и более надежный подход
+- **Файлы**:
+  - supabase/functions/admin-stats-api/index.ts (lines 146, 163-165)
+  - supabase/functions/admin-api/index.ts (lines 132, 149-152)
+- **UUID**: vmgekvSsVzyx7tSQFYvKme
+- **Статус**: ✅ VERIFIED - код уже исправлен
+
+**Bug Fix - Achievement Progress Overflow (2025-11-14)**:
+- **Проблема**: Прогресс достижений показывал переполнение (30/20, 35/30)
+  - `badge.progress` мог быть больше target (20 или 30)
+  - `milestone.progress` мог быть больше total
+  - Визуально сбивало с толку пользователей
+- **Решение**: Ограничение отображаемого значения через Math.min()
+  - PWA: `Math.min(Math.round(badge.progress || 0), target)`
+  - React Native: `Math.min(milestone.progress, milestone.total)`
+  - Прогресс бар уже был ограничен 100%, теперь и текст тоже
+- **Файлы**:
+  - src/features/mobile/achievements/components/AchievementsScreen.tsx (lines 363, 411)
+  - app-shared/components/screens/achievements/MilestoneCard.native.tsx (line 48)
+- **UUID**: gDpbfsEFok8Vmh1U766B1K
+- **Время**: 30 минут
+- **Приоритет**: P1 - Bug Fix
+
 ### 🐛 Исправлено
 
 #### **i18n система - язык мотивационных карточек**

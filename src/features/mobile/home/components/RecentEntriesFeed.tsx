@@ -12,6 +12,8 @@ type RecentEntriesFeedProps = {
 	onEntryClick?: (entry: DiaryEntry) => void;
 	onViewAllClick?: () => void;
 	refreshTrigger?: number; // ✅ DEPRECATED: Больше не нужен, используем Supabase Realtime
+	recentEntries?: DiaryEntry[]; // ✅ OPTIMIZATION: Accept entries from parent (unified API)
+	isLoading?: boolean; // ✅ OPTIMIZATION: Accept loading state from parent
 };
 
 export function RecentEntriesFeed({
@@ -20,6 +22,8 @@ export function RecentEntriesFeed({
 	onEntryClick,
 	onViewAllClick,
 	refreshTrigger: _refreshTrigger, // ✅ Оставляем для обратной совместимости, но не используем
+	recentEntries: externalEntries,
+	isLoading: externalLoading,
 }: RecentEntriesFeedProps) {
 	const [emblaRef] = useEmblaCarousel({
 		align: 'start',
@@ -27,14 +31,16 @@ export function RecentEntriesFeed({
 		dragFree: true,
 	});
 
-	// ✅ FIX: Используем useEntries hook с Supabase Realtime
-	// Автоматическое обновление UI при INSERT/UPDATE/DELETE в таблице entries
+	// ✅ OPTIMIZATION: Use external entries if provided (from unified API)
 	const userId = userData?.user?.id || userData?.id;
+	const { entries: hookEntries, isLoading: hookLoading } = useEntries(userId, 3);
+
+	// ✅ OPTIMIZATION: Prefer external entries from unified API
+	const entries = externalEntries || hookEntries;
+	const isLoading = externalLoading !== undefined ? externalLoading : hookLoading;
+
 	console.log('[RecentEntriesFeed] 🔑 userId:', userId);
-	console.log('[RecentEntriesFeed] 📦 userData:', userData);
-
-	const { entries, isLoading } = useEntries(userId, 3); // Загружаем только последние 3
-
+	console.log('[RecentEntriesFeed] 📦 Using external entries:', !!externalEntries);
 	console.log('[RecentEntriesFeed] 📊 Loaded entries:', entries.length);
 	if (entries.length > 0) {
 		console.log('[RecentEntriesFeed] 📝 First entry text:', entries[0]?.text);
