@@ -8,6 +8,56 @@
 
 ## [Unreleased] - 2025-11-14
 
+### 📊 Анализ
+
+**Анализ логики отображения AI Insights карточек (2025-11-14)**:
+- **Проверка**: Порядок отображения карточек в MotivationCardsSection
+- **Результат**: ✅ Логика КОРРЕКТНА и соответствует требованиям
+- **Порядок карточек**:
+  1. **AI инсайт из записи** (entry.ai_insight) - ПРИОРИТЕТ 1
+     - Берутся последние 10 записей за 24 часа
+     - Фильтруются непросмотренные (не в motivation_cards.is_read=true)
+     - Берутся первые 3 непросмотренные записи
+     - description = entry.ai_insight || entry.ai_summary || entry.text
+  2. **Шаблонные сообщения** (DEFAULT_MOTIVATIONS) - ПРИОРИТЕТ 2
+     - Добавляются ТОЛЬКО если карточек из записей < 3
+     - Мультиязычные (ru/en/es/de/fr/zh/ja)
+     - Мотивационные сообщения для новых пользователей
+  3. **AI анализ** - НЕ используется отдельно
+     - ai_summary используется для title (первые 8 слов)
+     - ai_insight используется для description
+- **Уникальные градиенты**: ✅ УЖЕ РЕАЛИЗОВАНО
+  - UNIQUE_GRADIENTS массив из 8 уникальных градиентов
+  - Назначаются на основе индекса в финальном массиве
+  - Fallback на sentiment-based градиенты если индекс > 8
+- **Файлы**:
+  - supabase/functions/motivations/index.ts - логика выбора карточек
+  - src/features/mobile/home/components/MotivationCardsSection.tsx - отображение
+  - src/features/mobile/home/components/achievement/constants.ts - градиенты
+- **Время**: 15 минут
+
+### ✨ Новые возможности
+
+**Экран успеха после просмотра всех AI Insights карточек (2025-11-14)**:
+- **Компонент**: AllCardsViewedModal - модальное окно с поздравлением
+- **Триггер**: Показывается когда пользователь просмотрел все карточки (currentIndex >= cards.length)
+- **Дизайн**:
+  - Success icon с spring анимацией
+  - Gradient background (green → emerald)
+  - 2 информационных блока:
+    1. "Новые карточки завтра" - мотивация создавать записи
+    2. "Продолжайте писать" - объяснение как работает AI
+  - CTA кнопка "Понятно" с gradient
+- **UX**:
+  - Автоматическое открытие после последнего свайпа
+  - Backdrop с blur эффектом
+  - Smooth animations (framer-motion)
+  - iOS Design System best practices
+- **Файлы**:
+  - src/features/mobile/home/components/AllCardsViewedModal.tsx - новый компонент
+  - src/features/mobile/home/components/MotivationCardsSection.tsx - интеграция
+- **Время**: 20 минут
+
 ### 🔄 Изменено
 
 **Performance: Lazy loading для PushTemplateEditor (2025-11-14)**:

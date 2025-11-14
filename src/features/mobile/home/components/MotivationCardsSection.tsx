@@ -16,6 +16,7 @@ import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
 import type { Language } from '@/shared/lib/i18n';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import { createClient } from '@/utils/supabase/client';
+import { AllCardsViewedModal } from './AllCardsViewedModal';
 import type { AchievementCard } from './achievement';
 // Import modular components
 import { getDefaultMotivations, SwipeCard } from './achievement';
@@ -38,6 +39,7 @@ export function MotivationCardsSection({
 	// ❌ УДАЛЕНО: showUndo и lastRemovedCard - кнопка "Отменить" больше не нужна
 	const [isLoading, setIsLoading] = useState(true);
 	const [showAllRead, setShowAllRead] = useState(false);
+	const [showAllCardsViewedModal, setShowAllCardsViewedModal] = useState(false);
 
 	// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для realtime подписки
 	const supabase = createClient();
@@ -173,6 +175,8 @@ export function MotivationCardsSection({
 		// Check if all cards are read
 		if (nextIndex >= cards.length) {
 			setShowAllRead(true);
+			// ✅ NEW: Show success modal when all cards are viewed
+			setShowAllCardsViewedModal(true);
 		}
 
 		// Notify parent
@@ -213,30 +217,38 @@ export function MotivationCardsSection({
 
 	// Cards display
 	return (
-		<div className="px-section pt-4 pb-16">
-			{/* ✅ FIX: pt-4 (16px) от header, pb-16 (64px) отступ до заголовка */}
+		<>
+			<div className="px-section pt-4 pb-16">
+				{/* ✅ FIX: pt-4 (16px) от header, pb-16 (64px) отступ до заголовка */}
 
-			{/* Cards Stack Container */}
-			<div className="relative" style={{ height: '280px' }}>
-				{/* ✅ FIX: height 280px для карточек */}
-				{/* Карточки имеют absolute positioning, поэтому нужна фиксированная высота */}
-				<AnimatedPresence mode={undefined}>
-					{/* ✅ FIX: Рендерим карточки в ПРЯМОМ порядке для правильного z-index */}
-					{/* Первая карточка в DOM = самый низкий z-index, последняя = самый высокий */}
-					{visibleCards.map((card, index) => {
-						return (
-							<SwipeCard
-								card={card}
-								index={index}
-								isTop={index === 0}
-								key={card.id}
-								onSwipe={handleSwipe}
-								totalCards={visibleCards.length}
-							/>
-						);
-					})}
-				</AnimatedPresence>
+				{/* Cards Stack Container */}
+				<div className="relative" style={{ height: '280px' }}>
+					{/* ✅ FIX: height 280px для карточек */}
+					{/* Карточки имеют absolute positioning, поэтому нужна фиксированная высота */}
+					<AnimatedPresence mode={undefined}>
+						{/* ✅ FIX: Рендерим карточки в ПРЯМОМ порядке для правильного z-index */}
+						{/* Первая карточка в DOM = самый низкий z-index, последняя = самый высокий */}
+						{visibleCards.map((card, index) => {
+							return (
+								<SwipeCard
+									card={card}
+									index={index}
+									isTop={index === 0}
+									key={card.id}
+									onSwipe={handleSwipe}
+									totalCards={visibleCards.length}
+								/>
+							);
+						})}
+					</AnimatedPresence>
+				</div>
 			</div>
-		</div>
+
+			{/* ✅ NEW: All Cards Viewed Modal */}
+			<AllCardsViewedModal
+				onClose={() => setShowAllCardsViewedModal(false)}
+				open={showAllCardsViewedModal}
+			/>
+		</>
 	);
 }
