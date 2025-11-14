@@ -10,6 +10,23 @@
 
 ### 🔄 Изменено
 
+**Performance: Исправлены все circular dependency warnings (2025-11-14)**:
+- **Проблема**: 2 circular dependency warnings в build
+  1. `LazyLoader.ts is dynamically imported but also statically imported`
+  2. `SmartCache.ts is dynamically imported but also statically imported`
+- **Root Cause**: `src/shared/lib/i18n/optimizations/index.ts` экспортировал модули статически И импортировал динамически
+- **Решение**: Заменены динамические импорты на статические
+  - Удалены `await import('./LazyLoader')` и `require('./LazyLoader')`
+  - Удалены `await import('./SmartCache')` и `require('./SmartCache')`
+  - Добавлены статические импорты в начале файла
+- **Результат**:
+  - ВСЕ circular dependency warnings исчезли ✅
+  - Build полностью чистый (0 warnings о circular dependencies)
+  - Vite автоматически обрабатывает code splitting
+- **Файлы**:
+  - `src/shared/lib/i18n/optimizations/index.ts`
+- **Commit**: pending
+
 **Performance: Исправлен circular dependency для UsersManagementTab (2025-11-14)**:
 - **Проблема**: UsersManagementTab экспортировался из `index.ts`, создавая статический импорт
 - **Warning**: `UsersManagementTab.tsx is dynamically imported but also statically imported`

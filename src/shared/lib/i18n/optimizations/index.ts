@@ -8,9 +8,14 @@
  * - Prefetching: Background loading of popular languages
  */
 
-export { Compression, OptimizedStorage } from './Compression';
-export { LazyLoader } from './LazyLoader';
-export { CacheWarmer, SmartCache } from './SmartCache';
+// ✅ PERFORMANCE: Use static imports to prevent circular dependency warnings
+// Vite will handle code splitting automatically
+import { Compression, OptimizedStorage } from './Compression';
+import { LazyLoader } from './LazyLoader';
+import { CacheWarmer, SmartCache } from './SmartCache';
+
+// Re-export for external use
+export { Compression, OptimizedStorage, LazyLoader, CacheWarmer, SmartCache };
 
 /**
  * Initialize all optimizations
@@ -28,13 +33,12 @@ export async function initializeOptimizations(options?: {
 
 	console.log('🚀 Initializing translation optimizations...');
 
+	// ✅ PERFORMANCE: Use static imports (already imported at top)
 	// Configure lazy loader
-	const { LazyLoader } = await import('./LazyLoader');
 	LazyLoader.setPrefetchEnabled(enablePrefetch);
 	LazyLoader.setMaxCachedLanguages(maxCachedLanguages);
 
 	// Configure smart cache
-	const { SmartCache } = await import('./SmartCache');
 	SmartCache.configure({
 		maxEntries: maxCachedLanguages + 2,
 		maxSize: 5 * 1024 * 1024, // 5MB
@@ -42,7 +46,6 @@ export async function initializeOptimizations(options?: {
 
 	// Warm cache with popular languages
 	if (enablePrefetch && prefetchLanguages.length > 0) {
-		const { CacheWarmer } = await import('./SmartCache');
 		await CacheWarmer.warm(prefetchLanguages as any);
 	}
 
@@ -53,10 +56,7 @@ export async function initializeOptimizations(options?: {
  * Get optimization statistics
  */
 export function getOptimizationStats() {
-	const { LazyLoader } = require('./LazyLoader');
-	const { SmartCache } = require('./SmartCache');
-	const { OptimizedStorage } = require('./Compression');
-
+	// ✅ PERFORMANCE: Use static imports (already imported at top)
 	return {
 		lazyLoader: LazyLoader.getStats(),
 		smartCache: SmartCache.getStats(),
