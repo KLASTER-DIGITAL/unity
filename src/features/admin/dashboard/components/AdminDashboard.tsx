@@ -50,9 +50,9 @@ import {
 	LazyPWASettings,
 	LazySettingsTab,
 	LazyTestLab,
+	LazyUsersManagementTab,
 	useTabPreload,
 } from './tabs/LazyTabs';
-import { UsersManagementTab } from './UsersManagementTab';
 
 // Re-export types for backward compatibility
 export type { AdminDashboardProps };
@@ -67,7 +67,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	const [stats, setStats] = useState<AdminStats>(INITIAL_STATS);
 
 	// ✅ PERFORMANCE: Preload tabs on hover
-	const { preloadOnHover } = useTabPreload();
+	// const { preloadOnHover } = useTabPreload(); // TODO: Add hover preload to tab buttons
 
 	// Проверка прав супер-админа
 	const isSuperAdmin = checkSuperAdmin(userData);
@@ -203,6 +203,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 					<div className="flex h-16 items-center justify-between px-4 lg:px-8">
 						<div className="flex items-center gap-4">
 							<button
+								type="button"
 								className="flex h-10 w-10 items-center justify-center rounded-(--radius) hover:bg-muted lg:hidden"
 								onClick={() => setIsSidebarOpen(true)}
 							>
@@ -214,6 +215,7 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 						</div>
 
 						<button
+							type="button"
 							className="flex h-10 w-10 items-center justify-center rounded-(--radius) hover:bg-muted lg:hidden"
 							onClick={onLogout}
 							title="Выход"
@@ -249,7 +251,8 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 										stats={stats}
 									/>
 								)}
-								{activeTab === 'users' && <UsersManagementTab />}
+								{/* ✅ PERFORMANCE: Lazy loaded UsersManagementTab (411 строк) */}
+								{activeTab === 'users' && <LazyUsersManagementTab />}
 								{activeTab === 'subscriptions' && <SubscriptionsTab />}
 								{activeTab === 'ai-analytics' && <AIAnalyticsTab />}
 								{activeTab === 'pwa' && (

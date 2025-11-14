@@ -58,6 +58,11 @@ const ReactNativeReadinessTest = lazy(() =>
 	}))
 );
 
+// Users Management Tab (411 строк)
+const UsersManagementTab = lazy(() =>
+	import('../UsersManagementTab').then((m) => ({ default: m.UsersManagementTab }))
+);
+
 // ============================================
 // Loading Fallback Components
 // ============================================
@@ -128,6 +133,12 @@ export const LazyDeveloperTab = () => (
 	</Suspense>
 );
 
+export const LazyUsersManagementTab = () => (
+	<Suspense fallback={<TabLoadingFallback />}>
+		<UsersManagementTab />
+	</Suspense>
+);
+
 // ============================================
 // Preload Functions
 // ============================================
@@ -142,6 +153,7 @@ export const preloadTabs = {
 	testLab: () => import('@/features/admin/components/TestLab/TestLab'),
 	performance: () => import('@/shared/lib/i18n/monitoring/PerformanceDashboard'),
 	reactNative: () => import('@/features/admin/components/ReactNativeReadinessTest'),
+	users: () => import('../UsersManagementTab'),
 };
 
 // ============================================

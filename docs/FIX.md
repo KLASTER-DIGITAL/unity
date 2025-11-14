@@ -10,6 +10,21 @@
 
 ### 🔄 Изменено
 
+**Performance: Lazy Loading для UsersManagementTab (2025-11-14)**:
+- **Проблема**: UsersManagementTab (411 строк) загружался в main chunk
+- **Решение**: Добавлен lazy loading через LazyTabs.tsx
+  - Создан LazyUsersManagementTab wrapper с Suspense
+  - Добавлен в preloadTabs для hover prefetch
+  - Обновлен AdminDashboard для использования lazy версии
+- **Результат**:
+  - UsersManagementTab загружается только при открытии таба "Пользователи"
+  - Улучшение initial load time для админ-панели
+  - Hover prefetch для мгновенной загрузки при наведении
+- **Файлы**:
+  - `src/features/admin/dashboard/components/tabs/LazyTabs.tsx`
+  - `src/features/admin/dashboard/components/AdminDashboard.tsx`
+- **Commit**: pending
+
 **Performance: Lazy Loading для ProfileEditModal (2025-11-14)**:
 - **Проблема**: ProfileEditModal (500 строк) загружался в main chunk
 - **Решение**: Добавлен lazy loading через React.lazy() + Suspense
