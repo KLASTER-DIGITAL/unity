@@ -10,6 +10,20 @@
 
 ### 🔄 Изменено
 
+**Performance: Исправлен circular dependency для UsersManagementTab (2025-11-14)**:
+- **Проблема**: UsersManagementTab экспортировался из `index.ts`, создавая статический импорт
+- **Warning**: `UsersManagementTab.tsx is dynamically imported but also statically imported`
+- **Решение**: Удален экспорт из `src/features/admin/dashboard/index.ts`
+  - Теперь UsersManagementTab доступен ТОЛЬКО через LazyTabs.tsx
+  - Предотвращен статический импорт
+- **Результат**:
+  - Создан отдельный chunk: UsersManagementTab-Di0VLWMN.js (9.01 KB / 3.19 KB gzipped)
+  - Warning о circular dependency исчез
+  - Улучшение code splitting для админ-панели
+- **Файлы**:
+  - `src/features/admin/dashboard/index.ts`
+- **Commit**: pending
+
 **Performance: Lazy Loading для UsersManagementTab (2025-11-14)**:
 - **Проблема**: UsersManagementTab (411 строк) загружался в main chunk
 - **Решение**: Добавлен lazy loading через LazyTabs.tsx

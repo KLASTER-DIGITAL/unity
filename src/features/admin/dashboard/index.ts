@@ -3,9 +3,11 @@
  *
  * Components:
  * - AdminDashboard: Main admin dashboard with tabs and statistics
- * - UsersManagementTab: User management interface with search and filters
+ * - UsersManagementTab: User management interface with search and filters (lazy loaded)
  */
 
 // Components
 export { AdminDashboard } from './components/AdminDashboard';
-export { UsersManagementTab } from './components/UsersManagementTab';
+// ✅ PERFORMANCE: UsersManagementTab is lazy loaded via LazyTabs.tsx
+// Do NOT export directly to prevent static import
+// export { UsersManagementTab } from './components/UsersManagementTab';
