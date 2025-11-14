@@ -10,6 +10,16 @@
 
 ### 🔄 Изменено
 
+**Performance: Lazy loading для PushTemplateEditor (2025-11-14)**:
+- **Оптимизация**: Добавлен lazy loading для PushTemplateEditor (484 строк)
+- **Результат**:
+  - PushTemplateEditor загружается только при открытии редактора шаблонов
+  - Улучшение initial load time для TemplateManager
+  - Добавлен Suspense wrapper с loading indicator
+- **Файлы**:
+  - `src/features/admin/pwa/components/TemplateManager.tsx`
+- **Commit**: pending
+
 **Performance: Lazy loading для LanguagesManagementTab и AIAnalyticsTab (2025-11-14)**:
 - **Оптимизация**: Добавлен lazy loading для 2 больших компонентов
   1. LanguagesManagementTab (529 строк) → 14.00 KB (4.06 KB gzipped)

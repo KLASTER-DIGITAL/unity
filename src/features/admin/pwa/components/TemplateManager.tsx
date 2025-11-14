@@ -8,9 +8,16 @@
  */
 
 import { Crown, Edit, FileText, Globe, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { PushTemplateEditor } from '@/features/admin/push/components/PushTemplateEditor';
+
+// ✅ PERFORMANCE: Lazy load PushTemplateEditor (484 строк)
+const PushTemplateEditor = lazy(() =>
+	import('@/features/admin/push/components/PushTemplateEditor').then((m) => ({
+		default: m.PushTemplateEditor,
+	}))
+);
+
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -130,17 +137,25 @@ export function TemplateManager() {
 		return true;
 	});
 
-	// Show editor
+	// Show editor with Suspense wrapper
 	if (showEditor) {
 		return (
-			<PushTemplateEditor
-				template={editingTemplate}
-				onSave={handleSave}
-				onCancel={() => {
-					setShowEditor(false);
-					setEditingTemplate(undefined);
-				}}
-			/>
+			<Suspense
+				fallback={
+					<div className="flex h-96 items-center justify-center">
+						<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					</div>
+				}
+			>
+				<PushTemplateEditor
+					template={editingTemplate}
+					onSave={handleSave}
+					onCancel={() => {
+						setShowEditor(false);
+						setEditingTemplate(undefined);
+					}}
+				/>
+			</Suspense>
 		);
 	}
 
