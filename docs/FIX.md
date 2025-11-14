@@ -58,6 +58,30 @@
   - src/features/mobile/home/components/MotivationCardsSection.tsx - интеграция
 - **Время**: 20 минут
 
+### 📚 Документация
+
+**Рекомендации по улучшению UNITY-v2 (2025-11-14)**:
+- **Документ**: docs/RECOMMENDATIONS_2025-11-14.md - комплексные рекомендации
+- **Категории**:
+  - P0 - КРИТИЧНО (5-8 часов): Rate Limiting, Sentry мониторинг, БД метрики
+  - P1 - ВАЖНО (15-21 час): IndexedDB кэш, Pagination, Партиционирование, Mobile Config
+  - P2 - СРЕДНИЙ (16-21 час): Universal Components .native.tsx, i18n RN, Bundle optimization
+- **Масштабирование БД**:
+  - Партиционирование entries при 1M записей
+  - Архивация данных >2 года
+  - Мониторинг метрик (db_size, connections, index_hit_ratio)
+- **React Native готовность**:
+  - Universal Components .native.tsx версии (8-10ч)
+  - i18n Platform Adapter для RN (4-5ч)
+  - Mobile Config админ-панель (3-4ч)
+  - Аудит Radix UI прямых импортов (4-5ч)
+- **Performance**:
+  - Main chunk 1.5MB → <1MB (-33%)
+  - FCP 1500ms → 900ms (-40%)
+  - LCP 2000ms → 1200ms (-40%)
+- **Ожидаемые результаты**: Готовность к 100K пользователей, 0 блокеров для RN миграции
+- **Время**: 30 минут
+
 ### 🔄 Изменено
 
 **Performance: Lazy loading для PushTemplateEditor (2025-11-14)**:
