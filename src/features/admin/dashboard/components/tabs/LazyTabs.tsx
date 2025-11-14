@@ -63,6 +63,20 @@ const UsersManagementTab = lazy(() =>
 	import('../UsersManagementTab').then((m) => ({ default: m.UsersManagementTab }))
 );
 
+// Languages Management Tab (529 строк)
+const LanguagesManagementTab = lazy(() =>
+	import('@/features/admin/settings/components/LanguagesManagementTab').then((m) => ({
+		default: m.LanguagesManagementTab,
+	}))
+);
+
+// AI Analytics Tab (462 строк)
+const AIAnalyticsTab = lazy(() =>
+	import('@/features/admin/analytics/components/AIAnalyticsTab').then((m) => ({
+		default: m.AIAnalyticsTab,
+	}))
+);
+
 // ============================================
 // Loading Fallback Components
 // ============================================
@@ -139,6 +153,18 @@ export const LazyUsersManagementTab = () => (
 	</Suspense>
 );
 
+export const LazyLanguagesManagementTab = () => (
+	<Suspense fallback={<TabLoadingFallback />}>
+		<LanguagesManagementTab />
+	</Suspense>
+);
+
+export const LazyAIAnalyticsTab = () => (
+	<Suspense fallback={<TabLoadingFallback />}>
+		<AIAnalyticsTab />
+	</Suspense>
+);
+
 // ============================================
 // Preload Functions
 // ============================================
@@ -154,6 +180,8 @@ export const preloadTabs = {
 	performance: () => import('@/shared/lib/i18n/monitoring/PerformanceDashboard'),
 	reactNative: () => import('@/features/admin/components/ReactNativeReadinessTest'),
 	users: () => import('../UsersManagementTab'),
+	languages: () => import('@/features/admin/settings/components/LanguagesManagementTab'),
+	aiAnalytics: () => import('@/features/admin/analytics/components/AIAnalyticsTab'),
 };
 
 // ============================================

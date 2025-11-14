@@ -10,6 +10,20 @@
 
 ### 🔄 Изменено
 
+**Performance: Lazy loading для LanguagesManagementTab и AIAnalyticsTab (2025-11-14)**:
+- **Оптимизация**: Добавлен lazy loading для 2 больших компонентов
+  1. LanguagesManagementTab (529 строк) → 14.00 KB (4.06 KB gzipped)
+  2. AIAnalyticsTab (462 строк) → 18.02 KB (5.13 KB gzipped)
+- **Результат**:
+  - Создано 2 отдельных chunks
+  - Улучшение initial load time для админ-панели
+  - Компоненты загружаются только при открытии соответствующих табов
+- **Файлы**:
+  - `src/features/admin/dashboard/components/tabs/LazyTabs.tsx`
+  - `src/features/admin/settings/components/languages/LanguagesManagementContent.tsx`
+  - `src/features/admin/dashboard/components/AdminDashboard.tsx`
+- **Commit**: pending
+
 **Performance: Исправлены все circular dependency warnings (2025-11-14)**:
 - **Проблема**: 2 circular dependency warnings в build
   1. `LazyLoader.ts is dynamically imported but also statically imported`

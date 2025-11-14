@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { AIAnalyticsTab } from '@/features/admin/analytics';
 // ✅ PERFORMANCE: Removed heavy imports, using lazy versions from LazyTabs
+// import { AIAnalyticsTab } from '@/features/admin/analytics';
 // import { PerformanceDashboard } from '@/features/admin/components/PerformanceDashboard';
 // import { ReactNativeReadinessTest } from '@/features/admin/components/ReactNativeReadinessTest';
 // import { TestLab } from '@/features/admin/components/TestLab';
@@ -42,6 +42,7 @@ import {
 	OverviewTab,
 } from './admin-dashboard';
 import {
+	LazyAIAnalyticsTab,
 	LazyDeveloperTab,
 	LazyPushNotifications,
 	LazyPWAAnalytics,
@@ -254,7 +255,8 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 								{/* ✅ PERFORMANCE: Lazy loaded UsersManagementTab (411 строк) */}
 								{activeTab === 'users' && <LazyUsersManagementTab />}
 								{activeTab === 'subscriptions' && <SubscriptionsTab />}
-								{activeTab === 'ai-analytics' && <AIAnalyticsTab />}
+								{/* ✅ PERFORMANCE: Lazy loaded AIAnalyticsTab (462 строк) */}
+								{activeTab === 'ai-analytics' && <LazyAIAnalyticsTab />}
 								{activeTab === 'pwa' && (
 									<div className="space-y-6">
 										{/* PWA Sub-navigation */}
