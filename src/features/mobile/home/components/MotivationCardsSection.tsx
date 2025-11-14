@@ -10,7 +10,6 @@
  * - Cards load after critical content is visible
  */
 
-import { X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
@@ -29,8 +28,7 @@ type MotivationCardsSectionProps = {
 export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCardsSectionProps) {
 	const [cards, setCards] = useState<AchievementCard[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [showUndo, setShowUndo] = useState(false);
-	const [lastRemovedCard, setLastRemovedCard] = useState<AchievementCard | null>(null);
+	// ❌ УДАЛЕНО: showUndo и lastRemovedCard - кнопка "Отменить" больше не нужна
 	const [isLoading, setIsLoading] = useState(true);
 	const [showAllRead, setShowAllRead] = useState(false);
 
@@ -141,15 +139,8 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 			}
 		}
 
-		// Save removed card for undo
-		setLastRemovedCard(currentCard);
-		setShowUndo(true);
-
-		// Hide undo after 3 seconds
-		setTimeout(() => {
-			setShowUndo(false);
-			setLastRemovedCard(null);
-		}, 3000);
+		// ❌ УДАЛЕНО: Логика для кнопки "Отменить" - больше не нужна
+		// Цель: пользователь должен просмотреть все карточки без возможности отмены
 
 		// Move to next card
 		const nextIndex = currentIndex + 1;
@@ -162,15 +153,6 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 
 		// Notify parent
 		onCardSwipe?.();
-	};
-
-	const handleUndo = () => {
-		if (lastRemovedCard && currentIndex > 0) {
-			setCurrentIndex(currentIndex - 1);
-			setShowUndo(false);
-			setLastRemovedCard(null);
-			setShowAllRead(false);
-		}
 	};
 
 	// Calculate visible cards (current + next 3)
@@ -207,30 +189,22 @@ export function MotivationCardsSection({ userData, onCardSwipe }: MotivationCard
 
 	// Cards display
 	return (
-		<div className="mt-6 p-section">
-			{/* Undo Button */}
-			{showUndo && lastRemovedCard && (
-				<div className="-translate-x-1/2 fade-in slide-in-from-top-2 fixed top-20 left-1/2 z-50 animate-in duration-300">
-					<button
-						className="flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-card-foreground shadow-lg transition-colors hover:bg-accent"
-						onClick={handleUndo}
-					>
-						<X className="h-4 w-4" />
-						<span className="font-medium text-sm">Отменить</span>
-					</button>
-				</div>
-			)}
+		<div className="px-section pt-4 pb-16">
+			{/* ✅ FIX: pt-4 (16px) от header, pb-16 (64px) отступ до заголовка */}
 
 			{/* Cards Stack Container */}
-			<div className="relative mb-responsive-md min-h-[280px] w-full">
-				<AnimatedPresence>
-					{visibleCards.reverse().map((card, idx) => {
-						const actualIndex = visibleCards.length - 1 - idx;
+			<div className="relative" style={{ height: '280px' }}>
+				{/* ✅ FIX: height 280px для карточек */}
+				{/* Карточки имеют absolute positioning, поэтому нужна фиксированная высота */}
+				<AnimatedPresence mode={undefined}>
+					{/* ✅ FIX: Рендерим карточки в ПРЯМОМ порядке для правильного z-index */}
+					{/* Первая карточка в DOM = самый низкий z-index, последняя = самый высокий */}
+					{visibleCards.map((card, index) => {
 						return (
 							<SwipeCard
 								card={card}
-								index={actualIndex}
-								isTop={actualIndex === 0}
+								index={index}
+								isTop={index === 0}
 								key={card.id}
 								onSwipe={handleSwipe}
 								totalCards={visibleCards.length}

@@ -239,7 +239,10 @@ export function MobileApp({
 	if (showAuth && !userData) {
 		return (
 			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
+				<TranslationManager
+					preloadLanguages={[selectedLanguage || 'ru']}
+					validateCacheOnMount={false}
+				>
 					<Suspense fallback={<LoadingScreen />}>
 						<AuthScreen
 							initialMode={authMode}
@@ -260,7 +263,10 @@ export function MobileApp({
 
 		return (
 			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
+				<TranslationManager
+					preloadLanguages={[selectedLanguage || 'ru']}
+					validateCacheOnMount={false}
+				>
 					<Suspense fallback={<LoadingScreen />}>
 						{currentStep === 1 && (
 							<WelcomeScreen
@@ -314,7 +320,10 @@ export function MobileApp({
 	if (!hasUser) {
 		return (
 			<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-				<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
+				<TranslationManager
+					preloadLanguages={[selectedLanguage || 'ru']}
+					validateCacheOnMount={false}
+				>
 					<div className="min-h-screen bg-background backdrop-blur-sm">
 						<Suspense fallback={<LoadingScreen />}>
 							<AuthScreen onComplete={onAuthComplete} />
@@ -329,7 +338,10 @@ export function MobileApp({
 	// Main mobile app - only show if user is authenticated
 	return (
 		<TranslationProvider defaultLanguage={selectedLanguage} fallbackLanguage="ru">
-			<TranslationManager preloadLanguages={['en']} validateCacheOnMount={false}>
+			<TranslationManager
+				preloadLanguages={[selectedLanguage || 'ru']}
+				validateCacheOnMount={false}
+			>
 				{/* OUTER: Scrollable container - allows vertical scroll */}
 				<div className="min-h-screen bg-background backdrop-blur-sm">
 					{/* INNER: Animation container - NO overflow-hidden */}

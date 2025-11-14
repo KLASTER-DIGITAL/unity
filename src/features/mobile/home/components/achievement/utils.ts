@@ -1,6 +1,6 @@
 import type { DiaryEntry } from '@/shared/lib/api';
 import { getCategoryTranslation, type Language } from '@/shared/lib/i18n';
-import { DEFAULT_MOTIVATIONS, GRADIENTS } from './constants';
+import { DEFAULT_MOTIVATIONS, GRADIENTS, UNIQUE_GRADIENTS } from './constants';
 import type { AchievementCard } from './types';
 
 /**
@@ -12,14 +12,30 @@ export function getDefaultMotivations(language: string): AchievementCard[] {
 	return DEFAULT_MOTIVATIONS[language] || DEFAULT_MOTIVATIONS.ru;
 }
 
+/**
+ * Получает уникальный градиент для карточки на основе индекса
+ * Каждая карточка получает свой уникальный градиент из UNIQUE_GRADIENTS
+ * Если индекс превышает количество градиентов - используем fallback на основе sentiment
+ */
+export function getGradientByIndex(index: number, sentiment: string = 'positive'): string {
+	// Используем уникальные градиенты для первых 8 карточек
+	if (index < UNIQUE_GRADIENTS.length) {
+		return UNIQUE_GRADIENTS[index];
+	}
+
+	// Fallback: используем градиенты на основе sentiment
+	const gradientList = GRADIENTS[sentiment as keyof typeof GRADIENTS] || GRADIENTS.positive;
+	return gradientList[index % gradientList.length];
+}
+
 // Функция для конвертации DiaryEntry в AchievementCard
 export function entryToCard(
 	entry: DiaryEntry,
 	index: number,
 	userLanguage: Language = 'ru'
 ): AchievementCard {
-	const gradientList = GRADIENTS[entry.sentiment] || GRADIENTS.positive;
-	const gradient = gradientList[index % gradientList.length];
+	// ✅ НОВОЕ: Используем уникальные градиенты на основе индекса
+	const gradient = getGradientByIndex(index, entry.sentiment);
 
 	const entryDate = new Date(entry.createdAt);
 	const localeMap: Record<Language, string> = {

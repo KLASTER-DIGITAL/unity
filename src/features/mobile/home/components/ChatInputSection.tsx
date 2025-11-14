@@ -242,7 +242,8 @@ export function ChatInputSection({
 	};
 
 	return (
-		<div className="p-section pb-24">
+		<div className="px-section pb-24">
+			{/* ✅ FIX: px-section (НЕ p-section) чтобы не было двойного padding */}
 			{/* Question Header */}
 			<div className="mb-4">
 				<h2

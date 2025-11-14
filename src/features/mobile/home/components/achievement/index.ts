@@ -2,7 +2,7 @@
  * Achievement Home Screen - Modular exports
  */
 
-export { DEFAULT_MOTIVATIONS, GRADIENTS } from './constants';
+export { DEFAULT_MOTIVATIONS, GRADIENTS, UNIQUE_GRADIENTS } from './constants';
 export { SwipeCard } from './SwipeCard';
 export type {
 	AchievementCard,

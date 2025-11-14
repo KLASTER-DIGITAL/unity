@@ -6,6 +6,216 @@
 
 ---
 
+## [Unreleased] - 2025-11-14
+
+### 🐛 Исправлено
+
+#### **i18n система - язык мотивационных карточек**
+- **Проблема**: Карточки отображались на английском даже если профиль пользователя установлен на русский
+- **Root Cause**:
+  - `TranslationManager` инициализировался с hardcoded `preloadLanguages={['en']}` вместо использования языка профиля
+  - `selectedLanguage` state НЕ обновлялся из профиля пользователя при инициализации сессии
+- **Решение**:
+  - **MobileApp.tsx**: Изменен `preloadLanguages` с `['en']` на `[selectedLanguage || 'ru']` (4 места: lines 242, 263, 317, 332)
+  - **useAppInitialization.ts**: Добавлена логика для установки `selectedLanguage` из `session.profile.language` при инициализации (lines 224-227)
+- **Результат**:
+  - ✅ Система инициализируется с правильным языком из профиля пользователя
+  - ✅ Карточки загружаются на языке профиля (ru/en/es/de/fr/zh/ja)
+  - ✅ TranslationManager использует язык профиля вместо hardcoded 'en'
+- **Файлы**: `src/pwa/mobile/MobileApp.tsx`, `src/pwa/hooks/useAppInitialization.ts`
+
+#### **SwipeCard gradient undefined error**
+- **Проблема**: TypeError: Cannot read properties of undefined (reading 'split') в getGradientStyle
+- **Root Cause**: Edge Function возвращал карточки с пустым gradient (gradient: '')
+- **Решение**:
+  - Добавлена проверка `if (!card.gradient || card.gradient.trim() === '')` в getGradientStyle
+  - Fallback gradient: `linear-gradient(to bottom right, #ec4899, #ef4444, #eab308)`
+  - Теперь карточки отображаются даже если gradient отсутствует
+- **Результат**:
+  - ✅ Карточки отображаются без ошибок
+  - ✅ Fallback gradient применяется для карточек без gradient
+  - ✅ Консоль браузера: 0 ошибок
+- **Файлы**: `src/features/mobile/home/components/achievement/SwipeCard.tsx` (lines 96-108)
+
+#### **MotivationCardsSection spacing (ФИНАЛЬНАЯ ВЕРСИЯ v2)**
+- **Проблема**:
+  - Карточки перекрывали заголовок чата
+  - Отступ `mb-16` применялся к контейнеру, поэтому при пролистывании карточек отступ оставался большим
+  - Blur применялся к верхней карточке
+- **Root Cause**:
+  - `mb-16` на контейнере карточек создавал отступ ПОСЛЕ контейнера, а не ВНУТРИ секции
+  - Absolute positioned карточки не влияли на высоту родителя
+  - Blur применялся ко ВСЕМ карточкам включая верхнюю
+- **Решение**:
+  - `MotivationCardsSection.tsx`:
+    - Изменил `mb-16` → `pb-16` (padding вместо margin)
+    - Теперь отступ применяется к СЕКЦИИ, а не к контейнеру карточек
+    - Оставил `height: 280px` (inline style для фиксированной высоты)
+    - Оставил `pt-4` (16px от header)
+  - `SwipeCard.tsx`:
+    - Добавлена проверка `if (!card.gradient || card.gradient.trim() === '')` в getGradientStyle
+    - Fallback gradient для карточек без gradient
+    - Blur применяется ТОЛЬКО к задним карточкам: `filter: isTop ? 'none' : blur(${stackStyle.blur}px)`
+  - `index.html`:
+    - Изменил `<title>Дневник</title>` → `<title>UNITY</title>`
+    - Изменил `apple-mobile-web-app-title` → `UNITY`
+- **Результат**:
+  - ✅ Карточки НЕ перекрывают заголовок чата
+  - ✅ Отступ ОДИНАКОВЫЙ для всех карточек (64px)
+  - ✅ Эффект стопки работает (задние карточки видны с blur)
+  - ✅ Верхняя карточка ЧЕТКАЯ (без blur)
+  - ✅ Правильный spacing: 16px от header, 64px до заголовка
+  - ✅ Заголовок "UNITY" в браузере
+  - ✅ Консоль браузера: 0 ошибок
+- **Файлы**: `src/features/mobile/home/components/MotivationCardsSection.tsx`, `src/features/mobile/home/components/achievement/SwipeCard.tsx`, `index.html`
+
+### 🔄 Изменено
+
+- **SwipeCard**: Исправлено позиционирование карточек в стопке
+  - Изменен Y offset с отрицательного на положительный (карточки теперь в стопке ВНИЗ, не вверх)
+  - Вернули blur эффект для глубины стопки (1.5px, 2.5px, 3px)
+  - Уменьшен rotate для более естественного вида стопки
+  - Увеличена opacity для лучшей видимости карточек в стопке
+  - Детали:
+    - Card 1: `y: 8px, blur: 1.5px` (было `y: -16px, blur: 1px`)
+    - Card 2: `y: 16px, blur: 2.5px` (было `y: -32px, blur: 2px`)
+    - Card 3: `y: 24px, blur: 3px` (было `y: -48px, blur: 3px`)
+  - Файл: `src/features/mobile/home/components/achievement/SwipeCard.tsx`
+
+- **MotivationCardsSection**: Исправлено AnimatePresence warning и spacing
+  - Добавлен `mode={undefined}` в AnimatedPresence чтобы Framer Motion НЕ устанавливал `mode='wait'` по умолчанию
+  - Добавлен `marginTop: 16px` для отступа от header
+  - Изменен `className` с `mt-6 p-section` на `px-section` (только горизонтальный padding)
+  - Увеличен `marginBottom` контейнера карточек с `32px` до `48px` для отступа от заголовка
+  - Увеличен `min-h` контейнера с `280px` до `320px` чтобы учесть высоту стопки карточек
+  - Файл: `src/features/mobile/home/components/MotivationCardsSection.tsx`
+
+- **ChatInputSection**: Вернули нормальный spacing
+  - Вернули `p-section` вместо `px-section` для нормального верхнего padding
+  - Заголовок "Что сегодня получилось лучше всего?" теперь НИЖЕ карточек с правильным отступом
+  - Файл: `src/features/mobile/home/components/ChatInputSection.tsx`
+
+- **responsive-typography.css**: Добавлен новый utility класс
+  - Создан `.px-section` для горизонтального padding без вертикального
+  - Используется в MotivationCardsSection
+  - Файл: `src/shared/styles/responsive-typography.css`
+
+- **Platform Adapter (animation.web.ts)**: Убрано дефолтное значение `mode='wait'`
+  - Изменено с `mode = 'wait'` на `mode` (опциональный параметр без дефолта)
+  - Файл: `src/shared/lib/platform/animation/animation.web.ts`
+
+### 🐛 Исправлено
+
+- **SwipeCard.tsx**: Исправлена проблема с отображением градиентов
+  - Добавлена функция `getGradientStyle()` для конвертации Tailwind градиентов в CSS inline styles
+  - Tailwind CSS v4 не поддерживает динамические градиенты через классы - используем inline styles
+  - Добавлен colorMap с 20+ цветами для конвертации Tailwind цветов в hex
+  - Градиент теперь применяется через `backgroundImage` в style prop
+  - Убран класс `bg-gradient-to-br` (не работает в Tailwind v4)
+
+- **MotivationCardsSection.tsx**: Исправлена проблема с наложением карточек
+  - Изменен порядок рендеринга карточек с reverse() на прямой порядок
+  - Первая карточка в DOM = самый низкий z-index, последняя = самый высокий
+  - Добавлен inline style `marginBottom: '16px'` вместо класса `mb-responsive-md`
+  - Изменен mode AnimatedPresence с "wait" на "popLayout" для правильной анимации множественных детей
+  - Убран warning "You're attempting to animate multiple children within AnimatePresence"
+
+### 📚 Документация
+
+- **FIX.md**: Обновлена документация с деталями исправлений градиентов и z-index
+
+---
+
+## [Unreleased] - 2025-11-14
+
+### 🐛 Исправления
+
+**MotivationCardsSection.tsx** (КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ):
+- ✅ **Исправлена логика рендеринга карточек**: убран reverse(), карточки рендерятся в прямом порядке
+  - Проблема 1: `[...visibleCards].reverse()` создавал визуальный бардак с z-index
+  - Проблема 2: Карточки накладывались друг на друга неправильно
+  - Проблема 3: При свайпе карточка становилась прозрачной вместо показа градиента
+  - Решение: Рендерим карточки в ПРЯМОМ порядке, карточка с index=0 последняя в DOM (z-index 40, сверху)
+  - Файл: `src/features/mobile/home/components/MotivationCardsSection.tsx` строки 195-213
+
+**SwipeCard.tsx**:
+- Исправлен неправильный Tailwind класс `bg-linear-to-br` → `bg-gradient-to-br` (строка 137)
+  - Проблема: `bg-linear-to-br` не существует в Tailwind CSS
+  - Решение: Использовать правильный класс `bg-gradient-to-br`
+- Исправлен неправильный Tailwind класс `bg-linear-to-r` → `bg-gradient-to-r` (строка 145)
+  - Проблема: Like overlay использовал несуществующий класс
+  - Решение: Использовать правильный класс `bg-gradient-to-r`
+  - Файл: `src/features/mobile/home/components/achievement/SwipeCard.tsx`
+
+**Edge Function motivations/index.ts** (КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ):
+- ✅ **Исправлена логика назначения градиентов**: градиенты назначаются ПОСЛЕ создания финального массива
+  - Проблема 1: default карточки имели фиксированные градиенты (UNIQUE_GRADIENTS[0], [1], [2])
+  - Проблема 2: entry карточки получали градиенты на основе индекса в unviewedEntries (0, 1, 2)
+  - Проблема 3: Если у пользователя 1 entry + 2 default, то entry получала Sunset, а обе default тоже Sunset и Oceanic → дубликат!
+  - Решение: Создаем entry + default карточки БЕЗ градиентов, затем назначаем градиенты на основе индекса в финальном массиве
+  - Теперь каждая карточка гарантированно получает уникальный градиент
+  - Добавлен console.log для отладки: `🎨 Assigned gradients: [0] from-pink-500 via-red-500, [1] from-green-300 via-blue-500, [2] from-pink-300 via-purple-300`
+- Обновлена система градиентов для использования Tailwind CSS классов вместо hex цветов
+  - Проблема: Старая функция `getGradientBySentiment()` возвращала hex цвета `from-[#4facfe]`
+  - Решение: Новая функция `getGradientByIndex()` возвращает Tailwind классы `from-pink-500 via-red-500 to-yellow-500`
+  - Добавлен массив `UNIQUE_GRADIENTS` с 8 уникальными градиентами
+  - Файл: `supabase/functions/motivations/index.ts` строки 292-331
+  - Деплой: `npx supabase functions deploy motivations --project-ref ecuwuzqlwdkkdncampnc`
+
+### 🔄 Изменено
+
+- **constants.ts**: Реализованы уникальные градиенты для AI Insights карточек
+  - Добавлен массив `UNIQUE_GRADIENTS` с 8 уникальными градиентами (hypercolor.dev)
+  - Обновлен `GRADIENTS` с реальными Tailwind CSS классами вместо placeholder синтаксиса
+  - Удален старый placeholder синтаксис `from-(gradient-positive-1-start)`
+  - Добавлены комментарии с названиями градиентов (Sunset, Oceanic, Cotton Candy, etc.)
+
+- **utils.ts**: Добавлена функция `getGradientByIndex`
+  - Новая функция для получения уникального градиента на основе индекса карточки
+  - Первые 8 карточек получают уникальные градиенты из `UNIQUE_GRADIENTS`
+  - Fallback на sentiment-based градиенты для карточек >8
+  - Обновлена функция `entryToCard` для использования `getGradientByIndex`
+
+- **index.ts**: Экспорт `UNIQUE_GRADIENTS`
+  - Добавлен экспорт `UNIQUE_GRADIENTS` для использования в других компонентах
+
+- **MotivationCardsSection.tsx**: Удалена кнопка "Отменить"
+  - Удален импорт `X` из lucide-react (не используется)
+  - Удалены state переменные: `showUndo`, `lastRemovedCard`
+  - Удалена функция `handleUndo`
+  - Удалена логика сохранения карточки для undo
+  - Удален JSX блок с кнопкой "Отменить"
+  - Упрощена логика swipe - теперь только переход к следующей карточке
+
+### 🗄️ База данных
+
+- **20251114_fix_push_notifications_rustam.sql**: Исправление push notifications
+  - ✅ ПРАВИЛЬНО: Обновляем ТОЛЬКО notification_settings (НЕ timezone)
+  - ❌ УДАЛЕНО: Хардкод `timezone = 'Europe/Moscow'`
+  - ✅ Timezone автоматически определяется через Platform Adapter при следующем входе
+  - Добавлены проверки успешности обновления с RAISE NOTICE
+  - Исправлены Cron Jobs: параметр `?action=` → `?type=`
+  - Добавлены WHERE EXISTS проверки перед unschedule
+
+- **20251112_setup_hourly_cron_jobs.sql**: Исправлен параметр Cron Jobs
+  - ✅ ИСПРАВЛЕНО: `?action=daily_reminder` → `?type=daily_reminder`
+  - ✅ ИСПРАВЛЕНО: `?action=weekly_motivation` → `?type=weekly_motivation`
+  - ✅ ИСПРАВЛЕНО: `?action=goal_reminder` → `?type=goal_reminder`
+  - Добавлены комментарии о правильном параметре
+
+### 📚 Документация
+
+- **CHANGELOG.md**: Добавлены записи о новых возможностях и исправлениях
+  - AI Insights уникальные градиенты
+  - Push Notifications критическое исправление
+  - AI Insights UX улучшение (удалена кнопка "Отменить")
+  - Timezone автоопределение
+
+- **FIX.md**: Добавлены технические изменения
+  - Детальное описание изменений в constants.ts, utils.ts, index.ts
+  - Детальное описание изменений в MotivationCardsSection.tsx
+  - Детальное описание миграций БД
+
 ## [Unreleased] - 2025-11-13
 
 ### 🏗️ Инфраструктура

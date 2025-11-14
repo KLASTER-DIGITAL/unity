@@ -65,6 +65,7 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		setDeferredPrompt,
 		setShowSyncComplete,
 		setSyncedCount,
+		setSelectedLanguage,
 	} = props;
 
 	// PWA settings
@@ -218,6 +219,12 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 
 					setUserData(session);
 
+					// ✅ FIX: Set selectedLanguage from profile
+					if (session.profile?.language) {
+						console.log('[App.tsx] Setting language from profile:', session.profile.language);
+						setSelectedLanguage(session.profile.language);
+					}
+
 					// Check onboarding status
 					const hasCompletedOnboarding = await checkOnboardingStatus(session.user.id);
 					setOnboardingComplete(hasCompletedOnboarding);
@@ -238,7 +245,13 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 		};
 
 		initSession();
-	}, [setIsCheckingSession, setOnboardingComplete, setUserData, checkOnboardingStatus]);
+	}, [
+		setIsCheckingSession,
+		setOnboardingComplete,
+		setUserData,
+		setSelectedLanguage,
+		checkOnboardingStatus,
+	]);
 
 	// Initialize PWA features
 	useEffect(() => {

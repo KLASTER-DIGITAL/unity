@@ -40,7 +40,7 @@ export const AnimatedView: React.FC<AnimatedViewProps> = ({
  */
 export const AnimatedPresence: React.FC<AnimatedPresenceProps> = ({
 	children,
-	mode = 'wait',
+	mode, // ✅ FIX: Убрали дефолтное значение 'wait' - теперь mode опциональный
 	custom,
 }) =>
 	React.createElement(

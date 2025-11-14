@@ -26,34 +26,64 @@ console.log('[MOTIVATIONS v10] ✅ Environment ready');
 // HELPER FUNCTIONS
 // ======================
 
-function getGradientBySentiment(sentiment: string): string {
-	const gradients: Record<string, string[]> = {
-		positive: [
-			'from-[#FE7669] to-[#ff8969]', // Коралловый
-			'from-[#ff7769] to-[#ff6b9d]', // Розовый
-			'from-[#ff6b9d] to-[#c471ed]', // Фиолетово-розовый
-			'from-[#c471ed] to-[#8B78FF]', // Фиолетовый
-			'from-[#43e97b] to-[#38f9d7]', // Зеленый
-			'from-[#4facfe] to-[#00f2fe]', // Голубой
-			'from-[#fa709a] to-[#fee140]', // Розово-желтый
-			'from-[#f093fb] to-[#f5576c]', // Пурпурный
-			'from-[#667eea] to-[#764ba2]', // Синий-фиолетовый
-			'from-[#f857a6] to-[#ff5858]', // Малиновый
-		],
-		neutral: [
-			'from-[#4facfe] to-[#00f2fe]',
-			'from-[#43e97b] to-[#38f9d7]',
-			'from-[#667eea] to-[#764ba2]',
-		],
-		negative: [
-			'from-[#f093fb] to-[#f5576c]',
-			'from-[#fa709a] to-[#fee140]',
-			'from-[#f857a6] to-[#ff5858]',
-		],
-	};
+/**
+ * Уникальные градиенты для каждой карточки (вдохновлено hypercolor.dev)
+ * Каждая карточка получает свой уникальный градиент на основе индекса
+ */
+const UNIQUE_GRADIENTS = [
+	// 1. Sunset (Закат) - теплые оранжево-розовые тона
+	'from-pink-500 via-red-500 to-yellow-500',
+	// 2. Oceanic (Океан) - холодные сине-фиолетовые тона
+	'from-green-300 via-blue-500 to-purple-600',
+	// 3. Cotton Candy (Сахарная вата) - нежные розово-голубые тона
+	'from-pink-300 via-purple-300 to-indigo-400',
+	// 4. Peachy (Персиковый) - мягкие желто-розовые тона
+	'from-yellow-200 via-pink-200 to-pink-400',
+	// 5. Seafoam (Морская пена) - свежие зелено-фиолетовые тона
+	'from-green-200 via-green-400 to-purple-700',
+	// 6. Creamsicle (Кремовый) - теплые желто-оранжевые тона
+	'from-yellow-100 via-yellow-300 to-yellow-500',
+	// 7. Flare (Вспышка) - яркие красно-желтые тона
+	'from-indigo-200 via-red-200 to-yellow-100',
+	// 8. Lavender (Лаванда) - нежные фиолетовые тона
+	'from-purple-200 via-purple-400 to-pink-500',
+];
 
-	const gradientList = gradients[sentiment] || gradients.positive;
-	return gradientList[Math.floor(Math.random() * gradientList.length)];
+/**
+ * Градиенты для карточек в зависимости от sentiment (fallback)
+ * Используются если UNIQUE_GRADIENTS недостаточно
+ */
+const GRADIENTS_BY_SENTIMENT: Record<string, string[]> = {
+	positive: [
+		'from-pink-500 via-red-500 to-yellow-500', // Sunset
+		'from-yellow-200 via-pink-200 to-pink-400', // Peachy
+		'from-yellow-100 via-yellow-300 to-yellow-500', // Creamsicle
+		'from-indigo-200 via-red-200 to-yellow-100', // Flare
+	],
+	neutral: [
+		'from-green-300 via-blue-500 to-purple-600', // Oceanic
+		'from-green-200 via-green-400 to-purple-700', // Seafoam
+	],
+	negative: [
+		'from-pink-300 via-purple-300 to-indigo-400', // Cotton Candy
+		'from-purple-200 via-purple-400 to-pink-500', // Lavender
+	],
+};
+
+/**
+ * Получает уникальный градиент для карточки на основе индекса
+ * Каждая карточка получает свой уникальный градиент из UNIQUE_GRADIENTS
+ * Если индекс превышает количество градиентов - используем fallback на основе sentiment
+ */
+function getGradientByIndex(index: number, sentiment: string = 'positive'): string {
+	// Используем уникальные градиенты для первых 8 карточек
+	if (index < UNIQUE_GRADIENTS.length) {
+		return UNIQUE_GRADIENTS[index];
+	}
+
+	// Fallback: используем градиенты на основе sentiment
+	const gradientList = GRADIENTS_BY_SENTIMENT[sentiment] || GRADIENTS_BY_SENTIMENT.positive;
+	return gradientList[index % gradientList.length];
 }
 
 function getDefaultMotivations(language: string): any[] {
@@ -65,7 +95,7 @@ function getDefaultMotivations(language: string): any[] {
 				title: 'Запиши момент благодарности',
 				description:
 					'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
-				gradient: 'from-[#c471ed] to-[#8B78FF]',
+				gradient: UNIQUE_GRADIENTS[0], // Sunset
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'grateful',
@@ -76,7 +106,7 @@ function getDefaultMotivations(language: string): any[] {
 				title: 'Даже одна мысль делает день осмысленным',
 				description:
 					'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
-				gradient: 'from-[#ff6b9d] to-[#c471ed]',
+				gradient: UNIQUE_GRADIENTS[1], // Oceanic
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'calm',
@@ -86,7 +116,7 @@ function getDefaultMotivations(language: string): any[] {
 				date: new Date().toLocaleDateString('ru-RU'),
 				title: 'Сегодня отличное время',
 				description: 'Запиши маленькую победу — это первый шаг к осознанию своих достижений.',
-				gradient: 'from-[#43e97b] to-[#38f9d7]',
+				gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'excited',
@@ -99,7 +129,7 @@ function getDefaultMotivations(language: string): any[] {
 				title: 'Write a moment of gratitude',
 				description:
 					'Feel the lightness when you notice the good in your life. This is the path to happiness.',
-				gradient: 'from-[#c471ed] to-[#8B78FF]',
+				gradient: UNIQUE_GRADIENTS[0], // Sunset
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'grateful',
@@ -109,7 +139,7 @@ function getDefaultMotivations(language: string): any[] {
 				date: new Date().toLocaleDateString('en-US'),
 				title: 'Even one thought makes the day meaningful',
 				description: "You don't have to write a lot — one phrase can change your view of the day.",
-				gradient: 'from-[#ff6b9d] to-[#c471ed]',
+				gradient: UNIQUE_GRADIENTS[1], // Oceanic
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'calm',
@@ -120,7 +150,7 @@ function getDefaultMotivations(language: string): any[] {
 				title: 'Today is a great time',
 				description:
 					"Write down a small victory — it's the first step to realizing your achievements.",
-				gradient: 'from-[#43e97b] to-[#38f9d7]',
+				gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
 				isMarked: false,
 				isDefault: true,
 				sentiment: 'excited',
@@ -259,7 +289,7 @@ async function handleRequest(req: Request): Promise<Response> {
 			const unviewedEntries = recentEntries.filter((entry: any) => !viewedIds.includes(entry.id));
 			console.log(`[MOTIVATIONS v10] Unviewed entries: ${unviewedEntries.length}`);
 
-			// Step 5: Create cards from entries
+			// Step 5: Create cards from entries (БЕЗ градиентов)
 			const cards = unviewedEntries.slice(0, 3).map((entry: any) => ({
 				id: entry.id,
 				entryId: entry.id,
@@ -272,20 +302,33 @@ async function handleRequest(req: Request): Promise<Response> {
 					: entry.text.split(' ').slice(0, 8).join(' ') +
 						(entry.text.split(' ').length > 8 ? '...' : ''),
 				description: entry.ai_insight || entry.ai_summary || entry.text,
-				gradient: getGradientBySentiment(entry.sentiment || 'positive'),
+				gradient: '', // Будет назначен позже
 				isMarked: false,
 				isDefault: false,
 				sentiment: entry.sentiment || 'positive',
 				mood: entry.mood || 'хорошее',
 			}));
 
-			// Step 6: Add default cards if needed
+			// Step 6: Add default cards if needed (БЕЗ градиентов)
 			if (cards.length < 3) {
 				const defaultCards = getDefaultMotivations(userLanguage);
 				const needed = 3 - cards.length;
-				cards.push(...defaultCards.slice(0, needed));
+				// Добавляем default карточки БЕЗ градиентов (будут назначены позже)
+				const defaultsToAdd = defaultCards.slice(0, needed).map((card) => ({
+					...card,
+					gradient: '', // Будет назначен позже
+				}));
+				cards.push(...defaultsToAdd);
 				console.log(`[MOTIVATIONS v10] Added ${needed} default cards`);
 			}
+
+			// Step 7: Назначаем уникальные градиенты на основе индекса в финальном массиве
+			cards.forEach((card, index) => {
+				card.gradient = getGradientByIndex(index, card.sentiment || 'positive');
+			});
+			console.log(
+				`[MOTIVATIONS v10] 🎨 Assigned gradients: ${cards.map((c, i) => `[${i}] ${c.gradient.split(' ').slice(0, 3).join(' ')}`).join(', ')}`
+			);
 
 			console.log(`[MOTIVATIONS v10] ✅ Returning ${cards.length} cards`);
 

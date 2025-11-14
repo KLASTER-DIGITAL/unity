@@ -2,23 +2,48 @@ import type { AchievementCard } from './types';
 
 /**
  * Achievement Home Screen - Constants
+ *
+ * Градиенты вдохновлены hypercolor.dev
+ * ВАЖНО: Используем РЕАЛЬНЫЕ Tailwind CSS классы, НЕ placeholder синтаксис
  */
 
-// Градиенты для карточек в зависимости от sentiment
+// Уникальные градиенты для каждой карточки (вдохновлено hypercolor.dev)
+// Каждая карточка получает свой уникальный градиент на основе индекса
+export const UNIQUE_GRADIENTS = [
+	// 1. Sunset (Закат) - теплые оранжево-розовые тона
+	'from-pink-500 via-red-500 to-yellow-500',
+	// 2. Oceanic (Океан) - холодные сине-фиолетовые тона
+	'from-green-300 via-blue-500 to-purple-600',
+	// 3. Cotton Candy (Сахарная вата) - нежные розово-голубые тона
+	'from-pink-300 via-purple-300 to-indigo-400',
+	// 4. Peachy (Персиковый) - мягкие желто-розовые тона
+	'from-yellow-200 via-pink-200 to-pink-400',
+	// 5. Seafoam (Морская пена) - свежие зелено-фиолетовые тона
+	'from-green-200 via-green-400 to-purple-700',
+	// 6. Creamsicle (Кремовый) - теплые желто-оранжевые тона
+	'from-yellow-100 via-yellow-300 to-yellow-500',
+	// 7. Flare (Вспышка) - яркие красно-желтые тона
+	'from-indigo-200 via-red-200 to-yellow-100',
+	// 8. Lavender (Лаванда) - нежные фиолетовые тона
+	'from-purple-200 via-purple-400 to-pink-500',
+];
+
+// Градиенты для карточек в зависимости от sentiment (fallback)
+// Используются если UNIQUE_GRADIENTS недостаточно
 export const GRADIENTS = {
 	positive: [
-		'from-(gradient-positive-1-start) to-(gradient-positive-1-end)',
-		'from-(gradient-positive-2-start) to-(gradient-positive-2-end)',
-		'from-(gradient-positive-3-start) to-(gradient-positive-3-end)',
-		'from-(gradient-positive-4-start) to-(gradient-positive-4-end)',
+		'from-pink-500 via-red-500 to-yellow-500', // Sunset
+		'from-yellow-200 via-pink-200 to-pink-400', // Peachy
+		'from-yellow-100 via-yellow-300 to-yellow-500', // Creamsicle
+		'from-indigo-200 via-red-200 to-yellow-100', // Flare
 	],
 	neutral: [
-		'from-(gradient-neutral-1-start) to-(gradient-neutral-1-end)',
-		'from-(gradient-neutral-2-start) to-(gradient-neutral-2-end)',
+		'from-green-300 via-blue-500 to-purple-600', // Oceanic
+		'from-green-200 via-green-400 to-purple-700', // Seafoam
 	],
 	negative: [
-		'from-(gradient-negative-1-start) to-(gradient-negative-1-end)',
-		'from-(gradient-negative-2-start) to-(gradient-negative-2-end)',
+		'from-pink-300 via-purple-300 to-indigo-400', // Cotton Candy
+		'from-purple-200 via-purple-400 to-pink-500', // Lavender
 	],
 };
 

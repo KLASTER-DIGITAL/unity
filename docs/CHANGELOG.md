@@ -7,6 +7,45 @@
 
 ---
 
+## [Unreleased] - 2025-11-14
+
+### ✨ Новые возможности
+
+- **AI Insights уникальные градиенты**: Каждая карточка теперь имеет свой уникальный градиент
+  - ✅ 8 уникальных градиентов вдохновленных hypercolor.dev (Sunset, Oceanic, Cotton Candy, Peachy, Seafoam, Creamsicle, Flare, Lavender)
+  - ✅ Автоматическое назначение градиента на основе индекса карточки в финальном массиве
+  - ✅ Исправлена проблема с дублированием градиентов между entry и default карточками
+  - ✅ Fallback на sentiment-based градиенты для карточек >8
+  - ✅ Улучшенная визуальная привлекательность и разнообразие
+
+### 🐛 Исправления
+
+- **Push Notifications критическое исправление**: Исправлена проблема с доставкой уведомлений
+  - ✅ Исправлен параметр Cron Jobs: `?action=` → `?type=` (соответствие Edge Function)
+  - ✅ Убран хардкод timezone - теперь автоопределение через Platform Adapter
+  - ✅ Обновлены notification_settings для тестового пользователя rustam@leadshunter.biz
+  - ✅ Миграция `20251114_fix_push_notifications_rustam.sql`
+
+- **AI Insights UX улучшение**: Убрана кнопка "Отменить"
+  - ✅ Удалена кнопка "Отменить" из MotivationCardsSection
+  - ✅ Удалена связанная логика (showUndo, lastRemovedCard, handleUndo)
+  - ✅ Цель: пользователь должен просмотреть все карточки без возможности отмены
+  - ✅ Карточки полностью скрываются до появления новых
+
+- **AI Insights градиенты критическое исправление**: Исправлена проблема с отображением градиентов
+  - ✅ Исправлена мутация массива `visibleCards.reverse()` → `[...visibleCards].reverse()` (предотвращает неправильный порядок карточек)
+  - ✅ Исправлен класс `bg-linear-to-br` → `bg-gradient-to-br` в SwipeCard.tsx
+  - ✅ Обновлен Edge Function `motivations/index.ts` для использования новых Tailwind CSS градиентов вместо hex цветов
+  - ✅ Задеплоен Edge Function через `npx supabase functions deploy motivations`
+  - ✅ Каждая карточка теперь имеет уникальный градиент (Cotton Candy, Oceanic, Sunset, etc.)
+
+### 🔒 Безопасность
+
+- **Timezone автоопределение**: Улучшена безопасность и точность определения timezone
+  - ✅ НЕ хардкодим timezone в миграциях
+  - ✅ Автоматическое определение через Platform Adapter (Web: Intl API, React Native: expo-localization)
+  - ✅ Rustam в Батуми (Georgia) → timezone автоматически определяется как 'Asia/Tbilisi' (UTC+4)
+
 ## [Unreleased] - 2025-11-13
 
 ### ⚡ Производительность

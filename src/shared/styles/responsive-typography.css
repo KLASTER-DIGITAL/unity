@@ -220,6 +220,12 @@
 	padding-bottom: var(--spacing-section-padding-y);
 }
 
+/* ✅ NEW: Horizontal padding only (для секций без вертикального padding) */
+.px-section {
+	padding-left: var(--spacing-section-padding-x);
+	padding-right: var(--spacing-section-padding-x);
+}
+
 .p-row {
 	padding: var(--spacing-row-padding);
 }
@@ -247,6 +253,27 @@
 
 .gap-responsive-xl {
 	gap: var(--spacing-gap-xl);
+}
+
+/* Responsive margin-bottom utilities */
+.mb-responsive-xs {
+	margin-bottom: var(--spacing-gap-xs);
+}
+
+.mb-responsive-sm {
+	margin-bottom: var(--spacing-gap-sm);
+}
+
+.mb-responsive-md {
+	margin-bottom: var(--spacing-gap-md);
+}
+
+.mb-responsive-lg {
+	margin-bottom: var(--spacing-gap-lg);
+}
+
+.mb-responsive-xl {
+	margin-bottom: var(--spacing-gap-xl);
 }
 
 /* Modal positioning */

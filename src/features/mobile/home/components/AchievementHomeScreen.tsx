@@ -145,7 +145,7 @@ export function AchievementHomeScreen({
 						{[...new Array(3)].map((_, i) => (
 							<div
 								className="rounded-[16px] bg-card p-4 shadow-sm transition-colors duration-300"
-								key={i}
+								key={`skeleton-card-${i}`}
 								style={{ minHeight: '140px' }}
 							>
 								<div className="mb-3 flex items-start justify-between">
@@ -207,16 +207,14 @@ export function AchievementHomeScreen({
 
 			{/* ✅ FIX: Chat Container - адаптивный контейнер под карточками */}
 			{!isLoading && (
-				<div className="relative w-full">
-					<ChatInputSection
-						onEntrySaved={handleNewEntry}
-						onMessageSent={(message) => {
-							console.log('New achievement message:', message);
-						}} // ✅ FIXED: Try user.id first
-						userId={userData?.user?.id || userData?.id || 'anonymous'}
-						userName={userName}
-					/>
-				</div>
+				<ChatInputSection
+					onEntrySaved={handleNewEntry}
+					onMessageSent={(message) => {
+						console.log('New achievement message:', message);
+					}} // ✅ FIXED: Try user.id first
+					userId={userData?.user?.id || userData?.id || 'anonymous'}
+					userName={userName}
+				/>
 			)}
 
 			{/* Recent Entries Feed - Лента последних записей */}

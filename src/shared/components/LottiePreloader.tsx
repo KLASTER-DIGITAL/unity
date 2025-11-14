@@ -151,7 +151,7 @@ export function LottiePreloader({
 		<div className={`flex min-h-screen items-center justify-center bg-background ${className}`}>
 			<div className="text-center">
 				{/* Lottie Animation with Suspense for lazy loading */}
-				<div className={`${sizeClasses[size]} mx-auto mb-4`}>
+				<div className={`${sizeClasses[size]} mx-auto mb-4 flex items-center justify-center`}>
 					{animationData && (
 						<Suspense fallback={<div className={sizeClasses[size]} />}>
 							<Lottie animationData={animationData} autoplay={true} loop={true} />

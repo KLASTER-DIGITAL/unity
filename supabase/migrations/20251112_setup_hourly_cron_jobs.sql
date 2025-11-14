@@ -28,13 +28,14 @@ SELECT cron.unschedule('push-goal-reminder') WHERE EXISTS (
 
 -- Daily Reminder: запускается КАЖДЫЙ ЧАС
 -- Проверяет какие пользователи должны получить уведомление в их локальное время
+-- ✅ ИСПРАВЛЕНО: Используем параметр ?type= вместо ?action=
 SELECT cron.schedule(
   'push-daily-reminder-hourly',
   '0 * * * *',  -- Каждый час в 00 минут
   $$
   SELECT
     net.http_post(
-      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?action=daily_reminder',
+      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?type=daily_reminder',
       headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
       body:='{}'::jsonb
     ) as request_id;
@@ -43,13 +44,14 @@ SELECT cron.schedule(
 
 -- Weekly Motivation: запускается КАЖДЫЙ ЧАС В ВОСКРЕСЕНЬЕ
 -- Проверяет какие пользователи должны получить уведомление в их локальное время
+-- ✅ ИСПРАВЛЕНО: Используем параметр ?type= вместо ?action=
 SELECT cron.schedule(
   'push-weekly-motivation-hourly',
   '0 * * * 0',  -- Каждый час в воскресенье
   $$
   SELECT
     net.http_post(
-      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?action=weekly_motivation',
+      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?type=weekly_motivation',
       headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
       body:='{}'::jsonb
     ) as request_id;
@@ -58,13 +60,14 @@ SELECT cron.schedule(
 
 -- Goal Reminder: запускается КАЖДЫЙ ЧАС В ВОСКРЕСЕНЬЕ
 -- Проверяет какие пользователи должны получить уведомление в их локальное время
+-- ✅ ИСПРАВЛЕНО: Используем параметр ?type= вместо ?action=
 SELECT cron.schedule(
   'push-goal-reminder-hourly',
   '0 * * * 0',  -- Каждый час в воскресенье
   $$
   SELECT
     net.http_post(
-      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?action=goal_reminder',
+      url:='https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-scheduled?type=goal_reminder',
       headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
       body:='{}'::jsonb
     ) as request_id;
