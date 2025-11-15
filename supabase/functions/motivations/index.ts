@@ -472,6 +472,7 @@ async function generateCardWithAI(
 			title: cardData.title || '',
 			body: cardData.body || '',
 			optional_step: cardData.optional_step || '',
+			card_type: cardType, // ✅ Return card type for UI styling
 		};
 	} catch (error) {
 		console.error('[MOTIVATIONS v11] ❌ Error generating card with AI:', error);
@@ -759,12 +760,16 @@ async function handleRequest(req: Request): Promise<Response> {
 
 				let title = '';
 				let description = '';
+				let cardType = 'generic'; // Default card type
 
 				if (aiCard) {
 					// ✅ AI-generated card
 					title = aiCard.title;
 					description = aiCard.body;
-					console.log(`[MOTIVATIONS v11] ✅ AI card: ${title.substring(0, 30)}...`);
+					cardType = aiCard.card_type || 'generic'; // ✅ Get card type from AI
+					console.log(
+						`[MOTIVATIONS v11] ✅ AI card: ${title.substring(0, 30)}... (type: ${cardType})`
+					);
 				} else {
 					// ❌ Fallback to manual extraction
 					console.log(`[MOTIVATIONS v11] ⚠️ Using fallback for entry ${entry.id}`);
@@ -809,6 +814,7 @@ async function handleRequest(req: Request): Promise<Response> {
 					isDefault: false,
 					sentiment: entry.sentiment || 'positive',
 					mood: entry.mood || 'хорошее',
+					card_type: cardType, // ✅ Add card type for UI styling
 				});
 			}
 
