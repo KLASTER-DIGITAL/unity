@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
 
 		// ✅ CHECK PREMIUM: AI analysis is ONLY available for Premium users
 		// Free users can create entries, but AI analysis requires Premium subscription
-		const { data: profile, error: profileError } = await supabaseClient
+		const { data: profile, error: profileError } = await supabaseAdmin
 			.from('profiles')
 			.select('is_premium')
 			.eq('id', user.id)
