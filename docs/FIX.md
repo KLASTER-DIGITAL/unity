@@ -8,6 +8,19 @@
 
 ## [Unreleased] - 2025-11-15
 
+### ✨ Новые возможности
+
+- **AI Control Center - Edge Functions Integration** (2025-11-15)
+  - Файлы:
+    - `supabase/functions/_shared/ai/getAiOperationConfig.ts` (СОЗДАН, 145 строк)
+    - `supabase/functions/ai-analysis/index.ts` (ОБНОВЛЕН, +80 строк)
+    - `supabase/functions/push-ai-personalize/index.ts` (ОБНОВЛЕН, +80 строк)
+  - Edge Functions теперь загружают промпты и модели из БД
+  - Изменения промптов применяются БЕЗ редеплоя Edge Functions
+  - Добавлены helper функции: `getAiOperationConfig()`, `isOperationAvailable()`, `replacePlaceholders()`
+  - Интегрированы операции: `entry_analysis`, `push_text`
+  - Логирование конфигурации для отладки
+
 ### 🐛 Исправления
 - **useHomeScreenData hook**: Добавлен Supabase Realtime subscription (2025-11-15)
   - Файл: `src/shared/hooks/useHomeScreenData.ts`

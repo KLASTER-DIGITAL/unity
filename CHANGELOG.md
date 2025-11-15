@@ -33,6 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - A/B тестирование разных промптов (будущее)
   - Централизованное управление всеми AI операциями
 
+#### **AI Control Center - Edge Functions Integration** (НОВОЕ!)
+- **Edge Functions** теперь используют промпты из БД:
+  - `ai-analysis` - анализ записей (операция `entry_analysis`)
+  - `push-ai-personalize` - персонализированные push (операция `push_text`)
+
+- **Как это работает**:
+  1. Super admin изменяет промпт в админ-панели
+  2. Промпт сохраняется в БД (`ai_operations` таблица)
+  3. Edge Function загружает промпт из БД при следующем вызове
+  4. Изменения применяются МГНОВЕННО без редеплоя!
+
+- **Технические детали**:
+  - Новый helper: `getAiOperationConfig()` для загрузки конфигурации
+  - Placeholder замена: `{{user_name}}`, `{{user_language}}`, `{{entry_text}}`
+  - Проверка доступности: `isOperationAvailable()` (is_enabled check)
+  - Логирование конфигурации для отладки
+
 ### 🐛 Исправления
 
 #### **Motivation Cards** - Исправлена логика временного окна

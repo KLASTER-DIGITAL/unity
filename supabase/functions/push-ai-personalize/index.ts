@@ -16,6 +16,11 @@
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import {
+	getAiOperationConfig,
+	isOperationAvailable,
+	replacePlaceholders,
+} from '../_shared/ai/getAiOperationConfig.ts';
 
 // CORS headers
 const corsHeaders = {
@@ -159,46 +164,49 @@ async function getUserContext(userId: string) {
 }
 
 /**
- * Генерирует персонализированное сообщение через GPT-4o-mini
+ * Генерирует персонализированное сообщение через AI (config from DB)
  */
 async function generatePersonalizedMessage(
 	userContext: any,
 	messageType: string
 ): Promise<{ title: string; body: string }> {
-	const systemPrompt = `Ты - AI ассистент для приложения UNITY (дневник достижений).
-Твоя задача - создать персонализированное push уведомление для Premium пользователя.
+	// ✅ LOAD AI OPERATION CONFIG FROM DATABASE
+	console.log('[PUSH-AI-PERSONALIZE] 📋 Loading AI operation config from database...');
+	const config = await getAiOperationConfig(supabaseAdmin, 'push_text');
 
-Контекст пользователя:
-- Имя: ${userContext.name}
-- Язык: ${userContext.language}
-- Текущий streak: ${userContext.currentStreak} дней
-- Количество записей: ${userContext.recentEntries.length}
-- Количество достижений: ${userContext.recentAchievements.length}
+	if (!isOperationAvailable(config)) {
+		console.error('[PUSH-AI-PERSONALIZE] ❌ AI operation disabled or not found');
+		throw new Error('AI operation disabled or not found');
+	}
 
-Анализ поведения:
-- Самый активный час: ${userContext.behavior.mostActiveHour}:00
-- Самый активный день: ${userContext.behavior.mostActiveDay}
-- Паттерн активности: ${userContext.behavior.activityPattern} (morning/afternoon/evening/night)
-- Среднее настроение: ${userContext.behavior.averageMood}
+	console.log('[PUSH-AI-PERSONALIZE] ✅ AI operation config loaded:', {
+		model: config.model,
+		max_tokens: config.max_tokens,
+		temperature: config.temperature,
+	});
 
-Тип уведомления: ${messageType}
+	// Replace placeholders in prompts
+	const systemPrompt = replacePlaceholders(config.system_prompt, {
+		user_name: userContext.name,
+		user_language: userContext.language,
+		current_streak: String(userContext.currentStreak),
+		recent_entries_count: String(userContext.recentEntries.length),
+		recent_achievements_count: String(userContext.recentAchievements.length),
+		most_active_hour: String(userContext.behavior.mostActiveHour),
+		most_active_day: userContext.behavior.mostActiveDay,
+		activity_pattern: userContext.behavior.activityPattern,
+		average_mood: userContext.behavior.averageMood,
+		message_type: messageType,
+	});
 
-Требования:
-1. Используй имя пользователя (если есть)
-2. Упоминай streak если он > 0
-3. Адаптируй тон под среднее настроение пользователя
-4. Учитывай паттерн активности (например, для evening - "Вечер - отличное время для записи")
-5. Будь мотивирующим и позитивным
-6. Длина title: максимум 50 символов
-7. Длина body: максимум 120 символов
-8. Используй эмодзи (1-2 шт)
-9. Отвечай на языке: ${userContext.language}
+	const userPrompt = replacePlaceholders(config.user_prompt_template, {
+		message_type: messageType,
+	});
 
-Верни JSON:
-{
-  "title": "...",
-  "body": "..."
-}`;
+	console.log('[PUSH-AI-PERSONALIZE] 🚀 Calling OpenAI API...');
+	console.log('[PUSH-AI-PERSONALIZE] 📝 Model:', config.model);
+	console.log('[PUSH-AI-PERSONALIZE] 📝 Max tokens:', config.max_tokens);
+	console.log('[PUSH-AI-PERSONALIZE] 📝 Temperature:', config.temperature);
 
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
@@ -207,23 +215,24 @@ async function generatePersonalizedMessage(
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			model: 'gpt-4o-mini',
+			model: config.model,
 			messages: [
 				{ role: 'system', content: systemPrompt },
-				{
-					role: 'user',
-					content: `Создай персонализированное ${messageType} уведомление`,
-				},
+				{ role: 'user', content: userPrompt },
 			],
-			temperature: 0.8,
-			max_tokens: 200,
+			temperature: config.temperature,
+			max_tokens: config.max_tokens,
 			response_format: { type: 'json_object' },
 		}),
 	});
 
 	if (!response.ok) {
+		const error = await response.text();
+		console.error('[PUSH-AI-PERSONALIZE] ❌ OpenAI API error:', error);
 		throw new Error(`OpenAI API failed: ${response.status}`);
 	}
+
+	console.log('[PUSH-AI-PERSONALIZE] ✅ OpenAI API call successful!');
 
 	const result = await response.json();
 	const aiResponse = result.choices[0]?.message?.content;

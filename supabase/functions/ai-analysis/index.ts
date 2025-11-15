@@ -1,4 +1,9 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import {
+	getAiOperationConfig,
+	isOperationAvailable,
+	replacePlaceholders,
+} from '../_shared/ai/getAiOperationConfig.ts';
 
 // CORS headers
 const corsHeaders = {
@@ -188,27 +193,48 @@ Deno.serve(async (req) => {
 				}
 			}
 
-			// System prompt for AI analysis
-			const systemPrompt = `Ты - AI-ассистент для дневника достижений. Твоя задача - анализировать записи пользователей и предоставлять мотивационные ответы.
+			// ✅ LOAD AI OPERATION CONFIG FROM DATABASE
+			console.log('[AI-ANALYSIS] 📋 Loading AI operation config from database...');
+			const config = await getAiOperationConfig(supabaseAdmin, 'entry_analysis');
 
-Пользователь: ${finalUserName}
-Язык: ${finalUserLanguage}
+			if (!isOperationAvailable(config)) {
+				console.error('[AI-ANALYSIS] ❌ AI operation disabled or not found');
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: 'AI operation disabled or not found',
+						message: 'AI анализ временно недоступен',
+					}),
+					{
+						status: 503,
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
+				);
+			}
 
-Проанализируй запись и верни JSON с полями:
-- sentiment: "positive", "neutral", "negative"
-- category: одна из категорий (семья, работа, финансы, благодарность, здоровье, личное развитие, творчество, отношения, другое)
-- tags: массив тегов (максимум 5)
-- reply: мотивационный ответ (2-3 предложения)
-- summary: краткое резюме (1 предложение)
-- insight: глубокое понимание или совет
-- isAchievement: true/false (является ли это достижением)
-- mood: описание настроения
+			console.log('[AI-ANALYSIS] ✅ AI operation config loaded:', {
+				model: config.model,
+				max_tokens: config.max_tokens,
+				temperature: config.temperature,
+			});
 
-Отвечай на языке пользователя: ${finalUserLanguage}`;
+			// Replace placeholders in prompts
+			const systemPrompt = replacePlaceholders(config.system_prompt, {
+				user_name: finalUserName,
+				user_language: finalUserLanguage,
+			});
+
+			const userPrompt = replacePlaceholders(config.user_prompt_template, {
+				user_name: finalUserName,
+				user_language: finalUserLanguage,
+				entry_text: text,
+			});
 
 			// Call OpenAI API
 			console.log('[AI-ANALYSIS] 🚀 Calling OpenAI API...');
-			console.log('[AI-ANALYSIS] 📝 Model: gpt-4o-mini');
+			console.log('[AI-ANALYSIS] 📝 Model:', config.model);
+			console.log('[AI-ANALYSIS] 📝 Max tokens:', config.max_tokens);
+			console.log('[AI-ANALYSIS] 📝 Temperature:', config.temperature);
 			console.log('[AI-ANALYSIS] 📝 Text length:', text.length);
 
 			const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -218,13 +244,13 @@ Deno.serve(async (req) => {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					model: 'gpt-4o-mini',
+					model: config.model,
 					messages: [
 						{ role: 'system', content: systemPrompt },
-						{ role: 'user', content: text },
+						{ role: 'user', content: userPrompt },
 					],
-					temperature: 0.7,
-					max_tokens: 1000,
+					temperature: config.temperature,
+					max_tokens: config.max_tokens,
 					response_format: { type: 'json_object' },
 				}),
 			});
