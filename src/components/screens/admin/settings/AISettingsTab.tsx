@@ -184,89 +184,75 @@ export const AISettingsTab: React.FC = () => {
 		return grouped;
 	};
 
-	// Helper: Load AI operations from database
-	const loadAiOperations = async (supabase: ReturnType<typeof createClient>) => {
-		const { data: operations, error } = await supabase
-			.from('ai_operations')
-			.select('*')
-			.order('group_name, id');
-
-		if (error) {
-			console.error('Error loading AI operations:', error);
-			return;
-		}
-
-		if (operations) {
-			setAiOperations(operations);
-			setGroupedOps(groupOperations(operations));
-		}
-	};
-
-	// Helper: Load budget config from admin_settings
-	const loadBudgetConfig = async (supabase: ReturnType<typeof createClient>) => {
-		const { data: settings, error } = await supabase
-			.from('admin_settings')
-			.select('key, value')
-			.in('key', ['ai_budget_config']);
-
-		if (error) throw error;
-
-		if (settings) {
-			for (const setting of settings) {
-				if (setting.key === 'ai_budget_config' && setting.value) {
-					setBudgetConfig(JSON.parse(setting.value));
-				}
-			}
-		}
-	};
-
-	// Helper: Load current month spend
-	const loadCurrentSpend = async (supabase: ReturnType<typeof createClient>) => {
-		const startOfMonth = new Date();
-		startOfMonth.setDate(1);
-		startOfMonth.setHours(0, 0, 0, 0);
-
-		const { data: usageData } = await supabase
-			.from('openai_usage')
-			.select('estimated_cost')
-			.gte('created_at', startOfMonth.toISOString());
-
-		if (usageData) {
-			const currentSpend = usageData.reduce((sum, log) => sum + (log.estimated_cost || 0), 0);
-			setBudgetConfig((prev) => ({ ...prev, current_spend: currentSpend }));
-		}
-	};
-
-	const loadAISettings = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const supabase = createClient();
-			const {
-				data: { session },
-			} = await supabase.auth.getSession();
-
-			if (!session?.access_token) {
-				toast.error('Ошибка авторизации');
-				return;
-			}
-
-			await loadAiOperations(supabase);
-			await loadBudgetConfig(supabase);
-			await loadCurrentSpend(supabase);
-
-			toast.success('Настройки AI загружены');
-		} catch (error) {
-			console.error('Error loading AI settings:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки';
-			toast.error(`Ошибка загрузки: ${errorMessage}`);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [loadAiOperations, loadBudgetConfig, loadCurrentSpend]);
-
+	// Load AI settings (all in one useEffect to avoid infinite loop)
 	useEffect(() => {
+		const loadAISettings = async () => {
+			setIsLoading(true);
+			try {
+				const supabase = createClient();
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+
+				if (!session?.access_token) {
+					toast.error('Ошибка авторизации');
+					return;
+				}
+
+				// Load AI operations
+				const { data: operations, error: opsError } = await supabase
+					.from('ai_operations')
+					.select('*')
+					.order('group_name, id');
+
+				if (opsError) {
+					console.error('Error loading AI operations:', opsError);
+				} else if (operations) {
+					setAiOperations(operations);
+					setGroupedOps(groupOperations(operations));
+				}
+
+				// Load budget config
+				const { data: settings, error: settingsError } = await supabase
+					.from('admin_settings')
+					.select('key, value')
+					.in('key', ['ai_budget_config']);
+
+				if (!settingsError && settings) {
+					for (const setting of settings) {
+						if (setting.key === 'ai_budget_config' && setting.value) {
+							setBudgetConfig(JSON.parse(setting.value));
+						}
+					}
+				}
+
+				// Load current month spend
+				const startOfMonth = new Date();
+				startOfMonth.setDate(1);
+				startOfMonth.setHours(0, 0, 0, 0);
+
+				const { data: usageData } = await supabase
+					.from('openai_usage')
+					.select('estimated_cost')
+					.gte('created_at', startOfMonth.toISOString());
+
+				if (usageData) {
+					const currentSpend = usageData.reduce((sum, log) => sum + (log.estimated_cost || 0), 0);
+					setBudgetConfig((prev) => ({ ...prev, current_spend: currentSpend }));
+				}
+
+				toast.success('Настройки AI загружены');
+			} catch (error) {
+				console.error('Error loading AI settings:', error);
+				const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки';
+				toast.error(`Ошибка загрузки: ${errorMessage}`);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
 		loadAISettings();
-	}, [loadAISettings]);
+	}, []); // Empty dependency array - load only once on mount
 
 	const handleSaveSettings = async () => {
 		setIsSaving(true);
