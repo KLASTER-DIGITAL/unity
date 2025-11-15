@@ -27,6 +27,11 @@
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import {
+	trackPushCampaignStats,
+	trackPushDelivery,
+	trackRateLimitEvent,
+} from '../_shared/push-metrics.ts';
 
 // CORS headers
 const corsHeaders = {
@@ -68,6 +73,111 @@ interface ChannelResult {
 	sent: number;
 	failed: number;
 	error?: string;
+}
+
+/**
+ * Rate Limit Check Result
+ */
+interface RateLimitResult {
+	allowed: boolean;
+	count_hour: number;
+	count_day: number;
+	limit_hour: number;
+	limit_day: number;
+	remaining_hour: number;
+	remaining_day: number;
+}
+
+/**
+ * Check if user has exceeded rate limits
+ */
+async function checkRateLimit(userId: string): Promise<RateLimitResult> {
+	try {
+		// Get rate limit settings from admin_settings
+		const { data: settings } = await supabaseAdmin
+			.from('admin_settings')
+			.select('key, value')
+			.in('key', [
+				'push_rate_limit_per_hour',
+				'push_rate_limit_per_day',
+				'push_rate_limit_enabled',
+			]);
+
+		const settingsMap = new Map(settings?.map((s: any) => [s.key, s.value]) || []);
+
+		// Check if rate limiting is enabled
+		const isEnabled = settingsMap.get('push_rate_limit_enabled') === 'true';
+		if (!isEnabled) {
+			// Rate limiting disabled - allow all
+			return {
+				allowed: true,
+				count_hour: 0,
+				count_day: 0,
+				limit_hour: 100,
+				limit_day: 500,
+				remaining_hour: 100,
+				remaining_day: 500,
+			};
+		}
+
+		const maxPerHour = Number.parseInt(settingsMap.get('push_rate_limit_per_hour') || '100');
+		const maxPerDay = Number.parseInt(settingsMap.get('push_rate_limit_per_day') || '500');
+
+		// Call database function to check rate limit
+		const { data, error } = await supabaseAdmin.rpc('check_push_rate_limit', {
+			p_user_id: userId,
+			p_max_per_hour: maxPerHour,
+			p_max_per_day: maxPerDay,
+		});
+
+		if (error) {
+			console.error('[RATE-LIMIT] Error checking rate limit:', error);
+			// On error, allow (fail open)
+			return {
+				allowed: true,
+				count_hour: 0,
+				count_day: 0,
+				limit_hour: maxPerHour,
+				limit_day: maxPerDay,
+				remaining_hour: maxPerHour,
+				remaining_day: maxPerDay,
+			};
+		}
+
+		return data as RateLimitResult;
+	} catch (error) {
+		console.error('[RATE-LIMIT] Exception checking rate limit:', error);
+		// On exception, allow (fail open)
+		return {
+			allowed: true,
+			count_hour: 0,
+			count_day: 0,
+			limit_hour: 100,
+			limit_day: 500,
+			remaining_hour: 100,
+			remaining_day: 500,
+		};
+	}
+}
+
+/**
+ * Record push notification send for rate limiting
+ */
+async function recordPushSend(
+	userId: string,
+	notificationType: string,
+	campaignId?: string
+): Promise<void> {
+	try {
+		await supabaseAdmin.rpc('record_push_send', {
+			p_user_id: userId,
+			p_notification_type: notificationType,
+			p_campaign_id: campaignId || null,
+		});
+	} catch (error) {
+		console.error('[RATE-LIMIT] Error recording push send:', error);
+		// Don't throw - recording failure shouldn't block notification
+	}
 }
 
 /**
@@ -186,6 +296,24 @@ async function sendViaWebPush(
 
 		const result = await response.json();
 
+		// Track successful sends
+		trackPushDelivery('sent', {
+			user_count: result.sent || 0,
+			channel: 'web_push',
+			campaign_id: data?.campaign_id,
+			notification_type: data?.type || 'unknown',
+		});
+
+		// Track failures
+		if (result.failed > 0) {
+			trackPushDelivery('failed', {
+				user_count: result.failed,
+				channel: 'web_push',
+				campaign_id: data?.campaign_id,
+				error_message: 'Some users failed to receive notification',
+			});
+		}
+
 		return {
 			channel: 'web_push',
 			success: true,
@@ -195,6 +323,14 @@ async function sendViaWebPush(
 	} catch (error: unknown) {
 		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 		console.error('[UNIFIED-SENDER] Web Push failed:', error);
+
+		// Track complete failure
+		trackPushDelivery('failed', {
+			user_count: userIds.length,
+			channel: 'web_push',
+			error_message: errorMessage,
+		});
+
 		return {
 			channel: 'web_push',
 			success: false,
@@ -335,6 +471,63 @@ async function sendUnifiedNotification(payload: NotificationPayload) {
 		};
 	}
 
+	// ✅ RATE LIMITING: Check and filter users who haven't exceeded limits
+	const rateLimitResults = await Promise.all(
+		userIds.map(async (userId) => ({
+			userId,
+			rateLimit: await checkRateLimit(userId),
+		}))
+	);
+
+	// Filter out users who exceeded rate limits
+	const allowedUsers = rateLimitResults.filter((r) => r.rateLimit.allowed).map((r) => r.userId);
+
+	const blockedUsers = rateLimitResults
+		.filter((r) => !r.rateLimit.allowed)
+		.map((r) => ({
+			userId: r.userId,
+			reason: 'rate_limit_exceeded',
+			count_hour: r.rateLimit.count_hour,
+			count_day: r.rateLimit.count_day,
+		}));
+
+	if (blockedUsers.length > 0) {
+		console.warn(
+			`[RATE-LIMIT] Blocked ${blockedUsers.length} users due to rate limits:`,
+			blockedUsers
+		);
+
+		// Track rate limit events
+		for (const blocked of blockedUsers) {
+			trackRateLimitEvent({
+				user_id: blocked.userId,
+				count_hour: blocked.count_hour,
+				count_day: blocked.count_day,
+				limit_hour:
+					rateLimitResults.find((r) => r.userId === blocked.userId)?.rateLimit.limit_hour || 100,
+				limit_day:
+					rateLimitResults.find((r) => r.userId === blocked.userId)?.rateLimit.limit_day || 500,
+			});
+		}
+	}
+
+	if (allowedUsers.length === 0) {
+		return {
+			success: false,
+			total_users: userIds.length,
+			allowed_users: 0,
+			blocked_users: blockedUsers.length,
+			results: [],
+			message: 'All users exceeded rate limits',
+			blocked: blockedUsers,
+		};
+	}
+
+	// Update userIds to only allowed users
+	userIds = allowedUsers;
+
+	console.log(`[RATE-LIMIT] Allowed ${allowedUsers.length}/${rateLimitResults.length} users`);
+
 	// Determine channels to use
 	let channelsToUse: NotificationChannel[] = channels || [];
 
@@ -384,6 +577,25 @@ async function sendUnifiedNotification(payload: NotificationPayload) {
 		// If successful, no need to try fallback
 		if (result.success && result.sent > 0) {
 			console.log(`[UNIFIED-SENDER] Successfully sent via ${channel}`);
+
+			// ✅ RATE LIMITING: Record successful sends
+			const notificationType = data?.campaign_id
+				? 'campaign'
+				: data?.type === 'realtime'
+					? 'realtime'
+					: data?.type === 'scheduled'
+						? 'scheduled'
+						: data?.type === 'ai_personalized'
+							? 'ai_personalized'
+							: 'unknown';
+
+			// Record for each successfully sent user
+			await Promise.all(
+				userIds.map((userId) => recordPushSend(userId, notificationType, data?.campaign_id))
+			);
+
+			console.log(`[RATE-LIMIT] Recorded ${userIds.length} push sends`);
+
 			break;
 		}
 
@@ -400,13 +612,27 @@ async function sendUnifiedNotification(payload: NotificationPayload) {
 	const totalSent = results.reduce((sum, r) => sum + r.sent, 0);
 	const totalFailed = results.reduce((sum, r) => sum + r.failed, 0);
 
+	// Track campaign statistics
+	if (data?.campaign_id) {
+		trackPushCampaignStats({
+			campaign_id: data.campaign_id,
+			total_users: rateLimitResults.length, // Original user count before rate limiting
+			sent: totalSent,
+			failed: totalFailed,
+			rate_limited: blockedUsers.length,
+		});
+	}
+
 	return {
 		success: totalSent > 0,
-		total_users: userIds.length,
+		total_users: allowedUsers.length,
+		allowed_users: allowedUsers.length,
+		blocked_users: blockedUsers.length,
 		total_sent: totalSent,
 		total_failed: totalFailed,
 		channels_tried: results.map((r) => r.channel),
 		results,
+		blocked: blockedUsers.length > 0 ? blockedUsers : undefined,
 	};
 }
 

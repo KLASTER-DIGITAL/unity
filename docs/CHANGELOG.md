@@ -9,6 +9,38 @@
 
 ## [Unreleased] - 2025-11-15
 
+### 🔒 Безопасность
+
+- **Rate Limiting для Push Notifications**: Защита от спама и перегрузки при 100K пользователей
+  - Лимиты: 100 push/час, 500 push/день на пользователя
+  - Автоматическая блокировка пользователей при превышении лимитов
+  - Настройка через admin_settings (можно изменить или отключить)
+  - Мониторинг: статистика по пользователям, топ отправителей
+  - Автоматический cleanup записей старше 7 дней
+  - Интеграция в unified-notification-sender (центральная точка)
+  - Файл: `docs/architecture/PUSH_RATE_LIMITING.md`
+
+### ⚡ Производительность
+
+- **Sentry мониторинг delivery rate**: Отслеживание успешности доставки push уведомлений
+  - Метрики: push_notifications (counter), push_campaign_delivery_rate (gauge)
+  - Tags: status (sent/failed/rate_limited), campaign_id, channel, notification_type
+  - Автоматические алерты при низком delivery rate (<80%)
+  - Dashboard в Sentry для визуализации метрик
+  - Интеграция в unified-notification-sender (логирование всех отправок)
+  - Structured logging в Supabase Logs для Edge Functions
+  - Файл: `docs/architecture/PUSH_SENTRY_MONITORING.md`
+
+- **Мониторинг здоровья БД**: Раннее обнаружение проблем при масштабировании до 100K пользователей
+  - Метрики: db_size (MB), active/idle connections, cache hit ratio, index hit ratio, table bloat, deadlocks, slow queries
+  - SQL функция `get_db_health_metrics()` для получения метрик
+  - Edge Function `db-health-monitor` для автоматического мониторинга
+  - Таблица `db_health_history` для хранения истории (30 дней retention)
+  - Cron Job каждый час для автоматической проверки
+  - Structured logging в Supabase Logs с warning/critical уровнями
+  - Пороги: cache hit > 99%, index hit > 95%, connection usage < 80%, bloat < 20%
+  - Файл: `docs/architecture/DB_HEALTH_MONITORING.md`
+
 ### 📚 Документация
 
 - **Система AI Insights карточек**: Создана детальная документация архитектуры

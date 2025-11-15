@@ -8,6 +8,67 @@
 
 ## [Unreleased] - 2025-11-15
 
+### 🏗️ Инфраструктура
+
+- **Rate Limiting для Push Notifications**: Реализована система защиты от спама
+  - Создана таблица `push_rate_limit` для отслеживания отправок
+  - Добавлены индексы для быстрой проверки (hourly, daily)
+  - Функции БД: `check_push_rate_limit()`, `record_push_send()`, `cleanup_push_rate_limit()`
+  - Интеграция в `unified-notification-sender`:
+    - Проверка лимитов перед отправкой (фильтрация пользователей)
+    - Запись успешных отправок в БД
+    - Логирование заблокированных пользователей
+  - Настройки в `admin_settings`:
+    - `push_rate_limit_per_hour` (default: 100)
+    - `push_rate_limit_per_day` (default: 500)
+    - `push_rate_limit_enabled` (default: true)
+  - Fail-open стратегия: при ошибках проверки - разрешать отправку
+  - Миграция: `supabase/migrations/20251115_add_push_rate_limiting.sql`
+
+- **Sentry мониторинг Push Notifications**: Реализована система отслеживания метрик
+  - Создан `src/shared/lib/monitoring/push-metrics.ts` для PWA:
+    - `trackPushDelivery()` - отслеживание отдельных отправок
+    - `trackPushCampaignStats()` - сводная статистика кампании
+  - Создан `supabase/functions/_shared/push-metrics.ts` для Edge Functions:
+    - Structured logging в формате `[PUSH-METRIC]`
+    - `trackRateLimitEvent()` - события rate limiting
+  - Интеграция в `unified-notification-sender`:
+    - Отслеживание успешных отправок (status:sent)
+    - Отслеживание ошибок (status:failed)
+    - Отслеживание rate limit событий (status:rate_limited)
+    - Сводная статистика по кампаниям (delivery rate, total users, sent, failed)
+  - Метрики в Sentry:
+    - `push_notifications` (counter) - количество отправок по статусам
+    - `push_notifications_user_count` (gauge) - количество пользователей
+    - `push_campaign_delivery_rate` (gauge) - процент успешной доставки
+    - `push_campaign_total_users/sent/failed/rate_limited` (gauge) - детальная статистика
+  - Алерты: низкий delivery rate (<80%), высокий failure rate (>100/час)
+
+- **Мониторинг здоровья БД**: Реализована система автоматического мониторинга
+  - Создана SQL функция `get_db_health_metrics()`:
+    - Database size (MB)
+    - Active/Idle connections + usage percent
+    - Cache hit ratio (pg_stat_database)
+    - Index hit ratio (pg_statio_user_indexes)
+    - Table bloat ratio (pg_total_relation_size)
+    - Deadlocks count (pg_stat_database)
+    - Slow queries count (pg_stat_activity)
+  - Создана таблица `db_health_history`:
+    - Хранение истории метрик (JSONB)
+    - Индекс по created_at для быстрого поиска
+    - Автоматический cleanup старше 30 дней
+  - Создан Edge Function `db-health-monitor`:
+    - Вызов get_db_health_metrics()
+    - Сохранение в db_health_history
+    - Structured logging ([DB-HEALTH-METRIC], [DB-HEALTH-WARNING], [DB-HEALTH-CRITICAL])
+  - Пороги для алертов:
+    - Cache hit ratio: healthy ≥99%, warning 95-99%, critical <95%
+    - Index hit ratio: healthy ≥95%, warning 90-95%, critical <90%
+    - Connection usage: healthy <60%, warning 60-80%, critical >80%
+    - Table bloat: healthy <20%, warning 20-40%, critical >40%
+  - Cron Job каждый час для автоматической проверки
+  - Миграция: `supabase/migrations/20251115_add_db_health_monitoring.sql`
+
 ### 🐛 Критические исправления
 
 **Проблема**: После деплоя карточки не показывались пользователям (пустой экран AI Insights)
