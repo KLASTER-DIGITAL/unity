@@ -14,6 +14,8 @@ export type AchievementHomeScreenProps = {
 	onNavigateToSettings?: () => void;
 };
 
+export type CardType = 'celebrate' | 'reflect' | 'focus' | 'gratitude' | 'progress' | 'generic';
+
 export type AchievementCard = {
 	id: string;
 	entryId?: string;
@@ -26,6 +28,7 @@ export type AchievementCard = {
 	sentiment?: string;
 	mood?: string;
 	category?: string;
+	card_type?: CardType; // ✅ НОВОЕ: Тип карточки для UI стилизации
 };
 
 export type SwipeCardProps = {

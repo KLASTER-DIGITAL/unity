@@ -1,7 +1,53 @@
-import { Heart } from 'lucide-react';
+import { Heart, Sparkles, Target, ThumbsUp, TrendingUp } from 'lucide-react';
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 import { motion, useMotionValue, useTransform } from '@/shared/lib/platform/animation';
-import type { SwipeCardProps } from './types';
+import type { CardType, SwipeCardProps } from './types';
+
+/**
+ * Get card type styling (gradient, icon, animation)
+ */
+function getCardTypeStyle(cardType?: CardType) {
+	const styles = {
+		celebrate: {
+			gradient: 'from-yellow-300 via-orange-400 to-pink-500',
+			icon: Sparkles,
+			iconColor: '#fbbf24', // yellow-400
+			accentColor: '#f59e0b', // amber-500
+		},
+		reflect: {
+			gradient: 'from-blue-300 via-purple-400 to-indigo-500',
+			icon: Heart,
+			iconColor: '#93c5fd', // blue-300
+			accentColor: '#818cf8', // indigo-400
+		},
+		focus: {
+			gradient: 'from-green-300 via-teal-400 to-blue-500',
+			icon: Target,
+			iconColor: '#6ee7b7', // emerald-300
+			accentColor: '#14b8a6', // teal-500
+		},
+		gratitude: {
+			gradient: 'from-pink-300 via-rose-400 to-red-400',
+			icon: ThumbsUp,
+			iconColor: '#fda4af', // rose-300
+			accentColor: '#fb7185', // rose-400
+		},
+		progress: {
+			gradient: 'from-green-200 via-blue-400 to-purple-600',
+			icon: TrendingUp,
+			iconColor: '#86efac', // green-300
+			accentColor: '#3b82f6', // blue-500
+		},
+		generic: {
+			gradient: 'from-pink-300 via-purple-300 to-indigo-400',
+			icon: Heart,
+			iconColor: '#f9a8d4', // pink-300
+			accentColor: '#c084fc', // purple-400
+		},
+	};
+
+	return styles[cardType || 'generic'];
+}
 
 /**
  * Swipe Card Component
@@ -11,6 +57,7 @@ import type { SwipeCardProps } from './types';
  * - Like overlay on right swipe
  * - Haptic feedback
  * - Smooth animations
+ * - Type-specific styling (celebrate, reflect, focus, gratitude, progress)
  */
 export function SwipeCard({
 	card,
@@ -93,55 +140,82 @@ export function SwipeCard({
 		}
 	};
 
+	// ✅ Get card type styling
+	const cardTypeStyle = getCardTypeStyle(card.card_type);
+
 	// ✅ FIX: Конвертируем Tailwind градиент в CSS gradient для inline style
 	const getGradientStyle = () => {
-		// ✅ FIX: Проверяем что gradient существует и не пустой
-		if (!card.gradient || card.gradient.trim() === '') {
-			// Fallback gradient если gradient отсутствует
-			return 'linear-gradient(to bottom right, #ec4899, #ef4444, #eab308)';
+		// ✅ ПРИОРИТЕТ 1: Используем градиент из card_type если доступен
+		if (card.card_type) {
+			const typeGradient = cardTypeStyle.gradient;
+			const gradientParts = typeGradient.split(' ');
+			const fromColor = gradientParts.find((p) => p.startsWith('from-'))?.replace('from-', '');
+			const viaColor = gradientParts.find((p) => p.startsWith('via-'))?.replace('via-', '');
+			const toColor = gradientParts.find((p) => p.startsWith('to-'))?.replace('to-', '');
+
+			// Конвертируем Tailwind цвета в CSS цвета
+			const colorMap: Record<string, string> = {
+				// Yellow/Orange/Pink (celebrate)
+				'yellow-300': '#fde047',
+				'orange-400': '#fb923c',
+				'pink-500': '#ec4899',
+				// Blue/Purple/Indigo (reflect)
+				'blue-300': '#93c5fd',
+				'purple-400': '#c084fc',
+				'indigo-500': '#6366f1',
+				// Green/Teal/Blue (focus)
+				'green-300': '#86efac',
+				'teal-400': '#2dd4bf',
+				'blue-500': '#3b82f6',
+				// Pink/Rose/Red (gratitude)
+				'pink-300': '#f9a8d4',
+				'rose-400': '#fb7185',
+				'red-400': '#f87171',
+				// Green/Blue/Purple (progress)
+				'green-200': '#bbf7d0',
+				'blue-400': '#60a5fa',
+				'purple-600': '#9333ea',
+				// Generic fallback
+				'purple-300': '#d8b4fe',
+				'indigo-400': '#818cf8',
+			};
+
+			const from = fromColor ? colorMap[fromColor] || fromColor : '#ec4899';
+			const via = viaColor ? colorMap[viaColor] || viaColor : '#ef4444';
+			const to = toColor ? colorMap[toColor] || toColor : '#eab308';
+
+			return `linear-gradient(to bottom right, ${from}, ${via}, ${to})`;
 		}
 
-		// Парсим Tailwind класс градиента (например: "from-pink-300 via-purple-300 to-indigo-400")
-		const gradientParts = card.gradient.split(' ');
-		const fromColor = gradientParts.find((p) => p.startsWith('from-'))?.replace('from-', '');
-		const viaColor = gradientParts.find((p) => p.startsWith('via-'))?.replace('via-', '');
-		const toColor = gradientParts.find((p) => p.startsWith('to-'))?.replace('to-', '');
+		// ✅ ПРИОРИТЕТ 2: Используем card.gradient если есть
+		if (card.gradient && card.gradient.trim() !== '') {
+			const gradientParts = card.gradient.split(' ');
+			const fromColor = gradientParts.find((p) => p.startsWith('from-'))?.replace('from-', '');
+			const viaColor = gradientParts.find((p) => p.startsWith('via-'))?.replace('via-', '');
+			const toColor = gradientParts.find((p) => p.startsWith('to-'))?.replace('to-', '');
 
-		// Конвертируем Tailwind цвета в CSS цвета
-		const colorMap: Record<string, string> = {
-			// Pink
-			'pink-300': '#f9a8d4',
-			'pink-500': '#ec4899',
-			// Purple
-			'purple-300': '#d8b4fe',
-			'purple-400': '#c084fc',
-			'purple-600': '#9333ea',
-			// Red
-			'red-500': '#ef4444',
-			// Yellow
-			'yellow-500': '#eab308',
-			'yellow-200': '#fef08a',
-			'yellow-100': '#fef9c3',
-			'yellow-300': '#fde047',
-			// Indigo
-			'indigo-400': '#818cf8',
-			'indigo-200': '#c7d2fe',
-			// Green
-			'green-300': '#86efac',
-			'green-200': '#bbf7d0',
-			'green-400': '#4ade80',
-			// Blue
-			'blue-500': '#3b82f6',
-			// Pink (additional)
-			'pink-200': '#fbcfe8',
-			'pink-400': '#f472b6',
-		};
+			const colorMap: Record<string, string> = {
+				'pink-300': '#f9a8d4',
+				'pink-500': '#ec4899',
+				'purple-300': '#d8b4fe',
+				'purple-400': '#c084fc',
+				'purple-600': '#9333ea',
+				'red-500': '#ef4444',
+				'yellow-500': '#eab308',
+				'indigo-400': '#818cf8',
+				'green-300': '#86efac',
+				'blue-500': '#3b82f6',
+			};
 
-		const from = fromColor ? colorMap[fromColor] || fromColor : '#ec4899';
-		const via = viaColor ? colorMap[viaColor] || viaColor : '#ef4444';
-		const to = toColor ? colorMap[toColor] || toColor : '#eab308';
+			const from = fromColor ? colorMap[fromColor] || fromColor : '#ec4899';
+			const via = viaColor ? colorMap[viaColor] || viaColor : '#ef4444';
+			const to = toColor ? colorMap[toColor] || toColor : '#eab308';
 
-		return `linear-gradient(to bottom right, ${from}, ${via}, ${to})`;
+			return `linear-gradient(to bottom right, ${from}, ${via}, ${to})`;
+		}
+
+		// ✅ FALLBACK: Generic gradient
+		return 'linear-gradient(to bottom right, #f9a8d4, #d8b4fe, #818cf8)';
 	};
 
 	return (
@@ -206,6 +280,24 @@ export function SwipeCard({
 
 				{/* Основное содержимое карточки */}
 				<div className="relative z-0 p-card">
+					{/* Card Type Icon - показываем в правом верхнем углу */}
+					{card.card_type && (
+						<div className="absolute top-4 right-4 z-10">
+							<div
+								className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
+								style={{
+									boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+								}}
+							>
+								<cardTypeStyle.icon
+									className="h-5 w-5 text-white"
+									strokeWidth={2.5}
+									style={{ color: 'white' }}
+								/>
+							</div>
+						</div>
+					)}
+
 					{/* Title */}
 					<motion.div className="mb-3">
 						<h3 className="text-title-2 text-white leading-tight tracking-[-0.5px]">
