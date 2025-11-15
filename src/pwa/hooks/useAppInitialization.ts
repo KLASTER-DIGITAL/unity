@@ -225,6 +225,17 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 						setSelectedLanguage(session.profile.language);
 					}
 
+					// ✅ CRITICAL: Check if super_admin trying to access PWA → redirect to admin panel
+					const params = parseRouteParams();
+					const isAdminRoute = checkIsAdminRoute(params);
+					const userRole = session.profile?.role || session.role;
+
+					if (userRole === 'super_admin' && !isAdminRoute) {
+						console.log('🔄 [App.tsx] super_admin detected on PWA, redirecting to admin panel');
+						window.location.href = '/?view=admin';
+						return;
+					}
+
 					// Check onboarding status
 					const hasCompletedOnboarding = await checkOnboardingStatus(session.user.id);
 					setOnboardingComplete(hasCompletedOnboarding);

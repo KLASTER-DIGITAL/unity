@@ -149,6 +149,14 @@ export function createAppHandlers(props: AppHandlersProps) {
 
 		console.log('✅ [App.tsx] Auth complete, user:', user.email);
 
+		// ✅ CRITICAL: Check if super_admin trying to access PWA → redirect to admin panel
+		const userRole = user.profile?.role || user.role;
+		if (userRole === 'super_admin') {
+			console.log('🔄 [App.tsx] super_admin detected, redirecting to admin panel');
+			window.location.href = '/?view=admin';
+			return;
+		}
+
 		// Если пользователь прошел онбординг (есть firstEntry), создаем первую запись
 		// Это будет обработано в MobileApp через onAuthComplete
 		setOnboardingComplete(true);
