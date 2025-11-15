@@ -8,6 +8,14 @@
 
 ## [Unreleased] - 2025-11-15
 
+### 🐛 Исправления
+- **useHomeScreenData hook**: Добавлен Supabase Realtime subscription (2025-11-15)
+  - Файл: `src/shared/hooks/useHomeScreenData.ts`
+  - Добавлен channel subscription для таблицы entries
+  - Слушаем INSERT события для автоматического обновления
+  - Используем fetchDataRef для предотвращения повторных подписок
+  - Исправлена проблема: карточки и лента теперь обновляются автоматически БЕЗ перезагрузки страницы
+
 ### 🔄 Изменено
 - **Edge Function motivations**: Изменено временное окно с 48 на 24 часа (2025-11-15)
   - Файл: `supabase/functions/motivations/index.ts`

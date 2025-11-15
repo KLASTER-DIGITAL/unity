@@ -14,8 +14,9 @@
  * - LCP: 2000ms → 1200-1400ms (↓30-40%)
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getHomeScreenData, type HomeScreenData } from '@/shared/lib/api';
+import { createClient } from '@/utils/supabase/client';
 
 interface UseHomeScreenDataResult {
 	data: HomeScreenData | null;
@@ -27,6 +28,9 @@ interface UseHomeScreenDataResult {
 /**
  * Hook для загрузки всех данных HomeScreen
  *
+ * ✅ НОВОЕ: Добавлен Supabase Realtime subscription для автоматического обновления
+ * при создании новых записей (INSERT events)
+ *
  * @param userId - ID пользователя
  * @returns Данные HomeScreen, состояние загрузки, ошибки и функция refetch
  */
@@ -34,6 +38,9 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 	const [data, setData] = useState<HomeScreenData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
+
+	// ✅ FIX: Используем ref для хранения актуальной функции fetchData
+	const fetchDataRef = useRef<(() => Promise<void>) | null>(null);
 
 	// Fetch home screen data
 	const fetchData = useCallback(async () => {
@@ -66,10 +73,67 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 		}
 	}, [userId]);
 
+	// ✅ FIX: Обновляем ref при каждом изменении fetchData
+	useEffect(() => {
+		fetchDataRef.current = fetchData;
+		console.log('[useHomeScreenData] 🔗 Updated fetchDataRef.current');
+	}, [fetchData]);
+
 	// Fetch data on mount
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
+
+	// ✅ НОВОЕ: Real-time subscription для автоматического обновления
+	useEffect(() => {
+		if (!userId || userId === 'anonymous') {
+			console.log('[useHomeScreenData] No userId, skipping real-time subscription');
+			return;
+		}
+
+		console.log('[useHomeScreenData] Setting up real-time subscription for user:', userId);
+
+		// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для realtime подписки
+		const supabase = createClient();
+
+		const channel = supabase
+			.channel(`home-screen:${userId}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT', // Слушаем только INSERT (новые записи)
+					schema: 'public',
+					table: 'entries',
+					filter: `user_id=eq.${userId}`,
+				},
+				(payload) => {
+					console.log('[useHomeScreenData] 🔔 New entry created, reloading data:', payload);
+
+					// Перезагружаем данные при создании новой записи
+					if (fetchDataRef.current) {
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
+						fetchDataRef.current();
+					} else {
+						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
+					}
+				}
+			)
+			.subscribe((status) => {
+				console.log('[useHomeScreenData] 📡 Subscription status:', status);
+				if (status === 'SUBSCRIBED') {
+					console.log('[useHomeScreenData] ✅ Successfully subscribed to real-time updates');
+				} else if (status === 'CHANNEL_ERROR') {
+					console.error('[useHomeScreenData] ❌ Channel error!');
+				} else if (status === 'TIMED_OUT') {
+					console.error('[useHomeScreenData] ❌ Subscription timed out!');
+				}
+			});
+
+		return () => {
+			console.log('[useHomeScreenData] Cleaning up real-time subscription');
+			supabase.removeChannel(channel);
+		};
+	}, [userId]); // ✅ FIX: Только userId в dependencies, fetchData через ref
 
 	return {
 		data,
