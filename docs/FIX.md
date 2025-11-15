@@ -9,6 +9,33 @@
 ## [Unreleased] - 2025-11-15
 
 ### 🔒 Безопасность
+- **supabase/migrations/20251115_add_2fa_for_super_admin.sql** - создан
+  - Колонки в profiles: two_factor_enabled, two_factor_secret, two_factor_backup_codes, two_factor_verified_at
+  - Таблица two_factor_attempts для rate limiting
+  - RPC функция check_2fa_rate_limit(p_user_id)
+  - RPC функция record_2fa_attempt(p_user_id, p_code, p_success, p_ip_address, p_user_agent)
+  - RLS политики для two_factor_attempts
+- **src/shared/lib/auth/totp.ts** - создан
+  - generateTOTPSecret() - генерация base32 secret
+  - generateTOTPUri() - генерация otpauth:// URI для QR кода
+  - verifyTOTPCode() - проверка 6-значного TOTP кода
+  - generateBackupCodes() - генерация резервных кодов
+  - hashBackupCode() - хеширование резервных кодов (SHA-256)
+  - verifyBackupCode() - проверка резервного кода
+  - Base32 encoding/decoding (RFC 4648)
+- **src/features/admin/settings/components/TwoFactorSetup.tsx** - создан
+  - UI для включения/отключения 2FA
+  - Генерация и показ QR кода
+  - Верификация первого кода
+  - Показ резервных кодов
+- **src/features/admin/auth/components/TwoFactorVerification.tsx** - создан
+  - UI для ввода 6-значного TOTP кода
+  - UI для ввода 8-значного резервного кода
+  - Rate limiting (5 попыток / 15 минут)
+  - Показ оставшихся попыток
+- **package.json** - добавлены пакеты:
+  - qrcode@1.5.4 - генерация QR кодов
+  - @types/qrcode@1.5.5 - TypeScript типы
 - **supabase/migrations/20251115_add_admin_login_rate_limiting.sql** - создан
   - Таблица `admin_login_attempts` для отслеживания попыток входа
   - Индексы: `idx_admin_login_attempts_email_created`, `idx_admin_login_attempts_ip_created`
