@@ -6,6 +6,7 @@ import {
 	Monitor,
 	Search,
 	Settings,
+	Shield,
 	Smartphone,
 } from 'lucide-react';
 import type React from 'react';
@@ -20,6 +21,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { LanguagesAndTranslationsTab } from './LanguagesAndTranslationsTab';
 import { MobileConfigTab } from './mobile-config';
+import { SecurityTab } from './SecurityTab';
 
 type SettingsTabProps = {
 	className?: string;
@@ -71,6 +73,12 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 			label: 'Mobile',
 			icon: Smartphone,
 			description: 'Настройки React Native приложения',
+		},
+		{
+			value: 'security',
+			label: 'Безопасность',
+			icon: Shield,
+			description: 'Настройки безопасности и 2FA',
 		},
 		{
 			value: 'general',
@@ -164,6 +172,10 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 
 								<TabsContent className="mt-0" value="mobile">
 									<MobileConfigTab />
+								</TabsContent>
+
+								<TabsContent className="mt-0" value="security">
+									<SecurityTab />
 								</TabsContent>
 
 								<TabsContent className="mt-0" value="general">

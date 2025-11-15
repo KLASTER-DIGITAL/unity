@@ -12,10 +12,19 @@ import {
 } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { createClient } from '@/utils/supabase/client';
+import { TwoFactorVerification } from './TwoFactorVerification';
 
 type AdminLoginScreenProps = {
 	onComplete: (userData: any) => void;
 	onBack: () => void;
+};
+
+type TwoFactorData = {
+	userId: string;
+	userEmail: string;
+	twoFactorSecret: string;
+	backupCodes: string[];
+	userData: any;
 };
 
 export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) {
@@ -24,6 +33,8 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+	const [show2FA, setShow2FA] = useState(false);
+	const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -188,6 +199,21 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 				p_user_agent: navigator.userAgent,
 			});
 
+			// 🔐 2FA: Проверка включен ли 2FA для этого пользователя
+			if (profileData.two_factor_enabled) {
+				console.log('🔐 [AdminLoginScreen] 2FA enabled, showing verification screen');
+				setTwoFactorData({
+					userId: data.user.id,
+					userEmail: data.user.email || email,
+					twoFactorSecret: profileData.two_factor_secret,
+					backupCodes: profileData.two_factor_backup_codes || [],
+					userData,
+				});
+				setShow2FA(true);
+				setIsLoading(false);
+				return;
+			}
+
 			toast.success('Вход выполнен успешно');
 
 			// Вызываем onComplete для перехода к админ-панели
@@ -200,6 +226,35 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 			setIsLoading(false);
 		}
 	};
+
+	const handle2FAVerified = () => {
+		console.log('🔐 [AdminLoginScreen] 2FA verified successfully');
+		if (twoFactorData) {
+			toast.success('Вход выполнен успешно');
+			onComplete(twoFactorData.userData);
+		}
+	};
+
+	const handle2FABack = () => {
+		console.log('🔐 [AdminLoginScreen] 2FA back button clicked');
+		setShow2FA(false);
+		setTwoFactorData(null);
+		setIsLoading(false);
+	};
+
+	// Если показываем 2FA экран
+	if (show2FA && twoFactorData) {
+		return (
+			<TwoFactorVerification
+				userId={twoFactorData.userId}
+				userEmail={twoFactorData.userEmail}
+				twoFactorSecret={twoFactorData.twoFactorSecret}
+				backupCodes={twoFactorData.backupCodes}
+				onVerified={handle2FAVerified}
+				onBack={handle2FABack}
+			/>
+		);
+	}
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">

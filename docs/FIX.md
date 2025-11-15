@@ -33,6 +33,18 @@
   - UI для ввода 8-значного резервного кода
   - Rate limiting (5 попыток / 15 минут)
   - Показ оставшихся попыток
+- **src/features/admin/auth/components/AdminLoginScreen.tsx** - обновлен
+  - Добавлена интеграция 2FA верификации
+  - Проверка two_factor_enabled после успешного входа
+  - Показ TwoFactorVerification компонента если 2FA включен
+  - Обработчики handle2FAVerified и handle2FABack
+- **src/features/admin/settings/components/SettingsTab.tsx** - обновлен
+  - Добавлена вкладка "Безопасность" с иконкой Shield
+  - Интеграция SecurityTab компонента
+- **src/features/admin/settings/components/SecurityTab.tsx** - создан
+  - UI для раздела безопасности
+  - Интеграция TwoFactorSetup компонента
+  - Загрузка userId и userEmail из Supabase Auth
 - **package.json** - добавлены пакеты:
   - qrcode@1.5.4 - генерация QR кодов
   - @types/qrcode@1.5.5 - TypeScript типы
