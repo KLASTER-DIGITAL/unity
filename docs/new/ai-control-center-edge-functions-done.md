@@ -158,19 +158,28 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 
 ---
 
-## 🚀 Следующие шаги
+## ✅ Деплой Edge Functions - ЗАВЕРШЕН!
 
-### Приоритет 1: Деплой Edge Functions (15 минут)
+**Дата деплоя**: 2025-11-15
+**Статус**: ✅ УСПЕШНО
 
 ```bash
-# Deploy ai-analysis
-npx supabase functions deploy ai-analysis
+# ✅ Deploy ai-analysis
+npx supabase functions deploy ai-analysis --project-ref ecuwuzqlwdkkdncampnc
+# Deployed Functions on project ecuwuzqlwdkkdncampnc: ai-analysis
 
-# Deploy push-ai-personalize
-npx supabase functions deploy push-ai-personalize
+# ✅ Deploy push-ai-personalize
+npx supabase functions deploy push-ai-personalize --project-ref ecuwuzqlwdkkdncampnc
+# Deployed Functions on project ecuwuzqlwdkkdncampnc: push-ai-personalize
 ```
 
-### Приоритет 2: Тестирование (30 минут)
+**Dashboard**: https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc/functions
+
+---
+
+## 🚀 Следующие шаги
+
+### Приоритет 1: Тестирование (30 минут)
 
 **Сценарий 1: Entry Analysis**
 1. Войти как super_admin
