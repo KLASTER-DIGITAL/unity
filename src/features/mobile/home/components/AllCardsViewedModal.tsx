@@ -56,11 +56,11 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 							</button>
 
 							{/* Header with gradient */}
-							<div className="relative overflow-hidden bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 px-6 pt-8 pb-6">
+							<div className="relative overflow-hidden bg-linear-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 px-6 pt-8 pb-6">
 								{/* Success Icon */}
 								<motion.div
 									animate={{ scale: 1, rotate: 0 }}
-									className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg"
+									className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 shadow-lg"
 									initial={{ scale: 0, rotate: -180 }}
 									transition={{ type: 'spring', damping: 15, stiffness: 200, delay: 0.1 }}
 								>
@@ -117,7 +117,7 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 									transition={{ delay: 0.4 }}
 								>
 									<Button
-										className="h-12 w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+										className="h-12 w-full gap-2 bg-linear-to-r from-green-500 to-emerald-600 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
 										onClick={onClose}
 										size="lg"
 									>

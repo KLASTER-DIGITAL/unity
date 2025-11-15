@@ -195,7 +195,7 @@ export function SwipeCard({
 				{/* Like overlay - показывается при свайпе вправо */}
 				{isTop && (
 					<motion.div
-						className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-r from-transparent via-green-500/20 to-green-500/40"
+						className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-linear-to-r from-transparent via-green-500/20 to-green-500/40"
 						style={{ opacity: likeOpacity }}
 					>
 						<div className="rotate-12 rounded-2xl border-4 border-white bg-green-500 px-8 py-4 text-white shadow-xl">

@@ -61,39 +61,57 @@ Deno.serve(async (req) => {
 		const userId = user.id;
 		console.log('[HOME_SCREEN_DATA] Fetching data for user:', userId);
 
-		// ✅ OPTIMIZATION: Fetch all data in parallel
-		const [entriesResult, motivationCardsResult] = await Promise.all([
-			// 1. Fetch ALL entries (for stats calculation)
-			supabase
-				.from('entries')
-				.select('*')
-				.eq('user_id', userId)
-				.order('created_at', { ascending: false }),
-
-			// 2. Fetch motivation cards
-			supabase
-				.from('motivation_cards')
-				.select('*')
-				.eq('user_id', userId)
-				.order('created_at', { ascending: false }),
-		]);
+		// ✅ OPTIMIZATION: Fetch entries data
+		const entriesResult = await supabase
+			.from('entries')
+			.select('*')
+			.eq('user_id', userId)
+			.order('created_at', { ascending: false });
 
 		if (entriesResult.error) {
 			throw new Error(`Failed to fetch entries: ${entriesResult.error.message}`);
 		}
 
-		if (motivationCardsResult.error) {
-			throw new Error(`Failed to fetch motivation cards: ${motivationCardsResult.error.message}`);
-		}
-
 		const allEntries = entriesResult.data || [];
-		const motivationCards = motivationCardsResult.data || [];
 
 		// ✅ Calculate stats from entries
 		const stats = calculateStats(allEntries);
 
 		// ✅ Get recent 3 entries
 		const recentEntries = allEntries.slice(0, 3);
+
+		// ✅ Call motivations Edge Function to generate cards
+		// NOTE: motivation_cards table is a LOG of viewed cards, NOT a source of cards to show
+		// Cards are generated dynamically from entries by motivations Edge Function
+		let motivationCards: any[] = [];
+		try {
+			const motivationsUrl = `${supabaseUrl}/functions/v1/motivations/cards/${userId}`;
+			console.log('[HOME_SCREEN_DATA] Calling motivations Edge Function:', motivationsUrl);
+
+			const motivationsResponse = await fetch(motivationsUrl, {
+				headers: {
+					Authorization: `Bearer ${supabaseKey}`,
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (motivationsResponse.ok) {
+				const motivationsData = await motivationsResponse.json();
+				motivationCards = motivationsData.cards || [];
+				console.log('[HOME_SCREEN_DATA] ✅ Got cards from motivations:', motivationCards.length);
+			} else {
+				console.error(
+					'[HOME_SCREEN_DATA] ⚠️ Motivations Edge Function failed:',
+					motivationsResponse.status
+				);
+				// Fallback: return empty array (frontend will handle)
+				motivationCards = [];
+			}
+		} catch (motivationsError: any) {
+			console.error('[HOME_SCREEN_DATA] ⚠️ Motivations call error:', motivationsError.message);
+			// Fallback: return empty array
+			motivationCards = [];
+		}
 
 		// ✅ Return unified response
 		const response = {
