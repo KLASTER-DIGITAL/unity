@@ -1,4 +1,5 @@
 import { DATA_CACHE_TTL, DataCacheManager } from '@/shared/lib/cache/DataCacheManager';
+import { cacheMotivationCards, getCachedMotivationCards } from '@/shared/lib/storage/indexedDB';
 import { createClient } from '@/utils/supabase/client';
 import { API_URLS } from '../config/urls';
 import type { MotivationCard } from '../types';
@@ -13,11 +14,11 @@ export async function getMotivationCards(
 	userId: string,
 	useCache = true
 ): Promise<MotivationCard[]> {
-	// ✅ Try cache first
+	// ✅ Try IndexedDB cache first (offline-first)
 	if (useCache) {
-		const cached = await DataCacheManager.get<MotivationCard[]>(`motivations_${userId}`);
+		const cached = await getCachedMotivationCards(userId);
 		if (cached) {
-			console.log('[MOTIVATIONS] 🚀 Returning cached cards for user:', userId);
+			console.log('[MOTIVATIONS] 🚀 Returning cached cards from IndexedDB for user:', userId);
 			// Background refresh (don't await)
 			fetchFreshMotivationCards(userId).catch((err) => {
 				console.error('[MOTIVATIONS] ❌ Background refresh failed:', err);
@@ -68,8 +69,8 @@ async function fetchFreshMotivationCards(userId: string): Promise<MotivationCard
 		console.log('[MOTIVATIONS] ✅ Microservice success');
 		const cards = data.cards || [];
 
-		// ✅ Cache the cards
-		await DataCacheManager.set(`motivations_${userId}`, cards, DATA_CACHE_TTL.MOTIVATIONS);
+		// ✅ Cache the cards in IndexedDB (offline-first)
+		await cacheMotivationCards(userId, cards, DATA_CACHE_TTL.MOTIVATIONS);
 
 		return cards;
 	} catch (_microserviceError: any) {
@@ -90,8 +91,8 @@ async function fetchFreshMotivationCards(userId: string): Promise<MotivationCard
 		console.log('[MOTIVATIONS] ✅ Fallback success');
 		const cards = data || [];
 
-		// ✅ Cache the cards
-		await DataCacheManager.set(`motivations_${userId}`, cards, DATA_CACHE_TTL.MOTIVATIONS);
+		// ✅ Cache the cards in IndexedDB (offline-first)
+		await cacheMotivationCards(userId, cards, DATA_CACHE_TTL.MOTIVATIONS);
 
 		return cards;
 	}

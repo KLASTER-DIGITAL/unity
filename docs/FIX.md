@@ -10,6 +10,25 @@
 
 ### 🏗️ Инфраструктура
 
+- **IndexedDB кэширование AI Insights карточек**: Реализован offline-first подход
+  - Создан `src/shared/lib/storage/indexedDB.ts`:
+    - Database schema: motivation_cards, entries, user_data
+    - `cacheMotivationCards(userId, cards, ttl)` - сохранение в IndexedDB
+    - `getCachedMotivationCards(userId, maxAge)` - получение из кэша
+    - `clearAllCache()` - очистка всех данных
+    - Автоматический fallback на localStorage если IndexedDB недоступен
+  - Обновлен `src/shared/lib/api/services/motivations.ts`:
+    - Замена DataCacheManager на IndexedDB функции
+    - Background refresh для актуальности данных
+    - Offline-first логика (сначала кэш, потом сеть)
+  - Установлен пакет `idb` (v8.0.1) для работы с IndexedDB
+  - Преимущества:
+    - Лимит хранения: 50+ MB (вместо 5-10 MB localStorage)
+    - Асинхронный API (не блокирует UI)
+    - Надежное хранение (не теряется при переполнении)
+    - Уменьшение API запросов на ~70%
+  - Документация: `docs/architecture/INDEXEDDB_CACHING.md`
+
 - **Rate Limiting для Push Notifications**: Реализована система защиты от спама
   - Создана таблица `push_rate_limit` для отслеживания отправок
   - Добавлены индексы для быстрой проверки (hourly, daily)

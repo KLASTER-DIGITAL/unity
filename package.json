@@ -76,6 +76,7 @@
 		"expo-status-bar": "~3.0.8",
 		"expo-updates": "~29.0.12",
 		"hono": "*",
+		"idb": "^8.0.3",
 		"input-otp": "^1.4.2",
 		"lodash-es": "^4.17.21",
 		"lottie-react": "^2.4.1",
