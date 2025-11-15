@@ -245,8 +245,8 @@ async function handleRequest(req: Request): Promise<Response> {
 			const userLanguage = profiles[0]?.language || 'ru';
 			console.log(`[MOTIVATIONS v10] User language: ${userLanguage}`);
 
-			// Step 2: Fetch recent entries (last 48 hours)
-			const yesterday = new Date(Date.now() - 48 * 60 * 60 * 1000);
+			// Step 2: Fetch recent entries (last 24 hours)
+			const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
 			const entriesResponse = await fetch(
 				`${supabaseUrl}/rest/v1/entries?user_id=eq.${userId}&created_at=gte.${yesterday.toISOString()}&order=created_at.desc&limit=10`,
 				{
