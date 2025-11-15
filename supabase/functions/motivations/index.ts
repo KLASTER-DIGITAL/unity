@@ -347,17 +347,70 @@ async function generateCardWithAI(
 			return null;
 		}
 
-		// Detect card type based on entry
+		// ✅ IMPROVED: Detect card type based on entry with priority system
+		// Priority: celebrate > focus > reflect > gratitude > generic
 		let cardType = 'generic';
-		if (entry.is_achievement) {
+
+		// Helper: check if tags contain specific keywords
+		const hasTags = (keywords: string[]) => {
+			if (!entry.tags || !Array.isArray(entry.tags)) return false;
+			const tagsLower = entry.tags.map((t: string) => t.toLowerCase());
+			return keywords.some((keyword) => tagsLower.includes(keyword));
+		};
+
+		// Helper: check if category matches
+		const hasCategory = (categories: string[]) => {
+			if (!entry.category) return false;
+			const categoryLower = entry.category.toLowerCase();
+			return categories.some((cat) => categoryLower.includes(cat));
+		};
+
+		// 1. CELEBRATE: Achievements, victories, milestones
+		if (
+			entry.is_achievement ||
+			hasTags(['достижение', 'achievement', 'победа', 'victory', 'успех', 'success']) ||
+			hasCategory(['achievement', 'достижение', 'milestone', 'веха']) ||
+			(entry.sentiment === 'positive' &&
+				entry.mood &&
+				['радость', 'joy', 'excited', 'восторг'].includes(entry.mood.toLowerCase()))
+		) {
 			cardType = 'celebrate';
-		} else if (entry.sentiment === 'negative') {
-			cardType = 'reflect';
-		} else if (entry.category === 'goals' || entry.category === 'цели') {
+		}
+		// 2. FOCUS: Goals, plans, intentions
+		else if (
+			hasCategory(['goals', 'цели', 'plan', 'план', 'intention', 'намерение']) ||
+			hasTags(['цель', 'goal', 'план', 'plan', 'задача', 'task', 'проект', 'project'])
+		) {
 			cardType = 'focus';
-		} else if (entry.sentiment === 'positive') {
+		}
+		// 3. REFLECT: Negative emotions, challenges, lessons
+		else if (
+			entry.sentiment === 'negative' ||
+			hasTags([
+				'проблема',
+				'problem',
+				'challenge',
+				'вызов',
+				'урок',
+				'lesson',
+				'ошибка',
+				'mistake',
+			]) ||
+			hasCategory(['challenge', 'вызов', 'problem', 'проблема'])
+		) {
+			cardType = 'reflect';
+		}
+		// 4. GRATITUDE: Positive emotions, thankfulness, appreciation
+		else if (
+			entry.sentiment === 'positive' ||
+			hasTags(['благодарность', 'gratitude', 'спасибо', 'thanks', 'appreciate', 'ценю']) ||
+			hasCategory(['gratitude', 'благодарность', 'appreciation', 'признательность']) ||
+			(entry.mood &&
+				['grateful', 'благодарен', 'счастлив', 'happy'].includes(entry.mood.toLowerCase()))
+		) {
 			cardType = 'gratitude';
 		}
+		// 5. GENERIC: Everything else (neutral, no specific markers)
 
 		// Replace placeholders in prompts
 		const systemPrompt = replacePlaceholders(config.system_prompt, {
