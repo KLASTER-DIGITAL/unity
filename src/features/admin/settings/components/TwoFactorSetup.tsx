@@ -165,117 +165,121 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 	return (
 		<>
 			<Card>
-			<CardHeader>
-				<CardTitle>Двухфакторная аутентификация (2FA)</CardTitle>
-				<CardDescription>
-					Дополнительный уровень защиты для вашего аккаунта супер-админа
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{!isEnabled && !isSetupMode && (
-					<div className="space-y-4">
-						<Alert>
-							<AlertDescription>
-								2FA добавляет дополнительный уровень безопасности, требуя код из
-								приложения-аутентификатора при входе.
-							</AlertDescription>
-						</Alert>
-						<Button onClick={handleEnableTwoFactor}>Включить 2FA</Button>
-					</div>
-				)}
-
-				{isSetupMode && (
-					<div className="space-y-4">
-						<div>
-							<h3 className="text-lg font-semibold mb-2">Шаг 1: Сканируйте QR код</h3>
-							<p className="text-sm text-muted-foreground mb-4">
-								Используйте приложение-аутентификатор (Google Authenticator, Authy, 1Password) для
-								сканирования QR кода
-							</p>
-							{qrCodeUrl && (
-								<img src={qrCodeUrl} alt="QR Code" className="w-64 h-64 mx-auto border rounded" />
-							)}
-							<p className="text-xs text-muted-foreground mt-2 text-center">
-								Или введите код вручную:{' '}
-								<code className="bg-muted px-2 py-1 rounded">{secret}</code>
-							</p>
+				<CardHeader>
+					<CardTitle>Двухфакторная аутентификация (2FA)</CardTitle>
+					<CardDescription>
+						Дополнительный уровень защиты для вашего аккаунта супер-админа
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					{!isEnabled && !isSetupMode && (
+						<div className="space-y-4">
+							<Alert>
+								<AlertDescription>
+									2FA добавляет дополнительный уровень безопасности, требуя код из
+									приложения-аутентификатора при входе.
+								</AlertDescription>
+							</Alert>
+							<Button onClick={handleEnableTwoFactor}>Включить 2FA</Button>
 						</div>
+					)}
 
-						<div>
-							<h3 className="text-lg font-semibold mb-2">Шаг 2: Введите код подтверждения</h3>
-							<Label htmlFor="verification-code">6-значный код из приложения</Label>
-							<Input
-								id="verification-code"
-								type="text"
-								maxLength={6}
-								value={verificationCode}
-								onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-								placeholder="000000"
-								className="text-center text-2xl tracking-widest"
-							/>
+					{isSetupMode && (
+						<div className="space-y-4">
+							<div>
+								<h3 className="text-lg font-semibold mb-2">Шаг 1: Сканируйте QR код</h3>
+								<p className="text-sm text-muted-foreground mb-4">
+									Используйте приложение-аутентификатор (Google Authenticator, Authy, 1Password) для
+									сканирования QR кода
+								</p>
+								{qrCodeUrl && (
+									<img src={qrCodeUrl} alt="QR Code" className="w-64 h-64 mx-auto border rounded" />
+								)}
+								<p className="text-xs text-muted-foreground mt-2 text-center">
+									Или введите код вручную:{' '}
+									<code className="bg-muted px-2 py-1 rounded">{secret}</code>
+								</p>
+							</div>
+
+							<div>
+								<h3 className="text-lg font-semibold mb-2">Шаг 2: Введите код подтверждения</h3>
+								<Label htmlFor="verification-code">6-значный код из приложения</Label>
+								<Input
+									id="verification-code"
+									type="text"
+									maxLength={6}
+									value={verificationCode}
+									onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+									placeholder="000000"
+									className="text-center text-2xl tracking-widest"
+								/>
+							</div>
+
+							<div className="flex gap-2">
+								<Button
+									onClick={handleVerifyAndEnable}
+									disabled={isLoading || verificationCode.length !== 6}
+								>
+									{isLoading ? 'Проверка...' : 'Подтвердить и включить'}
+								</Button>
+								<Button variant="outline" onClick={() => setIsSetupMode(false)}>
+									Отмена
+								</Button>
+							</div>
 						</div>
+					)}
 
-						<div className="flex gap-2">
-							<Button
-								onClick={handleVerifyAndEnable}
-								disabled={isLoading || verificationCode.length !== 6}
-							>
-								{isLoading ? 'Проверка...' : 'Подтвердить и включить'}
+					{isEnabled && !showBackupCodes && (
+						<div className="space-y-4">
+							<Alert>
+								<AlertDescription className="text-green-600">
+									✅ 2FA включен. Ваш аккаунт защищен дополнительным уровнем безопасности.
+								</AlertDescription>
+							</Alert>
+							<Button variant="destructive" onClick={() => setShowDisableDialog(true)}>
+								Отключить 2FA
 							</Button>
-							<Button variant="outline" onClick={() => setIsSetupMode(false)}>
-								Отмена
-							</Button>
 						</div>
-					</div>
-				)}
+					)}
 
-				{isEnabled && !showBackupCodes && (
-					<div className="space-y-4">
-						<Alert>
-							<AlertDescription className="text-green-600">
-								✅ 2FA включен. Ваш аккаунт защищен дополнительным уровнем безопасности.
-							</AlertDescription>
-						</Alert>
-						<Button variant="destructive" onClick={() => setShowDisableDialog(true)}>
-							Отключить 2FA
-						</Button>
-					</div>
-				)}
-
-				{showBackupCodes && (
-					<div className="space-y-4">
-						<Alert>
-							<AlertDescription>
-								⚠️ Сохраните эти резервные коды в безопасном месте. Они понадобятся если вы потеряете
-								доступ к приложению-аутентификатору.
-							</AlertDescription>
-						</Alert>
-						<div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded">
-							{backupCodes.map((code) => (
-								<code key={code} className="text-sm">
-									{code}
-								</code>
-							))}
+					{showBackupCodes && (
+						<div className="space-y-4">
+							<Alert>
+								<AlertDescription>
+									⚠️ Сохраните эти резервные коды в безопасном месте. Они понадобятся если вы
+									потеряете доступ к приложению-аутентификатору.
+								</AlertDescription>
+							</Alert>
+							<div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded">
+								{backupCodes.map((code) => (
+									<code key={code} className="text-sm">
+										{code}
+									</code>
+								))}
+							</div>
+							<Button onClick={() => setShowBackupCodes(false)}>Я сохранил коды</Button>
 						</div>
-						<Button onClick={() => setShowBackupCodes(false)}>Я сохранил коды</Button>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+					)}
+				</CardContent>
+			</Card>
 
-		<DangerousActionDialog
-			open={showDisableDialog}
-			onOpenChange={setShowDisableDialog}
-			onConfirm={handleDisableTwoFactor}
-			title="Отключить 2FA?"
-			description={
-				<>
-					<p className="font-semibold text-destructive">⚠️ Это снизит безопасность вашего аккаунта!</p>
-					<p>Двухфакторная аутентификация защищает ваш аккаунт от несанкционированного доступа.</p>
-				</>
-			}
-			confirmButtonText="Отключить 2FA"
-		/>
-	</>
-);
+			<DangerousActionDialog
+				open={showDisableDialog}
+				onOpenChange={setShowDisableDialog}
+				onConfirm={handleDisableTwoFactor}
+				title="Отключить 2FA?"
+				description={
+					<>
+						<p className="font-semibold text-destructive">
+							⚠️ Это снизит безопасность вашего аккаунта!
+						</p>
+						<p>
+							Двухфакторная аутентификация защищает ваш аккаунт от несанкционированного доступа.
+						</p>
+					</>
+				}
+				confirmButtonText="Отключить 2FA"
+			/>
+		</>
+	);
 }

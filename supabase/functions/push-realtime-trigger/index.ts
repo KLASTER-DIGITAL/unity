@@ -93,7 +93,7 @@ async function sendPushNotification(
 				trackPushDelivery('sent', {
 					user_count: totalSent,
 					channel: 'web_push',
-					notification_type: data?.type as string || 'realtime',
+					notification_type: (data?.type as string) || 'realtime',
 				});
 			}
 

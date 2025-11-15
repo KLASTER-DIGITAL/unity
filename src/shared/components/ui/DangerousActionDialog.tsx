@@ -153,9 +153,7 @@ export function DangerousActionDialog({
 				)}
 
 				{!confirmText && countdown > 0 && (
-					<p className="text-center text-sm text-muted-foreground">
-						Подождите {countdown} сек...
-					</p>
+					<p className="text-center text-sm text-muted-foreground">Подождите {countdown} сек...</p>
 				)}
 
 				<AlertDialogFooter>
@@ -172,4 +170,3 @@ export function DangerousActionDialog({
 		</AlertDialog>
 	);
 }
-

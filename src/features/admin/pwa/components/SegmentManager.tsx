@@ -129,95 +129,95 @@ export function SegmentManager() {
 	return (
 		<>
 			<div className="space-y-6">
-			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<h2 className="flex items-center gap-2 font-bold text-2xl">
-						<Users className="h-6 w-6" />
-						Сегменты пользователей
-					</h2>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Создавайте сегменты для таргетированных рассылок
-					</p>
+				{/* Header */}
+				<div className="flex items-center justify-between">
+					<div>
+						<h2 className="flex items-center gap-2 font-bold text-2xl">
+							<Users className="h-6 w-6" />
+							Сегменты пользователей
+						</h2>
+						<p className="mt-1 text-muted-foreground text-sm">
+							Создавайте сегменты для таргетированных рассылок
+						</p>
+					</div>
+
+					<Button onClick={() => setShowCreateModal(true)}>
+						<Plus className="mr-2 h-4 w-4" />
+						Создать сегмент
+					</Button>
 				</div>
 
-				<Button onClick={() => setShowCreateModal(true)}>
-					<Plus className="mr-2 h-4 w-4" />
-					Создать сегмент
-				</Button>
-			</div>
+				{/* Segments List */}
+				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					{segments.map((segment) => (
+						<Card key={segment.id} className="border-border">
+							<CardHeader className="pb-3">
+								<CardTitle className="flex items-center justify-between text-[17px]!">
+									<span>{segment.name}</span>
+									<Button onClick={() => handleDeleteClick(segment.id)} size="sm" variant="ghost">
+										<Trash2 className="h-4 w-4 text-destructive" />
+									</Button>
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-3">
+								{segment.description && (
+									<p className="text-[13px]! text-muted-foreground">{segment.description}</p>
+								)}
 
-			{/* Segments List */}
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{segments.map((segment) => (
-					<Card key={segment.id} className="border-border">
-						<CardHeader className="pb-3">
-							<CardTitle className="flex items-center justify-between text-[17px]!">
-								<span>{segment.name}</span>
-								<Button onClick={() => handleDeleteClick(segment.id)} size="sm" variant="ghost">
-									<Trash2 className="h-4 w-4 text-destructive" />
-								</Button>
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3">
-							{segment.description && (
-								<p className="text-[13px]! text-muted-foreground">{segment.description}</p>
-							)}
+								<div className="rounded-lg bg-muted p-3">
+									<p className="mb-1 font-medium text-[13px]!">Критерии:</p>
+									<p className="text-[12px]! text-muted-foreground">
+										{formatCriteria(segment.criteria)}
+									</p>
+								</div>
 
-							<div className="rounded-lg bg-muted p-3">
-								<p className="mb-1 font-medium text-[13px]!">Критерии:</p>
-								<p className="text-[12px]! text-muted-foreground">
-									{formatCriteria(segment.criteria)}
+								<div className="flex items-center justify-between border-t pt-3">
+									<span className="text-[13px]! text-muted-foreground">Пользователей:</span>
+									<span className="font-semibold text-[15px]!">{segment.user_count}</span>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+
+					{segments.length === 0 && (
+						<Card className="col-span-full border-border">
+							<CardContent className="py-12 text-center">
+								<Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+								<p className="mb-2 font-medium text-foreground">Нет сегментов</p>
+								<p className="mb-4 text-muted-foreground text-sm">
+									Создайте первый сегмент для таргетированных рассылок
 								</p>
-							</div>
+								<Button onClick={() => setShowCreateModal(true)}>
+									<Plus className="mr-2 h-4 w-4" />
+									Создать сегмент
+								</Button>
+							</CardContent>
+						</Card>
+					)}
+				</div>
 
-							<div className="flex items-center justify-between border-t pt-3">
-								<span className="text-[13px]! text-muted-foreground">Пользователей:</span>
-								<span className="font-semibold text-[15px]!">{segment.user_count}</span>
-							</div>
-						</CardContent>
-					</Card>
-				))}
-
-				{segments.length === 0 && (
-					<Card className="col-span-full border-border">
-						<CardContent className="py-12 text-center">
-							<Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-							<p className="mb-2 font-medium text-foreground">Нет сегментов</p>
-							<p className="mb-4 text-muted-foreground text-sm">
-								Создайте первый сегмент для таргетированных рассылок
-							</p>
-							<Button onClick={() => setShowCreateModal(true)}>
-								<Plus className="mr-2 h-4 w-4" />
-								Создать сегмент
-							</Button>
-						</CardContent>
-					</Card>
+				{/* Create Segment Modal */}
+				{showCreateModal && (
+					<CreateSegmentModal
+						onClose={() => setShowCreateModal(false)}
+						onSuccess={() => {
+							setShowCreateModal(false);
+							loadSegments();
+						}}
+					/>
 				)}
 			</div>
 
-			{/* Create Segment Modal */}
-			{showCreateModal && (
-				<CreateSegmentModal
-					onClose={() => setShowCreateModal(false)}
-					onSuccess={() => {
-						setShowCreateModal(false);
-						loadSegments();
-					}}
-				/>
-			)}
-		</div>
-
-		<DangerousActionDialog
-			open={deleteDialogOpen}
-			onOpenChange={setDeleteDialogOpen}
-			onConfirm={handleDeleteConfirm}
-			title="Удалить сегмент?"
-			description="Это действие нельзя отменить. Сегмент будет удален навсегда."
-			confirmButtonText="Удалить"
-		/>
-	</>
-);
+			<DangerousActionDialog
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}
+				onConfirm={handleDeleteConfirm}
+				title="Удалить сегмент?"
+				description="Это действие нельзя отменить. Сегмент будет удален навсегда."
+				confirmButtonText="Удалить"
+			/>
+		</>
+	);
 }
 
 /**

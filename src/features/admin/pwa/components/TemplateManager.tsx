@@ -127,7 +127,10 @@ export function TemplateManager() {
 		if (!templateToDelete) return;
 
 		try {
-			const { error } = await supabase.from('push_notification_templates').delete().eq('id', templateToDelete);
+			const { error } = await supabase
+				.from('push_notification_templates')
+				.delete()
+				.eq('id', templateToDelete);
 
 			if (error) throw error;
 			toast.success('Шаблон удален');
@@ -172,141 +175,148 @@ export function TemplateManager() {
 	return (
 		<>
 			<div className="space-y-6">
-			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<h3 className="font-semibold text-lg">Шаблоны уведомлений</h3>
-					<p className="text-sm text-muted-foreground">
-						Управление шаблонами push уведомлений с поддержкой Premium и AI
-					</p>
+				{/* Header */}
+				<div className="flex items-center justify-between">
+					<div>
+						<h3 className="font-semibold text-lg">Шаблоны уведомлений</h3>
+						<p className="text-sm text-muted-foreground">
+							Управление шаблонами push уведомлений с поддержкой Premium и AI
+						</p>
+					</div>
+					<Button onClick={() => setShowEditor(true)}>
+						<Plus className="mr-2 h-4 w-4" />
+						Создать шаблон
+					</Button>
 				</div>
-				<Button onClick={() => setShowEditor(true)}>
-					<Plus className="mr-2 h-4 w-4" />
-					Создать шаблон
-				</Button>
+
+				{/* Filters */}
+				<Tabs
+					value={filter}
+					onValueChange={(value: 'all' | 'free' | 'premium') => setFilter(value)}
+				>
+					<TabsList>
+						<TabsTrigger value="all">Все ({templates.length})</TabsTrigger>
+						<TabsTrigger value="free">
+							Free ({templates.filter((t) => !t.is_premium_only).length})
+						</TabsTrigger>
+						<TabsTrigger value="premium">
+							<Crown className="mr-1 h-3 w-3" />
+							Premium ({templates.filter((t) => t.is_premium_only).length})
+						</TabsTrigger>
+					</TabsList>
+				</Tabs>
+
+				{/* Templates Grid */}
+				{loading ? (
+					<div className="flex items-center justify-center py-12">
+						<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					</div>
+				) : filteredTemplates.length === 0 ? (
+					<Card>
+						<CardContent className="py-12 text-center">
+							<FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+							<p className="mb-2 font-medium">Нет шаблонов</p>
+							<p className="mb-4 text-muted-foreground text-sm">
+								Создайте первый шаблон для push уведомлений
+							</p>
+							<Button onClick={() => setShowEditor(true)}>
+								<Plus className="mr-2 h-4 w-4" />
+								Создать шаблон
+							</Button>
+						</CardContent>
+					</Card>
+				) : (
+					<div className="grid gap-4 md:grid-cols-2">
+						{filteredTemplates.map((template) => (
+							<Card key={template.id}>
+								<CardHeader>
+									<div className="flex items-start justify-between">
+										<div className="flex-1">
+											<CardTitle className="flex items-center gap-2 text-base">
+												<FileText className="h-4 w-4" />
+												{template.type}
+											</CardTitle>
+											<CardDescription>{template.description}</CardDescription>
+										</div>
+										<div className="flex gap-1">
+											{template.is_premium_only && (
+												<Badge variant="secondary" className="gap-1">
+													<Crown className="h-3 w-3" />
+													Premium
+												</Badge>
+											)}
+											{template.is_ai_enabled && (
+												<Badge variant="secondary" className="gap-1">
+													<Sparkles className="h-3 w-3" />
+													AI
+												</Badge>
+											)}
+										</div>
+									</div>
+								</CardHeader>
+								<CardContent className="space-y-3">
+									{/* Preview */}
+									<div className="rounded-lg border bg-muted/50 p-3 space-y-2">
+										<p className="font-semibold text-sm">{template.title}</p>
+										<p className="text-sm text-muted-foreground">{template.body}</p>
+									</div>
+
+									{/* Variables */}
+									{template.variables.length > 0 && (
+										<div className="flex flex-wrap gap-1">
+											{template.variables.map((variable) => (
+												<Badge key={variable} variant="outline" className="text-xs">
+													{'{'}
+													{variable}
+													{'}'}
+												</Badge>
+											))}
+										</div>
+									)}
+
+									{/* Actions */}
+									<div className="flex items-center justify-between pt-2">
+										<div className="flex items-center gap-2 text-muted-foreground text-xs">
+											<Globe className="h-3 w-3" />
+											<span>{Object.keys(template.translations).length + 1} языков</span>
+											<span>•</span>
+											<span>Использовано: {template.usage_count}</span>
+										</div>
+										<div className="flex gap-1">
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => {
+													setEditingTemplate(template);
+													setShowEditor(true);
+												}}
+											>
+												<Edit className="h-4 w-4" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => handleDeleteClick(template.id)}
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						))}
+					</div>
+				)}
 			</div>
 
-			{/* Filters */}
-			<Tabs value={filter} onValueChange={(value: 'all' | 'free' | 'premium') => setFilter(value)}>
-				<TabsList>
-					<TabsTrigger value="all">Все ({templates.length})</TabsTrigger>
-					<TabsTrigger value="free">
-						Free ({templates.filter((t) => !t.is_premium_only).length})
-					</TabsTrigger>
-					<TabsTrigger value="premium">
-						<Crown className="mr-1 h-3 w-3" />
-						Premium ({templates.filter((t) => t.is_premium_only).length})
-					</TabsTrigger>
-				</TabsList>
-			</Tabs>
-
-			{/* Templates Grid */}
-			{loading ? (
-				<div className="flex items-center justify-center py-12">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-				</div>
-			) : filteredTemplates.length === 0 ? (
-				<Card>
-					<CardContent className="py-12 text-center">
-						<FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-						<p className="mb-2 font-medium">Нет шаблонов</p>
-						<p className="mb-4 text-muted-foreground text-sm">
-							Создайте первый шаблон для push уведомлений
-						</p>
-						<Button onClick={() => setShowEditor(true)}>
-							<Plus className="mr-2 h-4 w-4" />
-							Создать шаблон
-						</Button>
-					</CardContent>
-				</Card>
-			) : (
-				<div className="grid gap-4 md:grid-cols-2">
-					{filteredTemplates.map((template) => (
-						<Card key={template.id}>
-							<CardHeader>
-								<div className="flex items-start justify-between">
-									<div className="flex-1">
-										<CardTitle className="flex items-center gap-2 text-base">
-											<FileText className="h-4 w-4" />
-											{template.type}
-										</CardTitle>
-										<CardDescription>{template.description}</CardDescription>
-									</div>
-									<div className="flex gap-1">
-										{template.is_premium_only && (
-											<Badge variant="secondary" className="gap-1">
-												<Crown className="h-3 w-3" />
-												Premium
-											</Badge>
-										)}
-										{template.is_ai_enabled && (
-											<Badge variant="secondary" className="gap-1">
-												<Sparkles className="h-3 w-3" />
-												AI
-											</Badge>
-										)}
-									</div>
-								</div>
-							</CardHeader>
-							<CardContent className="space-y-3">
-								{/* Preview */}
-								<div className="rounded-lg border bg-muted/50 p-3 space-y-2">
-									<p className="font-semibold text-sm">{template.title}</p>
-									<p className="text-sm text-muted-foreground">{template.body}</p>
-								</div>
-
-								{/* Variables */}
-								{template.variables.length > 0 && (
-									<div className="flex flex-wrap gap-1">
-										{template.variables.map((variable) => (
-											<Badge key={variable} variant="outline" className="text-xs">
-												{'{'}
-												{variable}
-												{'}'}
-											</Badge>
-										))}
-									</div>
-								)}
-
-								{/* Actions */}
-								<div className="flex items-center justify-between pt-2">
-									<div className="flex items-center gap-2 text-muted-foreground text-xs">
-										<Globe className="h-3 w-3" />
-										<span>{Object.keys(template.translations).length + 1} языков</span>
-										<span>•</span>
-										<span>Использовано: {template.usage_count}</span>
-									</div>
-									<div className="flex gap-1">
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => {
-												setEditingTemplate(template);
-												setShowEditor(true);
-											}}
-										>
-											<Edit className="h-4 w-4" />
-										</Button>
-										<Button variant="ghost" size="sm" onClick={() => handleDeleteClick(template.id)}>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			)}
-		</div>
-
-		<DangerousActionDialog
-			open={deleteDialogOpen}
-			onOpenChange={setDeleteDialogOpen}
-			onConfirm={handleDeleteConfirm}
-			title="Удалить шаблон?"
-			description="Это действие нельзя отменить. Шаблон будет удален навсегда."
-			confirmButtonText="Удалить"
-		/>
-	</>
-);
+			<DangerousActionDialog
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}
+				onConfirm={handleDeleteConfirm}
+				title="Удалить шаблон?"
+				description="Это действие нельзя отменить. Шаблон будет удален навсегда."
+				confirmButtonText="Удалить"
+			/>
+		</>
+	);
 }

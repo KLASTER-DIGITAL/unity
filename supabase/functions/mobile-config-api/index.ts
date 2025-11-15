@@ -121,7 +121,7 @@ serve(async (req) => {
 				);
 			}
 
-			const { data: profile, error: profileError} = await supabase
+			const { data: profile, error: profileError } = await supabase
 				.from('profiles')
 				.select('role')
 				.eq('id', user.id)

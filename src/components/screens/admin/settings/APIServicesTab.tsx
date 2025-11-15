@@ -229,215 +229,223 @@ export function APIServicesTab() {
 	return (
 		<>
 			<div className="space-y-6">
-			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<h2 className="flex items-center gap-2 font-bold text-2xl">
-						<Server className="h-6 w-6" />
-						API Services
-					</h2>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Управление внешними API сервисами и интеграциями
-					</p>
+				{/* Header */}
+				<div className="flex items-center justify-between">
+					<div>
+						<h2 className="flex items-center gap-2 font-bold text-2xl">
+							<Server className="h-6 w-6" />
+							API Services
+						</h2>
+						<p className="mt-1 text-muted-foreground text-sm">
+							Управление внешними API сервисами и интеграциями
+						</p>
+					</div>
+					<Button disabled={isCreating || editingService !== null} onClick={handleCreate}>
+						<Plus className="mr-2 h-4 w-4" />
+						Добавить сервис
+					</Button>
 				</div>
-				<Button disabled={isCreating || editingService !== null} onClick={handleCreate}>
-					<Plus className="mr-2 h-4 w-4" />
-					Добавить сервис
-				</Button>
+
+				{/* Create/Edit Form */}
+				{(isCreating || editingService) && (
+					<Card className="border-blue-200 bg-blue-50/50">
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								{editingService ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+								{editingService ? 'Редактировать сервис' : 'Создать новый сервис'}
+							</CardTitle>
+							<CardDescription>
+								{editingService ? 'Обновите данные API сервиса' : 'Добавьте новый API сервис'}
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="grid grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="name">Системное имя *</Label>
+									<Input
+										disabled={!!editingService}
+										id="name"
+										onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+										placeholder="openai"
+										value={formData.name}
+									/>
+									<p className="text-muted-foreground text-xs">
+										Уникальное имя (только латиница, без пробелов)
+									</p>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="display_name">Отображаемое имя *</Label>
+									<Input
+										id="display_name"
+										onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+										placeholder="OpenAI API"
+										value={formData.display_name}
+									/>
+								</div>
+							</div>
+
+							<div className="space-y-2">
+								<Label htmlFor="description">Описание</Label>
+								<Textarea
+									id="description"
+									onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+									placeholder="Описание сервиса..."
+									rows={2}
+									value={formData.description}
+								/>
+							</div>
+
+							<div className="grid grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="api_url">API URL</Label>
+									<Input
+										id="api_url"
+										onChange={(e) => setFormData({ ...formData, api_url: e.target.value })}
+										placeholder="https://api.example.com/v1"
+										value={formData.api_url}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="api_key">API Key</Label>
+									<Input
+										id="api_key"
+										onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
+										placeholder="sk-..."
+										type="password"
+										value={formData.api_key}
+									/>
+								</div>
+							</div>
+
+							<div className="flex items-center justify-between rounded-lg bg-card p-4">
+								<div className="space-y-0.5">
+									<Label htmlFor="is_active">Активен</Label>
+									<p className="text-muted-foreground text-sm">
+										Включить использование этого сервиса
+									</p>
+								</div>
+								<Switch
+									checked={formData.is_active}
+									id="is_active"
+									onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+								/>
+							</div>
+
+							<div className="flex justify-end gap-2">
+								<Button disabled={isSaving} onClick={handleCancel} variant="outline">
+									<X className="mr-2 h-4 w-4" />
+									Отмена
+								</Button>
+								<Button disabled={isSaving} onClick={handleSave}>
+									{isSaving ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Сохраняю...
+										</>
+									) : (
+										<>
+											<Save className="mr-2 h-4 w-4" />
+											Сохранить
+										</>
+									)}
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+				)}
+
+				{/* Services List */}
+				{isLoading ? (
+					<div className="flex items-center justify-center py-12">
+						<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					</div>
+				) : services.length === 0 ? (
+					<Card>
+						<CardContent className="py-12 text-center">
+							<Server className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+							<p className="text-muted-foreground">Нет API сервисов</p>
+							<p className="mt-1 text-muted-foreground text-sm">
+								Добавьте первый сервис для начала работы
+							</p>
+						</CardContent>
+					</Card>
+				) : (
+					<div className="grid gap-4">
+						{services.map((service) => (
+							<Card key={service.id}>
+								<CardContent className="pt-6">
+									<div className="flex items-start justify-between">
+										<div className="flex-1">
+											<div className="mb-2 flex items-center gap-3">
+												<h3 className="font-semibold text-lg">{service.display_name}</h3>
+												<Badge variant={service.is_active ? 'default' : 'secondary'}>
+													{service.is_active ? (
+														<>
+															<CheckCircle className="mr-1 h-3 w-3" />
+															Активен
+														</>
+													) : (
+														<>
+															<XCircle className="mr-1 h-3 w-3" />
+															Неактивен
+														</>
+													)}
+												</Badge>
+												<Badge variant="outline">{service.name}</Badge>
+											</div>
+											{service.description && (
+												<p className="mb-3 text-muted-foreground text-sm">{service.description}</p>
+											)}
+											<div className="flex gap-4 text-muted-foreground text-sm">
+												{service.api_url && (
+													<div className="flex items-center gap-1">
+														<Globe className="h-4 w-4" />
+														{service.api_url}
+													</div>
+												)}
+												{service.api_key && (
+													<div className="flex items-center gap-1">
+														<Key className="h-4 w-4" />
+														API Key настроен
+													</div>
+												)}
+											</div>
+										</div>
+										<div className="flex gap-2">
+											<Button
+												onClick={() => handleToggleActive(service)}
+												size="sm"
+												variant="outline"
+											>
+												{service.is_active ? 'Деактивировать' : 'Активировать'}
+											</Button>
+											<Button onClick={() => handleEdit(service)} size="sm" variant="outline">
+												<Edit className="h-4 w-4" />
+											</Button>
+											<Button
+												onClick={() => handleDeleteClick(service)}
+												size="sm"
+												variant="outline"
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						))}
+					</div>
+				)}
 			</div>
 
-			{/* Create/Edit Form */}
-			{(isCreating || editingService) && (
-				<Card className="border-blue-200 bg-blue-50/50">
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							{editingService ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-							{editingService ? 'Редактировать сервис' : 'Создать новый сервис'}
-						</CardTitle>
-						<CardDescription>
-							{editingService ? 'Обновите данные API сервиса' : 'Добавьте новый API сервис'}
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="name">Системное имя *</Label>
-								<Input
-									disabled={!!editingService}
-									id="name"
-									onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-									placeholder="openai"
-									value={formData.name}
-								/>
-								<p className="text-muted-foreground text-xs">
-									Уникальное имя (только латиница, без пробелов)
-								</p>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="display_name">Отображаемое имя *</Label>
-								<Input
-									id="display_name"
-									onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-									placeholder="OpenAI API"
-									value={formData.display_name}
-								/>
-							</div>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="description">Описание</Label>
-							<Textarea
-								id="description"
-								onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-								placeholder="Описание сервиса..."
-								rows={2}
-								value={formData.description}
-							/>
-						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="api_url">API URL</Label>
-								<Input
-									id="api_url"
-									onChange={(e) => setFormData({ ...formData, api_url: e.target.value })}
-									placeholder="https://api.example.com/v1"
-									value={formData.api_url}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="api_key">API Key</Label>
-								<Input
-									id="api_key"
-									onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
-									placeholder="sk-..."
-									type="password"
-									value={formData.api_key}
-								/>
-							</div>
-						</div>
-
-						<div className="flex items-center justify-between rounded-lg bg-card p-4">
-							<div className="space-y-0.5">
-								<Label htmlFor="is_active">Активен</Label>
-								<p className="text-muted-foreground text-sm">
-									Включить использование этого сервиса
-								</p>
-							</div>
-							<Switch
-								checked={formData.is_active}
-								id="is_active"
-								onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-							/>
-						</div>
-
-						<div className="flex justify-end gap-2">
-							<Button disabled={isSaving} onClick={handleCancel} variant="outline">
-								<X className="mr-2 h-4 w-4" />
-								Отмена
-							</Button>
-							<Button disabled={isSaving} onClick={handleSave}>
-								{isSaving ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Сохраняю...
-									</>
-								) : (
-									<>
-										<Save className="mr-2 h-4 w-4" />
-										Сохранить
-									</>
-								)}
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
-			)}
-
-			{/* Services List */}
-			{isLoading ? (
-				<div className="flex items-center justify-center py-12">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-				</div>
-			) : services.length === 0 ? (
-				<Card>
-					<CardContent className="py-12 text-center">
-						<Server className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-						<p className="text-muted-foreground">Нет API сервисов</p>
-						<p className="mt-1 text-muted-foreground text-sm">
-							Добавьте первый сервис для начала работы
-						</p>
-					</CardContent>
-				</Card>
-			) : (
-				<div className="grid gap-4">
-					{services.map((service) => (
-						<Card key={service.id}>
-							<CardContent className="pt-6">
-								<div className="flex items-start justify-between">
-									<div className="flex-1">
-										<div className="mb-2 flex items-center gap-3">
-											<h3 className="font-semibold text-lg">{service.display_name}</h3>
-											<Badge variant={service.is_active ? 'default' : 'secondary'}>
-												{service.is_active ? (
-													<>
-														<CheckCircle className="mr-1 h-3 w-3" />
-														Активен
-													</>
-												) : (
-													<>
-														<XCircle className="mr-1 h-3 w-3" />
-														Неактивен
-													</>
-												)}
-											</Badge>
-											<Badge variant="outline">{service.name}</Badge>
-										</div>
-										{service.description && (
-											<p className="mb-3 text-muted-foreground text-sm">{service.description}</p>
-										)}
-										<div className="flex gap-4 text-muted-foreground text-sm">
-											{service.api_url && (
-												<div className="flex items-center gap-1">
-													<Globe className="h-4 w-4" />
-													{service.api_url}
-												</div>
-											)}
-											{service.api_key && (
-												<div className="flex items-center gap-1">
-													<Key className="h-4 w-4" />
-													API Key настроен
-												</div>
-											)}
-										</div>
-									</div>
-									<div className="flex gap-2">
-										<Button onClick={() => handleToggleActive(service)} size="sm" variant="outline">
-											{service.is_active ? 'Деактивировать' : 'Активировать'}
-										</Button>
-										<Button onClick={() => handleEdit(service)} size="sm" variant="outline">
-											<Edit className="h-4 w-4" />
-										</Button>
-										<Button onClick={() => handleDeleteClick(service)} size="sm" variant="outline">
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			)}
-		</div>
-
-		<DangerousActionDialog
-			open={deleteDialogOpen}
-			onOpenChange={setDeleteDialogOpen}
-			onConfirm={handleDeleteConfirm}
-			title={`Удалить сервис "${serviceToDelete?.display_name}"?`}
-			description="Это действие нельзя отменить. Сервис будет удален навсегда."
-			confirmButtonText="Удалить"
-		/>
-	</>
-);
+			<DangerousActionDialog
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}
+				onConfirm={handleDeleteConfirm}
+				title={`Удалить сервис "${serviceToDelete?.display_name}"?`}
+				description="Это действие нельзя отменить. Сервис будет удален навсегда."
+				confirmButtonText="Удалить"
+			/>
+		</>
+	);
 }
