@@ -21,6 +21,31 @@
   - Рекомендации по улучшению системы
   - Файл: `docs/architecture/MOTIVATION_CARDS_SYSTEM.md`
 
+- **Система Push-уведомлений**: Создана детальная документация архитектуры (1046 строк)
+  - Полное описание как работает система push-уведомлений
+  - Архитектура: Frontend → Service Worker → Edge Functions → Browser Push Service
+  - Компоненты: pushAdapter, platformDetection, Service Worker, 4 Edge Functions
+  - Database: push_subscriptions, admin_settings (VAPID keys), webhooks, cron jobs
+  - 3 детальных сценария работы:
+    - Новый пользователь подписывается на push (платформы, разрешения, VAPID)
+    - Пользователь создает запись → получает push "✅ Запись сохранена!"
+    - Ежедневное напоминание через Cron Job (21:00 UTC+3)
+  - Связь push-уведомлений с карточками (когда отправляются, что отсутствует)
+  - 8 критических проблем с детальными решениями:
+    - VAPID keys не настроены (admin_settings)
+    - Service Worker не регистрируется (HTTPS, 404, ошибки)
+    - Разрешение отклонено пользователем (инструкции для Chrome/Safari)
+    - iOS Safari НЕ поддерживает Web Push (только PWA mode, iOS 16.4+)
+    - Database Webhooks не настроены (push_on_entry_insert, push_on_summary_insert)
+    - Cron Jobs не запущены (daily_reminder, weekly_motivation, goal_reminder)
+    - Push subscription expired (410 Gone, автоудаление)
+    - Invalid VAPID keys (401 Unauthorized, пересоздание subscriptions)
+  - Чеклист диагностики (8 шагов для определения проблемы)
+  - Решения: краткосрочные (1-2 дня), среднесрочные (1 неделя), долгосрочные (1 месяц)
+  - Статистика и метрики (SQL запросы для мониторинга)
+  - Приоритеты исправления: P0 (КРИТИЧНО), P1 (ВАЖНО), P2 (МОЖНО ОТЛОЖИТЬ)
+  - Файл: `docs/architecture/PUSH_SYSTEM.md`
+
 ### 🐛 Исправления
 
 - **AI Insights карточки**: Исправлена критическая проблема с отображением карточек после деплоя

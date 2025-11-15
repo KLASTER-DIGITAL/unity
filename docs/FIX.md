@@ -90,6 +90,143 @@
 4. Рандомизировать шаблонные карточки для разнообразия
 5. Добавить push-уведомление "У вас новые AI инсайты!"
 
+---
+
+### 📚 Документация системы push-уведомлений
+
+**Файл**: `docs/architecture/PUSH_SYSTEM.md` (1046 строк)
+
+**Содержание**:
+
+**1. Архитектура системы**:
+- Frontend (PWA): pushAdapter, platformDetection, Service Worker
+- Edge Functions: push-realtime-trigger, push-scheduled, unified-notification-sender, push-sender
+- Database: push_subscriptions, admin_settings (VAPID keys), webhooks, cron jobs
+- Диаграмма: Frontend → Service Worker → Edge Functions → Browser Push Service
+
+**2. Компоненты**:
+- `src/shared/lib/notifications/pushAdapter.ts` - главный адаптер подписки
+- `src/shared/lib/platform/push/push.web.ts` - Web Push API реализация
+- `src/shared/lib/notifications/platformDetection.ts` - определение платформы
+- `public/service-worker.js` - обработка push событий
+- `supabase/functions/push-realtime-trigger/` - realtime push (webhooks)
+- `supabase/functions/push-scheduled/` - scheduled push (cron jobs)
+- `supabase/functions/unified-notification-sender/` - централизованный сервис
+- `supabase/functions/push-sender/` - низкоуровневая отправка Web Push
+
+**3. Сценарии работы** (3 детальных сценария):
+- **Сценарий 1**: Новый пользователь подписывается на push
+  - Определение платформы (Desktop/Android/iOS)
+  - Запрос разрешения (Notification.permission)
+  - Загрузка VAPID public key
+  - Создание push subscription
+  - Сохранение в БД
+- **Сценарий 2**: Пользователь создает запись → получает push
+  - Database Webhook срабатывает (entries INSERT)
+  - push-realtime-trigger обрабатывает событие
+  - unified-notification-sender выбирает канал (Web Push/Telegram/Email)
+  - push-sender отправляет Web Push с VAPID authentication
+  - Service Worker показывает уведомление
+- **Сценарий 3**: Ежедневное напоминание (Cron Job)
+  - Cron Job срабатывает в 21:00 (UTC+3)
+  - push-scheduled генерирует AI-персонализированное сообщение
+  - Отправка через unified-notification-sender
+
+**4. Push-уведомления и карточки**:
+- Карточки **НЕ отправляют** push напрямую
+- Push отправляются при создании записей (Database Webhooks)
+- Типы push:
+  - При создании записи: "✅ Запись сохранена!"
+  - При готовности AI-анализа: "🤖 AI-анализ готов!"
+  - Ежедневное напоминание: AI-персонализированное
+  - Еженедельная мотивация: "💪 Начни неделю с достижения!"
+  - Напоминание о целях: "🎯 Проверь свои цели!"
+- **Отсутствующие push** (нужно добавить):
+  - "У вас новые AI инсайты!" (после создания entry_summary)
+  - "Создайте новую запись для новых инсайтов!" (все карточки просмотрены)
+  - Streak milestones (3, 7, 14, 30 дней подряд)
+
+**5. Критические проблемы** (8 проблем с решениями):
+
+**Проблема 1: VAPID keys не настроены** (КРИТИЧНО)
+- Симптомы: "VAPID ключ не настроен", push НЕ отправляются
+- Проверка: `SELECT * FROM admin_settings WHERE key LIKE 'vapid%'`
+- Решение: Сгенерировать VAPID keys в админ-панели или через SQL
+
+**Проблема 2: Service Worker не регистрируется** (КРИТИЧНО)
+- Симптомы: "Service Worker not registered", push НЕ приходят
+- Причины: HTTPS не используется, 404 для /service-worker.js, ошибки в SW, кеш
+- Решение: Проверить HTTPS, доступность файла, консоль на ошибки, очистить кеш
+
+**Проблема 3: Разрешение отклонено пользователем**
+- Симптомы: `Notification.permission === 'denied'`
+- Решение: Показывать инструкцию как разрешить в настройках браузера
+
+**Проблема 4: iOS Safari НЕ поддерживает Web Push** (КРИТИЧНО для iOS)
+- Симптомы: "ios_requires_pwa"
+- Платформы: ❌ iOS Safari (браузер), ✅ iOS PWA (iOS 16.4+)
+- Решение: Показывать инструкцию "Установите приложение на Home Screen"
+
+**Проблема 5: Database Webhooks не настроены**
+- Симптомы: Push НЕ приходит при создании записи
+- Проверка: Supabase Dashboard → Database → Webhooks
+- Решение: Создать webhooks через миграцию
+
+**Проблема 6: Cron Jobs не запущены**
+- Симптомы: Scheduled push НЕ приходят (21:00, понедельник, пятница)
+- Проверка: Supabase Dashboard → Database → Cron Jobs
+- Решение: Создать cron jobs через миграцию
+
+**Проблема 7: Push subscription expired (410 Gone)**
+- Симптомы: "HTTP 410 Gone" в логах
+- Причины: Пользователь очистил данные, переустановил браузер, subscription истекла
+- Решение: Автоматически удалять expired subscriptions, показывать UI "Подпишитесь снова"
+
+**Проблема 8: Invalid VAPID keys (401 Unauthorized)**
+- Симптомы: "HTTP 401 Unauthorized" в логах
+- Причины: VAPID keys неправильные или не совпадают
+- Решение: Проверить VAPID keys, пересоздать subscriptions
+
+**6. Чеклист диагностики** (8 шагов):
+1. Проверить VAPID keys в admin_settings
+2. Проверить Service Worker registration
+3. Проверить Notification.permission
+4. Проверить платформу (iOS Safari vs PWA)
+5. Проверить активную подписку в push_subscriptions
+6. Проверить Database Webhooks
+7. Проверить Cron Jobs
+8. Проверить логи Edge Functions (410, 401, успешные вызовы)
+
+**7. Решения и рекомендации**:
+
+**Краткосрочные (1-2 дня)**:
+- Настроить VAPID keys (КРИТИЧНО)
+- Проверить Database Webhooks
+- Проверить Cron Jobs
+- Добавить логирование в Edge Functions
+- Тестировать на разных платформах
+
+**Среднесрочные (1 неделя)**:
+- Добавить push для новых карточек
+- Улучшить UI для подписки
+- Автоматическое удаление expired subscriptions
+- Добавить мониторинг (push_errors таблица)
+
+**Долгосрочные (1 месяц)**:
+- React Native Push Notifications (Expo Notifications)
+- Rich Notifications (изображения, action buttons, inline reply)
+- Персонализация (AI-генерация текста, адаптация времени)
+- Analytics (delivery rate, click rate, conversion rate)
+
+**8. Приоритеты исправления**:
+- **P0 (КРИТИЧНО)**: VAPID keys, Database Webhooks, Cron Jobs
+- **P1 (ВАЖНО)**: Push для карточек, UI для подписки, логирование
+- **P2 (МОЖНО ОТЛОЖИТЬ)**: React Native push, Rich notifications, Analytics
+
+**Статус**: ⚠️ Частично работает (есть критические проблемы требующие проверки в production)
+
+---
+
 ### 🔄 Рефакторинг
 
 **Tailwind CSS градиенты**:
