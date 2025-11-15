@@ -1,4 +1,5 @@
 import {
+	Activity,
 	Brain,
 	Key,
 	Languages,
@@ -14,6 +15,7 @@ import { useState } from 'react';
 import { AISettingsTab } from '@/components/screens/admin/settings/AISettingsTab';
 import { APIServicesTab } from '@/components/screens/admin/settings/APIServicesTab';
 import { GeneralSettingsTab } from '@/components/screens/admin/settings/GeneralSettingsTab';
+import { PushMonitoringTab } from '@/components/screens/admin/settings/PushMonitoringTab';
 import { SystemSettingsTab } from '@/components/screens/admin/settings/SystemSettingsTab';
 import { TelegramSettingsTab } from '@/components/screens/admin/settings/TelegramSettingsTab';
 import { Button } from '@/shared/components/ui/button';
@@ -61,6 +63,12 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 			label: 'Telegram',
 			icon: MessageCircle,
 			description: 'Интеграция с Telegram',
+		},
+		{
+			value: 'push-monitoring',
+			label: 'Push Monitoring',
+			icon: Activity,
+			description: 'Мониторинг push-уведомлений',
 		},
 		{
 			value: 'languages-translations',
@@ -164,6 +172,10 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
 
 								<TabsContent className="mt-0" value="telegram">
 									<TelegramSettingsTab />
+								</TabsContent>
+
+								<TabsContent className="mt-0" value="push-monitoring">
+									<PushMonitoringTab />
 								</TabsContent>
 
 								<TabsContent className="mt-0" value="languages-translations">
