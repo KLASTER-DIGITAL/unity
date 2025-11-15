@@ -159,6 +159,44 @@ Deno.serve(async (req) => {
 			overallStatus = 'degraded';
 		}
 
+		// Check 4: Database Webhooks
+		try {
+			const { data: webhooks } = await supabaseAdmin.rpc('get_webhooks_status');
+
+			const expectedWebhooks = ['push_on_entry_insert', 'push_on_summary_insert'];
+			const activeWebhooks = webhooks || [];
+			const missingWebhooks = expectedWebhooks.filter(
+				(name) => !activeWebhooks.find((hook: any) => hook.hook_name === name)
+			);
+
+			if (missingWebhooks.length === 0) {
+				checks.webhooks = {
+					status: 'ok',
+					message: `All ${expectedWebhooks.length} webhooks configured`,
+					webhooks: activeWebhooks.map((hook: any) => ({
+						name: hook.hook_name,
+						table: hook.table_name,
+					})),
+				};
+			} else {
+				checks.webhooks = {
+					status: 'error',
+					message: `Missing webhooks: ${missingWebhooks.join(', ')}`,
+					webhooks: activeWebhooks.map((hook: any) => ({
+						name: hook.hook_name,
+						table: hook.table_name,
+					})),
+				};
+				overallStatus = 'degraded';
+			}
+		} catch (error) {
+			checks.webhooks = {
+				status: 'error',
+				message: `Failed to check webhooks: ${error.message}`,
+			};
+			overallStatus = 'degraded';
+		}
+
 		return new Response(
 			JSON.stringify({
 				status: overallStatus,
