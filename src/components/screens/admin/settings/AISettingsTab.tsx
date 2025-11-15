@@ -126,6 +126,12 @@ export const AISettingsTab: React.FC = () => {
 		coach: [],
 	});
 
+	// Testing state
+	const [testingOperation, setTestingOperation] = useState<string | null>(null);
+	const [testInput, setTestInput] = useState<string>('');
+	const [testResult, setTestResult] = useState<any>(null);
+	const [isTestingAI, setIsTestingAI] = useState(false);
+
 	// Legacy model configs (deprecated, will be removed)
 	const [modelConfigs, setModelConfigs] = useState<AIModelConfig[]>([
 		{
@@ -371,6 +377,59 @@ export const AISettingsTab: React.FC = () => {
 		} catch (error) {
 			console.error('Error resetting operation:', error);
 			toast.error('Ошибка сброса');
+		}
+	};
+
+	// Test AI operation
+	const handleTestOperation = async (operationId: string) => {
+		if (!testInput.trim()) {
+			toast.error('Введите тестовые данные');
+			return;
+		}
+
+		setIsTestingAI(true);
+		setTestResult(null);
+
+		try {
+			const supabase = createClient();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session?.access_token) {
+				toast.error('Ошибка авторизации');
+				return;
+			}
+
+			// Call ai-analysis Edge Function
+			const response = await fetch(`${supabase.supabaseUrl}/functions/v1/ai-analysis/analyze`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${session.access_token}`,
+				},
+				body: JSON.stringify({
+					text: testInput,
+					userName: 'Test User',
+					userLanguage: 'ru',
+				}),
+			});
+
+			if (!response.ok) {
+				const error = await response.text();
+				throw new Error(error);
+			}
+
+			const result = await response.json();
+			setTestResult(result);
+			toast.success('Тест выполнен успешно! 🧪');
+		} catch (error) {
+			console.error('Error testing AI operation:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Ошибка тестирования';
+			toast.error(`Ошибка: ${errorMessage}`);
+			setTestResult({ error: errorMessage });
+		} finally {
+			setIsTestingAI(false);
 		}
 	};
 
@@ -778,6 +837,53 @@ export const AISettingsTab: React.FC = () => {
 															Сбросить
 														</Button>
 													</div>
+
+													{/* Testing Section (only for entry_analysis) */}
+													{op.id === 'entry_analysis' && (
+														<div className="space-y-3 pt-4 border-t">
+															<Label className="text-[13px] font-medium">🧪 Тестирование</Label>
+															<Textarea
+																rows={3}
+																value={testingOperation === op.id ? testInput : ''}
+																onChange={(e) => {
+																	setTestingOperation(op.id);
+																	setTestInput(e.target.value);
+																}}
+																className="text-[13px]"
+																placeholder="Введите тестовый текст записи..."
+															/>
+															<div className="flex items-center gap-2">
+																<Button
+																	size="sm"
+																	variant="secondary"
+																	onClick={() => handleTestOperation(op.id)}
+																	disabled={isTestingAI || !testInput.trim()}
+																>
+																	{isTestingAI ? 'Тестирование...' : 'Протестировать'}
+																</Button>
+																{testResult && (
+																	<Button
+																		size="sm"
+																		variant="ghost"
+																		onClick={() => {
+																			setTestResult(null);
+																			setTestInput('');
+																		}}
+																	>
+																		Очистить
+																	</Button>
+																)}
+															</div>
+															{testResult && (
+																<div className="space-y-2">
+																	<Label className="text-[12px]">Результат:</Label>
+																	<pre className="bg-muted p-3 rounded-md text-[11px] overflow-auto max-h-[300px]">
+																		{JSON.stringify(testResult, null, 2)}
+																	</pre>
+																</div>
+															)}
+														</div>
+													)}
 												</div>
 											</AccordionContent>
 										</AccordionItem>
