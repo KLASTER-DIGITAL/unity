@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
 };
 
 interface MobileSettings {
@@ -120,7 +121,7 @@ serve(async (req) => {
 				);
 			}
 
-			const { data: profile, error: profileError } = await supabase
+			const { data: profile, error: profileError} = await supabase
 				.from('profiles')
 				.select('role')
 				.eq('id', user.id)
@@ -152,6 +153,15 @@ serve(async (req) => {
 				);
 			}
 
+			// Create authenticated Supabase client with user's token
+			const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+				global: {
+					headers: {
+						Authorization: authHeader,
+					},
+				},
+			});
+
 			const body: Partial<MobileSettings> = await req.json();
 
 			// Validate required fields
@@ -172,16 +182,17 @@ serve(async (req) => {
 			}
 
 			// Get current settings to update
-			const { data: currentSettings, error: fetchError } = await supabase
+			const { data: currentSettings, error: fetchError } = await supabaseAuth
 				.from('mobile_settings')
 				.select('id, version')
 				.single();
 
 			if (fetchError) {
+				console.error('Error fetching current settings:', fetchError);
 				return new Response(
 					JSON.stringify({
 						success: false,
-						error: 'Failed to fetch current settings',
+						error: `Failed to fetch current settings: ${fetchError.message}`,
 					}),
 					{
 						status: 500,
@@ -190,17 +201,19 @@ serve(async (req) => {
 				);
 			}
 
+			// Exclude read-only fields from update
+			const { id, version, created_at, updated_at, ...updateData } = body;
+
 			// Update settings
-			const { data, error } = await supabase
+			const { data, error } = await supabaseAuth
 				.from('mobile_settings')
 				.update({
-					...body,
+					...updateData,
 					version: (currentSettings.version || 1) + 1,
 					updated_at: new Date().toISOString(),
 				})
 				.eq('id', currentSettings.id)
-				.select()
-				.single();
+				.select();
 
 			if (error) {
 				console.error('Error updating mobile settings:', error);
@@ -216,10 +229,26 @@ serve(async (req) => {
 				);
 			}
 
+			// Get the first (and only) result
+			const updatedSettings = data?.[0];
+
+			if (!updatedSettings) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: 'Failed to update settings',
+					}),
+					{
+						status: 500,
+						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					}
+				);
+			}
+
 			return new Response(
 				JSON.stringify({
 					success: true,
-					config: data,
+					config: updatedSettings,
 				}),
 				{
 					headers: { ...corsHeaders, 'Content-Type': 'application/json' },

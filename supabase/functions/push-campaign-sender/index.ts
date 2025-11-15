@@ -11,6 +11,10 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+	trackPushCampaignStats,
+	trackPushDelivery,
+} from '../_shared/push-metrics.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -110,6 +114,35 @@ serve(async (req) => {
 		console.log(
 			`[Push Campaign Sender] Stats: sent=${totalSent}, delivered=${totalDelivered}, failed=${totalFailed}`
 		);
+
+		// 7. Track campaign statistics in Sentry
+		trackPushCampaignStats({
+			campaign_id,
+			total_users: users.length,
+			sent: totalSent,
+			delivered: totalDelivered,
+			failed: totalFailed,
+		});
+
+		// Track successful sends
+		if (totalSent > 0) {
+			trackPushDelivery('sent', {
+				campaign_id,
+				user_count: totalSent,
+				channel: 'web_push',
+				notification_type: campaign.type || 'campaign',
+			});
+		}
+
+		// Track failures
+		if (totalFailed > 0) {
+			trackPushDelivery('failed', {
+				campaign_id,
+				user_count: totalFailed,
+				channel: 'web_push',
+				error_message: 'Some users failed to receive notification',
+			});
+		}
 
 		return new Response(
 			JSON.stringify({

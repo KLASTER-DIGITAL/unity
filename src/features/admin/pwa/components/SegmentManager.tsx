@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { DangerousActionDialog } from '@/shared/components/ui/DangerousActionDialog';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Textarea } from '@/shared/components/ui/textarea';
@@ -32,6 +33,8 @@ export function SegmentManager() {
 	const [segments, setSegments] = useState<Segment[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [showCreateModal, setShowCreateModal] = useState(false);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [segmentToDelete, setSegmentToDelete] = useState<string | null>(null);
 	const supabase = createClient();
 
 	/**
@@ -63,11 +66,16 @@ export function SegmentManager() {
 	/**
 	 * Удаляет сегмент
 	 */
-	const handleDelete = async (segmentId: string) => {
-		if (!confirm('Удалить этот сегмент?')) return;
+	const handleDeleteClick = (segmentId: string) => {
+		setSegmentToDelete(segmentId);
+		setDeleteDialogOpen(true);
+	};
+
+	const handleDeleteConfirm = async () => {
+		if (!segmentToDelete) return;
 
 		try {
-			const { error } = await supabase.functions.invoke(`push-segments-api/${segmentId}`, {
+			const { error } = await supabase.functions.invoke(`push-segments-api/${segmentToDelete}`, {
 				method: 'DELETE',
 			});
 
@@ -78,6 +86,8 @@ export function SegmentManager() {
 		} catch (error) {
 			console.error('[SegmentManager] Error deleting segment:', error);
 			toast.error('Ошибка удаления сегмента');
+		} finally {
+			setSegmentToDelete(null);
 		}
 	};
 
@@ -117,7 +127,8 @@ export function SegmentManager() {
 	}
 
 	return (
-		<div className="space-y-6">
+		<>
+			<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
@@ -143,7 +154,7 @@ export function SegmentManager() {
 						<CardHeader className="pb-3">
 							<CardTitle className="flex items-center justify-between text-[17px]!">
 								<span>{segment.name}</span>
-								<Button onClick={() => handleDelete(segment.id)} size="sm" variant="ghost">
+								<Button onClick={() => handleDeleteClick(segment.id)} size="sm" variant="ghost">
 									<Trash2 className="h-4 w-4 text-destructive" />
 								</Button>
 							</CardTitle>
@@ -196,7 +207,17 @@ export function SegmentManager() {
 				/>
 			)}
 		</div>
-	);
+
+		<DangerousActionDialog
+			open={deleteDialogOpen}
+			onOpenChange={setDeleteDialogOpen}
+			onConfirm={handleDeleteConfirm}
+			title="Удалить сегмент?"
+			description="Это действие нельзя отменить. Сегмент будет удален навсегда."
+			confirmButtonText="Удалить"
+		/>
+	</>
+);
 }
 
 /**

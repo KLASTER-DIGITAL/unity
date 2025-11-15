@@ -15,6 +15,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
+import { DangerousActionDialog } from '@/shared/components/ui/DangerousActionDialog';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import {
@@ -40,6 +41,7 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 	const [verificationCode, setVerificationCode] = useState('');
 	const [backupCodes, setBackupCodes] = useState<string[]>([]);
 	const [showBackupCodes, setShowBackupCodes] = useState(false);
+	const [showDisableDialog, setShowDisableDialog] = useState(false);
 
 	const supabase = createClient();
 
@@ -131,10 +133,6 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 	}
 
 	async function handleDisableTwoFactor() {
-		if (!confirm('Вы уверены что хотите отключить 2FA? Это снизит безопасность вашего аккаунта.')) {
-			return;
-		}
-
 		setIsLoading(true);
 
 		try {
@@ -165,7 +163,8 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 	}
 
 	return (
-		<Card>
+		<>
+			<Card>
 			<CardHeader>
 				<CardTitle>Двухфакторная аутентификация (2FA)</CardTitle>
 				<CardDescription>
@@ -237,7 +236,7 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 								✅ 2FA включен. Ваш аккаунт защищен дополнительным уровнем безопасности.
 							</AlertDescription>
 						</Alert>
-						<Button variant="destructive" onClick={handleDisableTwoFactor}>
+						<Button variant="destructive" onClick={() => setShowDisableDialog(true)}>
 							Отключить 2FA
 						</Button>
 					</div>
@@ -263,5 +262,20 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 				)}
 			</CardContent>
 		</Card>
-	);
+
+		<DangerousActionDialog
+			open={showDisableDialog}
+			onOpenChange={setShowDisableDialog}
+			onConfirm={handleDisableTwoFactor}
+			title="Отключить 2FA?"
+			description={
+				<>
+					<p className="font-semibold text-destructive">⚠️ Это снизит безопасность вашего аккаунта!</p>
+					<p>Двухфакторная аутентификация защищает ваш аккаунт от несанкционированного доступа.</p>
+				</>
+			}
+			confirmButtonText="Отключить 2FA"
+		/>
+	</>
+);
 }

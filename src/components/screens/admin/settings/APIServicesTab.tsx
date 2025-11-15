@@ -22,6 +22,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
+import { DangerousActionDialog } from '@/shared/components/ui/DangerousActionDialog';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Switch } from '@/shared/components/ui/switch';
@@ -48,6 +49,8 @@ export function APIServicesTab() {
 	const [editingService, setEditingService] = useState<APIService | null>(null);
 	const [isCreating, setIsCreating] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [serviceToDelete, setServiceToDelete] = useState<APIService | null>(null);
 
 	// Form state
 	const [formData, setFormData] = useState({
@@ -181,12 +184,17 @@ export function APIServicesTab() {
 		}
 	};
 
-	const handleDelete = async (service: APIService) => {
-		if (!confirm(`Удалить сервис "${service.display_name}"?`)) return;
+	const handleDeleteClick = (service: APIService) => {
+		setServiceToDelete(service);
+		setDeleteDialogOpen(true);
+	};
+
+	const handleDeleteConfirm = async () => {
+		if (!serviceToDelete) return;
 
 		try {
 			const supabase = createClient();
-			const { error } = await supabase.from('api_services').delete().eq('id', service.id);
+			const { error } = await supabase.from('api_services').delete().eq('id', serviceToDelete.id);
 
 			if (error) throw error;
 			toast.success('Сервис успешно удален!');
@@ -195,6 +203,8 @@ export function APIServicesTab() {
 			console.error('Error deleting service:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Ошибка удаления сервиса';
 			toast.error(errorMessage);
+		} finally {
+			setServiceToDelete(null);
 		}
 	};
 
@@ -217,7 +227,8 @@ export function APIServicesTab() {
 	};
 
 	return (
-		<div className="space-y-6">
+		<>
+			<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
@@ -407,7 +418,7 @@ export function APIServicesTab() {
 										<Button onClick={() => handleEdit(service)} size="sm" variant="outline">
 											<Edit className="h-4 w-4" />
 										</Button>
-										<Button onClick={() => handleDelete(service)} size="sm" variant="outline">
+										<Button onClick={() => handleDeleteClick(service)} size="sm" variant="outline">
 											<Trash2 className="h-4 w-4" />
 										</Button>
 									</div>
@@ -418,5 +429,15 @@ export function APIServicesTab() {
 				</div>
 			)}
 		</div>
-	);
+
+		<DangerousActionDialog
+			open={deleteDialogOpen}
+			onOpenChange={setDeleteDialogOpen}
+			onConfirm={handleDeleteConfirm}
+			title={`Удалить сервис "${serviceToDelete?.display_name}"?`}
+			description="Это действие нельзя отменить. Сервис будет удален навсегда."
+			confirmButtonText="Удалить"
+		/>
+	</>
+);
 }

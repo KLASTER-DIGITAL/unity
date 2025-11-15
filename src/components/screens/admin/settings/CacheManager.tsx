@@ -16,6 +16,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
+import { DangerousActionDialog } from '@/shared/components/ui/DangerousActionDialog';
 import {
 	type CacheInfo,
 	clearAllCaches,
@@ -34,6 +35,7 @@ export function CacheManager() {
 	});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isClearing, setIsClearing] = useState<string | null>(null);
+	const [showClearAllDialog, setShowClearAllDialog] = useState(false);
 
 	// Load cache stats
 	const loadCacheStats = useCallback(async () => {
@@ -79,10 +81,6 @@ export function CacheManager() {
 
 	// Clear all caches
 	const handleClearAllCaches = async () => {
-		if (!confirm('Вы уверены? Это очистит ВСЕ кэши приложения.')) {
-			return;
-		}
-
 		setIsClearing('all');
 		try {
 			const deletedCount = await clearAllCaches();
@@ -116,7 +114,8 @@ export function CacheManager() {
 	};
 
 	return (
-		<div className="space-y-6">
+		<>
+			<div className="space-y-6">
 			{/* Statistics Cards */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 				<Card>
@@ -180,7 +179,7 @@ export function CacheManager() {
 
 						<Button
 							disabled={isClearing === 'all'}
-							onClick={handleClearAllCaches}
+							onClick={() => setShowClearAllDialog(true)}
 							variant="destructive"
 						>
 							<Trash2 className="mr-2 h-4 w-4" />
@@ -280,5 +279,20 @@ export function CacheManager() {
 				</CardContent>
 			</Card>
 		</div>
-	);
+
+		<DangerousActionDialog
+			open={showClearAllDialog}
+			onOpenChange={setShowClearAllDialog}
+			onConfirm={handleClearAllCaches}
+			title="Очистить все кэши?"
+			description={
+				<>
+					<p className="font-semibold text-destructive">⚠️ Это очистит ВСЕ кэши приложения!</p>
+					<p>После очистки приложение может работать медленнее до повторного кэширования данных.</p>
+				</>
+			}
+			confirmButtonText="Очистить все"
+		/>
+	</>
+);
 }

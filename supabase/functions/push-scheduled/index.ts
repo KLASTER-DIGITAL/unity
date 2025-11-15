@@ -15,6 +15,7 @@
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { trackPushDelivery } from '../_shared/push-metrics.ts';
 
 // CORS headers
 const corsHeaders = {
@@ -397,9 +398,40 @@ async function sendPushNotification(
 
 		const result = await response.json();
 		console.log('[PUSH-SCHEDULED] Notification sent via unified sender:', result);
+
+		// Track delivery metrics
+		if (result.success) {
+			const totalSent = result.results?.reduce((sum: number, r: any) => sum + r.sent, 0) || 0;
+			const totalFailed = result.results?.reduce((sum: number, r: any) => sum + r.failed, 0) || 0;
+
+			if (totalSent > 0) {
+				trackPushDelivery('sent', {
+					user_count: totalSent,
+					channel: 'web_push',
+					notification_type: data?.type as string || 'scheduled',
+				});
+			}
+
+			if (totalFailed > 0) {
+				trackPushDelivery('failed', {
+					user_count: totalFailed,
+					channel: 'web_push',
+					error_message: 'Some users failed to receive notification',
+				});
+			}
+		}
+
 		return result;
 	} catch (error) {
 		console.error('[PUSH-SCHEDULED] Failed to send notification:', error);
+
+		// Track complete failure
+		trackPushDelivery('failed', {
+			user_count: userIds.length,
+			channel: 'web_push',
+			error_message: error instanceof Error ? error.message : 'Unknown error',
+		});
+
 		return null;
 	}
 }

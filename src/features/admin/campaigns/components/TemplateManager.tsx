@@ -20,6 +20,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
+import { DangerousActionDialog } from '@/shared/components/ui/DangerousActionDialog';
 import {
 	Table,
 	TableBody,
@@ -53,6 +54,8 @@ export function TemplateManager() {
 	const [templates, setTemplates] = useState<Template[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'free' | 'premium'>('all');
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
 	const loadTemplates = useCallback(async () => {
 		try {
@@ -95,10 +98,13 @@ export function TemplateManager() {
 		loadTemplates();
 	}, [loadTemplates]);
 
-	const handleDelete = async (id: string) => {
-		if (!confirm('Вы уверены что хотите удалить этот шаблон?')) {
-			return;
-		}
+	const handleDeleteClick = (id: string) => {
+		setTemplateToDelete(id);
+		setDeleteDialogOpen(true);
+	};
+
+	const handleDeleteConfirm = async () => {
+		if (!templateToDelete) return;
 
 		try {
 			const supabase = createClient();
@@ -112,7 +118,7 @@ export function TemplateManager() {
 			}
 
 			const response = await fetch(
-				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-templates-api?id=${id}`,
+				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/push-templates-api?id=${templateToDelete}`,
 				{
 					method: 'DELETE',
 					headers: {
@@ -130,6 +136,8 @@ export function TemplateManager() {
 		} catch (error) {
 			console.error('Error deleting template:', error);
 			toast.error('Ошибка удаления шаблона');
+		} finally {
+			setTemplateToDelete(null);
 		}
 	};
 
@@ -150,7 +158,8 @@ export function TemplateManager() {
 	}
 
 	return (
-		<Card>
+		<>
+			<Card>
 			<CardHeader>
 				<div className="flex items-center justify-between">
 					<div>
@@ -238,7 +247,7 @@ export function TemplateManager() {
 														<Button
 															variant="ghost"
 															size="sm"
-															onClick={() => handleDelete(template.id)}
+															onClick={() => handleDeleteClick(template.id)}
 														>
 															<Trash2 className="h-4 w-4" />
 														</Button>
@@ -254,5 +263,15 @@ export function TemplateManager() {
 				</Tabs>
 			</CardContent>
 		</Card>
-	);
+
+		<DangerousActionDialog
+			open={deleteDialogOpen}
+			onOpenChange={setDeleteDialogOpen}
+			onConfirm={handleDeleteConfirm}
+			title="Удалить шаблон?"
+			description="Это действие нельзя отменить. Шаблон будет удален навсегда."
+			confirmButtonText="Удалить"
+		/>
+	</>
+);
 }
