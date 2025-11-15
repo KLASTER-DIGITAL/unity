@@ -1,7 +1,7 @@
 /**
- * Books Generate Draft API
+ * Books Generate Draft API v2 - AI-POWERED
  *
- * Generates AI-powered book draft from user's diary entries.
+ * Generates AI-powered book draft from user's diary entries using monthly_report operation.
  *
  * Endpoint:
  * - POST /books-generate-draft - Generate book draft
@@ -20,11 +20,31 @@
  * }
  *
  * @author UNITY Team
- * @date 2025-11-07
+ * @date 2025-11-15
+ * @version 2.0 - AI Control Center integration
  */
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+
+// AI helpers (inline to avoid imports)
+async function getAiConfig(url: string, key: string, id: string) {
+	const res = await fetch(`${url}/rest/v1/ai_operations?id=eq.${id}&select=*`, {
+		headers: { apikey: key, Authorization: `Bearer ${key}` },
+	});
+	const data = await res.json();
+	return data?.[0] || null;
+}
+
+function replacePlaceholders(template: string, vars: Record<string, string>): string {
+	let result = template;
+	for (const [key, value] of Object.entries(vars)) {
+		result = result.replaceAll(`{{${key}}}`, value);
+	}
+	return result;
+}
+
+// Removed unused getOpenAIKey function - OpenAI key is fetched inline in the main handler
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
@@ -217,17 +237,48 @@ Deno.serve(async (req) => {
 			categories: [...new Set(filteredEntries.map((e) => e.category))],
 		};
 
-		// Build AI prompt based on style
-		const stylePrompts = {
-			warm_family:
-				'Создай теплую семейную историю, подчеркивая моменты единения, любви и совместного роста.',
-			biographical:
-				'Создай биографическое повествование, фокусируясь на личном развитии и ключевых моментах.',
-			motivational:
-				'Создай мотивационную историю успеха, выделяя достижения, преодоление трудностей и рост.',
-		};
+		// ✅ Load AI operation config for monthly_report
+		console.log('[BOOKS-DRAFT] Loading monthly_report AI operation...');
+		const config = await getAiConfig(supabaseUrl, supabaseServiceKey, 'monthly_report');
 
-		const systemPrompt = `You are an AI writer creating personalized achievement books.
+		let systemPrompt: string;
+		let userPrompt: string;
+
+		if (config && config.is_enabled) {
+			// ✅ Use AI operation from database
+			console.log('[BOOKS-DRAFT] Using monthly_report from AI Control Center');
+
+			systemPrompt = replacePlaceholders(config.system_prompt, {
+				user_language: userLanguage,
+				book_style: style,
+			});
+
+			userPrompt = replacePlaceholders(config.user_prompt_template, {
+				user_language: userLanguage,
+				period_start: new Date(periodStart).toLocaleDateString(locale),
+				period_end: new Date(periodEnd).toLocaleDateString(locale),
+				diary_name: diaryName || 'My Diary',
+				diary_emoji: diaryEmoji || '📝',
+				total_entries: String(stats.totalEntries),
+				achievements_count: String(stats.achievements),
+				positive_count: String(stats.positiveEntries),
+				categories_list: stats.categories.join(', '),
+				entries_summary: JSON.stringify(entriesSummary, null, 2),
+			});
+		} else {
+			// ❌ Fallback to hardcoded prompts
+			console.log('[BOOKS-DRAFT] ⚠️ monthly_report disabled, using fallback prompts');
+
+			const stylePrompts = {
+				warm_family:
+					'Создай теплую семейную историю, подчеркивая моменты единения, любви и совместного роста.',
+				biographical:
+					'Создай биографическое повествование, фокусируясь на личном развитии и ключевых моментах.',
+				motivational:
+					'Создай мотивационную историю успеха, выделяя достижения, преодоление трудностей и рост.',
+			};
+
+			systemPrompt = `You are an AI writer creating personalized achievement books.
 
 Style: ${stylePrompts[style as keyof typeof stylePrompts]}
 
@@ -245,7 +296,7 @@ Create a JSON book structure with fields:
 Use the diary entries data to create a cohesive narrative.
 IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
 
-		const userPrompt = `Period: ${new Date(periodStart).toLocaleDateString(locale)} - ${new Date(periodEnd).toLocaleDateString(locale)}
+			userPrompt = `Period: ${new Date(periodStart).toLocaleDateString(locale)} - ${new Date(periodEnd).toLocaleDateString(locale)}
 Diary: ${diaryName || 'My Diary'} ${diaryEmoji || '📝'}
 User Language: ${userLanguage}
 
@@ -259,6 +310,7 @@ User Language: ${userLanguage}
 ${JSON.stringify(entriesSummary, null, 2)}
 
 Создай вдохновляющую книгу на основе этих данных.`;
+		}
 
 		// Call OpenAI API
 		console.log('[BOOKS-DRAFT] Calling OpenAI API...');
