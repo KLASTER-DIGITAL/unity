@@ -89,7 +89,8 @@ export const MobileConfigTab: React.FC = () => {
 
 	useEffect(() => {
 		loadSettings();
-	}, [loadSettings]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Загружаем настройки только при монтировании компонента
 
 	const tabs = [
 		{ value: 'general', label: 'Общие', icon: Smartphone },
