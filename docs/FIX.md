@@ -22,13 +22,43 @@
   - Строка 248-249: `48 * 60 * 60 * 1000` → `24 * 60 * 60 * 1000`
   - Комментарий: "last 48 hours" → "last 24 hours"
 
+- **AISettingsTab.tsx**: Добавлена секция "AI Operations & Prompts" (2025-11-15)
+  - Файл: `src/components/screens/admin/settings/AISettingsTab.tsx`
+  - +400 строк кода (итого 1186 строк)
+  - Новые импорты: Accordion, Tabs, Textarea, Sparkles icon
+  - Новый state: aiOperations, groupedOps
+  - Обновленная функция loadAISettings() - загрузка из ai_operations таблицы
+  - Новые функции: updateAiOperation(), handleSaveOperation(), handleResetOperation()
+  - 4 таба: Карточки (3), Push (1), Отчеты (2), Coach (0)
+  - Accordion для каждой AI операции с полным CRUD
+  - Редактирование System Prompt и User Prompt Template (monospace font)
+  - Управление моделями (model, max_tokens, temperature)
+  - Switch для включения/выключения операций (is_enabled)
+  - Toast notifications при сохранении
+
 ### 📚 Документация
 - **MOTIVATION_CARDS_SYSTEM.md**: Обновлены все упоминания 48 часов на 24 часа (2025-11-15)
   - 18 замен в документации
   - Обновлены примеры использования
   - Обновлены сценарии работы системы
 
+- **AI Control Center документация** (2025-11-15):
+  - `docs/new/ai-control-center-implementation.md` - отчет о реализации UI
+  - `docs/new/ai-control-center-integration-plan.md` - план интеграции с Edge Functions
+  - Описание всех 6 AI операций
+  - Чеклист интеграции для Edge Functions
+  - Оценка времени: ~2.5 часа
+
 ### ✅ Добавлено
+
+- **AI Control Center тестовый скрипт** (2025-11-15):
+  - `scripts/test-ai-operations-ui.js` - тестирование API (150 строк)
+  - Проверка login как super_admin
+  - Загрузка AI операций из БД
+  - Группировка по group_name
+  - Тестирование update операций
+  - Автоматический revert изменений
+  - Результаты: ✅ Все тесты прошли успешно
 
 - **Mobile Config админ-панель** - UI компоненты для управления React Native настройками:
   - `src/features/admin/settings/components/mobile-config/MobileConfigTab.tsx` - главный компонент (184 строки)

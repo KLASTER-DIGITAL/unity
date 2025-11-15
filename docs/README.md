@@ -20,6 +20,7 @@
 - 🎯 [STEP_BY_STEP_PLAN.md](STEP_BY_STEP_PLAN.md) - План реализации (3 недели)
 - 📝 [unity-roadmap-tasks.md](unity-roadmap-tasks.md) - Все задачи P0/P1/P2
 - 🔥 [docs/new/](new/) - ГЛАВНЫЕ документы (карточки, достижения, отчеты)
+- 🧠 [AI Control Center](new/ai-control-center-summary.md) - Управление AI операциями (НОВОЕ!)
 
 ---
 
@@ -70,6 +71,22 @@
   - 🔴 P0 (Критические): Error Boundary, Sentry integration
   - 🟡 P1 (Важные): recharts optimization, N+1 queries fix
   - 🟢 P2 (Желательные): TypeScript strict, Web Vitals monitoring
+
+### 🧠 AI Control Center - НОВОЕ! (2025-11-15)
+Централизованное управление AI операциями, промптами и моделями.
+
+- **[new/ai-control-center-summary.md](new/ai-control-center-summary.md)** - Краткий summary (НАЧНИ ОТСЮДА!)
+- **[new/ai-control-center-implementation.md](new/ai-control-center-implementation.md)** - Отчет о реализации UI
+- **[new/ai-control-center-integration-plan.md](new/ai-control-center-integration-plan.md)** - План интеграции с Edge Functions
+- **[new/ai-prompts-cards.md](new/ai-prompts-cards.md)** - Промпты для мотивационных карточек
+- **[new/ai-superadmin-settings.md](new/ai-superadmin-settings.md)** - Настройки AI в админ-панели
+
+**Функционал**:
+- ✅ UI для управления 6 AI операциями (cards, push, reports)
+- ✅ Редактирование промптов БЕЗ редеплоя кода
+- ✅ Управление моделями (model, max_tokens, temperature)
+- ✅ Включение/выключение операций (is_enabled)
+- ⏳ Интеграция с Edge Functions (~2.5 часа)
 
 ---
 
