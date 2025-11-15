@@ -290,24 +290,54 @@ async function handleRequest(req: Request): Promise<Response> {
 			console.log(`[MOTIVATIONS v10] Unviewed entries: ${unviewedEntries.length}`);
 
 			// Step 5: Create cards from entries (БЕЗ градиентов)
-			const cards = unviewedEntries.slice(0, 3).map((entry: any) => ({
-				id: entry.id,
-				entryId: entry.id,
-				date: new Date(entry.created_at).toLocaleDateString(
-					userLanguage === 'ru' ? 'ru-RU' : 'en-US'
-				),
-				title: entry.ai_summary
-					? entry.ai_summary.split(' ').slice(0, 8).join(' ') +
-						(entry.ai_summary.split(' ').length > 8 ? '...' : '')
-					: entry.text.split(' ').slice(0, 8).join(' ') +
-						(entry.text.split(' ').length > 8 ? '...' : ''),
-				description: entry.ai_insight || entry.ai_summary || entry.text,
-				gradient: '', // Будет назначен позже
-				isMarked: false,
-				isDefault: false,
-				sentiment: entry.sentiment || 'positive',
-				mood: entry.mood || 'хорошее',
-			}));
+			const cards = unviewedEntries.slice(0, 3).map((entry: any) => {
+				// ✅ FIX: Fallback для title если все поля пустые
+				let title = '';
+				if (entry.ai_summary && entry.ai_summary.trim()) {
+					const words = entry.ai_summary.trim().split(' ');
+					title = words.slice(0, 8).join(' ') + (words.length > 8 ? '...' : '');
+				} else if (entry.text && entry.text.trim()) {
+					const words = entry.text.trim().split(' ');
+					title = words.slice(0, 8).join(' ') + (words.length > 8 ? '...' : '');
+				} else {
+					// Fallback: используем дату
+					title = userLanguage === 'ru' ? 'Запись от ' : 'Entry from ';
+					title += new Date(entry.created_at).toLocaleDateString(
+						userLanguage === 'ru' ? 'ru-RU' : 'en-US'
+					);
+				}
+
+				// ✅ FIX: Fallback для description если все поля пустые
+				let description = '';
+				if (entry.ai_insight && entry.ai_insight.trim()) {
+					description = entry.ai_insight.trim();
+				} else if (entry.ai_summary && entry.ai_summary.trim()) {
+					description = entry.ai_summary.trim();
+				} else if (entry.text && entry.text.trim()) {
+					description = entry.text.trim();
+				} else {
+					// Fallback: используем placeholder
+					description =
+						userLanguage === 'ru'
+							? 'Запись без текста. Нажмите чтобы просмотреть детали.'
+							: 'Entry without text. Tap to view details.';
+				}
+
+				return {
+					id: entry.id,
+					entryId: entry.id,
+					date: new Date(entry.created_at).toLocaleDateString(
+						userLanguage === 'ru' ? 'ru-RU' : 'en-US'
+					),
+					title,
+					description,
+					gradient: '', // Будет назначен позже
+					isMarked: false,
+					isDefault: false,
+					sentiment: entry.sentiment || 'positive',
+					mood: entry.mood || 'хорошее',
+				};
+			});
 
 			// Step 6: Add default cards if needed (БЕЗ градиентов)
 			if (cards.length < 3) {

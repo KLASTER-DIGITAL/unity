@@ -82,6 +82,33 @@
 - **Ожидаемые результаты**: Готовность к 100K пользователей, 0 блокеров для RN миграции
 - **Время**: 30 минут
 
+### 🐛 Исправления
+
+**Пустые AI Insights карточки (2025-11-14)**:
+- **Проблема**: Карточки отображались с пустым title и description
+- **Причина**: Если `entry.text`, `entry.ai_summary`, `entry.ai_insight` пустые → карточка пустая
+- **Решение**:
+  - Добавлены fallback для title и description в Edge Function `motivations`
+  - Если `ai_summary` пустой → используем `text`
+  - Если `text` пустой → используем дату записи для title
+  - Если все поля пустые → placeholder "Запись без текста"
+- **Логика fallback**:
+  ```typescript
+  // Title fallback chain:
+  // 1. ai_summary (первые 8 слов)
+  // 2. text (первые 8 слов)
+  // 3. "Запись от [дата]"
+
+  // Description fallback chain:
+  // 1. ai_insight
+  // 2. ai_summary
+  // 3. text
+  // 4. "Запись без текста. Нажмите чтобы просмотреть детали."
+  ```
+- **Файлы**: supabase/functions/motivations/index.ts (строки 292-340)
+- **Деплой**: npx supabase functions deploy motivations ✅
+- **Время**: 15 минут
+
 ### 🔄 Изменено
 
 **Performance: Lazy loading для PushTemplateEditor (2025-11-14)**:
