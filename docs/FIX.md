@@ -8,6 +8,26 @@
 
 ## [Unreleased] - 2025-11-15
 
+### ✅ Добавлено
+
+- **Mobile Config админ-панель** - UI компоненты для управления React Native настройками:
+  - `src/features/admin/settings/components/mobile-config/MobileConfigTab.tsx` - главный компонент (184 строки)
+  - `src/features/admin/settings/components/mobile-config/GeneralSettings.tsx` - общие настройки (169 строк)
+  - `src/features/admin/settings/components/mobile-config/SplashScreenSettings.tsx` - splash screen (130 строк)
+  - `src/features/admin/settings/components/mobile-config/OnboardingSettings.tsx` - онбординг (69 строк)
+  - `src/features/admin/settings/components/mobile-config/AuthSettings.tsx` - авторизация
+  - `src/features/admin/settings/components/mobile-config/LanguageSettings.tsx` - i18n
+  - `src/features/admin/settings/components/mobile-config/types.ts` - TypeScript типы
+  - `src/features/admin/settings/components/mobile-config/index.ts` - экспорты
+- **Edge Function mobile-config-api** - задеплоен в Supabase:
+  - GET /mobile-config - получение конфигурации
+  - PUT /mobile-config - обновление (только super_admin)
+  - Версионирование конфигурации (auto-increment)
+  - RBAC проверка (только super_admin может обновлять)
+  - Валидация данных (splash_duration_ms 0-10000)
+  - CORS headers для cross-origin requests
+  - URL: https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/mobile-config-api
+
 ### 🔒 Безопасность
 - **supabase/migrations/20251115_add_2fa_for_super_admin.sql** - создан
   - Колонки в profiles: two_factor_enabled, two_factor_secret, two_factor_backup_codes, two_factor_verified_at

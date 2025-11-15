@@ -9,6 +9,20 @@
 
 ## [Unreleased] - 2025-11-15
 
+### ✨ Новые возможности
+
+- **Mobile Config админ-панель**: Централизованное управление настройками React Native приложения ✅ ГОТОВО
+  - UI компонент MobileConfigTab с 5 вкладками (General, Splash, Onboarding, Auth, Languages)
+  - Управление app name, логотипами, цветами, темой
+  - Настройка splash screen (изображение, цвет, длительность, анимация)
+  - Настройка онбординга (включение/отключение, пропуск)
+  - Настройка методов авторизации (email, Google, Apple, Telegram)
+  - Настройка i18n (языки, auto-detect, offline cache)
+  - Edge Function mobile-config-api для GET/PUT конфигурации
+  - Версионирование конфигурации (auto-increment)
+  - RBAC защита (только super_admin может обновлять)
+  - OTA updates без публикации в App Store
+
 ### 🔒 Безопасность
 - **Admin Login Rate Limiting**: Защита от brute-force атак на админ-панель
   - Лимит: 5 попыток за 15 минут
