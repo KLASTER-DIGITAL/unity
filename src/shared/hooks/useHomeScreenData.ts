@@ -28,8 +28,9 @@ interface UseHomeScreenDataResult {
 /**
  * Hook для загрузки всех данных HomeScreen
  *
- * ✅ НОВОЕ: Добавлен Supabase Realtime subscription для автоматического обновления
- * при создании новых записей (INSERT events)
+ * ✅ НОВОЕ: Добавлен Supabase Realtime subscription для автоматического обновления:
+ * - entries: INSERT (новые записи) + UPDATE (AI анализ обновляет запись)
+ * - motivation_cards: INSERT (новые карточки)
  *
  * @param userId - ID пользователя
  * @returns Данные HomeScreen, состояние загрузки, ошибки и функция refetch
@@ -101,7 +102,7 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 			.on(
 				'postgres_changes',
 				{
-					event: 'INSERT', // Слушаем только INSERT (новые записи)
+					event: 'INSERT', // Слушаем INSERT (новые записи)
 					schema: 'public',
 					table: 'entries',
 					filter: `user_id=eq.${userId}`,
@@ -110,6 +111,52 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 					console.log('[useHomeScreenData] 🔔 New entry created, reloading data:', payload);
 
 					// Перезагружаем данные при создании новой записи
+					if (fetchDataRef.current) {
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
+						fetchDataRef.current();
+					} else {
+						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
+					}
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE', // ✅ НОВОЕ: Слушаем UPDATE (AI анализ обновляет запись)
+					schema: 'public',
+					table: 'entries',
+					filter: `user_id=eq.${userId}`,
+				},
+				(payload) => {
+					console.log(
+						'[useHomeScreenData] 🔔 Entry updated (AI analysis), reloading data:',
+						payload
+					);
+
+					// Перезагружаем данные при обновлении записи (AI анализ)
+					if (fetchDataRef.current) {
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
+						fetchDataRef.current();
+					} else {
+						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
+					}
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT', // ✅ НОВОЕ: Слушаем INSERT на motivation_cards
+					schema: 'public',
+					table: 'motivation_cards',
+					filter: `user_id=eq.${userId}`,
+				},
+				(payload) => {
+					console.log(
+						'[useHomeScreenData] 🔔 New motivation card created, reloading data:',
+						payload
+					);
+
+					// Перезагружаем данные при создании новой карточки
 					if (fetchDataRef.current) {
 						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
 						fetchDataRef.current();
