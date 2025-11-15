@@ -8,6 +8,47 @@
 
 ## [Unreleased] - 2025-11-15
 
+### 🔒 Безопасность
+- **supabase/migrations/20251115_add_admin_login_rate_limiting.sql** - создан
+  - Таблица `admin_login_attempts` для отслеживания попыток входа
+  - Индексы: `idx_admin_login_attempts_email_created`, `idx_admin_login_attempts_ip_created`
+  - RLS политика: только super_admin может читать
+  - RPC функция `check_admin_login_rate_limit(p_email, p_ip_address)`:
+    - Подсчет неудачных попыток за 15 минут
+    - Проверка блокировки (30 минут)
+    - Возврат: is_blocked, failed_attempts, attempts_remaining, block_until
+  - RPC функция `record_admin_login_attempt(p_email, p_success, p_ip_address, p_user_agent)`:
+    - Запись попытки входа
+    - Автоматическая очистка записей старше 24 часов
+- **src/features/admin/auth/components/AdminLoginScreen.tsx** - обновлен
+  - Добавлен state `attemptsRemaining` для отслеживания попыток
+  - Проверка rate limit ПЕРЕД `auth.signInWithPassword()`
+  - Запись успешной/неудачной попытки через RPC
+  - UI индикатор оставшихся попыток (показывается при < 5)
+  - Toast уведомления с количеством попыток
+  - Блокировка входа при превышении лимита
+
+### 📚 Документация
+- **docs/features/ACHIEVEMENTS_SYSTEM.md** - создан (649 строк)
+  - Полное описание системы достижений
+  - Архитектура: 6 достижений (common, uncommon, rare, legendary) + 4 вехи
+  - Алгоритмы расчета: `calculateStreak()`, `calculateUserStats()`, `calculateAchievements()`
+  - UI компоненты: AchievementCard (PWA + React Native), MilestoneCard, Skeleton
+  - Сценарии: новый пользователь, активный пользователь, достижение вехи, просмотр прогресса
+  - API: Supabase таблицы `entries`, `profiles`, функции расчета
+  - Метрики: engagement >80%, retention >50%, activity >5 записей/неделю
+- **docs/features/REPORTS_SYSTEM.md** - создан (922 строки)
+  - Полное описание системы отчетов
+  - Типы отчетов: месячный (Free), PDF (Premium), книги (Premium)
+  - Алгоритмы расчета: `calculateUserStats()`, `calculateMoodDistribution()`, `calculateTopCategories()`, `generatePersonalInsights()`
+  - UI компоненты: ReportsScreen, StatsCard, LazyCharts (Pie, Bar, Line), BookCreationWizard
+  - Сценарии: просмотр отчета (Free), AI инсайты (Premium), экспорт PDF (Premium), создание книги (Premium)
+  - API: Edge Function `reports-generate-pdf`, Supabase таблицы `entries`, `profiles`, `book_drafts`
+  - Premium vs Free: сравнение функций, upsell стратегия
+  - Метрики: engagement >60%, conversion >15%, usage >4 просмотра/месяц
+
+## [Unreleased] - 2025-11-15
+
 ### 🏗️ Инфраструктура
 
 - **IndexedDB кэширование AI Insights карточек**: Реализован offline-first подход

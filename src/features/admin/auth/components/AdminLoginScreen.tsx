@@ -23,6 +23,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -40,6 +41,33 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 			const supabase = createClient();
 			console.log('🔐 [AdminLoginScreen] Supabase client created');
 
+			// 🔒 SECURITY: Проверка rate limit ПЕРЕД попыткой входа
+			console.log('🔒 [AdminLoginScreen] Checking rate limit...');
+			const { data: rateLimitData, error: rateLimitError } = await supabase.rpc(
+				'check_admin_login_rate_limit',
+				{
+					p_email: email,
+					p_ip_address: null, // TODO: получить IP через Edge Function
+				}
+			);
+
+			if (rateLimitError) {
+				console.error('Rate limit check error:', rateLimitError);
+				// Продолжаем даже если проверка не удалась (fail-open для доступности)
+			} else if (rateLimitData?.is_blocked) {
+				const blockUntil = new Date(rateLimitData.block_until);
+				const minutesLeft = Math.ceil((blockUntil.getTime() - Date.now()) / 60000);
+
+				toast.error('Слишком много попыток входа', {
+					description: `Попробуйте снова через ${minutesLeft} минут`,
+				});
+				setIsLoading(false);
+				return;
+			} else if (rateLimitData) {
+				setAttemptsRemaining(rateLimitData.attempts_remaining);
+				console.log('🔒 [AdminLoginScreen] Attempts remaining:', rateLimitData.attempts_remaining);
+			}
+
 			// Вход через Supabase
 			const { data, error } = await supabase.auth.signInWithPassword({
 				email,
@@ -48,7 +76,24 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 
 			if (error) {
 				console.error('Sign in error:', error);
-				toast.error('Неверный email или пароль');
+
+				// 🔒 SECURITY: Записать неудачную попытку
+				await supabase.rpc('record_admin_login_attempt', {
+					p_email: email,
+					p_success: false,
+					p_ip_address: null,
+					p_user_agent: navigator.userAgent,
+				});
+
+				// Обновить счетчик попыток
+				if (attemptsRemaining !== null && attemptsRemaining > 1) {
+					toast.error('Неверный email или пароль', {
+						description: `Осталось попыток: ${attemptsRemaining - 1}`,
+					});
+				} else {
+					toast.error('Неверный email или пароль');
+				}
+
 				setIsLoading(false);
 				return;
 			}
@@ -134,6 +179,15 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 				'role:',
 				userData.role
 			);
+
+			// 🔒 SECURITY: Записать успешную попытку
+			await supabase.rpc('record_admin_login_attempt', {
+				p_email: email,
+				p_success: true,
+				p_ip_address: null,
+				p_user_agent: navigator.userAgent,
+			});
+
 			toast.success('Вход выполнен успешно');
 
 			// Вызываем onComplete для перехода к админ-панели
@@ -246,6 +300,11 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 											Только для пользователей с ролью{' '}
 											<span className="font-semibold text-foreground">super_admin</span>
 										</p>
+										{attemptsRemaining !== null && attemptsRemaining < 5 && (
+											<p className="mt-2 text-sm text-orange-600 dark:text-orange-400">
+												⚠️ Осталось попыток: {attemptsRemaining}
+											</p>
+										)}
 									</div>
 								</div>
 							</div>
