@@ -16,6 +16,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getHomeScreenData, type HomeScreenData } from '@/shared/lib/api';
+import { invalidateCache } from '@/shared/lib/api/services/homeScreen';
 import { createClient } from '@/utils/supabase/client';
 
 interface UseHomeScreenDataResult {
@@ -41,38 +42,49 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 	const [error, setError] = useState<Error | null>(null);
 
 	// ✅ FIX: Используем ref для хранения актуальной функции fetchData
-	const fetchDataRef = useRef<(() => Promise<void>) | null>(null);
+	// silent: если true, не показывать loading (для фонового обновления)
+	const fetchDataRef = useRef<((silent?: boolean) => Promise<void>) | null>(null);
 
 	// Fetch home screen data
-	const fetchData = useCallback(async () => {
-		if (!userId) {
-			console.log('[useHomeScreenData] No userId provided, skipping fetch');
-			setData(null);
-			setIsLoading(false);
-			return;
-		}
+	// silent: если true, не показывать loading (для фонового обновления)
+	const fetchData = useCallback(
+		async (silent = false) => {
+			if (!userId) {
+				console.log('[useHomeScreenData] No userId provided, skipping fetch');
+				setData(null);
+				setIsLoading(false);
+				return;
+			}
 
-		try {
-			console.log('[useHomeScreenData] 🚀 Fetching unified data... userId:', userId);
-			setIsLoading(true);
-			setError(null);
+			try {
+				console.log('[useHomeScreenData] 🚀 Fetching unified data... userId:', userId);
 
-			const result = await getHomeScreenData(userId);
+				// ✅ КРИТИЧНО: НЕ показывать loading при silent refresh (фоновое обновление)
+				if (!silent) {
+					setIsLoading(true);
+				}
+				setError(null);
 
-			console.log('[useHomeScreenData] ✅ Success:', {
-				totalEntries: result.stats.totalEntries,
-				motivationCards: result.motivationCards.length,
-				recentEntries: result.recentEntries.length,
-			});
+				const result = await getHomeScreenData(userId);
 
-			setData(result);
-		} catch (err: any) {
-			console.error('[useHomeScreenData] ❌ Error:', err);
-			setError(err);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [userId]);
+				console.log('[useHomeScreenData] ✅ Success:', {
+					totalEntries: result.stats.totalEntries,
+					motivationCards: result.motivationCards.length,
+					recentEntries: result.recentEntries.length,
+				});
+
+				setData(result);
+			} catch (err: any) {
+				console.error('[useHomeScreenData] ❌ Error:', err);
+				setError(err);
+			} finally {
+				if (!silent) {
+					setIsLoading(false);
+				}
+			}
+		},
+		[userId]
+	);
 
 	// ✅ FIX: Обновляем ref при каждом изменении fetchData
 	useEffect(() => {
@@ -88,11 +100,12 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 	// ✅ НОВОЕ: Real-time subscription для автоматического обновления
 	useEffect(() => {
 		if (!userId || userId === 'anonymous') {
-			console.log('[useHomeScreenData] No userId, skipping real-time subscription');
+			console.log('[useHomeScreenData] ❌ No userId, skipping real-time subscription');
 			return;
 		}
 
-		console.log('[useHomeScreenData] Setting up real-time subscription for user:', userId);
+		console.log('[useHomeScreenData] 🚀 Setting up real-time subscription for user:', userId);
+		console.log('[useHomeScreenData] 🔍 fetchDataRef.current exists?', !!fetchDataRef.current);
 
 		// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для realtime подписки
 		const supabase = createClient();
@@ -110,10 +123,14 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 				(payload) => {
 					console.log('[useHomeScreenData] 🔔 New entry created, reloading data:', payload);
 
-					// Перезагружаем данные при создании новой записи
+					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
+					invalidateCache(userId);
+
+					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
+					// Это предотвращает показ skeleton, старые данные остаются на экране
 					if (fetchDataRef.current) {
-						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
-						fetchDataRef.current();
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data (silent)...');
+						fetchDataRef.current(true); // silent=true
 					} else {
 						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
 					}
@@ -133,10 +150,13 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 						payload
 					);
 
-					// Перезагружаем данные при обновлении записи (AI анализ)
+					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
+					invalidateCache(userId);
+
+					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
 					if (fetchDataRef.current) {
-						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
-						fetchDataRef.current();
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data (silent)...');
+						fetchDataRef.current(true); // silent=true
 					} else {
 						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
 					}
@@ -156,10 +176,13 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 						payload
 					);
 
-					// Перезагружаем данные при создании новой карточки
+					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
+					invalidateCache(userId);
+
+					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
 					if (fetchDataRef.current) {
-						console.log('[useHomeScreenData] 🔄 Reloading home screen data...');
-						fetchDataRef.current();
+						console.log('[useHomeScreenData] 🔄 Reloading home screen data (silent)...');
+						fetchDataRef.current(true); // silent=true
 					} else {
 						console.error('[useHomeScreenData] ❌ fetchDataRef.current is null!');
 					}

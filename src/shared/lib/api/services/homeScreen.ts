@@ -106,6 +106,20 @@ export async function getHomeScreenData(userId: string, useCache = true): Promis
 }
 
 /**
+ * Invalidate cache for a user
+ * Call this when data changes (new entry, new card, etc.)
+ */
+export function invalidateCache(userId: string): void {
+	try {
+		const key = `${CACHE_KEY_PREFIX}${userId}`;
+		localStorage.removeItem(key);
+		console.log('[HOME_SCREEN_DATA] 🗑️ Cache invalidated for user:', userId);
+	} catch (error) {
+		console.error('[HOME_SCREEN_DATA] ❌ Error invalidating cache:', error);
+	}
+}
+
+/**
  * Fetch fresh data from Edge Function
  */
 async function fetchFreshData(userId: string): Promise<HomeScreenData> {
