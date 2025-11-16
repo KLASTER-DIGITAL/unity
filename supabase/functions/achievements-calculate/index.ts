@@ -43,6 +43,7 @@ interface UserStats {
 	sentimentNegativeCount: number;
 	moodVariety: number;
 	daysSinceFirstEntry: number;
+	maxGapDays: number;
 }
 
 // =====================================================
@@ -145,32 +146,173 @@ Deno.serve(async (req) => {
 // HELPER FUNCTIONS
 // =====================================================
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+function normalizeString(value: string | null | undefined): string {
+	return (value || '').trim().toLowerCase();
+}
+
+function calculateStreakFromEntries(entries: Array<{ created_at: string }>): {
+	current: number;
+	longest: number;
+} {
+	if (!entries || entries.length === 0) {
+		return { current: 0, longest: 0 };
+	}
+
+	const sorted = [...entries].sort(
+		(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+	);
+
+	let currentStreak = 0;
+	let longestStreak = 0;
+	let tempStreak = 1;
+	let lastDate = new Date(sorted[0].created_at);
+
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const lastEntryDate = new Date(sorted[0].created_at);
+	lastEntryDate.setHours(0, 0, 0, 0);
+
+	const daysDiff = Math.floor((today.getTime() - lastEntryDate.getTime()) / MS_PER_DAY);
+
+	if (daysDiff <= 1) {
+		currentStreak = 1;
+
+		for (let i = 1; i < sorted.length; i++) {
+			const currentDate = new Date(sorted[i].created_at);
+			currentDate.setHours(0, 0, 0, 0);
+
+			const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / MS_PER_DAY);
+
+			if (diff === 1) {
+				currentStreak++;
+				tempStreak++;
+			} else if (diff > 1) {
+				break;
+			}
+
+			lastDate = currentDate;
+		}
+	}
+
+	tempStreak = 1;
+	lastDate = new Date(sorted[0].created_at);
+
+	for (let i = 1; i < sorted.length; i++) {
+		const currentDate = new Date(sorted[i].created_at);
+		currentDate.setHours(0, 0, 0, 0);
+		lastDate.setHours(0, 0, 0, 0);
+
+		const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / MS_PER_DAY);
+
+		if (diff === 1) {
+			tempStreak++;
+			longestStreak = Math.max(longestStreak, tempStreak);
+		} else if (diff > 1) {
+			tempStreak = 1;
+		}
+
+		lastDate = currentDate;
+	}
+
+	longestStreak = Math.max(longestStreak, currentStreak, tempStreak);
+
+	return { current: currentStreak, longest: longestStreak };
+}
+
 async function getUserStats(supabase: any, userId: string): Promise<UserStats> {
-	// Get total entries
-	const { count: totalEntries } = await supabase
+	const { data: entries, error } = await supabase
 		.from('entries')
-		.select('*', { count: 'exact', head: true })
-		.eq('user_id', userId);
-
-	// Get entries with is_achievement = true
-	const { count: achievementsCount } = await supabase
-		.from('entries')
-		.select('*', { count: 'exact', head: true })
+		.select('id, created_at, category, mood, sentiment, is_achievement')
 		.eq('user_id', userId)
-		.eq('is_achievement', true);
+		.order('created_at', { ascending: true });
 
-	// TODO: Calculate streak, category counts, etc.
-	// For now, return basic stats
+	if (error) {
+		console.error('[achievements-calculate] Error loading entries for stats:', error);
+		throw error;
+	}
+
+	if (!entries || entries.length === 0) {
+		return {
+			totalEntries: 0,
+			currentStreak: 0,
+			longestStreak: 0,
+			categoryCounts: {},
+			achievementsCount: 0,
+			sentimentNegativeCount: 0,
+			moodVariety: 0,
+			daysSinceFirstEntry: 0,
+			maxGapDays: 0,
+		};
+	}
+
+	const totalEntries = entries.length;
+	let achievementsCount = 0;
+	const categoryCounts: Record<string, number> = {};
+	const moodSet = new Set<string>();
+	let sentimentNegativeCount = 0;
+
+	entries.forEach((entry: any) => {
+		if (entry.is_achievement) {
+			achievementsCount += 1;
+		}
+
+		const normalizedCategory = normalizeString(entry.category);
+		if (normalizedCategory) {
+			categoryCounts[normalizedCategory] = (categoryCounts[normalizedCategory] || 0) + 1;
+		}
+
+		const normalizedMood = normalizeString(entry.mood);
+		if (normalizedMood) {
+			moodSet.add(normalizedMood);
+		}
+
+		if (entry.sentiment === 'negative') {
+			sentimentNegativeCount += 1;
+		}
+	});
+
+	const moodVariety = moodSet.size;
+	const streak = calculateStreakFromEntries(entries);
+
+	const firstEntryDate = new Date(entries[0].created_at);
+	firstEntryDate.setHours(0, 0, 0, 0);
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const daysSinceFirstEntry = Math.max(
+		0,
+		Math.floor((today.getTime() - firstEntryDate.getTime()) / MS_PER_DAY)
+	);
+
+	let maxGapDays = 0;
+	let previousDate = new Date(entries[0].created_at);
+	previousDate.setHours(0, 0, 0, 0);
+
+	for (let i = 1; i < entries.length; i++) {
+		const currentDate = new Date(entries[i].created_at);
+		currentDate.setHours(0, 0, 0, 0);
+
+		const diff = Math.floor((currentDate.getTime() - previousDate.getTime()) / MS_PER_DAY);
+
+		if (diff > maxGapDays) {
+			maxGapDays = diff;
+		}
+
+		previousDate = currentDate;
+	}
 
 	return {
-		totalEntries: totalEntries || 0,
-		currentStreak: 0, // TODO
-		longestStreak: 0, // TODO
-		categoryCounts: {}, // TODO
-		achievementsCount: achievementsCount || 0,
-		sentimentNegativeCount: 0, // TODO
-		moodVariety: 0, // TODO
-		daysSinceFirstEntry: 0, // TODO
+		totalEntries,
+		currentStreak: streak.current,
+		longestStreak: streak.longest,
+		categoryCounts,
+		achievementsCount,
+		sentimentNegativeCount,
+		moodVariety,
+		daysSinceFirstEntry,
+		maxGapDays,
 	};
 }
 
@@ -180,7 +322,6 @@ function calculateProgress(achievement: Achievement, stats: UserStats): number {
 
 	let currentValue = 0;
 
-	// Get current value based on condition type
 	switch (type) {
 		case 'entries_count':
 			currentValue = stats.totalEntries;
@@ -191,9 +332,11 @@ function calculateProgress(achievement: Achievement, stats: UserStats): number {
 		case 'achievements_count':
 			currentValue = stats.achievementsCount;
 			break;
-		case 'category_count':
-			currentValue = category ? stats.categoryCounts[category] || 0 : 0;
+		case 'category_count': {
+			const normalizedCategory = normalizeString(category);
+			currentValue = normalizedCategory ? stats.categoryCounts[normalizedCategory] || 0 : 0;
 			break;
+		}
 		case 'sentiment_negative_count':
 			currentValue = stats.sentimentNegativeCount;
 			break;
@@ -203,11 +346,19 @@ function calculateProgress(achievement: Achievement, stats: UserStats): number {
 		case 'days_since_first_entry':
 			currentValue = stats.daysSinceFirstEntry;
 			break;
+		case 'all_categories': {
+			const mainCategories = ['семья', 'здоровье', 'работа', 'благодарность'];
+			const counts = mainCategories.map((cat) => stats.categoryCounts[cat] || 0);
+			currentValue = counts.length ? Math.min(...counts) : 0;
+			break;
+		}
+		case 'comeback_after_days':
+			currentValue = stats.maxGapDays;
+			break;
 		default:
 			return 0;
 	}
 
-	// Calculate progress percentage
 	if (operator === '>=') {
 		const progress = Math.min(100, Math.floor((currentValue / value) * 100));
 		return progress;

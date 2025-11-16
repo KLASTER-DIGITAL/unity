@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
 	BookOpen,
@@ -20,6 +21,23 @@ import {
 	Users,
 	Zap,
 } from 'lucide-react';
+
+type AchievementsScreenUserData = {
+	id?: string;
+	user?: { id?: string } | null;
+};
+
+type AchievementBadgeUi = {
+	id: string;
+	name: string;
+	description: string;
+	icon: LucideIcon;
+	earned: boolean;
+	rarity: RarityType;
+	earnedDate?: string;
+	progress: number;
+};
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/shared/components/ui/skeleton';
@@ -27,12 +45,13 @@ import { useAchievements } from '@/shared/hooks/useAchievements';
 import { type DiaryEntry, getEntries } from '@/shared/lib/api';
 import { calculateUserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
+import type { RarityType } from '../constants/rarityStyles';
 import { AchievementBadge3D } from './AchievementBadge3D';
 import { AchievementCategory } from './AchievementCategory';
 import { AchievementDetailsModal } from './AchievementDetailsModal';
 
 // Маппинг иконок для достижений
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
 	// Основные достижения
 	Star, // Общие достижения
 	Trophy, // Победы и награды
@@ -62,7 +81,7 @@ const iconMap: Record<string, any> = {
 	Zap, // Энергия/Быстрые
 };
 
-export function AchievementsScreen({ userData }: { userData?: any }) {
+export function AchievementsScreen({ userData }: { userData?: AchievementsScreenUserData }) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
 
@@ -77,7 +96,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		level: 1,
 		nextLevelProgress: 0,
 	});
-	const [selectedAchievement, setSelectedAchievement] = useState<any | null>(null);
+	const [selectedAchievement, setSelectedAchievement] = useState<AchievementBadgeUi | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<'all' | 'earned'>('all');
 
@@ -145,7 +164,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
 					earnedDate: achievement.earnedAt
 						? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
-						: null, // ✅ NEW: форматируем дату
+						: undefined, // ✅ NEW: форматируем дату
 					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
 				};
 			}),
@@ -175,11 +194,19 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 				b.name.includes('Работа') ||
 				b.name.includes('Благодарность')
 		);
+		const mindfulness = filteredBadges.filter((b) => {
+			const name = b.name.toLowerCase();
+			return name.includes('честн') || name.includes('баланс') || name.includes('эмоциональ');
+		});
 		const special = filteredBadges.filter(
-			(b) => !milestones.includes(b) && !streaks.includes(b) && !categories.includes(b)
+			(b) =>
+				!milestones.includes(b) &&
+				!streaks.includes(b) &&
+				!categories.includes(b) &&
+				!mindfulness.includes(b)
 		);
 
-		return { milestones, streaks, categories, special };
+		return { milestones, streaks, categories, mindfulness, special };
 	}, [filteredBadges]);
 
 	// ✅ EARLY RETURN AFTER ALL HOOKS: Check t function availability
@@ -400,9 +427,26 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 					</AchievementCategory>
 				)}
 
+				{/* Mindfulness & Emotions */}
+				{categorizedAchievements.mindfulness?.length > 0 && (
+					<AchievementCategory title="Осознанность и эмоции" icon="💙" delay={0.3}>
+						{categorizedAchievements.mindfulness.map((badge, index) => (
+							<AchievementBadge3D
+								key={badge.id}
+								{...badge}
+								index={index}
+								onClick={() => {
+									setSelectedAchievement(badge);
+									setIsModalOpen(true);
+								}}
+							/>
+						))}
+					</AchievementCategory>
+				)}
+
 				{/* Special */}
 				{categorizedAchievements.special.length > 0 && (
-					<AchievementCategory title="Особые" icon="⭐" delay={0.3}>
+					<AchievementCategory title="Особые" icon="⭐" delay={0.4}>
 						{categorizedAchievements.special.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
