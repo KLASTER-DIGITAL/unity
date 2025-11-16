@@ -877,7 +877,7 @@ export const AISettingsTab: React.FC = () => {
 															{testResult && (
 																<div className="space-y-2">
 																	<Label className="text-[12px]">Результат:</Label>
-																	<pre className="bg-muted p-3 rounded-md text-[11px] overflow-auto max-h-[300px]">
+																	<pre className="bg-muted p-3 rounded-md text-[11px] overflow-auto max-h-[500px]">
 																		{JSON.stringify(testResult, null, 2)}
 																	</pre>
 																</div>
