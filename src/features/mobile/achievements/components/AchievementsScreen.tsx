@@ -277,25 +277,25 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.totalEntries}
 						</div>
-						<div className="text-muted-foreground text-xs">Записей</div>
+						<div className="text-muted-foreground text-sm">Записей</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.totalBadges}
 						</div>
-						<div className="text-muted-foreground text-xs">Наград</div>
+						<div className="text-muted-foreground text-sm">Наград</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.currentStreak}
 						</div>
-						<div className="text-muted-foreground text-xs">Дней подряд</div>
+						<div className="text-muted-foreground text-sm">Дней подряд</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.longestStreak}
 						</div>
-						<div className="text-muted-foreground text-xs">Рекорд</div>
+						<div className="text-muted-foreground text-sm">Рекорд</div>
 					</div>
 				</div>
 

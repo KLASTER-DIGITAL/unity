@@ -21,6 +21,33 @@ interface AchievementDetailsModalProps {
 	} | null;
 }
 
+const EARNED_MOTIVATION_MESSAGES = {
+	streak:
+		'Вы удерживаете ритм — это важнее, чем идеальные дни. Продолжайте идти маленькими шагами.',
+	entries:
+		'Каждая запись — это честный разговор с собой. Вы уже делаете больше, чем большинство людей.',
+	default:
+		'Это достижение — доказательство того, что вы не просто мечтаете, а действуете. Продолжайте в том же духе.',
+} as const;
+
+function getMotivationMessageForAchievement(name: string): string {
+	const lowerName = name.toLowerCase();
+
+	if (
+		lowerName.includes('дней подряд') ||
+		lowerName.includes('неделя') ||
+		lowerName.includes('подряд')
+	) {
+		return EARNED_MOTIVATION_MESSAGES.streak;
+	}
+
+	if (lowerName.includes('записей') || lowerName.includes('запись') || lowerName.includes('слов')) {
+		return EARNED_MOTIVATION_MESSAGES.entries;
+	}
+
+	return EARNED_MOTIVATION_MESSAGES.default;
+}
+
 export function AchievementDetailsModal({
 	isOpen,
 	onClose,
@@ -191,6 +218,9 @@ export function AchievementDetailsModal({
 										</p>
 										<p className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
 											{achievement.earnedDate}
+										</p>
+										<p className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
+											{getMotivationMessageForAchievement(achievement.name)}
 										</p>
 									</div>
 								) : (

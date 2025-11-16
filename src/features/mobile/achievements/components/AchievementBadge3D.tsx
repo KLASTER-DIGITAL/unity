@@ -108,18 +108,25 @@ export function AchievementBadge3D({
 					<h4 className="mb-1 font-semibold text-foreground text-sm transition-colors duration-300">
 						{name}
 					</h4>
-					<p className="mb-2 text-muted-foreground text-xs leading-tight transition-colors duration-300">
+					<p className="mb-2 text-muted-foreground text-sm leading-tight transition-colors duration-300">
 						{description}
 					</p>
 
 					{earned ? (
-						<Badge
-							className={`text-xs transition-colors duration-300 ${
-								RARITY_STYLES[rarity]?.badge || RARITY_STYLES.common.badge
-							}`}
-						>
-							{earnedDate}
-						</Badge>
+						<div className="space-y-1">
+							<Badge
+								className={`text-xs transition-colors duration-300 ${
+									RARITY_STYLES[rarity]?.badge || RARITY_STYLES.common.badge
+								}`}
+							>
+								✅ Выполнено
+							</Badge>
+							{earnedDate && (
+								<p className="text-muted-foreground text-[10px] transition-colors duration-300">
+									{earnedDate}
+								</p>
+							)}
+						</div>
 					) : (
 						<div className="space-y-1">
 							<div className="h-2 w-full rounded-full bg-muted transition-colors duration-300">

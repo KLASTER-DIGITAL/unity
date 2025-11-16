@@ -3,19 +3,19 @@ export const RARITY_STYLES = {
 	legendary: {
 		gradient: 'bg-gradient-to-br from-purple-400 to-purple-600',
 		badge: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-		glow: 'shadow-lg shadow-purple-500/50',
+		glow: 'shadow-md shadow-purple-500/30',
 		text: 'text-purple-600 dark:text-purple-400',
 	},
 	epic: {
 		gradient: 'bg-gradient-to-br from-orange-400 to-orange-600',
 		badge: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400',
-		glow: 'shadow-lg shadow-orange-500/50',
+		glow: 'shadow-md shadow-orange-500/30',
 		text: 'text-orange-600 dark:text-orange-400',
 	},
 	rare: {
 		gradient: 'bg-gradient-to-br from-blue-400 to-blue-600',
 		badge: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-		glow: 'shadow-lg shadow-blue-500/50',
+		glow: 'shadow-md shadow-blue-500/30',
 		text: 'text-blue-600 dark:text-blue-400',
 	},
 	common: {
