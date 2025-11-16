@@ -1,36 +1,65 @@
 import {
+	Award,
 	BookOpen,
+	Calendar,
 	Camera,
 	Crown,
 	Dumbbell,
 	Flame,
+	Gift,
 	Heart,
+	Home,
+	Lightbulb,
+	Medal,
+	Rocket,
+	Sparkles,
 	Star,
 	Target,
+	TrendingUp,
 	Trophy,
+	Users,
 	Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Badge } from '@/shared/components/ui/badge';
-import { Card, CardContent } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useAchievements } from '@/shared/hooks/useAchievements';
 import { type DiaryEntry, getEntries } from '@/shared/lib/api';
 import { calculateUserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
+import { AchievementBadge3D } from './AchievementBadge3D';
+import { AchievementCategory } from './AchievementCategory';
+import { AchievementDetailsModal } from './AchievementDetailsModal';
 
 // Маппинг иконок для достижений
 const iconMap: Record<string, any> = {
-	Star,
-	Flame,
-	Dumbbell,
-	BookOpen,
-	Trophy,
-	Target,
-	Camera,
-	Heart,
-	Zap,
+	// Основные достижения
+	Star, // Общие достижения
+	Trophy, // Победы и награды
+	Medal, // Медали
+	Award, // Награды
+	Crown, // Легендарные
+	Target, // Цели
+
+	// Постоянство
+	Flame, // Стрики
+	Calendar, // Дни подряд
+	TrendingUp, // Прогресс
+
+	// Категории
+	Home, // Семья
+	Dumbbell, // Здоровье
+	BookOpen, // Работа/Обучение
+	Heart, // Благодарность
+	Lightbulb, // Идеи
+
+	// Особые
+	Rocket, // Рост
+	Sparkles, // Особые моменты
+	Gift, // Подарки/Бонусы
+	Users, // Социальные
+	Camera, // Воспоминания
+	Zap, // Энергия/Быстрые
 };
 
 export function AchievementsScreen({ userData }: { userData?: any }) {
@@ -48,6 +77,9 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		level: 1,
 		nextLevelProgress: 0,
 	});
+	const [selectedAchievement, setSelectedAchievement] = useState<any | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [activeTab, setActiveTab] = useState<'all' | 'earned'>('all');
 
 	// ✅ NEW: Используем hook для загрузки достижений из БД
 	const {
@@ -55,7 +87,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		isLoading: isLoadingAchievements,
 		error: achievementsError,
 		earnedCount,
-	} = useAchievements(userData?.id);
+	} = useAchievements(userData?.user?.id);
 
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
 	const loadData = useCallback(async () => {
@@ -94,6 +126,62 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		loadData();
 	}, [loadData]);
 
+	// ✅ NEW: Объединенный loading state
+	const isLoading = isLoadingEntries || isLoadingAchievements;
+
+	// ✅ NEW: Преобразовать достижения из БД в формат для UI с мемоизацией
+	const badges = useMemo(
+		() =>
+			achievements.map((achievement) => {
+				// ✅ SAFETY: Ensure icon is always a valid component
+				const IconComponent = iconMap[achievement.icon];
+
+				return {
+					id: achievement.id,
+					name: achievement.name,
+					description: achievement.description,
+					icon: IconComponent || Star, // Fallback to Star if icon not found
+					earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
+					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
+					earnedDate: achievement.earnedAt
+						? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
+						: null, // ✅ NEW: форматируем дату
+					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
+				};
+			}),
+		[achievements]
+	);
+
+	// ✅ NEW: Фильтрация по табам
+	const filteredBadges = useMemo(() => {
+		if (activeTab === 'earned') {
+			return badges.filter((b) => b.earned);
+		}
+		return badges;
+	}, [badges, activeTab]);
+
+	// ✅ NEW: Категоризация достижений
+	const categorizedAchievements = useMemo(() => {
+		const milestones = filteredBadges.filter(
+			(b) => b.name.includes('записей') || b.name.includes('побед') || b.name.includes('Первые')
+		);
+		const streaks = filteredBadges.filter(
+			(b) => b.name.includes('подряд') || b.name.includes('силы')
+		);
+		const categories = filteredBadges.filter(
+			(b) =>
+				b.name.includes('Семья') ||
+				b.name.includes('Здоровье') ||
+				b.name.includes('Работа') ||
+				b.name.includes('Благодарность')
+		);
+		const special = filteredBadges.filter(
+			(b) => !milestones.includes(b) && !streaks.includes(b) && !categories.includes(b)
+		);
+
+		return { milestones, streaks, categories, special };
+	}, [filteredBadges]);
+
 	// ✅ EARLY RETURN AFTER ALL HOOKS: Check t function availability
 	if (!t) {
 		console.error('[AchievementsScreen] Translation function not available');
@@ -109,78 +197,6 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		console.error('[AchievementsScreen] Achievements error:', achievementsError);
 		toast.error('Не удалось загрузить достижения');
 	}
-
-	// ✅ NEW: Объединенный loading state
-	const isLoading = isLoadingEntries || isLoadingAchievements;
-
-	// ✅ NEW: Преобразовать достижения из БД в формат для UI
-	const badges = achievements.map((achievement) => {
-		// ✅ SAFETY: Ensure icon is always a valid component
-		const IconComponent = iconMap[achievement.icon];
-
-		return {
-			id: achievement.id,
-			name: achievement.name,
-			description: achievement.description,
-			icon: IconComponent || Star, // Fallback to Star if icon not found
-			earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
-			rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
-			earnedDate: achievement.earnedAt
-				? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
-				: null, // ✅ NEW: форматируем дату
-			progress: achievement.progress, // ✅ NEW: прогресс 0-100 из БД
-		};
-	});
-
-	const milestones = [
-		{
-			id: 1,
-			title: t('milestone_10_entries', '10 записей'),
-			completed: userStats.totalEntries >= 10,
-			reward: t('badge_beginner', 'Бейдж "Начинающий"'),
-		},
-		{
-			id: 2,
-			title: t('milestone_week_streak', 'Неделя подряд'),
-			completed: userStats.currentStreak >= 7,
-			reward: t('badge_consistency', 'Бейдж "Постоянство"'),
-		},
-		{
-			id: 3,
-			title: t('milestone_50_entries', '50 записей'),
-			completed: userStats.totalEntries >= 50,
-			progress: userStats.totalEntries,
-			total: 50,
-			reward: t('premium_theme', 'Премиум тема'),
-		},
-		{
-			id: 4,
-			title: t('milestone_month_streak', 'Месяц подряд'),
-			completed: userStats.longestStreak >= 30,
-			progress: userStats.longestStreak,
-			total: 30,
-			reward: t('badge_legend', 'Бейдж "Легенда"'),
-		},
-	];
-
-	// Helper functions for rarity styling (currently unused but kept for future use)
-	// const getRarityColor = (rarity: string) => {
-	//   switch (rarity) {
-	//     case "common": return "bg-muted text-foreground border-border";
-	//     case "uncommon": return "bg-(--ios-green)/10 text-(--ios-green) border-(--ios-green)/20";
-	//     case "rare": return "bg-(--ios-blue)/10 text-(--ios-blue) border-(--ios-blue)/20";
-	//     case "legendary": return "bg-(--ios-purple)/10 text-(--ios-purple) border-(--ios-purple)/20";
-	//     default: return "bg-muted text-foreground border-border";
-	//   }
-	// };
-
-	// const getRarityGlow = (rarity: string) => {
-	//   switch (rarity) {
-	//     case "rare": return "shadow-[var(--ios-blue)]/20";
-	//     case "legendary": return "shadow-[var(--ios-purple)]/20";
-	//     default: return "";
-	//   }
-	// };
 
 	if (isLoading) {
 		return (
@@ -247,8 +263,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 			{/* Header Section */}
 			<div className="bg-card p-4 transition-colors duration-300">
 				<div className="mb-6 text-center">
-					<div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/80 shadow-lg">
-						<Crown className="h-10 w-10 text-primary-foreground" />
+					<div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-muted shadow-lg transition-colors duration-300">
+						<Crown className="h-10 w-10 text-foreground transition-colors duration-300" />
 					</div>
 					<h1 className="mb-1 font-semibold text-2xl text-foreground">
 						{t('level', 'Уровень')} {userStats.level}
@@ -285,7 +301,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
 				<div className="space-y-2">
 					<div className="flex justify-between text-muted-foreground text-sm">
-						<span>До следующего уровня</span>
+						<span>До уровня {userStats.level + 1}</span>
 						<span>{userStats.nextLevelProgress}%</span>
 					</div>
 					<div className="h-2 w-full rounded-full bg-muted">
@@ -297,145 +313,117 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 				</div>
 			</div>
 
-			{/* Badges Grid */}
-			<div className="p-4">
-				<div className="grid grid-cols-2 gap-4">
-					{badges.map((badge) => {
-						// ✅ SAFETY: Ensure Icon component exists before rendering
-						const Icon = badge.icon || Star;
+			{/* Tabs */}
+			<div className="border-border border-b bg-card px-4 transition-colors duration-300">
+				<div className="flex gap-4">
+					<button
+						type="button"
+						className={`relative pb-3 pt-4 font-medium text-sm transition-colors duration-200 ${
+							activeTab === 'all'
+								? 'text-foreground'
+								: 'text-muted-foreground hover:text-foreground'
+						}`}
+						onClick={() => setActiveTab('all')}
+					>
+						Все
+						{activeTab === 'all' && (
+							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+						)}
+					</button>
+					<button
+						type="button"
+						className={`relative pb-3 pt-4 font-medium text-sm transition-colors duration-200 ${
+							activeTab === 'earned'
+								? 'text-foreground'
+								: 'text-muted-foreground hover:text-foreground'
+						}`}
+						onClick={() => setActiveTab('earned')}
+					>
+						Полученные ({earnedCount})
+						{activeTab === 'earned' && (
+							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+						)}
+					</button>
+				</div>
+			</div>
 
-						return (
-							<Card
-								className={`cursor-pointer border-0 bg-card shadow-sm transition-all hover:shadow-md ${
-									badge.earned ? '' : 'opacity-60'
-								}`}
+			{/* Categorized Achievements */}
+			<div className="space-y-6">
+				{/* Milestones */}
+				{categorizedAchievements.milestones.length > 0 && (
+					<AchievementCategory title="Основные этапы" icon="🎯" delay={0}>
+						{categorizedAchievements.milestones.map((badge, index) => (
+							<AchievementBadge3D
 								key={badge.id}
-								style={{ minHeight: '180px' }}
-							>
-								<CardContent className="p-4 text-center" style={{ minHeight: '164px' }}>
-									<div className="relative mb-3">
-										<div
-											className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
-												badge.earned
-													? badge.rarity === 'legendary'
-														? 'bg-linear-to-br from-purple-400 to-purple-600'
-														: badge.rarity === 'epic'
-															? 'bg-linear-to-br from-orange-400 to-orange-600'
-															: badge.rarity === 'rare'
-																? 'bg-linear-to-br from-blue-400 to-blue-600'
-																: 'bg-linear-to-br from-gray-400 to-gray-600'
-													: 'bg-muted'
-											}`}
-										>
-											{Icon && (
-												<Icon
-													className={`h-8 w-8 ${badge.earned ? 'text-white' : 'text-muted-foreground'}`}
-												/>
-											)}
-										</div>
-										{badge.earned && (
-											<div className="-top-2 -right-2 absolute">
-												<div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500">
-													<Star className="h-3 w-3 fill-white text-white" />
-												</div>
-											</div>
-										)}
-									</div>
+								{...badge}
+								index={index}
+								onClick={() => {
+									setSelectedAchievement(badge);
+									setIsModalOpen(true);
+								}}
+							/>
+						))}
+					</AchievementCategory>
+				)}
 
-									<h4 className="mb-1 text-[#0d062d]">{badge.name}</h4>
-									<p className="mb-2 text-[#787486] text-xs">{badge.description}</p>
+				{/* Streaks */}
+				{categorizedAchievements.streaks.length > 0 && (
+					<AchievementCategory title="Постоянство" icon="🔥" delay={0.1}>
+						{categorizedAchievements.streaks.map((badge, index) => (
+							<AchievementBadge3D
+								key={badge.id}
+								{...badge}
+								index={index}
+								onClick={() => {
+									setSelectedAchievement(badge);
+									setIsModalOpen(true);
+								}}
+							/>
+						))}
+					</AchievementCategory>
+				)}
 
-									{badge.earned ? (
-										<Badge
-											className={`text-xs ${
-												badge.rarity === 'legendary'
-													? 'bg-purple-100 text-purple-600'
-													: badge.rarity === 'epic'
-														? 'bg-orange-100 text-orange-600'
-														: badge.rarity === 'rare'
-															? 'bg-blue-100 text-blue-600'
-															: 'bg-muted text-muted-foreground'
-											}`}
-										>
-											{badge.earnedDate}
-										</Badge>
-									) : (
-										<div className="space-y-1">
-											<div className="h-2 w-full rounded-full bg-muted">
-												<div
-													className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
-													style={{
-														width: `${Math.min(badge.progress || 0, 100)}%`,
-													}}
-												/>
-											</div>
-											<p className="text-[#787486] text-xs">{badge.progress || 0}%</p>
-										</div>
-									)}
-								</CardContent>
-							</Card>
-						);
-					})}
-				</div>
+				{/* Categories */}
+				{categorizedAchievements.categories.length > 0 && (
+					<AchievementCategory title="Категории" icon="📚" delay={0.2}>
+						{categorizedAchievements.categories.map((badge, index) => (
+							<AchievementBadge3D
+								key={badge.id}
+								{...badge}
+								index={index}
+								onClick={() => {
+									setSelectedAchievement(badge);
+									setIsModalOpen(true);
+								}}
+							/>
+						))}
+					</AchievementCategory>
+				)}
+
+				{/* Special */}
+				{categorizedAchievements.special.length > 0 && (
+					<AchievementCategory title="Особые" icon="⭐" delay={0.3}>
+						{categorizedAchievements.special.map((badge, index) => (
+							<AchievementBadge3D
+								key={badge.id}
+								{...badge}
+								index={index}
+								onClick={() => {
+									setSelectedAchievement(badge);
+									setIsModalOpen(true);
+								}}
+							/>
+						))}
+					</AchievementCategory>
+				)}
 			</div>
 
-			{/* Milestones Section */}
-			<div className="p-4">
-				<h3 className="mb-4 text-[#0d062d]">Основные этапы</h3>
-				<div className="space-y-3">
-					{milestones.map((milestone) => (
-						<Card
-							className="border-0 bg-card shadow-sm transition-colors duration-300"
-							key={milestone.id}
-						>
-							<CardContent className="p-4">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										<div
-											className={`flex h-10 w-10 items-center justify-center rounded-full ${
-												milestone.completed
-													? 'bg-green-100 text-green-600'
-													: 'bg-[#5030e5]/10 text-[#5030e5]'
-											}`}
-										>
-											{milestone.completed ? (
-												<Trophy className="h-5 w-5" strokeWidth={2} />
-											) : (
-												<Target className="h-5 w-5" strokeWidth={2} />
-											)}
-										</div>
-										<div>
-											<h4 className="text-[#0d062d]">{milestone.title}</h4>
-											<p className="text-[#787486] text-sm">{milestone.reward}</p>
-										</div>
-									</div>
-
-									{milestone.completed ? (
-										<Badge className="bg-green-100 text-green-600">Выполнено</Badge>
-									) : (
-										<div className="text-right">
-											<p className="mb-1 text-[#787486] text-sm">
-												{/* ✅ FIX: Clamp progress to total to prevent overflow display (30/20) */}
-												{Math.min(Math.round(milestone.progress || 0), milestone.total || 0)}/
-												{milestone.total}
-											</p>
-											{/* ✅ FIX: Added max-w-full and overflow-hidden to prevent progress bar overflow */}
-											<div className="h-2 w-20 max-w-full overflow-hidden rounded-full bg-muted">
-												<div
-													className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
-													style={{
-														width: `${Math.min(((milestone.progress || 0) / (milestone.total || 1)) * 100, 100)}%`,
-													}}
-												/>
-											</div>
-										</div>
-									)}
-								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			</div>
+			{/* Achievement Details Modal */}
+			<AchievementDetailsModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				achievement={selectedAchievement}
+			/>
 		</div>
 	);
 }

@@ -198,7 +198,8 @@ export function calculateUserStats(entries: DiaryEntry[]): UserStats {
 	// Вычислить уровень (1 запись = 10 XP, уровень каждые 100 XP)
 	const totalXP = entries.length * 10;
 	const level = Math.floor(totalXP / 100) + 1;
-	const nextLevelProgress = totalXP % 100;
+	const xpInCurrentLevel = totalXP % 100; // XP в текущем уровне (0-99)
+	const nextLevelProgress = Math.round(xpInCurrentLevel); // Прогресс 0-99% (уже в процентах)
 
 	// Записи за эту неделю
 	const thisWeekEntries = entries.filter(

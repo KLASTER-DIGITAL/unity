@@ -1,4 +1,8 @@
+import confetti from 'canvas-confetti';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { haptics } from '@/shared/lib/platform/haptics';
+import { soundAdapter } from '@/shared/lib/platform/sound';
 import { createClient } from '@/utils/supabase/client';
 
 /**
@@ -89,6 +93,71 @@ export function useAchievements(userId: string | undefined): UseAchievementsResu
 	useEffect(() => {
 		fetchAchievements();
 	}, [fetchAchievements]);
+
+	// ✅ NEW: Real-time подписка на изменения достижений
+	useEffect(() => {
+		if (!userId) return;
+
+		console.log('[useAchievements] 🔔 Setting up real-time subscription for user:', userId);
+
+		// Подписка на изменения в user_achievements
+		const channel = supabase
+			.channel(`achievements:${userId}`)
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'user_achievements',
+					filter: `user_id=eq.${userId}`,
+				},
+				(payload) => {
+					console.log('[useAchievements] 🔔 Real-time update:', payload);
+
+					// Если достижение получено (INSERT или UPDATE с earned_at)
+					if (
+						payload.eventType === 'INSERT' ||
+						(payload.eventType === 'UPDATE' && payload.new.earned_at)
+					) {
+						const newAchievement = payload.new;
+
+						// ✅ NEW: Haptic feedback (вибрация на мобильных)
+						haptics
+							.trigger('success')
+							.catch((err) => console.error('[useAchievements] Haptic error:', err));
+
+						// ✅ NEW: Воспроизводим звук
+						soundAdapter
+							.play('/sounds/achievement.mp3', { volume: 0.5 })
+							.catch((err) => console.error('[useAchievements] Sound error:', err));
+
+						// Показываем toast notification
+						toast.success('🎉 Новое достижение!', {
+							description: `Вы получили: ${newAchievement.achievement_id}`,
+							duration: 5000,
+						});
+
+						// Запускаем confetti
+						confetti({
+							particleCount: 100,
+							spread: 70,
+							origin: { y: 0.6 },
+							colors: ['#FFD700', '#FFA500', '#FF6347'],
+						});
+
+						// Обновляем список достижений
+						fetchAchievements();
+					}
+				}
+			)
+			.subscribe();
+
+		// Cleanup при unmount
+		return () => {
+			console.log('[useAchievements] 🔕 Unsubscribing from real-time updates');
+			supabase.removeChannel(channel);
+		};
+	}, [userId, supabase, fetchAchievements]);
 
 	// Подсчет заработанных достижений
 	const earnedCount = achievements.filter((a) => a.isEarned).length;
