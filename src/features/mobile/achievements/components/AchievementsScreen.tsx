@@ -15,12 +15,9 @@ import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useAchievements } from '@/shared/hooks/useAchievements';
 import { type DiaryEntry, getEntries } from '@/shared/lib/api';
-import {
-	type Achievement,
-	calculateAchievements,
-	calculateUserStats,
-} from '@/shared/lib/api/statsCalculator';
+import { calculateUserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
 
 // Маппинг иконок для достижений
@@ -41,9 +38,8 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 	const { t } = useTranslation();
 
 	// ✅ HOOKS FIRST: All hooks must be called before any early returns
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoadingEntries, setIsLoadingEntries] = useState(true);
 	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
-	const [achievements, setAchievements] = useState<Achievement[]>([]);
 	const [userStats, setUserStats] = useState({
 		totalEntries: 0,
 		currentStreak: 0,
@@ -53,21 +49,25 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		nextLevelProgress: 0,
 	});
 
+	// ✅ NEW: Используем hook для загрузки достижений из БД
+	const {
+		achievements,
+		isLoading: isLoadingAchievements,
+		error: achievementsError,
+		earnedCount,
+	} = useAchievements(userData?.id);
+
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
 	const loadData = useCallback(async () => {
 		try {
-			setIsLoading(true);
+			setIsLoadingEntries(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
 			const userId = userData?.user?.id || userData?.id || 'anonymous';
-			console.log('[ACHIEVEMENTS] Loading data for user:', userId);
+			console.log('[AchievementsScreen] Loading entries for user:', userId);
 			const entriesData = await getEntries(userId, 100);
 
-			console.log('Loaded entries for achievements:', entriesData);
+			console.log('[AchievementsScreen] Loaded entries:', entriesData.length);
 			setEntries(entriesData);
-
-			// Вычислить достижения
-			const calculatedAchievements = calculateAchievements(entriesData);
-			setAchievements(calculatedAchievements);
 
 			// Вычислить статистику
 			const stats = calculateUserStats(entriesData);
@@ -75,20 +75,19 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 				totalEntries: stats.totalEntries,
 				currentStreak: stats.currentStreak,
 				longestStreak: stats.longestStreak,
-				totalBadges: calculatedAchievements.filter((a) => a.earned).length,
+				totalBadges: earnedCount, // ✅ NEW: Используем earnedCount из useAchievements
 				level: stats.level,
 				nextLevelProgress: stats.nextLevelProgress,
 			});
 
-			console.log('Calculated achievements:', calculatedAchievements);
-			console.log('User stats:', stats);
+			console.log('[AchievementsScreen] User stats:', stats);
 		} catch (error) {
-			console.error('Error loading data:', error);
-			toast.error('Не удалось загрузить достижения');
+			console.error('[AchievementsScreen] Error loading data:', error);
+			toast.error('Не удалось загрузить данные');
 		} finally {
-			setIsLoading(false);
+			setIsLoadingEntries(false);
 		}
-	}, [userData]); // ✅ FIX: Удалили userStats из dependencies для предотвращения бесконечного цикла
+	}, [userData, earnedCount]); // ✅ FIX: Добавили earnedCount в dependencies
 
 	// ✅ FIX: useEffect AFTER function definition
 	useEffect(() => {
@@ -97,7 +96,7 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 
 	// ✅ EARLY RETURN AFTER ALL HOOKS: Check t function availability
 	if (!t) {
-		console.error('[ACHIEVEMENTS] Translation function not available');
+		console.error('[AchievementsScreen] Translation function not available');
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background pb-20">
 				<p className="text-foreground">Loading translations...</p>
@@ -105,7 +104,16 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 		);
 	}
 
-	// Преобразовать достижения в формат для UI
+	// ✅ NEW: Показываем ошибку если не удалось загрузить достижения
+	if (achievementsError) {
+		console.error('[AchievementsScreen] Achievements error:', achievementsError);
+		toast.error('Не удалось загрузить достижения');
+	}
+
+	// ✅ NEW: Объединенный loading state
+	const isLoading = isLoadingEntries || isLoadingAchievements;
+
+	// ✅ NEW: Преобразовать достижения из БД в формат для UI
 	const badges = achievements.map((achievement) => {
 		// ✅ SAFETY: Ensure icon is always a valid component
 		const IconComponent = iconMap[achievement.icon];
@@ -115,10 +123,12 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 			name: achievement.name,
 			description: achievement.description,
 			icon: IconComponent || Star, // Fallback to Star if icon not found
-			earned: achievement.earned,
-			rarity: achievement.rarity,
-			earnedDate: achievement.earnedDate,
-			progress: achievement.progress,
+			earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
+			rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
+			earnedDate: achievement.earnedAt
+				? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
+				: null, // ✅ NEW: форматируем дату
+			progress: achievement.progress, // ✅ NEW: прогресс 0-100 из БД
 		};
 	});
 
@@ -309,10 +319,10 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 												badge.earned
 													? badge.rarity === 'legendary'
 														? 'bg-linear-to-br from-purple-400 to-purple-600'
-														: badge.rarity === 'rare'
-															? 'bg-linear-to-br from-blue-400 to-blue-600'
-															: badge.rarity === 'uncommon'
-																? 'bg-linear-to-br from-green-400 to-green-600'
+														: badge.rarity === 'epic'
+															? 'bg-linear-to-br from-orange-400 to-orange-600'
+															: badge.rarity === 'rare'
+																? 'bg-linear-to-br from-blue-400 to-blue-600'
 																: 'bg-linear-to-br from-gray-400 to-gray-600'
 													: 'bg-muted'
 											}`}
@@ -340,10 +350,10 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 											className={`text-xs ${
 												badge.rarity === 'legendary'
 													? 'bg-purple-100 text-purple-600'
-													: badge.rarity === 'rare'
-														? 'bg-blue-100 text-blue-600'
-														: badge.rarity === 'uncommon'
-															? 'bg-green-100 text-green-600'
+													: badge.rarity === 'epic'
+														? 'bg-orange-100 text-orange-600'
+														: badge.rarity === 'rare'
+															? 'bg-blue-100 text-blue-600'
 															: 'bg-muted text-muted-foreground'
 											}`}
 										>
@@ -355,18 +365,11 @@ export function AchievementsScreen({ userData }: { userData?: any }) {
 												<div
 													className="h-2 rounded-full bg-[#5030e5] transition-all duration-300"
 													style={{
-														width: `${Math.min(((badge.progress || 0) / (badge.rarity === 'legendary' ? 30 : 20)) * 100, 100)}%`,
+														width: `${Math.min(badge.progress || 0, 100)}%`,
 													}}
 												/>
 											</div>
-											<p className="text-[#787486] text-xs">
-												{/* ✅ FIX: Clamp progress to target to prevent overflow display (30/20) */}
-												{Math.min(
-													Math.round(badge.progress || 0),
-													badge.rarity === 'legendary' ? 30 : 20
-												)}
-												/{badge.rarity === 'legendary' ? 30 : 20}
-											</p>
+											<p className="text-[#787486] text-xs">{badge.progress || 0}%</p>
 										</div>
 									)}
 								</CardContent>

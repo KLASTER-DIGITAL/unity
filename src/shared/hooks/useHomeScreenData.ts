@@ -15,8 +15,11 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getHomeScreenData, type HomeScreenData } from '@/shared/lib/api';
-import { invalidateCache } from '@/shared/lib/api/services/homeScreen';
+import {
+	getHomeScreenData,
+	type HomeScreenData,
+	invalidateHomeScreenCache,
+} from '@/shared/lib/api';
 import { createClient } from '@/utils/supabase/client';
 
 interface UseHomeScreenDataResult {
@@ -124,7 +127,7 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 					console.log('[useHomeScreenData] 🔔 New entry created, reloading data:', payload);
 
 					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
-					invalidateCache(userId);
+					invalidateHomeScreenCache(userId);
 
 					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
 					// Это предотвращает показ skeleton, старые данные остаются на экране
@@ -151,7 +154,7 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 					);
 
 					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
-					invalidateCache(userId);
+					invalidateHomeScreenCache(userId);
 
 					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
 					if (fetchDataRef.current) {
@@ -177,7 +180,7 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 					);
 
 					// ✅ КРИТИЧНО: Инвалидируем кэш ПЕРЕД перезагрузкой
-					invalidateCache(userId);
+					invalidateHomeScreenCache(userId);
 
 					// ✅ КРИТИЧНО: Перезагружаем данные в ФОНОВОМ режиме (silent=true)
 					if (fetchDataRef.current) {
