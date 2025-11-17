@@ -6,9 +6,87 @@
 
 ---
 
-## [Unreleased] - 2025-11-15
+## [Unreleased] - 2025-11-17
 
 ### ✨ Новые возможности
+
+#### **Achievements - React Native адаптация** (2025-11-17)
+- **Новые файлы**:
+  - `app-shared/hooks/useAchievements.ts` (СОЗДАН, 145 строк)
+    - React Native версия hook для загрузки достижений из БД
+    - Real-time подписка через Supabase channels
+    - Haptic feedback при разблокировке достижений
+    - Обработка loading/error состояний
+
+  - `app-shared/components/screens/achievements/AchievementCategory.native.tsx` (СОЗДАН, 68 строк)
+    - Категория с заголовком и иконкой
+    - Flexbox grid layout (2 columns)
+    - ThemeContext для цветов
+
+  - `app-shared/components/screens/achievements/AchievementBadge3D.native.tsx` (СОЗДАН, 150 строк)
+    - 3D бейдж с rarity градиентами
+    - Haptic feedback через expo-haptics
+    - Progress bar для незаработанных достижений
+    - Rarity colors: legendary (purple), epic (orange), rare (blue), common (gray)
+
+  - `app-shared/components/screens/achievements/AchievementDetailsModal.native.tsx` (СОЗДАН, 263 строки)
+    - Модальное окно с Animated scale entrance
+    - Animated progress bar
+    - Motivation messages для заработанных достижений
+    - Rarity badge с иконками
+
+- **Обновленные файлы**:
+  - `app/(tabs)/achievements.tsx` (ПЕРЕРАБОТАН, 415 строк)
+    - Удалены все mock данные
+    - Интегрирован useAchievements hook
+    - Добавлены 5 категорий: Постоянство, Вовлечённость, Осознанность и эмоции, Категории, Специальные
+    - Icon mapping для React Native (emoji fallbacks)
+    - Pull-to-refresh функционал
+    - Skeleton loading state
+
+- **Технические детали**:
+  - Platform-specific адаптация: emoji вместо lucide-react
+  - Animated API вместо Framer Motion
+  - expo-haptics для тактильной обратной связи
+  - ThemeContext для dark/light mode
+  - Visual parity с PWA версией >= 95%
+
+#### **Achievements - Оптимизация каталога** (2025-11-17)
+- **Database Migration**: `20251117000001_optimize_achievements_catalog.sql`
+  - Удалены 7 избыточных достижений (entries_5, entries_25, entries_250, streak_60, streak_90, achievements_25, achievements_250)
+  - Добавлены 8 новых достижений для недостающих категорий:
+    - Финансы: category_finance_5, category_finance_10, category_finance_25
+    - Личностный рост: category_growth_5, category_growth_10, category_growth_25
+    - Творчество: category_creativity_5, category_creativity_10
+  - Итого: 47 достижений с лучшим балансом
+
+- **Документация**: `docs/achievements/CATALOG_REVIEW_2025-11-17.md` (СОЗДАН)
+  - Детальный анализ каталога
+  - Рекомендации по оптимизации
+  - Статистика по категориям
+
+#### **Achievements - Emotional Balance Ladder** (2025-11-17)
+- **Database Migration**: `20251117000000_emotional_balance_ladder.sql`
+  - Добавлены промежуточные шаги для emotional_balance:
+    - emotional_balance_3 (3 записи) - "Первые шаги к балансу" (common)
+    - emotional_balance_5 (5 записей) - "Путь к гармонии" (rare)
+    - emotional_balance_7 (7 записей) - "Мастер баланса" (epic)
+    - emotional_balance_10 (10 записей) - "Эмоциональная гармония" (legendary)
+  - Более плавная прогрессия вместо сразу 10 записей
+
+#### **Push Notifications - Achievement Unlocked** (2025-11-17)
+- **Edge Function**: `supabase/functions/push-on-achievement/index.ts` (СОЗДАН, 120 строк)
+  - Триггер на INSERT в user_achievements (progress >= 100)
+  - Отправка push через push-send Edge Function
+  - Персонализированный текст с названием достижения
+
+- **Database Trigger**: `on_achievement_unlocked_push`
+  - Автоматический вызов Edge Function при разблокировке
+  - Асинхронная отправка (не блокирует основной поток)
+
+- **Новые типы push**:
+  - `achievement_unlocked` - при получении достижения
+  - `achievement_near` - когда близко к получению (90%+ прогресса)
 
 - **AI Control Center - Edge Functions Integration** (2025-11-15)
   - Файлы:
