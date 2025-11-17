@@ -18,7 +18,10 @@ SELECT cron.schedule(
   SELECT
     net.http_post(
       url := 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/stats-aggregator',
-      headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer ' || get_service_role_key()
+      ),
       body := '{"scope": "daily"}'::jsonb
     ) as request_id;
   $$
