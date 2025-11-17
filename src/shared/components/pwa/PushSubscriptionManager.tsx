@@ -66,23 +66,72 @@ export function PushSubscriptionManager({
 
 	/**
 	 * Проверяет текущую подписку
+	 * ✅ FIX: Проверяем подписку в БД, а не только в Service Worker
 	 */
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
 	const checkSubscription = useCallback(async () => {
-		const subscribed = await isPushSubscribed();
-		setIsSubscribed(subscribed);
-		onSubscriptionChange?.(subscribed);
+		try {
+			// 1. Проверяем локальную подписку в Service Worker
+			const localSubscribed = await isPushSubscribed();
 
-		// Get current endpoint for device list
-		if (subscribed) {
-			const subscription = await getPushSubscription();
-			if (subscription) {
-				setCurrentEndpoint(subscription.endpoint);
+			if (!localSubscribed) {
+				// Нет локальной подписки → точно не подписан
+				setIsSubscribed(false);
+				setCurrentEndpoint(null);
+				onSubscriptionChange?.(false);
+				return;
 			}
-		} else {
+
+			// 2. Получаем endpoint из Service Worker
+			const subscription = await getPushSubscription();
+			if (!subscription) {
+				setIsSubscribed(false);
+				setCurrentEndpoint(null);
+				onSubscriptionChange?.(false);
+				return;
+			}
+
+			// 3. Проверяем есть ли подписка в БД
+			const { createClient } = await import('@/utils/supabase/client');
+			const supabase = createClient();
+
+			const { data, error } = await supabase
+				.from('push_subscriptions')
+				.select('endpoint, is_active')
+				.eq('user_id', userId)
+				.eq('endpoint', subscription.endpoint)
+				.eq('is_active', true)
+				.maybeSingle();
+
+			if (error) {
+				console.error('[PushSubscriptionManager] Error checking subscription in DB:', error);
+				// Если ошибка БД, считаем что подписка есть (локально точно есть)
+				setIsSubscribed(true);
+				setCurrentEndpoint(subscription.endpoint);
+				onSubscriptionChange?.(true);
+				return;
+			}
+
+			// 4. Подписка есть в БД и активна
+			const isActiveInDB = !!data;
+			setIsSubscribed(isActiveInDB);
+			setCurrentEndpoint(isActiveInDB ? subscription.endpoint : null);
+			onSubscriptionChange?.(isActiveInDB);
+
+			// 5. Если локально есть, но в БД нет → удаляем локальную подписку
+			if (!isActiveInDB) {
+				console.warn(
+					'[PushSubscriptionManager] Local subscription exists but not in DB, unsubscribing...'
+				);
+				await unsubscribeFromPush(userId);
+			}
+		} catch (error) {
+			console.error('[PushSubscriptionManager] Error checking subscription:', error);
+			setIsSubscribed(false);
 			setCurrentEndpoint(null);
+			onSubscriptionChange?.(false);
 		}
-	}, [onSubscriptionChange]);
+	}, [userId, onSubscriptionChange]);
 
 	// ✅ FIX: useEffect AFTER function definitions
 	useEffect(() => {

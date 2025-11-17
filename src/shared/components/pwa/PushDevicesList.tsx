@@ -14,6 +14,7 @@ type DeviceSubscription = {
 	endpoint: string;
 	browser_info: {
 		browser: string;
+		version?: string;
 		os: string;
 		deviceType: 'desktop' | 'mobile' | 'tablet';
 		isMobile?: boolean;
@@ -99,9 +100,11 @@ export function PushDevicesList({
 	};
 
 	const getDeviceName = (device: DeviceSubscription) => {
-		const { browser, os, deviceType } = device.browser_info;
+		const { browser, version, os, deviceType } = device.browser_info;
 		const type = deviceType === 'mobile' ? 'Mobile' : deviceType === 'tablet' ? 'Tablet' : 'PC';
-		return `${os} ${browser} (${type})`;
+		const browserName = browser || 'Unknown';
+		const browserVersion = version ? ` ${version}` : '';
+		return `${os} ${browserName}${browserVersion} (${type})`;
 	};
 
 	const getTimeAgo = (dateString: string) => {

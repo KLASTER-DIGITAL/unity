@@ -223,12 +223,16 @@ async function saveSubscriptionToDatabase(
 			throw new Error('Invalid subscription data');
 		}
 
+		// Определяем тип устройства
+		const deviceType = browserInfo.isMobile ? 'mobile' : 'desktop';
+
 		console.log('[Push Adapter] 💾 Saving subscription to database...', {
 			userId,
-			endpoint: subscription.endpoint.substring(0, 50) + '...',
-			browser: browserInfo.browser,
+			endpoint: `${subscription.endpoint.substring(0, 50)}...`,
+			browser: browserInfo.name,
+			version: browserInfo.version,
 			os: browserInfo.os,
-			deviceType: browserInfo.deviceType,
+			deviceType,
 		});
 
 		// ✅ MULTI-DEVICE SUPPORT: Use UPSERT instead of DELETE+INSERT
@@ -243,9 +247,10 @@ async function saveSubscriptionToDatabase(
 				auth: subscription.keys.auth,
 				user_agent: navigator.userAgent,
 				browser_info: {
-					browser: browserInfo.browser,
+					browser: browserInfo.name, // ✅ FIX: Use 'name' not 'browser'
+					version: browserInfo.version,
 					os: browserInfo.os,
-					deviceType: browserInfo.deviceType,
+					deviceType,
 				},
 				is_active: true,
 				last_used_at: new Date().toISOString(),
