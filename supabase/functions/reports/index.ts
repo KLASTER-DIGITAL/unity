@@ -336,8 +336,8 @@ Deno.serve(async (req) => {
 
 				await supabaseAdmin.from('openai_usage').insert({
 					user_id: user.id,
-					operation_type: period === 'weekly' ? 'weekly_report' : 'monthly_report',
-					model: config!.model,
+					operation_type: 'other',
+					model: config?.model ?? 'gpt-4o-mini',
 					prompt_tokens: promptTokens,
 					completion_tokens: completionTokens,
 					total_tokens: totalTokens,
