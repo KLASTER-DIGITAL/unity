@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PushNotificationSettingsModal } from '@/features/mobile/notifications';
 import { PlatformSpecificInstructions } from '@/shared/components/notifications/PlatformSpecificInstructions';
+import { PushDevicesList } from '@/shared/components/pwa/PushDevicesList';
 import {
 	trackPushDenied,
 	trackPushSubscribed,
@@ -23,6 +24,7 @@ import {
 } from '@/shared/lib/notifications/pushAdapter';
 import {
 	getNotificationPermission,
+	getPushSubscription,
 	initWebPush,
 	isPushSubscribed,
 	isPushSupported,
@@ -45,6 +47,8 @@ export function PushSubscriptionManager({
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const [showInstructions, setShowInstructions] = useState(false);
 	const [subscriptionError, setSubscriptionError] = useState<PushSubscriptionResult | null>(null);
+	const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
+	const [devicesKey, setDevicesKey] = useState(0); // For forcing re-render of devices list
 
 	/**
 	 * Проверяет поддержку Web Push API
@@ -68,6 +72,16 @@ export function PushSubscriptionManager({
 		const subscribed = await isPushSubscribed();
 		setIsSubscribed(subscribed);
 		onSubscriptionChange?.(subscribed);
+
+		// Get current endpoint for device list
+		if (subscribed) {
+			const subscription = await getPushSubscription();
+			if (subscription) {
+				setCurrentEndpoint(subscription.endpoint);
+			}
+		} else {
+			setCurrentEndpoint(null);
+		}
 	}, [onSubscriptionChange]);
 
 	// ✅ FIX: useEffect AFTER function definitions
@@ -98,6 +112,8 @@ export function PushSubscriptionManager({
 				console.log('[PushSubscriptionManager] Subscription successful:', result.subscription);
 				setIsSubscribed(true);
 				setPermission('granted');
+				setCurrentEndpoint(result.subscription.endpoint);
+				setDevicesKey((prev) => prev + 1); // Refresh devices list
 				trackPushSubscribed(userId);
 				onSubscriptionChange?.(true);
 				setShowSettingsModal(false);
@@ -242,10 +258,25 @@ export function PushSubscriptionManager({
 						onClick={handleUnsubscribe}
 						type="button"
 					>
-						{isLoading ? 'Отписка...' : '🔕 Отписаться'}
+						{isLoading ? 'Отписка...' : '🔕 Отписаться на этом устройстве'}
 					</button>
 				)}
 			</div>
+
+			{/* Multi-Device List */}
+			{isSubscribed && (
+				<div className="mt-4">
+					<PushDevicesList
+						key={devicesKey}
+						currentEndpoint={currentEndpoint}
+						onDeviceRemoved={() => {
+							setDevicesKey((prev) => prev + 1);
+							checkSubscription();
+						}}
+						userId={userId}
+					/>
+				</div>
+			)}
 
 			{/* Platform-Specific Instructions */}
 			{showInstructions && subscriptionError && (

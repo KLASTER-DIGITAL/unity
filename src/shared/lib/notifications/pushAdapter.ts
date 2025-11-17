@@ -215,23 +215,32 @@ async function saveSubscriptionToDatabase(
 	subscription: PushSubscription
 ): Promise<void> {
 	try {
-		const subscriptionJson = subscription.toJSON();
+		// ✅ FIX: Platform Adapter returns simplified object, not native PushSubscription
+		// No need to call .toJSON() - subscription is already a plain object
 		const browserInfo = getBrowserInfo();
 
-		if (
-			!subscriptionJson.endpoint ||
-			!subscriptionJson.keys?.p256dh ||
-			!subscriptionJson.keys?.auth
-		) {
+		if (!subscription.endpoint || !subscription.keys?.p256dh || !subscription.keys?.auth) {
 			throw new Error('Invalid subscription data');
 		}
 
+		console.log('[Push Adapter] 💾 Saving subscription to database...', {
+			userId,
+			endpoint: subscription.endpoint.substring(0, 50) + '...',
+			browser: browserInfo.browser,
+			os: browserInfo.os,
+			deviceType: browserInfo.deviceType,
+		});
+
+		// ✅ MULTI-DEVICE SUPPORT: Use UPSERT instead of DELETE+INSERT
+		// This allows multiple devices to be subscribed simultaneously
+		// If endpoint exists → updates the subscription
+		// If endpoint is new → creates new subscription
 		const { error } = await supabase.from('push_subscriptions').upsert(
 			{
 				user_id: userId,
-				endpoint: subscriptionJson.endpoint,
-				p256dh: subscriptionJson.keys.p256dh,
-				auth: subscriptionJson.keys.auth,
+				endpoint: subscription.endpoint,
+				p256dh: subscription.keys.p256dh,
+				auth: subscription.keys.auth,
 				user_agent: navigator.userAgent,
 				browser_info: {
 					browser: browserInfo.browser,
@@ -242,18 +251,19 @@ async function saveSubscriptionToDatabase(
 				last_used_at: new Date().toISOString(),
 			},
 			{
-				onConflict: 'endpoint',
+				onConflict: 'endpoint', // Use endpoint as unique key
+				ignoreDuplicates: false, // Update on conflict
 			}
 		);
 
 		if (error) {
-			console.error('[Push Adapter] Error saving subscription:', error);
+			console.error('[Push Adapter] ❌ Error saving subscription:', error);
 			throw error;
 		}
 
-		console.log('[Push Adapter] Subscription saved successfully');
+		console.log('[Push Adapter] ✅ Subscription saved successfully (multi-device)');
 	} catch (error) {
-		console.error('[Push Adapter] Error in saveSubscriptionToDatabase:', error);
+		console.error('[Push Adapter] ❌ Error in saveSubscriptionToDatabase:', error);
 		throw error;
 	}
 }

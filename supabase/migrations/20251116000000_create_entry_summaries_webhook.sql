@@ -9,22 +9,16 @@ CREATE EXTENSION IF NOT EXISTS http WITH SCHEMA extensions;
 CREATE OR REPLACE FUNCTION notify_ai_analysis_ready()
 RETURNS TRIGGER AS $$
 DECLARE
-  service_role_key TEXT;
+  service_role_key TEXT := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdXd1enFsd2Rra2RuY2FtcG5jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDA1ODY5NCwiZXhwIjoyMDc1NjM0Njk0fQ.Tzl9W5L7GrqZPxV2Hg7CKUvWSS7jPk4EeQGlapYOCDY';
   request_id INT;
 BEGIN
-  -- Get service role key from admin_settings
-  SELECT value INTO service_role_key
-  FROM admin_settings
-  WHERE key = 'supabase_service_role_key';
-
-  -- Call push-realtime-trigger Edge Function using pg_net
+  -- Call push-realtime-trigger Edge Function with correct payload format
   SELECT net.http_post(
     url := 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-realtime-trigger',
     body := jsonb_build_object(
-      'type', 'ai_analysis_ready',
-      'user_id', NEW.user_id,
-      'entry_id', NEW.entry_id,
-      'summary_id', NEW.id
+      'type', 'INSERT',
+      'table', 'entry_summaries',
+      'record', row_to_json(NEW)
     ),
     headers := jsonb_build_object(
       'Content-Type', 'application/json',

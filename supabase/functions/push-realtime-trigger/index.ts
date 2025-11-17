@@ -505,8 +505,32 @@ async function checkAndSendStreakMilestone(userId: string, currentStreak: number
 
 /**
  * Обрабатывает INSERT события для entries
+ *
+ * ❌ УДАЛЕНО: Push уведомление при создании записи
+ * Причина: Пользователь УЖЕ в приложении, он САМ создал запись
+ * UI показывает успех, push не нужен
+ *
+ * ✅ ОСТАВЛЕНО: Проверка streak milestones (3, 7, 14, 30, 60, 90, 100, 180, 365 дней)
  */
 async function handleEntryInsert(record: any) {
+	const userId = record.user_id;
+
+	// Рассчитываем текущий streak
+	const currentStreak = await calculateCurrentStreak(userId);
+	console.log(`[PUSH-REALTIME] Current streak for user ${userId}: ${currentStreak} days`);
+
+	// Проверяем и отправляем уведомление о streak milestone
+	// Это важное достижение, о котором стоит уведомить пользователя
+	await checkAndSendStreakMilestone(userId, currentStreak);
+}
+
+/**
+ * Обрабатывает INSERT события для achievements
+ *
+ * ✅ ДОБАВЛЕНО: Проверка notification_settings.achievements
+ * Отправляет push ТОЛЬКО если пользователь включил уведомления о достижениях
+ */
+async function handleAchievementInsert(record: any) {
 	const userId = record.user_id;
 
 	// Проверяем есть ли активные subscriptions
@@ -516,37 +540,15 @@ async function handleEntryInsert(record: any) {
 		return;
 	}
 
-	// Отправляем уведомление о создании записи
-	await sendPushNotification(
-		userId,
-		'✅ Запись сохранена!',
-		'Ваша запись успешно добавлена в дневник',
-		'/icon-192.png',
-		{
-			type: 'entry_created',
-			entry_id: record.id,
-			url: `/?view=history&entry=${record.id}`,
-		}
-	);
+	// ✅ НОВОЕ: Проверяем настройки уведомлений
+	const { data: profile } = await supabaseAdmin
+		.from('profiles')
+		.select('notification_settings')
+		.eq('id', userId)
+		.single();
 
-	// Рассчитываем текущий streak
-	const currentStreak = await calculateCurrentStreak(userId);
-	console.log(`[PUSH-REALTIME] Current streak for user ${userId}: ${currentStreak} days`);
-
-	// Проверяем и отправляем уведомление о streak milestone
-	await checkAndSendStreakMilestone(userId, currentStreak);
-}
-
-/**
- * Обрабатывает INSERT события для achievements
- */
-async function handleAchievementInsert(record: any) {
-	const userId = record.user_id;
-
-	// Проверяем есть ли активные subscriptions
-	const subscriptions = await getUserPushSubscriptions(userId);
-	if (subscriptions.length === 0) {
-		console.log('[PUSH-REALTIME] No active subscriptions for user:', userId);
+	if (!profile?.notification_settings?.achievements) {
+		console.log('[PUSH-REALTIME] Achievements notifications disabled for user:', userId);
 		return;
 	}
 
@@ -566,73 +568,21 @@ async function handleAchievementInsert(record: any) {
 
 /**
  * Обрабатывает INSERT события для entry_summaries (AI-анализ готов)
+ *
+ * ❌ УДАЛЕНО: Push уведомления при AI-анализе
+ * Причина:
+ * 1. Пользователь УЖЕ в приложении (только что создал запись)
+ * 2. UI показывает окно успеха с результатом
+ * 3. AI-анализ происходит в фоне, результат виден в UI
+ * 4. Push будет только раздражать
+ *
+ * АЛЬТЕРНАТИВА: Показывать badge/notification dot в UI когда AI-анализ готов
  */
 async function handleSummaryInsert(record: any) {
-	// Получаем entry для определения user_id
-	const { data: entry } = await supabaseAdmin
-		.from('entries')
-		.select('user_id')
-		.eq('id', record.entry_id)
-		.single();
-
-	if (!entry) {
-		console.error('[PUSH-REALTIME] Entry not found for summary:', record.entry_id);
-		return;
-	}
-
-	const userId = entry.user_id;
-
-	// Проверяем есть ли активные subscriptions
-	const subscriptions = await getUserPushSubscriptions(userId);
-	if (subscriptions.length === 0) {
-		console.log('[PUSH-REALTIME] No active subscriptions for user:', userId);
-		return;
-	}
-
-	// Проверяем есть ли новые AI-карточки в окне 24 часа
-	const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-	const { data: recentCards, error: cardsError } = await supabaseAdmin
-		.from('entry_summaries')
-		.select('id, entry_id, created_at')
-		.eq('user_id', userId)
-		.gte('created_at', twentyFourHoursAgo)
-		.order('created_at', { ascending: false });
-
-	if (cardsError) {
-		console.error('[PUSH-REALTIME] Error fetching recent cards:', cardsError);
-	}
-
-	const hasNewInsights = recentCards && recentCards.length > 0;
-
-	// Отправляем уведомление с правильным типом
-	if (hasNewInsights) {
-		// Новый тип: new_insights (есть новые AI-карточки)
-		await sendPushNotification(
-			userId,
-			'✨ Новые инсайты готовы!',
-			`У вас ${recentCards.length} новых AI-карточек. Посмотрите что мы для вас подготовили!`,
-			'/icon-192.png',
-			{
-				type: 'new_insights',
-				entry_id: record.entry_id,
-				cards_count: recentCards.length,
-				url: '/?view=home',
-			}
-		);
-	} else {
-		// Старый тип: ai_analysis_ready (просто AI-анализ)
-		await sendPushNotification(
-			userId,
-			'🤖 AI-анализ готов!',
-			'Ваша запись проанализирована. Посмотрите результаты!',
-			'/icon-192.png',
-			{
-				type: 'ai_analysis_ready',
-				entry_id: record.entry_id,
-				url: `/?view=history&entry=${record.entry_id}`,
-			}
-		);
-	}
+	// ❌ ФУНКЦИЯ ОТКЛЮЧЕНА - push при AI-анализе не нужны
+	console.log('[PUSH-REALTIME] AI analysis completed for entry:', record.entry_id);
+	console.log('[PUSH-REALTIME] Push notification DISABLED - user already in app, UI shows success');
+	return;
 }
 
 // Main handler

@@ -529,6 +529,185 @@ async function sendDailyReminder() {
 }
 
 /**
+ * Рассчитывает статистику пользователя за неделю
+ */
+async function calculateWeeklyStats(userId: string) {
+	const oneWeekAgo = new Date();
+	oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+	// Получаем записи за неделю
+	const { data: entries, error } = await supabaseAdmin
+		.from('entries')
+		.select('id, created_at, category, mood, sentiment')
+		.eq('user_id', userId)
+		.gte('created_at', oneWeekAgo.toISOString())
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		console.error('[PUSH-SCHEDULED] Error fetching entries:', error);
+		return null;
+	}
+
+	// Подсчет записей
+	const entriesCount = entries?.length || 0;
+
+	// Подсчет категорий
+	const categoryCounts: Record<string, number> = {};
+	entries?.forEach((entry) => {
+		if (entry.category) {
+			categoryCounts[entry.category] = (categoryCounts[entry.category] || 0) + 1;
+		}
+	});
+
+	// Топ категория
+	const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+
+	// Подсчет настроений
+	const sentimentCounts = {
+		positive: entries?.filter((e) => e.sentiment === 'positive').length || 0,
+		neutral: entries?.filter((e) => e.sentiment === 'neutral').length || 0,
+		negative: entries?.filter((e) => e.sentiment === 'negative').length || 0,
+	};
+
+	// Расчет streak (все записи пользователя)
+	const { data: allEntries } = await supabaseAdmin
+		.from('entries')
+		.select('created_at')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
+
+	let currentStreak = 0;
+	if (allEntries && allEntries.length > 0) {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const lastEntryDate = new Date(allEntries[0].created_at);
+		lastEntryDate.setHours(0, 0, 0, 0);
+
+		const daysDiff = Math.floor(
+			(today.getTime() - lastEntryDate.getTime()) / (24 * 60 * 60 * 1000)
+		);
+
+		if (daysDiff <= 1) {
+			currentStreak = 1;
+			let lastDate = lastEntryDate;
+
+			for (let i = 1; i < allEntries.length; i++) {
+				const currentDate = new Date(allEntries[i].created_at);
+				currentDate.setHours(0, 0, 0, 0);
+
+				const diff = Math.floor(
+					(lastDate.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000)
+				);
+
+				if (diff === 1) {
+					currentStreak++;
+					lastDate = currentDate;
+				} else if (diff > 1) {
+					break;
+				}
+			}
+		}
+	}
+
+	return {
+		entriesCount,
+		currentStreak,
+		topCategory: topCategory ? topCategory[0] : null,
+		topCategoryCount: topCategory ? topCategory[1] : 0,
+		sentimentCounts,
+	};
+}
+
+/**
+ * Отправляет еженедельный отчет с реальной статистикой
+ * ✅ НОВАЯ ФУНКЦИЯ: Отправляет отчет вместо мотивационных сообщений
+ * Вызывается каждый час в воскресенье через Cron Job
+ */
+async function sendWeeklyReport() {
+	console.log('[PUSH-SCHEDULED] Sending weekly report (timezone-aware)...');
+
+	// Получаем шаблон из БД
+	const template = await getTemplate('weekly_report');
+	if (!template) {
+		console.error('[PUSH-SCHEDULED] Template not found for weekly_report');
+		return { sent: 0, total: 0, error: 'Template not found' };
+	}
+
+	// Получаем пользователей которые должны получить уведомление СЕЙЧАС
+	// Для weekly_report используем вечернее время (20:00 по умолчанию)
+	const userIds = await getUsersForScheduledTime(
+		'weekly_report',
+		'evening',
+		template.is_premium_only
+	);
+
+	if (userIds.length === 0) {
+		console.log('[PUSH-SCHEDULED] No users to notify at this time');
+		return { sent: 0, total: 0 };
+	}
+
+	console.log(`[PUSH-SCHEDULED] Found ${userIds.length} users to notify`);
+
+	// Отправляем персонализированные отчеты каждому пользователю
+	const results = await Promise.all(
+		userIds.map(async (userId) => {
+			try {
+				// Рассчитываем статистику за неделю
+				const stats = await calculateWeeklyStats(userId);
+
+				if (!stats) {
+					console.error(`[PUSH-SCHEDULED] Failed to calculate stats for user ${userId}`);
+					return { success: false, userId, error: 'Failed to calculate stats' };
+				}
+
+				// Формируем текст отчета
+				const title = '📊 Ваш недельный отчет готов!';
+				let body = '';
+
+				if (stats.entriesCount === 0) {
+					body = 'На этой неделе вы не делали записей. Начните новую неделю с записи!';
+				} else {
+					const parts = [];
+					parts.push(
+						`${stats.entriesCount} ${stats.entriesCount === 1 ? 'запись' : stats.entriesCount < 5 ? 'записи' : 'записей'}`
+					);
+
+					if (stats.currentStreak > 0) {
+						parts.push(
+							`${stats.currentStreak} ${stats.currentStreak === 1 ? 'день' : stats.currentStreak < 5 ? 'дня' : 'дней'} подряд`
+						);
+					}
+
+					if (stats.topCategory) {
+						parts.push(`Топ категория: ${stats.topCategory}`);
+					}
+
+					body = parts.join(' • ');
+				}
+
+				// Отправляем уведомление
+				await sendPushNotification([userId], title, body, template.icon, {
+					type: 'weekly_report',
+					url: '/?view=reports',
+					stats,
+				});
+
+				return { success: true, userId };
+			} catch (error) {
+				console.error(`[PUSH-SCHEDULED] Error sending to user ${userId}:`, error);
+				return { success: false, userId, error: error.message };
+			}
+		})
+	);
+
+	const sent = results.filter((r) => r.success).length;
+
+	console.log(`[PUSH-SCHEDULED] Sent ${sent}/${userIds.length} weekly reports`);
+
+	return { sent, total: userIds.length };
+}
+
+/**
  * Отправляет еженедельную мотивационную карточку
  * НОВАЯ ЛОГИКА: Учитывает timezone пользователя
  * Вызывается каждый час в воскресенье через Cron Job
@@ -696,6 +875,11 @@ Deno.serve(async (req) => {
 		switch (type) {
 			case 'daily_reminder':
 				result = await sendDailyReminder();
+				break;
+
+			case 'weekly_report':
+				// ✅ НОВЫЙ ТИП: Еженедельный отчет с реальной статистикой
+				result = await sendWeeklyReport();
 				break;
 
 			case 'weekly_motivation':
