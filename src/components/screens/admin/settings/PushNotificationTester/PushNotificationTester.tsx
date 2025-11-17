@@ -11,8 +11,8 @@ import {
 	checkPushSupport,
 	getPushRecommendations,
 	type PushSupportInfo,
-	sendTestNotification,
 } from '@/shared/lib/pwa/pushNotificationSupport';
+import { createClient } from '@/utils/supabase/client';
 import { BrowserInfo } from './BrowserInfo';
 import { SupportStatus } from './SupportStatus';
 import { TestForm } from './TestForm';
@@ -25,6 +25,8 @@ export function PushNotificationTester() {
 	const [isSending, setIsSending] = useState(false);
 	const [lastResult, setLastResult] = useState<'success' | 'error' | null>(null);
 
+	const supabase = createClient();
+
 	useEffect(() => {
 		const info = checkPushSupport();
 		setSupportInfo(info);
@@ -36,7 +38,45 @@ export function PushNotificationTester() {
 		setLastResult(null);
 
 		try {
-			await sendTestNotification(testTitle, testBody);
+			// Получаем текущую сессию super_admin
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+			if (!session) {
+				throw new Error('Не авторизован');
+			}
+
+			// Отправляем реальное push уведомление через Edge Function
+			const response = await fetch(
+				'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/push-sender',
+				{
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${session.access_token}`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						user_ids: [session.user.id], // Отправляем текущему админу
+						title: testTitle,
+						body: testBody,
+						icon: '/icon-192.png',
+						badge: '/badge-72.png',
+						data: {
+							type: 'test',
+							timestamp: new Date().toISOString(),
+						},
+					}),
+				}
+			);
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Ошибка отправки push уведомления');
+			}
+
+			const result = await response.json();
+			console.log('[Push Test] Result:', result);
+
 			setLastResult('success');
 		} catch (error) {
 			setLastResult('error');

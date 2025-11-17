@@ -98,13 +98,13 @@ export function PWAOverview() {
 				// ✅ FIX: Используем COUNT(*) вместо pwa_installed (все пользователи = установки)
 				const totalInstalls = profiles.length;
 
-				// ✅ FIX: Активные пользователи = зарегистрированные за последние 7 дней
+				// ✅ FIX: Активные пользователи = пользователи активные за последние 7 дней
 				const weekAgo = new Date();
 				weekAgo.setDate(weekAgo.getDate() - 7);
 				const activeUsers = profiles.filter((p) => {
-					if (!p.created_at) return false;
-					const createdAt = new Date(p.created_at);
-					return createdAt >= weekAgo;
+					if (!p.last_active) return false;
+					const lastActive = new Date(p.last_active);
+					return lastActive >= weekAgo;
 				}).length;
 
 				// Загрузка push подписок (только активные)
