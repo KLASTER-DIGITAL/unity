@@ -8,7 +8,7 @@
  * - Sorting by date
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	Card,
 	CardContent,
@@ -42,11 +42,8 @@ export function CampaignHistory() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState('all');
 
-	useEffect(() => {
-		loadCampaigns();
-	}, [loadCampaigns]);
-
-	const loadCampaigns = async () => {
+	// ✅ FIX: Define loadCampaigns with useCallback BEFORE useEffect
+	const loadCampaigns = useCallback(async () => {
 		try {
 			setIsLoading(true);
 
@@ -72,7 +69,11 @@ export function CampaignHistory() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [activeTab]); // ✅ Add activeTab to dependencies
+
+	useEffect(() => {
+		loadCampaigns();
+	}, [loadCampaigns]);
 
 	const getSegmentLabel = (segment: string) => {
 		switch (segment) {

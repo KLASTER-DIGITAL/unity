@@ -170,6 +170,26 @@ export function AnalyticsDashboard() {
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 	const [showFilters, setShowFilters] = useState(false);
 
+	// ✅ FIX: Define getStatusBadge function
+	const getStatusBadge = (status: string) => {
+		switch (status) {
+			case 'sent':
+				return (
+					<Badge className="border-green-500/20 bg-green-500/10 text-green-600">Отправлено</Badge>
+				);
+			case 'scheduled':
+				return (
+					<Badge className="border-blue-500/20 bg-blue-500/10 text-blue-600">Запланировано</Badge>
+				);
+			case 'draft':
+				return <Badge variant="outline">Черновик</Badge>;
+			case 'failed':
+				return <Badge variant="destructive">Ошибка</Badge>;
+			default:
+				return <Badge variant="outline">{status}</Badge>;
+		}
+	};
+
 	const loadCampaigns = useCallback(async () => {
 		try {
 			let query = supabase.from('push_campaigns').select('*');
