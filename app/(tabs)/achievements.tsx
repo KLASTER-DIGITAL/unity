@@ -1,41 +1,52 @@
 /**
- * Achievements Tab Screen
+ * Achievements Tab Screen - React Native Version
+ *
+ * ВАЖНО: Этот файл должен быть визуально идентичен PWA версии
+ * (src/features/mobile/achievements/components/AchievementsScreen.tsx)
  */
 
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AchievementCard } from '../../app-shared/components/screens/achievements/AchievementCard.native';
-import { MilestoneCard } from '../../app-shared/components/screens/achievements/MilestoneCard.native';
 import {
 	SkeletonAchievementCard,
 	SkeletonCircle,
-	SkeletonMilestoneCard,
 	SkeletonText,
 } from '../../app-shared/components/skeleton/SkeletonCard';
 import { useTheme } from '../../app-shared/contexts/ThemeContext';
-import { useEntries } from '../../app-shared/hooks/useEntries';
-import { useUserData } from '../../app-shared/hooks/useUserData';
+import { useAchievements } from '../../app-shared/hooks/useAchievements';
 import { supabase } from '../../app-shared/lib/supabase/client';
 
-type Achievement = {
-	id: string;
-	name: string;
-	description: string;
-	icon: string;
-	earned: boolean;
-	rarity: string;
-	earnedDate?: string;
-	progress?: number;
-};
-
-type Milestone = {
-	id: number;
-	title: string;
-	completed: boolean;
-	reward: string;
-	progress?: number;
-	total?: number;
+// Icon mapping (React Native не поддерживает lucide-react, используем emoji)
+const iconMap: Record<string, string> = {
+	Star: '⭐',
+	Flame: '🔥',
+	Trophy: '🏆',
+	Medal: '🏅',
+	Crown: '👑',
+	Rocket: '🚀',
+	Zap: '⚡',
+	Target: '🎯',
+	Award: '🎖️',
+	Gift: '🎁',
+	Heart: '❤️',
+	Sparkles: '✨',
+	TrendingUp: '📈',
+	Calendar: '📅',
+	BookOpen: '📚',
+	Dumbbell: '💪',
+	Home: '🏠',
+	Lightbulb: '💡',
+	Users: '👥',
+	Camera: '📷',
+	// Emoji icons (используются напрямую)
+	'🎭': '🎭',
+	'🌸': '🌸',
+	'💰': '💰',
+	'🌱': '🌱',
+	'🎨': '🎨',
+	'💞': '💞',
 };
 
 export default function AchievementsScreen() {
@@ -43,9 +54,9 @@ export default function AchievementsScreen() {
 	const [userId, setUserId] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	// Real data from Supabase
-	const { stats, isLoading: isLoadingUser, refetch: refetchUser } = useUserData(userId);
-	const { entries, isLoading: isLoadingEntries, refetch: refetchEntries } = useEntries(userId);
+	// ✅ NEW: Используем useAchievements hook для загрузки реальных данных
+	const { achievements, isLoading, error, refetch, earnedCount, totalCount } =
+		useAchievements(userId);
 
 	// Get current user on mount
 	useEffect(() => {
@@ -72,139 +83,107 @@ export default function AchievementsScreen() {
 		setIsRefreshing(true);
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-		// Reload data
-		await Promise.all([refetchUser(), refetchEntries()]);
+		// Reload achievements
+		await refetch();
 
 		setIsRefreshing(false);
 	};
 
-	// Calculate achievements based on real data
-	const _achievementEntries = entries.filter((e) => e.isAchievement);
-	const _totalEntries = entries.length;
-	const _currentStreak = stats?.currentStreak || 0;
-	const _longestStreak = stats?.longestStreak || 0;
-	const _level = stats?.level || 1;
-	const _nextLevelProgress = stats ? Math.round(((stats.xp % 100) / 100) * 100) : 0;
+	// ✅ NEW: Преобразовать достижения из БД в формат для UI с иконками
+	const formattedAchievements = useMemo(
+		() =>
+			achievements.map((achievement) => ({
+				...achievement,
+				icon: iconMap[achievement.icon] || '⭐', // Fallback to star if icon not found
+				earnedDate: achievement.earnedAt
+					? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
+					: undefined,
+			})),
+		[achievements]
+	);
 
-	const isLoading = isLoadingUser || isLoadingEntries;
+	// ✅ NEW: Категоризация достижений (как в PWA версии)
+	const categorizedAchievements = useMemo(() => {
+		// Постоянство (Streaks)
+		const streaks = formattedAchievements.filter(
+			(a) => a.name.includes('подряд') || a.name.includes('силы') || a.name.includes('постоянств')
+		);
 
-	const achievements: Achievement[] = [
-		{
-			id: '1',
-			name: 'Первые шаги',
-			description: 'Создайте свою первую запись',
-			icon: '⭐',
-			earned: true,
-			rarity: 'common',
-			earnedDate: new Date().toISOString(),
-		},
-		{
-			id: '2',
-			name: 'Неделя силы',
-			description: 'Пишите 7 дней подряд',
-			icon: '🔥',
-			earned: true,
-			rarity: 'uncommon',
-			earnedDate: new Date(Date.now() - 86_400_000).toISOString(),
-		},
-		{
-			id: '3',
-			name: 'Мастер слова',
-			description: 'Напишите 50 записей',
-			icon: '📚',
-			earned: false,
-			rarity: 'rare',
-			progress: 30,
-		},
-		{
-			id: '4',
-			name: 'Легенда',
-			description: 'Пишите 30 дней подряд',
-			icon: '👑',
-			earned: false,
-			rarity: 'legendary',
-			progress: 23,
-		},
-	];
+		// Вовлечённость (Milestones)
+		const milestones = formattedAchievements.filter(
+			(a) =>
+				a.name.includes('записей') ||
+				a.name.includes('побед') ||
+				a.name.includes('Первые') ||
+				a.name.includes('историй')
+		);
 
-	const milestones: Milestone[] = [
-		{
-			id: 1,
-			title: '10 записей',
-			completed: true,
-			reward: 'Бейдж "Начинающий"',
-		},
-		{
-			id: 2,
-			title: 'Неделя подряд',
-			completed: true,
-			reward: 'Бейдж "Постоянство"',
-		},
-		{
-			id: 3,
-			title: '50 записей',
-			completed: false,
-			progress: stats?.totalEntries || 0,
-			total: 50,
-			reward: 'Премиум тема',
-		},
-		{
-			id: 4,
-			title: 'Месяц подряд',
-			completed: false,
-			progress: stats?.longestStreak || 0,
-			total: 30,
-			reward: 'Бейдж "Легенда"',
-		},
-	];
+		// Категории (Work, Health, Family, Gratitude, Finance, Growth, Creativity, Relationships)
+		const categories = formattedAchievements.filter(
+			(a) =>
+				a.name.includes('Семья') ||
+				a.name.includes('Здоровье') ||
+				a.name.includes('Работа') ||
+				a.name.includes('Благодарность') ||
+				a.name.includes('Финанс') ||
+				a.name.includes('развити') ||
+				a.name.includes('Творч') ||
+				a.name.includes('отношени')
+		);
 
+		// Осознанность и эмоции (Mindfulness & Emotions) - НОВАЯ КАТЕГОРИЯ
+		const mindfulness = formattedAchievements.filter((a) => {
+			const name = a.name.toLowerCase();
+			return (
+				name.includes('честн') ||
+				name.includes('баланс') ||
+				name.includes('эмоциональ') ||
+				name.includes('эмоци')
+			);
+		});
+
+		// Специальные (Special)
+		const special = formattedAchievements.filter(
+			(a) =>
+				!streaks.includes(a) &&
+				!milestones.includes(a) &&
+				!categories.includes(a) &&
+				!mindfulness.includes(a)
+		);
+
+		return { streaks, milestones, categories, mindfulness, special };
+	}, [formattedAchievements]);
+
+	// ✅ NEW: Показываем ошибку если не удалось загрузить достижения
+	if (error) {
+		console.error('[AchievementsScreen RN] Achievements error:', error);
+		// TODO: Показать toast с ошибкой (нужен toast для React Native)
+	}
+
+	// Skeleton loading state
 	if (isLoading) {
 		return (
-			<ScrollView
-				contentContainerStyle={styles.contentContainer}
-				style={[styles.container, { backgroundColor: colors.background }]}
-			>
-				{/* Header Skeleton */}
+			<ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
 				<View style={styles.header}>
 					<SkeletonCircle size={80} />
-					<SkeletonText height={24} style={{ marginTop: 12 }} width={120} />
-					<SkeletonText height={16} style={{ marginTop: 6 }} width={150} />
+					<SkeletonText width={120} height={24} style={{ marginTop: 12 }} />
+					<SkeletonText width={160} height={16} style={{ marginTop: 8 }} />
+				</View>
 
-					{/* Stats Grid Skeleton */}
-					<View style={styles.statsGrid}>
-						{[1, 2, 3, 4].map((i) => (
-							<View key={i} style={styles.statItem}>
-								<SkeletonText height={28} width={40} />
-								<SkeletonText height={14} style={{ marginTop: 4 }} width={60} />
-							</View>
-						))}
-					</View>
-
-					{/* Progress Bar Skeleton */}
-					<View style={styles.progressSection}>
-						<View style={styles.progressHeader}>
-							<SkeletonText height={14} width={100} />
-							<SkeletonText height={14} width={40} />
+				<View style={styles.statsGrid}>
+					{[1, 2, 3, 4].map((i) => (
+						<View key={i} style={styles.statItem}>
+							<SkeletonText width={40} height={28} />
+							<SkeletonText width={60} height={12} style={{ marginTop: 4 }} />
 						</View>
-						<SkeletonText borderRadius={12} height={8} style={{ marginTop: 8 }} width="100%" />
-					</View>
+					))}
 				</View>
 
-				{/* Achievements Skeleton */}
 				<View style={styles.section}>
-					<SkeletonText height={20} style={{ marginBottom: 16 }} width={120} />
-					<View style={styles.achievementsGrid}>
-						<SkeletonAchievementCard />
-						<SkeletonAchievementCard />
-						<SkeletonAchievementCard />
-					</View>
-				</View>
-
-				{/* Milestones Skeleton */}
-				<View style={styles.section}>
-					<SkeletonText height={20} style={{ marginBottom: 16 }} width={100} />
-					<SkeletonMilestoneCard />
-					<SkeletonMilestoneCard />
+					<SkeletonText width={100} height={20} style={{ marginBottom: 16 }} />
+					{[1, 2].map((i) => (
+						<SkeletonAchievementCard key={i} style={{ marginBottom: 12 }} />
+					))}
 				</View>
 			</ScrollView>
 		);
@@ -223,56 +202,109 @@ export default function AchievementsScreen() {
 			}
 			style={[styles.container, { backgroundColor: colors.background }]}
 		>
+			{/* Header */}
 			<View style={styles.header}>
 				<View style={styles.levelBadge}>
-					<Text style={styles.levelIcon}>👑</Text>
+					<Text style={styles.levelIcon}>🏆</Text>
 				</View>
-				<Text style={styles.levelText}>Уровень {stats?.level || 1}</Text>
-				<Text style={styles.subtitle}>Мастер достижений</Text>
+				<Text style={styles.levelText}>Достижения</Text>
+				<Text style={styles.subtitle}>
+					{earnedCount} из {totalCount} заработано
+				</Text>
 
 				<View style={styles.statsGrid}>
 					<View style={styles.statItem}>
-						<Text style={styles.statValue}>{stats?.totalEntries || 0}</Text>
-						<Text style={styles.statLabel}>Записей</Text>
+						<Text style={styles.statValue}>{totalCount}</Text>
+						<Text style={styles.statLabel}>Всего</Text>
 					</View>
 					<View style={styles.statItem}>
-						<Text style={styles.statValue}>{stats?.totalBadges || 0}</Text>
-						<Text style={styles.statLabel}>Наград</Text>
+						<Text style={styles.statValue}>{earnedCount}</Text>
+						<Text style={styles.statLabel}>Заработано</Text>
 					</View>
 					<View style={styles.statItem}>
-						<Text style={styles.statValue}>{stats?.currentStreak || 0}</Text>
-						<Text style={styles.statLabel}>Дней подряд</Text>
+						<Text style={styles.statValue}>{totalCount - earnedCount}</Text>
+						<Text style={styles.statLabel}>Осталось</Text>
 					</View>
 					<View style={styles.statItem}>
-						<Text style={styles.statValue}>{stats?.longestStreak || 0}</Text>
-						<Text style={styles.statLabel}>Рекорд</Text>
+						<Text style={styles.statValue}>{Math.round((earnedCount / totalCount) * 100)}%</Text>
+						<Text style={styles.statLabel}>Прогресс</Text>
 					</View>
 				</View>
 
 				<View style={styles.progressSection}>
 					<View style={styles.progressHeader}>
-						<Text style={styles.progressLabel}>До уровня {(stats?.level || 1) + 1}</Text>
-						<Text style={styles.progressPercent}>{stats?.nextLevelProgress || 0}%</Text>
+						<Text style={styles.progressLabel}>Общий прогресс</Text>
+						<Text style={styles.progressPercent}>
+							{Math.round((earnedCount / totalCount) * 100)}%
+						</Text>
 					</View>
 					<View style={styles.progressBar}>
-						<View style={[styles.progressFill, { width: `${stats?.nextLevelProgress || 0}%` }]} />
+						<View
+							style={[
+								styles.progressFill,
+								{ width: `${Math.round((earnedCount / totalCount) * 100)}%` },
+							]}
+						/>
 					</View>
 				</View>
 			</View>
 
-			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>Достижения</Text>
-				{achievements.map((achievement, index) => (
-					<AchievementCard achievement={achievement} index={index} key={achievement.id} />
-				))}
-			</View>
+			{/* ✅ NEW: Категория "Постоянство" (Streaks) */}
+			{categorizedAchievements.streaks.length > 0 && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>🔥 Постоянство</Text>
+					<Text style={styles.sectionDescription}>Достижения за регулярность ведения дневника</Text>
+					{categorizedAchievements.streaks.map((achievement, index) => (
+						<AchievementCard achievement={achievement} index={index} key={achievement.id} />
+					))}
+				</View>
+			)}
 
-			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>Вехи</Text>
-				{milestones.map((milestone) => (
-					<MilestoneCard key={milestone.id} milestone={milestone} />
-				))}
-			</View>
+			{/* ✅ NEW: Категория "Вовлечённость" (Milestones) */}
+			{categorizedAchievements.milestones.length > 0 && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>📚 Вовлечённость</Text>
+					<Text style={styles.sectionDescription}>Достижения за количество записей</Text>
+					{categorizedAchievements.milestones.map((achievement, index) => (
+						<AchievementCard achievement={achievement} index={index} key={achievement.id} />
+					))}
+				</View>
+			)}
+
+			{/* ✅ NEW: Категория "Осознанность и эмоции" (Mindfulness) */}
+			{categorizedAchievements.mindfulness.length > 0 && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>🎭 Осознанность и эмоции</Text>
+					<Text style={styles.sectionDescription}>
+						Достижения за эмоциональный баланс и честность
+					</Text>
+					{categorizedAchievements.mindfulness.map((achievement, index) => (
+						<AchievementCard achievement={achievement} index={index} key={achievement.id} />
+					))}
+				</View>
+			)}
+
+			{/* ✅ NEW: Категория "Категории" (Work, Health, Family, etc.) */}
+			{categorizedAchievements.categories.length > 0 && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>🏷️ Категории</Text>
+					<Text style={styles.sectionDescription}>Достижения за записи в разных категориях</Text>
+					{categorizedAchievements.categories.map((achievement, index) => (
+						<AchievementCard achievement={achievement} index={index} key={achievement.id} />
+					))}
+				</View>
+			)}
+
+			{/* ✅ NEW: Категория "Специальные" (Special) */}
+			{categorizedAchievements.special.length > 0 && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>⭐ Специальные</Text>
+					<Text style={styles.sectionDescription}>Уникальные достижения</Text>
+					{categorizedAchievements.special.map((achievement, index) => (
+						<AchievementCard achievement={achievement} index={index} key={achievement.id} />
+					))}
+				</View>
+			)}
 		</ScrollView>
 	);
 }
@@ -377,6 +409,11 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: '600',
 		color: '#111827',
+		marginBottom: 8,
+	},
+	sectionDescription: {
+		fontSize: 14,
+		color: '#6B7280',
 		marginBottom: 16,
 	},
 });
