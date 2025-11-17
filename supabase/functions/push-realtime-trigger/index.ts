@@ -589,18 +589,50 @@ async function handleSummaryInsert(record: any) {
 		return;
 	}
 
-	// Отправляем уведомление
-	await sendPushNotification(
-		userId,
-		'🤖 AI-анализ готов!',
-		'Ваша запись проанализирована. Посмотрите результаты!',
-		'/icon-192.png',
-		{
-			type: 'ai_analysis_ready',
-			entry_id: record.entry_id,
-			url: `/?view=history&entry=${record.entry_id}`,
-		}
-	);
+	// Проверяем есть ли новые AI-карточки в окне 24 часа
+	const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+	const { data: recentCards, error: cardsError } = await supabaseAdmin
+		.from('entry_summaries')
+		.select('id, entry_id, created_at')
+		.eq('user_id', userId)
+		.gte('created_at', twentyFourHoursAgo)
+		.order('created_at', { ascending: false });
+
+	if (cardsError) {
+		console.error('[PUSH-REALTIME] Error fetching recent cards:', cardsError);
+	}
+
+	const hasNewInsights = recentCards && recentCards.length > 0;
+
+	// Отправляем уведомление с правильным типом
+	if (hasNewInsights) {
+		// Новый тип: new_insights (есть новые AI-карточки)
+		await sendPushNotification(
+			userId,
+			'✨ Новые инсайты готовы!',
+			`У вас ${recentCards.length} новых AI-карточек. Посмотрите что мы для вас подготовили!`,
+			'/icon-192.png',
+			{
+				type: 'new_insights',
+				entry_id: record.entry_id,
+				cards_count: recentCards.length,
+				url: '/?view=home',
+			}
+		);
+	} else {
+		// Старый тип: ai_analysis_ready (просто AI-анализ)
+		await sendPushNotification(
+			userId,
+			'🤖 AI-анализ готов!',
+			'Ваша запись проанализирована. Посмотрите результаты!',
+			'/icon-192.png',
+			{
+				type: 'ai_analysis_ready',
+				entry_id: record.entry_id,
+				url: `/?view=history&entry=${record.entry_id}`,
+			}
+		);
+	}
 }
 
 // Main handler
