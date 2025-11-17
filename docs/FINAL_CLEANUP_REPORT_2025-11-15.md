@@ -24,17 +24,7 @@
 
 ## 🗑️ Архивировано
 
-### Всего архивировано: 34 файла
-
-**docs/notion/ (8 файлов)** → `docs/archive/2025-11/notion/`:
-- FINAL_REPORT_2025-11-09.md
-- IMPORT_SUCCESS_2025-11-09.md
-- MIGRATION_COMPLETED_2025-11-09.md
-- WHAT_I_DID_2025-11-09.md
-- CORRECTED_IMPLEMENTATION_PLAN.md
-- NOTION_AUTOMATION.md
-- NOTION_DASHBOARDS.md
-- QUICK_START_CHECKLIST.md
+### Всего архивировано: 26 файлов
 
 **docs/ корневые (9 файлов)** → `docs/archive/2025-11/root/`:
 - INDEX.md (устарел, заменен на START_HERE.md)

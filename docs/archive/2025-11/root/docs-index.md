@@ -205,19 +205,6 @@
 
 ---
 
-## 📝 Модуль: Notion Integration
-
-| Файл | Тип | Статус | Описание |
-|------|-----|--------|----------|
-| `docs/notion/README.md` | readme | ✅ active | README для Notion интеграции |
-| `docs/notion/QUICK_START_CHECKLIST.md` | checklist | ✅ active | Быстрый старт с Notion |
-| `docs/notion/NOTION_AUTOMATION.md` | guide | ✅ active | Автоматизация Notion (GitHub Actions) |
-| `docs/notion/NOTION_DASHBOARDS.md` | guide | ✅ active | Дашборды в Notion |
-| `docs/notion/IMPORT_SUCCESS_2025-11-09.md` | report | ✅ active | Отчет об успешном импорте задач |
-
-**Статус**: Актуальные документы, Notion интеграция работает
-
----
 
 ## 🗄️ Архивные документы
 

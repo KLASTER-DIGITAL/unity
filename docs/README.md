@@ -24,29 +24,6 @@
 
 ---
 
-## 🚨 ВАЖНОЕ ИЗМЕНЕНИЕ (2025-11-09)
-
-### **Управление проектом переехало в Notion!**
-
-👉 **[Unity Project Hub в Notion](https://www.notion.so/Unity-Project-Hub-be47b86245634bf08c2a02888fec4a11)**
-
-**Что изменилось**:
-- ❌ ~~BACKLOG.md~~ → ✅ **Notion Tasks Database**
-- ❌ ~~ROADMAP.md~~ → ✅ **Notion Roadmap Database**
-- ❌ ~~SPRINT.md~~ → ✅ **Notion Tasks Database** (фильтр по Sprint)
-
-**Автоматизация**:
-- GitHub Issues/PRs → автоматически синхронизируются с Notion
-- GitHub Releases → автоматически создают Releases в Notion
-- Vercel Deployments → автоматически добавляют Preview URLs в Tasks
-
-**Документация**:
-- 📖 [docs/notion/README.md](notion/README.md) - Обзор интеграции
-- 🔧 [docs/notion/NOTION_SETUP_GUIDE.md](notion/NOTION_SETUP_GUIDE.md) - Настройка
-- 📋 [docs/plan/README.md](plan/README.md) - Новое местоположение задач
-
----
-
 ## 🆕 Структура документации (обновлено 2025-11-09)
 
 ### 📋 Планирование (`/plan`)

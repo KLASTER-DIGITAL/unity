@@ -16,24 +16,6 @@
 
 ## 🗑️ ПЛАН АРХИВАЦИИ
 
-### 1. docs/notion/ (11 файлов) → Оставить 3 файла
-
-**✅ ОСТАВИТЬ (3 файла)**:
-- `README.md` - главный файл, актуален
-- `NOTION_SETUP_GUIDE.md` - инструкция по настройке, актуален
-- `QUICK_REFERENCE.md` - быстрая справка, актуален
-
-**🗄️ АРХИВИРОВАТЬ (8 файлов)** → `docs/archive/2025-11/notion/`:
-- `FINAL_REPORT_2025-11-09.md` - отчет о завершении (устарел)
-- `IMPORT_SUCCESS_2025-11-09.md` - отчет об импорте (устарел)
-- `MIGRATION_COMPLETED_2025-11-09.md` - отчет о миграции (устарел)
-- `WHAT_I_DID_2025-11-09.md` - отчет о действиях (устарел)
-- `CORRECTED_IMPLEMENTATION_PLAN.md` - план реализации (выполнен)
-- `NOTION_AUTOMATION.md` - дублирует NOTION_SETUP_GUIDE.md
-- `NOTION_DASHBOARDS.md` - не реализовано, низкий приоритет
-- `QUICK_START_CHECKLIST.md` - дублирует NOTION_SETUP_GUIDE.md
-
-**Причина**: Отчеты от 2025-11-09 устарели, миграция завершена, дубликаты
 
 ---
 

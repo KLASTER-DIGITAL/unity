@@ -1759,35 +1759,6 @@
 
 ---
 
-## [2025-11-09] - Notion Integration
-
-### 🏗️ Инфраструктура
-
-**Notion Integration** (2025-11-09):
-- Создана полная интеграция с Notion для управления проектом
-- GitHub Actions workflows для автоматической синхронизации:
-  - `.github/workflows/sync-pr-issue-to-notion.yml` - Issues/PRs → Notion Tasks
-  - `.github/workflows/release-to-notion.yml` - Releases → Notion Releases
-  - `.github/workflows/vercel-deploy-to-notion.yml` - Vercel URLs → Tasks
-- Automation scripts:
-  - `.github/scripts/sync-issue-to-notion.js` - Issue → Task mapping
-  - `.github/scripts/sync-pr-to-notion.js` - PR status → Task status
-  - `.github/scripts/release-to-notion.js` - Release → Notion Release
-  - `.github/scripts/vercel-to-notion.js` - Deployment URL → Task
-  - `.github/scripts/import-backlog-to-notion.js` - Импорт из BACKLOG.md + архивов
-  - `.github/scripts/cleanup-docs.sh` - Массовая очистка документации
-  - `scripts/import-to-notion.js` - Импорт 15 задач из PRIORITY_ROADMAP
-  - `scripts/import-all-tasks.js` - **Успешный импорт 21 задачи (15 + 6 planned)**
-  - `scripts/check-notion-schema.js` - Проверка схемы базы данных
-  - `scripts/setup-notion-database.js` - Настройка структуры базы данных
-- Notion databases:
-  - Tasks: `33d47291493f43b988a331ca975521d7` (21 задача импортировано)
-  - Roadmap: `04e2b6d469bd4e2c8a5af8480b6d715d`
-  - Releases: `603c0f2896224c819e1ec68883dd9841`
-  - Stakeholder Comms: `c8ea309c4e70454192681f7e4c41c866`
-- Схема Tasks database: title, Status, Priority (P0/P1/P2/P3), Labels, Estimate (h), Epic, Sprint, GitHub Issue URL, PR URL, Vercel Preview URL, Assignee, Due
-- Обновлены правила: `.augment/rules/unity.md` с инструкциями по Notion
-- Notion API Key stored in GitHub Secrets
 
 **Documentation Cleanup** (2025-11-09):
 - Архивировано 92 файла в `docs/archive/2025-11-09_cleanup/`
@@ -1802,23 +1773,6 @@
   - SPRINT.md → `SPRINT_DEPRECATED.md`
 - Соотношение документации улучшено: 49% → 31% (улучшение 37%)
 - Скрипт: `.github/scripts/cleanup-docs.sh`
-
-### 📚 Документация
-
-**Notion Integration Docs** (2025-11-09):
-- `docs/notion/README.md` - Обзор интеграции
-- `docs/notion/NOTION_SETUP_GUIDE.md` - Полная инструкция по настройке
-- `docs/notion/NOTION_AUTOMATION.md` - Как работает автоматизация
-- `docs/notion/NOTION_DASHBOARDS.md` - Создание Dashboard
-- `docs/notion/QUICK_START_CHECKLIST.md` - Чеклист быстрого старта
-- `docs/notion/CORRECTED_IMPLEMENTATION_PLAN.md` - Исправленный план внедрения
-- `docs/notion/MIGRATION_COMPLETED_2025-11-09.md` - Отчет о миграции
-- `docs/plan/README.md` - Указатель на Notion (НОВОЕ!)
-
-**Updated Docs** (2025-11-09):
-- `docs/README.md` - Добавлен раздел о Notion Integration
-- `docs/CHANGELOG.md` - Добавлены записи о Notion и cleanup
-- `docs/FIX.md` - Добавлены технические детали
 
 ### 🔧 PWA Critical Fixes (2025-11-09)
 

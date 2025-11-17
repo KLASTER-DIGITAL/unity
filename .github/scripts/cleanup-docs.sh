@@ -38,8 +38,8 @@ mv docs/plan/PRIORITY_TASKS_2025-10-29.md "$ARCHIVE_DIR/" 2>/dev/null || true
 echo "6️⃣  Архивируем старые отчеты..."
 mv docs/reports/*2025-10-*.md "$ARCHIVE_DIR/" 2>/dev/null || true
 
-# 7. Архивировать BACKLOG.md, ROADMAP.md, SPRINT.md (переезжают в Notion)
-echo "7️⃣  Архивируем BACKLOG.md, ROADMAP.md, SPRINT.md (переезжают в Notion)..."
+# 7. Архивировать BACKLOG.md, ROADMAP.md, SPRINT.md (устаревшие локальные файлы)
+echo "7️⃣  Архивируем BACKLOG.md, ROADMAP.md, SPRINT.md (переносятся в архив)..."
 mv docs/plan/BACKLOG.md "$ARCHIVE_DIR/BACKLOG_DEPRECATED.md" 2>/dev/null || true
 mv docs/plan/ROADMAP.md "$ARCHIVE_DIR/ROADMAP_DEPRECATED.md" 2>/dev/null || true
 mv docs/plan/SPRINT.md "$ARCHIVE_DIR/SPRINT_DEPRECATED.md" 2>/dev/null || true
