@@ -66,6 +66,13 @@ type ReportStatsMonthly = {
 	top_categories: unknown;
 } | null;
 
+type ReportStatsMoodDistributionItem = {
+	mood: string;
+	label: string;
+	count: number;
+	percentage: number;
+};
+
 type ReportStatsSnapshot = {
 	period: string;
 	period_key: string;
@@ -75,6 +82,7 @@ type ReportStatsSnapshot = {
 	entries_summary: ReportStatsEntrySummary[];
 	categories: ReportStatsCategory[];
 	mood_trends: ReportStatsMoodTrend[];
+	mood_distribution?: ReportStatsMoodDistributionItem[];
 	achievements: unknown[];
 	monthly: ReportStatsMonthly;
 };
@@ -222,40 +230,63 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 		const entriesSummary = reportStats?.entries_summary ?? [];
 		const activeDays = entriesSummary.filter((day) => (day.entries_count ?? 0) > 0).length;
 
-		const moodTotals = (reportStats?.mood_trends ?? []).reduce(
-			(acc, item) => ({
-				positive: acc.positive + (item.positive ?? 0),
-				neutral: acc.neutral + (item.neutral ?? 0),
-				negative: acc.negative + (item.negative ?? 0),
-			}),
-			{ positive: 0, neutral: 0, negative: 0 }
-		);
+		const serverMoodDistribution = reportStats?.mood_distribution;
 
-		const moodTotalCount = moodTotals.positive + moodTotals.neutral + moodTotals.negative;
+		let moodDistribution: { mood: string; label: string; count: number; percentage: number }[] = [];
 
-		const moodDistribution =
-			moodTotalCount > 0
-				? [
-						{
-							mood: '😊',
-							label: t('reports_mood_positive', 'Позитивное'),
-							count: moodTotals.positive,
-							percentage: Math.round((moodTotals.positive / moodTotalCount) * 100),
-						},
-						{
-							mood: '😐',
-							label: t('reports_mood_neutral', 'Нейтральное'),
-							count: moodTotals.neutral,
-							percentage: Math.round((moodTotals.neutral / moodTotalCount) * 100),
-						},
-						{
-							mood: '☁️',
-							label: t('reports_mood_negative', 'Негативное'),
-							count: moodTotals.negative,
-							percentage: Math.round((moodTotals.negative / moodTotalCount) * 100),
-						},
-					].filter((item) => item.count > 0)
-				: [];
+		if (serverMoodDistribution && serverMoodDistribution.length > 0) {
+			moodDistribution = serverMoodDistribution.map((item) => {
+				let label = item.label;
+				if (item.label === 'positive') {
+					label = t('reports_mood_positive', 'Позитивное');
+				} else if (item.label === 'neutral') {
+					label = t('reports_mood_neutral', 'Нейтральное');
+				} else if (item.label === 'negative') {
+					label = t('reports_mood_negative', 'Негативное');
+				}
+				return {
+					mood: item.mood,
+					label,
+					count: item.count,
+					percentage: item.percentage,
+				};
+			});
+		} else {
+			const moodTotals = (reportStats?.mood_trends ?? []).reduce(
+				(acc, item) => ({
+					positive: acc.positive + (item.positive ?? 0),
+					neutral: acc.neutral + (item.neutral ?? 0),
+					negative: acc.negative + (item.negative ?? 0),
+				}),
+				{ positive: 0, neutral: 0, negative: 0 }
+			);
+
+			const moodTotalCount = moodTotals.positive + moodTotals.neutral + moodTotals.negative;
+
+			moodDistribution =
+				moodTotalCount > 0
+					? [
+							{
+								mood: '😊',
+								label: t('reports_mood_positive', 'Позитивное'),
+								count: moodTotals.positive,
+								percentage: Math.round((moodTotals.positive / moodTotalCount) * 100),
+							},
+							{
+								mood: '😐',
+								label: t('reports_mood_neutral', 'Нейтральное'),
+								count: moodTotals.neutral,
+								percentage: Math.round((moodTotals.neutral / moodTotalCount) * 100),
+							},
+							{
+								mood: '☁️',
+								label: t('reports_mood_negative', 'Негативное'),
+								count: moodTotals.negative,
+								percentage: Math.round((moodTotals.negative / moodTotalCount) * 100),
+							},
+						].filter((item) => item.count > 0)
+					: [];
+		}
 
 		const topCategories = (reportStats?.categories ?? []).map((category) => ({
 			name: category.name,
@@ -292,6 +323,39 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 		};
 	})();
 
+	const extraAiInsights: string[] = (() => {
+		if (!aiReport) return [];
+
+		const raw: string[] = [];
+
+		if (Array.isArray(aiReport?.highlights)) {
+			raw.push(
+				...aiReport.highlights
+					.map((value) => (typeof value === 'string' ? value : String(value)))
+					.filter(Boolean)
+			);
+		} else if (typeof aiReport?.highlights === 'string') {
+			raw.push(aiReport.highlights);
+		}
+
+		if (Array.isArray(aiReport?.key_achievements)) {
+			raw.push(
+				...aiReport.key_achievements
+					.filter((value): value is string => typeof value === 'string')
+					.filter(Boolean)
+			);
+		}
+
+		const unique = raw.filter((value, index, self) => value && self.indexOf(value) === index);
+
+		if (!monthlyReport.personalInsights.length) {
+			return unique;
+		}
+
+		const personalSet = new Set(monthlyReport.personalInsights);
+		return unique.filter((item) => !personalSet.has(item));
+	})();
+
 	const _aiSummaryText =
 		aiReport?.summary ??
 		'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉';
@@ -304,7 +368,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 		aiReport?.next_month_strategy ??
 		'Продолжай бегать и фиксировать небольшие рабочие победы, а также добавь больше творчества в свой распорядок.';
 
-	const aiQuotes: string[] = [];
+	const aiQuotes = extraAiInsights;
 
 	// Weekly stats (currently unused but kept for future use)
 	// const weeklyStats = [

@@ -174,13 +174,47 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 				nextLevelProgress?: number;
 			};
 
+			let totalEntries = stats.totalEntries ?? 0;
+			let currentStreak = stats.currentStreak ?? 0;
+			let longestStreak = stats.longestStreak ?? 0;
+			let level = stats.level ?? 1;
+			let nextLevelProgress = stats.nextLevelProgress ?? 0;
+
+			// 🔁 Fallback: если сервер вернул пустую статистику, но у пользователя уже есть достижения,
+			// используем client-side getUserStats, чтобы подтянуть реальные значения из записей.
+			if (totalEntries === 0 && earnedCount > 0) {
+				try {
+					const { getUserStats } = await import('@/shared/lib/api');
+					const legacyStats = await getUserStats(userId);
+
+					if (legacyStats?.totalEntries) {
+						totalEntries = legacyStats.totalEntries;
+						currentStreak = legacyStats.currentStreak ?? currentStreak;
+
+						// Если рекорд не посчитан на сервере, используем текущий стрик как минимум
+						if (!longestStreak && legacyStats.currentStreak) {
+							longestStreak = legacyStats.currentStreak;
+						}
+
+						// Пересчитываем уровень из количества записей, если сервер оставил уровень по умолчанию
+						if (level <= 1) {
+							const totalXP = legacyStats.totalEntries * 10;
+							level = Math.floor(totalXP / 100) + 1;
+							nextLevelProgress = Math.round(totalXP % 100);
+						}
+					}
+				} catch (fallbackError) {
+					console.error('[AchievementsScreen] Fallback getUserStats failed:', fallbackError);
+				}
+			}
+
 			setUserStats({
-				totalEntries: stats.totalEntries ?? 0,
-				currentStreak: stats.currentStreak ?? 0,
-				longestStreak: stats.longestStreak ?? 0,
+				totalEntries,
+				currentStreak,
+				longestStreak,
 				totalBadges: earnedCount, // ✅ Используем earnedCount из useAchievements
-				level: stats.level ?? 1,
-				nextLevelProgress: stats.nextLevelProgress ?? 0,
+				level,
+				nextLevelProgress,
 			});
 
 			console.log('[AchievementsScreen] User stats (server):', stats);
@@ -427,7 +461,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			</div>
 
 			{/* Categorized Achievements */}
-			<div className="space-y-6">
+			<div className="space-y-6 px-4 pt-4">
 				{/* Milestones */}
 				{categorizedAchievements.milestones.length > 0 && (
 					<AchievementCategory title="Основные этапы" icon="🎯" delay={0}>
