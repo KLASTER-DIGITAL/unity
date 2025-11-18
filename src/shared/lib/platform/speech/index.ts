@@ -134,10 +134,16 @@ function detectBrowser(): BrowserInfo {
 		version = ua.match(/SamsungBrowser\/(\d+)/)?.[1] || 'Unknown';
 	}
 
-	// Check if running as PWA
-	const isPWA =
-		window.matchMedia('(display-mode: standalone)').matches ||
-		(window.navigator as any).standalone === true;
+	// Check if running as PWA (safely, without assuming matchMedia exists)
+	let isPWA = false;
+	if (typeof window !== 'undefined') {
+		const hasMatchMedia = typeof window.matchMedia === 'function';
+		if (hasMatchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+			isPWA = true;
+		} else if ((window.navigator as any).standalone === true) {
+			isPWA = true;
+		}
+	}
 
 	return {
 		name,

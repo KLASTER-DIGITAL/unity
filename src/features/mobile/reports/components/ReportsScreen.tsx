@@ -22,6 +22,7 @@ import { useTranslation } from '@/shared/lib/i18n';
 import { BookCreationWizard } from './BookCreationWizard';
 import { BookDraftEditor } from './BookDraftEditor';
 import { BooksLibraryScreen } from './BooksLibraryScreen';
+import { ReportsArchiveScreen } from './ReportsArchiveScreen';
 
 type ReportsPeriod = 'week' | 'month' | 'quarter';
 
@@ -106,6 +107,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	const [aiReport, setAiReport] = useState<AiReport | null>(null);
 	const [reportStats, setReportStats] = useState<ReportStatsSnapshot | null>(null);
 	const [isLoadingAiReport, setIsLoadingAiReport] = useState(false);
+	const [showReportsArchive, setShowReportsArchive] = useState(false);
 
 	// ✅ FIX: Define functions BEFORE useEffect with useCallback
 	const loadData = useCallback(() => {
@@ -322,7 +324,6 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			personalInsights,
 		};
 	})();
-
 	const extraAiInsights: string[] = (() => {
 		if (!aiReport) return [];
 
@@ -477,6 +478,16 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							</Button>
 						))}
 					</div>
+					<div className="mt-3 flex justify-end">
+						<Button
+							className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
+							onClick={() => setShowReportsArchive(true)}
+							size="sm"
+							variant="ghost"
+						>
+							Открыть отчёты
+						</Button>
+					</div>
 				</div>
 
 				{/* Основной отчет */}
@@ -553,7 +564,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 				{/* Вкладки с деталями */}
 				<div className="px-4">
-					<Tabs data-testid="stats-tab" defaultValue="ai">
+					<Tabs data-testid="stats-tab" defaultValue="mood">
 						<TabsList className="inline-flex h-auto w-full items-center justify-between rounded-lg bg-muted p-1">
 							<TabsTrigger className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium" value="ai">
 								{t('ai_overview', 'AI Обзор')}
@@ -779,6 +790,12 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 					</Tabs>
 				</div>
 			</div>
+			{showReportsArchive && (
+				<div className="fixed inset-0 z-50 bg-background">
+					<ReportsArchiveScreen onBack={() => setShowReportsArchive(false)} />
+				</div>
+			)}
+
 			{showBooksLibrary && !editingDraftId && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BooksLibraryScreen

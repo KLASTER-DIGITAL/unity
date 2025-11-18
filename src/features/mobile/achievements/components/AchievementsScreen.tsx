@@ -156,11 +156,16 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 				stats?: { [key: string]: unknown };
 			} | null;
 
-			if (!response.ok || !data?.success || !data.stats) {
-				console.warn('[AchievementsScreen] Stats response error, falling back to legacy stats:', {
-					status: response.status,
-					data,
-				});
+			const hasStats = !!data?.stats;
+
+			if (!response.ok || data?.success === false || !hasStats) {
+				console.warn(
+					'[AchievementsScreen] Stats response incomplete, using fallback where needed:',
+					{
+						status: response.status,
+						data,
+					}
+				);
 			}
 
 			const stats =

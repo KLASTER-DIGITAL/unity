@@ -12,6 +12,8 @@ import {
 } from '@/shared/components/ui/card';
 import { captureException } from '@/shared/lib/monitoring';
 
+const isDev = (typeof __DEV__ !== 'undefined' && __DEV__) || process.env.NODE_ENV === 'development';
+
 type ErrorBoundaryProps = {
 	children: ReactNode;
 	fallback?: ReactNode;
@@ -137,7 +139,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 							)}
 
 							{/* Component stack (только в dev режиме) */}
-							{__DEV__ && this.state.errorInfo && (
+							{isDev && this.state.errorInfo && (
 								<details className="rounded-lg border border-border bg-muted p-4">
 									<summary className="cursor-pointer font-medium text-foreground text-sm">
 										Технические детали (для разработчиков)
@@ -155,7 +157,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 									<li>Попробуйте обновить страницу</li>
 									<li>Очистите кэш браузера</li>
 									<li>Вернитесь на главную страницу</li>
-									{__DEV__ && <li>Проверьте консоль браузера для деталей</li>}
+									{isDev && <li>Проверьте консоль браузера для деталей</li>}
 								</ul>
 							</div>
 						</CardContent>
