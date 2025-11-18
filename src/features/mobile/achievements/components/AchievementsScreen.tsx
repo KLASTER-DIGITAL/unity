@@ -157,22 +157,21 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			} | null;
 
 			if (!response.ok || !data?.success || !data.stats) {
-				console.error('[AchievementsScreen] Stats response error:', {
+				console.warn('[AchievementsScreen] Stats response error, falling back to legacy stats:', {
 					status: response.status,
 					data,
 				});
-				toast.error(t('achievements_stats_error', 'Не удалось загрузить статистику достижений'));
-				return;
 			}
 
-			const stats = data.stats as {
-				// Названия соответствуют интерфейсу UserStats в Edge Function
-				totalEntries?: number;
-				currentStreak?: number;
-				longestStreak?: number;
-				level?: number;
-				nextLevelProgress?: number;
-			};
+			const stats =
+				(data?.stats as {
+					// Названия соответствуют интерфейсу UserStats в Edge Function
+					totalEntries?: number;
+					currentStreak?: number;
+					longestStreak?: number;
+					level?: number;
+					nextLevelProgress?: number;
+				}) || {};
 
 			let totalEntries = stats.totalEntries ?? 0;
 			let currentStreak = stats.currentStreak ?? 0;

@@ -15,7 +15,7 @@
 
 import { BlobProvider, Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Download, Eye, Save, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
@@ -42,6 +42,11 @@ type StoryJson = {
 	}>;
 	epilogue: string;
 	dedication?: string;
+};
+
+type BookMetadata = {
+	diaryEmoji?: string;
+	[key: string]: unknown;
 };
 
 // PDF Styles
@@ -78,7 +83,7 @@ const pdfStyles = StyleSheet.create({
 });
 
 // PDF Document Component
-function BookPDF({ story, metadata }: { story: StoryJson; metadata: any }) {
+function BookPDF({ story, metadata }: { story: StoryJson; metadata: BookMetadata }) {
 	return (
 		<Document>
 			<Page size="A4" style={pdfStyles.page}>
@@ -100,7 +105,7 @@ function BookPDF({ story, metadata }: { story: StoryJson; metadata: any }) {
 
 				{/* Chapters */}
 				{story.chapters.map((chapter, index) => (
-					<View key={index} style={pdfStyles.section}>
+					<View key={chapter.title || `${index}`} style={pdfStyles.section}>
 						<Text style={pdfStyles.sectionTitle}>
 							Глава {index + 1}: {chapter.title}
 						</Text>
@@ -131,13 +136,13 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isRendering, setIsRendering] = useState(false);
-	const [draft, setDraft] = useState<any>(null);
+	const [draft, setDraft] = useState<{ metadata?: BookMetadata | null } | null>(null);
 	const [story, setStory] = useState<StoryJson | null>(null);
 	const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 	const [userId, setUserId] = useState<string | null>(null);
 
 	// Get user ID from session
-	useState(() => {
+	useEffect(() => {
 		const getUserId = async () => {
 			const supabase = createClient();
 			const {
@@ -147,14 +152,13 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				setUserId(session.user.id);
 			}
 		};
-		getUserId();
-	});
+		void getUserId();
+	}, []);
 
-	// Load draft on mount
-	useState(() => {
+	// Load draft once userId is known
+	useEffect(() => {
+		if (!userId) return;
 		const loadDraft = async () => {
-			if (!userId) return;
-
 			try {
 				setIsLoading(true);
 				const supabase = createClient();
@@ -172,8 +176,8 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					return;
 				}
 
-				setDraft(data);
-				setStory(data.story_json);
+				setDraft((data as { metadata?: BookMetadata | null }) || null);
+				setStory((data as { story_json: StoryJson }).story_json);
 			} catch (error) {
 				console.error('[DRAFT-EDITOR] Error:', error);
 				toast.error('Произошла ошибка');
@@ -181,9 +185,8 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				setIsLoading(false);
 			}
 		};
-
-		loadDraft();
-	});
+		void loadDraft();
+	}, [draftId, userId]);
 
 	// Save draft
 	const handleSave = async () => {
@@ -392,7 +395,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 							</CardHeader>
 							<CardContent className="space-y-4">
 								{story.chapters.map((chapter, index) => (
-									<div className="rounded-lg border p-4" key={index}>
+									<div className="rounded-lg border p-4" key={chapter.title || `${index}`}>
 										<Label>Глава {index + 1}</Label>
 										<input
 											className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
@@ -440,7 +443,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 								<CardTitle>Предпросмотр PDF</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<BlobProvider document={<BookPDF metadata={draft.metadata} story={story} />}>
+								<BlobProvider document={<BookPDF metadata={draft?.metadata ?? {}} story={story} />}>
 									{({ blob, url, loading }) => {
 										if (loading) {
 											return (
