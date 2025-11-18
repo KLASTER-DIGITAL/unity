@@ -42,8 +42,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useAchievements } from '@/shared/hooks/useAchievements';
-import { type DiaryEntry, getEntries } from '@/shared/lib/api';
-import { calculateUserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
 import type { RarityType } from '../constants/rarityStyles';
 import { AchievementBadge3D } from './AchievementBadge3D';
@@ -87,7 +85,6 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 	// ✅ HOOKS FIRST: All hooks must be called before any early returns
 	const [isLoadingEntries, setIsLoadingEntries] = useState(true);
-	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
 	const [userStats, setUserStats] = useState({
 		totalEntries: 0,
 		currentStreak: 0,
@@ -109,36 +106,91 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 	} = useAchievements(userData?.user?.id);
 
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: loadData orchestrates async calls and early returns, splitting would hurt readability
 	const loadData = useCallback(async () => {
 		try {
 			setIsLoadingEntries(true);
 			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
-			const userId = userData?.user?.id || userData?.id || 'anonymous';
-			console.log('[AchievementsScreen] Loading entries for user:', userId);
-			const entriesData = await getEntries(userId, 100);
+			const userId = userData?.user?.id || userData?.id;
 
-			console.log('[AchievementsScreen] Loaded entries:', entriesData.length);
-			setEntries(entriesData);
+			if (!userId) {
+				console.warn('[AchievementsScreen] No user id, skipping stats load');
+				setUserStats((prev) => ({
+					...prev,
+					totalEntries: 0,
+					currentStreak: 0,
+					longestStreak: 0,
+				}));
+				return;
+			}
 
-			// Вычислить статистику
-			const stats = calculateUserStats(entriesData);
-			setUserStats({
-				totalEntries: stats.totalEntries,
-				currentStreak: stats.currentStreak,
-				longestStreak: stats.longestStreak,
-				totalBadges: earnedCount, // ✅ NEW: Используем earnedCount из useAchievements
-				level: stats.level,
-				nextLevelProgress: stats.nextLevelProgress,
+			console.log('[AchievementsScreen] Loading stats for user:', userId);
+
+			// Используем Supabase Edge Function achievements-calculate,
+			// чтобы вся статистика (уровень, стрики и т.д.) считалась на сервере
+			const { createClient } = await import('@/utils/supabase/client');
+			const supabase = createClient();
+
+			const {
+				data: { session },
+				error: sessionError,
+			} = await supabase.auth.getSession();
+
+			if (sessionError || !session?.access_token) {
+				console.error('[AchievementsScreen] No session for stats:', sessionError);
+				toast.error(t('auth_error', 'Ошибка авторизации'));
+				return;
+			}
+
+			const response = await fetch(`${supabase.supabaseUrl}/functions/v1/achievements-calculate`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${session.access_token}`,
+				},
+				body: JSON.stringify({ user_id: userId }),
 			});
 
-			console.log('[AchievementsScreen] User stats:', stats);
+			const data = (await response.json().catch(() => null)) as {
+				success?: boolean;
+				stats?: { [key: string]: unknown };
+			} | null;
+
+			if (!response.ok || !data?.success || !data.stats) {
+				console.error('[AchievementsScreen] Stats response error:', {
+					status: response.status,
+					data,
+				});
+				toast.error(t('achievements_stats_error', 'Не удалось загрузить статистику достижений'));
+				return;
+			}
+
+			const stats = data.stats as {
+				// Названия соответствуют интерфейсу UserStats в Edge Function
+				totalEntries?: number;
+				currentStreak?: number;
+				longestStreak?: number;
+				level?: number;
+				nextLevelProgress?: number;
+			};
+
+			setUserStats({
+				totalEntries: stats.totalEntries ?? 0,
+				currentStreak: stats.currentStreak ?? 0,
+				longestStreak: stats.longestStreak ?? 0,
+				totalBadges: earnedCount, // ✅ Используем earnedCount из useAchievements
+				level: stats.level ?? 1,
+				nextLevelProgress: stats.nextLevelProgress ?? 0,
+			});
+
+			console.log('[AchievementsScreen] User stats (server):', stats);
 		} catch (error) {
-			console.error('[AchievementsScreen] Error loading data:', error);
-			toast.error('Не удалось загрузить данные');
+			console.error('[AchievementsScreen] Error loading stats:', error);
+			toast.error(t('achievements_stats_error', 'Не удалось загрузить статистику достижений'));
 		} finally {
 			setIsLoadingEntries(false);
 		}
-	}, [userData, earnedCount]); // ✅ FIX: Добавили earnedCount в dependencies
+	}, [userData, earnedCount, t]); // ✅ FIX: Добавили earnedCount и t в зависимости
 
 	// ✅ FIX: useEffect AFTER function definition
 	useEffect(() => {

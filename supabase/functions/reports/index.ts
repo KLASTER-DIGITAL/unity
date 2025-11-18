@@ -88,6 +88,7 @@ async function resolveOpenAiKey(req: Request, supabaseAdmin: any): Promise<strin
 	return envKey || null;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: reports edge function orchestrates multiple branches and IO operations
 Deno.serve(async (req) => {
 	if (req.method === 'OPTIONS') {
 		return new Response('ok', { headers: corsHeaders });
@@ -128,7 +129,7 @@ Deno.serve(async (req) => {
 			return jsonResponse(
 				{
 					error: 'Premium subscription required',
-					message: 'AI отчеты доступны только для Premium подписки',
+					message: 'AI-отчеты доступны только в Premium-подписке.',
 					upgrade_url: '/?view=settings#premium',
 				},
 				403
@@ -151,6 +152,29 @@ Deno.serve(async (req) => {
 			const period: PeriodType = body.period === 'weekly' ? 'weekly' : 'monthly';
 			const periodKeyInput: string | undefined = body.periodKey ?? undefined;
 			const { periodKey, startDate, endDate, year, month } = getPeriodRange(period, periodKeyInput);
+			const forceRegenerate: boolean = Boolean(body.force_regenerate);
+
+			if (!forceRegenerate) {
+				const { data: existingReport, error: existingError } = await supabaseAdmin
+					.from('user_reports')
+					.select('ai_summary, ai_insights, stats')
+					.eq('user_id', user.id)
+					.eq('period_type', period)
+					.eq('period_key', periodKey)
+					.eq('language', userLanguage)
+					.maybeSingle();
+
+				if (!existingError && existingReport?.ai_insights) {
+					return jsonResponse({
+						success: true,
+						period,
+						periodKey,
+						report: existingReport.ai_insights,
+						stats: existingReport.stats,
+						cached: true,
+					});
+				}
+			}
 
 			const operationId = period === 'weekly' ? 'weekly_report' : 'monthly_report';
 			const config = await getAiOperationConfig(supabaseAdmin as any, operationId);
@@ -238,6 +262,41 @@ Deno.serve(async (req) => {
 				return { date: d.date, positive, neutral, negative, mood_score: moodScore };
 			});
 
+			// Aggregated mood distribution for the whole period (server-side),
+			// so UI and PDF отчеты могут использовать готовые проценты
+			const moodTotals = moodTrends.reduce(
+				(acc, item) => ({
+					positive: acc.positive + item.positive,
+					neutral: acc.neutral + item.neutral,
+					negative: acc.negative + item.negative,
+				}),
+				{ positive: 0, neutral: 0, negative: 0 }
+			);
+			const moodTotalCount = moodTotals.positive + moodTotals.neutral + moodTotals.negative;
+			const moodDistribution =
+				moodTotalCount > 0
+					? [
+							{
+								mood: '😊',
+								label: 'positive',
+								count: moodTotals.positive,
+								percentage: Math.round((moodTotals.positive / moodTotalCount) * 100),
+							},
+							{
+								mood: '😐',
+								label: 'neutral',
+								count: moodTotals.neutral,
+								percentage: Math.round((moodTotals.neutral / moodTotalCount) * 100),
+							},
+							{
+								mood: '☁️',
+								label: 'negative',
+								count: moodTotals.negative,
+								percentage: Math.round((moodTotals.negative / moodTotalCount) * 100),
+							},
+						].filter((item) => item.count > 0)
+					: [];
+
 			const totalEntries = (dailyStats || []).reduce(
 				(sum: number, d: any) => sum + (d.entries_count ?? 0),
 				0
@@ -253,6 +312,7 @@ Deno.serve(async (req) => {
 				entries_summary: entriesSummary,
 				categories,
 				mood_trends: moodTrends,
+				mood_distribution: moodDistribution,
 				achievements,
 				monthly: monthlyStat,
 				weekly_summaries: weeklySummaries,
@@ -268,8 +328,18 @@ Deno.serve(async (req) => {
 				weekly_summaries_json: JSON.stringify(weeklySummaries),
 			};
 
-			const systemPrompt = replacePlaceholders(config!.system_prompt, variables);
-			const userPrompt = replacePlaceholders(config!.user_prompt_template, variables);
+			if (!config) {
+				return jsonResponse(
+					{
+						success: false,
+						error: 'AI operation configuration not found',
+					},
+					500
+				);
+			}
+
+			const systemPrompt = replacePlaceholders(config.system_prompt, variables);
+			const userPrompt = replacePlaceholders(config.user_prompt_template, variables);
 
 			const openaiApiKey = await resolveOpenAiKey(req, supabaseAdmin);
 			if (!openaiApiKey) {
@@ -283,16 +353,16 @@ Deno.serve(async (req) => {
 			}
 
 			const payload: any = {
-				model: config!.model,
+				model: config.model,
 				messages: [
 					{ role: 'system', content: systemPrompt },
 					{ role: 'user', content: userPrompt },
 				],
-				temperature: config!.temperature,
-				max_tokens: config!.max_tokens,
+				temperature: config.temperature,
+				max_tokens: config.max_tokens,
 			};
 
-			const extra = (config!.extra_config || {}) as any;
+			const extra = (config.extra_config || {}) as any;
 			if (extra.response_format) {
 				payload.response_format = extra.response_format;
 			}

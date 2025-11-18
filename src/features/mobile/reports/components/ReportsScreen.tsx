@@ -1,10 +1,10 @@
 import {
 	BarChart3,
+	BookOpen,
 	Brain,
 	Crown,
 	Download,
 	Heart,
-	Share2,
 	Sparkles,
 	Star,
 	Target,
@@ -18,49 +18,93 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Progress } from '@/shared/components/ui/progress';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { type DiaryEntry, getEntries } from '@/shared/lib/api';
-import { calculateUserStats, type UserStats } from '@/shared/lib/api/statsCalculator';
 import { useTranslation } from '@/shared/lib/i18n';
 import { BookCreationWizard } from './BookCreationWizard';
 import { BookDraftEditor } from './BookDraftEditor';
 import { BooksLibraryScreen } from './BooksLibraryScreen';
 
-export function ReportsScreen({ userData }: { userData?: any }) {
+type ReportsPeriod = 'week' | 'month' | 'quarter';
+
+type AiReport = {
+	title?: string;
+	summary?: string;
+	highlights?: string[];
+	insights?: string | string[];
+	key_achievements?: string[];
+	next_week_focus?: string;
+	transformations?: string;
+	next_month_strategy?: string;
+	[key: string]: unknown;
+};
+
+type ReportStatsEntrySummary = {
+	date: string;
+	entries_count: number;
+	achievements_count: number;
+	top_category: string | null;
+};
+
+type ReportStatsMoodTrend = {
+	date: string;
+	positive: number;
+	neutral: number;
+	negative: number;
+	mood_score: number;
+};
+
+type ReportStatsCategory = {
+	name: string;
+	count: number;
+};
+
+type ReportStatsMonthly = {
+	year: number;
+	month: number;
+	entries_count: number;
+	achievements_count: number;
+	avg_mood: number | null;
+	top_categories: unknown;
+} | null;
+
+type ReportStatsSnapshot = {
+	period: string;
+	period_key: string;
+	start_date: string;
+	end_date: string;
+	total_entries: number;
+	entries_summary: ReportStatsEntrySummary[];
+	categories: ReportStatsCategory[];
+	mood_trends: ReportStatsMoodTrend[];
+	achievements: unknown[];
+	monthly: ReportStatsMonthly;
+};
+
+type ReportsUserData = {
+	id?: string;
+	user?: {
+		id?: string;
+	} | null;
+};
+
+export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	// Получаем переводы для языка пользователя
 	const { t } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = useState('month');
+	const [selectedPeriod, setSelectedPeriod] = useState<ReportsPeriod>('month');
 	const [isLoading, setIsLoading] = useState(true);
-	const [_entries, setEntries] = useState<DiaryEntry[]>([]);
-	const [stats, setStats] = useState<UserStats | null>(null);
 	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
 	const [showBookWizard, setShowBookWizard] = useState(false);
 	const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
 	const [isPremium, setIsPremium] = useState(false);
+	const [aiReport, setAiReport] = useState<AiReport | null>(null);
+	const [reportStats, setReportStats] = useState<ReportStatsSnapshot | null>(null);
+	const [isLoadingAiReport, setIsLoadingAiReport] = useState(false);
 
 	// ✅ FIX: Define functions BEFORE useEffect with useCallback
-	const loadData = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			// ✅ FIXED: userData has structure {user: {...}, profile: {...}}
-			const userId = userData?.user?.id || userData?.id || 'anonymous';
-			console.log('[REPORTS] Loading data for user:', userId);
-			const entriesData = await getEntries(userId, 100);
-
-			console.log('Loaded entries for reports:', entriesData);
-			setEntries(entriesData);
-
-			// Вычислить статистику
-			const calculatedStats = calculateUserStats(entriesData);
-			setStats(calculatedStats);
-
-			console.log('Calculated stats:', calculatedStats);
-		} catch (error) {
-			console.error('Error loading data:', error);
-			toast.error('Не удалось загрузить данные');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [userData]);
+	const loadData = useCallback(() => {
+		// Сейчас все числовые показатели для отчетов приходят из Edge Function
+		// reports/generate через поле data.stats. Здесь только снимаем состояние загрузки
+		setIsLoading(false);
+	}, []);
 
 	const loadPremiumStatus = useCallback(async () => {
 		try {
@@ -92,11 +136,80 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 		}
 	}, [userData]);
 
+	const loadAiReport = useCallback(
+		async (period: ReportsPeriod) => {
+			try {
+				if (!isPremium) {
+					toast.error(
+						t('reports_ai_premium_only', 'AI-обзоры доступны только в Premium-подписке.')
+					);
+					return;
+				}
+
+				const { createClient } = await import('@/utils/supabase/client');
+				const supabase = createClient();
+
+				const {
+					data: { session },
+					error: sessionError,
+				} = await supabase.auth.getSession();
+
+				if (sessionError || !session?.access_token) {
+					console.error('[REPORTS] No session for AI report:', sessionError);
+					toast.error(t('auth_error', 'Ошибка авторизации'));
+					return;
+				}
+
+				setIsLoadingAiReport(true);
+
+				const apiPeriod = period === 'week' ? 'weekly' : 'monthly';
+
+				const response = await fetch(`${supabase.supabaseUrl}/functions/v1/reports/generate`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${session.access_token}`,
+					},
+					body: JSON.stringify({ period: apiPeriod }),
+				});
+
+				const data = await response.json().catch(() => null);
+
+				if (!response.ok || !data?.success) {
+					console.error('[REPORTS] Failed to generate AI report:', data);
+					toast.error(
+						data?.message ||
+							t('reports_ai_failed', 'Не удалось сгенерировать AI отчет. Попробуй позже.')
+					);
+					return;
+				}
+
+				setAiReport(data.report as AiReport);
+				setReportStats(data.stats as ReportStatsSnapshot);
+				toast.success(t('reports_ai_ready', 'AI отчет обновлен'));
+			} catch (error) {
+				console.error('[REPORTS] Error in loadAiReport:', error);
+				toast.error(t('reports_ai_failed', 'Не удалось сгенерировать AI отчет. Попробуй позже.'));
+			} finally {
+				setIsLoadingAiReport(false);
+			}
+		},
+		[isPremium, t]
+	);
+
 	// ✅ FIX: useEffect AFTER function definitions
 	useEffect(() => {
 		loadData();
 		loadPremiumStatus();
 	}, [loadData, loadPremiumStatus]);
+
+	useEffect(() => {
+		if (!isPremium) {
+			return;
+		}
+
+		void loadAiReport(selectedPeriod);
+	}, [isPremium, selectedPeriod, loadAiReport]);
 
 	// Получить текущий месяц и год
 	const currentPeriod = new Date().toLocaleDateString('ru-RU', {
@@ -104,33 +217,94 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 		month: 'long',
 	});
 
-	const monthlyReport = stats
-		? {
-				period: currentPeriod,
-				totalEntries: stats.totalEntries,
-				streakDays: stats.currentStreak,
-				topMood: stats.moodDistribution[0]?.mood || '😊',
-				keyAchievements: stats.keyAchievements,
-				moodDistribution: stats.moodDistribution,
-				topCategories: stats.topCategories,
-				personalInsights: stats.personalInsights,
-			}
-		: {
-				period: currentPeriod,
-				totalEntries: 0,
-				streakDays: 0,
-				topMood: '😊',
-				keyAchievements: [],
-				moodDistribution: [],
-				topCategories: [],
-				personalInsights: [],
-			};
+	const monthlyReport = (() => {
+		const totalEntries = reportStats?.total_entries ?? 0;
+		const entriesSummary = reportStats?.entries_summary ?? [];
+		const activeDays = entriesSummary.filter((day) => (day.entries_count ?? 0) > 0).length;
 
-	const aiQuotes = [
-		'Твой путь к цели в 10км начался с первого шага. И ты его сделал! 🏃‍♂️',
-		'Каждая прочитанная книга - это новый мир, который ты открыл для себя 📚',
-		'Твоя благодарность семье показывает, что ты ценишь близких людей ❤️',
-	];
+		const moodTotals = (reportStats?.mood_trends ?? []).reduce(
+			(acc, item) => ({
+				positive: acc.positive + (item.positive ?? 0),
+				neutral: acc.neutral + (item.neutral ?? 0),
+				negative: acc.negative + (item.negative ?? 0),
+			}),
+			{ positive: 0, neutral: 0, negative: 0 }
+		);
+
+		const moodTotalCount = moodTotals.positive + moodTotals.neutral + moodTotals.negative;
+
+		const moodDistribution =
+			moodTotalCount > 0
+				? [
+						{
+							mood: '😊',
+							label: t('reports_mood_positive', 'Позитивное'),
+							count: moodTotals.positive,
+							percentage: Math.round((moodTotals.positive / moodTotalCount) * 100),
+						},
+						{
+							mood: '😐',
+							label: t('reports_mood_neutral', 'Нейтральное'),
+							count: moodTotals.neutral,
+							percentage: Math.round((moodTotals.neutral / moodTotalCount) * 100),
+						},
+						{
+							mood: '☁️',
+							label: t('reports_mood_negative', 'Негативное'),
+							count: moodTotals.negative,
+							percentage: Math.round((moodTotals.negative / moodTotalCount) * 100),
+						},
+					].filter((item) => item.count > 0)
+				: [];
+
+		const topCategories = (reportStats?.categories ?? []).map((category) => ({
+			name: category.name,
+			count: category.count,
+			// Пока что тренд категорий не агрегируется на бэкенде, показываем нейтральное значение
+			trend: '—',
+		}));
+
+		const personalInsights: string[] = (() => {
+			if (!aiReport) return [];
+			if (Array.isArray(aiReport.insights)) {
+				return aiReport.insights
+					.map((value) => (typeof value === 'string' ? value : String(value)))
+					.filter(Boolean);
+			}
+			if (typeof aiReport.insights === 'string') {
+				return [aiReport.insights];
+			}
+			if (Array.isArray(aiReport.key_achievements)) {
+				return aiReport.key_achievements.filter(
+					(value): value is string => typeof value === 'string'
+				);
+			}
+			return [];
+		})();
+
+		return {
+			period: currentPeriod,
+			totalEntries,
+			activeDays,
+			moodDistribution,
+			topCategories,
+			personalInsights,
+		};
+	})();
+
+	const _aiSummaryText =
+		aiReport?.summary ??
+		'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉';
+
+	const _aiCategoriesObservation =
+		aiReport?.transformations ??
+		'Твой фокус на спорте значительно усилился. Это отличная тенденция для здоровья и дисциплины! 💪';
+
+	const _aiNextMonthStrategy =
+		aiReport?.next_month_strategy ??
+		'Продолжай бегать и фиксировать небольшие рабочие победы, а также добавь больше творчества в свой распорядок.';
+
+	const aiQuotes: string[] = [];
 
 	// Weekly stats (currently unused but kept for future use)
 	// const weeklyStats = [
@@ -147,8 +321,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				<div className="space-y-4 p-4">
 					{/* Period selector skeleton */}
 					<div className="flex gap-2">
-						{[...new Array(3)].map((_, i) => (
-							<Skeleton className="h-10 flex-1 rounded-[12px]" key={i} />
+						{['reports-period-1', 'reports-period-2', 'reports-period-3'].map((key) => (
+							<Skeleton className="h-10 flex-1 rounded-[12px]" key={key} />
 						))}
 					</div>
 
@@ -166,8 +340,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 						<CardContent>
 							{/* Stats grid skeleton */}
 							<div className="mb-6 grid grid-cols-2 gap-4">
-								{[...new Array(2)].map((_, i) => (
-									<div className="space-y-1 text-center" key={i}>
+								{['reports-stats-1', 'reports-stats-2'].map((key) => (
+									<div className="space-y-1 text-center" key={key}>
 										<Skeleton className="mx-auto h-8 w-16" />
 										<Skeleton className="mx-auto h-4 w-20" />
 									</div>
@@ -184,8 +358,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 					</Card>
 
 					{/* Stats cards skeleton */}
-					{[...new Array(2)].map((_, i) => (
-						<Card className="bg-card transition-colors duration-300" key={i}>
+					{['summary-card-1', 'summary-card-2'].map((key) => (
+						<Card className="bg-card transition-colors duration-300" key={key}>
 							<CardHeader>
 								<Skeleton className="h-6 w-32" />
 							</CardHeader>
@@ -202,7 +376,7 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
 	return (
 		<>
-			<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-20">
+			<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-(--ios-bg-primary) pb-20">
 				{/* Заголовок */}
 				<div className="bg-linear-to-r from-purple-600 to-blue-600 p-6 text-white">
 					<div className="mb-4 flex items-center gap-3">
@@ -242,8 +416,8 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				</div>
 
 				{/* Основной отчет */}
-				<div className="p-4">
-					<Card className="border-purple-200">
+				<div className="space-y-4 p-4">
+					<Card className="border border-(--ios-purple)/40 bg-card shadow-sm">
 						<CardHeader>
 							<div className="flex items-center justify-between">
 								<div>
@@ -270,32 +444,43 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 									</div>
 								</div>
 								<div className="text-center">
-									<div className="mb-1 text-2xl text-(--ios-green)">{monthlyReport.streakDays}</div>
+									<div className="mb-1 text-2xl text-(--ios-green)">{monthlyReport.activeDays}</div>
 									<div className="text-muted-foreground text-sm">Активных дней</div>
 								</div>
 							</div>
-
-							<div className="space-y-4">
+						</CardContent>
+					</Card>
+				</div>
+				<div className="p-4 pt-0">
+					<Card className="border-border bg-card shadow-sm">
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<BookOpen className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+								{t('reports_books_title', 'PDF книги и полка')}
+							</CardTitle>
+							<p className="text-muted-foreground text-sm">
+								{t(
+									'reports_books_description',
+									'Создавай книги на основе дневника и возвращайся к ним в любой момент на своей полке.'
+								)}
+							</p>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-3">
 								<Button
 									className="w-full bg-(--ios-purple) hover:bg-(--ios-purple)/90"
-									onClick={() => {
-										if (!isPremium) {
-											toast.error('Создание PDF книг доступно только для Premium пользователей');
-											return;
-										}
-										setShowBooksLibrary(true);
-									}}
+									onClick={() => setShowBooksLibrary(true)}
 								>
 									<Download className="mr-2 h-5 w-5" strokeWidth={2} />
-									Мои PDF книги
+									{t('reports_books_shelf', 'Открыть полку книг')}
 								</Button>
 								<Button
 									className="w-full"
-									onClick={() => toast.info('Эта функция доступна в премиум версии')}
 									variant="outline"
+									onClick={() => setShowBookWizard(true)}
 								>
-									<Share2 className="mr-2 h-5 w-5" strokeWidth={2} />
-									Поделиться достижениями
+									<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
+									{t('reports_books_create', 'Создать новую книгу')}
 								</Button>
 							</div>
 						</CardContent>
@@ -304,11 +489,23 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 
 				{/* Вкладки с деталями */}
 				<div className="px-4">
-					<Tabs data-testid="stats-tab" defaultValue="mood">
-						<TabsList className="grid w-full grid-cols-3">
-							<TabsTrigger value="mood">{t('mood', 'Настроение')}</TabsTrigger>
-							<TabsTrigger value="categories">Категории</TabsTrigger>
-							<TabsTrigger value="insights">Инсайты</TabsTrigger>
+					<Tabs data-testid="stats-tab" defaultValue="ai">
+						<TabsList className="inline-flex h-auto w-full items-center justify-between rounded-lg bg-muted p-1">
+							<TabsTrigger className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium" value="ai">
+								{t('ai_overview', 'AI Обзор')}
+							</TabsTrigger>
+							<TabsTrigger
+								className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
+								value="mood"
+							>
+								{t('mood', 'Настроение')}
+							</TabsTrigger>
+							<TabsTrigger
+								className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
+								value="categories"
+							>
+								Категории
+							</TabsTrigger>
 						</TabsList>
 
 						<TabsContent className="mt-4" value="mood">
@@ -338,10 +535,10 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 										))}
 									</div>
 
-									<div className="mt-6 rounded-lg bg-pink-50 p-4">
-										<p className="text-pink-800 text-sm">
-											<strong>Вывод AI:</strong> В этом месяце преобладали позитивные эмоции.
-											Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее
+									<div className="mt-6 rounded-lg bg-(--ios-bg-secondary) p-4">
+										<p className="text-(--ios-text-secondary) text-sm">
+											<strong>Вывод:</strong> В этом месяце преобладали позитивные эмоции. Особенно
+											заметен рост записей с восторгом - это говорит о том, что ты активнее
 											достигаешь своих целей! 🎉
 										</p>
 									</div>
@@ -390,9 +587,9 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 										))}
 									</div>
 
-									<div className="mt-6 rounded-lg bg-blue-50 p-4">
-										<p className="text-blue-800 text-sm">
-											<strong>Наблюдение AI:</strong> Твой фокус на спорте значительно усилился. Это
+									<div className="mt-6 rounded-lg bg-(--ios-bg-secondary) p-4">
+										<p className="text-(--ios-text-secondary) text-sm">
+											<strong>Наблюдение:</strong> Твой фокус на спорте значительно усилился. Это
 											отличная тенденция для здоровья и дисциплины! 💪
 										</p>
 									</div>
@@ -400,91 +597,124 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 							</Card>
 						</TabsContent>
 
-						<TabsContent className="mt-4" value="insights">
+						<TabsContent className="mt-4" value="ai">
 							<div className="space-y-4">
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<Brain className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
-											Персональные инсайты
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-3">
-											{monthlyReport.personalInsights.map((insight, index) => (
-												<div
-													className="flex items-start gap-3 rounded-lg bg-(--ios-bg-secondary) p-3"
-													key={index}
-												>
-													<Star
-														className="mt-0.5 h-5 w-5 shrink-0 text-(--ios-purple)"
-														strokeWidth={2}
-													/>
-													<p className="text-foreground text-sm">{insight}</p>
-												</div>
-											))}
-										</div>
-									</CardContent>
-								</Card>
+								{!isPremium ? (
+									<Card>
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2">
+												<Crown className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+												{t('reports_ai_premium_title', 'AI обзоры доступны в Premium')}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<p className="text-muted-foreground text-sm">
+												{t(
+													'reports_ai_premium_description',
+													'Базовые отчёты и книги доступны на бесплатном тарифе. AI-инсайты и умные рекомендации доступны после перехода на Premium.'
+												)}
+											</p>
+										</CardContent>
+									</Card>
+								) : isLoadingAiReport ? (
+									<Card>
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2">
+												<Sparkles className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+												{t('reports_ai_loading', 'Готовим AI-обзор за период...')}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className="space-y-3">
+												<Skeleton className="h-4 w-full" />
+												<Skeleton className="h-4 w-5/6" />
+												<Skeleton className="h-4 w-4/6" />
+											</div>
+										</CardContent>
+									</Card>
+								) : (
+									<>
+										<Card>
+											<CardHeader>
+												<CardTitle className="flex items-center gap-2">
+													<Brain className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+													{t('reports_ai_summary_title', 'Персональный AI-обзор')}
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<p className="mb-3 text-foreground text-sm">
+													{aiReport?.summary || _aiSummaryText}
+												</p>
+												{monthlyReport.personalInsights.length > 0 && (
+													<div className="space-y-3">
+														{monthlyReport.personalInsights.map((insight) => (
+															<div
+																className="flex items-start gap-3 rounded-lg bg-(--ios-bg-secondary) p-3"
+																key={insight}
+															>
+																<Star
+																	className="mt-0.5 h-5 w-5 shrink-0 text-(--ios-purple)"
+																	strokeWidth={2}
+																/>
+																<p className="text-foreground text-sm">{insight}</p>
+															</div>
+														))}
+													</div>
+												)}
+											</CardContent>
+										</Card>
+										<Card>
+											<CardHeader>
+												<CardTitle className="flex items-center gap-2">
+													<TrendingUp className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
+													{t('reports_ai_changes_title', 'Твои изменения за период')}
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<p className="text-foreground text-sm">{_aiCategoriesObservation}</p>
+											</CardContent>
+										</Card>
 
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<Sparkles className="h-5 w-5 text-yellow-500" strokeWidth={2} />
-											AI цитаты месяца
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-3">
-											{aiQuotes.map((quote, index) => (
-												<div
-													className="rounded-lg border-yellow-400 border-l-4 bg-linear-to-r from-yellow-50 to-orange-50 p-4"
-													key={index}
-												>
-													<p className="text-foreground text-sm italic">"{quote}"</p>
+										<Card>
+											<CardHeader>
+												<CardTitle className="flex items-center gap-2">
+													<Sparkles className="h-5 w-5 text-yellow-500" strokeWidth={2} />
+													{t('reports_ai_quotes_title', 'Дополнительный вывод AI')}
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<div className="space-y-3">
+													{aiQuotes.map((quote) => (
+														<div
+															className="rounded-lg border-yellow-400 border-l-4 bg-linear-to-r from-yellow-50 to-orange-50 p-4"
+															key={quote}
+														>
+															<p className="text-foreground text-sm italic">"{quote}"</p>
+														</div>
+													))}
 												</div>
-											))}
-										</div>
-									</CardContent>
-								</Card>
-
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<Target className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
-											Рекомендации на следующий месяц
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-3">
-											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
-												<h4 className="mb-1 text-(--ios-green)">Продолжай бегать</h4>
-												<p className="text-muted-foreground text-sm">
-													Ты на правильном пути к цели в 10км!
+											</CardContent>
+										</Card>
+										<Card>
+											<CardHeader>
+												<CardTitle className="flex items-center gap-2">
+													<Target className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
+													{t('reports_ai_next_month_title', 'Рекомендации на следующий месяц')}
+												</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<p className="text-foreground text-sm">
+													{aiReport?.next_month_strategy || _aiNextMonthStrategy}
 												</p>
-											</div>
-											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
-												<h4 className="mb-1 text-(--ios-blue)">Больше записей о работе</h4>
-												<p className="text-muted-foreground text-sm">
-													Попробуй фиксировать небольшие рабочие победы
-												</p>
-											</div>
-											<div className="rounded-lg bg-(--ios-bg-secondary) p-3">
-												<h4 className="mb-1 text-(--ios-purple)">Новая категория</h4>
-												<p className="text-muted-foreground text-sm">
-													Как насчет добавить записи о творчестве?
-												</p>
-											</div>
-										</div>
-									</CardContent>
-								</Card>
+											</CardContent>
+										</Card>
+									</>
+								)}
 							</div>
 						</TabsContent>
 					</Tabs>
 				</div>
 			</div>
-
-			{/* Books Library Modal */}
 			{showBooksLibrary && !editingDraftId && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BooksLibraryScreen
@@ -501,7 +731,6 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				</div>
 			)}
 
-			{/* Book Creation Wizard Modal */}
 			{showBookWizard && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BookCreationWizard
@@ -514,7 +743,6 @@ export function ReportsScreen({ userData }: { userData?: any }) {
 				</div>
 			)}
 
-			{/* Book Draft Editor Modal */}
 			{editingDraftId && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BookDraftEditor

@@ -73,7 +73,7 @@ async function loadEntries(supabase: any, fromIso: string) {
 	while (true) {
 		const { data, error } = await supabase
 			.from('entries')
-			.select('id, user_id, created_at, category, sentiment, is_achievement')
+			.select('id, user_id, created_at, category, sentiment, is_achievement, mood')
 			.gte('created_at', fromIso)
 			.order('created_at', { ascending: true })
 			.range(page * pageSize, page * pageSize + pageSize - 1);

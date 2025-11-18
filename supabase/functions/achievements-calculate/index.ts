@@ -44,6 +44,9 @@ interface UserStats {
 	moodVariety: number;
 	daysSinceFirstEntry: number;
 	maxGapDays: number;
+	// Уровень и прогресс уровня, чтобы AchievementsScreen мог полностью полагаться на серверную статистику
+	level: number;
+	nextLevelProgress: number;
 }
 
 // =====================================================
@@ -67,9 +70,12 @@ Deno.serve(async (req) => {
 			});
 		}
 
-		// Create Supabase client
-		const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+		// Create Supabase client (fail fast if env vars are not set)
+		const supabaseUrl = Deno.env.get('SUPABASE_URL');
+		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+		if (!supabaseUrl || !supabaseKey) {
+			throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+		}
 		const supabase = createClient(supabaseUrl, supabaseKey);
 
 		console.log('[achievements-calculate] Calculating achievements for user:', user_id);
@@ -124,6 +130,7 @@ Deno.serve(async (req) => {
 			JSON.stringify({
 				success: true,
 				user_id,
+				stats,
 				total_achievements: achievements?.length || 0,
 				calculated: results.length,
 				results,
@@ -133,9 +140,10 @@ Deno.serve(async (req) => {
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 			}
 		);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error('[achievements-calculate] Error:', error);
-		return new Response(JSON.stringify({ error: error.message }), {
+		const message = error instanceof Error ? error.message : 'Unknown error';
+		return new Response(JSON.stringify({ error: message }), {
 			status: 500,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
@@ -152,6 +160,7 @@ function normalizeString(value: string | null | undefined): string {
 	return (value || '').trim().toLowerCase();
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: streak calculation requires multiple branches but is well-tested
 function calculateStreakFromEntries(entries: Array<{ created_at: string }>): {
 	current: number;
 	longest: number;
@@ -244,6 +253,8 @@ async function getUserStats(supabase: any, userId: string): Promise<UserStats> {
 			moodVariety: 0,
 			daysSinceFirstEntry: 0,
 			maxGapDays: 0,
+			level: 1,
+			nextLevelProgress: 0,
 		};
 	}
 
@@ -303,6 +314,12 @@ async function getUserStats(supabase: any, userId: string): Promise<UserStats> {
 		previousDate = currentDate;
 	}
 
+	// Вычисление уровня: 1 запись = 10 XP, уровень каждые 100 XP
+	const totalXP = totalEntries * 10;
+	const level = Math.floor(totalXP / 100) + 1;
+	const xpInCurrentLevel = totalXP % 100;
+	const nextLevelProgress = Math.round(xpInCurrentLevel);
+
 	return {
 		totalEntries,
 		currentStreak: streak.current,
@@ -313,6 +330,8 @@ async function getUserStats(supabase: any, userId: string): Promise<UserStats> {
 		moodVariety,
 		daysSinceFirstEntry,
 		maxGapDays,
+		level,
+		nextLevelProgress,
 	};
 }
 
