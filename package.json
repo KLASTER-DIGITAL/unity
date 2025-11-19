@@ -155,6 +155,7 @@
 		"lint:md:fix": "markdownlint 'docs/**/*.md' --ignore docs/archive --fix",
 		"pre-commit": "npm run type-check && npm run lint && npm run build",
 		"scan:translations": "tsx scripts/scan-translation-keys.ts",
+		"migrate:translations": "tsx scripts/migrate-hardcoded-translations.ts",
 		"start:expo": "expo start",
 		"start:expo:clear": "expo start --clear",
 		"start:expo:web": "expo start --web",
