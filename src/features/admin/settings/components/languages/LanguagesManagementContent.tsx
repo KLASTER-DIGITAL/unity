@@ -1,4 +1,4 @@
-// ✅ PERFORMANCE: Use lazy loaded version from LazyTabs
+// ✅ FIX: Pass onNavigateToTranslations prop to LazyLanguagesManagementTab
 import { LazyLanguagesManagementTab } from '@/features/admin/dashboard/components/tabs/LazyTabs';
 
 type LanguagesManagementContentProps = {
@@ -8,7 +8,5 @@ type LanguagesManagementContentProps = {
 export function LanguagesManagementContent({
 	onNavigateToTranslations,
 }: LanguagesManagementContentProps = {}) {
-	// Note: LazyLanguagesManagementTab doesn't accept props yet
-	// This is a wrapper component, props will be passed through when needed
-	return <LazyLanguagesManagementTab />;
+	return <LazyLanguagesManagementTab onNavigateToTranslations={onNavigateToTranslations} />;
 }

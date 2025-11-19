@@ -153,9 +153,13 @@ export const LazyUsersManagementTab = () => (
 	</Suspense>
 );
 
-export const LazyLanguagesManagementTab = () => (
+export const LazyLanguagesManagementTab = ({
+	onNavigateToTranslations,
+}: {
+	onNavigateToTranslations?: (languageCode: string) => void;
+} = {}) => (
 	<Suspense fallback={<TabLoadingFallback />}>
-		<LanguagesManagementTab />
+		<LanguagesManagementTab onNavigateToTranslations={onNavigateToTranslations} />
 	</Suspense>
 );
 

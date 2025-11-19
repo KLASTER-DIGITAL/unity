@@ -47,6 +47,7 @@ export function TranslationsManagementTab({
 				loadLanguages(),
 				loadMissingKeys(),
 			]);
+			console.log('TranslationsManagementTab - languagesData:', languagesData);
 			setTranslations(translationsData);
 			setLanguages(languagesData);
 			setMissingKeys(missingKeysData);

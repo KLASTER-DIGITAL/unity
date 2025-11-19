@@ -15,7 +15,11 @@ export type Language = {
 	code: string;
 	name: string;
 	native_name: string;
-	enabled: boolean;
+	is_active: boolean;
+	flag?: string;
+	translation_count?: number;
+	total_keys?: number;
+	progress?: number;
 };
 
 export type MissingTranslation = {

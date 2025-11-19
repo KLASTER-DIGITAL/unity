@@ -27,6 +27,9 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 	const [autoTranslateSource, setAutoTranslateSource] = useState<string>('ru');
 	const [autoTranslateTargets, setAutoTranslateTargets] = useState<string[]>([]);
 
+	// Debug: log languages prop
+	console.log('AutoTranslateTab - languages:', languages);
+
 	const handleAutoTranslate = async () => {
 		setIsTranslating(true);
 		try {
@@ -61,7 +64,7 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 						<Select
 							onValueChange={setAutoTranslateSource}
 							options={languages
-								.filter((l) => l.enabled)
+								.filter((l) => l.is_active)
 								.map((lang) => ({
 									value: lang.code,
 									label: `${lang.native_name} (${lang.code})`,
@@ -76,7 +79,7 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 						<label className="font-medium text-sm">Целевые языки</label>
 						<div className="flex flex-wrap gap-2">
 							{languages
-								.filter((l) => l.enabled && l.code !== autoTranslateSource)
+								.filter((l) => l.is_active && l.code !== autoTranslateSource)
 								.map((lang) => (
 									<Button
 										key={lang.code}
