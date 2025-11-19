@@ -25,6 +25,7 @@ import {
 	DialogTrigger,
 } from '@/shared/components/ui/universal/Dialog';
 import { createClient } from '@/utils/supabase/client';
+import { LanguageDetailPage } from './languages/LanguageDetailPage';
 
 type Language = {
 	code: string;
@@ -55,6 +56,7 @@ export function LanguagesManagementTab({
 	const [languages, setLanguages] = useState<Language[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+	const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
 	const [newLanguage, setNewLanguage] = useState<NewLanguageForm>({
 		code: '',
 		name: '',
@@ -202,11 +204,9 @@ export function LanguagesManagementTab({
 	};
 
 	const handleNavigateToTranslations = (languageCode: string) => {
-		if (onNavigateToTranslations) {
-			onNavigateToTranslations(languageCode);
-			toast.success(`Переход к переводам для языка: ${languageCode.toUpperCase()}`);
-		} else {
-			toast.info(`Переход к переводам для языка: ${languageCode}`);
+		const language = languages.find((l) => l.code === languageCode);
+		if (language) {
+			setSelectedLanguage(language);
 		}
 	};
 
@@ -221,6 +221,13 @@ export function LanguagesManagementTab({
 	const totalKeys = languages[0]?.total_keys || 0;
 	const activeLanguages = languages.filter((l) => l.is_active);
 	const inactiveLanguages = languages.filter((l) => !l.is_active);
+
+	// If language is selected, show detail page
+	if (selectedLanguage) {
+		return (
+			<LanguageDetailPage language={selectedLanguage} onBack={() => setSelectedLanguage(null)} />
+		);
+	}
 
 	return (
 		<div className="space-y-6">
