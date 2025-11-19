@@ -62,8 +62,8 @@ export function AchievementHomeScreen({
 	const userEmail = userData?.profile?.email || userData?.email;
 	const avatarUrl = userData?.profile?.avatar || userData?.avatar;
 
-	// Вычисляем количество дней в приложении (используем streak)
-	const daysInApp = currentStreak > 0 ? currentStreak : 1;
+	// Вычисляем текущую серию дней подряд (как в Achievements/Stats)
+	const daysInApp = currentStreak;
 
 	return (
 		<div className="scrollbar-hide min-h-screen bg-background pb-20">

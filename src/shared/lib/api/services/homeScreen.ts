@@ -20,7 +20,7 @@ export interface HomeScreenData {
 }
 
 // Cache configuration
-const CACHE_KEY_PREFIX = 'unity_home_screen_';
+const CACHE_KEY_PREFIX = 'unity_home_screen_v2_';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 час
 
 /**

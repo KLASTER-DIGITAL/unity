@@ -37,8 +37,19 @@ Deno.serve(async (req) => {
 		}
 
 		// Create Supabase client
-		const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+		const supabaseUrl = Deno.env.get('SUPABASE_URL');
+		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+		if (!supabaseUrl || !supabaseKey) {
+			console.error(
+				'[HOME_SCREEN_DATA] ❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars'
+			);
+			return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
 		const supabase = createClient(supabaseUrl, supabaseKey, {
 			global: {
 				headers: { Authorization: authHeader },
@@ -83,7 +94,7 @@ Deno.serve(async (req) => {
 		// ✅ Call motivations Edge Function to generate cards
 		// NOTE: motivation_cards table is a LOG of viewed cards, NOT a source of cards to show
 		// Cards are generated dynamically from entries by motivations Edge Function
-		let motivationCards: any[] = [];
+		let motivationCards: unknown[] = [];
 		try {
 			const motivationsUrl = `${supabaseUrl}/functions/v1/motivations/cards/${userId}`;
 			console.log('[HOME_SCREEN_DATA] Calling motivations Edge Function:', motivationsUrl);
@@ -96,8 +107,8 @@ Deno.serve(async (req) => {
 			});
 
 			if (motivationsResponse.ok) {
-				const motivationsData = await motivationsResponse.json();
-				motivationCards = motivationsData.cards || [];
+				const motivationsData: { cards?: unknown[] } = await motivationsResponse.json();
+				motivationCards = motivationsData.cards ?? [];
 				console.log('[HOME_SCREEN_DATA] ✅ Got cards from motivations:', motivationCards.length);
 			} else {
 				console.error(
@@ -107,8 +118,10 @@ Deno.serve(async (req) => {
 				// Fallback: return empty array (frontend will handle)
 				motivationCards = [];
 			}
-		} catch (motivationsError: any) {
-			console.error('[HOME_SCREEN_DATA] ⚠️ Motivations call error:', motivationsError.message);
+		} catch (motivationsError: unknown) {
+			const errorMessage =
+				motivationsError instanceof Error ? motivationsError.message : String(motivationsError);
+			console.error('[HOME_SCREEN_DATA] ⚠️ Motivations call error:', errorMessage);
 			// Fallback: return empty array
 			motivationCards = [];
 		}
@@ -131,9 +144,10 @@ Deno.serve(async (req) => {
 			status: 200,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
-	} catch (error: any) {
-		console.error('[HOME_SCREEN_DATA] ❌ Error:', error);
-		return new Response(JSON.stringify({ error: error.message }), {
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		console.error('[HOME_SCREEN_DATA] ❌ Error:', errorMessage);
+		return new Response(JSON.stringify({ error: errorMessage }), {
 			status: 500,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});
@@ -141,9 +155,19 @@ Deno.serve(async (req) => {
 });
 
 /**
+ * Entry shape used for statistics and streak calculation
+ * Standalone type: не импортируем shared-типы, чтобы Edge Function была self-contained
+ */
+interface HomeScreenEntry {
+	created_at: string;
+	category?: string | null;
+	sentiment?: string | null;
+}
+
+/**
  * Calculate user statistics from entries
  */
-function calculateStats(entries: any[]) {
+function calculateStats(entries: HomeScreenEntry[]) {
 	const totalEntries = entries.length;
 
 	// Calculate current streak
@@ -178,43 +202,43 @@ function calculateStats(entries: any[]) {
 /**
  * Calculate current streak from entries
  */
-function calculateStreak(entries: any[]): number {
-	if (entries.length === 0) return 0;
+function calculateStreak(entries: HomeScreenEntry[]): number {
+	if (!entries || entries.length === 0) {
+		return 0;
+	}
 
-	// Sort entries by date (newest first)
 	const sortedEntries = [...entries].sort(
 		(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
 	);
 
-	// Get unique dates (YYYY-MM-DD format)
-	const uniqueDates = new Set<string>();
-	sortedEntries.forEach((entry) => {
-		const date = new Date(entry.created_at).toISOString().split('T')[0];
-		uniqueDates.add(date);
-	});
+	let currentStreak = 0;
 
-	const dates = Array.from(uniqueDates).sort((a, b) => b.localeCompare(a)); // Newest first
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const lastEntryDate = new Date(sortedEntries[0].created_at);
+	lastEntryDate.setHours(0, 0, 0, 0);
 
-	if (dates.length === 0) return 0;
+	const daysDiff = Math.floor((today.getTime() - lastEntryDate.getTime()) / (1000 * 60 * 60 * 24));
 
-	// Check if today has an entry
-	const today = new Date().toISOString().split('T')[0];
-	let streak = 0;
-	const currentDate = new Date(today);
+	if (daysDiff <= 1) {
+		currentStreak = 1;
+		let lastDate = lastEntryDate;
 
-	for (const dateStr of dates) {
-		const entryDate = dateStr;
-		const expectedDate = currentDate.toISOString().split('T')[0];
+		for (let i = 1; i < sortedEntries.length; i++) {
+			const currentDate = new Date(sortedEntries[i].created_at);
+			currentDate.setHours(0, 0, 0, 0);
 
-		if (entryDate === expectedDate) {
-			streak++;
-			// Move to previous day
-			currentDate.setDate(currentDate.getDate() - 1);
-		} else {
-			// Streak broken
-			break;
+			const diff = Math.floor((lastDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+
+			if (diff === 1) {
+				currentStreak++;
+			} else if (diff > 1) {
+				break;
+			}
+
+			lastDate = currentDate;
 		}
 	}
 
-	return streak;
+	return currentStreak;
 }

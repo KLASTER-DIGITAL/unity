@@ -112,8 +112,9 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	// ✅ FIX: Define functions BEFORE useEffect with useCallback
 	const loadData = useCallback(() => {
 		// Сейчас все числовые показатели для отчетов приходят из Edge Function
-		// reports/generate через поле data.stats. Здесь только снимаем состояние загрузки
-		setIsLoading(false);
+		// reports/generate через поле data.stats.
+		// Фактическую загрузку/окончание loading обрабатываем в loadPremiumStatus/loadAiReport,
+		// здесь оставляем заглушку на будущее для возможной предзагрузки локальных данных.
 	}, []);
 
 	const loadPremiumStatus = useCallback(async () => {
@@ -121,6 +122,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			const userId = userData?.user?.id || userData?.id;
 			if (!userId) {
 				console.log('[REPORTS] No user ID, skipping premium check');
+				setIsLoading(false);
 				return;
 			}
 
@@ -136,15 +138,76 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 			if (error) {
 				console.error('[REPORTS] Error loading premium status:', error);
+				setIsLoading(false);
 				return;
 			}
 
-			console.log('[REPORTS] Premium status loaded:', profile?.is_premium);
-			setIsPremium(profile?.is_premium || false);
+			const isUserPremium = !!profile?.is_premium;
+			console.log('[REPORTS] Premium status loaded:', isUserPremium);
+			setIsPremium(isUserPremium);
+
+			if (!isUserPremium) {
+				// Для бесплатных пользователей числовые показатели пока недоступны,
+				// поэтому просто снимаем состояние загрузки.
+				setIsLoading(false);
+			}
 		} catch (error) {
 			console.error('[REPORTS] Error in loadPremiumStatus:', error);
+			setIsLoading(false);
 		}
 	}, [userData]);
+
+	const loadLastSavedReport = useCallback(
+		async (period: ReportsPeriod) => {
+			try {
+				const userId = userData?.user?.id || userData?.id;
+				if (!userId) {
+					console.log('[REPORTS] No user ID, skipping existing AI report load');
+					setIsLoading(false);
+					return;
+				}
+
+				const { createClient } = await import('@/utils/supabase/client');
+				const supabase = createClient();
+
+				const apiPeriod = period === 'week' ? 'weekly' : 'monthly';
+
+				const { data, error } = await supabase
+					.from('user_reports')
+					.select('ai_insights, stats')
+					.eq('user_id', userId)
+					.eq('period_type', apiPeriod)
+					.order('stats->>start_date', { ascending: false })
+					.limit(1)
+					.maybeSingle();
+
+				if (error) {
+					console.error('[REPORTS] Error loading saved AI report:', error);
+					return;
+				}
+
+				if (!data) {
+					console.log('[REPORTS] No saved AI report found for period:', apiPeriod);
+					setAiReport(null);
+					setReportStats(null);
+					return;
+				}
+
+				const typedData = data as {
+					ai_insights: AiReport | null;
+					stats: ReportStatsSnapshot | null;
+				};
+
+				setReportStats(typedData.stats ?? null);
+				setAiReport(typedData.ai_insights ?? null);
+			} catch (error) {
+				console.error('[REPORTS] Error in loadLastSavedReport:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[userData]
+	);
 
 	const loadAiReport = useCallback(
 		async (period: ReportsPeriod) => {
@@ -202,6 +265,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 				toast.error(t('reports_ai_failed', 'Не удалось сгенерировать AI отчет. Попробуй позже.'));
 			} finally {
 				setIsLoadingAiReport(false);
+				setIsLoading(false);
 			}
 		},
 		[isPremium, t]
@@ -218,8 +282,8 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			return;
 		}
 
-		void loadAiReport(selectedPeriod);
-	}, [isPremium, selectedPeriod, loadAiReport]);
+		void loadLastSavedReport(selectedPeriod);
+	}, [isPremium, selectedPeriod, loadLastSavedReport]);
 
 	// Получить текущий месяц и год
 	const currentPeriod = new Date().toLocaleDateString('ru-RU', {
@@ -478,7 +542,20 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							</Button>
 						))}
 					</div>
-					<div className="mt-3 flex justify-end">
+					<div className="mt-3 flex justify-end gap-2">
+						{isPremium && (
+							<Button
+								className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
+								onClick={() => void loadAiReport(selectedPeriod)}
+								disabled={isLoadingAiReport}
+								size="sm"
+								variant="ghost"
+							>
+								{isLoadingAiReport
+									? t('reports_ai_generating_short', 'AI готовит обзор...')
+									: t('reports_ai_generate_button', 'Обновить AI-обзор')}
+							</Button>
+						)}
 						<Button
 							className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
 							onClick={() => setShowReportsArchive(true)}
