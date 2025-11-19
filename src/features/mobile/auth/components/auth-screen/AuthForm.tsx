@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import type { AuthTranslations } from './translations';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type AuthFormProps = {
 	isLogin: boolean;
@@ -7,7 +7,6 @@ type AuthFormProps = {
 	name: string;
 	email: string;
 	password: string;
-	translations: AuthTranslations;
 	onNameChange: (value: string) => void;
 	onEmailChange: (value: string) => void;
 	onPasswordChange: (value: string) => void;
@@ -24,12 +23,13 @@ export function AuthForm({
 	name,
 	email,
 	password,
-	translations,
 	onNameChange,
 	onEmailChange,
 	onPasswordChange,
 	onSubmit,
 }: AuthFormProps) {
+	const { t } = useTranslation();
+
 	return (
 		<motion.form
 			animate={{ opacity: 1, y: 0 }}
@@ -45,7 +45,7 @@ export function AuthForm({
 						autoComplete="name"
 						className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 						onChange={(e) => onNameChange(e.target.value)}
-						placeholder={translations.yourName}
+						placeholder={t('auth.yourName')}
 						required
 						type="text"
 						value={name}
@@ -59,7 +59,7 @@ export function AuthForm({
 					autoComplete="email"
 					className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 					onChange={(e) => onEmailChange(e.target.value)}
-					placeholder={translations.yourEmail}
+					placeholder={t('auth.yourEmail')}
 					required
 					type="email"
 					value={email}
@@ -73,7 +73,7 @@ export function AuthForm({
 					className="h-[60px] w-full rounded-(--radius) border-2 border-[#756ef3] bg-input-background px-6 text-[#002055] outline-none transition-all duration-200 placeholder:text-[#848a94]"
 					minLength={6}
 					onChange={(e) => onPasswordChange(e.target.value)}
-					placeholder={translations.password}
+					placeholder={t('auth.password')}
 					required
 					type="password"
 					value={password}
@@ -87,7 +87,7 @@ export function AuthForm({
 				type="submit"
 				whileTap={{ scale: isLoading ? 1 : 0.98 }}
 			>
-				{isLoading ? 'Загрузка...' : isLogin ? translations.signIn : translations.signUp}
+				{isLoading ? 'Загрузка...' : isLogin ? t('auth.signIn') : t('auth.signUp')}
 			</motion.button>
 		</motion.form>
 	);

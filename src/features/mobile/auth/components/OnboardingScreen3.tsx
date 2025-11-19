@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 import type { OnboardingScreen3Props } from './onboarding3';
 // Import modular components
-import { NextButton, PersonalizationForm, Sliedbar, translations } from './onboarding3';
+import { NextButton, PersonalizationForm, Sliedbar } from './onboarding3';
 
 // Re-export types for backward compatibility
 export type { OnboardingScreen3Props };
@@ -18,8 +19,7 @@ function Frame2087324619({
 	totalSteps,
 	onStepClick,
 }: OnboardingScreen3Props) {
-	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] || translations.ru;
+	const { t } = useTranslation();
 	const [isFormComplete, setIsFormComplete] = useState(false);
 	const [formData, setFormData] = useState({ name: '', emoji: '🏆' });
 
@@ -41,18 +41,14 @@ function Frame2087324619({
 			initial={{ opacity: 0 }}
 			transition={{ duration: 0.5 }}
 		>
-			<PersonalizationForm
-				currentTranslations={currentTranslations}
-				onNext={handlePersonalizationNext}
-				onUpdate={handleFormUpdate}
-			/>
+			<PersonalizationForm onNext={handlePersonalizationNext} onUpdate={handleFormUpdate} />
 			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton
 				disabled={!isFormComplete}
 				onNext={() =>
-					handlePersonalizationNext(formData.name || currentTranslations.presets[0], formData.emoji)
+					handlePersonalizationNext(formData.name || t('onboarding3.presets.0'), formData.emoji)
 				}
-				validationMessage={currentTranslations.validationError}
+				validationMessage={t('onboarding3.validationError')}
 			/>
 		</motion.div>
 	);

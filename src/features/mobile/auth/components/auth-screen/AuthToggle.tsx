@@ -1,10 +1,9 @@
 import { motion } from 'motion/react';
-import type { AuthTranslations } from './translations';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type AuthToggleProps = {
 	isLogin: boolean;
 	isLoading: boolean;
-	translations: AuthTranslations;
 	onToggle: () => void;
 	onBack?: () => void;
 };
@@ -13,13 +12,9 @@ type AuthToggleProps = {
  * Auth Toggle Component
  * Toggle between login and registration modes
  */
-export function AuthToggle({
-	isLogin,
-	isLoading,
-	translations,
-	onToggle,
-	onBack,
-}: AuthToggleProps) {
+export function AuthToggle({ isLogin, isLoading, onToggle, onBack }: AuthToggleProps) {
+	const { t } = useTranslation();
+
 	return (
 		<>
 			{/* Toggle Login/Signup */}
@@ -36,12 +31,10 @@ export function AuthToggle({
 					type="button"
 				>
 					<span className="text-[#868d95]">
-						{isLogin
-							? `${translations.notRegisteredYet} `
-							: `${translations.alreadyHaveAccountAuth} `}
+						{isLogin ? `${t('auth.notRegisteredYet')} ` : `${t('auth.alreadyHaveAccountAuth')} `}
 					</span>
 					<span className="font-semibold! text-[#756ef3]">
-						{isLogin ? translations.signUp : translations.signIn}
+						{isLogin ? t('auth.signUp') : t('auth.signIn')}
 					</span>
 				</button>
 			</motion.div>
@@ -60,7 +53,7 @@ export function AuthToggle({
 						onClick={onBack}
 						type="button"
 					>
-						← {translations.back}
+						← {t('auth.back')}
 					</button>
 				</motion.div>
 			)}

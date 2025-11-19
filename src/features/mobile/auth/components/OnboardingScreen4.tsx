@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 // Import modular components and types
 import {
@@ -10,7 +11,6 @@ import {
 	type OnboardingScreen4Props,
 	Sliedbar,
 	SuccessModal,
-	onboarding4Translations as translations,
 } from './onboarding4';
 
 // Re-export types for backward compatibility
@@ -22,14 +22,13 @@ export type { OnboardingScreen4Props, NotificationSettingsType };
 // Components in the style of OnboardingScreen3
 
 function HabitsAndEntryForm({
-	currentTranslations,
 	onNext,
 	onUpdate,
 }: {
-	currentTranslations: any;
 	onNext: (entry: string, settings: NotificationSettingsType) => void;
 	onUpdate?: (entry: string, settings: NotificationSettingsType) => void;
 }) {
+	const { t } = useTranslation();
 	// Simplified: no notification settings on this screen
 	const notificationSettings: NotificationSettingsType = {
 		selectedTime: 'none',
@@ -65,12 +64,12 @@ function HabitsAndEntryForm({
 				animate={{ opacity: 1 }}
 				className="relative shrink-0 font-['Poppins:Medium',_'Noto_Sans:Regular',_sans-serif] text-[#756ef3] text-[14px]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.subtitle}
+				key={t('onboarding4.subtitle')}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3, delay: 0.1 }}
 			>
 				<p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">
-					{currentTranslations.subtitle}
+					{t('onboarding4.subtitle')}
 				</p>
 			</motion.div>
 
@@ -79,12 +78,12 @@ function HabitsAndEntryForm({
 				animate={{ opacity: 1 }}
 				className="relative w-full shrink-0 self-start font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] text-[#002055] text-[28px] tracking-[-1px] dark:text-[#1a1a1a]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.title}
+				key={t('onboarding4.title')}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3 }}
 			>
 				<p className="!leading-[28px] font-![Days_One] font-semibold! text-[20px]!">
-					{currentTranslations.title}
+					{t('onboarding4.title')}
 				</p>
 			</motion.div>
 
@@ -97,17 +96,17 @@ function HabitsAndEntryForm({
 			>
 				<div>
 					<h3 className="!text-[#756ef3] mb-1 font-semibold! text-[14px]!">
-						{currentTranslations.firstEntryTitle}
+						{t('onboarding4.firstEntryTitle')}
 					</h3>
 					<p className="!text-[#002055] dark:!text-[#1a1a1a] !text-opacity-70 text-[12px]!">
-						{currentTranslations.firstEntrySubtitle}
+						{t('onboarding4.firstEntrySubtitle')}
 					</p>
 				</div>
 
 				<ChatGPTInput
 					onChange={handleEntryChange}
 					onSubmit={handleNext}
-					placeholder={currentTranslations.placeholder}
+					placeholder={t('onboarding4.placeholder')}
 					value={firstEntry}
 				/>
 			</motion.div>
@@ -124,8 +123,7 @@ function Frame2087324620({
 	totalSteps,
 	onStepClick,
 }: OnboardingScreen4Props) {
-	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] || translations.ru;
+	const { t } = useTranslation();
 	const [isFormComplete, setIsFormComplete] = useState(false);
 	const [formData, setFormData] = useState<{
 		entry: string;
@@ -182,18 +180,14 @@ function Frame2087324620({
 			initial={{ opacity: 0 }}
 			transition={{ duration: 0.5 }}
 		>
-			<HabitsAndEntryForm
-				currentTranslations={currentTranslations}
-				onNext={handleFormNext}
-				onUpdate={handleFormUpdate}
-			/>
+			<HabitsAndEntryForm onNext={handleFormNext} onUpdate={handleFormUpdate} />
 			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton
 				disabled={!isFormComplete}
 				onNext={() => handleFormNext(formData.entry, formData.settings)}
 			/>
 
-			<SuccessModal isOpen={showSuccess} message={currentTranslations.successMessage} />
+			<SuccessModal isOpen={showSuccess} message={t('onboarding4.successMessage')} />
 		</motion.div>
 	);
 }

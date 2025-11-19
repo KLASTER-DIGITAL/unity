@@ -11,7 +11,6 @@ export type OnboardingScreen3Props = {
 };
 
 export type PersonalizationFormProps = {
-	currentTranslations: any;
 	onNext: (name: string, emoji: string) => void;
 	onUpdate?: (name: string, emoji: string) => void;
 };

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { emojiOptions } from './constants';
 import type { PersonalizationFormProps } from './types';
 
@@ -7,11 +8,8 @@ import type { PersonalizationFormProps } from './types';
  * Personalization Form Component
  * Allows user to name their diary and select an emoji
  */
-export function PersonalizationForm({
-	currentTranslations,
-	onNext: _onNext,
-	onUpdate,
-}: PersonalizationFormProps) {
+export function PersonalizationForm({ onNext: _onNext, onUpdate }: PersonalizationFormProps) {
+	const { t } = useTranslation();
 	const [diaryName, setDiaryName] = useState('');
 	const [selectedEmoji, setSelectedEmoji] = useState('🏆');
 	const [isInputFocused, setIsInputFocused] = useState(false);
@@ -55,12 +53,12 @@ export function PersonalizationForm({
 				animate={{ opacity: 1 }}
 				className="relative shrink-0 font-['Poppins:Medium',_'Noto_Sans:Regular',_sans-serif] text-[#756ef3] text-[14px]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.subtitle}
+				key={t('onboarding3.subtitle')}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3, delay: 0.1 }}
 			>
 				<p className="!leading-[18px] font-![Days_One] font-bold! text-[12px]!">
-					{currentTranslations.subtitle}
+					{t('onboarding3.subtitle')}
 				</p>
 			</motion.div>
 
@@ -69,12 +67,12 @@ export function PersonalizationForm({
 				animate={{ opacity: 1 }}
 				className="relative w-full shrink-0 self-start font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] text-[#002055] text-[28px] tracking-[-1px] dark:text-[#1a1a1a]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.title}
+				key={t('onboarding3.title')}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3 }}
 			>
 				<p className="!leading-[33px] font-![Days_One] font-semibold! text-[24px]!">
-					{currentTranslations.title}
+					{t('onboarding3.title')}
 				</p>
 			</motion.div>
 
@@ -124,7 +122,7 @@ export function PersonalizationForm({
 					onBlur={() => setIsInputFocused(false)}
 					onChange={(e) => handleNameChange(e.target.value)}
 					onFocus={() => setIsInputFocused(true)}
-					placeholder={currentTranslations.placeholder}
+					placeholder={t('onboarding3.placeholder')}
 					transition={{ duration: 0.2 }}
 					type="text"
 					value={diaryName}
@@ -157,33 +155,35 @@ export function PersonalizationForm({
 					Или выберите готовый вариант:
 				</motion.p>
 
-				{currentTranslations.presets.map((preset: string, index: number) => (
-					<motion.button
-						animate={{ opacity: 1, x: 0 }}
-						className={`rounded-lg border-2 px-4 py-3 text-center font-semibold! text-[14px]! transition-all duration-300 ${
-							diaryName === preset
-								? 'border-primary bg-primary/10 text-primary'
-								: 'border-border hover:border-primary hover:bg-primary/5'
-						}`}
-						initial={{ opacity: 0, x: -20 }}
-						key={preset}
-						onClick={() => handlePresetClick(preset)}
-						transition={{ delay: 1 + index * 0.1, duration: 0.3 }}
-						whileHover={{
-							scale: 1.02,
-							boxShadow: '0 4px 12px rgba(117, 110, 243, 0.15)',
-						}}
-						whileTap={{ scale: 0.98 }}
-					>
-						<motion.span
-							animate={{ opacity: 1 }}
-							initial={{ opacity: 0 }}
-							transition={{ delay: 1.1 + index * 0.1, duration: 0.2 }}
+				{[t('onboarding3.presets.0'), t('onboarding3.presets.1'), t('onboarding3.presets.2')].map(
+					(preset: string, index: number) => (
+						<motion.button
+							animate={{ opacity: 1, x: 0 }}
+							className={`rounded-lg border-2 px-4 py-3 text-center font-semibold! text-[14px]! transition-all duration-300 ${
+								diaryName === preset
+									? 'border-primary bg-primary/10 text-primary'
+									: 'border-border hover:border-primary hover:bg-primary/5'
+							}`}
+							initial={{ opacity: 0, x: -20 }}
+							key={preset}
+							onClick={() => handlePresetClick(preset)}
+							transition={{ delay: 1 + index * 0.1, duration: 0.3 }}
+							whileHover={{
+								scale: 1.02,
+								boxShadow: '0 4px 12px rgba(117, 110, 243, 0.15)',
+							}}
+							whileTap={{ scale: 0.98 }}
 						>
-							{preset}
-						</motion.span>
-					</motion.button>
-				))}
+							<motion.span
+								animate={{ opacity: 1 }}
+								initial={{ opacity: 0 }}
+								transition={{ delay: 1.1 + index * 0.1, duration: 0.2 }}
+							>
+								{preset}
+							</motion.span>
+						</motion.button>
+					)
+				)}
 			</motion.div>
 
 			{/* Form validation indicator */}
@@ -213,7 +213,7 @@ export function PersonalizationForm({
 					initial={{ opacity: 0, x: -10 }}
 					transition={{ duration: 0.3 }}
 				>
-					{currentTranslations.readyMessage}
+					{t('onboarding3.readyMessage')}
 				</motion.span>
 			</motion.div>
 		</motion.div>

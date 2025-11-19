@@ -2,12 +2,11 @@ import { motion } from 'motion/react';
 import { facebookIconSvg } from '@/imports/social-icons';
 import { imgApple, imgGroup659 } from '@/imports/svg-ok0q3';
 import { TelegramLoginWidget } from '@/shared/components/TelegramLoginWidget';
-import type { AuthTranslations } from './translations';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type SocialAuthButtonsProps = {
 	isLogin: boolean;
 	isLoading: boolean;
-	translations: AuthTranslations;
 	onSocialAuth: (provider: string) => void;
 	onTelegramAuth: (response: any) => void;
 };
@@ -19,10 +18,11 @@ type SocialAuthButtonsProps = {
 export function SocialAuthButtons({
 	isLogin,
 	isLoading,
-	translations,
 	onSocialAuth,
 	onTelegramAuth,
 }: SocialAuthButtonsProps) {
+	const { t } = useTranslation();
+
 	return (
 		<motion.div
 			animate={{ opacity: 1 }}
@@ -31,7 +31,7 @@ export function SocialAuthButtons({
 			transition={{ duration: 0.5, delay: 0.2 }}
 		>
 			<p className="mb-6 text-center text-[#868d95] text-[14px]!">
-				{isLogin ? translations.signInWith : translations.signUpWith}
+				{isLogin ? t('auth.signInWith') : t('auth.signUpWith')}
 			</p>
 
 			<div className="flex justify-center gap-4">

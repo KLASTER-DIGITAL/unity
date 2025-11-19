@@ -1,13 +1,13 @@
 import { motion } from 'motion/react';
 import type React from 'react';
 import { useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 import type { AuthScreenProps } from './auth-screen';
 // Import modular components, handlers and types
 import {
 	AuthForm,
 	AuthToggle,
-	authTranslations,
 	Ellipse,
 	handleEmailAuth,
 	handleSocialAuth,
@@ -37,9 +37,8 @@ export function AuthScreen({
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
-	// Получаем переводы для выбранного языка
-	const currentTranslations =
-		authTranslations[selectedLanguage as keyof typeof authTranslations] || authTranslations.ru;
+	// Получаем переводы из БД через useTranslation hook
+	const { t } = useTranslation();
 
 	// Supabase клиент для работы с сессиями
 	const supabase = createClient();
@@ -97,11 +96,9 @@ export function AuthScreen({
 					initial={{ opacity: 0, y: 20 }}
 					transition={{ duration: 0.5 }}
 				>
-					<h1 className="mb-3 text-[#002055]">
-						{isLogin ? currentTranslations.signIn : currentTranslations.signUp}
-					</h1>
+					<h1 className="mb-3 text-[#002055]">{isLogin ? t('auth.signIn') : t('auth.signUp')}</h1>
 					<p className="max-w-[300px] text-[#868d95] text-[14px]! leading-relaxed">
-						{isLogin ? currentTranslations.welcomeBack : currentTranslations.createAccount}
+						{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
 					</p>
 				</motion.div>
 
@@ -116,7 +113,6 @@ export function AuthScreen({
 					onPasswordChange={setPassword}
 					onSubmit={handleEmailSubmit}
 					password={password}
-					translations={currentTranslations}
 				/>
 
 				{/* Social Login */}
@@ -125,7 +121,6 @@ export function AuthScreen({
 					isLogin={isLogin}
 					onSocialAuth={handleSocialAuthClick}
 					onTelegramAuth={handleTelegramResponse}
-					translations={currentTranslations}
 				/>
 
 				{/* Toggle Login/Signup & Back Button */}
@@ -134,7 +129,6 @@ export function AuthScreen({
 					isLogin={isLogin}
 					onBack={onBack}
 					onToggle={() => setIsLogin(!isLogin)}
-					translations={currentTranslations}
 				/>
 			</div>
 		</div>
