@@ -38,7 +38,19 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 	// Handle token refresh errors
 	if (event === 'TOKEN_REFRESHED') {
-		console.log('[Supabase Auth] ✅ Token refreshed successfully');
+		if (!session) {
+			// ✅ FIX: Token refresh failed (invalid refresh token)
+			console.warn('[Supabase Auth] ⚠️ Token refresh failed - clearing invalid token');
+			// Clear localStorage to prevent repeated 400 errors
+			try {
+				localStorage.removeItem('supabase.auth.token');
+				localStorage.removeItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
+			} catch (error) {
+				console.error('[Supabase Auth] Error clearing localStorage:', error);
+			}
+		} else {
+			console.log('[Supabase Auth] ✅ Token refreshed successfully');
+		}
 	}
 
 	if (event === 'SIGNED_OUT') {
