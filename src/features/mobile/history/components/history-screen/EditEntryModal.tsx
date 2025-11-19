@@ -196,7 +196,7 @@ export function EditEntryModal({
 							disabled={isSaving}
 							onClick={() => !isSaving && onClose()}
 						>
-							Отмена
+							{t('history.edit.cancel', 'Отмена')}
 						</button>
 						<button
 							className="flex flex-1 items-center justify-center gap-2 rounded-[12px] bg-accent px-4 py-3 font-medium! text-[15px]! text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
@@ -204,11 +204,11 @@ export function EditEntryModal({
 							onClick={onSave}
 						>
 							{isSaving ? (
-								'Сохранение...'
+								t('history.edit.saving', 'Сохранение...')
 							) : (
 								<>
 									<Save className="h-4 w-4" strokeWidth={2} />
-									Сохранить
+									{t('history.edit.save', 'Сохранить')}
 								</>
 							)}
 						</button>

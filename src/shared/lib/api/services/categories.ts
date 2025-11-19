@@ -13,6 +13,7 @@ export type UserCategory = {
 	icon: string;
 	color: string;
 	is_default: boolean;
+	translation_key?: string; // For default categories with i18n support
 	created_at: string;
 	updated_at: string;
 };

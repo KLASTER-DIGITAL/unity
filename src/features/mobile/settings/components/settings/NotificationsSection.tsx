@@ -42,7 +42,7 @@ export function NotificationsSection({
 			)}
 
 			<SettingsRow
-				description="Напоминания о записях"
+				description={t.notifications?.daily_reminder?.description || 'Напоминания о записях'}
 				icon={Bell}
 				iconBgColor="bg-(--ios-blue)/10"
 				iconColor="text-(--ios-blue)"
@@ -52,7 +52,7 @@ export function NotificationsSection({
 				title={t.dailyReminders || 'Ежедневные напоминания'}
 			/>
 			<SettingsRow
-				description="Статистика за неделю"
+				description={t.notifications?.weekly_report?.description || 'Статистика за неделю'}
 				icon={Calendar}
 				iconBgColor="bg-(--ios-purple)/10"
 				iconColor="text-(--ios-purple)"
@@ -62,7 +62,7 @@ export function NotificationsSection({
 				title={t.weeklyReports || 'Еженедельные отчеты'}
 			/>
 			<SettingsRow
-				description="Уведомления о наградах"
+				description={t.notifications?.achievements?.description || 'Уведомления о наградах'}
 				icon={Star}
 				iconBgColor="bg-(--ios-green)/10"
 				iconColor="text-(--ios-green)"
@@ -72,7 +72,7 @@ export function NotificationsSection({
 				title={t.newAchievements || 'Новые достижения'}
 			/>
 			<SettingsRow
-				description="Мотивационные карточки"
+				description={t.notifications?.motivational?.description || 'Мотивационные карточки'}
 				icon={Crown}
 				iconBgColor="bg-(--ios-orange)/10"
 				iconColor="text-(--ios-orange)"

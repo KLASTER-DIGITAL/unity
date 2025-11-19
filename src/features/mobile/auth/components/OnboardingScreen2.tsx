@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import heroImageSrc from '@/assets/5f4bd000111b1df6537a53aaf570a9424e39fbcf.webp';
 import { imgArrowRight, imgCircle, imgRectangle5904 } from '@/imports/svg-6xkhk';
 import { PriorityOptimizedImage } from '@/shared/components/OptimizedImage';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type OnboardingScreen2Props = {
 	selectedLanguage: string;
@@ -10,37 +11,6 @@ type OnboardingScreen2Props = {
 	currentStep: number;
 	totalSteps: number;
 	onStepClick: (step: number) => void;
-};
-
-const translations = {
-	ru: {
-		subtitle: 'Твои маленькие шаги — большие победы',
-		title: 'Фиксируй достижения и смотри, как растёт твой прогресс',
-	},
-	en: {
-		subtitle: 'Your small steps — big victories',
-		title: 'Track achievements and watch your progress grow',
-	},
-	es: {
-		subtitle: 'Tus pequeños pasos — grandes victorias',
-		title: 'Rastrea logros y observa cómo crece tu progreso',
-	},
-	de: {
-		subtitle: 'Deine kleinen Schritte — große Siege',
-		title: 'Verfolge Erfolge und sieh, wie dein Fortschritt wächst',
-	},
-	fr: {
-		subtitle: 'Tes petits pas — de grandes victoires',
-		title: 'Suivez les réalisations et regardez votre progrès grandir',
-	},
-	zh: {
-		subtitle: '你的小步骤——大胜利',
-		title: '跟踪成就，观看你的进步增长',
-	},
-	ja: {
-		subtitle: 'あなたの小さな一歩—大きな勝利',
-		title: '成果を追跡し、進歩の成長を見る',
-	},
 };
 
 function Circle() {
@@ -75,7 +45,10 @@ function Circle() {
 	);
 }
 
-function Text({ currentTranslations }: { currentTranslations: any }) {
+function Text({ t }: { t: (key: string, fallback?: string) => string }) {
+	const subtitle = t('onboarding2.subtitle', 'Твои маленькие шаги — большие победы');
+	const title = t('onboarding2.title', 'Фиксируй достижения и смотри, как растёт твой прогресс');
+
 	return (
 		<motion.div
 			animate={{ opacity: 1, y: 0 }}
@@ -94,25 +67,23 @@ function Text({ currentTranslations }: { currentTranslations: any }) {
 				animate={{ opacity: 1 }}
 				className="relative shrink-0 font-['Poppins:Medium',_'Noto_Sans:Regular',_sans-serif] text-[#756ef3] text-[14px] [grid-area:1_/_1]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.subtitle}
+				key={subtitle}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3, delay: 0.1 }}
 			>
 				<p className="font-[Days_One] font-bold font-normal text-[12px] leading-[18px]">
-					{currentTranslations.subtitle}
+					{subtitle}
 				</p>
 			</motion.div>
 			<motion.div
 				animate={{ opacity: 1 }}
 				className="relative w-full shrink-0 self-start font-['Poppins:Regular',_'Noto_Sans:Regular',_sans-serif] text-[#002055] text-[28px] tracking-[-1px] [grid-area:2_/_1] dark:text-[#1a1a1a]"
 				initial={{ opacity: 0 }}
-				key={currentTranslations.title}
+				key={title}
 				style={{ fontVariationSettings: "'CTGR' 0, 'wdth' 100, 'wght' 400" }}
 				transition={{ duration: 0.3 }}
 			>
-				<p className="!leading-[33px] font-![Days_One] font-semibold! text-[24px]!">
-					{currentTranslations.title}
-				</p>
+				<p className="!leading-[33px] font-![Days_One] font-semibold! text-[24px]!">{title}</p>
 			</motion.div>
 		</motion.div>
 	);
@@ -230,14 +201,13 @@ function NextButton({ onNext }: { onNext: () => void }) {
 }
 
 function Frame2087324618({
-	selectedLanguage,
+	selectedLanguage: _selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
 	onStepClick,
 }: OnboardingScreen2Props) {
-	const currentTranslations =
-		translations[selectedLanguage as keyof typeof translations] || translations.ru;
+	const { t } = useTranslation();
 
 	return (
 		<motion.div
@@ -267,7 +237,7 @@ function Frame2087324618({
 					src={heroImageSrc}
 				/>
 			</motion.div>
-			<Text currentTranslations={currentTranslations} />
+			<Text t={t} />
 			<Sliedbar currentStep={currentStep} onStepClick={onStepClick} totalSteps={totalSteps} />
 			<NextButton onNext={onNext} />
 		</motion.div>

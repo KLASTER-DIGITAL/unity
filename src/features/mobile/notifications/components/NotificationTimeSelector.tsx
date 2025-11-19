@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { TimePickerModal } from '@/features/mobile/media/components/TimePickerModal';
 import { SettingsRow } from '@/features/mobile/settings/components/SettingsRow';
+import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
 type NotificationTimeSelectorProps = {
@@ -37,6 +38,7 @@ export function NotificationTimeSelector({
 	initialSelectedTimes = [],
 	onUpdate,
 }: NotificationTimeSelectorProps) {
+	const { t } = useTranslation();
 	const [morningTime, setMorningTime] = useState(initialMorningTime);
 	const [eveningTime, setEveningTime] = useState(initialEveningTime);
 	const [selectedTimes, setSelectedTimes] =
@@ -146,14 +148,14 @@ export function NotificationTimeSelector({
 						<span className="font-medium">{morningTime}</span>
 					</button>
 				}
-				description="Напоминание утром"
+				description={t('notifications.time.morning.description', 'Напоминание утром')}
 				icon={Clock}
 				iconBgColor="bg-(--ios-blue)/10"
 				iconColor="text-(--ios-blue)"
 				onSwitchChange={(checked) => handleToggleTime('morning', checked)}
 				rightElement="custom"
 				switchChecked={selectedTimes.includes('morning')}
-				title="Утреннее напоминание"
+				title={t('notifications.time.morning.title', 'Утреннее напоминание')}
 			/>
 
 			{/* Evening Time */}
@@ -168,14 +170,14 @@ export function NotificationTimeSelector({
 						<span className="font-medium">{eveningTime}</span>
 					</button>
 				}
-				description="Напоминание вечером"
+				description={t('notifications.time.evening.description', 'Напоминание вечером')}
 				icon={Clock}
 				iconBgColor="bg-(--ios-purple)/10"
 				iconColor="text-(--ios-purple)"
 				onSwitchChange={(checked) => handleToggleTime('evening', checked)}
 				rightElement="custom"
 				switchChecked={selectedTimes.includes('evening')}
-				title="Вечернее напоминание"
+				title={t('notifications.time.evening.title', 'Вечернее напоминание')}
 			/>
 
 			{/* Time Picker Modal */}

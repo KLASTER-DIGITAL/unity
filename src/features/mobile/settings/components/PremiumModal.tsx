@@ -2,6 +2,7 @@ import { Check, Crown, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type PremiumModalProps = {
 	open: boolean;
@@ -9,35 +10,52 @@ type PremiumModalProps = {
 };
 
 export function PremiumModal({ open, onClose }: PremiumModalProps) {
+	const { t } = useTranslation();
+
 	const premiumFeatures = [
 		{
-			title: 'Неограниченные записи',
-			description: 'Создавайте сколько угодно записей в месяц',
+			title: t('premium.feature.unlimited.title', 'Неограниченные записи'),
+			description: t(
+				'premium.feature.unlimited.description',
+				'Создавайте сколько угодно записей в месяц'
+			),
 			icon: '∞',
 		},
 		{
-			title: 'Offline режим',
-			description: 'Работайте без интернета, автоматическая синхронизация',
+			title: t('premium.feature.offline.title', 'Offline режим'),
+			description: t(
+				'premium.feature.offline.description',
+				'Работайте без интернета, автоматическая синхронизация'
+			),
 			icon: '📴',
 		},
 		{
-			title: 'Автоматическое резервирование',
-			description: 'Облачное сохранение данных каждый день',
+			title: t('premium.feature.backup.title', 'Автоматическое резервирование'),
+			description: t(
+				'premium.feature.backup.description',
+				'Облачное сохранение данных каждый день'
+			),
 			icon: '☁️',
 		},
 		{
-			title: 'PDF-книги',
-			description: 'Генерация красивых PDF отчетов с AI-инсайтами',
+			title: t('premium.feature.pdf.title', 'PDF-книги'),
+			description: t(
+				'premium.feature.pdf.description',
+				'Генерация красивых PDF отчетов с AI-инсайтами'
+			),
 			icon: '📄',
 		},
 		{
-			title: 'Расширенный экспорт',
-			description: 'Экспорт в JSON, CSV и ZIP форматах',
+			title: t('premium.feature.export.title', 'Расширенный экспорт'),
+			description: t('premium.feature.export.description', 'Экспорт в JSON, CSV и ZIP форматах'),
 			icon: '📦',
 		},
 		{
-			title: 'Расширенная аналитика',
-			description: 'Детальные отчеты и графики прогресса',
+			title: t('premium.feature.analytics.title', 'Расширенная аналитика'),
+			description: t(
+				'premium.feature.analytics.description',
+				'Детальные отчеты и графики прогресса'
+			),
 			icon: '📊',
 		},
 	];
@@ -75,7 +93,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 						</div>
 
 						<p className="mb-6 text-footnote text-muted-foreground">
-							Получите максимум от вашего дневника достижений
+							{t('premium.header.title', 'Получите максимум от вашего дневника достижений')}
 						</p>
 
 						<div className="space-y-6">
@@ -84,10 +102,12 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 								<div className="text-center">
 									<div className="text-foreground text-large-title">
 										$4.99
-										<span className="text-headline text-muted-foreground">/месяц</span>
+										<span className="text-headline text-muted-foreground">
+											{t('premium.pricing.monthly', '/месяц')}
+										</span>
 									</div>
 									<p className="mt-2 text-footnote text-muted-foreground">
-										или $49.99/год (экономия 17%)
+										{t('premium.pricing.yearly', 'или $49.99/год (экономия 17%)')}
 									</p>
 								</div>
 							</div>
@@ -118,22 +138,29 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 								<Button
 									className="w-full bg-linear-to-r from-yellow-500 to-orange-500 font-semibold text-white hover:from-yellow-600 hover:to-orange-600"
 									onClick={() => {
-										toast.info('Функция покупки Premium будет доступна в следующей версии');
+										toast.info(
+											t(
+												'premium.cta.coming_soon',
+												'Функция покупки Premium будет доступна в следующей версии'
+											)
+										);
 										onClose();
 									}}
 								>
 									<Crown className="mr-2 h-4 w-4" />
-									Получить Premium
+									{t('premium.cta.get', 'Получить Premium')}
 								</Button>
 								<Button className="w-full" onClick={onClose} variant="outline">
-									Может быть позже
+									{t('premium.cta.later', 'Может быть позже')}
 								</Button>
 							</div>
 
 							{/* Footer */}
 							<div className="border-border border-t pt-2 text-center text-caption-1 text-muted-foreground">
-								<p>✨ 7 дней бесплатно для новых пользователей</p>
-								<p className="mt-1">Отмена подписки в любое время</p>
+								<p>{t('premium.footer.trial', '✨ 7 дней бесплатно для новых пользователей')}</p>
+								<p className="mt-1">
+									{t('premium.footer.cancel', 'Отмена подписки в любое время')}
+								</p>
 							</div>
 						</div>
 					</motion.div>

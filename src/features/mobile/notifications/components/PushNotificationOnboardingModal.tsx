@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from '@/shared/lib/i18n';
 import { subscribeToPush } from '@/shared/lib/notifications/pushAdapter';
 import { createClient } from '@/utils/supabase/client';
 
@@ -32,6 +33,8 @@ export function PushNotificationOnboardingModal({
 	userId,
 	onComplete,
 }: PushNotificationOnboardingModalProps) {
+	const { t } = useTranslation();
+
 	// Checkbox state - user can select morning, evening, or both
 	const [morningEnabled, setMorningEnabled] = useState(true);
 	const [eveningEnabled, setEveningEnabled] = useState(true);
@@ -95,18 +98,22 @@ export function PushNotificationOnboardingModal({
 				console.error('[PushOnboardingModal] Push subscription failed:', result.error);
 
 				if (result.error === 'permission_denied') {
-					toast.error('Разрешение на уведомления отклонено');
+					toast.error(
+						t('notifications.errors.permissionDenied', 'Разрешение на уведомления отклонено')
+					);
 				} else if (result.error === 'not_supported') {
-					toast.error('Ваш браузер не поддерживает уведомления');
+					toast.error(
+						t('notifications.errors.notSupported', 'Ваш браузер не поддерживает уведомления')
+					);
 				} else if (result.error === 'vapid_key_missing') {
-					toast.error('Ошибка конфигурации сервера');
+					toast.error(t('notifications.errors.serverConfig', 'Ошибка конфигурации сервера'));
 				} else {
-					toast.error('Ошибка при включении уведомлений');
+					toast.error(t('notifications.errors.enableFailed', 'Ошибка при включении уведомлений'));
 				}
 			}
 		} catch (error) {
 			console.error('[PushOnboardingModal] Error enabling notifications:', error);
-			toast.error('Ошибка при включении уведомлений');
+			toast.error(t('notifications.errors.enableFailed', 'Ошибка при включении уведомлений'));
 		} finally {
 			setIsLoading(false);
 		}
@@ -131,7 +138,7 @@ export function PushNotificationOnboardingModal({
 			onClose();
 		} catch (error) {
 			console.error('Error skipping notifications:', error);
-			toast.error('Ошибка при пропуске');
+			toast.error(t('notifications.errors.skipFailed', 'Ошибка при пропуске'));
 		}
 	};
 
@@ -175,15 +182,22 @@ export function PushNotificationOnboardingModal({
 
 							{/* Title */}
 							<div className="text-center">
-								<h2 className="text-xl font-semibold text-foreground">Включить уведомления?</h2>
+								<h2 className="text-xl font-semibold text-foreground">
+									{t('notifications.modal.title', 'Включить уведомления?')}
+								</h2>
 								<p className="mt-2 text-sm text-muted-foreground">
-									Получайте напоминания о записях и мотивационные сообщения
+									{t(
+										'notifications.modal.description',
+										'Получайте напоминания о записях и мотивационные сообщения'
+									)}
 								</p>
 							</div>
 
 							{/* Time Selection */}
 							<div className="space-y-3">
-								<label className="text-sm font-medium text-foreground">Когда напоминать?</label>
+								<label className="text-sm font-medium text-foreground">
+									{t('notifications.modal.whenRemind', 'Когда напоминать?')}
+								</label>
 
 								<div className="space-y-2">
 									{/* Morning Checkbox */}
@@ -203,7 +217,9 @@ export function PushNotificationOnboardingModal({
 											/>
 											<div className="flex items-center gap-2">
 												<Clock className="h-4 w-4 text-muted-foreground" />
-												<span className="text-sm font-medium">Утром</span>
+												<span className="text-sm font-medium">
+													{t('notifications.time.morning', 'Утром')}
+												</span>
 											</div>
 										</div>
 										<input
@@ -233,7 +249,9 @@ export function PushNotificationOnboardingModal({
 											/>
 											<div className="flex items-center gap-2">
 												<Clock className="h-4 w-4 text-muted-foreground" />
-												<span className="text-sm font-medium">Вечером</span>
+												<span className="text-sm font-medium">
+													{t('notifications.time.evening', 'Вечером')}
+												</span>
 											</div>
 										</div>
 										<input
@@ -256,10 +274,12 @@ export function PushNotificationOnboardingModal({
 									onClick={handleEnableNotifications}
 									variant="default"
 								>
-									{isLoading ? 'Включение...' : 'Включить'}
+									{isLoading
+										? t('notifications.button.enabling', 'Включение...')
+										: t('notifications.button.enable', 'Включить')}
 								</Button>
 								<Button className="flex-1" onClick={handleSkip} variant="outline">
-									Позже
+									{t('notifications.button.later', 'Позже')}
 								</Button>
 							</div>
 						</div>

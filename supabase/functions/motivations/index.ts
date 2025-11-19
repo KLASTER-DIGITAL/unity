@@ -544,79 +544,106 @@ function getGradientByIndex(index: number, sentiment: string = 'positive'): stri
 	return gradientList[index % gradientList.length];
 }
 
-function getDefaultMotivations(language: string): any[] {
-	const defaults: Record<string, any[]> = {
-		ru: [
+/**
+ * Load translations from database
+ */
+async function loadTranslations(
+	language: string,
+	supabaseUrl: string,
+	supabaseServiceKey: string
+): Promise<Record<string, string>> {
+	try {
+		const response = await fetch(
+			`${supabaseUrl}/rest/v1/translations?language_code=eq.${language}&select=key,value`,
 			{
-				id: 'default-1',
-				date: new Date().toLocaleDateString('ru-RU'),
-				title: 'Запиши момент благодарности',
-				description:
-					'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.',
-				gradient: UNIQUE_GRADIENTS[0], // Sunset
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'grateful',
-			},
-			{
-				id: 'default-2',
-				date: new Date().toLocaleDateString('ru-RU'),
-				title: 'Даже одна мысль делает день осмысленным',
-				description:
-					'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.',
-				gradient: UNIQUE_GRADIENTS[1], // Oceanic
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'calm',
-			},
-			{
-				id: 'default-3',
-				date: new Date().toLocaleDateString('ru-RU'),
-				title: 'Сегодня отличное время',
-				description: 'Запиши маленькую победу — это первый шаг к осознанию своих достижений.',
-				gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'excited',
-			},
-		],
-		en: [
-			{
-				id: 'default-1',
-				date: new Date().toLocaleDateString('en-US'),
-				title: 'Write a moment of gratitude',
-				description:
-					'Feel the lightness when you notice the good in your life. This is the path to happiness.',
-				gradient: UNIQUE_GRADIENTS[0], // Sunset
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'grateful',
-			},
-			{
-				id: 'default-2',
-				date: new Date().toLocaleDateString('en-US'),
-				title: 'Even one thought makes the day meaningful',
-				description: "You don't have to write a lot — one phrase can change your view of the day.",
-				gradient: UNIQUE_GRADIENTS[1], // Oceanic
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'calm',
-			},
-			{
-				id: 'default-3',
-				date: new Date().toLocaleDateString('en-US'),
-				title: 'Today is a great time',
-				description:
-					"Write down a small victory — it's the first step to realizing your achievements.",
-				gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
-				isMarked: false,
-				isDefault: true,
-				sentiment: 'excited',
-			},
-		],
-	};
+				headers: {
+					apikey: supabaseServiceKey,
+					Authorization: `Bearer ${supabaseServiceKey}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
 
-	return defaults[language] || defaults.en;
+		if (!response.ok) {
+			console.error(`[MOTIVATIONS] Failed to load translations for ${language}`);
+			return {};
+		}
+
+		const translations = await response.json();
+		const translationsMap: Record<string, string> = {};
+
+		for (const t of translations) {
+			translationsMap[t.key] = t.value;
+		}
+
+		console.log(
+			`[MOTIVATIONS] Loaded ${Object.keys(translationsMap).length} translations for ${language}`
+		);
+		return translationsMap;
+	} catch (error) {
+		console.error('[MOTIVATIONS] Error loading translations:', error);
+		return {};
+	}
+}
+
+/**
+ * Get default motivations with i18n support
+ */
+async function getDefaultMotivations(
+	language: string,
+	supabaseUrl: string,
+	supabaseServiceKey: string
+): Promise<any[]> {
+	// Load translations from database
+	const translations = await loadTranslations(language, supabaseUrl, supabaseServiceKey);
+
+	// Helper function to get translation with fallback
+	const t = (key: string, fallback: string) => translations[key] || fallback;
+
+	// Get locale for date formatting
+	const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+
+	return [
+		{
+			id: 'default-1',
+			date: t('motivation.card1.date', 'Начни сегодня'),
+			title: t('motivation.card1.title', 'Сегодня отличное время'),
+			description: t(
+				'motivation.card1.description',
+				'Запиши маленькую победу — это первый шаг к осознанию своих достижений.'
+			),
+			gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'excited',
+		},
+		{
+			id: 'default-2',
+			date: t('motivation.card2.date', 'Совет дня'),
+			title: t('motivation.card2.title', 'Даже одна мысль делает день осмысленным'),
+			description: t(
+				'motivation.card2.description',
+				'Не обязательно писать много — одна фраза может изменить твой взгляд на прожитый день.'
+			),
+			gradient: UNIQUE_GRADIENTS[1], // Oceanic
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'calm',
+		},
+		{
+			id: 'default-3',
+			date: t('motivation.card3.date', 'Мотивация'),
+			title: t('motivation.card3.title', 'Запиши момент благодарности'),
+			description: t(
+				'motivation.card3.description',
+				'Почувствуй лёгкость, когда замечаешь хорошее в своей жизни. Это путь к счастью.'
+			),
+			gradient: UNIQUE_GRADIENTS[0], // Sunset
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'grateful',
+		},
+	];
 }
 
 // ======================
@@ -820,7 +847,11 @@ async function handleRequest(req: Request): Promise<Response> {
 
 			// Step 6: Add default cards if needed (БЕЗ градиентов)
 			if (cards.length < 3) {
-				const defaultCards = getDefaultMotivations(userLanguage);
+				const defaultCards = await getDefaultMotivations(
+					userLanguage,
+					supabaseUrl,
+					supabaseServiceKey
+				);
 				const needed = 3 - cards.length;
 				// Добавляем default карточки БЕЗ градиентов (будут назначены позже)
 				const defaultsToAdd = defaultCards.slice(0, needed).map((card) => ({
@@ -828,7 +859,7 @@ async function handleRequest(req: Request): Promise<Response> {
 					gradient: '', // Будет назначен позже
 				}));
 				cards.push(...defaultsToAdd);
-				console.log(`[MOTIVATIONS v11] Added ${needed} default cards`);
+				console.log(`[MOTIVATIONS v11] Added ${needed} default cards with i18n`);
 			}
 
 			// Step 7: Назначаем уникальные градиенты на основе индекса в финальном массиве

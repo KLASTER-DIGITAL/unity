@@ -96,8 +96,14 @@ export function createAppHandlers(props: AppHandlersProps) {
 
 	/**
 	 * Обработчик пропуска Welcome Screen (переход к логину)
+	 * ✅ FIX: Сохраняем выбранный язык перед переходом к авторизации
 	 */
-	const handleWelcomeSkip = () => {
+	const handleWelcomeSkip = (language?: string) => {
+		// Если язык передан (пользователь выбрал язык перед кликом "У меня уже есть аккаунт")
+		if (language) {
+			setSelectedLanguage(language);
+			setOnboardingData((prev) => ({ ...prev, language }));
+		}
 		setAuthMode('login'); // Пользователь хочет войти
 		setShowAuth(true);
 	};
@@ -139,6 +145,12 @@ export function createAppHandlers(props: AppHandlersProps) {
 	const handleAuthComplete = async (user: any) => {
 		setUserData(user);
 		setShowAuth(false);
+
+		// ✅ FIX: Обновляем selectedLanguage из профиля пользователя
+		const userLanguage = user.language || user.profile?.language || 'ru';
+		console.log('🌍 [App.tsx] Setting user language:', userLanguage);
+		setSelectedLanguage(userLanguage);
+		setOnboardingData((prev) => ({ ...prev, language: userLanguage }));
 
 		// Set user in Sentry for error tracking
 		setUser({

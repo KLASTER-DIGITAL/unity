@@ -1,15 +1,47 @@
 import type { DiaryEntry } from '@/shared/lib/api';
 import { getCategoryTranslation, type Language } from '@/shared/lib/i18n';
-import { DEFAULT_MOTIVATIONS, GRADIENTS, UNIQUE_GRADIENTS } from './constants';
+import { GRADIENTS, UNIQUE_GRADIENTS } from './constants';
 import type { AchievementCard } from './types';
 
 /**
  * Achievement Home Screen - Utility functions
  */
 
+// ❌ DEPRECATED: Use useDefaultMotivations() hook instead
 // Функция получения дефолтных мотиваций с учетом языка
+// Оставлена для обратной совместимости с Edge Function
 export function getDefaultMotivations(language: string): AchievementCard[] {
-	return DEFAULT_MOTIVATIONS[language] || DEFAULT_MOTIVATIONS.ru;
+	// Fallback для Edge Function - возвращаем базовые карточки
+	// В PWA используйте useDefaultMotivations() hook для переводов
+	return [
+		{
+			id: 'default_1',
+			date: 'Start today',
+			title: 'Today is a great time',
+			description:
+				'Write down a small victory — this is the first step to recognizing your achievements.',
+			gradient: 'from-(gradient-positive-1-start) to-(gradient-positive-1-end)',
+			isMarked: false,
+		},
+		{
+			id: 'default_2',
+			date: 'Daily tip',
+			title: 'Even one thought makes the day meaningful',
+			description:
+				"You don't have to write a lot — one phrase can change your perspective on the day.",
+			gradient: 'from-(gradient-positive-3-start) to-(gradient-positive-3-end)',
+			isMarked: false,
+		},
+		{
+			id: 'default_3',
+			date: 'Motivation',
+			title: 'Write down a moment of gratitude',
+			description:
+				'Feel the lightness when you notice the good in your life. This is the path to happiness.',
+			gradient: 'from-(gradient-positive-4-start) to-(gradient-positive-4-end)',
+			isMarked: false,
+		},
+	];
 }
 
 /**

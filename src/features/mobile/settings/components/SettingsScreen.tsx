@@ -53,7 +53,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 	// Local state for profile (to update in real-time)
 	const [profile, setProfile] = useState(initialProfile);
 
-	const { t, changeLanguage } = useTranslation();
+	const { t, changeLanguage, currentLanguage } = useTranslation();
 
 	// State для уведомлений
 	const [notifications, setNotifications] = useState<NotificationSettings>({
@@ -297,9 +297,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 			{/* Дополнительно */}
 			<AdditionalSection
-				currentLanguage={profile?.language}
+				currentLanguage={currentLanguage}
 				firstDayOfWeek={userData?.firstDayOfWeek}
-				languageName={languages.find((l) => l.code === profile?.language)?.native_name || 'Русский'}
+				languageName={languages.find((l) => l.code === currentLanguage)?.native_name || 'Русский'}
 				onLanguageClick={() => setShowLanguage(true)}
 				t={t}
 				userEmail={profile?.email || ''}
@@ -350,7 +350,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 			{/* Language Selection Modal */}
 			<AnimatePresence>
 				<LanguageModal
-					currentLanguage={profile?.language}
+					currentLanguage={currentLanguage}
 					isOpen={showLanguage}
 					languages={languages}
 					onClose={() => setShowLanguage(false)}

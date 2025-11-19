@@ -258,8 +258,22 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 		};
 
 		initialize();
+		// ✅ FIX: Удалили state.currentLanguage из deps, чтобы избежать повторной инициализации при смене языка
+		// changeLanguage уже вызывает loadTranslations, поэтому повторная загрузка не нужна
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialLanguage, loadTranslations, state.currentLanguage]);
+	}, [initialLanguage, loadTranslations]);
+
+	// ✅ FIX: Следим за изменением defaultLanguage и обновляем язык
+	// Это нужно для случая когда пользователь входит в систему и язык загружается из профиля
+	useEffect(() => {
+		if (defaultLanguage && defaultLanguage !== state.currentLanguage) {
+			console.log(
+				`🔄 [TranslationProvider] defaultLanguage changed from ${state.currentLanguage} to ${defaultLanguage}, updating...`
+			);
+			changeLanguage(defaultLanguage);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [defaultLanguage]);
 
 	// Значение контекста
 	const value: TranslationContextValue = {

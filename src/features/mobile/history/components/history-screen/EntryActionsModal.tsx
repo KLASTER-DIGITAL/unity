@@ -1,6 +1,7 @@
 import { Edit, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { DiaryEntry } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type EntryActionsModalProps = {
 	entry: DiaryEntry | null;
@@ -14,6 +15,8 @@ type EntryActionsModalProps = {
  * Modal for entry actions (edit, delete)
  */
 export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryActionsModalProps) {
+	const { t } = useTranslation();
+
 	if (!entry) {
 		return null;
 	}
@@ -35,7 +38,9 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 				initial={{ opacity: 0, y: 100 }}
 			>
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="font-semibold! text-[18px]! text-foreground">Действия</h3>
+					<h3 className="font-semibold! text-[18px]! text-foreground">
+						{t('history.actions.title', 'Действия')}
+					</h3>
 					<button
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
@@ -50,7 +55,9 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 						onClick={() => onEdit(entry)}
 					>
 						<Edit className="h-5 w-5" strokeWidth={2} />
-						<span className="font-medium! text-[15px]!">Редактировать</span>
+						<span className="font-medium! text-[15px]!">
+							{t('history.actions.edit', 'Редактировать')}
+						</span>
 					</button>
 
 					<button
@@ -58,7 +65,9 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 						onClick={() => onDelete(entry.id)}
 					>
 						<Trash2 className="h-5 w-5" strokeWidth={2} />
-						<span className="font-medium! text-[15px]!">Удалить запись</span>
+						<span className="font-medium! text-[15px]!">
+							{t('history.actions.delete', 'Удалить запись')}
+						</span>
 					</button>
 				</div>
 			</motion.div>

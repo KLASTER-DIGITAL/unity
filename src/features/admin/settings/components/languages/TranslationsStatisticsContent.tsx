@@ -61,56 +61,80 @@ export function TranslationsStatisticsContent() {
 				return;
 			}
 
-			// Load languages
-			const languagesResponse = await fetch(
-				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-management/languages`,
-				{
-					headers: {
-						Authorization: `Bearer ${session.access_token}`,
-						'Content-Type': 'application/json',
-					},
-				}
-			);
+			// ✅ OPTIMIZED: Use direct Supabase queries instead of Edge Function
+			// This ensures we get ALL translations, not a subset
 
-			if (!languagesResponse.ok) {
+			// Load languages
+			const { data: languages, error: langError } = await supabase
+				.from('languages')
+				.select('code, name, native_name, is_active')
+				.eq('is_active', true)
+				.order('code', { ascending: true });
+
+			if (langError) {
+				console.error('Error loading languages:', langError);
 				throw new Error('Failed to load languages');
 			}
 
-			const languagesData = await languagesResponse.json();
-			const languages: Language[] = languagesData.languages || [];
+			// Load ALL translations (only lang_code and translation_key for performance)
+			// ⚠️ IMPORTANT: Supabase has a default limit of 1000 rows
+			// We need to use pagination to fetch ALL translations
+			let allTranslations: { lang_code: string; translation_key: string }[] = [];
+			let page = 0;
+			const pageSize = 1000;
+			let hasMore = true;
 
-			// Load translations
-			const translationsResponse = await fetch(
-				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translations-management`,
-				{
-					headers: {
-						Authorization: `Bearer ${session.access_token}`,
-						'Content-Type': 'application/json',
-					},
+			while (hasMore) {
+				const { data, error } = await supabase
+					.from('translations')
+					.select('lang_code, translation_key')
+					.range(page * pageSize, (page + 1) * pageSize - 1);
+
+				if (error) {
+					console.error('Error loading translations:', error);
+					throw new Error('Failed to load translations');
 				}
-			);
 
-			if (!translationsResponse.ok) {
-				throw new Error('Failed to load translations');
+				if (data && data.length > 0) {
+					allTranslations = [...allTranslations, ...data];
+					page++;
+					hasMore = data.length === pageSize; // Continue if we got a full page
+				} else {
+					hasMore = false;
+				}
 			}
 
-			const translationsData = await translationsResponse.json();
-			const translations = translationsData.translations || [];
+			const translations = allTranslations;
+
+			console.log('🔍 Loaded translations:', {
+				count: translations.length,
+				pages: page,
+				sample: translations.slice(0, 3),
+			});
 
 			// Calculate statistics
-			const uniqueKeys = [...new Set(translations.map((t: any) => t.translation_key))];
+			const uniqueKeys = [...new Set(translations?.map((t) => t.translation_key) || [])];
 			const totalKeys = uniqueKeys.length;
-			const totalTranslations = translations.length;
-			const activeLanguages = languages.filter((l) => l.is_active);
+			const totalTranslations = translations?.length || 0;
+			const activeLanguages = languages || [];
 			const expectedTranslations = totalKeys * activeLanguages.length;
 			const missingCount = expectedTranslations - totalTranslations;
 			const completeness =
 				expectedTranslations > 0 ? Math.round((totalTranslations / expectedTranslations) * 100) : 0;
 
+			console.log('📊 Translation Statistics:', {
+				totalKeys,
+				totalTranslations,
+				activeLanguages: activeLanguages.length,
+				expectedTranslations,
+				missingCount,
+				completeness,
+			});
+
 			// Calculate per-language statistics
 			const languageStats = activeLanguages
 				.map((lang) => {
-					const langTranslations = translations.filter((t: any) => t.lang_code === lang.code);
+					const langTranslations = translations?.filter((t) => t.lang_code === lang.code) || [];
 					const count = langTranslations.length;
 					const progress = totalKeys > 0 ? Math.round((count / totalKeys) * 100) : 0;
 

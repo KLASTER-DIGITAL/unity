@@ -91,9 +91,14 @@ export function LanguagesManagementTab({
 
 			if (response.ok) {
 				const data = await response.json();
+				console.log('🌍 Languages loaded:', {
+					count: data.languages?.length,
+					sample: data.languages?.slice(0, 2),
+				});
 				setLanguages(data.languages || []);
 			} else {
 				const error = await response.json();
+				console.error('❌ Error loading languages:', error);
 				toast.error(error.error || 'Ошибка загрузки языков');
 			}
 		} catch (error) {

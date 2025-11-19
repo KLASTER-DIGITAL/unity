@@ -5,6 +5,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
 type ArchiveFilter = 'all' | 'weekly' | 'monthly';
@@ -27,6 +28,7 @@ type ReportsArchiveScreenProps = {
 };
 
 export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
+	const { t } = useTranslation();
 	const [reports, setReports] = useState<ArchivedReport[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filter, setFilter] = useState<ArchiveFilter>('all');
@@ -161,16 +163,22 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 					<Card className="bg-card">
 						<CardContent className="py-10 text-center">
 							<p className="mb-2 text-muted-foreground text-sm">
-								У тебя пока нет сохраненных AI-отчетов.
+								{t('reports.archive.empty.title', 'У тебя пока нет сохраненных AI-отчетов.')}
 							</p>
 							<p className="text-muted-foreground text-xs">
-								Создай новый отчет на экране статистики, чтобы он появился здесь.
+								{t(
+									'reports.archive.empty.description',
+									'Создай новый отчет на экране статистики, чтобы он появился здесь.'
+								)}
 							</p>
 						</CardContent>
 					</Card>
 				) : (
 					filteredReports.map((report) => {
-						const title = report.periodType === 'weekly' ? 'Недельный отчет' : 'Месячный отчет';
+						const title =
+							report.periodType === 'weekly'
+								? t('reports.archive.weekly', 'Недельный отчет')
+								: t('reports.archive.monthly', 'Месячный отчет');
 						const periodText = formatPeriod(report.startDate, report.endDate);
 						return (
 							<Card className="border-border bg-card shadow-sm" key={report.id}>

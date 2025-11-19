@@ -7,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/components/ui/card';
-import { useTranslation } from '@/shared/lib/i18n';
 
 /**
  * Quick Actions Component
@@ -15,14 +14,12 @@ import { useTranslation } from '@/shared/lib/i18n';
  */
 
 export function QuickActions() {
-	const { t } = useTranslation();
-
 	return (
 		<Card className="border-border">
 			<CardHeader>
-				<CardTitle className="text-[17px]!">{t('quick_actions', 'Быстрые действия')}</CardTitle>
+				<CardTitle className="text-[17px]!">Быстрые действия</CardTitle>
 				<CardDescription className="font-normal! text-[13px]!">
-					{t('quick_actions_desc', 'Управление ключевыми функциями приложения')}
+					Управление ключевыми функциями приложения
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -43,9 +40,9 @@ export function QuickActions() {
 								<Smartphone className="h-5 w-5 text-accent" />
 							</div>
 							<div className="flex-1 text-left">
-								<p className="text-[15px]! text-foreground">{t('pwa_settings', 'Настройки PWA')}</p>
+								<p className="text-[15px]! text-foreground">Настройки PWA</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t('pwa_settings_desc', 'Управление установкой и обновлениями')}
+									Управление установкой и обновлениями
 								</p>
 							</div>
 						</div>
@@ -67,11 +64,9 @@ export function QuickActions() {
 								<Activity className="h-5 w-5 text-accent" />
 							</div>
 							<div className="flex-1 text-left">
-								<p className="text-[15px]! text-foreground">
-									{t('push_notifications', 'Push-уведомления')}
-								</p>
+								<p className="text-[15px]! text-foreground">Push-уведомления</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t('push_notifications_desc', 'Настройка уведомлений')}
+									Настройка уведомлений
 								</p>
 							</div>
 						</div>
@@ -89,11 +84,9 @@ export function QuickActions() {
 								<Users className="h-5 w-5 text-accent" />
 							</div>
 							<div className="flex-1 text-left">
-								<p className="text-[15px]! text-foreground">
-									{t('user_management', 'Управление пользователями')}
-								</p>
+								<p className="text-[15px]! text-foreground">Управление пользователями</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t('user_management_desc', 'Просмотр и редактирование пользователей')}
+									Просмотр и редактирование пользователей
 								</p>
 							</div>
 						</div>
@@ -115,11 +108,9 @@ export function QuickActions() {
 								<CreditCard className="h-5 w-5 text-accent" />
 							</div>
 							<div className="flex-1 text-left">
-								<p className="text-[15px]! text-foreground">
-									{t('subscription_management', 'Управление подписками')}
-								</p>
+								<p className="text-[15px]! text-foreground">Управление подписками</p>
 								<p className="font-normal! text-[13px]! text-muted-foreground">
-									{t('subscription_management_desc', 'Premium подписки и платежи')}
+									Premium подписки и платежи
 								</p>
 							</div>
 						</div>

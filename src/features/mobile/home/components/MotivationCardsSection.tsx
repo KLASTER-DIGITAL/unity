@@ -13,13 +13,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getMotivationCards, markCardAsRead } from '@/shared/lib/api';
-import type { Language } from '@/shared/lib/i18n';
+import { useTranslation } from '@/shared/lib/i18n';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import { createClient } from '@/utils/supabase/client';
 import { AllCardsViewedModal } from './AllCardsViewedModal';
 import type { AchievementCard } from './achievement';
 // Import modular components
-import { getDefaultMotivations, SwipeCard } from './achievement';
+import { SwipeCard } from './achievement';
+import { useDefaultMotivations } from './achievement/useDefaultMotivations';
 
 type MotivationCardsSectionProps = {
 	userData: any;
@@ -44,6 +45,10 @@ export function MotivationCardsSection({
 	// ✅ КРИТИЧНО: Создаем ОДИН Supabase клиент для realtime подписки
 	const supabase = createClient();
 	const loadMotivationCardsRef = useRef<(() => Promise<void>) | null>(null);
+
+	// ✅ NEW: Use i18n hook for translations
+	const { t } = useTranslation();
+	const defaultMotivations = useDefaultMotivations();
 
 	// ✅ OPTIMIZATION: Use external cards if provided (from unified API)
 	useEffect(() => {
@@ -76,14 +81,12 @@ export function MotivationCardsSection({
 				setCurrentIndex(0);
 			} catch (error) {
 				console.error('[MotivationCardsSection] Error loading motivation cards:', error);
-				toast.error('Не удалось загрузить карточки', {
-					description: 'Проверьте подключение к интернету',
+				toast.error(t('errors.loadCards', 'Не удалось загрузить карточки'), {
+					description: t('errors.checkConnection', 'Проверьте подключение к интернету'),
 				});
 
-				// Fallback to default motivations
-				const userLanguage = (userData?.language || 'ru') as Language;
-				const defaultCards = getDefaultMotivations(userLanguage);
-				setCards(defaultCards);
+				// Fallback to default motivations (using i18n hook)
+				setCards(defaultMotivations);
 			} finally {
 				setIsLoading(false);
 			}

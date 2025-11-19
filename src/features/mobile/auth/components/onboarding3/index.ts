@@ -2,7 +2,7 @@
  * OnboardingScreen3 - Modular exports
  */
 
-export { emojiOptions, translations } from './constants';
+export { emojiOptions } from './constants';
 export { NextButton } from './NextButton';
 export { PersonalizationForm } from './PersonalizationForm';
 export { Sliedbar } from './Sliedbar';

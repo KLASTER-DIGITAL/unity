@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avat
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { updateUserProfile, uploadMedia } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 import { compressImage } from '@/utils/imageCompression';
 import { createClient } from '@/utils/supabase/client';
 
@@ -46,11 +47,14 @@ export function ProfileEditModal({
 	profile,
 	onProfileUpdated,
 }: ProfileEditModalProps) {
+	const { t } = useTranslation();
 	const [name, setName] = useState(profile?.name || '');
 	const [email, setEmail] = useState(profile?.email || '');
 	const [avatarUrl, setAvatarUrl] = useState(profile?.avatar || '');
 	const [avatarFile, setAvatarFile] = useState<File | null>(null);
-	const [diaryName, setDiaryName] = useState(profile?.diaryName || 'Мой дневник');
+	const [diaryName, setDiaryName] = useState(
+		profile?.diaryName || t('profile.edit.default_diary_name', 'Мой дневник')
+	);
 	const [diaryEmoji, setDiaryEmoji] = useState(profile?.diaryEmoji || '📝');
 	const [isUploading, setIsUploading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -215,10 +219,13 @@ export function ProfileEditModal({
 				diaryEmoji: diaryEmoji,
 			});
 
-			toast.success('Профиль обновлен', {
+			toast.success(t('profile.edit.success', 'Профиль обновлен'), {
 				description: emailChanged
-					? 'Изменения сохранены. Проверьте email для подтверждения'
-					: 'Изменения успешно сохранены',
+					? t(
+							'profile.edit.success_email_changed',
+							'Изменения сохранены. Проверьте email для подтверждения'
+						)
+					: t('profile.edit.success_description', 'Изменения успешно сохранены'),
 			});
 
 			// Notify parent component
@@ -229,8 +236,8 @@ export function ProfileEditModal({
 			onClose();
 		} catch (error) {
 			console.error('Error saving profile:', error);
-			toast.error('Ошибка сохранения', {
-				description: 'Попробуйте еще раз',
+			toast.error(t('profile.edit.error', 'Ошибка сохранения'), {
+				description: t('profile.edit.error_description', 'Попробуйте еще раз'),
 			});
 		} finally {
 			setIsSaving(false);
@@ -283,7 +290,7 @@ export function ProfileEditModal({
 		setEmail(profile?.email || '');
 		setAvatarUrl(profile?.avatar || '');
 		setAvatarFile(null);
-		setDiaryName(profile?.diaryName || 'Мой дневник');
+		setDiaryName(profile?.diaryName || t('profile.edit.default_diary_name', 'Мой дневник'));
 		setDiaryEmoji(profile?.diaryEmoji || '📝');
 		onClose();
 	};

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { MediaLightbox, PermissionGuide } from '@/features/mobile/media';
 import { VoicePoweredOrb } from '@/shared/components/ui/voice-powered-orb';
 import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
+import { useTranslation } from '@/shared/lib/i18n';
 import { AnimatedPresence } from '@/shared/lib/platform/animation';
 import { clearDraft, getDraftAge, loadDraft, saveDraft } from '@/shared/lib/storage/draftStorage';
 import { debounce } from '@/shared/lib/utils/debounce';
@@ -28,6 +29,7 @@ export function ChatInputSection({
 	userName = 'Анна',
 	userId = 'anonymous',
 }: ChatInputSectionProps) {
+	const { t } = useTranslation();
 	const [inputText, setInputText] = useState('');
 	const [messages, _setMessages] = useState<ChatMessage[]>([]);
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -250,9 +252,7 @@ export function ChatInputSection({
 					className="text-center font-semibold text-foreground"
 					style={{ fontSize: '20px', lineHeight: '26px' }}
 				>
-					Что сегодня получилось
-					<br />
-					лучше всего?
+					{t('home.inputQuestion', 'Что сегодня получилось лучше всего?')}
 				</h2>
 			</div>
 

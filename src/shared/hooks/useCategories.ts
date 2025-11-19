@@ -13,6 +13,7 @@ import {
 	type UserCategory,
 	updateCategory,
 } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type UseCategoriesResult = {
 	categories: UserCategory[];
@@ -123,15 +124,17 @@ export function useCategoryNames(userId: string | undefined): string[] {
 }
 
 /**
- * Get categories formatted for UI components
+ * Get categories formatted for UI components with i18n support
  */
 export function useCategoriesForUI(userId: string | undefined) {
 	const { categories, isLoading, error, addCategory, editCategory, removeCategory, refetch } =
 		useCategories(userId);
+	const { t } = useTranslation();
 
 	const formattedCategories = categories.map((cat) => ({
 		id: cat.name,
-		label: cat.name,
+		// Use translation if translation_key exists, otherwise use name as-is (for custom categories)
+		label: (cat as any).translation_key ? t((cat as any).translation_key, cat.name) : cat.name,
 		icon: cat.icon,
 		color: cat.color,
 		isDefault: cat.is_default,

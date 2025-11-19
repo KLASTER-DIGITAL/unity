@@ -1,4 +1,5 @@
 import { Filter, Search } from 'lucide-react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type SearchBarProps = {
 	searchQuery: string;
@@ -19,6 +20,8 @@ export function SearchBar({
 	onSearchChange,
 	onToggleFilters,
 }: SearchBarProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex items-center gap-3">
 			{/* Search */}
@@ -27,7 +30,7 @@ export function SearchBar({
 				<input
 					className="w-full rounded-[12px] border border-border bg-muted py-3 pr-4 pl-11 text-[15px]! text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent"
 					onChange={(e) => onSearchChange(e.target.value)}
-					placeholder="Поиск по записям..."
+					placeholder={t('history.search.placeholder', 'Поиск по записям...')}
 					type="text"
 					value={searchQuery}
 				/>

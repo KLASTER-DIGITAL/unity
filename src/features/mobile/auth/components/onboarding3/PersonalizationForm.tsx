@@ -152,7 +152,7 @@ export function PersonalizationForm({ onNext: _onNext, onUpdate }: Personalizati
 					initial={{ opacity: 0 }}
 					transition={{ delay: 1, duration: 0.3 }}
 				>
-					Или выберите готовый вариант:
+					{t('onboarding3.presetsLabel', 'Или выберите готовый вариант:')}
 				</motion.p>
 
 				{[t('onboarding3.presets.0'), t('onboarding3.presets.1'), t('onboarding3.presets.2')].map(

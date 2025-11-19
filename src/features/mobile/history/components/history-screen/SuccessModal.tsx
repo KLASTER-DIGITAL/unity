@@ -1,5 +1,6 @@
 import { CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type SuccessModalProps = {
 	isOpen: boolean;
@@ -11,6 +12,8 @@ type SuccessModalProps = {
  * Modal for success messages
  */
 export function SuccessModal({ isOpen, message }: SuccessModalProps) {
+	const { t } = useTranslation();
+
 	if (!isOpen) {
 		return null;
 	}
@@ -35,7 +38,9 @@ export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 						<CheckCircle2 className="h-8 w-8 text-(--ios-green)" strokeWidth={2} />
 					</div>
 
-					<h3 className="font-semibold! text-[20px]! text-foreground">Успешно!</h3>
+					<h3 className="font-semibold! text-[20px]! text-foreground">
+						{t('history.success.title', 'Успешно!')}
+					</h3>
 
 					<p className="text-[15px]! text-muted-foreground">{message}</p>
 				</div>

@@ -1,6 +1,7 @@
 import { Calendar, CheckCircle2, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type AllCardsViewedModalProps = {
 	open: boolean;
@@ -21,8 +22,10 @@ type AllCardsViewedModalProps = {
  * - Touch target 44x44px for button
  * - Responsive typography
  * - Smooth animations
+ * - i18n support (9 languages)
  */
 export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps) {
+	const { t } = useTranslation();
 	return (
 		<AnimatePresence>
 			{open && (
@@ -74,7 +77,7 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 									initial={{ opacity: 0, y: 10 }}
 									transition={{ delay: 0.2 }}
 								>
-									Все карточки просмотрены! 🎉
+									{t('cards.allViewed.title', 'Все карточки просмотрены! 🎉')}
 								</motion.h2>
 							</div>
 
@@ -90,10 +93,14 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 									<div className="flex items-start gap-3 rounded-[16px] border border-border/20 bg-muted/30 p-4">
 										<Calendar className="mt-0.5 h-5 w-5 shrink-0 text-accent" strokeWidth={2} />
 										<div>
-											<p className="font-medium text-foreground text-sm">Новые карточки завтра</p>
+											<p className="font-medium text-foreground text-sm">
+												{t('cards.allViewed.newCardsTomorrow', 'Новые карточки завтра')}
+											</p>
 											<p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-												Создавайте записи сегодня, и завтра получите новые AI инсайты на основе
-												ваших мыслей
+												{t(
+													'cards.allViewed.newCardsDescription',
+													'Создавайте записи сегодня, и завтра получите новые AI инсайты на основе ваших мыслей'
+												)}
 											</p>
 										</div>
 									</div>
@@ -101,10 +108,14 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 									<div className="flex items-start gap-3 rounded-[16px] border border-border/20 bg-muted/30 p-4">
 										<Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" strokeWidth={2} />
 										<div>
-											<p className="font-medium text-foreground text-sm">Продолжайте писать</p>
+											<p className="font-medium text-foreground text-sm">
+												{t('cards.allViewed.keepWriting', 'Продолжайте писать')}
+											</p>
 											<p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-												Чем больше записей вы создаете, тем точнее AI понимает ваши паттерны и дает
-												полезные инсайты
+												{t(
+													'cards.allViewed.keepWritingDescription',
+													'Чем больше записей вы создаете, тем точнее AI понимает ваши паттерны и дает полезные инсайты'
+												)}
 											</p>
 										</div>
 									</div>
@@ -122,7 +133,7 @@ export function AllCardsViewedModal({ open, onClose }: AllCardsViewedModalProps)
 										size="lg"
 									>
 										<Sparkles className="h-5 w-5" strokeWidth={2} />
-										Понятно
+										{t('cards.allViewed.gotIt', 'Понятно')}
 									</Button>
 								</motion.div>
 							</div>

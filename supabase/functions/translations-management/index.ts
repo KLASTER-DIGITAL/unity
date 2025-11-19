@@ -101,11 +101,29 @@ Deno.serve(async (req) => {
 			if (langError) throw langError;
 
 			// Get all unique translation keys from translations table
-			const { data: allTranslations, error: transError } = await supabaseAdmin
-				.from('translations')
-				.select('translation_key, lang_code');
+			// ⚠️ IMPORTANT: Supabase has a default limit of 1000 rows
+			// We need to use pagination to fetch ALL translations
+			let allTranslations: { lang_code: string; translation_key: string }[] = [];
+			let page = 0;
+			const pageSize = 1000;
+			let hasMore = true;
 
-			if (transError) throw transError;
+			while (hasMore) {
+				const { data, error } = await supabaseAdmin
+					.from('translations')
+					.select('translation_key, lang_code')
+					.range(page * pageSize, (page + 1) * pageSize - 1);
+
+				if (error) throw error;
+
+				if (data && data.length > 0) {
+					allTranslations = [...allTranslations, ...data];
+					page++;
+					hasMore = data.length === pageSize; // Continue if we got a full page
+				} else {
+					hasMore = false;
+				}
+			}
 
 			// Get unique keys
 			const uniqueKeys = [...new Set(allTranslations.map((t) => t.translation_key))];

@@ -33,7 +33,7 @@ import { getBlurPlaceholder } from '@/shared/lib/image';
 
 type WelcomeScreenProps = {
 	onNext: (language: string) => void;
-	onSkip?: () => void;
+	onSkip?: (language?: string) => void;
 	currentStep: number;
 	totalSteps: number;
 	onStepClick: (step: number) => void;
@@ -458,7 +458,7 @@ export function WelcomeScreen({
 								animate={{ opacity: 1 }}
 								className="mb-5 w-full py-3 text-center text-[#8d8d8d] transition-colors hover:text-[#756ef3]"
 								initial={{ opacity: 0 }}
-								onClick={onSkip}
+								onClick={() => onSkip(selectedLanguage)}
 								style={{
 									fontFamily: "'Inter', var(--font-family-primary)",
 									fontWeight: '500',
@@ -529,11 +529,11 @@ export function WelcomeScreen({
 								<button
 									className="flex h-14 w-full items-center justify-between pr-[13px] pl-[22px] text-left transition-colors hover:bg-accent/5 active:bg-accent/10"
 									key={language.code}
-									onClick={async () => {
+									onClick={() => {
 										setSelectedLanguage(language.code as any);
 										setShowDropdown(false);
-										// ✅ FIX: Вызываем changeLanguage для переключения языка в i18n системе
-										await changeLanguage(language.code as any);
+										// ✅ FIX: changeLanguage вызывается автоматически через useEffect (строка 167-171)
+										// НЕ вызываем здесь, чтобы избежать двойной загрузки переводов
 									}}
 									style={{
 										fontFamily: "'Inter', var(--font-family-primary)",

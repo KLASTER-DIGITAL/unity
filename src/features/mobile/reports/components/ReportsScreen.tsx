@@ -423,15 +423,24 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 	const _aiSummaryText =
 		aiReport?.summary ??
-		'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉';
+		t(
+			'reports.mood.default_summary',
+			'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉'
+		);
 
 	const _aiCategoriesObservation =
 		aiReport?.transformations ??
-		'Твой фокус на спорте значительно усилился. Это отличная тенденция для здоровья и дисциплины! 💪';
+		t(
+			'reports.ai.categories_observation',
+			'Твой фокус на спорте значительно усилился. Это отличная тенденция для здоровья и дисциплины! 💪'
+		);
 
 	const _aiNextMonthStrategy =
 		aiReport?.next_month_strategy ??
-		'Продолжай бегать и фиксировать небольшие рабочие победы, а также добавь больше творчества в свой распорядок.';
+		t(
+			'reports.ai.next_month_strategy',
+			'Продолжай бегать и фиксировать небольшие рабочие победы, а также добавь больше творчества в свой распорядок.'
+		);
 
 	const aiQuotes = extraAiInsights;
 
@@ -597,7 +606,9 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 								</div>
 								<div className="text-center">
 									<div className="mb-1 text-2xl text-(--ios-green)">{monthlyReport.activeDays}</div>
-									<div className="text-muted-foreground text-sm">Активных дней</div>
+									<div className="text-muted-foreground text-sm">
+										{t('reports.stats.active_days', 'Активных дней')}
+									</div>
 								</div>
 							</div>
 						</CardContent>
@@ -656,7 +667,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 								className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
 								value="categories"
 							>
-								Категории
+								{t('reports.tabs.categories', 'Категории')}
 							</TabsTrigger>
 						</TabsList>
 
@@ -665,7 +676,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
 										<Heart className="h-5 w-5 text-pink-500" strokeWidth={2} />
-										Анализ настроения
+										{t('reports.mood.analysis_title', 'Анализ настроения')}
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
@@ -677,7 +688,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 													<div className="mb-1 flex justify-between">
 														<span>{item.label}</span>
 														<span className="text-muted-foreground text-sm">
-															{item.count} записей
+															{item.count} {t('reports.mood.entries_count', 'записей')}
 														</span>
 													</div>
 													<Progress className="h-2" value={item.percentage} />
@@ -689,9 +700,11 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 									<div className="mt-6 rounded-lg bg-(--ios-bg-secondary) p-4">
 										<p className="text-(--ios-text-secondary) text-sm">
-											<strong>Вывод:</strong> В этом месяце преобладали позитивные эмоции. Особенно
-											заметен рост записей с восторгом - это говорит о том, что ты активнее
-											достигаешь своих целей! 🎉
+											<strong>{t('reports.mood.conclusion', 'Вывод:')}</strong>{' '}
+											{t(
+												'reports.mood.default_summary',
+												'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉'
+											)}
 										</p>
 									</div>
 								</CardContent>
@@ -703,7 +716,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
 										<BarChart3 className="h-5 w-5 text-blue-500" strokeWidth={2} />
-										Категории активности
+										{t('reports.categories.title', 'Категории активности')}
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
@@ -717,7 +730,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 													<div>
 														<h4>{category.name}</h4>
 														<p className="text-muted-foreground text-sm">
-															{category.count} записей
+															{category.count} {t('reports.categories.entries', 'записей')}
 														</p>
 													</div>
 												</div>

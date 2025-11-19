@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { NetworkStatusIndicator } from '@/shared/components/offline/NetworkStatusIndicator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Pressable } from '@/shared/components/ui/universal';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type AchievementHeaderProps = {
 	userName?: string;
@@ -59,6 +60,8 @@ export const AchievementHeader = memo(function AchievementHeader({
 	avatarUrl,
 	onNavigateToSettings,
 }: AchievementHeaderProps) {
+	const { t } = useTranslation();
+
 	return (
 		<>
 			<div className="relative bg-background p-section transition-colors duration-300">
@@ -75,7 +78,8 @@ export const AchievementHeader = memo(function AchievementHeader({
 							<h1 className="flex items-center gap-1 font-semibold! text-foreground leading-[1.2] tracking-[-0.5px]">
 								<span className="shrink-0 text-[clamp(20px,5.5vw,26px)]">🙌</span>
 								<span className="whitespace-nowrap text-[clamp(20px,5.5vw,26px)]!">
-									Привет {userName.charAt(0).toUpperCase() + userName.slice(1)},
+									{t('home.greeting', 'Привет')}{' '}
+									{userName.charAt(0).toUpperCase() + userName.slice(1)},
 								</span>
 							</h1>
 							{/* Вопрос - увеличен до 15px для читаемости */}
@@ -83,7 +87,7 @@ export const AchievementHeader = memo(function AchievementHeader({
 								className="whitespace-nowrap text-muted-foreground leading-[1.3]"
 								style={{ fontSize: '15px', marginTop: '0px' }}
 							>
-								Какие твои победы сегодня?
+								{t('home.question', 'Какие твои победы сегодня?')}
 							</p>
 						</div>
 					</div>
@@ -97,7 +101,11 @@ export const AchievementHeader = memo(function AchievementHeader({
 							{daysInApp}
 						</p>
 						<p className="mt-0.5 text-muted-foreground leading-none" style={{ fontSize: '8px' }}>
-							{daysInApp === 1 ? 'День подряд' : daysInApp < 5 ? 'Дня подряд' : 'Дней подряд'}
+							{daysInApp === 1
+								? t('home.dayInRow', 'День подряд')
+								: daysInApp < 5
+									? t('home.daysInRow', 'Дня подряд')
+									: t('home.manyDaysInRow', 'Дней подряд')}
 						</p>
 					</div>
 				</div>

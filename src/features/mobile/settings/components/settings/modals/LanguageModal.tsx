@@ -60,7 +60,7 @@ export function LanguageModal({
 				</div>
 
 				<p className="mb-4 text-footnote text-muted-foreground">
-					Выберите язык интерфейса приложения
+					{t('settings.language.description', 'Выберите язык интерфейса приложения')}
 				</p>
 
 				<div className="space-y-2">

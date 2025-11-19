@@ -37,6 +37,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
 type BookDraft = {
@@ -72,6 +73,7 @@ type BooksLibraryScreenProps = {
 };
 
 export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksLibraryScreenProps) {
+	const { t } = useTranslation();
 	const [books, setBooks] = useState<BookDraft[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'drafts' | 'final'>('all');
@@ -117,7 +119,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 
 				if (error) {
 					console.error('[BOOKS-LIBRARY] Error fetching books:', error);
-					toast.error('Не удалось загрузить книги');
+					toast.error(t('books.load_error', 'Не удалось загрузить книги'));
 					return;
 				}
 
@@ -143,7 +145,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 				setBooks(booksData);
 			} catch (error) {
 				console.error('[BOOKS-LIBRARY] Error:', error);
-				toast.error('Произошла ошибка');
+				toast.error(t('books.editor.error', 'Произошла ошибка'));
 			} finally {
 				setIsLoading(false);
 			}
@@ -233,7 +235,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 			toast.success('Книга удалена');
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error:', error);
-			toast.error('Произошла ошибка');
+			toast.error(t('books.editor.error', 'Произошла ошибка'));
 		} finally {
 			setDeletingBookId(null);
 		}
@@ -315,13 +317,13 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 					<Card>
 						<CardContent className="py-12 text-center">
 							<Book className="mx-auto mb-4 h-12 w-12 text-muted-foreground" strokeWidth={1.5} />
-							<h3 className="mb-2 text-lg">Пока нет книг</h3>
+							<h3 className="mb-2 text-lg">{t('books.empty.title', 'Пока нет книг')}</h3>
 							<p className="mb-4 text-muted-foreground text-sm">
-								Создай свою первую книгу достижений
+								{t('books.empty.description', 'Создай свою первую книгу достижений')}
 							</p>
 							<Button onClick={onCreateBook}>
 								<Plus className="mr-2 h-4 w-4" strokeWidth={2} />
-								Создать книгу
+								{t('books.create', 'Создать книгу')}
 							</Button>
 						</CardContent>
 					</Card>

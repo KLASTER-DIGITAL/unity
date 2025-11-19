@@ -11,5 +11,4 @@ export { PermissionModal } from './PermissionModal';
 export { Sliedbar } from './Sliedbar';
 export { SuccessModal } from './SuccessModal';
 
-export { onboarding4Translations } from './translations';
 export type { NotificationSettingsType, OnboardingScreen4Props } from './types';

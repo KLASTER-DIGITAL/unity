@@ -1,5 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type DeleteConfirmModalProps = {
 	isOpen: boolean;
@@ -17,9 +18,11 @@ export function DeleteConfirmModal({
 	isOpen,
 	onClose,
 	onConfirm,
-	title = 'Удалить запись?',
-	message = 'Это действие нельзя отменить',
+	title,
+	message,
 }: DeleteConfirmModalProps) {
+	const { t } = useTranslation();
+
 	if (!isOpen) {
 		return null;
 	}
@@ -28,6 +31,9 @@ export function DeleteConfirmModal({
 		onConfirm();
 		onClose();
 	};
+
+	const displayTitle = title || t('history.delete.title', 'Удалить запись?');
+	const displayMessage = message || t('history.delete.message', 'Это действие нельзя отменить');
 
 	return (
 		<AnimatePresence>
@@ -54,10 +60,10 @@ export function DeleteConfirmModal({
 					</div>
 
 					{/* Title */}
-					<h3 className="font-semibold! text-[20px]! text-foreground">{title}</h3>
+					<h3 className="font-semibold! text-[20px]! text-foreground">{displayTitle}</h3>
 
 					{/* Message */}
-					<p className="text-[15px]! text-muted-foreground">{message}</p>
+					<p className="text-[15px]! text-muted-foreground">{displayMessage}</p>
 
 					{/* Buttons */}
 					<div className="flex w-full gap-3 pt-2">
@@ -66,14 +72,14 @@ export function DeleteConfirmModal({
 							onClick={onClose}
 							type="button"
 						>
-							Отмена
+							{t('history.edit.cancel', 'Отмена')}
 						</button>
 						<button
 							className="flex-1 rounded-[12px] bg-red-500 px-4 py-3 font-medium! text-[15px]! text-white transition-colors hover:bg-red-600"
 							onClick={handleConfirm}
 							type="button"
 						>
-							Удалить
+							{t('history.delete.confirm', 'Удалить')}
 						</button>
 					</div>
 				</div>

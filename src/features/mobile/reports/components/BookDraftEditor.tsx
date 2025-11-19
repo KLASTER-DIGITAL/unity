@@ -23,6 +23,7 @@ import { Label } from '@/shared/components/ui/label';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { API_URLS } from '@/shared/lib/api/config/urls';
+import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
 type BookDraftEditorProps = {
@@ -133,6 +134,7 @@ function BookPDF({ story, metadata }: { story: StoryJson; metadata: BookMetadata
 }
 
 export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEditorProps) {
+	const { t } = useTranslation();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isRendering, setIsRendering] = useState(false);
@@ -180,7 +182,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				setStory((data as { story_json: StoryJson }).story_json);
 			} catch (error) {
 				console.error('[DRAFT-EDITOR] Error:', error);
-				toast.error('Произошла ошибка');
+				toast.error(t('books.editor.error', 'Произошла ошибка'));
 			} finally {
 				setIsLoading(false);
 			}
@@ -206,14 +208,14 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 
 			if (error) {
 				console.error('[DRAFT-EDITOR] Error saving:', error);
-				toast.error('Не удалось сохранить изменения');
+				toast.error(t('books.editor.save_error', 'Не удалось сохранить изменения'));
 				return;
 			}
 
-			toast.success('Изменения сохранены');
+			toast.success(t('books.editor.save_success', 'Изменения сохранены'));
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error:', error);
-			toast.error('Произошла ошибка');
+			toast.error(t('books.editor.error', 'Произошла ошибка'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -222,7 +224,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	// Render PDF and upload
 	const handleRenderPDF = async (blob: Blob) => {
 		if (!userId) {
-			toast.error('Необходима авторизация');
+			toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
 			return;
 		}
 
@@ -236,7 +238,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 			} = await supabase.auth.getSession();
 
 			if (!session?.access_token) {
-				toast.error('Необходима авторизация');
+				toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
 				setIsRendering(false);
 				return;
 			}
@@ -263,7 +265,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 			onComplete?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
-			toast.error('Произошла ошибка при создании PDF');
+			toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'));
 		} finally {
 			setIsRendering(false);
 		}
@@ -347,12 +349,12 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					<TabsContent className="space-y-4" value="edit">
 						<Card>
 							<CardHeader>
-								<CardTitle>Основная информация</CardTitle>
+								<CardTitle>{t('books.editor.title', 'Основная информация')}</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-3 sm:space-y-4">
 								<div>
 									<Label className="text-sm sm:text-base" htmlFor="title">
-										Название книги
+										{t('books.editor.book_title', 'Название книги')}
 									</Label>
 									<input
 										className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
@@ -364,7 +366,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 								</div>
 								<div>
 									<Label className="text-sm sm:text-base" htmlFor="subtitle">
-										Подзаголовок
+										{t('books.editor.subtitle', 'Подзаголовок')}
 									</Label>
 									<input
 										className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"

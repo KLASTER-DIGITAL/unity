@@ -9,11 +9,6 @@ export {
 export { Ellipse } from './Ellipse';
 export { SocialAuthButtons } from './SocialAuthButtons';
 export type {
-	AuthTranslations,
-	SupportedLanguage,
-} from './translations';
-export { authTranslations } from './translations';
-export type {
 	AuthScreenProps,
 	OnboardingData,
 	UserData,

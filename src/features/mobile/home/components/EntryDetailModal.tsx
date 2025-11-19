@@ -3,6 +3,7 @@
 import { Sparkles, X } from 'lucide-react';
 import { MediaPreview } from '@/features/mobile/media';
 import type { DiaryEntry } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type EntryDetailModalProps = {
@@ -12,13 +13,22 @@ type EntryDetailModalProps = {
 };
 
 export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalProps) {
+	const { t, i18n } = useTranslation();
+
 	if (!entry) {
 		return null;
 	}
 
 	const formatDate = (dateString: string): string => {
 		const date = new Date(dateString);
-		return date.toLocaleDateString('ru-RU', {
+		// Use user's language for date formatting
+		const locale =
+			i18n.language === 'kk'
+				? 'kk-KZ'
+				: i18n.language === 'ka'
+					? 'ka-GE'
+					: `${i18n.language}-${i18n.language.toUpperCase()}`;
+		return date.toLocaleDateString(locale, {
 			weekday: 'long',
 			year: 'numeric',
 			month: 'long',
@@ -44,13 +54,13 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 	const getSentimentLabel = (sentiment: string): string => {
 		switch (sentiment) {
 			case 'positive':
-				return '😊 Позитив';
+				return t('entry.sentiment.positive', '😊 Позитив');
 			case 'neutral':
-				return '😐 Нейтрал';
+				return t('entry.sentiment.neutral', '😐 Нейтрал');
 			case 'negative':
-				return '😔 Грусть';
+				return t('entry.sentiment.negative', '😔 Грусть');
 			default:
-				return 'Неизвестно';
+				return t('entry.sentiment.unknown', 'Неизвестно');
 		}
 	};
 
@@ -78,7 +88,9 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 					>
 						{/* Header */}
 						<div className="mb-6 flex items-center justify-between">
-							<h2 className="font-semibold! text-[20px]! text-foreground">Запись</h2>
+							<h2 className="font-semibold! text-[20px]! text-foreground">
+								{t('entry.title', 'Запись')}
+							</h2>
 							<button
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
