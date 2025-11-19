@@ -5,6 +5,7 @@
 
 import { Crown } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { storage } from '@/shared/lib/platform/storage';
 import { ALL_THEMES, type Theme, type ThemeInfo } from '@/shared/lib/themes/types';
 import { createClient } from '@/utils/supabase/client';
@@ -15,6 +16,7 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ isPremium, onPremiumRequired }: ThemeSelectorProps) {
+	const { t } = useTranslation();
 	const [currentTheme, setCurrentTheme] = useState<Theme>('light');
 	const [userId, setUserId] = useState<string | null>(null);
 
@@ -83,7 +85,9 @@ export function ThemeSelector({ isPremium, onPremiumRequired }: ThemeSelectorPro
 		<div className="space-y-4">
 			{/* Base Themes */}
 			<div>
-				<h3 className="text-foreground mb-3 text-sm font-medium">Базовые темы</h3>
+				<h3 className="text-foreground mb-3 text-sm font-medium">
+					{t('settings.themes.basic_themes', 'Базовые темы')}
+				</h3>
 				<div className="grid grid-cols-2 gap-3">
 					{ALL_THEMES.filter((t) => !t.isPremium).map((theme) => (
 						<ThemeCard
@@ -100,7 +104,7 @@ export function ThemeSelector({ isPremium, onPremiumRequired }: ThemeSelectorPro
 			<div>
 				<h3 className="text-foreground mb-3 flex items-center gap-2 text-sm font-medium">
 					<Crown className="text-primary h-4 w-4" />
-					Premium темы
+					{t('settings.themes.premium_themes', 'Premium темы')}
 				</h3>
 				<div className="grid grid-cols-2 gap-3">
 					{ALL_THEMES.filter((t) => t.isPremium).map((theme) => (

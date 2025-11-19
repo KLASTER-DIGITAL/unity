@@ -5,6 +5,7 @@
 import { Calendar, Download, Globe, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/shared/lib/i18n';
 import { DeleteAllDataDialog } from '../DeleteAllDataDialog';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 
@@ -25,28 +26,31 @@ export function AdditionalSection({
 	onLanguageClick,
 	userId,
 	userEmail,
-	t,
+	t: _t,
 }: AdditionalSectionProps) {
+	const { t } = useTranslation();
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
 	return (
 		<>
-			<SettingsSection title={t.additional || 'Дополнительно'}>
+			<SettingsSection title={t('settings.additional.title', 'Дополнительно')}>
 				<SettingsRow
 					description={languageName}
 					icon={Globe}
 					iconBgColor="bg-(--ios-indigo)/10"
 					iconColor="text-(--ios-indigo)"
 					onClick={onLanguageClick}
-					title={t.language || 'Язык'}
+					title={t('settings.additional.language', 'Язык')}
 				/>
 				<SettingsRow
-					description={firstDayOfWeek === 'monday' ? 'Понедельник' : 'Воскресенье'}
+					description={
+						firstDayOfWeek === 'monday' ? 'Понедельник' : t('settings.additional.sunday', 'Воскресенье')
+					}
 					icon={Calendar}
 					iconBgColor="bg-(--ios-blue)/10"
 					iconColor="text-(--ios-blue)"
 					onClick={() => toast.info('Feature coming soon')}
-					title={t.firstDayOfWeek || 'Первый день недели'}
+					title={t('settings.additional.first_day_of_week', 'Первый день недели')}
 				/>
 				<SettingsRow
 					description="JSON, CSV, ZIP"
@@ -54,23 +58,23 @@ export function AdditionalSection({
 					iconBgColor="bg-(--ios-green)/10"
 					iconColor="text-(--ios-green)"
 					onClick={() => toast.info('Feature coming soon')}
-					title={t.exportData || 'Экспортировать данные'}
+					title={t('settings.additional.export_data', 'Экспортировать данные')}
 				/>
 				<SettingsRow
-					description="Восстановить из файла"
+					description={t('settings.additional.restore_from_file', 'Восстановить из файла')}
 					icon={Upload}
 					iconBgColor="bg-(--ios-purple)/10"
 					iconColor="text-(--ios-purple)"
 					onClick={() => toast.info('Feature coming soon')}
-					title={t.importData || 'Импортировать данные'}
+					title={t('settings.additional.import_data', 'Импортировать данные')}
 				/>
 				<SettingsRow
-					description="Необратимое действие"
+					description={t('settings.additional.irreversible_action', 'Необратимое действие')}
 					icon={Trash2}
 					iconBgColor="bg-(--ios-red)/10"
 					iconColor="text-(--ios-red)"
 					onClick={() => setShowDeleteDialog(true)}
-					title={t.deleteAllData || 'Удалить все данные'}
+					title={t('settings.additional.delete_all_data', 'Удалить все данные')}
 				/>
 			</SettingsSection>
 

@@ -8,6 +8,7 @@ import { MediaPreview } from '@/features/mobile/media';
 import { DragDropZone } from '@/shared/components/DragDropZone';
 import { useCategoriesForUI } from '@/shared/hooks/useCategories';
 import type { UploadedMedia } from '@/shared/hooks/useMediaUploader';
+import { useTranslation } from '@/shared/lib/i18n';
 import { motion } from '@/shared/lib/platform/animation';
 import { AddCategoryModal } from './AddCategoryModal';
 import { triggerHapticFeedback } from './PermissionUtils';
@@ -53,6 +54,7 @@ export function InputArea({
 	onMediaClick,
 	onCategoryToggle,
 }: InputAreaProps) {
+	const { t } = useTranslation();
 	// ✅ Load dynamic categories from database
 	const { categories, isLoading, addCategory } = useCategoriesForUI(userId);
 
@@ -144,7 +146,10 @@ export function InputArea({
 								onChange={(e) => onInputChange(e.target.value)}
 								onKeyPress={onKeyPress}
 								onFocus={handleTextareaFocus}
-								placeholder="Опиши главную мысль, момент, благодарность"
+								placeholder={t(
+									'home.input.placeholder',
+									'Опиши главную мысль, момент, благодарность'
+								)}
 								ref={textareaRef}
 								rows={3}
 								style={{

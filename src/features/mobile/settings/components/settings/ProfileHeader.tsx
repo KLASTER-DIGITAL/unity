@@ -2,6 +2,7 @@ import { Crown, Edit2, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { useTranslation } from '@/shared/lib/i18n';
 import { DEFAULT_AVATAR_URL } from './constants';
 
 type ProfileHeaderProps = {
@@ -20,6 +21,7 @@ type ProfileHeaderProps = {
  * - Upgrade button for Free users
  */
 export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: ProfileHeaderProps) {
+	const { t } = useTranslation();
 	// ✅ FIX: Support both camelCase (isPremium) and snake_case (is_premium)
 	const isPremium = profile?.isPremium || profile?.is_premium || false;
 	return (
@@ -37,7 +39,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 						</AvatarFallback>
 					</Avatar>
 					<button
-						aria-label="Edit profile"
+						aria-label={t('settings.profile.edit_button', 'Edit profile')}
 						className="absolute right-0 bottom-0 rounded-full border border-border bg-card p-2 shadow-lg transition-colors hover:bg-muted"
 						onClick={onEditClick}
 					>
@@ -48,7 +50,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 				{/* User Info - Name and Email */}
 				<div className="mt-4 text-center">
 					<h1 className="mb-1 font-semibold text-foreground text-lg">
-						{profile?.name || 'Мой аккаунт'}
+						{profile?.name || t('settings.profile.my_account', 'Мой аккаунт')}
 					</h1>
 					<p className="text-muted-foreground text-sm">{profile?.email}</p>
 
@@ -60,7 +62,9 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full border-border border bg-muted/30 px-4 py-2">
 							<span className="text-xl">{profile?.diaryEmoji || profile?.diary_emoji || '🏆'}</span>
 							<span className="font-medium text-foreground text-sm">
-								{profile?.diaryName || profile?.diary_name || 'UNITY'}
+								{profile?.diaryName ||
+									profile?.diary_name ||
+									t('settings.profile.default_diary_name', 'Мой дневник')}
 							</span>
 						</div>
 					)}
@@ -80,7 +84,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 									variant="outline"
 									className="border-muted-foreground/20 bg-muted/30 text-muted-foreground transition-colors duration-300"
 								>
-									Free Plan
+									{t('settings.profile.free_plan', 'Free Plan')}
 								</Badge>
 								{onUpgradeToPremium && (
 									<Button
@@ -89,7 +93,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 										className="h-9 gap-2 bg-linear-to-r from-yellow-500 to-orange-500 px-4 font-medium text-white shadow-lg ring-2 ring-orange-600/60 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:ring-orange-600/80 active:scale-95"
 									>
 										<Sparkles className="h-4 w-4" strokeWidth={2} />
-										Активировать Premium
+										{t('settings.profile.activate_premium', 'Активировать Premium')}
 									</Button>
 								)}
 							</>

@@ -571,7 +571,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							size="sm"
 							variant="ghost"
 						>
-							Открыть отчёты
+							{t('reports.open_reports', 'Открыть отчёты')}
 						</Button>
 					</div>
 				</div>
@@ -584,9 +584,11 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 								<div>
 									<CardTitle className="flex items-center gap-2">
 										<Sparkles className="h-5 w-5 text-(--action-ai)" strokeWidth={2} />
-										Отчет за {monthlyReport.period}
+										{t('reports.report_for', 'Отчет за')} {monthlyReport.period}
 									</CardTitle>
-									<p className="text-muted-foreground text-sm">Персональный анализ от AI</p>
+									<p className="text-muted-foreground text-sm">
+										{t('reports.personal_analysis', 'Персональный анализ от AI')}
+									</p>
 								</div>
 								<Badge className="bg-(--ios-bg-secondary) text-(--ios-purple)">
 									<Crown className="mr-1 h-3 w-3" strokeWidth={2} />

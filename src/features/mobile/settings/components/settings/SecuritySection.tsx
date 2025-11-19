@@ -1,4 +1,5 @@
 import { Shield } from 'lucide-react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type SecuritySectionProps = {
@@ -19,8 +20,10 @@ export function SecuritySection({
 	isPremium,
 	onAutoBackupChange,
 	onPremiumRequired,
-	t,
+	t: _t,
 }: SecuritySectionProps) {
+	const { t } = useTranslation();
+
 	const handleAutoBackupChange = (checked: boolean) => {
 		if (!isPremium && checked) {
 			onPremiumRequired();
@@ -36,7 +39,7 @@ export function SecuritySection({
 	};
 
 	return (
-		<SettingsSection title={t.security || 'Безопасность'}>
+		<SettingsSection title={t('settings.security.title', 'Безопасность')}>
 			{/* Биометрическая защита - СКРЫТА по запросу пользователя */}
 			{/* <SettingsRow
 				description={biometricAvailable ? 'Доступно' : 'Недоступно в браузере'}
@@ -50,7 +53,11 @@ export function SecuritySection({
 				title={t.biometricProtection || 'Биометрическая защита'}
 			/> */}
 			<SettingsRow
-				description={isPremium ? 'Премиум функция' : 'Требуется премиум'}
+				description={
+					isPremium
+						? t('settings.offline.premium_feature', 'Премиум функция')
+						: t('settings.security.requires_premium', 'Требуется премиум')
+				}
 				disabled={false}
 				icon={Shield}
 				iconBgColor="bg-(--ios-green)/10"
@@ -59,7 +66,7 @@ export function SecuritySection({
 				onSwitchChange={handleAutoBackupChange}
 				rightElement="switch"
 				switchChecked={autoBackupEnabled}
-				title={t.autoBackup || 'Автоматическое резервирование'}
+				title={t('settings.security.auto_backup', 'Автоматическое резервирование')}
 			/>
 		</SettingsSection>
 	);

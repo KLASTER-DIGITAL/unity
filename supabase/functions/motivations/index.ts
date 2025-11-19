@@ -554,7 +554,7 @@ async function loadTranslations(
 ): Promise<Record<string, string>> {
 	try {
 		const response = await fetch(
-			`${supabaseUrl}/rest/v1/translations?language_code=eq.${language}&select=key,value`,
+			`${supabaseUrl}/rest/v1/translations?lang_code=eq.${language}&select=translation_key,translation_value`,
 			{
 				headers: {
 					apikey: supabaseServiceKey,
@@ -573,7 +573,7 @@ async function loadTranslations(
 		const translationsMap: Record<string, string> = {};
 
 		for (const t of translations) {
-			translationsMap[t.key] = t.value;
+			translationsMap[t.translation_key] = t.translation_value;
 		}
 
 		console.log(

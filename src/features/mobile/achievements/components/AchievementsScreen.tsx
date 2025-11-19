@@ -394,25 +394,33 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.totalEntries}
 						</div>
-						<div className="text-muted-foreground text-sm">Записей</div>
+						<div className="text-muted-foreground text-sm">
+							{t('achievements.stats.entries', 'Записей')}
+						</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.totalBadges}
 						</div>
-						<div className="text-muted-foreground text-sm">Наград</div>
+						<div className="text-muted-foreground text-sm">
+							{t('achievements.stats.badges', 'Наград')}
+						</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.currentStreak}
 						</div>
-						<div className="text-muted-foreground text-sm">Дней подряд</div>
+						<div className="text-muted-foreground text-sm">
+							{t('achievements.stats.days_streak', 'Дней подряд')}
+						</div>
 					</div>
 					<div className="text-center">
 						<div className="mb-1 font-semibold text-2xl text-foreground">
 							{userStats.longestStreak}
 						</div>
-						<div className="text-muted-foreground text-sm">Рекорд</div>
+						<div className="text-muted-foreground text-sm">
+							{t('achievements.stats.record', 'Рекорд')}
+						</div>
 					</div>
 				</div>
 

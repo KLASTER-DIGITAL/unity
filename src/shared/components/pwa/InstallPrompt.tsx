@@ -1,6 +1,7 @@
 import { Download, Smartphone, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type InstallPromptProps = {
 	onClose: () => void;
@@ -8,6 +9,7 @@ type InstallPromptProps = {
 };
 
 export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
+	const { t } = useTranslation();
 	const [isIOS, setIsIOS] = useState(false);
 
 	useEffect(() => {
@@ -60,7 +62,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.3 }}
 						>
-							Добавить на главный экран?
+							{t('pwa.install.title', 'Добавить на главный экран?')}
 						</motion.h2>
 
 						{/* Description */}
@@ -70,7 +72,7 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.4 }}
 						>
-							Установите приложение для быстрого доступа к вашему дневнику достижений
+							{t('pwa.install.description', 'Установите приложение для быстрого доступа к вашему дневнику достижений')}
 						</motion.p>
 
 						{/* Features */}
@@ -85,21 +87,23 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 									<span className="text-[20px]">⚡️</span>
 								</div>
 								<p className="font-normal! text-[14px]! text-foreground">
-									Мгновенный запуск как нативное приложение
+									{t('pwa.install.feature1', 'Мгновенный запуск как нативное приложение')}
 								</p>
 							</div>
 							<div className="flex items-center gap-3">
 								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">📱</span>
 								</div>
-								<p className="font-normal! text-[14px]! text-foreground">Работает без интернета</p>
+								<p className="font-normal! text-[14px]! text-foreground">
+									{t('pwa.install.feature2', 'Работает без интернета')}
+								</p>
 							</div>
 							<div className="flex items-center gap-3">
 								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
 									<span className="text-[20px]">🔔</span>
 								</div>
 								<p className="font-normal! text-[14px]! text-foreground">
-									Push-уведомления о ваших целях
+									{t('pwa.install.feature3', 'Push-уведомления о ваших целях')}
 								</p>
 							</div>
 						</motion.div>
@@ -113,25 +117,29 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								transition={{ delay: 0.6 }}
 							>
 								<p className="text-center font-normal! text-[13px]! text-foreground leading-[1.5]">
-									Нажмите{' '}
+									{t('pwa.install.ios_instruction', 'Нажмите')}{' '}
 									<span className="mx-1 inline-flex items-center gap-1 rounded-md bg-accent/20 px-2 py-0.5">
 										<Download className="h-3 w-3" />
-										Поделиться
+										{t('pwa.install.ios_share', 'Поделиться')}
 									</span>{' '}
-									внизу экрана, затем выберите{' '}
-									<span className="mx-1 rounded-md bg-accent/20 px-2 py-0.5">"На экран Домой"</span>
+									{t('pwa.install.ios_then', 'внизу экрана, затем выберите')}{' '}
+									<span className="mx-1 rounded-md bg-accent/20 px-2 py-0.5">
+										{t('pwa.install.ios_add_to_home', '"На экран Домой"')}
+									</span>
 								</p>
 							</motion.div>
 						) : (
 							<motion.button
 								animate={{ y: 0, opacity: 1 }}
-								className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-accent px-6 py-4 text-accent-foreground shadow-lg transition-all hover:bg-accent/90 hover:shadow-xl active:scale-95"
+								className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-accent-foreground shadow-lg transition-all hover:bg-accent/90 hover:shadow-xl active:scale-95"
 								initial={{ y: 20, opacity: 0 }}
 								onClick={onInstall}
 								transition={{ delay: 0.6 }}
 							>
 								<Smartphone className="h-5 w-5" />
-								<span className="font-semibold! text-[16px]!">Установить приложение</span>
+								<span className="font-semibold! text-[16px]!">
+									{t('pwa.install.install_button', 'Установить приложение')}
+								</span>
 							</motion.button>
 						)}
 
@@ -143,7 +151,9 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							onClick={onClose}
 							transition={{ delay: 0.7 }}
 						>
-							<span className="font-normal! text-[14px]!">Может быть позже</span>
+							<span className="font-normal! text-[14px]!">
+								{t('pwa.install.maybe_later', 'Может быть позже')}
+							</span>
 						</motion.button>
 					</div>
 				</motion.div>

@@ -1,4 +1,5 @@
 import { CloudOff, Crown, Settings } from 'lucide-react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { useOfflineMode } from '@/shared/lib/offline';
 import { SettingsRow, SettingsSection } from '../SettingsRow';
 
@@ -24,8 +25,9 @@ export function OfflineSection({
 	onOfflineChange,
 	onOfflineSettingsClick,
 	onPremiumRequired,
-	t,
+	t: _t,
 }: OfflineSectionProps) {
+	const { t } = useTranslation();
 	const { pendingCount, syncInProgress } = useOfflineMode();
 
 	const handleOfflineChange = (checked: boolean) => {
@@ -52,10 +54,12 @@ export function OfflineSection({
 
 	// ✅ FIX: Формируем description с учетом pending syncs
 	const getDescription = () => {
+		const premiumFeature = t('settings.offline.premium_feature', 'Премиум функция');
+
 		// Для Premium пользователей - показываем статус
 		if (isPremium) {
 			if (!offlineEnabled) {
-				return 'Премиум функция';
+				return premiumFeature;
 			}
 			if (syncInProgress) {
 				return `Синхронизация ${pendingCount} записей...`;
@@ -67,7 +71,7 @@ export function OfflineSection({
 		}
 
 		// Для Free пользователей - показываем что это Premium функция
-		return 'Премиум функция';
+		return premiumFeature;
 	};
 
 	// ✅ FIX: Для Premium пользователей показываем Crown иконку
@@ -80,7 +84,7 @@ export function OfflineSection({
 	};
 
 	return (
-		<SettingsSection title={t.offlineMode || 'Offline режим'}>
+		<SettingsSection title={t('settings.offline.title', 'Offline режим')}>
 			<SettingsRow
 				description={getDescription()}
 				disabled={false}
@@ -91,7 +95,7 @@ export function OfflineSection({
 				onSwitchChange={handleOfflineChange}
 				rightElement={getRightElement()}
 				switchChecked={offlineEnabled}
-				title={t.enableOfflineMode || 'Включить offline режим'}
+				title={t('settings.offline.enable', 'Включить offline режим')}
 			/>
 
 			{/* Offline Settings - только для премиум пользователей */}
@@ -102,7 +106,7 @@ export function OfflineSection({
 					iconBgColor="bg-(--ios-blue)/10"
 					iconColor="text-(--ios-blue)"
 					onClick={handleSettingsClick}
-					title={t.offlineSettings || 'Настройки offline'}
+					title={t('settings.offline.settings', 'Настройки offline')}
 				/>
 			)}
 		</SettingsSection>
