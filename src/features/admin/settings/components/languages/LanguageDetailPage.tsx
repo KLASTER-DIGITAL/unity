@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import { loadMissingKeys, loadTranslations } from '../translations-management/api';
+import { createClient } from '@/utils/supabase/client';
+import { loadTranslations } from '../translations-management/api';
 import type { Language, Translation } from '../translations-management/types';
 
 interface LanguageDetailPageProps {
@@ -19,33 +20,31 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 	const [isLoading, setIsLoading] = useState(true);
 	const [isTranslating, setIsTranslating] = useState(false);
 
-	useEffect(() => {
-		loadData();
-	}, [language.code]);
-
 	const loadData = async () => {
 		setIsLoading(true);
 		try {
-			const [translationsData, missingKeysData] = await Promise.all([
-				loadTranslations(),
-				loadMissingKeys(),
-			]);
+			const translationsData = await loadTranslations();
+
+			// Get all unique keys from all translations (русский язык имеет все ключи)
+			const allKeys = Array.from(new Set(translationsData.map((t) => t.translation_key)));
 
 			// Filter translations for this language
-			const languageTranslations = translationsData.filter(
-				(t) => t.language_code === language.code
-			);
+			const languageTranslations = translationsData.filter((t) => t.lang_code === language.code);
 			setTranslations(languageTranslations);
 
-			// Filter missing keys for this language
-			const languageMissingKeys = missingKeysData.filter(
-				(mk) => mk.language_code === language.code
-			);
-			setMissingKeys(languageMissingKeys.map((mk) => mk.key));
+			// Find missing keys for this language
+			const translatedKeys = new Set(languageTranslations.map((t) => t.translation_key));
+			const missing = allKeys.filter((key) => !translatedKeys.has(key));
+			setMissingKeys(missing);
 		} finally {
 			setIsLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		loadData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const handleAutoTranslate = async () => {
 		if (missingKeys.length === 0) {
@@ -55,13 +54,24 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 
 		setIsTranslating(true);
 		try {
+			// Get session token
+			const supabase = createClient();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session) {
+				toast.error('Ошибка авторизации');
+				return;
+			}
+
 			const response = await fetch(
 				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auto-translate`,
 				{
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+						Authorization: `Bearer ${session.access_token}`,
 					},
 					body: JSON.stringify({
 						sourceLanguage: 'ru',
@@ -87,8 +97,8 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 
 	const filteredTranslations = translations.filter(
 		(t) =>
-			t.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			t.value.toLowerCase().includes(searchQuery.toLowerCase())
+			t.translation_key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			t.translation_value.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	const totalKeys = translations.length + missingKeys.length;
@@ -153,11 +163,11 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 			) : (
 				<div className="space-y-2">
 					{filteredTranslations.map((translation) => (
-						<Card className="p-4" key={translation.key}>
+						<Card className="p-4" key={translation.translation_key}>
 							<div className="flex items-start justify-between gap-4">
 								<div className="flex-1">
-									<div className="font-medium text-sm">{translation.key}</div>
-									<div className="mt-1 text-muted-foreground">{translation.value}</div>
+									<div className="font-medium text-sm">{translation.translation_key}</div>
+									<div className="mt-1 text-muted-foreground">{translation.translation_value}</div>
 								</div>
 								<Button size="sm" variant="outline">
 									Редактировать
