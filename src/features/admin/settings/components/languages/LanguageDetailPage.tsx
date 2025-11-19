@@ -65,6 +65,9 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 				return;
 			}
 
+			console.log('🔑 Session token:', session.access_token.substring(0, 50) + '...');
+			console.log('👤 User ID:', session.user.id);
+
 			const response = await fetch(
 				`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auto-translate`,
 				{
@@ -80,16 +83,23 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 				}
 			);
 
+			console.log('📡 Response status:', response.status);
+
 			if (!response.ok) {
-				throw new Error(`HTTP ${response.status}`);
+				const errorData = await response.json();
+				console.error('❌ Error response:', errorData);
+				throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'}`);
 			}
 
 			const result = await response.json();
+			console.log('✅ Success:', result);
 			toast.success(`Переведено ${result.translated || 0} ключей для ${language.native_name}`);
 			await loadData(); // Reload data
 		} catch (error) {
 			console.error('Auto-translate error:', error);
-			toast.error('Ошибка автоперевода');
+			toast.error(
+				`Ошибка автоперевода: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setIsTranslating(false);
 		}

@@ -27,26 +27,48 @@ Deno.serve(async (req) => {
 	}
 
 	try {
+		// Get JWT token from Authorization header
+		const authHeader = req.headers.get('Authorization');
+		if (!authHeader) {
+			return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
+				status: 401,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
+		const token = authHeader.replace('Bearer ', '');
+
+		// Create Supabase client with service role key for admin operations
 		const supabaseClient = createClient(
 			Deno.env.get('SUPABASE_URL') ?? '',
-			Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+			Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
 			{
 				global: {
-					headers: { Authorization: req.headers.get('Authorization')! },
+					headers: { Authorization: authHeader },
 				},
 			}
 		);
 
-		// Verify user is super_admin
+		// Verify user from JWT token
 		const {
 			data: { user },
 			error: authError,
-		} = await supabaseClient.auth.getUser();
+		} = await supabaseClient.auth.getUser(token);
+
+		console.log('🔍 Auth check:', { user: user?.id, authError });
+
 		if (authError || !user) {
-			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-				status: 401,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-			});
+			console.error('❌ Auth failed:', authError);
+			return new Response(
+				JSON.stringify({
+					error: 'Unauthorized',
+					details: authError?.message || 'No user found',
+				}),
+				{
+					status: 401,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
 		}
 
 		const { data: profile } = await supabaseClient
@@ -62,16 +84,44 @@ Deno.serve(async (req) => {
 			});
 		}
 
-		// Get OpenAI API key from admin_settings
-		const { data: settings } = await supabaseClient
-			.from('admin_settings')
-			.select('openai_api_key')
+		// Get OpenAI API key from api_services
+		const { data: apiService, error: apiServiceError } = await supabaseClient
+			.from('api_services')
+			.select('api_key, is_active')
+			.eq('name', 'openai')
 			.single();
 
-		if (!settings?.openai_api_key) {
+		console.log('🔑 API Service check:', { apiService, apiServiceError });
+
+		if (apiServiceError || !apiService) {
 			return new Response(
 				JSON.stringify({
-					error: 'OpenAI API key not configured in admin settings',
+					error: 'OpenAI API service not found',
+					details: apiServiceError?.message,
+				}),
+				{
+					status: 400,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		if (!apiService.is_active) {
+			return new Response(
+				JSON.stringify({
+					error: 'OpenAI API service is not active',
+				}),
+				{
+					status: 400,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		if (!apiService.api_key) {
+			return new Response(
+				JSON.stringify({
+					error: 'OpenAI API key not configured',
 				}),
 				{
 					status: 400,
@@ -162,7 +212,7 @@ Output (JSON only, no explanations):`;
 				const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
 					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${settings.openai_api_key}`,
+						Authorization: `Bearer ${apiService.api_key}`,
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
