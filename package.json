@@ -142,6 +142,7 @@
 	"scripts": {
 		"dev": "vite",
 		"dev:ci": "vite --no-open",
+		"dev:fresh": "npm run clear:cache && vite",
 		"prebuild": "node scripts/generate-sw-version.js",
 		"build": "vite build",
 		"build:analyze": "ANALYZE=true vite build",
@@ -156,6 +157,8 @@
 		"pre-commit": "npm run type-check && npm run lint && npm run build",
 		"scan:translations": "tsx scripts/scan-translation-keys.ts",
 		"migrate:translations": "tsx scripts/migrate-hardcoded-translations.ts",
+		"clear:cache": "node scripts/clear-pwa-cache.js",
+		"test:local": "npm run clear:cache && npm run dev",
 		"start:expo": "expo start",
 		"start:expo:clear": "expo start --clear",
 		"start:expo:web": "expo start --web",
