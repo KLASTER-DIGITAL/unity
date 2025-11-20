@@ -32,42 +32,51 @@ try {
 	// Read service-worker.js
 	let swContent = readFileSync(SW_PATH, 'utf-8');
 
-	// Extract current version
-	const versionMatch = swContent.match(/const CACHE_VERSION = ['"]v([^'"]+)['"]/);
-	if (!versionMatch) {
-		console.error('❌ Could not find CACHE_VERSION in service-worker.js');
+	// Extract current version from CACHE_NAME (format: 'achievement-diary-v4af247e')
+	const cacheNameMatch = swContent.match(/const CACHE_NAME = ['"]achievement-diary-v([^'"]+)['"]/);
+	if (!cacheNameMatch) {
+		console.error('❌ Could not find CACHE_NAME in service-worker.js');
 		process.exit(1);
 	}
 
-	const currentVersion = versionMatch[1];
+	const currentVersion = cacheNameMatch[1];
 	console.log(`📦 Current cache version: v${currentVersion}`);
 
-	// Increment version
-	const versionParts = currentVersion.split('.');
-	const lastPart = parseInt(versionParts[versionParts.length - 1], 10);
-	versionParts[versionParts.length - 1] = String(lastPart + 1);
-	const newVersion = versionParts.join('.');
+	// Generate new version (timestamp-based to ensure uniqueness)
+	const timestamp = Date.now().toString(36);
+	const newVersion = timestamp;
 
 	console.log(`📦 New cache version: v${newVersion}`);
 
-	// Update service-worker.js
+	// Update all CACHE_NAME constants in service-worker.js
 	swContent = swContent.replace(
-		/const CACHE_VERSION = ['"]v[^'"]+['"]/,
-		`const CACHE_VERSION = 'v${newVersion}'`
+		/const CACHE_NAME = ['"]achievement-diary-v[^'"]+['"]/,
+		`const CACHE_NAME = 'achievement-diary-v${newVersion}'`
+	);
+	swContent = swContent.replace(
+		/const CACHE_NAME_API = ['"]achievement-diary-api-v[^'"]+['"]/,
+		`const CACHE_NAME_API = 'achievement-diary-api-v${newVersion}'`
+	);
+	swContent = swContent.replace(
+		/const CACHE_NAME_STATIC = ['"]achievement-diary-static-v[^'"]+['"]/,
+		`const CACHE_NAME_STATIC = 'achievement-diary-static-v${newVersion}'`
 	);
 	writeFileSync(SW_PATH, swContent, 'utf-8');
 
-	// Update main.tsx APP_VERSION
+	// Update main.tsx APP_VERSION (use package.json version)
+	const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8'));
+	const appVersion = packageJson.version;
+
 	let mainContent = readFileSync(MAIN_PATH, 'utf-8');
 	mainContent = mainContent.replace(
 		/const APP_VERSION = ['"][^'"]+['"]/,
-		`const APP_VERSION = '${newVersion}'`
+		`const APP_VERSION = '${appVersion}'`
 	);
 	writeFileSync(MAIN_PATH, mainContent, 'utf-8');
 
 	console.log('✅ PWA cache version updated!');
 	console.log(`   Service Worker: v${newVersion}`);
-	console.log(`   App Version: ${newVersion}`);
+	console.log(`   App Version: ${appVersion}`);
 	console.log('');
 	console.log('💡 Next steps:');
 	console.log('   1. Test locally: npm run dev');
