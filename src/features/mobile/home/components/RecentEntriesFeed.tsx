@@ -5,6 +5,7 @@ import { Badge } from '@/shared/components/ui/badge';
 import { useEntries } from '@/shared/hooks/useEntries';
 import type { DiaryEntry } from '@/shared/lib/api';
 import type { Language } from '@/shared/lib/i18n';
+import { useTranslation } from '@/shared/lib/i18n';
 
 type RecentEntriesFeedProps = {
 	userData?: any;
@@ -25,6 +26,7 @@ export function RecentEntriesFeed({
 	recentEntries: externalEntries,
 	isLoading: externalLoading,
 }: RecentEntriesFeedProps) {
+	const { t } = useTranslation();
 	const [emblaRef] = useEmblaCarousel({
 		align: 'start',
 		containScroll: 'trimSnaps',
@@ -112,7 +114,9 @@ export function RecentEntriesFeed({
 		return (
 			<div className="mt-6 mb-6 px-4">
 				<div className="mb-4 flex items-center justify-between">
-					<h2 className="font-bold text-foreground text-xl">Лента последних записей</h2>
+					<h2 className="font-bold text-foreground text-xl">
+						{t('home.recent_entries', 'Лента последних записей')}
+					</h2>
 				</div>
 				<div className="space-y-3">
 					{[1, 2, 3].map((i) => (
@@ -143,10 +147,10 @@ export function RecentEntriesFeed({
 					className="max-w-[220px] truncate font-medium! text-foreground leading-[1.2]"
 					style={{ fontSize: '24px' }}
 				>
-					Лента последних записей
+					{t('home.recent_entries', 'Лента последних записей')}
 				</h2>
 				<button
-					aria-label="Смотреть все"
+					aria-label={t('home.view_all', 'Смотреть все')}
 					className="flex h-8 w-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
 					onClick={onViewAllClick}
 					type="button"
@@ -182,7 +186,7 @@ export function RecentEntriesFeed({
 							{/* Превью текста */}
 							<div className="relative mb-2 w-full overflow-hidden">
 								<p className="wrap-break-word line-clamp-2 text-[12px]! text-foreground leading-relaxed">
-									{entry.text || 'Нет текста'}
+									{entry.text || t('home.no_text', 'Нет текста')}
 								</p>
 							</div>
 
@@ -193,7 +197,7 @@ export function RecentEntriesFeed({
 							{!entry.aiReply && (
 								<div className="relative h-[100px] w-full overflow-hidden">
 									<p className="wrap-break-word text-[12px]! text-foreground leading-relaxed">
-										{entry.text || 'Нет текста'}
+										{entry.text || t('home.no_text', 'Нет текста')}
 									</p>
 									{/* Градиент затухания */}
 									<div className="pointer-events-none absolute right-0 bottom-0 left-0 h-8 bg-linear-to-t from-card via-card/50 to-transparent" />
@@ -211,7 +215,9 @@ export function RecentEntriesFeed({
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
 							<ArrowRight className="h-6 w-6 text-accent" strokeWidth={2} />
 						</div>
-						<p className="text-center text-sm font-medium text-accent">Смотреть все</p>
+						<p className="text-center text-sm font-medium text-accent">
+							{t('home.view_all', 'Смотреть все')}
+						</p>
 					</button>
 				</div>
 			</div>

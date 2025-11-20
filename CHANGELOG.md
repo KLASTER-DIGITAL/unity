@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-11-20
+
+### 📚 Документация
+
+#### **i18n система - Полный аудит** (2025-11-20)
+- **Аудит системы переводов**:
+  - Проверено покрытие переводов для всех 9 языков (ru, en, es, de, fr, zh, ja, kk, ka)
+  - 100% покрытие для казахского языка (633/633 ключей)
+  - Найдено 6 hardcoded текстов требующих миграции
+  - Найдено 50 "мусорных" ключей в БД
+
+- **Созданные документы**:
+  - `docs/i18n/I18N_AUDIT_REPORT_2025-11-20.md` - Полный технический отчет
+  - `docs/i18n/I18N_CLEANUP_PLAN.md` - План очистки с чеклистом
+  - `docs/i18n/I18N_AUDIT_SUMMARY_FOR_NON_PROGRAMMER.md` - Краткий отчет для менеджера
+
+- **SQL миграции**:
+  - `supabase/migrations/20251120000001_cleanup_garbage_translation_keys.sql` - Очистка БД
+
+- **Рекомендации**:
+  - Исправить hardcoded тексты в RecentEntriesFeed.tsx (15 минут)
+  - Очистить БД от мусорных ключей (5 минут)
+  - Создать .native.tsx версии для 3 компонентов (4-6 часов)
+
+---
+
 ## [Unreleased] - 2025-11-17
 
 ### ✨ Новые возможности
