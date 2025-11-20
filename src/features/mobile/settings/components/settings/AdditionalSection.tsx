@@ -45,7 +45,7 @@ export function AdditionalSection({
 				<SettingsRow
 					description={
 						firstDayOfWeek === 'monday'
-							? 'Понедельник'
+							? t('settings.additional.monday', 'Понедельник')
 							: t('settings.additional.sunday', 'Воскресенье')
 					}
 					icon={Calendar}
