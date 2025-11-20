@@ -9,10 +9,7 @@ const sqlContent = fs.readFileSync(sqlFilePath, 'utf-8');
 
 // Extract INSERT statement (skip comments)
 const lines = sqlContent.split('\n');
-const insertLines = lines.filter(line =>
-  !line.trim().startsWith('--') &&
-  line.trim().length > 0
-);
+const insertLines = lines.filter((line) => !line.trim().startsWith('--') && line.trim().length > 0);
 const sqlQuery = insertLines.join('\n');
 
 console.log('📊 SQL Query готов к выполнению');

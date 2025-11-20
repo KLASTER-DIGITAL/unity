@@ -54,7 +54,9 @@ export function SupportSection({
 						showFeedbackWidget(true);
 					} catch (error) {
 						console.error('Failed to show feedback widget:', error);
-						toast.error(t('settings.support.feedback_error', 'Не удалось открыть форму обратной связи'));
+						toast.error(
+							t('settings.support.feedback_error', 'Не удалось открыть форму обратной связи')
+						);
 					}
 				}}
 				title={t('settings.support.report_bug', 'Сообщить об ошибке')}

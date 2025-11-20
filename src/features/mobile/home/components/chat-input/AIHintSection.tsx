@@ -1,8 +1,8 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
 import { Sparkles, X } from 'lucide-react';
-import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 import { useTranslation } from '@/shared/lib/i18n';
+import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type AIHintSectionProps = {
 	showHint: boolean;
@@ -44,7 +44,10 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
 									{t('home.ai_hint.title', 'AI подскажет')}
 								</h4>
 								<p className="font-normal! text-[11px]! text-muted-foreground leading-[16px]">
-									{t('home.ai_hint.description', 'Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс')}
+									{t(
+										'home.ai_hint.description',
+										'Опиши своё достижение, и я помогу структурировать запись, выбрать категорию и отметить прогресс'
+									)}
 								</p>
 							</div>
 						</div>

@@ -72,7 +72,10 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.4 }}
 						>
-							{t('pwa.install.description', 'Установите приложение для быстрого доступа к вашему дневнику достижений')}
+							{t(
+								'pwa.install.description',
+								'Установите приложение для быстрого доступа к вашему дневнику достижений'
+							)}
 						</motion.p>
 
 						{/* Features */}

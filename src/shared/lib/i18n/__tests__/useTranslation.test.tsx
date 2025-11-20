@@ -1,6 +1,6 @@
 /**
  * Unit тесты для useTranslation хука
- * 
+ *
  * @author UNITY Team
  * @date 2025-11-19
  */
@@ -14,172 +14,171 @@ import { useTranslation } from '../useTranslation';
 global.fetch = vi.fn();
 
 const mockTranslations = {
-  ru: {
-    welcome_title: 'Добро пожаловать',
-    hello_world: 'Привет, мир!',
-    items_one: 'предмет',
-    items_few: 'предмета',
-    items_many: 'предметов',
-  },
-  en: {
-    welcome_title: 'Welcome',
-    hello_world: 'Hello, world!',
-    items_one: 'item',
-    items_other: 'items',
-  },
-  kk: {
-    welcome_title: 'Қош келдіңіз',
-    hello_world: 'Сәлем, әлем!',
-    items_one: 'зат',
-    items_other: 'заттар',
-  },
+	ru: {
+		welcome_title: 'Добро пожаловать',
+		hello_world: 'Привет, мир!',
+		items_one: 'предмет',
+		items_few: 'предмета',
+		items_many: 'предметов',
+	},
+	en: {
+		welcome_title: 'Welcome',
+		hello_world: 'Hello, world!',
+		items_one: 'item',
+		items_other: 'items',
+	},
+	kk: {
+		welcome_title: 'Қош келдіңіз',
+		hello_world: 'Сәлем, әлем!',
+		items_one: 'зат',
+		items_other: 'заттар',
+	},
 };
 
 describe('useTranslation', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    localStorage.clear();
-    
-    // Mock успешного ответа от API
-    (global.fetch as any).mockImplementation((url: string) => {
-      const lang = url.includes('/ru') ? 'ru' : url.includes('/en') ? 'en' : 'kk';
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockTranslations[lang as keyof typeof mockTranslations]),
-      });
-    });
-  });
+	beforeEach(() => {
+		vi.clearAllMocks();
+		localStorage.clear();
 
-  it('должен загружать переводы для русского языка по умолчанию', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		// Mock успешного ответа от API
+		(global.fetch as any).mockImplementation((url: string) => {
+			const lang = url.includes('/ru') ? 'ru' : url.includes('/en') ? 'en' : 'kk';
+			return Promise.resolve({
+				ok: true,
+				json: () => Promise.resolve(mockTranslations[lang as keyof typeof mockTranslations]),
+			});
+		});
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен загружать переводы для русского языка по умолчанию', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    expect(result.current.currentLanguage).toBe('ru');
-    expect(result.current.t('welcome_title')).toBe('Добро пожаловать');
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-  it('должен переключаться на английский язык', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		expect(result.current.currentLanguage).toBe('ru');
+		expect(result.current.t('welcome_title')).toBe('Добро пожаловать');
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен переключаться на английский язык', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    // Переключаем на английский
-    await result.current.changeLanguage('en');
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-    await waitFor(() => {
-      expect(result.current.currentLanguage).toBe('en');
-    });
+		// Переключаем на английский
+		await result.current.changeLanguage('en');
 
-    expect(result.current.t('welcome_title')).toBe('Welcome');
-  });
+		await waitFor(() => {
+			expect(result.current.currentLanguage).toBe('en');
+		});
 
-  it('должен работать с казахским языком', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="kk">{children}</TranslationProvider>
-    );
+		expect(result.current.t('welcome_title')).toBe('Welcome');
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен работать с казахским языком', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="kk">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    expect(result.current.currentLanguage).toBe('kk');
-    expect(result.current.t('welcome_title')).toBe('Қош келдіңіз');
-    expect(result.current.t('hello_world')).toBe('Сәлем, әлем!');
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-  it('должен возвращать fallback текст если перевод не найден', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		expect(result.current.currentLanguage).toBe('kk');
+		expect(result.current.t('welcome_title')).toBe('Қош келдіңіз');
+		expect(result.current.t('hello_world')).toBe('Сәлем, әлем!');
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен возвращать fallback текст если перевод не найден', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    expect(result.current.t('non_existent_key' as any, 'Fallback text')).toBe('Fallback text');
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-  it('должен проверять наличие перевода', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		expect(result.current.t('non_existent_key' as any, 'Fallback text')).toBe('Fallback text');
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен проверять наличие перевода', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    expect(result.current.hasTranslation('welcome_title')).toBe(true);
-    expect(result.current.hasTranslation('non_existent_key' as any)).toBe(false);
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-  it('должен сохранять выбранный язык в localStorage', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		expect(result.current.hasTranslation('welcome_title')).toBe(true);
+		expect(result.current.hasTranslation('non_existent_key' as any)).toBe(false);
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен сохранять выбранный язык в localStorage', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    await result.current.changeLanguage('en');
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-    await waitFor(() => {
-      expect(localStorage.getItem('unity_language')).toBe('en');
-    });
-  });
+		await result.current.changeLanguage('en');
 
-  it('должен работать с плюрализацией', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		await waitFor(() => {
+			expect(localStorage.getItem('unity_language')).toBe('en');
+		});
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен работать с плюрализацией', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    // Русский: 1 предмет, 2 предмета, 5 предметов
-    expect(result.current.plural('items', 1)).toContain('предмет');
-    expect(result.current.plural('items', 2)).toContain('предмета');
-    expect(result.current.plural('items', 5)).toContain('предметов');
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
 
-  it('должен определять RTL направление', async () => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
-    );
+		// Русский: 1 предмет, 2 предмета, 5 предметов
+		expect(result.current.plural('items', 1)).toContain('предмет');
+		expect(result.current.plural('items', 2)).toContain('предмета');
+		expect(result.current.plural('items', 5)).toContain('предметов');
+	});
 
-    const { result } = renderHook(() => useTranslation(), { wrapper });
+	it('должен определять RTL направление', async () => {
+		const wrapper = ({ children }: { children: React.ReactNode }) => (
+			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
+		);
 
-    await waitFor(() => {
-      expect(result.current.isLoaded).toBe(true);
-    });
+		const { result } = renderHook(() => useTranslation(), { wrapper });
 
-    // Русский - LTR
-    expect(result.current.isRTL).toBe(false);
-    expect(result.current.direction).toBe('ltr');
-  });
+		await waitFor(() => {
+			expect(result.current.isLoaded).toBe(true);
+		});
+
+		// Русский - LTR
+		expect(result.current.isRTL).toBe(false);
+		expect(result.current.direction).toBe('ltr');
+	});
 });
-

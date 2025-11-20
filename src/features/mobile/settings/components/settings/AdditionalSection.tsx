@@ -44,7 +44,9 @@ export function AdditionalSection({
 				/>
 				<SettingsRow
 					description={
-						firstDayOfWeek === 'monday' ? 'Понедельник' : t('settings.additional.sunday', 'Воскресенье')
+						firstDayOfWeek === 'monday'
+							? 'Понедельник'
+							: t('settings.additional.sunday', 'Воскресенье')
 					}
 					icon={Calendar}
 					iconBgColor="bg-(--ios-blue)/10"
