@@ -40,9 +40,51 @@ export function filterEntries(
  * @param locale - Locale code (e.g., 'ru', 'en', 'kk')
  */
 export function formatEntryDate(date: Date, locale = 'ru'): string {
-	// Convert locale to proper format (e.g., 'kk' -> 'kk-KZ', 'ka' -> 'ka-GE')
-	const localeFormatted =
-		locale === 'kk' ? 'kk-KZ' : locale === 'ka' ? 'ka-GE' : `${locale}-${locale.toUpperCase()}`;
+	// For Kazakh and Georgian, use manual formatting since browser locales may not support them
+	if (locale === 'kk' || locale === 'ka') {
+		const months =
+			locale === 'kk'
+				? [
+						'қаңтар',
+						'ақпан',
+						'наурыз',
+						'сәуір',
+						'мамыр',
+						'маусым',
+						'шілде',
+						'тамыз',
+						'қыркүйек',
+						'қазан',
+						'қараша',
+						'желтоқсан',
+					]
+				: [
+						'იანვარი',
+						'თებერვალი',
+						'მარტი',
+						'აპრილი',
+						'მაისი',
+						'ივნისი',
+						'ივლისი',
+						'აგვისტო',
+						'სექტემბერი',
+						'ოქტომბერი',
+						'ნოემბერი',
+						'დეკემბერი',
+					];
+
+		const day = date.getDate();
+		const month = months[date.getMonth()];
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+
+		return locale === 'kk'
+			? `${day} ${month} ${hours}:${minutes}`
+			: `${day} ${month} ${hours}:${minutes}`;
+	}
+
+	// For other languages, use browser's Intl.DateTimeFormat
+	const localeFormatted = `${locale}-${locale.toUpperCase()}`;
 
 	return new Intl.DateTimeFormat(localeFormatted, {
 		day: 'numeric',
