@@ -269,25 +269,34 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 		return badges;
 	}, [badges, activeTab]);
 
-	// ✅ NEW: Категоризация достижений
+	// ✅ FIXED: Категоризация достижений по ID (не по названию)
+	// Используем ID достижений вместо hardcoded текстов в названиях
 	const categorizedAchievements = useMemo(() => {
-		const milestones = filteredBadges.filter(
-			(b) => b.name.includes('записей') || b.name.includes('побед') || b.name.includes('Первые')
-		);
-		const streaks = filteredBadges.filter(
-			(b) => b.name.includes('подряд') || b.name.includes('силы')
-		);
-		const categories = filteredBadges.filter(
-			(b) =>
-				b.name.includes('Семья') ||
-				b.name.includes('Здоровье') ||
-				b.name.includes('Работа') ||
-				b.name.includes('Благодарность')
-		);
-		const mindfulness = filteredBadges.filter((b) => {
-			const name = b.name.toLowerCase();
-			return name.includes('честн') || name.includes('баланс') || name.includes('эмоциональ');
+		const milestones = filteredBadges.filter((b) => {
+			// Достижения по количеству записей: entries_*, first_entry
+			return b.id.startsWith('entries_') || b.id === 'first_entry';
 		});
+
+		const streaks = filteredBadges.filter((b) => {
+			// Достижения по серии дней: streak_*
+			return b.id.startsWith('streak_');
+		});
+
+		const categories = filteredBadges.filter((b) => {
+			// Достижения по категориям: category_*
+			return b.id.startsWith('category_');
+		});
+
+		const mindfulness = filteredBadges.filter((b) => {
+			// Достижения по эмоциональной честности и балансу
+			return (
+				b.id === 'honest_difficult_day' ||
+				b.id === 'emotional_balance' ||
+				b.id.includes('mindfulness') ||
+				b.id.includes('emotion')
+			);
+		});
+
 		const special = filteredBadges.filter(
 			(b) =>
 				!milestones.includes(b) &&
