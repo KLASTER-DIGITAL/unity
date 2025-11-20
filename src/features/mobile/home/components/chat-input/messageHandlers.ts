@@ -63,7 +63,8 @@ export async function handleSendMessage({
 	try {
 		// Запрос к AI для анализа текста
 		console.log('Analyzing text with AI...');
-		const analysis = await analyzeTextWithAI(userText, userName, userId);
+		const userLanguage = userData?.language || 'ru';
+		const analysis = await analyzeTextWithAI(userText, userName, userId, userLanguage);
 
 		console.log('AI Analysis result:', analysis);
 

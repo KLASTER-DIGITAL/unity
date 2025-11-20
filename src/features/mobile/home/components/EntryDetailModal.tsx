@@ -13,7 +13,7 @@ type EntryDetailModalProps = {
 };
 
 export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalProps) {
-	const { t, i18n } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 
 	if (!entry) {
 		return null;
@@ -23,11 +23,11 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 		const date = new Date(dateString);
 		// Use user's language for date formatting
 		const locale =
-			i18n.language === 'kk'
+			currentLanguage === 'kk'
 				? 'kk-KZ'
-				: i18n.language === 'ka'
+				: currentLanguage === 'ka'
 					? 'ka-GE'
-					: `${i18n.language}-${i18n.language.toUpperCase()}`;
+					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
 		return date.toLocaleDateString(locale, {
 			weekday: 'long',
 			year: 'numeric',

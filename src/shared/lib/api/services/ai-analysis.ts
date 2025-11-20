@@ -7,12 +7,14 @@ import type { AIAnalysisResult } from '../types';
  * @param text - Text to analyze
  * @param userName - Optional user name for personalization
  * @param userId - Optional user ID for tracking
+ * @param userLanguage - Optional user language for AI response (defaults to 'ru')
  * @returns AI analysis result with reply, summary, sentiment, etc.
  */
 export async function analyzeTextWithAI(
 	text: string,
 	userName?: string,
-	userId?: string
+	userId?: string,
+	userLanguage?: string
 ): Promise<AIAnalysisResult> {
 	try {
 		const supabase = createClient();
@@ -30,7 +32,7 @@ export async function analyzeTextWithAI(
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${session.access_token}`,
 			},
-			body: JSON.stringify({ text, userName, userId }),
+			body: JSON.stringify({ text, userName, userId, userLanguage }),
 		});
 
 		if (!response.ok) {

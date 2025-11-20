@@ -106,7 +106,8 @@ export async function signUpWithEmail(
 					analysis = await analyzeTextWithAI(
 						userData.firstEntry.trim(),
 						userData.name || 'Пользователь',
-						data.user.id
+						data.user.id,
+						userData.language || 'ru'
 					);
 					console.log('[AUTH] AI analysis completed:', analysis);
 				} catch (aiError) {

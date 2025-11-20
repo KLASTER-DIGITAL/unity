@@ -26,7 +26,7 @@ export function RecentEntriesFeed({
 	recentEntries: externalEntries,
 	isLoading: externalLoading,
 }: RecentEntriesFeedProps) {
-	const { t } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 	const [emblaRef] = useEmblaCarousel({
 		align: 'start',
 		containScroll: 'trimSnaps',
@@ -57,25 +57,35 @@ export function RecentEntriesFeed({
 		const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
 		if (diffInMinutes < 1) {
-			return 'Только что';
+			return t('time.just_now', 'Только что');
 		}
 		if (diffInMinutes < 60) {
-			return `${diffInMinutes} мин назад`;
+			return t('time.minutes_ago', `${diffInMinutes} мин назад`).replace(
+				'{count}',
+				String(diffInMinutes)
+			);
 		}
 		if (diffInHours < 24) {
-			return `${diffInHours} ч назад`;
+			return t('time.hours_ago', `${diffInHours} ч назад`).replace('{count}', String(diffInHours));
 		}
 		if (diffInDays === 0) {
-			return 'Сегодня';
+			return t('time.today', 'Сегодня');
 		}
 		if (diffInDays === 1) {
-			return 'Вчера';
+			return t('time.yesterday', 'Вчера');
 		}
 		if (diffInDays < 7) {
-			return `${diffInDays} дн назад`;
+			return t('time.days_ago', `${diffInDays} дн назад`).replace('{count}', String(diffInDays));
 		}
 
-		return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+		// Use user's language for date formatting
+		const locale =
+			currentLanguage === 'kk'
+				? 'kk-KZ'
+				: currentLanguage === 'ka'
+					? 'ka-GE'
+					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+		return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 	};
 
 	const getCategoryEmoji = (category: string): string => {
