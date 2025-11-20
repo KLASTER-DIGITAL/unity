@@ -244,31 +244,81 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			achievements.map((achievement) => {
 				// ✅ SAFETY: Ensure icon is always a valid component
 				const IconComponent = iconMap[achievement.icon];
-				const locale =
-					currentLanguage === 'kk'
-						? 'kk-KZ'
-						: currentLanguage === 'ka'
-							? 'ka-GE'
-							: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+
+				// ✅ i18n: Try to get translation, fallback to DB value
+				const translatedName = t(`achievement.${achievement.id}.name`, achievement.name);
+				const translatedDescription = t(
+					`achievement.${achievement.id}.description`,
+					achievement.description
+				);
+
+				// ✅ Manual date formatting for kk/ka languages
+				let formattedDate: string | undefined;
+				if (achievement.earnedAt) {
+					const date = new Date(achievement.earnedAt);
+
+					if (currentLanguage === 'kk' || currentLanguage === 'ka') {
+						const months =
+							currentLanguage === 'kk'
+								? [
+										'қаң.',
+										'ақп.',
+										'нау.',
+										'сәу.',
+										'мам.',
+										'мау.',
+										'шіл.',
+										'там.',
+										'қыр.',
+										'қаз.',
+										'қар.',
+										'жел.',
+									]
+								: [
+										'იან.',
+										'თებ.',
+										'მარ.',
+										'აპრ.',
+										'მაი.',
+										'ივნ.',
+										'ივლ.',
+										'აგვ.',
+										'სექ.',
+										'ოქტ.',
+										'ნოე.',
+										'დეკ.',
+									];
+
+						const day = date.getDate();
+						const month = months[date.getMonth()];
+						const year = date.getFullYear();
+
+						formattedDate =
+							currentLanguage === 'kk'
+								? `${day} ${month} ${year} ж.`
+								: `${day} ${month} ${year} წ.`;
+					} else {
+						const locale = `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+						formattedDate = date.toLocaleDateString(locale, {
+							day: 'numeric',
+							month: 'short',
+							year: 'numeric',
+						});
+					}
+				}
 
 				return {
 					id: achievement.id,
-					name: achievement.name,
-					description: achievement.description,
+					name: translatedName,
+					description: translatedDescription,
 					icon: IconComponent || Star, // Fallback to Star if icon not found
 					earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
 					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
-					earnedDate: achievement.earnedAt
-						? new Date(achievement.earnedAt).toLocaleDateString(locale, {
-								day: 'numeric',
-								month: 'short',
-								year: 'numeric',
-							})
-						: undefined, // ✅ NEW: форматируем дату
+					earnedDate: formattedDate,
 					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
 				};
 			}),
-		[achievements, currentLanguage] // ✅ FIXED: Added currentLanguage dependency
+		[achievements, currentLanguage, t] // ✅ FIXED: Added t dependency
 	);
 
 	// ✅ NEW: Фильтрация по табам
