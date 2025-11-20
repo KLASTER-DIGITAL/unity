@@ -62,9 +62,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full border-border border bg-muted/30 px-4 py-2">
 							<span className="text-xl">{profile?.diaryEmoji || profile?.diary_emoji || '🏆'}</span>
 							<span className="font-medium text-foreground text-sm">
-								{profile?.diaryName ||
-									profile?.diary_name ||
-									t('settings.profile.default_diary_name', 'Мой дневник')}
+								{profile?.diaryName || profile?.diary_name || t('profile.my_diary', 'Мой дневник')}
 							</span>
 						</div>
 					)}

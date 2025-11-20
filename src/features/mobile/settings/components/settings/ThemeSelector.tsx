@@ -130,6 +130,8 @@ interface ThemeCardProps {
 }
 
 function ThemeCard({ theme, isSelected, isLocked, onSelect }: ThemeCardProps) {
+	const { t } = useTranslation();
+
 	return (
 		<button
 			className={`
@@ -150,10 +152,14 @@ function ThemeCard({ theme, isSelected, isLocked, onSelect }: ThemeCardProps) {
 			<div className="space-y-1">
 				<div className="flex items-center gap-2">
 					<span className="text-lg">{theme.icon}</span>
-					<h4 className="text-foreground text-sm font-medium">{theme.name}</h4>
+					<h4 className="text-foreground text-sm font-medium">
+						{t(`themes.${theme.id}.name`, theme.name)}
+					</h4>
 					{isLocked && <Crown className="text-muted-foreground h-3 w-3" />}
 				</div>
-				<p className="text-muted-foreground text-xs">{theme.description}</p>
+				<p className="text-muted-foreground text-xs">
+					{t(`themes.${theme.id}.description`, theme.description)}
+				</p>
 			</div>
 
 			{/* Selected Indicator */}

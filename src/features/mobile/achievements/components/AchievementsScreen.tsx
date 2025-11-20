@@ -426,7 +426,9 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 				<div className="space-y-2">
 					<div className="flex justify-between text-muted-foreground text-sm">
-						<span>До уровня {userStats.level + 1}</span>
+						<span>
+							{t('achievements.to_level', 'До уровня')} {userStats.level + 1}
+						</span>
 						<span>{userStats.nextLevelProgress}%</span>
 					</div>
 					<div className="h-2 w-full rounded-full bg-muted">
@@ -450,7 +452,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						}`}
 						onClick={() => setActiveTab('all')}
 					>
-						Все
+						{t('achievements.tabs.all', 'Все')}
 						{activeTab === 'all' && (
 							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
 						)}
@@ -464,7 +466,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						}`}
 						onClick={() => setActiveTab('earned')}
 					>
-						Полученные ({earnedCount})
+						{t('achievements.tabs.earned', 'Полученные')} ({earnedCount})
 						{activeTab === 'earned' && (
 							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
 						)}

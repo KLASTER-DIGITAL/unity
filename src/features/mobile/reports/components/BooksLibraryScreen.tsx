@@ -259,9 +259,9 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 						<Book className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
 					</div>
 					<div className="flex-1">
-						<h2 className="text-lg sm:text-xl">Библиотека книг</h2>
+						<h2 className="text-lg sm:text-xl">{t('books.library_title', 'Библиотека книг')}</h2>
 						<p className="text-muted-foreground text-xs opacity-90 sm:text-sm">
-							Твои персональные истории
+							{t('books.library_subtitle', 'Твои персональные истории')}
 						</p>
 					</div>
 				</div>
@@ -277,21 +277,21 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 							size="sm"
 							variant={filter === 'all' ? 'default' : 'outline'}
 						>
-							Все
+							{t('books.filter.all', 'Все')}
 						</Button>
 						<Button
 							onClick={() => setFilter('drafts')}
 							size="sm"
 							variant={filter === 'drafts' ? 'default' : 'outline'}
 						>
-							Черновики
+							{t('books.filter.drafts', 'Черновики')}
 						</Button>
 						<Button
 							onClick={() => setFilter('final')}
 							size="sm"
 							variant={filter === 'final' ? 'default' : 'outline'}
 						>
-							Готовые
+							{t('books.filter.final', 'Готовые')}
 						</Button>
 					</div>
 				</div>
