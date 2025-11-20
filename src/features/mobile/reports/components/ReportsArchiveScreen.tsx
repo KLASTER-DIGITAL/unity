@@ -88,12 +88,56 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 		if (!start || !end) return '';
 		const startDate = new Date(start);
 		const endDate = new Date(end);
-		const locale =
-			currentLanguage === 'kk'
-				? 'kk-KZ'
-				: currentLanguage === 'ka'
-					? 'ka-GE'
-					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+
+		// ✅ Manual formatting for kk/ka languages (browser doesn't support them properly)
+		if (currentLanguage === 'kk') {
+			const months = [
+				'қаң.',
+				'ақп.',
+				'нау.',
+				'сәу.',
+				'мам.',
+				'мау.',
+				'шіл.',
+				'там.',
+				'қыр.',
+				'қаз.',
+				'қар.',
+				'жел.',
+			];
+			const startDay = startDate.getDate();
+			const startMonth = months[startDate.getMonth()];
+			const endDay = endDate.getDate();
+			const endMonth = months[endDate.getMonth()];
+			const endYear = endDate.getFullYear();
+			return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${endYear} ж.`;
+		}
+
+		if (currentLanguage === 'ka') {
+			const months = [
+				'იან.',
+				'თებ.',
+				'მარ.',
+				'აპრ.',
+				'მაი.',
+				'ივნ.',
+				'ივლ.',
+				'აგვ.',
+				'სექ.',
+				'ოქტ.',
+				'ნოე.',
+				'დეკ.',
+			];
+			const startDay = startDate.getDate();
+			const startMonth = months[startDate.getMonth()];
+			const endDay = endDate.getDate();
+			const endMonth = months[endDate.getMonth()];
+			const endYear = endDate.getFullYear();
+			return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${endYear} წ.`;
+		}
+
+		// For other languages use browser's toLocaleDateString
+		const locale = `${currentLanguage}-${currentLanguage.toUpperCase()}`;
 		const startStr = startDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 		const endStr = endDate.toLocaleDateString(locale, {
 			day: 'numeric',
