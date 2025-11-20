@@ -1,4 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from '@/shared/lib/i18n';
+import { getCategoryTranslationKey } from './constants';
 
 type FiltersPanelProps = {
 	showFilters: boolean;
@@ -37,6 +39,7 @@ export function FiltersPanel({
 	onCategoryChange,
 	onSentimentChange,
 }: FiltersPanelProps) {
+	const { t } = useTranslation();
 	return (
 		<AnimatePresence>
 			{showFilters && (
@@ -49,7 +52,9 @@ export function FiltersPanel({
 					<div className="px-6 py-4">
 						{/* Categories */}
 						<div className="mb-4" data-testid="category-filter">
-							<p className="mb-2 font-medium! text-[13px]! text-muted-foreground">Категория</p>
+							<p className="mb-2 font-medium! text-[13px]! text-muted-foreground">
+								{t('filter.category', 'Категория')}
+							</p>
 							<div className="flex flex-wrap gap-2">
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -59,10 +64,16 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onCategoryChange(null)}
 								>
-									Все
+									{t('filter.all', 'Все')}
 								</button>
 								{categories.map((cat) => {
 									const emoji = CATEGORY_EMOJIS[cat] || '✨';
+									// ✅ Get translated category name
+									const categoryTranslationKey = getCategoryTranslationKey(cat);
+									const categoryName = categoryTranslationKey
+										? t(categoryTranslationKey, cat)
+										: cat;
+
 									return (
 										<button
 											className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -73,7 +84,7 @@ export function FiltersPanel({
 											key={cat}
 											onClick={() => onCategoryChange(cat)}
 										>
-											{emoji} {cat}
+											{emoji} {categoryName}
 										</button>
 									);
 								})}
@@ -82,7 +93,9 @@ export function FiltersPanel({
 
 						{/* Sentiment */}
 						<div>
-							<p className="mb-2 font-medium! text-[13px]! text-muted-foreground">Настроение</p>
+							<p className="mb-2 font-medium! text-[13px]! text-muted-foreground">
+								{t('filter.sentiment', 'Настроение')}
+							</p>
 							<div className="flex flex-wrap gap-2">
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -92,7 +105,7 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange(null)}
 								>
-									Все
+									{t('filter.all', 'Все')}
 								</button>
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -102,7 +115,7 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange('positive')}
 								>
-									😊 Позитив
+									{t('entry.sentiment.positive', '😊 Позитив')}
 								</button>
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -112,7 +125,7 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange('neutral')}
 								>
-									😐 Нейтрал
+									{t('entry.sentiment.neutral', '😐 Нейтрал')}
 								</button>
 								<button
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
@@ -122,7 +135,7 @@ export function FiltersPanel({
 									}`}
 									onClick={() => onSentimentChange('negative')}
 								>
-									😔 Грусть
+									{t('entry.sentiment.negative', '😔 Грусть')}
 								</button>
 							</div>
 						</div>

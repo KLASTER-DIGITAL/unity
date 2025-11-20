@@ -4,7 +4,7 @@ import { MediaPreview } from '@/features/mobile/media';
 import { AIAnalysisBlock } from '@/shared/components/ui/AIAnalysisBlock';
 import type { DiaryEntry } from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
-import { CATEGORY_ICONS, SENTIMENT_COLORS } from './constants';
+import { CATEGORY_ICONS, getCategoryTranslationKey, SENTIMENT_COLORS } from './constants';
 import { formatEntryDate } from './utils';
 
 type EntryCardProps = {
@@ -48,6 +48,12 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 	const entryDate = new Date(entry.createdAt);
 	const dateStr = formatEntryDate(entryDate, currentLanguage);
 
+	// ✅ Get translated category name
+	const categoryTranslationKey = getCategoryTranslationKey(entry.category);
+	const categoryName = categoryTranslationKey
+		? t(categoryTranslationKey, entry.category)
+		: entry.category; // Fallback to original name for custom categories
+
 	return (
 		<motion.div
 			animate={{ opacity: 1, y: 0 }}
@@ -64,7 +70,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 					</div>
 					<div>
 						<p className="font-semibold! text-[14px]! text-foreground dark:text-white">
-							{entry.category}
+							{categoryName}
 						</p>
 						<p className="text-[12px]! text-muted-foreground">{dateStr}</p>
 					</div>
