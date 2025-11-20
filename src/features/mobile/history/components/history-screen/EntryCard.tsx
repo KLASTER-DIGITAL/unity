@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { MediaPreview } from '@/features/mobile/media';
 import { AIAnalysisBlock } from '@/shared/components/ui/AIAnalysisBlock';
 import type { DiaryEntry } from '@/shared/lib/api';
+import { useTranslation } from '@/shared/lib/i18n';
 import { CATEGORY_ICONS, SENTIMENT_COLORS } from './constants';
 import { formatEntryDate } from './utils';
 
@@ -17,6 +18,8 @@ type EntryCardProps = {
  * Displays a single diary entry
  */
 export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
+	const { t, currentLanguage } = useTranslation();
+
 	// ✅ SAFETY: Case-insensitive category icon lookup with fallback for custom categories
 	const getCategoryIcon = (category: string) => {
 		if (!category) {
@@ -43,7 +46,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 
 	const CategoryIcon = getCategoryIcon(entry.category);
 	const entryDate = new Date(entry.createdAt);
-	const dateStr = formatEntryDate(entryDate);
+	const dateStr = formatEntryDate(entryDate, currentLanguage);
 
 	return (
 		<motion.div
@@ -105,10 +108,10 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 					style={{ fontSize: '8px' }}
 				>
 					{entry.sentiment === 'positive'
-						? '😊 Позитив'
+						? t('entry.sentiment.positive', '😊 Позитив')
 						: entry.sentiment === 'neutral'
-							? '😐 Нейтрал'
-							: '😔 Грусть'}
+							? t('entry.sentiment.neutral', '😐 Нейтрал')
+							: t('entry.sentiment.negative', '😔 Грусть')}
 				</span>
 				{(entry.tags || []).map((tag) => (
 					<span

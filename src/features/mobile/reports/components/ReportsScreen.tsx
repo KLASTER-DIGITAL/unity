@@ -97,7 +97,7 @@ type ReportsUserData = {
 
 export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	// Получаем переводы для языка пользователя
-	const { t } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 	const [selectedPeriod, setSelectedPeriod] = useState<ReportsPeriod>('month');
 	const [isLoading, setIsLoading] = useState(true);
 	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
@@ -286,7 +286,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	}, [isPremium, selectedPeriod, loadLastSavedReport]);
 
 	// Получить текущий месяц и год
-	const currentPeriod = new Date().toLocaleDateString('ru-RU', {
+	const currentPeriod = new Date().toLocaleDateString(currentLanguage, {
 		year: 'numeric',
 		month: 'long',
 	});

@@ -36,9 +36,11 @@ export function filterEntries(
 
 /**
  * Format entry date
+ * @param date - Date to format
+ * @param locale - Locale code (e.g., 'ru', 'en', 'kk')
  */
-export function formatEntryDate(date: Date): string {
-	return new Intl.DateTimeFormat('ru', {
+export function formatEntryDate(date: Date, locale = 'ru'): string {
+	return new Intl.DateTimeFormat(locale, {
 		day: 'numeric',
 		month: 'long',
 		hour: '2-digit',

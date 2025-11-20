@@ -81,7 +81,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 export function AchievementsScreen({ userData }: { userData?: AchievementsScreenUserData }) {
 	// Получаем переводы для языка пользователя
-	const { t } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 
 	// ✅ HOOKS FIRST: All hooks must be called before any early returns
 	const [isLoadingEntries, setIsLoadingEntries] = useState(true);
@@ -253,7 +253,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
 					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
 					earnedDate: achievement.earnedAt
-						? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
+						? new Date(achievement.earnedAt).toLocaleDateString(currentLanguage)
 						: undefined, // ✅ NEW: форматируем дату
 					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
 				};
@@ -476,7 +476,11 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			<div className="space-y-6 px-4 pt-4">
 				{/* Milestones */}
 				{categorizedAchievements.milestones.length > 0 && (
-					<AchievementCategory title="Основные этапы" icon="🎯" delay={0}>
+					<AchievementCategory
+						title={t('achievements.category.milestones', 'Вехи')}
+						icon="🎯"
+						delay={0}
+					>
 						{categorizedAchievements.milestones.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
@@ -493,7 +497,11 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 				{/* Streaks */}
 				{categorizedAchievements.streaks.length > 0 && (
-					<AchievementCategory title="Постоянство" icon="🔥" delay={0.1}>
+					<AchievementCategory
+						title={t('achievements.category.streaks', 'Постоянство')}
+						icon="🔥"
+						delay={0.1}
+					>
 						{categorizedAchievements.streaks.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
@@ -510,7 +518,11 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 				{/* Categories */}
 				{categorizedAchievements.categories.length > 0 && (
-					<AchievementCategory title="Категории" icon="📚" delay={0.2}>
+					<AchievementCategory
+						title={t('achievements.category.categories', 'Категории')}
+						icon="📚"
+						delay={0.2}
+					>
 						{categorizedAchievements.categories.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
@@ -527,7 +539,11 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 				{/* Mindfulness & Emotions */}
 				{categorizedAchievements.mindfulness?.length > 0 && (
-					<AchievementCategory title="Осознанность и эмоции" icon="💙" delay={0.3}>
+					<AchievementCategory
+						title={t('achievements.category.mindfulness', 'Осознанность и эмоции')}
+						icon="💙"
+						delay={0.3}
+					>
 						{categorizedAchievements.mindfulness.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
@@ -544,7 +560,11 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 				{/* Special */}
 				{categorizedAchievements.special.length > 0 && (
-					<AchievementCategory title="Особые" icon="⭐" delay={0.4}>
+					<AchievementCategory
+						title={t('achievements.category.special', 'Особые')}
+						icon="⭐"
+						delay={0.4}
+					>
 						{categorizedAchievements.special.map((badge, index) => (
 							<AchievementBadge3D
 								key={badge.id}
