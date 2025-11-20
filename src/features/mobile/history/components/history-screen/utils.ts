@@ -40,7 +40,11 @@ export function filterEntries(
  * @param locale - Locale code (e.g., 'ru', 'en', 'kk')
  */
 export function formatEntryDate(date: Date, locale = 'ru'): string {
-	return new Intl.DateTimeFormat(locale, {
+	// Convert locale to proper format (e.g., 'kk' -> 'kk-KZ', 'ka' -> 'ka-GE')
+	const localeFormatted =
+		locale === 'kk' ? 'kk-KZ' : locale === 'ka' ? 'ka-GE' : `${locale}-${locale.toUpperCase()}`;
+
+	return new Intl.DateTimeFormat(localeFormatted, {
 		day: 'numeric',
 		month: 'long',
 		hour: '2-digit',

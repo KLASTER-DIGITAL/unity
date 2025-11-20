@@ -286,7 +286,14 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	}, [isPremium, selectedPeriod, loadLastSavedReport]);
 
 	// Получить текущий месяц и год
-	const currentPeriod = new Date().toLocaleDateString(currentLanguage, {
+	const localeFormatted =
+		currentLanguage === 'kk'
+			? 'kk-KZ'
+			: currentLanguage === 'ka'
+				? 'ka-GE'
+				: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+
+	const currentPeriod = new Date().toLocaleDateString(localeFormatted, {
 		year: 'numeric',
 		month: 'long',
 	});
