@@ -248,7 +248,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 
 			// Remove from local state
 			setBooks((prev) => prev.filter((b) => b.id !== book.id));
-			toast.success('Книга удалена');
+			toast.success(t('books.delete_success', 'Книга удалена'));
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -351,7 +351,8 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 									<div className="flex items-start justify-between">
 										<div className="flex-1">
 											<CardTitle className="flex items-center gap-2 text-base">
-												{book.metadata.diaryEmoji || '📖'} {book.storyJson?.title || 'Без названия'}
+												{book.metadata.diaryEmoji || '📖'}{' '}
+												{book.storyJson?.title || t('books.untitled', 'Без названия')}
 											</CardTitle>
 											<div className="mt-1 flex items-center gap-2 text-muted-foreground text-xs">
 												<Calendar className="h-3 w-3" strokeWidth={2} />
@@ -359,7 +360,9 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 											</div>
 										</div>
 										<Badge variant={book.isFinal ? 'default' : 'secondary'}>
-											{book.isFinal ? 'Готово' : 'Черновик'}
+											{book.isFinal
+												? t('books.status.ready', 'Готово')
+												: t('books.status.draft', 'Черновик')}
 										</Badge>
 									</div>
 								</CardHeader>
@@ -371,12 +374,12 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 										</div>
 										{book.metadata.entriesCount && (
 											<div className="text-muted-foreground text-sm">
-												📝 {book.metadata.entriesCount} записей
+												📝 {book.metadata.entriesCount} {t('books.entries_count', 'записей')}
 											</div>
 										)}
 										{book.metadata.pages && (
 											<div className="text-muted-foreground text-sm">
-												📄 {book.metadata.pages} страниц
+												📄 {book.metadata.pages} {t('books.pages_count', 'страниц')}
 											</div>
 										)}
 									</div>
@@ -392,11 +395,11 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 														variant="outline"
 													>
 														<Eye className="mr-2 h-4 w-4" strokeWidth={2} />
-														Просмотр
+														{t('books.view', 'Просмотр')}
 													</Button>
 													<Button className="flex-1" onClick={() => handleDownload(book)}>
 														<Download className="mr-2 h-4 w-4" strokeWidth={2} />
-														Скачать
+														{t('books.download', 'Скачать')}
 													</Button>
 												</>
 											) : (
@@ -406,7 +409,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 													variant="outline"
 												>
 													<Edit className="mr-2 h-4 w-4" strokeWidth={2} />
-													Редактировать черновик
+													{t('books.edit_draft', 'Редактировать черновик')}
 												</Button>
 											)}
 										</div>
@@ -422,7 +425,9 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 												>
 													<Trash2 className="mr-2 h-4 w-4 text-red-500" strokeWidth={2} />
 													<span className="text-red-500">
-														{deletingBookId === book.id ? 'Удаление...' : 'Удалить книгу'}
+														{deletingBookId === book.id
+															? t('books.deleting', 'Удаление...')
+															: t('books.delete', 'Удалить книгу')}
 													</span>
 												</Button>
 											</AlertDialogTrigger>
@@ -430,31 +435,44 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 												<AlertDialogHeader>
 													<AlertDialogTitle className="flex items-center gap-2">
 														<AlertCircle className="h-5 w-5 text-red-500" strokeWidth={2} />
-														Удалить книгу?
+														{t('books.delete_confirm_title', 'Удалить книгу?')}
 													</AlertDialogTitle>
 													<AlertDialogDescription>
 														{book.isFinal ? (
 															<>
-																Это действие нельзя отменить. Книга{' '}
-																<strong>"{book.storyJson?.title || 'Без названия'}"</strong> и PDF
-																файл будут удалены навсегда.
+																{t(
+																	'books.delete_confirm_final',
+																	'Это действие нельзя отменить. Книга'
+																)}{' '}
+																<strong>
+																	"{book.storyJson?.title || t('books.untitled', 'Без названия')}"
+																</strong>{' '}
+																{t(
+																	'books.delete_confirm_final_pdf',
+																	'и PDF файл будут удалены навсегда.'
+																)}
 															</>
 														) : (
 															<>
-																Черновик{' '}
-																<strong>"{book.storyJson?.title || 'Без названия'}"</strong> будет
-																удален. Вы сможете создать новую книгу в любое время.
+																{t('books.delete_confirm_draft', 'Черновик')}{' '}
+																<strong>
+																	"{book.storyJson?.title || t('books.untitled', 'Без названия')}"
+																</strong>{' '}
+																{t(
+																	'books.delete_confirm_draft_text',
+																	'будет удален. Вы сможете создать новую книгу в любое время.'
+																)}
 															</>
 														)}
 													</AlertDialogDescription>
 												</AlertDialogHeader>
 												<AlertDialogFooter>
-													<AlertDialogCancel>Отмена</AlertDialogCancel>
+													<AlertDialogCancel>{t('books.cancel', 'Отмена')}</AlertDialogCancel>
 													<AlertDialogAction
 														className="bg-red-500 transition-colors duration-300 hover:bg-red-600"
 														onClick={() => handleDelete(book)}
 													>
-														Удалить
+														{t('books.delete_action', 'Удалить')}
 													</AlertDialogAction>
 												</AlertDialogFooter>
 											</AlertDialogContent>
