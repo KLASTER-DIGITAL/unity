@@ -286,17 +286,55 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	}, [isPremium, selectedPeriod, loadLastSavedReport]);
 
 	// Получить текущий месяц и год
-	const localeFormatted =
-		currentLanguage === 'kk'
-			? 'kk-KZ'
-			: currentLanguage === 'ka'
-				? 'ka-GE'
-				: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+	const currentPeriod = (() => {
+		const now = new Date();
+		const year = now.getFullYear();
+		const monthIndex = now.getMonth();
 
-	const currentPeriod = new Date().toLocaleDateString(localeFormatted, {
-		year: 'numeric',
-		month: 'long',
-	});
+		// ✅ Manual formatting for kk/ka languages (browser doesn't support them properly)
+		if (currentLanguage === 'kk') {
+			const months = [
+				'қаңтар',
+				'ақпан',
+				'наурыз',
+				'сәуір',
+				'мамыр',
+				'маусым',
+				'шілде',
+				'тамыз',
+				'қыркүйек',
+				'қазан',
+				'қараша',
+				'желтоқсан',
+			];
+			return `${months[monthIndex]} ${year} ж.`;
+		}
+
+		if (currentLanguage === 'ka') {
+			const months = [
+				'იანვარი',
+				'თებერვალი',
+				'მარტი',
+				'აპრილი',
+				'მაისი',
+				'ივნისი',
+				'ივლისი',
+				'აგვისტო',
+				'სექტემბერი',
+				'ოქტომბერი',
+				'ნოემბერი',
+				'დეკემბერი',
+			];
+			return `${months[monthIndex]} ${year} წ.`;
+		}
+
+		// For other languages use browser's toLocaleDateString
+		const locale = `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+		return now.toLocaleDateString(locale, {
+			year: 'numeric',
+			month: 'long',
+		});
+	})();
 
 	const monthlyReport = (() => {
 		const totalEntries = reportStats?.total_entries ?? 0;
