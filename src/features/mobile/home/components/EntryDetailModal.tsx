@@ -4,6 +4,7 @@ import { Sparkles, X } from 'lucide-react';
 import { MediaPreview } from '@/features/mobile/media';
 import type { DiaryEntry } from '@/shared/lib/api';
 import { useTranslation } from '@/shared/lib/i18n';
+import { getCategoryTranslation } from '@/shared/lib/i18n/helpers';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type EntryDetailModalProps = {
@@ -21,13 +22,58 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 
 	const formatDate = (dateString: string): string => {
 		const date = new Date(dateString);
-		// Use user's language for date formatting
-		const locale =
-			currentLanguage === 'kk'
-				? 'kk-KZ'
-				: currentLanguage === 'ka'
-					? 'ka-GE'
-					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+
+		// For Kazakh and Georgian, use manual formatting since browser locales may not support them
+		if (currentLanguage === 'kk' || currentLanguage === 'ka') {
+			const weekdays =
+				currentLanguage === 'kk'
+					? ['жексенбі', 'дүйсенбі', 'сейсенбі', 'сәрсенбі', 'бейсенбі', 'жұма', 'сенбі']
+					: ['კვირა', 'ორშაბათი', 'სამშაბათი', 'ოთხშაბათი', 'ხუთშაბათი', 'პარასკევი', 'შაბათი'];
+			const months =
+				currentLanguage === 'kk'
+					? [
+							'қаңтар',
+							'ақпан',
+							'наурыз',
+							'сәуір',
+							'мамыр',
+							'маусым',
+							'шілде',
+							'тамыз',
+							'қыркүйек',
+							'қазан',
+							'қараша',
+							'желтоқсан',
+						]
+					: [
+							'იანვარი',
+							'თებერვალი',
+							'მარტი',
+							'აპრილი',
+							'მაისი',
+							'ივნისი',
+							'ივლისი',
+							'აგვისტო',
+							'სექტემბერი',
+							'ოქტომბერი',
+							'ნოემბერი',
+							'დეკემბერი',
+						];
+
+			const weekday = weekdays[date.getDay()];
+			const day = date.getDate();
+			const month = months[date.getMonth()];
+			const year = date.getFullYear();
+			const hours = String(date.getHours()).padStart(2, '0');
+			const minutes = String(date.getMinutes()).padStart(2, '0');
+
+			return currentLanguage === 'kk'
+				? `${weekday}, ${day} ${month} ${year} ж. ${hours}:${minutes}`
+				: `${weekday}, ${day} ${month} ${year} წ. ${hours}:${minutes}`;
+		}
+
+		// For other languages, use browser's toLocaleDateString
+		const locale = `${currentLanguage}-${currentLanguage.toUpperCase()}`;
 		return date.toLocaleDateString(locale, {
 			weekday: 'long',
 			year: 'numeric',
@@ -94,6 +140,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 							<button
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
+								type="button"
 							>
 								<X className="h-5 w-5 text-foreground" strokeWidth={2} />
 							</button>
@@ -117,7 +164,7 @@ export function EntryDetailModal({ entry, isOpen, onClose }: EntryDetailModalPro
 									className="rounded-full border border-muted-foreground/30 bg-muted px-3 py-1.5 text-muted-foreground transition-colors duration-300 dark:border-muted-foreground/50"
 									style={{ fontSize: '8px' }}
 								>
-									{entry.category}
+									{getCategoryTranslation(entry.category, currentLanguage)}
 								</span>
 							)}
 						</div>

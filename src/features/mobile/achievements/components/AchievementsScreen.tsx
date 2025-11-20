@@ -244,6 +244,12 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			achievements.map((achievement) => {
 				// ✅ SAFETY: Ensure icon is always a valid component
 				const IconComponent = iconMap[achievement.icon];
+				const locale =
+					currentLanguage === 'kk'
+						? 'kk-KZ'
+						: currentLanguage === 'ka'
+							? 'ka-GE'
+							: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
 
 				return {
 					id: achievement.id,
@@ -253,12 +259,16 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
 					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
 					earnedDate: achievement.earnedAt
-						? new Date(achievement.earnedAt).toLocaleDateString(currentLanguage)
+						? new Date(achievement.earnedAt).toLocaleDateString(locale, {
+								day: 'numeric',
+								month: 'short',
+								year: 'numeric',
+							})
 						: undefined, // ✅ NEW: форматируем дату
 					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
 				};
 			}),
-		[achievements]
+		[achievements, currentLanguage] // ✅ FIXED: Added currentLanguage dependency
 	);
 
 	// ✅ NEW: Фильтрация по табам

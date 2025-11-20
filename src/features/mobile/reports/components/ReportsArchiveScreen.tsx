@@ -28,7 +28,7 @@ type ReportsArchiveScreenProps = {
 };
 
 export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
-	const { t } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 	const [reports, setReports] = useState<ArchivedReport[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filter, setFilter] = useState<ArchiveFilter>('all');
@@ -45,7 +45,7 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 
 				if (error) {
 					console.error('[REPORTS-ARCHIVE] Error fetching reports:', error);
-					toast.error('Не удалось загрузить отчеты');
+					toast.error(t('reports.archive.load_error', 'Не удалось загрузить отчеты'));
 					return;
 				}
 
@@ -70,14 +70,14 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 				setReports(mapped);
 			} catch (error) {
 				console.error('[REPORTS-ARCHIVE] Error:', error);
-				toast.error('Произошла ошибка');
+				toast.error(t('reports.archive.generic_error', 'Произошла ошибка'));
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
 		void loadReports();
-	}, []);
+	}, [t]);
 
 	const filteredReports = reports.filter((report) => {
 		if (filter === 'all') return true;
@@ -88,17 +88,27 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 		if (!start || !end) return '';
 		const startDate = new Date(start);
 		const endDate = new Date(end);
-		const startStr = startDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-		const endStr = endDate.toLocaleDateString('ru-RU', {
+		const locale =
+			currentLanguage === 'kk'
+				? 'kk-KZ'
+				: currentLanguage === 'ka'
+					? 'ka-GE'
+					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+		const startStr = startDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+		const endStr = endDate.toLocaleDateString(locale, {
 			day: 'numeric',
 			month: 'short',
 			year: 'numeric',
 		});
-		return `${startStr}  ${endStr}`;
+		return `${startStr} – ${endStr}`;
 	};
 
 	const getSummaryPreview = (text: string | null) => {
-		if (!text) return 'AI еще не сгенерировал описание для этого отчета.';
+		if (!text)
+			return t(
+				'reports.archive.summary_not_ready',
+				'AI еще не сгенерировал описание для этого отчета.'
+			);
 		const trimmed = text.trim();
 		if (trimmed.length <= 180) return trimmed;
 		return `${trimmed.slice(0, 177)}...`;
@@ -117,9 +127,9 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 						<ArrowLeft className="h-5 w-5" strokeWidth={2} />
 					</Button>
 					<div>
-						<h2 className="text-lg sm:text-xl">AI-отчеты</h2>
+						<h2 className="text-lg sm:text-xl">{t('reports.archive.title', 'AI-отчеты')}</h2>
 						<p className="text-muted-foreground text-xs opacity-90 sm:text-sm">
-							Сохраненные недельные и месячные обзоры
+							{t('reports.archive.subtitle', 'Сохраненные недельные и месячные обзоры')}
 						</p>
 					</div>
 				</div>
@@ -127,9 +137,18 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 				<div className="flex gap-2">
 					{(
 						[
-							{ key: 'all', label: 'Все' },
-							{ key: 'weekly', label: 'Неделя' },
-							{ key: 'monthly', label: 'Месяц' },
+							{
+								key: 'all',
+								label: t('reports.archive.filter.all', 'Все'),
+							},
+							{
+								key: 'weekly',
+								label: t('reports.archive.filter.weekly', 'Неделя'),
+							},
+							{
+								key: 'monthly',
+								label: t('reports.archive.filter.monthly', 'Месяц'),
+							},
 						] as { key: ArchiveFilter; label: string }[]
 					).map((item) => (
 						<Button
@@ -189,7 +208,9 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 											{title}
 										</span>
 										<Badge variant="outline">
-											{report.periodType === 'weekly' ? 'Неделя' : 'Месяц'}
+											{report.periodType === 'weekly'
+												? t('reports.archive.badge.weekly', 'Неделя')
+												: t('reports.archive.badge.monthly', 'Месяц')}
 										</Badge>
 									</CardTitle>
 									{periodText && (
@@ -205,7 +226,8 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 									</p>
 									{typeof report.stats?.total_entries === 'number' && (
 										<p className="text-muted-foreground text-xs">
-											Всего записей за период: {report.stats.total_entries}
+											{t('reports.archive.total_entries', 'Всего записей за период')}:{' '}
+											{report.stats.total_entries}
 										</p>
 									)}
 								</CardContent>

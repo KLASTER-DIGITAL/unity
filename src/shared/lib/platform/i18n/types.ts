@@ -71,7 +71,7 @@ export type LocaleInfo = {
 /**
  * Supported languages in UNITY-v2
  */
-export const SUPPORTED_LANGUAGES = ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja'] as const;
+export const SUPPORTED_LANGUAGES = ['ru', 'en', 'es', 'de', 'fr', 'zh', 'ja', 'kk', 'ka'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 /**

@@ -1,6 +1,6 @@
 // TypeScript типы для i18n системы
 
-export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja';
+export type Language = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja' | 'kk' | 'ka';
 
 export type LanguageConfig = {
 	code: string;

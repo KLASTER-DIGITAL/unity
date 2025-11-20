@@ -216,8 +216,10 @@ Deno.serve(async (req) => {
 			fr: 'fr-FR',
 			zh: 'zh-CN',
 			ja: 'ja-JP',
+			kk: 'kk-KZ',
+			ka: 'ka-GE',
 		};
-		const locale = localeMap[userLanguage] || 'ru-RU';
+		const locale = localeMap[userLanguage] || `${userLanguage}-${userLanguage.toUpperCase()}`;
 
 		// Prepare data for AI
 		const entriesSummary = filteredEntries.map((entry) => ({

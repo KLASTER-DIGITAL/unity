@@ -73,7 +73,7 @@ type BooksLibraryScreenProps = {
 };
 
 export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksLibraryScreenProps) {
-	const { t } = useTranslation();
+	const { t, currentLanguage } = useTranslation();
 	const [books, setBooks] = useState<BookDraft[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'drafts' | 'final'>('all');
@@ -158,23 +158,39 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 	const formatPeriod = (start: string, end: string) => {
 		const startDate = new Date(start);
 		const endDate = new Date(end);
-		return `${startDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+		const locale =
+			currentLanguage === 'kk'
+				? 'kk-KZ'
+				: currentLanguage === 'ka'
+					? 'ka-GE'
+					: `${currentLanguage}-${currentLanguage.toUpperCase()}`;
+		const startStr = startDate.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+		const endStr = endDate.toLocaleDateString(locale, {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric',
+		});
+		return `${startStr} – ${endStr}`;
 	};
 
 	// Get style label
 	const getStyleLabel = (style: string) => {
-		const labels = {
-			warm_family: 'Семейная история',
-			biographical: 'Биография',
-			motivational: 'Мотивация',
-		};
-		return labels[style as keyof typeof labels] || style;
+		switch (style) {
+			case 'warm_family':
+				return t('books.style.warm_family', 'Семейная история');
+			case 'biographical':
+				return t('books.style.biographical', 'Биография');
+			case 'motivational':
+				return t('books.style.motivational', 'Мотивация');
+			default:
+				return style;
+		}
 	};
 
 	// Handle download
 	const handleDownload = (book: BookDraft) => {
 		if (!book.pdfUrl) {
-			toast.error('PDF еще не сгенерирован');
+			toast.error(t('books.pdf_not_ready', 'PDF еще не сгенерирован'));
 			return;
 		}
 
@@ -184,7 +200,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 	// Handle view
 	const handleView = (book: BookDraft) => {
 		if (!book.pdfUrl) {
-			toast.info('Черновик еще не завершен');
+			toast.info(t('books.draft_not_completed', 'Черновик еще не завершен'));
 			return;
 		}
 
@@ -196,7 +212,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 		if (onEditDraft) {
 			onEditDraft(book.id);
 		} else {
-			toast.info('Функция редактирования в разработке');
+			toast.info(t('books.edit_in_development', 'Функция редактирования в разработке'));
 		}
 	};
 
@@ -211,7 +227,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 
 			if (error) {
 				console.error('[BOOKS-LIBRARY] Error deleting book:', error);
-				toast.error('Не удалось удалить книгу');
+				toast.error(t('books.delete_error', 'Не удалось удалить книгу'));
 				return;
 			}
 

@@ -345,9 +345,11 @@ Deno.serve(async (req) => {
 				analysis = JSON.parse(aiResponse);
 			} catch (e) {
 				console.error('[AI-ANALYSIS] Failed to parse AI response:', e);
+				// Fallback: use language-agnostic, key-based structure so frontend can localize it
 				analysis = {
 					sentiment: 'neutral',
-					category: 'другое',
+					// Use a stable key instead of Russian text; UI will translate "other" via i18n
+					category: 'other',
 					tags: [],
 					reply: aiResponse,
 					summary: text.substring(0, 100),

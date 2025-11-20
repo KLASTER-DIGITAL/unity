@@ -8,11 +8,26 @@ import type { Language } from './types';
 
 /**
  * Get translation for diary entry category
- * @param category - Category key (family, work, finance, etc.)
+ * @param category - Category key (family, work, finance, etc.) or Russian value (семья, работа, личное развитие)
  * @param language - Language code (default: 'ru')
  * @returns Translated category name
  */
 export function getCategoryTranslation(category: string, language: Language = 'ru'): string {
+	// Reverse mapping: Russian value → English key
+	const russianToKey: Record<string, string> = {
+		семья: 'family',
+		работа: 'work',
+		финансы: 'finance',
+		благодарность: 'gratitude',
+		здоровье: 'health',
+		'личное развитие': 'personalDevelopment',
+		творчество: 'creativity',
+		отношения: 'relationships',
+	};
+
+	// If category is Russian value, convert to English key
+	const categoryKey = russianToKey[category.toLowerCase()] || category;
+
 	const categoryTranslations: Record<Language, Record<string, string>> = {
 		ru: {
 			family: 'Семья',
@@ -84,8 +99,28 @@ export function getCategoryTranslation(category: string, language: Language = 'r
 			creativity: '創造性',
 			relationships: '人間関係',
 		},
+		kk: {
+			family: 'Отбасы',
+			work: 'Жұмыс',
+			finance: 'Қаржы',
+			gratitude: 'Алғыс',
+			health: 'Денсаулық',
+			personalDevelopment: 'Жеке өсу',
+			creativity: 'Шығармашылық',
+			relationships: 'Қарым-қатынас',
+		},
+		ka: {
+			family: 'ოჯახი',
+			work: 'სამუშაო',
+			finance: 'ფინანსები',
+			gratitude: 'მადლიერება',
+			health: 'ჯანმრთელობა',
+			personalDevelopment: 'პირადი განვითარება',
+			creativity: 'შემოქმედება',
+			relationships: 'ურთიერთობები',
+		},
 	};
 
 	const translations = categoryTranslations[language] || categoryTranslations.ru;
-	return translations[category] || category;
+	return translations[categoryKey] || category;
 }

@@ -71,11 +71,11 @@ export function HistoryScreen({ userData }: HistoryScreenProps) {
 			setFilteredEntries(data);
 		} catch (error) {
 			console.error('Error loading entries:', error);
-			toast.error('Не удалось загрузить записи');
+			toast.error(t('history.load_error', 'Не удалось загрузить записи'));
 		} finally {
 			setIsLoading(false);
 		}
-	}, [userData]);
+	}, [userData, t]);
 
 	// ✅ FIX: useEffect AFTER function definition
 	useEffect(() => {

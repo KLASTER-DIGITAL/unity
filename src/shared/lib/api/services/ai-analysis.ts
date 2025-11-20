@@ -51,12 +51,13 @@ export async function analyzeTextWithAI(
 			reply: analysis.reply || '',
 			summary: analysis.summary || '',
 			insight: analysis.insight || '',
+			// Use neutral English keys as safe defaults; UI is responsible for localizing them
 			sentiment: analysis.sentiment || 'neutral',
-			category: analysis.category || 'Другое',
+			category: analysis.category || 'other',
 			tags: analysis.tags || [],
 			confidence: analysis.confidence || 0,
 			isAchievement: analysis.isAchievement,
-			mood: analysis.mood || 'нормальное',
+			mood: analysis.mood || 'neutral',
 			entrySummaryId: analysis.entrySummaryId,
 		};
 	} catch (error) {

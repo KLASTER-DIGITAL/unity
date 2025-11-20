@@ -223,7 +223,7 @@ export type Translations = Partial<Record<TranslationKey, string>>;
 /**
  * Language code type
  */
-export type LanguageCode = 'de' | 'en' | 'es' | 'fr' | 'ja' | 'ka' | 'ru' | 'zh';
+export type LanguageCode = 'de' | 'en' | 'es' | 'fr' | 'ja' | 'ka' | 'kk' | 'ru' | 'zh';
 
 /**
  * Language object type

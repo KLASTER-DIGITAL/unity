@@ -78,8 +78,11 @@ export function entryToCard(
 		fr: 'fr-FR',
 		zh: 'zh-CN',
 		ja: 'ja-JP',
+		kk: 'kk-KZ',
+		ka: 'ka-GE',
 	};
-	const dateFormatter = new Intl.DateTimeFormat(localeMap[userLanguage] || 'ru-RU', {
+	const locale = localeMap[userLanguage] || `${userLanguage}-${userLanguage.toUpperCase()}`;
+	const dateFormatter = new Intl.DateTimeFormat(locale, {
 		day: 'numeric',
 		month: 'long',
 		year: 'numeric',
