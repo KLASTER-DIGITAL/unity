@@ -85,8 +85,9 @@ export function SuccessModal({
 
 						{/* Text */}
 						<h3 className="mb-2 text-center font-semibold! text-[18px]! text-foreground">
-							Отлично {userName}!<br />
-							Ваша запись сохранена! 🎉
+							{t('success.entry_saved', `Отлично ${userName}!`)}
+							<br />
+							{t('success.entry_saved_message', 'Ваша запись сохранена! 🎉')}
 						</h3>
 					</motion.div>
 				</>

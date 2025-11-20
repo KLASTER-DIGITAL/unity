@@ -18,6 +18,7 @@ import {
 	trackPushSubscribed,
 	trackPushUnsubscribed,
 } from '@/shared/lib/analytics/pwa-tracking';
+import { useTranslation } from '@/shared/lib/i18n';
 import {
 	type PushSubscriptionResult,
 	subscribeToPush,
@@ -40,6 +41,7 @@ export function PushSubscriptionManager({
 	userId,
 	onSubscriptionChange,
 }: PushSubscriptionManagerProps) {
+	const { t } = useTranslation();
 	const [isSupported, setIsSupported] = useState(false);
 	const [permission, setPermission] = useState<NotificationPermission>('default');
 	const [isSubscribed, setIsSubscribed] = useState(false);
@@ -260,31 +262,38 @@ export function PushSubscriptionManager({
 		<div className="rounded-xl border border-border bg-card p-4 transition-colors duration-300">
 			<div className="flex items-start justify-between">
 				<div className="flex-1">
-					<h3 className="mb-2 font-semibold text-callout text-foreground">🔔 Push Уведомления</h3>
+					<h3 className="mb-2 font-semibold text-callout text-foreground">
+						{t('push.title', '🔔 Push Уведомления')}
+					</h3>
 
 					{permission === 'denied' && (
 						<div className="mb-3 rounded-lg border border-destructive/20 bg-destructive/10 p-3 transition-colors duration-300">
 							<p className="text-destructive text-footnote">
-								❌ Уведомления запрещены. Разрешите их в настройках браузера.
+								{t('push.denied', '❌ Уведомления запрещены. Разрешите их в настройках браузера.')}
 							</p>
 						</div>
 					)}
 
 					{permission === 'granted' && isSubscribed && (
 						<div className="mb-3 rounded-lg border border-(--ios-green)/20 bg-(--ios-green)/10 p-3 transition-colors duration-300">
-							<p className="text-(--ios-green) text-footnote">✅ Вы подписаны на уведомления</p>
+							<p className="text-(--ios-green) text-footnote">
+								{t('push.subscribed', '✅ Вы подписаны на уведомления')}
+							</p>
 						</div>
 					)}
 
 					{permission === 'default' && (
 						<p className="mb-3 text-footnote text-muted-foreground">
-							Получайте уведомления о новых достижениях и напоминания
+							{t('push.description', 'Получайте уведомления о новых достижениях и напоминания')}
 						</p>
 					)}
 
 					{permission === 'granted' && !isSubscribed && (
 						<p className="mb-3 text-footnote text-muted-foreground">
-							Подпишитесь на уведомления, чтобы не пропустить важные события
+							{t(
+								'push.subscribe_prompt',
+								'Подпишитесь на уведомления, чтобы не пропустить важные события'
+							)}
 						</p>
 					)}
 				</div>
@@ -298,7 +307,7 @@ export function PushSubscriptionManager({
 						onClick={handleOpenSettings}
 						type="button"
 					>
-						🔔 Включить уведомления
+						{t('push.enable', '🔔 Включить уведомления')}
 					</button>
 				) : (
 					<button
@@ -307,7 +316,9 @@ export function PushSubscriptionManager({
 						onClick={handleUnsubscribe}
 						type="button"
 					>
-						{isLoading ? 'Отписка...' : '🔕 Отписаться на этом устройстве'}
+						{isLoading
+							? t('push.unsubscribing', 'Отписка...')
+							: t('push.unsubscribe', '🔕 Отписаться на этом устройстве')}
 					</button>
 				)}
 			</div>
