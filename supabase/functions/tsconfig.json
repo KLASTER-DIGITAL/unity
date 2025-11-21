@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2021",
+		"lib": ["ES2021", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowJs": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"strict": false,
+		"types": [],
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true
+	},
+	"include": [
+		"**/*.ts",
+		"deno.d.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
+

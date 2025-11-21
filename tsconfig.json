@@ -26,7 +26,7 @@
 		"strictNullChecks": true
 	},
 	"include": ["src", ".expo/types/**/*.ts", "expo-env.d.ts", "tests/setup.ts"],
-	"exclude": ["**/*examples.tsx", "**/*.example.ts", "**/*.example.tsx"],
+	"exclude": ["**/*examples.tsx", "**/*.example.ts", "**/*.example.tsx", "supabase/functions/**/*"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

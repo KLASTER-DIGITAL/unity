@@ -39,7 +39,8 @@ async function getAiConfig(url: string, key: string, id: string) {
 function replacePlaceholders(template: string, vars: Record<string, string>): string {
 	let result = template;
 	for (const [key, value] of Object.entries(vars)) {
-		result = result.replaceAll(`{{${key}}}`, value);
+		// Use replace with global regex instead of replaceAll for ES2020 compatibility
+		result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
 	}
 	return result;
 }
