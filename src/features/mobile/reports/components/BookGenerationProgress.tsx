@@ -117,7 +117,7 @@ export function BookGenerationProgress({
 			<div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl sm:p-8">
 				{/* Header */}
 				<div className="mb-6 text-center">
-					<div className="bg-linear-to-r mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full from-purple-600 to-blue-600 sm:h-20 sm:w-20">
+					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[--ios-purple] sm:h-20 sm:w-20">
 						<Sparkles className="h-8 w-8 text-white sm:h-10 sm:w-10" strokeWidth={2} />
 					</div>
 					<h2 className="mb-2 text-xl font-semibold sm:text-2xl">✨ Создаем твою книгу...</h2>
@@ -143,17 +143,7 @@ export function BookGenerationProgress({
 					</div>
 				</div>
 
-				{/* Action Button */}
-				{onClose && (
-					<Button
-						className="w-full"
-						onClick={onClose}
-						style={{ minHeight: '44px' }}
-						variant="outline"
-					>
-						<span className="text-sm sm:text-base">Продолжить просмотр</span>
-					</Button>
-				)}
+				{/* Note: Success modal will be shown after completion */}
 			</div>
 		</div>
 	);

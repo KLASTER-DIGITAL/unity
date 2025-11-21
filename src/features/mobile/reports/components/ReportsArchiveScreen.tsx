@@ -161,7 +161,7 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 	return (
 		<div className="scrollbar-hide fixed inset-0 z-50 overflow-y-auto bg-(--ios-bg-primary)">
 			{/* Header */}
-			<div className="bg-linear-to-r from-purple-600 to-blue-600 p-4 text-white sm:p-6">
+			<div className="bg-[--ios-purple] p-4 text-white sm:p-6">
 				<div className="mb-4 flex items-center gap-3">
 					<Button
 						className="h-10 w-10 rounded-full bg-card/20 p-0 text-white hover:bg-card/30"

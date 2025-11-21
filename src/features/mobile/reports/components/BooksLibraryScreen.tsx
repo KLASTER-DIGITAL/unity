@@ -8,7 +8,6 @@
  */
 
 import {
-	AlertCircle,
 	ArrowLeft,
 	Book,
 	Calendar,
@@ -22,27 +21,19 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/shared/components/ui/alert-dialog';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
+import { BookDeleteConfirmModal } from './BookDeleteConfirmModal';
 
 type BookDraft = {
 	id: string;
 	userId: string;
+	parentBookId?: string | null;
+	version?: number | null;
 	periodStart: string;
 	periodEnd: string;
 	contexts: string[];
@@ -70,15 +61,24 @@ type BooksLibraryScreenProps = {
 	onCreateBook?: () => void;
 	onBack?: () => void;
 	onEditDraft?: (draftId: string) => void;
+	refreshKey?: string | number; // Key для принудительного обновления списка книг
 };
 
-export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksLibraryScreenProps) {
+export function BooksLibraryScreen({
+	onCreateBook,
+	onBack,
+	onEditDraft,
+	refreshKey,
+}: BooksLibraryScreenProps) {
 	const { t, currentLanguage } = useTranslation();
 	const [books, setBooks] = useState<BookDraft[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filter, setFilter] = useState<'all' | 'drafts' | 'final'>('all');
 	const [userId, setUserId] = useState<string | null>(null);
 	const [deletingBookId, setDeletingBookId] = useState<string | null>(null);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [bookToDelete, setBookToDelete] = useState<BookDraft | null>(null);
+	const [creatingVersionId, setCreatingVersionId] = useState<string | null>(null);
 
 	// Get user ID from session
 	useEffect(() => {
@@ -127,6 +127,8 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 				const booksData: BookDraft[] = (data || []).map((book) => ({
 					id: book.id,
 					userId: book.user_id,
+					parentBookId: (book as { parent_book_id?: string | null }).parent_book_id ?? null,
+					version: (book as { version?: number | null }).version ?? 1,
 					periodStart: book.period_start,
 					periodEnd: book.period_end,
 					contexts: book.contexts || [],
@@ -152,7 +154,7 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 		};
 
 		fetchBooks();
-	}, [userId, filter]);
+	}, [userId, filter, refreshKey]); // ✅ Добавлен refreshKey для принудительного обновления
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {
@@ -216,14 +218,22 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 		}
 	};
 
-	// Handle delete book
-	const handleDelete = async (book: BookDraft) => {
+	// Handle delete button click
+	const handleDeleteClick = (book: BookDraft) => {
+		setBookToDelete(book);
+		setShowDeleteConfirm(true);
+	};
+
+	// Handle delete confirmation
+	const handleDeleteConfirm = async () => {
+		if (!bookToDelete) return;
+
 		try {
-			setDeletingBookId(book.id);
+			setDeletingBookId(bookToDelete.id);
 			const supabase = createClient();
 
 			// Delete from database
-			const { error } = await supabase.from('books_archive').delete().eq('id', book.id);
+			const { error } = await supabase.from('books_archive').delete().eq('id', bookToDelete.id);
 
 			if (error) {
 				console.error('[BOOKS-LIBRARY] Error deleting book:', error);
@@ -232,12 +242,12 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 			}
 
 			// If has PDF, delete from storage
-			if (book.pdfUrl) {
-				const fileName = book.pdfUrl.split('/').pop();
+			if (bookToDelete.pdfUrl) {
+				const fileName = bookToDelete.pdfUrl.split('/').pop();
 				if (fileName) {
 					const { error: storageError } = await supabase.storage
 						.from('books')
-						.remove([`${book.userId}/${fileName}`]);
+						.remove([`${bookToDelete.userId}/${fileName}`]);
 
 					if (storageError) {
 						console.error('[BOOKS-LIBRARY] Error deleting PDF:', storageError);
@@ -247,24 +257,76 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 			}
 
 			// Remove from local state
-			setBooks((prev) => prev.filter((b) => b.id !== book.id));
+			setBooks((prev) => prev.filter((b) => b.id !== bookToDelete.id));
 			toast.success(t('books.delete_success', 'Книга удалена'));
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
 		} finally {
 			setDeletingBookId(null);
+			setBookToDelete(null);
+		}
+	};
+
+	// Handle create new version from final book
+	const handleCreateNewVersion = async (book: BookDraft) => {
+		if (!onEditDraft) return;
+
+		// Простое подтверждение, чтобы объяснить пользователю, что оригинал останется
+		const confirmed = window.confirm(
+			'Мы создадим копию текущей книги как новый черновик. Оригинальный PDF останется доступен.'
+		);
+		if (!confirmed) return;
+
+		try {
+			setCreatingVersionId(book.id);
+			const supabase = createClient();
+
+			const { data, error } = await supabase
+				.from('books_archive')
+				.insert({
+					user_id: book.userId,
+					parent_book_id: book.parentBookId || book.id,
+					version: (book.version ?? 1) + 1,
+					period_start: book.periodStart,
+					period_end: book.periodEnd,
+					contexts: book.contexts,
+					style: book.style,
+					layout: book.layout,
+					theme: book.theme,
+					metadata: book.metadata,
+					story_json: book.storyJson,
+					is_draft: true,
+					is_final: false,
+					pdf_url: null,
+				})
+				.select('id')
+				.single();
+
+			if (error || !data) {
+				console.error('[BOOKS-LIBRARY] Error creating new version:', error);
+				toast.error(t('books.version_error', 'Не удалось создать новую версию книги'));
+				return;
+			}
+
+			toast.success(t('books.version_created', 'Создан новый черновик книги'));
+			onEditDraft(data.id);
+		} catch (error) {
+			console.error('[BOOKS-LIBRARY] Error:', error);
+			toast.error(t('books.editor.error', 'Произошла ошибка'));
+		} finally {
+			setCreatingVersionId(null);
 		}
 	};
 
 	return (
-		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-background pb-20">
+		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-(--ios-bg-primary) pb-20">
 			{/* Header */}
-			<div className="bg-linear-to-r from-purple-600 to-blue-600 p-4 text-white sm:p-6">
+			<div className="border-b border-border bg-(--ios-bg-primary) p-4 text-(--ios-text-primary) sm:p-6">
 				<div className="flex items-center gap-2 sm:gap-3">
 					{onBack && (
 						<button
-							className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm transition-colors duration-300 hover:bg-card/30"
+							className="flex h-10 w-10 items-center justify-center rounded-full bg-(--ios-bg-secondary) backdrop-blur-sm transition-colors duration-300 hover:bg-accent"
 							onClick={onBack}
 							type="button"
 						>
@@ -344,146 +406,171 @@ export function BooksLibraryScreen({ onCreateBook, onBack, onEditDraft }: BooksL
 						</CardContent>
 					</Card>
 				) : (
-					<div className="space-y-4">
+					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{books.map((book) => (
-							<Card className="transition-colors duration-300" key={book.id}>
-								<CardHeader>
-									<div className="flex items-start justify-between">
-										<div className="flex-1">
-											<CardTitle className="flex items-center gap-2 text-base">
-												{book.metadata.diaryEmoji || '📖'}{' '}
-												{book.storyJson?.title || t('books.untitled', 'Без названия')}
-											</CardTitle>
-											<div className="mt-1 flex items-center gap-2 text-muted-foreground text-xs">
-												<Calendar className="h-3 w-3" strokeWidth={2} />
-												{formatPeriod(book.periodStart, book.periodEnd)}
-											</div>
+							<div
+								className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
+								key={book.id}
+							>
+								{/* Book Cover Area */}
+								<div className="relative flex items-center justify-center overflow-hidden bg-muted/30 p-4 sm:p-6">
+									{/* Background pattern based on style */}
+									<div
+										className={`absolute inset-0 opacity-10 ${
+											book.style === 'warm_family'
+												? 'bg-[radial-gradient(circle_at_center,_var(--ios-purple),_transparent_70%)]'
+												: book.style === 'biographical'
+													? 'bg-[radial-gradient(circle_at_center,_var(--ios-blue),_transparent_70%)]'
+													: 'bg-[radial-gradient(circle_at_center,_var(--ios-green),_transparent_70%)]'
+										}`}
+									/>
+
+									{/* Book Cover */}
+									<div className="relative z-10 flex aspect-[3/4] w-24 flex-col items-center justify-center rounded-md bg-card p-2 text-center shadow-lg transition-transform duration-300 group-hover:scale-105 sm:w-32">
+										<div className="mb-2 text-2xl sm:text-3xl">
+											{book.metadata.diaryEmoji || '📖'}
 										</div>
-										<Badge variant={book.isFinal ? 'default' : 'secondary'}>
-											{book.isFinal
-												? t('books.status.ready', 'Готово')
-												: t('books.status.draft', 'Черновик')}
-										</Badge>
-									</div>
-								</CardHeader>
-								<CardContent>
-									<div className="mb-4 space-y-2">
-										<div className="flex items-center gap-2 text-sm">
-											<Sparkles className="h-4 w-4 text-purple-500" strokeWidth={2} />
-											<span className="text-muted-foreground">{getStyleLabel(book.style)}</span>
+										<div className="line-clamp-2 text-[10px] font-medium leading-tight text-foreground sm:text-xs">
+											{book.storyJson?.title || t('books.untitled', 'Без названия')}
 										</div>
-										{book.metadata.entriesCount && (
-											<div className="text-muted-foreground text-sm">
-												📝 {book.metadata.entriesCount} {t('books.entries_count', 'записей')}
-											</div>
-										)}
-										{book.metadata.pages && (
-											<div className="text-muted-foreground text-sm">
-												📄 {book.metadata.pages} {t('books.pages_count', 'страниц')}
+										{book.version && book.version > 1 && (
+											<div className="mt-1 rounded-full bg-muted px-1.5 py-0.5 text-[8px] font-bold text-muted-foreground">
+												v{book.version}
 											</div>
 										)}
 									</div>
 
-									<div className="space-y-2">
-										{/* Action buttons */}
-										<div className="flex gap-2">
+									{/* Status Badge */}
+									<div className="absolute top-3 right-3">
+										<Badge className="shadow-sm" variant={book.isFinal ? 'default' : 'secondary'}>
+											{book.isFinal
+												? t('books.status.ready_short', 'Готово')
+												: t('books.status.draft_short', 'Черновик')}
+										</Badge>
+									</div>
+								</div>
+
+								{/* Book Details */}
+								<div className="flex flex-1 flex-col p-4">
+									<div className="mb-3">
+										<div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+											<Calendar className="h-3 w-3" />
+											{formatPeriod(book.periodStart, book.periodEnd)}
+										</div>
+										<h3 className="line-clamp-1 font-medium text-base">
+											{book.storyJson?.title || t('books.untitled', 'Без названия')}
+										</h3>
+									</div>
+
+									<div className="mb-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+										<div className="flex items-center gap-1.5">
+											<Sparkles className="h-3 w-3 text-[--ios-purple]" />
+											<span className="truncate">{getStyleLabel(book.style)}</span>
+										</div>
+										{book.metadata.entriesCount && (
+											<div className="flex items-center gap-1.5">
+												<span className="text-base">📝</span>
+												<span>{book.metadata.entriesCount}</span>
+											</div>
+										)}
+										{book.metadata.pages && (
+											<div className="flex items-center gap-1.5">
+												<span className="text-base">📄</span>
+												<span>{book.metadata.pages} стр.</span>
+											</div>
+										)}
+										{book.metadata.achievementsCount && (
+											<div className="flex items-center gap-1.5">
+												<span className="text-base">🏆</span>
+												<span>{book.metadata.achievementsCount}</span>
+											</div>
+										)}
+									</div>
+
+									<div className="mt-auto space-y-2">
+										{/* Primary Actions */}
+										<div className="grid grid-cols-2 gap-2">
 											{book.isFinal && book.pdfUrl ? (
 												<>
 													<Button
-														className="flex-1"
+														className="h-8"
 														onClick={() => handleView(book)}
+														size="sm"
 														variant="outline"
 													>
-														<Eye className="mr-2 h-4 w-4" strokeWidth={2} />
+														<Eye className="mr-1.5 h-3.5 w-3.5" />
 														{t('books.view', 'Просмотр')}
 													</Button>
-													<Button className="flex-1" onClick={() => handleDownload(book)}>
-														<Download className="mr-2 h-4 w-4" strokeWidth={2} />
+													<Button
+														className="h-8 bg-[--ios-purple] text-white hover:bg-[--ios-purple]/90"
+														onClick={() => handleDownload(book)}
+														size="sm"
+													>
+														<Download className="mr-1.5 h-3.5 w-3.5" />
 														{t('books.download', 'Скачать')}
 													</Button>
 												</>
 											) : (
 												<Button
-													className="w-full"
+													className="col-span-2 h-8"
 													onClick={() => handleEditDraft(book)}
+													size="sm"
 													variant="outline"
 												>
-													<Edit className="mr-2 h-4 w-4" strokeWidth={2} />
-													{t('books.edit_draft', 'Редактировать черновик')}
+													<Edit className="mr-1.5 h-3.5 w-3.5" />
+													{t('books.edit_draft', 'Редактировать')}
 												</Button>
 											)}
 										</div>
 
-										{/* Delete button */}
-										<AlertDialog>
-											<AlertDialogTrigger asChild>
+										{/* Secondary Actions (Edit version / Delete) */}
+										<div className="flex items-center justify-between border-t border-border/50 pt-1">
+											{book.isFinal ? (
 												<Button
-													className="w-full transition-colors duration-300"
-													disabled={deletingBookId === book.id}
+													className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+													disabled={creatingVersionId === book.id}
+													onClick={() => handleCreateNewVersion(book)}
 													size="sm"
 													variant="ghost"
 												>
-													<Trash2 className="mr-2 h-4 w-4 text-red-500" strokeWidth={2} />
-													<span className="text-red-500">
-														{deletingBookId === book.id
-															? t('books.deleting', 'Удаление...')
-															: t('books.delete', 'Удалить книгу')}
-													</span>
+													<Edit className="mr-1.5 h-3 w-3" />
+													{creatingVersionId === book.id
+														? 'Создание...'
+														: t('books.new_version', 'Новая версия')}
 												</Button>
-											</AlertDialogTrigger>
-											<AlertDialogContent className="mx-auto max-w-[90vw] sm:max-w-md">
-												<AlertDialogHeader>
-													<AlertDialogTitle className="flex items-center gap-2">
-														<AlertCircle className="h-5 w-5 text-red-500" strokeWidth={2} />
-														{t('books.delete_confirm_title', 'Удалить книгу?')}
-													</AlertDialogTitle>
-													<AlertDialogDescription>
-														{book.isFinal ? (
-															<>
-																{t(
-																	'books.delete_confirm_final',
-																	'Это действие нельзя отменить. Книга'
-																)}{' '}
-																<strong>
-																	"{book.storyJson?.title || t('books.untitled', 'Без названия')}"
-																</strong>{' '}
-																{t(
-																	'books.delete_confirm_final_pdf',
-																	'и PDF файл будут удалены навсегда.'
-																)}
-															</>
-														) : (
-															<>
-																{t('books.delete_confirm_draft', 'Черновик')}{' '}
-																<strong>
-																	"{book.storyJson?.title || t('books.untitled', 'Без названия')}"
-																</strong>{' '}
-																{t(
-																	'books.delete_confirm_draft_text',
-																	'будет удален. Вы сможете создать новую книгу в любое время.'
-																)}
-															</>
-														)}
-													</AlertDialogDescription>
-												</AlertDialogHeader>
-												<AlertDialogFooter>
-													<AlertDialogCancel>{t('books.cancel', 'Отмена')}</AlertDialogCancel>
-													<AlertDialogAction
-														className="bg-red-500 transition-colors duration-300 hover:bg-red-600"
-														onClick={() => handleDelete(book)}
-													>
-														{t('books.delete_action', 'Удалить')}
-													</AlertDialogAction>
-												</AlertDialogFooter>
-											</AlertDialogContent>
-										</AlertDialog>
+											) : (
+												<div /> /* Spacer */
+											)}
+
+											<Button
+												className="h-7 px-2 text-destructive text-xs hover:bg-destructive/10 hover:text-destructive/80"
+												disabled={deletingBookId === book.id}
+												onClick={() => handleDeleteClick(book)}
+												size="sm"
+												variant="ghost"
+											>
+												<Trash2 className="h-3.5 w-3.5" />
+											</Button>
+										</div>
 									</div>
-								</CardContent>
-							</Card>
+								</div>
+							</div>
 						))}
 					</div>
 				)}
 			</div>
+
+			{/* Delete Confirmation Modal */}
+			<BookDeleteConfirmModal
+				bookTitle={bookToDelete?.storyJson?.title}
+				isFinal={bookToDelete?.isFinal || false}
+				isOpen={showDeleteConfirm}
+				onClose={() => {
+					setShowDeleteConfirm(false);
+					setBookToDelete(null);
+				}}
+				onConfirm={handleDeleteConfirm}
+			/>
 		</div>
 	);
 }
