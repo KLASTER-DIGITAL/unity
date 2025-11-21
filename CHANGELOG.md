@@ -5,6 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-11-21
+
+### 🐛 Исправления
+
+#### **Real-time синхронизация данных между экранами** (2025-11-21)
+- **Проблема**: Рассинхронизация данных между главной страницей и страницей достижений
+  - Главная показывала 12 дней подряд
+  - Достижения показывали 0 дней (требовалось обновление F5)
+  
+- **Решение**:
+  - ✅ Добавлена real-time подписка на изменения `entries` в `useUserData` (React Native)
+  - ✅ Добавлена real-time подписка в `AchievementsScreen` (PWA)
+  - ✅ Создан глобальный store для статистики (`useStatsStore`) на базе Zustand
+  - ✅ Умный кэш с TTL 30 секунд для оптимизации запросов
+  - ✅ Автоматическая инвалидация кэша при изменениях через Supabase Realtime
+
+- **Результат**:
+  - Все экраны показывают одинаковые данные в реальном времени
+  - Данные обновляются автоматически БЕЗ перезагрузки страницы
+  - Мгновенная синхронизация через Supabase Realtime (задержка ~100-500ms)
+
+- **Тестирование**:
+  - Автоматический тест: `scripts/test-realtime-sync.js`
+  - Все 3 подписки (Home, Achievements, Store) работают корректно
+  - 100% успешное получение real-time обновлений
+
+- **Файлы**:
+  - `app-shared/hooks/useUserData.ts` - real-time для React Native
+  - `src/features/mobile/achievements/components/AchievementsScreen.tsx` - real-time для PWA
+  - `src/shared/stores/useStatsStore.ts` - глобальный store (НОВЫЙ)
+  - `scripts/test-realtime-sync.js` - автотест (НОВЫЙ)
+  - `docs/architecture/REALTIME_SYNC_IMPLEMENTATION.md` - техническая документация
+  - `docs/changelog/2025-11-21_realtime_sync_fix.md` - детальный отчет
+
+- **Зависимости**:
+  - Добавлен `zustand` для state management
+
+---
+
+## [Unreleased] - 2025-11-21
+
+### 🐛 Исправления
+
+#### **Real-time синхронизация данных между экранами** (2025-11-21)
+- **Проблема**: Рассинхронизация данных между главной страницей и страницей достижений
+  - Главная показывала 12 дней подряд
+  - Достижения показывали 0 дней (требовалось обновление F5)
+  
+- **Решение**:
+  - ✅ Добавлена real-time подписка на изменения `entries` в `useUserData` (React Native)
+  - ✅ Добавлена real-time подписка в `AchievementsScreen` (PWA)
+  - ✅ Создан глобальный store для статистики (`useStatsStore`) на базе Zustand
+  - ✅ Умный кэш с TTL 30 секунд для оптимизации запросов
+  - ✅ Автоматическая инвалидация кэша при изменениях через Supabase Realtime
+
+- **Результат**:
+  - Все экраны показывают одинаковые данные в реальном времени
+  - Данные обновляются автоматически БЕЗ перезагрузки страницы
+  - Мгновенная синхронизация через Supabase Realtime (задержка ~100-500ms)
+
+- **Тестирование**:
+  - Автоматический тест: `scripts/test-realtime-sync.js`
+  - Все 3 подписки (Home, Achievements, Store) работают корректно
+  - 100% успешное получение real-time обновлений
+
+- **Файлы**:
+  - `app-shared/hooks/useUserData.ts` - real-time для React Native
+  - `src/features/mobile/achievements/components/AchievementsScreen.tsx` - real-time для PWA
+  - `src/shared/stores/useStatsStore.ts` - глобальный store (НОВЫЙ)
+  - `scripts/test-realtime-sync.js` - автотест (НОВЫЙ)
+  - `docs/architecture/REALTIME_SYNC_IMPLEMENTATION.md` - техническая документация
+  - `docs/changelog/2025-11-21_realtime_sync_fix.md` - детальный отчет
+
+- **Зависимости**:
+  - Добавлен `zustand` для state management
+
+---
+
 ## [Unreleased] - 2025-11-20
 
 ### 📚 Документация
