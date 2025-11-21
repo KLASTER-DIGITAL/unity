@@ -1,9 +1,50 @@
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import {
-	getAiOperationConfig,
-	isOperationAvailable,
-	replacePlaceholders,
-} from '../_shared/ai/getAiOperationConfig.ts';
+
+// Inline AI Operation Config helpers (from _shared/ai/getAiOperationConfig.ts)
+interface AIOperationConfig {
+	id: string;
+	group_name: string;
+	display_name: string;
+	description: string;
+	model: string;
+	max_tokens: number;
+	temperature: number;
+	system_prompt: string;
+	user_prompt_template: string;
+	is_enabled: boolean;
+	extra_config: Record<string, unknown>;
+}
+
+async function getAiOperationConfig(
+	supabase: SupabaseClient,
+	operationId: string
+): Promise<AIOperationConfig | null> {
+	try {
+		const { data, error } = await supabase
+			.from('ai_operations')
+			.select('*')
+			.eq('id', operationId)
+			.single();
+
+		if (error || !data) return null;
+		return data as AIOperationConfig;
+	} catch {
+		return null;
+	}
+}
+
+function replacePlaceholders(template: string, variables: Record<string, string>): string {
+	let result = template;
+	for (const [key, value] of Object.entries(variables)) {
+		result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+	}
+	return result;
+}
+
+function isOperationAvailable(config: AIOperationConfig | null): boolean {
+	return config !== null && config.is_enabled === true;
+}
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
@@ -142,6 +183,12 @@ Deno.serve(async (req) => {
 		const pathParts = url.pathname.split('/').filter(Boolean);
 		const relevantParts = pathParts.filter((p) => !['functions', 'v1', 'reports'].includes(p));
 		const endpoint = relevantParts.join('/');
+
+		console.log('[REPORTS] Request URL:', req.url);
+		console.log('[REPORTS] Path parts:', pathParts);
+		console.log('[REPORTS] Relevant parts:', relevantParts);
+		console.log('[REPORTS] Endpoint:', endpoint);
+		console.log('[REPORTS] Method:', req.method);
 
 		if (endpoint === 'health' && req.method === 'GET') {
 			return jsonResponse({ success: true, status: 'healthy', service: 'reports' });
@@ -446,6 +493,116 @@ Deno.serve(async (req) => {
 				periodKey,
 				report: parsed,
 				stats: statsSnapshot,
+			});
+		}
+
+		// ✅ NEW: Export PDF endpoint
+		if (endpoint === 'export-pdf' && req.method === 'POST') {
+			const body = await req.json();
+			const period: PeriodType = body.period === 'weekly' ? 'weekly' : 'monthly';
+			const periodKeyInput: string | undefined = body.periodKey ?? undefined;
+			const { periodKey } = getPeriodRange(period, periodKeyInput);
+
+			// Load report from user_reports
+			const { data: report, error: reportError } = await supabaseAdmin
+				.from('user_reports')
+				.select('*')
+				.eq('user_id', user.id)
+				.eq('period_type', period)
+				.eq('period_key', periodKey)
+				.eq('language', userLanguage)
+				.single();
+
+			if (reportError || !report) {
+				return jsonResponse(
+					{
+						success: false,
+						error: 'Report not found',
+						message: 'Отчет не найден. Сначала создайте отчет.',
+					},
+					404
+				);
+			}
+
+			// Return report data for PDF generation (client will generate PDF)
+			// Structure matches PDFReportData type expectations
+			return jsonResponse({
+				success: true,
+				report: {
+					userName: profile?.name || 'User',
+					userLanguage: userLanguage,
+					isPremium: !!profile?.is_premium,
+					periodType: period,
+					periodKey,
+					periodStart: report.stats?.start_date || '',
+					periodEnd: report.stats?.end_date || '',
+					stats: report.stats,
+					aiSummary: report.ai_summary,
+					aiInsights: report.ai_insights,
+					reportId: report.id,
+					pdfUrl: report.pdf_url,
+				},
+			});
+		}
+
+		// ✅ NEW: Save PDF URL endpoint
+		if (endpoint === 'save-pdf' && req.method === 'POST') {
+			const body = await req.json();
+			const { reportId, pdfBlob } = body;
+
+			if (!reportId || !pdfBlob) {
+				return jsonResponse({ success: false, error: 'reportId and pdfBlob required' }, 400);
+			}
+
+			// Verify report belongs to user
+			const { data: report, error: reportError } = await supabaseAdmin
+				.from('user_reports')
+				.select('id, user_id')
+				.eq('id', reportId)
+				.eq('user_id', user.id)
+				.single();
+
+			if (reportError || !report) {
+				return jsonResponse({ success: false, error: 'Report not found' }, 404);
+			}
+
+			// Convert base64 to buffer
+			const base64Data = pdfBlob.includes(',') ? pdfBlob.split(',')[1] : pdfBlob;
+			const pdfBuffer = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+
+			// Upload to Storage
+			const fileName = `${user.id}/${reportId}.pdf`;
+			const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+				.from('reports')
+				.upload(fileName, pdfBuffer, {
+					contentType: 'application/pdf',
+					upsert: true,
+				});
+
+			if (uploadError) {
+				console.error('[REPORTS] PDF upload error:', uploadError);
+				return jsonResponse({ success: false, error: 'Failed to upload PDF' }, 500);
+			}
+
+			// Get public URL
+			const { data: urlData } = supabaseAdmin.storage.from('reports').getPublicUrl(fileName);
+			const pdfUrl = urlData.publicUrl;
+
+			// Update report with PDF URL
+			const { error: updateError } = await supabaseAdmin
+				.from('user_reports')
+				.update({ pdf_url: pdfUrl })
+				.eq('id', reportId);
+
+			if (updateError) {
+				console.error('[REPORTS] PDF URL update error:', updateError);
+				return jsonResponse({ success: false, error: 'Failed to update PDF URL' }, 500);
+			}
+
+			return jsonResponse({
+				success: true,
+				pdfUrl,
+				message: 'PDF сохранен успешно',
 			});
 		}
 

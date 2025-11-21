@@ -97,11 +97,20 @@ Deno.serve(async (req) => {
 				});
 			}
 
+			// Convert base64 to Uint8Array for storage upload
+			// pdfBlob is base64 string from client
+			const base64Data = pdfBlob.replace(/^data:application\/pdf;base64,/, '');
+			const binaryString = atob(base64Data);
+			const bytes = new Uint8Array(binaryString.length);
+			for (let i = 0; i < binaryString.length; i++) {
+				bytes[i] = binaryString.charCodeAt(i);
+			}
+
 			// Upload PDF to Supabase Storage
 			const fileName = `${user.id}/${draftId}.pdf`;
 			const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
 				.from('books')
-				.upload(fileName, pdfBlob, {
+				.upload(fileName, bytes, {
 					contentType: 'application/pdf',
 					upsert: true,
 				});
@@ -118,12 +127,13 @@ Deno.serve(async (req) => {
 			const { data: urlData } = supabaseAdmin.storage.from('books').getPublicUrl(fileName);
 			const pdfUrl = urlData.publicUrl;
 
-			// Update draft with PDF URL and mark as final
+			// Update draft with PDF URL and mark as final (also set is_draft to false)
 			const { error: updateError } = await supabaseAdmin
 				.from('books_archive')
 				.update({
 					pdf_url: pdfUrl,
 					is_final: true,
+					is_draft: false, // ✅ FIX: Mark as not draft when final PDF is generated
 					metadata: {
 						...draft.metadata,
 						pages,

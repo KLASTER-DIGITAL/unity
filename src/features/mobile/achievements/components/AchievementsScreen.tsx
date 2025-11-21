@@ -626,7 +626,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.totalEntries}
 						</div>
-						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
+						<div className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.entries', 'Записей')}
 						</div>
 					</div>
@@ -634,7 +634,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.totalBadges}
 						</div>
-						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
+						<div className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.badges', 'Наград')}
 						</div>
 					</div>
@@ -642,7 +642,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.currentStreak}
 						</div>
-						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
+						<div className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.days_streak', 'Дней подряд')}
 						</div>
 					</div>
@@ -650,7 +650,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.longestStreak}
 						</div>
-						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
+						<div className="text-muted-foreground text-xs transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.record', 'Рекорд')}
 						</div>
 					</div>

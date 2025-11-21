@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Progress } from '@/shared/components/ui/progress';
 import { createClient } from '@/utils/supabase/client';
+import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
 import { DEFAULT_PERIOD_DAYS } from './constants';
 import { Step1Period } from './Step1Period';
@@ -27,10 +28,15 @@ import {
 } from './utils';
 import { WizardNavigation } from './WizardNavigation';
 
-export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardProps) {
+export function BookCreationWizard({
+	onComplete,
+	onCancel,
+	onGoToLibrary,
+}: BookCreationWizardProps) {
 	const [currentStep, setCurrentStep] = useState<WizardStep>(1);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [showProgress, setShowProgress] = useState(false);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [generatedDraftId, setGeneratedDraftId] = useState<string | null>(null);
 	const [availableCategories, setAvailableCategories] = useState<string[]>([]);
 	const [userId, setUserId] = useState<string | null>(null);
@@ -179,8 +185,21 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 	const handleProgressComplete = () => {
 		setShowProgress(false);
 		if (generatedDraftId) {
+			// Show success modal instead of immediately calling onComplete
+			setShowSuccessModal(true);
+		}
+	};
+
+	const handleGoToEditor = () => {
+		setShowSuccessModal(false);
+		if (generatedDraftId) {
 			onComplete?.(generatedDraftId);
 		}
+	};
+
+	const handleGoToLibraryFromModal = () => {
+		setShowSuccessModal(false);
+		onGoToLibrary?.();
 	};
 
 	const getStepTitle = () => {
@@ -208,6 +227,15 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 					onComplete={handleProgressComplete}
 				/>
 			)}
+
+			{/* Success Modal */}
+			<BookCreationSuccessModal
+				isOpen={showSuccessModal}
+				// Primary CTA → открыть редактор книги
+				onGoToLibrary={handleGoToEditor}
+				// Secondary CTA → перейти на полку
+				onClose={handleGoToLibraryFromModal}
+			/>
 
 			{/* Wizard */}
 			<div className="flex h-full flex-col">
@@ -256,6 +284,16 @@ export function BookCreationWizard({ onComplete, onCancel }: BookCreationWizardP
 									>
 										Повторить попытку
 									</button>
+								</div>
+							)}
+
+							{/* Final step hint */}
+							{currentStep === 4 && (
+								<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
+									<p className="text-muted-foreground text-sm">
+										Сейчас будет создан черновик книги. На следующем шаге ты сможешь отредактировать
+										её и сохранить финальную PDF‑версию для скачивания.
+									</p>
 								</div>
 							)}
 						</CardContent>

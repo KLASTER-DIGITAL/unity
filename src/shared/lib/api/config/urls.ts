@@ -22,7 +22,10 @@ export const API_URLS = {
 
 	// Books API
 	BOOKS_GENERATE_DRAFT: `https://${projectId}.supabase.co/functions/v1/books-generate-draft`,
+	BOOKS_GENERATE_ANNUAL: `https://${projectId}.supabase.co/functions/v1/books-generate-annual`,
 	BOOKS_RENDER_PDF: `https://${projectId}.supabase.co/functions/v1/books-render-pdf`,
+	// Reports API
+	REPORTS: `https://${projectId}.supabase.co/functions/v1/reports`,
 
 	// Media microservices (split from media)
 	MEDIA_UPLOAD: `https://${projectId}.supabase.co/functions/v1/media-upload-api`,

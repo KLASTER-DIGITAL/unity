@@ -336,9 +336,18 @@ Deno.serve(async (req) => {
 
 		console.log('[REPORTS-PDF] Found', entries.length, 'entries');
 
+		// Calculate date range for avgEntriesPerDay
+		const startDateObj = new Date(periodStart);
+		const endDateObj = new Date(periodEnd);
+		const periodDaysDiff =
+			Math.ceil((endDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+		const avgEntriesPerDay =
+			periodDaysDiff > 0 ? Number((entries.length / periodDaysDiff).toFixed(2)) : 0;
+
 		// Calculate statistics
 		const stats = {
 			totalEntries: entries.length,
+			avgEntriesPerDay,
 			achievements: entries.filter((e) => e.is_achievement).length,
 			positiveEntries: entries.filter((e) => e.sentiment === 'positive').length,
 			neutralEntries: entries.filter((e) => e.sentiment === 'neutral').length,
@@ -367,24 +376,59 @@ Deno.serve(async (req) => {
 			}
 		}
 
-		// Prepare report data
+		// Determine period type and key (reuse periodDaysDiff calculated above)
+		const periodType: 'weekly' | 'monthly' = periodDaysDiff <= 7 ? 'weekly' : 'monthly';
+
+		// Calculate period key
+		let periodKey: string;
+		if (periodType === 'monthly') {
+			const startDate = new Date(periodStart);
+			periodKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+		} else {
+			// Weekly: calculate ISO week number
+			const startDate = new Date(periodStart);
+			const tmp = new Date(
+				Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate())
+			);
+			let day = tmp.getUTCDay();
+			if (day === 0) day = 7;
+			tmp.setUTCDate(tmp.getUTCDate() + 4 - day);
+			const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+			const weekNo = Math.ceil(((tmp.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+			periodKey = `${startDate.getFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+		}
+
+		// Prepare report data (unified structure matching PDFReportData type)
 		const reportData = {
 			userName,
 			userLanguage,
 			isPremium,
 			periodStart,
 			periodEnd,
-			stats,
-			// ✅ AI weekly summary ONLY for Premium users
-			aiWeeklySummary: isPremium ? aiWeeklySummary : null,
+			periodType,
+			periodKey,
+			stats: {
+				totalEntries: stats.totalEntries,
+				avgEntriesPerDay: stats.avgEntriesPerDay,
+				achievements: stats.achievements,
+				positiveEntries: stats.positiveEntries,
+				neutralEntries: stats.neutralEntries,
+				negativeEntries: stats.negativeEntries,
+				categories: stats.categories,
+				topCategory: stats.topCategory,
+				topMood: stats.topMood,
+			},
+			// ✅ AI summary ONLY for Premium users
+			aiWeeklySummary: periodType === 'weekly' && isPremium ? aiWeeklySummary : null,
+			aiMonthlySummary: periodType === 'monthly' && isPremium ? aiWeeklySummary : null, // Reuse for monthly
 			entries: entries.map((entry) => ({
 				id: entry.id,
 				date: entry.created_at,
-				text: entry.text,
-				category: entry.category,
-				sentiment: entry.sentiment,
-				mood: entry.mood,
-				isAchievement: entry.is_achievement,
+				text: entry.text || '',
+				category: entry.category || '',
+				sentiment: entry.sentiment || 'neutral',
+				mood: entry.mood || '',
+				isAchievement: entry.is_achievement || false,
 				// ✅ AI data ONLY for Premium users
 				aiSummary: isPremium ? entry.ai_summary : null,
 				aiInsight: isPremium ? entry.ai_insight : null,

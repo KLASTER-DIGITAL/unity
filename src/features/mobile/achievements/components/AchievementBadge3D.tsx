@@ -116,11 +116,11 @@ export function AchievementBadge3D({
 
 					{earned ? (
 						<Badge
-							className={`text-[10px] transition-colors duration-300 sm:text-xs ${
+							className={`text-xs transition-colors duration-300 ${
 								RARITY_STYLES[rarity]?.badge || RARITY_STYLES.common.badge
 							}`}
 						>
-							✅ {earnedText}
+							{earnedText}
 						</Badge>
 					) : (
 						<div className="space-y-1">

@@ -1,9 +1,11 @@
+import { BlobProvider } from '@react-pdf/renderer';
 import {
 	BarChart3,
 	BookOpen,
 	Brain,
 	Crown,
 	Download,
+	FileText,
 	Heart,
 	Sparkles,
 	Star,
@@ -18,10 +20,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Progress } from '@/shared/components/ui/progress';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { API_URLS } from '@/shared/lib/api/config/urls';
 import { useTranslation } from '@/shared/lib/i18n';
+import type { PDFReportData } from '@/shared/types/reports';
+import { createClient } from '@/utils/supabase/client';
 import { BookCreationWizard } from './BookCreationWizard';
 import { BookDraftEditor } from './BookDraftEditor';
 import { BooksLibraryScreen } from './BooksLibraryScreen';
+import { ReportPDFDocument } from './ReportPDFDocument';
 import { ReportsArchiveScreen } from './ReportsArchiveScreen';
 
 type ReportsPeriod = 'week' | 'month' | 'quarter';
@@ -103,11 +109,16 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
 	const [showBookWizard, setShowBookWizard] = useState(false);
 	const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
+	const [booksLibraryRefreshKey, setBooksLibraryRefreshKey] = useState(0); // Key для обновления списка книг
 	const [isPremium, setIsPremium] = useState(false);
 	const [aiReport, setAiReport] = useState<AiReport | null>(null);
 	const [reportStats, setReportStats] = useState<ReportStatsSnapshot | null>(null);
 	const [isLoadingAiReport, setIsLoadingAiReport] = useState(false);
 	const [showReportsArchive, setShowReportsArchive] = useState(false);
+	const [isExportingPDF, setIsExportingPDF] = useState(false);
+	const [reportPDFUrl, setReportPDFUrl] = useState<string | null>(null);
+	const [reportPDFData, setReportPDFData] = useState<PDFReportData | null>(null);
+	const [currentReportId, setCurrentReportId] = useState<string | null>(null);
 
 	// ✅ FIX: Define functions BEFORE useEffect with useCallback
 	const loadData = useCallback(() => {
@@ -174,7 +185,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 				const { data, error } = await supabase
 					.from('user_reports')
-					.select('ai_insights, stats')
+					.select('id, ai_insights, stats, pdf_url')
 					.eq('user_id', userId)
 					.eq('period_type', apiPeriod)
 					.order('stats->>start_date', { ascending: false })
@@ -194,12 +205,16 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 				}
 
 				const typedData = data as {
+					id: string;
 					ai_insights: AiReport | null;
 					stats: ReportStatsSnapshot | null;
+					pdf_url: string | null;
 				};
 
+				setCurrentReportId(typedData.id);
 				setReportStats(typedData.stats ?? null);
 				setAiReport(typedData.ai_insights ?? null);
+				setReportPDFUrl(typedData.pdf_url);
 			} catch (error) {
 				console.error('[REPORTS] Error in loadLastSavedReport:', error);
 			} finally {
@@ -269,6 +284,199 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			}
 		},
 		[isPremium, t]
+	);
+
+	// ✅ NEW: Export PDF function
+	const exportReportPDF = useCallback(async () => {
+		if (!isPremium || !reportStats || !aiReport) {
+			toast.error(t('reports.pdf.premium_required', 'Экспорт PDF доступен только для Premium'));
+			return;
+		}
+
+		try {
+			setIsExportingPDF(true);
+
+			const supabase = createClient();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session?.access_token) {
+				toast.error(t('reports.pdf.auth_required', 'Необходима авторизация'));
+				return;
+			}
+
+			// Get period key
+			const periodType = selectedPeriod === 'week' ? 'weekly' : 'monthly';
+			const now = new Date();
+			const periodKey =
+				periodType === 'monthly'
+					? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+					: `2025-W${Math.ceil((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7))}`;
+
+			// Load report data from API
+			const response = await fetch(`${API_URLS.REPORTS}/export-pdf`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${session.access_token}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					period: periodType,
+					periodKey,
+				}),
+			});
+
+			const result = await response.json();
+
+			if (!result.success || !result.report) {
+				throw new Error(result.error || 'Не удалось загрузить данные отчета');
+			}
+
+			// Save report ID for PDF saving
+			if (result.report.reportId) {
+				setCurrentReportId(result.report.reportId);
+			}
+
+			// Load entries for PDF (limit to 50 for performance)
+			const userId = userData?.user?.id || userData?.id;
+			let entries: PDFReportData['entries'] = [];
+
+			if (userId) {
+				const supabaseClient = createClient();
+				const { data: entriesData, error: entriesError } = await supabaseClient
+					.from('entries')
+					.select(
+						'id, text, sentiment, category, mood, is_achievement, created_at, ai_summary, ai_insight'
+					)
+					.eq('user_id', userId)
+					.gte('created_at', reportStats.start_date)
+					.lte('created_at', reportStats.end_date)
+					.order('created_at', { ascending: true })
+					.limit(50);
+
+				if (!entriesError && entriesData) {
+					entries = entriesData.map((entry: any) => ({
+						id: entry.id,
+						date: entry.created_at,
+						text: entry.text || '',
+						category: entry.category || '',
+						sentiment: entry.sentiment || 'neutral',
+						mood: entry.mood || '',
+						isAchievement: entry.is_achievement || false,
+						aiSummary: result.report.isPremium ? entry.ai_summary : null,
+						aiInsight: result.report.isPremium ? entry.ai_insight : null,
+					}));
+				}
+			}
+
+			// Calculate stats from entries if available
+			const positiveEntries = entries.filter((e) => e.sentiment === 'positive').length;
+			const neutralEntries = entries.filter((e) => e.sentiment === 'neutral').length;
+			const negativeEntries = entries.filter((e) => e.sentiment === 'negative').length;
+
+			// Prepare PDF data
+			const pdfData: PDFReportData = {
+				userName: result.report.userName,
+				userLanguage: result.report.userLanguage,
+				isPremium: result.report.isPremium,
+				periodStart: reportStats.start_date,
+				periodEnd: reportStats.end_date,
+				periodType: result.report.periodType,
+				periodKey: result.report.periodKey,
+				stats: {
+					totalEntries: reportStats.total_entries,
+					avgEntriesPerDay:
+						reportStats.total_entries /
+						Math.max(
+							1,
+							Math.ceil(
+								(new Date(reportStats.end_date).getTime() -
+									new Date(reportStats.start_date).getTime()) /
+									(1000 * 60 * 60 * 24)
+							)
+						),
+					achievements: reportStats.achievements?.length || 0,
+					positiveEntries,
+					neutralEntries,
+					negativeEntries,
+					categories: reportStats.categories?.map((c: any) => c.name) || [],
+					topCategory: reportStats.categories?.[0]?.name || '',
+					topMood: reportStats.mood_distribution?.[0]?.mood || '',
+				},
+				entries,
+				aiMonthlySummary: result.report.aiSummary || null,
+				aiInsights: result.report.aiInsights
+					? Array.isArray(result.report.aiInsights.insights)
+						? result.report.aiInsights.insights
+						: [result.report.aiInsights.insights]
+					: null,
+				achievements: reportStats.achievements || [],
+			};
+
+			setReportPDFData(pdfData);
+
+			toast.success(t('reports.pdf.generating', 'Генерация PDF...'));
+		} catch (error) {
+			console.error('[REPORTS] Error exporting PDF:', error);
+			toast.error(t('reports.pdf.error', 'Произошла ошибка при экспорте PDF'));
+		} finally {
+			setIsExportingPDF(false);
+		}
+	}, [isPremium, reportStats, aiReport, selectedPeriod, t]);
+
+	// ✅ NEW: Save PDF function
+	const handleSavePDF = useCallback(
+		async (blob: Blob, reportId: string) => {
+			try {
+				setIsExportingPDF(true);
+
+				const supabase = createClient();
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+
+				if (!session?.access_token) {
+					toast.error(t('reports.pdf.auth_required', 'Необходима авторизация'));
+					return;
+				}
+
+				// Convert blob to base64
+				const reader = new FileReader();
+				reader.readAsDataURL(blob);
+				reader.onloadend = async () => {
+					const base64data = reader.result as string;
+
+					// Save PDF via API
+					const response = await fetch(`${API_URLS.REPORTS}/save-pdf`, {
+						method: 'POST',
+						headers: {
+							Authorization: `Bearer ${session.access_token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							reportId,
+							pdfBlob: base64data,
+						}),
+					});
+
+					const result = await response.json();
+
+					if (!result.success) {
+						throw new Error(result.error || 'Не удалось сохранить PDF');
+					}
+
+					setReportPDFUrl(result.pdfUrl);
+					toast.success(t('reports.pdf.saved', 'PDF сохранен успешно!'));
+				};
+			} catch (error) {
+				console.error('[REPORTS] Error saving PDF:', error);
+				toast.error(t('reports.pdf.save_error', 'Произошла ошибка при сохранении PDF'));
+			} finally {
+				setIsExportingPDF(false);
+			}
+		},
+		[t]
 	);
 
 	// ✅ FIX: useEffect AFTER function definitions
@@ -561,7 +769,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 		<>
 			<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-(--ios-bg-primary) pb-20">
 				{/* Заголовок */}
-				<div className="bg-linear-to-r from-purple-600 to-blue-600 p-6 text-white">
+				<div className="border-b border-border bg-(--ios-bg-primary) p-6 text-(--ios-text-primary)">
 					<div className="mb-4 flex items-center gap-3">
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm">
 							<Brain className="h-6 w-6" strokeWidth={2} />
@@ -600,17 +808,43 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 					</div>
 					<div className="mt-3 flex justify-end gap-2">
 						{isPremium && (
-							<Button
-								className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
-								onClick={() => void loadAiReport(selectedPeriod)}
-								disabled={isLoadingAiReport}
-								size="sm"
-								variant="ghost"
-							>
-								{isLoadingAiReport
-									? t('reports_ai_generating_short', 'AI готовит обзор...')
-									: t('reports_ai_generate_button', 'Обновить AI-обзор')}
-							</Button>
+							<>
+								<Button
+									className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
+									onClick={() => void loadAiReport(selectedPeriod)}
+									disabled={isLoadingAiReport}
+									size="sm"
+									variant="ghost"
+								>
+									{isLoadingAiReport
+										? t('reports_ai_generating_short', 'AI готовит обзор...')
+										: t('reports_ai_generate_button', 'Обновить AI-обзор')}
+								</Button>
+								{reportPDFUrl ? (
+									<Button
+										className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
+										onClick={() => window.open(reportPDFUrl, '_blank')}
+										size="sm"
+										variant="ghost"
+									>
+										<FileText className="mr-1 h-3 w-3" strokeWidth={2} />
+										{t('reports.pdf.download', 'Скачать PDF')}
+									</Button>
+								) : (
+									<Button
+										className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
+										onClick={() => void exportReportPDF()}
+										disabled={isExportingPDF || !reportStats || !aiReport}
+										size="sm"
+										variant="ghost"
+									>
+										<Download className="mr-1 h-3 w-3" strokeWidth={2} />
+										{isExportingPDF
+											? t('reports.pdf.generating', 'Генерация...')
+											: t('reports.pdf.export', 'Экспорт PDF')}
+									</Button>
+								)}
+							</>
 						)}
 						<Button
 							className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
@@ -700,6 +934,94 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 						</CardContent>
 					</Card>
 				</div>
+
+				{/* ✅ NEW: PDF Export Preview */}
+				{reportPDFData && (
+					<div className="px-4">
+						<Card className="border-border bg-card shadow-sm">
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<FileText className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+									{t('reports.pdf.preview', 'Предпросмотр PDF')}
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<BlobProvider
+									document={
+										<ReportPDFDocument
+											reportData={reportPDFData}
+											translations={{
+												title: t('reports.pdf.title', 'Отчет UNITY'),
+												user: t('reports.pdf.user', 'Пользователь'),
+												statistics: t('reports.pdf.statistics', 'Статистика'),
+												entries: t('reports.pdf.entries', 'Записей'),
+												per_day: t('reports.pdf.per_day', 'В день'),
+												achievements: t('reports.pdf.achievements', 'Достижений'),
+												mood: t('reports.pdf.mood', 'Настроение'),
+												ai_analysis: t('reports.pdf.ai_analysis', 'AI Анализ'),
+												entries_period: t('reports.pdf.entries_period', 'Записи за период'),
+												achievement_badge: t('reports.pdf.achievement_badge', 'Достижение'),
+												more_entries: t('reports.pdf.more_entries', '... и еще {count} записей'),
+												generated_by: t('reports.pdf.generated_by', 'Сгенерировано UNITY'),
+												weekly_report: t('reports.pdf.weekly_report', 'Недельный отчет за'),
+												monthly_report: t('reports.pdf.monthly_report', 'Месячный отчет за'),
+											}}
+										/>
+									}
+								>
+									{({ blob, url, loading }) => {
+										if (loading) {
+											return (
+												<div className="py-12 text-center">
+													<Sparkles
+														className="mx-auto mb-4 h-12 w-12 animate-spin text-purple-500"
+														strokeWidth={2}
+													/>
+													<p className="text-muted-foreground">
+														{t('reports.pdf.generating', 'Генерация предпросмотра...')}
+													</p>
+												</div>
+											);
+										}
+
+										return (
+											<div className="space-y-3">
+												<iframe
+													className="h-[400px] w-full rounded-lg border sm:h-[600px]"
+													src={url || ''}
+													title="PDF Preview"
+												/>
+												<div className="flex gap-2">
+													<Button
+														className="flex-1"
+														disabled={isExportingPDF}
+														onClick={() => {
+															if (blob && currentReportId) {
+																void handleSavePDF(blob, currentReportId);
+															} else {
+																toast.error(
+																	t(
+																		'reports.pdf.no_report',
+																		'Отчет не найден. Сначала создайте отчет.'
+																	)
+																);
+															}
+														}}
+													>
+														<Download className="mr-2 h-4 w-4" strokeWidth={2} />
+														{isExportingPDF
+															? t('reports.pdf.saving', 'Сохранение...')
+															: t('reports.pdf.save', 'Сохранить PDF')}
+													</Button>
+												</div>
+											</div>
+										);
+									}}
+								</BlobProvider>
+							</CardContent>
+						</Card>
+					</div>
+				)}
 
 				{/* Вкладки с деталями */}
 				<div className="px-4">
@@ -942,6 +1264,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			{showBooksLibrary && !editingDraftId && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<BooksLibraryScreen
+						key={booksLibraryRefreshKey} // ✅ Перемонтирование компонента для обновления списка
 						onBack={() => setShowBooksLibrary(false)}
 						onCreateBook={() => {
 							setShowBooksLibrary(false);
@@ -951,6 +1274,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							setShowBooksLibrary(false);
 							setEditingDraftId(draftId);
 						}}
+						refreshKey={booksLibraryRefreshKey}
 					/>
 				</div>
 			)}
@@ -959,8 +1283,15 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 				<div className="fixed inset-0 z-50 bg-background">
 					<BookCreationWizard
 						onCancel={() => setShowBookWizard(false)}
-						onComplete={() => {
+						onComplete={(draftId) => {
+							// После успешного визарда по умолчанию открываем редактор книги
 							setShowBookWizard(false);
+							setEditingDraftId(draftId);
+						}}
+						onGoToLibrary={() => {
+							// Альтернативный путь из модалки успеха → сразу полка книг
+							setShowBookWizard(false);
+							setBooksLibraryRefreshKey((prev) => prev + 1);
 							setShowBooksLibrary(true);
 						}}
 					/>
@@ -972,6 +1303,12 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 					<BookDraftEditor
 						draftId={editingDraftId}
 						onComplete={() => {
+							setEditingDraftId(null);
+							// ✅ Обновить refreshKey для принудительного обновления списка книг
+							setBooksLibraryRefreshKey((prev) => prev + 1);
+							setShowBooksLibrary(true);
+						}}
+						onCancel={() => {
 							setEditingDraftId(null);
 							setShowBooksLibrary(true);
 						}}

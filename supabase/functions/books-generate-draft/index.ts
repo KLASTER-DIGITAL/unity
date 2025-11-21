@@ -174,7 +174,7 @@ Deno.serve(async (req) => {
 		const { data: entries, error: entriesError } = await supabaseAdmin
 			.from('entries')
 			.select(
-				'id, text, sentiment, category, tags, mood, ai_summary, ai_insight, is_achievement, created_at'
+				'id, text, sentiment, category, tags, mood, ai_summary, ai_insight, is_achievement, created_at, media'
 			)
 			.eq('user_id', userId)
 			.gte('created_at', periodStart)
@@ -195,6 +195,19 @@ Deno.serve(async (req) => {
 				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 			);
 		}
+
+		// Collect photos from entries
+		const photosFromEntries = entries.flatMap((entry) => {
+			if (!entry.media || !Array.isArray(entry.media)) return [];
+			return entry.media
+				.filter((m: any) => m.type === 'image' && m.url)
+				.map((m: any) => ({
+					entryId: entry.id,
+					url: m.url,
+					createdAt: entry.created_at,
+				}));
+		});
+		console.log('[BOOKS-DRAFT] Found', photosFromEntries.length, 'photos in entries');
 
 		console.log('[BOOKS-DRAFT] Found', entries.length, 'entries');
 
@@ -223,6 +236,7 @@ Deno.serve(async (req) => {
 
 		// Prepare data for AI
 		const entriesSummary = filteredEntries.map((entry) => ({
+			id: entry.id, // Pass ID so AI can reference it
 			date: new Date(entry.created_at).toLocaleDateString(locale),
 			category: entry.category,
 			sentiment: entry.sentiment,
@@ -232,12 +246,21 @@ Deno.serve(async (req) => {
 		}));
 
 		// Calculate statistics
+		const achievementEntries = filteredEntries.filter((e) => e.is_achievement);
 		const stats = {
 			totalEntries: filteredEntries.length,
-			achievements: filteredEntries.filter((e) => e.is_achievement).length,
+			achievements: achievementEntries.length,
 			positiveEntries: filteredEntries.filter((e) => e.sentiment === 'positive').length,
 			categories: [...new Set(filteredEntries.map((e) => e.category))],
 		};
+
+		// Prepare achievements summary for metadata (used in PDF "Достижения" главы)
+		const achievementsSummary = achievementEntries.map((entry) => ({
+			id: entry.id,
+			date: new Date(entry.created_at).toISOString(),
+			category: entry.category,
+			summary: entry.ai_summary || entry.text.substring(0, 200),
+		}));
 
 		// ✅ Load AI operation config for monthly_report
 		console.log('[BOOKS-DRAFT] Loading monthly_report AI operation...');
@@ -292,6 +315,7 @@ Create a JSON book structure with fields:
   - title: Chapter title
   - content: Chapter text (3-5 paragraphs)
   - highlights: Key moments (array of strings)
+  - source_entry_ids: Array of entry IDs used for this chapter (IMPORTANT for photo mapping)
 - epilogue: Conclusion (2-3 paragraphs)
 - dedication: Dedication (optional)
 
@@ -378,7 +402,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		}
 
 		// Parse story JSON
-		let storyJson: unknown;
+		let storyJson: any;
 		try {
 			const content = aiResult.choices[0].message.content;
 			console.log('[BOOKS-DRAFT] AI content length:', content.length, 'chars');
@@ -430,6 +454,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 				metadata: {
 					entriesCount: filteredEntries.length,
 					achievementsCount: stats.achievements,
+					achievements: achievementsSummary,
 					tokensUsed: total_tokens,
 					estimatedCost,
 					diaryName: diaryName || 'Мой дневник',
@@ -447,6 +472,49 @@ ${JSON.stringify(entriesSummary, null, 2)}
 				status: 500,
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 			});
+		}
+
+		// ✅ Auto-attach photos to chapters based on AI mapping
+		if (photosFromEntries.length > 0 && storyJson.chapters) {
+			const photosToInsert: any[] = [];
+
+			storyJson.chapters.forEach((chapter: any, index: number) => {
+				if (chapter.source_entry_ids && Array.isArray(chapter.source_entry_ids)) {
+					// Find photos for entries used in this chapter
+					const chapterPhotos = photosFromEntries.filter((p) =>
+						chapter.source_entry_ids.includes(p.entryId)
+					);
+
+					chapterPhotos.forEach((photo) => {
+						photosToInsert.push({
+							book_id: draft.id,
+							chapter_index: index,
+							photo_url: photo.url,
+							caption: new Date(photo.createdAt).toLocaleDateString(locale),
+						});
+					});
+				}
+			});
+
+			// Fallback: If AI didn't map photos but we have them, verify layout
+			if (photosToInsert.length === 0 && layout === 'photo_text') {
+				// Simple heuristic: distribute photos evenly or by date if possible
+				// For MVP: just attach all valid photos to the first few chapters or "Gallery" chapter
+				console.log('[BOOKS-DRAFT] AI did not map photos, using fallback distribution');
+				// TODO: Implement fallback distribution if needed
+			}
+
+			if (photosToInsert.length > 0) {
+				console.log('[BOOKS-DRAFT] Auto-attaching', photosToInsert.length, 'photos to book');
+				const { error: photosError } = await supabaseAdmin
+					.from('book_photos')
+					.insert(photosToInsert);
+
+				if (photosError) {
+					console.error('[BOOKS-DRAFT] Error saving auto-photos:', photosError);
+					// Don't fail the whole request, photos are enhancement
+				}
+			}
 		}
 
 		console.log('[BOOKS-DRAFT] Draft saved:', draft.id);

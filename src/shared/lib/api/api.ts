@@ -441,31 +441,9 @@ export async function getBooksArchive(userId: string): Promise<BookDraft[]> {
 	}
 }
 
-export async function renderBookPDF(draftId: string): Promise<{
-	pdfUrl: string;
-	pages: number;
-	wordCount: number;
-}> {
-	try {
-		const response = await apiRequest(`/books/${draftId}/render-pdf`, {
-			method: 'POST',
-			requireOpenAI: true,
-		});
-
-		if (!(response as any)?.success) {
-			throw new Error((response as any)?.error || 'Failed to render PDF');
-		}
-
-		return {
-			pdfUrl: (response as any)?.pdfUrl,
-			pages: (response as any)?.pages,
-			wordCount: (response as any)?.wordCount,
-		};
-	} catch (error) {
-		console.error('Error in renderBookPDF:', error);
-		throw error;
-	}
-}
+// ❌ REMOVED: renderBookPDF - unused function
+// This function was never used. PDF rendering is handled directly in BookDraftEditor component
+// via fetch to books-render-pdf Edge Function
 
 export async function healthCheck(): Promise<boolean> {
 	try {
