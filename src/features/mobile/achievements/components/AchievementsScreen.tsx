@@ -235,6 +235,81 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 		loadData();
 	}, [loadData]);
 
+	// ✅ НОВОЕ: Real-time подписка на изменения entries для автообновления статистики
+	useEffect(() => {
+		const userId = userData?.user?.id || userData?.id;
+
+		if (!userId) {
+			console.log('[AchievementsScreen] No userId, skipping real-time subscription');
+			return;
+		}
+
+		console.log('[AchievementsScreen] 🔔 Setting up real-time subscription for entries:', userId);
+
+		// Создаем Supabase клиент внутри useEffect
+		let channel: ReturnType<typeof import('@/utils/supabase/client').createClient extends () => infer R ? R extends { channel: infer C } ? C : never : never>;
+
+		(async () => {
+			const { createClient } = await import('@/utils/supabase/client');
+			const supabase = createClient();
+
+			channel = supabase
+				.channel(`achievements-stats:${userId}`)
+				.on(
+					'postgres_changes',
+					{
+						event: '*', // INSERT, UPDATE, DELETE
+						schema: 'public',
+						table: 'entries',
+						filter: `user_id=eq.${userId}`,
+					},
+					(payload) => {
+						console.log(
+							'[AchievementsScreen] 🔔 Entry changed, reloading stats:',
+							payload.eventType
+						);
+
+						// Перезагружаем статистику БЕЗ показа skeleton
+						loadData();
+					}
+				)
+				.on(
+					'postgres_changes',
+					{
+						event: '*',
+						schema: 'public',
+						table: 'user_achievements',
+						filter: `user_id=eq.${userId}`,
+					},
+					(payload) => {
+						console.log(
+							'[AchievementsScreen] 🔔 Achievement changed, reloading stats:',
+							payload.eventType
+						);
+
+						// Перезагружаем статистику для обновления earnedCount
+						loadData();
+					}
+				)
+				.subscribe((status) => {
+					if (status === 'SUBSCRIBED') {
+						console.log('[AchievementsScreen] ✅ Subscribed to real-time updates');
+					}
+				});
+		})();
+
+		return () => {
+			if (channel) {
+				console.log('[AchievementsScreen] 🔕 Unsubscribing from real-time updates');
+				(async () => {
+					const { createClient } = await import('@/utils/supabase/client');
+					const supabase = createClient();
+					supabase.removeChannel(channel);
+				})();
+			}
+		};
+	}, [userData?.user?.id, userData?.id, loadData]);
+
 	// ✅ NEW: Объединенный loading state
 	const isLoading = isLoadingEntries || isLoadingAchievements;
 
