@@ -177,3 +177,4 @@
 - **Миграция Settings Screen**: `supabase/migrations/20251121000001_add_settings_translation_keys.sql`
 - **Админ-панель**: https://unity-wine.vercel.app/?view=admin
 
+

@@ -118,3 +118,4 @@ const response = await fetch(
 - **Edge Function**: `auto-translate`
 - **Документация**: `docs/i18n/I18N_SYSTEM_DOCUMENTATION.md`
 
+
