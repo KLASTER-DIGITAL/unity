@@ -5,6 +5,7 @@
 export type BookCreationWizardProps = {
 	onComplete?: (draftId: string) => void;
 	onCancel?: () => void;
+	onGoToLibrary?: () => void;
 };
 
 export type WizardStep = 1 | 2 | 3 | 4;
