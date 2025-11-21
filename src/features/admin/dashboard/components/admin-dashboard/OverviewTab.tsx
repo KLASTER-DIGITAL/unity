@@ -8,7 +8,6 @@ import {
 	Users,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { useTranslation } from '@/shared/lib/i18n';
 import { OverviewTabSkeleton } from './OverviewTabSkeleton';
 import { QuickActions } from './QuickActions';
 import { StatsCard } from './StatsCard';
@@ -20,8 +19,6 @@ import type { OverviewTabProps } from './types';
  * Displays admin dashboard statistics and quick actions
  */
 export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
-	const { t } = useTranslation();
-
 	// Show skeleton during initial load
 	if (isLoading && stats.totalUsers === 0) {
 		return <OverviewTabSkeleton />;
@@ -47,29 +44,29 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 xl:grid-cols-4">
 				<StatsCard
 					icon={Users}
-					subtitle={`+${stats.newUsersToday} ${t('new_today', 'сегодня')}`}
-					title={t('total_users', 'Всего пользователей')}
+					subtitle={`+${stats.newUsersToday} сегодня`}
+					title="Всего пользователей"
 					value={stats.totalUsers}
 				/>
 
 				<StatsCard
 					icon={Activity}
-					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% ${t('of_all', 'от всех')}`}
-					title={t('active_users', 'Активные пользователи')}
+					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% от всех`}
+					title="Активные пользователи"
 					value={stats.activeUsers}
 				/>
 
 				<StatsCard
 					icon={UserCheck}
-					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.premiumUsers / stats.totalUsers) * 100) : 0}% ${t('conversion', 'конверсия')}`}
-					title={t('premium_subscriptions', 'Premium подписки')}
+					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.premiumUsers / stats.totalUsers) * 100) : 0}% конверсия`}
+					title="Premium подписки"
 					value={stats.premiumUsers}
 				/>
 
 				<StatsCard
 					icon={DollarSign}
 					subtitle={`$${stats.premiumUsers > 0 ? Math.round(stats.totalRevenue / stats.premiumUsers) : 0} ARPU`}
-					title={t('total_revenue', 'Общий доход')}
+					title="Общий доход"
 					value={`$${stats.totalRevenue}`}
 				/>
 			</div>
@@ -78,15 +75,15 @@ export function OverviewTab({ stats, isLoading, onRefresh }: OverviewTabProps) {
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
 				<StatsCard
 					icon={Database}
-					subtitle={`${stats.activeUsers > 0 ? (stats.totalEntries / stats.activeUsers).toFixed(1) : 0} ${t('per_active_user', 'на активного пользователя')}`}
-					title={t('total_entries', 'Всего записей')}
+					subtitle={`${stats.activeUsers > 0 ? (stats.totalEntries / stats.activeUsers).toFixed(1) : 0} на активного пользователя`}
+					title="Всего записей"
 					value={stats.totalEntries}
 				/>
 
 				<StatsCard
 					icon={Smartphone}
-					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.pwaInstalls / stats.totalUsers) * 100) : 0}% ${t('of_all_users', 'от всех пользователей')}`}
-					title={t('pwa_installs', 'PWA установки')}
+					subtitle={`${stats.totalUsers > 0 ? Math.round((stats.pwaInstalls / stats.totalUsers) * 100) : 0}% от всех пользователей`}
+					title="PWA установки"
 					value={stats.pwaInstalls}
 				/>
 			</div>

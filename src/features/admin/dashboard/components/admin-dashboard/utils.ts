@@ -8,9 +8,7 @@ import type { AdminStats } from './types';
  */
 
 // Load admin statistics from server
-export async function loadAdminStats(
-	t: (key: string, fallback?: string) => string
-): Promise<AdminStats> {
+export async function loadAdminStats(): Promise<AdminStats> {
 	try {
 		// Получаем токен авторизации
 		const supabase = createClient();
@@ -39,13 +37,13 @@ export async function loadAdminStats(
 
 		const data = await response.json();
 		// Микросервис возвращает данные напрямую в корне объекта
-		const { success, ...statsData } = data;
+		const { success: _success, ...statsData } = data;
 
 		console.log('Admin stats loaded:', statsData);
 		return statsData as AdminStats;
 	} catch (error) {
 		console.error('Error loading stats:', error);
-		toast.error(t('error_loading_stats', 'Ошибка загрузки статистики'));
+		toast.error('Ошибка загрузки статистики');
 
 		// Fallback к пустым данным при ошибке
 		return INITIAL_STATS;
@@ -53,6 +51,6 @@ export async function loadAdminStats(
 }
 
 // Check if user is super admin
-export function isSuperAdmin(userData?: any): boolean {
+export function isSuperAdmin(userData?: { profile?: { role?: string }; role?: string }): boolean {
 	return userData?.profile?.role === 'super_admin' || userData?.role === 'super_admin';
 }

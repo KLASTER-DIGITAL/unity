@@ -1,6 +1,6 @@
 # UNITY-v2 i18n System
 
-Complete internationalization system for UNITY-v2 with support for 8+ languages, RTL, pluralization, and locale-aware formatting.
+Complete internationalization system for UNITY-v2 with support for 9 active languages, pluralization, and locale-aware formatting.
 
 ---
 
@@ -111,18 +111,17 @@ function RTLComponent() {
 
 ## 🌍 Supported Languages
 
-| Code | Language | Native Name | RTL |
-|------|----------|-------------|-----|
-| `en` | English | English | ❌ |
-| `ru` | Russian | Русский | ❌ |
-| `es` | Spanish | Español | ❌ |
-| `de` | German | Deutsch | ❌ |
-| `fr` | French | Français | ❌ |
-| `zh` | Chinese | 中文 | ❌ |
-| `ja` | Japanese | 日本語 | ❌ |
-| `ka` | Georgian | ქართული | ❌ |
-| `ar` | Arabic | العربية | ✅ |
-| `he` | Hebrew | עברית | ✅ |
+| Code | Language | Native Name | Flag |
+|------|----------|-------------|------|
+| `ru` | Russian | Русский | 🇷🇺 |
+| `en` | English | English | 🇬🇧 |
+| `es` | Spanish | Español | 🇪🇸 |
+| `de` | German | Deutsch | 🇩🇪 |
+| `fr` | French | Français | 🇫🇷 |
+| `zh` | Chinese | 中文 | 🇨🇳 |
+| `ja` | Japanese | 日本語 | 🇯🇵 |
+| `kk` | Kazakh | Қазақша | 🇰🇿 |
+| `ka` | Georgian | ქართული | 🇬🇪 |
 
 ---
 
@@ -130,8 +129,8 @@ function RTLComponent() {
 
 ### ✅ Core Features
 
-- **8 Active Languages** - English, Russian, Spanish, German, French, Chinese, Japanese, Georgian
-- **RTL Support** - Arabic, Hebrew, Persian, Urdu (prepared)
+- **9 Active Languages** - Russian, English, Spanish, German, French, Chinese, Japanese, Kazakh, Georgian
+- **~674 Translation Keys** - Comprehensive coverage across all user-facing screens
 - **Type Safety** - Auto-generated TypeScript types for all translation keys
 - **Lazy Loading** - Translations loaded on demand with smart caching
 - **Compression** - LZ77-based compression (30-50% space savings)

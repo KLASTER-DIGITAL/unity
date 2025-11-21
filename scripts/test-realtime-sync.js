@@ -1,11 +1,11 @@
 /**
  * Тестовый скрипт для проверки real-time синхронизации статистики
- * 
+ *
  * Проверяет:
  * 1. Подписку на изменения в таблице entries
  * 2. Автоматический пересчет статистики при создании записи
  * 3. Синхронизацию между множественными подписками
- * 
+ *
  * Использование:
  * node scripts/test-realtime-sync.js
  */
@@ -25,7 +25,7 @@ const TEST_PASSWORD = 'demo123';
 
 async function main() {
 	console.log('\n🚀 Starting Real-time Sync Test\n');
-	console.log('=' .repeat(60));
+	console.log('='.repeat(60));
 
 	// 1. Авторизация
 	console.log('\n📝 Step 1: Authentication');
@@ -44,18 +44,15 @@ async function main() {
 
 	// 2. Получаем текущую статистику (baseline)
 	console.log('\n📊 Step 2: Getting current stats');
-	
-	const { data: entriesData } = await supabase
-		.from('entries')
-		.select('*')
-		.eq('user_id', userId);
+
+	const { data: entriesData } = await supabase.from('entries').select('*').eq('user_id', userId);
 
 	const currentCount = entriesData?.length || 0;
 	console.log('📈 Current entries count:', currentCount);
 
 	// 3. Устанавливаем 3 подписки (симулируем разные экраны)
 	console.log('\n🔔 Step 3: Setting up multiple subscriptions');
-	
+
 	let homeScreenUpdates = 0;
 	let achievementsScreenUpdates = 0;
 	let globalStoreUpdates = 0;
@@ -159,7 +156,7 @@ async function main() {
 	await new Promise((resolve) => setTimeout(resolve, 5000));
 
 	// 6. Результаты
-	console.log('\n' + '='.repeat(60));
+	console.log(`\n${'='.repeat(60)}`);
 	console.log('📊 Test Results:');
 	console.log('='.repeat(60));
 	console.log(`🏠 Home Screen updates:        ${homeScreenUpdates}`);
@@ -167,10 +164,8 @@ async function main() {
 	console.log(`🗄️  Global Store updates:       ${globalStoreUpdates}`);
 	console.log('');
 
-	const allUpdatesReceived = 
-		homeScreenUpdates > 0 && 
-		achievementsScreenUpdates > 0 && 
-		globalStoreUpdates > 0;
+	const allUpdatesReceived =
+		homeScreenUpdates > 0 && achievementsScreenUpdates > 0 && globalStoreUpdates > 0;
 
 	if (allUpdatesReceived) {
 		console.log('✅ SUCCESS: All subscriptions received real-time updates!');
@@ -191,9 +186,9 @@ async function main() {
 	supabase.removeChannel(storeChannel);
 	console.log('✅ Unsubscribed from all channels');
 
-	console.log('\n' + '='.repeat(60));
+	console.log(`\n${'='.repeat(60)}`);
 	console.log('✨ Test completed!');
-	console.log('='.repeat(60) + '\n');
+	console.log(`${'='.repeat(60)}\n`);
 
 	process.exit(0);
 }
@@ -209,4 +204,3 @@ main().catch((error) => {
 	console.error('\n❌ Test failed:', error);
 	process.exit(1);
 });
-

@@ -1,7 +1,6 @@
 import { LogOut, Shield, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@/shared/components/ui/button';
-import { useTranslation } from '@/shared/lib/i18n';
 import type { MobileSidebarProps } from './types';
 
 /**
@@ -17,8 +16,6 @@ export function MobileSidebar({
 	onClose,
 	onLogout,
 }: MobileSidebarProps) {
-	const { t } = useTranslation();
-
 	return (
 		<AnimatePresence>
 			{isOpen && (
@@ -45,12 +42,10 @@ export function MobileSidebar({
 								</div>
 								<div>
 									<h1 className="text-lg text-white">Admin</h1>
-									<p className="text-sm font-normal text-white/80">
-										{t('admin_panel', 'Панель управления')}
-									</p>
+									<p className="text-sm font-normal text-white/80">Панель управления</p>
 								</div>
 							</div>
-							<button className="text-white" onClick={onClose}>
+							<button type="button" className="text-white" onClick={onClose}>
 								<X className="h-6 w-6" />
 							</button>
 						</div>

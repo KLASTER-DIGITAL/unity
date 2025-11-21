@@ -2,7 +2,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Max-Age': '86400', // 24 hours
 };
 
 interface TranslationRequest {
@@ -319,7 +321,8 @@ Output (JSON only, no explanations):`;
 		);
 	} catch (error) {
 		console.error('Error:', error);
-		return new Response(JSON.stringify({ error: error.message }), {
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		return new Response(JSON.stringify({ error: errorMessage }), {
 			status: 500,
 			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 		});

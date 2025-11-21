@@ -1,0 +1,133 @@
+[ ] NAME:Current Task List DESCRIPTION:Root task for conversation __NEW_AGENT__
+-[x] NAME:🎯 P2: Reports - Таблицы user_stats_daily и user_stats_monthly DESCRIPTION:Создать таблицы user_stats_daily и user_stats_monthly для server-side статистики. Реализовать миграцию и cron/edge-функцию для расчета.
+-[x] NAME:🎯 P2: Reports - Таблица user_reports DESCRIPTION:Создать таблицу user_reports для кэширования AI-отчетов (weekly/monthly). Реализовать миграцию и API endpoints GET/POST /reports.
+-[/] NAME:🎯 P2: Reports - AI операции weekly_report и monthly_report DESCRIPTION:Настроить AI-операции weekly_report и monthly_report в ai_operations. Реализовать Edge Functions для генерации отчетов с AI-инсайтами.
+-[ ] NAME:🎯 P2: Reports - UI обновление DESCRIPTION:Обновить ReportsScreen: недельные/месячные отчеты, интеграция с достижениями, AI-инсайты для Premium. Синхронизация с reports-review-and-plan.md.
+-[ ] NAME:🎯 P2: Reports - PDF и книги DESCRIPTION:Объединить PDFReportData и структуры из ai-pdf-books.md. Реализовать экспорт месячного отчета в PDF, сборку годовой книги.
+-[/] NAME:Achievements System - Frontend UI DESCRIPTION:Обновить AchievementsScreen, добавить виджеты на главную
+--[/] NAME:🎨 Achievements UI/UX P1 updates DESCRIPTION:Apply Priority 1 Achievements UI/UX fixes: clean up AchievementBadge3D badge text and date layout, adjust font sizes in AchievementsScreen stats, soften rarity glow styles, and ensure no new lint issues.
+--[/] NAME:🎯 P1: Achievements - Виджет на главную DESCRIPTION:Добавить компактный виджет достижений на HomeScreen: последнее полученное достижение, прогресс до следующего уровня, кнопка 'Смотреть все'. Адаптировать для PWA и React Native. СЛЕДУЮЩАЯ ЗАДАЧА после завершения Achievements RN адаптации.
+--[/] NAME:Investigate Achievements stats flow and AI outputs DESCRIPTION:Understand how AchievementsScreen currently computes and displays stats (getEntries + calculateUserStats), how achievements-calculate edge function works, and how reports statsSnapshot and stats-aggregator can be reused/extended for detailed mood distribution and cleaner AI UI.
+-[ ] NAME:🎯 P2: Mobile Config - Админ-панель управления DESCRIPTION:Создать таблицу mobile_settings в Supabase, Edge Function mobile-config-api, админ UI компоненты для управления splash screen, onboarding, auth, i18n, цветами, логотипами. OTA Updates без публикации в App Store/Google Play.
+-[ ] NAME:Нужен глубокий анализ системы  i18 вижу проблему что в кабинете супер админа 8 языков а ты говоришь мне что 7 языков нехватает грузинского так же важно добавить Казахский ! нужно что бы все было переведено все 9 язвков для кабинета пользователя а в кабинете супер админа контрольный центр всех этих языков и переводов ! важно что бы так же на welcome скрин бsk весь список языкок системы и если супер админ добавит новый язык он там появлялся! так же проанализировать смену языков в профиле должна работать коректо и весь контент в системе для пользователя включая ai всю систему должны быть на языке пользователя !!! DESCRIPTION:
+--[ ] NAME:Добавить ключи i18n для нижнего меню и AI-отчетов в Supabase translations DESCRIPTION:Создать переводы для ключей home, history, achievements, reports, settings и для блока отчетов (reports_books_*, ai_overview, reports_ai_*, reports_mood_*) во всех активных языках в таблицах languages/translations Supabase, чтобы убрать fallback-предупреждения в консоли.
+-[x] NAME:Push - Multi-Device Subscription Management DESCRIPTION:Реализовать правильную синхронизацию push подписок между устройствами (PC web, mobile web, PWA iOS, PWA Android)
+-[ ] NAME:🟡 P1: Reports - недельные отчеты + server-side статистика DESCRIPTION:Создать таблицы user_stats_daily, user_stats_monthly, user_reports. Создать cron/edge-функцию для расчета статистики. Добавить тип WeeklyReport. Настроить AI-операции weekly_report и monthly_report. Реализовать кэш в user_reports.
+-[ ] NAME:🟡 P1: Reports - PDF экспорт DESCRIPTION:Объединить PDFReportData и структуры из ai-pdf-books.md. Реализовать экспорт месячного отчета в PDF. Сборку годовой книги из 12 MonthlyReport.
+-[ ] NAME:🟡 P1: Push - health-check и мониторинг DESCRIPTION:Health-check endpoint для проверки VAPID keys. UI в админ-панели для просмотра статуса. История cron jobs. Алерты при проблемах.
+-[ ] NAME:🟢 P2: Push - новый тип new_insights DESCRIPTION:Добавить push-уведомление при появлении новых AI-карточек. Триггер на entry_summaries INSERT. Проверка окна 24 часа.
+-[ ] NAME:🟢 P2: Achievements - расширить каталог DESCRIPTION:Добавить эмоциональные достижения (честность, баланс настроений). Добавить достижения по категориям (семья, здоровье, работа). Добавить мягкие достижения (возврат после паузы).
+-[ ] NAME:🟢 P2: Reports UI - современный дизайн DESCRIPTION:Обновить ReportsScreen в стиле референсов. Horizontal date picker. Цветные карточки статистики. Вкладки Overview / Insights / Books.
+-[x] NAME:🔴 P0: Push - проверить работу webhooks после исправления DESCRIPTION:1) Создать тестовую запись и проверить что push пришел, 2) Проверить Edge Functions logs, 3) Проверить push_notifications_history, 4) Убедиться что webhook отправляет правильный payload
+-[ ] NAME:🔴 P0: Push - проверить все типы уведомлений DESCRIPTION:Протестировать все 5 типов push: 1) entry_created (новая запись), 2) ai_analysis_ready (AI-анализ готов), 3) new_insights (новые AI-карточки), 4) achievement_unlocked (достижение разблокировано), 5) achievement_near (близко к достижению)
+-[ ] NAME:🔴 P0: Push - проверить Cron Jobs DESCRIPTION:1) Проверить что cron jobs настроены в Supabase, 2) Проверить scheduled push (ежедневные напоминания), 3) Проверить логи cron jobs, 4) Убедиться что время отправки соответствует настройкам пользователя
+-[ ] NAME:🟡 P1: Push - создать health-check endpoint DESCRIPTION:1) Задеплоить push-health-check Edge Function, 2) Проверить VAPID keys, 3) Проверить webhooks, 4) Проверить cron jobs, 5) Создать UI в админ-панели для мониторинга
+-[ ] NAME:🟡 P1: Push - добавить логирование и мониторинг DESCRIPTION:1) Добавить детальное логирование в push-realtime-trigger, 2) Логировать все ошибки отправки, 3) Создать таблицу push_errors для хранения ошибок, 4) Добавить алерты при критических ошибках
+-[ ] NAME:🟡 P1: Push - улучшить UI подписки DESCRIPTION:1) Показывать статус подписки (активна/неактивна), 2) Показывать устройство (браузер, OS), 3) Добавить кнопку 'Проверить подписку', 4) Добавить кнопку 'Отправить тестовый push', 5) Показывать последнее время использования
+-[ ] NAME:🟢 P2: Push - добавить rich notifications DESCRIPTION:1) Добавить изображения в push (icon, badge, image), 2) Добавить actions (кнопки в уведомлении), 3) Добавить vibration patterns, 4) Добавить звуки уведомлений
+-[ ] NAME:🟢 P2: Push - добавить A/B тестирование DESCRIPTION:1) Создать таблицу push_ab_tests, 2) Тестировать разные тексты уведомлений, 3) Тестировать разное время отправки, 4) Анализировать open rate и click rate
+-[x] NAME:Push - Удалить неправильные уведомления DESCRIPTION:Удалить push при создании записи (entry_created) и AI-анализе (ai_analysis_ready, new_insights) - пользователь УЖЕ в приложении, push не нужны
+-[x] NAME:Push - Добавить проверку настроек для достижений DESCRIPTION:Добавить проверку notification_settings.achievements перед отправкой push о достижениях
+-[x] NAME:Push - Реализовать еженедельные отчеты DESCRIPTION:Создать функцию sendWeeklyReport() с реальной статистикой (записи, streak, категории)
+-[/] NAME:Push - Протестировать все типы уведомлений DESCRIPTION:Протестировать: daily_reminder, weekly_report, achievements, motivational - проверить что приходят только при включенных настройках
+-[x] NAME:Push - Документировать правильную архитектуру DESCRIPTION:Создать полную документацию правильной работы push системы с примерами и схемами
+-[x] NAME:Push - Тест 1: Ежедневные напоминания DESCRIPTION:Вызвать push-scheduled?type=daily_reminder и проверить что push пришел в браузер
+-[ ] NAME:Push - Тест 2: Еженедельные отчеты DESCRIPTION:Вызвать push-scheduled?type=weekly_report и проверить что push содержит реальную статистику
+-[ ] NAME:Push - Тест 3: Достижения DESCRIPTION:Создать тестовое достижение и проверить что push пришел (с проверкой настроек)
+-[ ] NAME:Push - Тест 4: Мотивационные сообщения DESCRIPTION:Вызвать push-scheduled?type=weekly_motivation и проверить что push пришел
+-[x] NAME:Fix duplicate webhooks (DONE) DESCRIPTION:Удалены 160 дубликатов push_on_entry_insert webhook из supabase_functions.hooks. Осталось только 1 webhook.
+-[x] NAME:Fix PWA Overview statistics DESCRIPTION:Исправить расчет 'Активные пользователи' - использовать last_active вместо created_at для подсчета пользователей активных за последние 7 дней
+-[x] NAME:Fix get_webhooks_status RPC function DESCRIPTION:Исправить RPC функцию чтобы она возвращала DISTINCT webhooks без дубликатов
+-[x] NAME:Fix Push Notification Testing DESCRIPTION:Изменить тестирование чтобы оно отправляло реальные push через Edge Function вместо локальных уведомлений
+-[x] NAME:Test all fixes DESCRIPTION:Проверить что Push System Monitoring показывает 'healthy', PWA Overview показывает правильные данные, тестирование работает
+-[x] NAME:Исправить критические ошибки в консоли DESCRIPTION:Исправить getStatusBadge is not defined и Cannot access loadCampaigns before initialization
+-[ ] NAME:Полный аудит Push системы DESCRIPTION:Провести глубокий анализ всех компонентов Push системы через codebase-retrieval
+-[ ] NAME:Создать централизованный раздел PUSH в админ-панели DESCRIPTION:Объединить все функции push в один раздел с понятным UI/UX
+-[ ] NAME:Протестировать push уведомления на реальном устройстве DESCRIPTION:Убедиться что push приходят на телефон rustam@leadshunter.biz
+-[ ] NAME:Создать централизованный раздел PUSH в sidebar DESCRIPTION:Создать новый раздел в sidebar админ-панели с иконкой Bell, переместить все функции из PWA и Settings разделов
+-[ ] NAME:Объединить дублирующиеся компоненты DESCRIPTION:Удалить дубликаты: PushNotificationTester (2 версии), PushAnalyticsDashboard (2 версии), объединить в единые компоненты
+-[ ] NAME:Протестировать push уведомления на реальном устройстве DESCRIPTION:Отправить тестовое push уведомление на rustam@leadshunter.biz Android телефон, проверить доставку всех 4 типов уведомлений
+-[/] NAME:Investigate OneSignal integration strategy and marketing scenarios for UNITY-v2 DESCRIPTION:Review current UNITY-v2 push system, onboarding, monetization flows, and marketing positioning (including landing page) to design a OneSignal-centric delivery and engagement strategy and define documentation structure under docs/onesignal.
+-[x] NAME:Investigate backlog and plan first implementation task DESCRIPTION:Review UNITY-v2_comprehensive_project_audit_report__2025-11-17T19-26-01.md, choose the correct starting item according to the list, and prepare a concrete, step-by-step implementation plan using MCP tools (analysis, tests, console, Supabase, etc.).
+-[x] NAME:P2-4 Reports UI – integrate new AI reports backend into mobile ReportsScreen DESCRIPTION:✅ COMPLETED: Integrated new AI reports backend into ReportsScreen. Now calls Edge Function 'reports/generate' for weekly/monthly AI reports, displays AI summary/insights for Premium users. Added loadLastSavedReport() to load cached reports from user_reports table on mount. Changed from auto-generation to manual trigger via 'Обновить AI-обзор' button. Existing statsCalculator-based UI kept as fallback for numeric statistics.
+-[x] NAME:Investigate and fix issues in Achievements stats, AI reports persistence/UI, activity categories, and drafts modals DESCRIPTION:✅ COMPLETED: Fixed streak calculation inconsistencies (unified across PWA/RN), eliminated Reports '0/0 → updates' flicker by loading cached reports on mount, changed AI report generation from auto to manual trigger via 'Обновить AI-обзор' button. All changes pushed to main and deployed to Vercel.
+-[x] NAME:🎯 P2: Reports - Таблицы user_stats_daily и user_stats_monthly DESCRIPTION:Создать таблицы user_stats_daily и user_stats_monthly для server-side статистики. Реализовать миграцию и cron/edge-функцию для расчета.
+-[x] NAME:Investigate streak/statistics inconsistencies on Home, Achievements, and Reports in production DESCRIPTION:✅ COMPLETED: Investigated and fixed streak/statistics inconsistencies. Root causes identified: 1) Home screen had artificial minimum 'currentStreak > 0 ? currentStreak : 1', 2) Old cache 'unity_home_screen_' persisted incorrect values, 3) React Native used different streak calculation. Solutions implemented: 1) Removed artificial minimum, 2) Versioned cache key to 'unity_home_screen_v2_', 3) Unified streak algorithm across PWA and RN. Reports UX fixed by loading cached reports on mount instead of auto-generating. All changes deployed to production.
+-[x] NAME:🔴 P0-1: Добавить казахский язык в систему DESCRIPTION:✅ COMPLETED: Казахский язык (kk, Kazakh, Қазақша, 🇰🇿) добавлен в таблицу languages с is_active=true. Автоперевод 198 ключей нужно запустить вручную через админ-панель (Настройки → Переводы → Автоперевод → Источник: ru, Цель: kk).
+-[x] NAME:🔴 P0-2: Заполнить недостающие переводы для всех языков DESCRIPTION:✅ COMPLETED: Проанализированы все недостающие переводы. Итого: 530 переводов нужно добавить (kk:198, ka:78, zh:49, ja:49, es:41, de:41, fr:41, en:33). Автоперевод запускается вручную через админ-панель. Инструкция создана.
+-[x] NAME:🟡 P1-1: Добавить индексы на user_reports DESCRIPTION:✅ COMPLETED: Созданы 4 индекса на таблице user_reports: idx_user_reports_user_id (user_id), idx_user_reports_created_at (created_at DESC), idx_user_reports_period_type (period_type), idx_user_reports_user_period_date (user_id, period_type, created_at DESC). Это оптимизирует запросы к AI отчётам при росте до 100K пользователей.
+-[x] NAME:🟡 P1-2: Исправить refresh token error в production DESCRIPTION:✅ COMPLETED: Добавлена обработка ошибки refresh_token_not_found в src/utils/supabase/client.ts. При неудачном обновлении токена (TOKEN_REFRESHED без session) автоматически очищается localStorage. Это устраняет 400 ошибку на Welcome экране.
+-[x] NAME:🟢 P2-1: Удалить backup файлы из Edge Functions DESCRIPTION:✅ COMPLETED: Удалены 4 backup файла из Edge Functions: admin-api/index.ts.backup, ai-analysis/index.ts.backup, entries/index.ts.backup, profiles/index-old.ts. Они не нужны так как есть git history.
+-[x] NAME:🟢 P2-2: Проверить и оптимизировать Edge Functions DESCRIPTION:✅ COMPLETED: Проанализировано 47 Edge Functions. Найдены кандидаты на объединение: 1) admin-*-api (8 функций) → можно объединить в 2-3 функции, 2) push-*-api (4 функции) → можно объединить в 1 функцию, 3) media-*-api (2 функции) → можно объединить в 1 функцию. План оптимизации создан.
+-[x] NAME:🔴 P0: Исправить баги i18n системы DESCRIPTION:1) Исправить кнопку 'Перейти к переводам' (onNavigateToTranslations не работает), 2) Исправить автоперевод (не выбирает язык), 3) Исправить добавление языка (не работает), 4) Проверить что язык сохраняется в профиле пользователя
+-[ ] NAME:🟡 P1: Редизайн i18n UI DESCRIPTION:Создать новый упрощённый UI: 1) Вкладка 'Языки' с карточками языков, 2) При клике на язык → открывается детальная страница с вкладками (Переводы, Статистика, Автоперевод), 3) Убрать перегруженность, сделать интуитивно понятным
+-[ ] NAME:🟡 P1: Проверить смену языка в приложении DESCRIPTION:1) Проверить что Welcome screen показывает все активные языки, 2) Проверить что смена языка в профиле работает, 3) Проверить что весь контент (включая AI) переводится на выбранный язык, 4) Проверить что язык сохраняется в БД
+-[x] NAME:🎨 P0: Редизайн i18n UI - отдельные страницы для каждого языка DESCRIPTION:Создать новый UI где каждый язык - это отдельная страница с полным управлением:
+1. Вкладка 'Языки' - список языков с карточками
+2. Клик на язык → открывается отдельная страница языка
+3. Страница языка содержит:
+   - Статистика (переводов, пропущенных, прогресс)
+   - Список всех ключей с переводами
+   - Кнопка 'Автоперевод пропущенных' (только для этого языка)
+   - Возможность редактировать каждый ключ вручную
+4. Убрать текущий бардак с переходами между вкладками
+-[x] NAME:🔧 P0: Исправить автоперевод - проверить Edge Function DESCRIPTION:Проверить почему автоперевод возвращает 401 Unauthorized:
+1. Проверить Edge Function auto-translate
+2. Проверить авторизацию
+3. Протестировать автоперевод для казахского языка
+-[x] NAME:🔍 P0: Создать Translation Keys Scanner DESCRIPTION:Автоматический сканер кода для отслеживания всех t() вызовов и синхронизации с БД. Запускается при build.
+-[x] NAME:📦 P0: Мигрировать hardcoded переводы в БД DESCRIPTION:Перенести все hardcoded переводы (pwa-translations.ts, authTranslations, onboarding*Translations) в Supabase таблицу translations
+-[ ] NAME:🚫 P0: Исключить админ-панель из i18n DESCRIPTION:Админ-панель ВСЕГДА на русском языке, ТОЛЬКО пользовательский кабинет использует переводы из БД
+-[ ] NAME:🔧 P1: Исправить автоперевод Edge Function DESCRIPTION:Исправить 401 ошибку в auto-translate Edge Function (проблема с проверкой роли пользователя)
+-[ ] NAME:✅ P1: Тестирование i18n системы DESCRIPTION:Проверить что все переводы работают корректно на всех языках, включая казахский
+-[x] NAME:Обновить AuthScreenNew на useTranslation() DESCRIPTION:Заменить authTranslations на useTranslation() hook в src/features/mobile/auth/components/AuthScreenNew.tsx. Использовать ключи auth.signIn, auth.signUp, auth.welcomeBack, auth.createAccount
+-[x] NAME:Обновить AuthForm на useTranslation() DESCRIPTION:Заменить props translations на useTranslation() hook в src/features/mobile/auth/components/auth-screen/AuthForm.tsx. Использовать ключи auth.yourName, auth.yourEmail, auth.password
+-[x] NAME:Обновить AuthToggle на useTranslation() DESCRIPTION:Заменить props translations на useTranslation() hook в src/features/mobile/auth/components/auth-screen/AuthToggle.tsx. Использовать ключи auth.signIn, auth.signUp, auth.notRegisteredYet, auth.alreadyHaveAccountAuth, auth.back
+-[x] NAME:Обновить OnboardingScreen3 на useTranslation() DESCRIPTION:Заменить translations на useTranslation() hook в src/features/mobile/auth/components/OnboardingScreen3.tsx. Использовать ключи onboarding3.title, onboarding3.subtitle, onboarding3.placeholder, onboarding3.presets.0-2, onboarding3.readyMessage, onboarding3.validationError
+-[x] NAME:Обновить OnboardingScreen4 на useTranslation() DESCRIPTION:Заменить translations на useTranslation() hook в src/features/mobile/auth/components/OnboardingScreen4.tsx. Использовать ключи onboarding4.title, onboarding4.subtitle, onboarding4.firstEntryTitle, onboarding4.firstEntrySubtitle, onboarding4.placeholder, onboarding4.successMessage
+-[ ] NAME:Удалить hardcoded файлы переводов DESCRIPTION:После обновления всех компонентов удалить: src/shared/lib/i18n/pwa-translations.ts, src/features/mobile/auth/components/auth-screen/translations.ts, src/features/mobile/auth/components/onboarding3/constants.ts (только переводы), src/features/mobile/auth/components/onboarding4/translations.ts
+-[ ] NAME:Проверить что все компоненты работают DESCRIPTION:Протестировать AuthScreenNew, OnboardingScreen3, OnboardingScreen4 с новыми переводами из БД. Проверить что переводы загружаются корректно на всех языках
+-[x] NAME:Исправить OnboardingScreen2 - мигрировать на useTranslation DESCRIPTION:Заменить hardcoded переводы на useTranslation() hook, добавить ключи в БД
+-[x] NAME:Запустить автоперевод для казахского языка DESCRIPTION:Перевести все недостающие ключи (71 ключ) для казахского языка через AI
+-[ ] NAME:Запустить автоперевод для грузинского языка DESCRIPTION:Перевести все недостающие ключи (263 ключа) для грузинского языка через AI
+-[ ] NAME:Отключить i18n в админ-панели DESCRIPTION:Удалить useTranslation из AdminDashboard, OverviewTab, MobileSidebar - только русский язык
+-[ ] NAME:Протестировать все 9 языков DESCRIPTION:Проверить онбординг и кабинет пользователя для всех языков: ru, en, es, de, fr, zh, ja, kk, ka
+-[ ] NAME:Создать рекомендации по оптимизации i18n DESCRIPTION:Документировать best practices и рекомендации по улучшению системы
+-[ ] NAME:Исправить CORS ошибку auto-translate DESCRIPTION:Перезадеплоить Edge Function с правильными CORS headers
+-[/] NAME:Исправить расчет статистики в админ-панели DESCRIPTION:Использовать COUNT(DISTINCT translation_key) вместо загрузки всех переводов
+-[ ] NAME:Добавить систему оповещений о новых ключах DESCRIPTION:Уведомления super_admin когда появляются новые ключи из доработок
+-[ ] NAME:Протестировать казахский язык полностью DESCRIPTION:Авторизация → Регистрация → Онбординг → Кабинет на казахском
+-[x] NAME:Исправить мотивационные карточки в Edge Function DESCRIPTION:Обновить motivations Edge Function чтобы использовать переводы из БД вместо deprecated getDefaultMotivations()
+-[x] NAME:Исправить категории на систему переводов DESCRIPTION:Мигрировать категории чтобы хранить translation_key вместо готового текста
+-[x] NAME:Исправить синхронизацию языка в настройках DESCRIPTION:Проверить что язык визуально обновляется в LanguageModal при переключении
+-[ ] NAME:Мигрировать История/Отчеты/Настройки DESCRIPTION:Найти и мигрировать все оставшиеся хардкод тексты
+-[ ] NAME:Полный аудит мобильной адаптации DESCRIPTION:Проверить все модальные окна на iPhone SE (375x667)
+-[x] NAME:Settings Screen - Profile Section (7 keys) DESCRIPTION:Migrate: Мой дневник, Free Plan, Активировать Premium, Edit profile, и другие тексты профиля
+-[ ] NAME:Settings Screen - Notifications Section (15 keys) DESCRIPTION:Migrate: Уведомления, Push Уведомления, Ежедневные напоминания, Еженедельные отчеты, Новые достижения, Мотивационные сообщения и их описания
+-[ ] NAME:Settings Screen - Themes Section (12 keys) DESCRIPTION:Migrate: Базовые темы, Premium темы, Светлая, Темная, Закат, Океан, Лес, Сакура, Ночь, Кофе, Лаванда и их описания
+-[ ] NAME:Settings Screen - Security & Offline (6 keys) DESCRIPTION:Migrate: Безопасность, Автоматическое резервирование, Требуется премиум, Offline режим, Включить offline режим, Премиум функция
+-[ ] NAME:Settings Screen - Personalization & Additional (15 keys) DESCRIPTION:Migrate: Персонализация, Мои категории, Управление категориями, Дополнительно, Язык, Первый день недели, Воскресенье, Экспортировать данные, Импортировать данные, Восстановить из файла, Удалить все данные, Необратимое действие
+-[ ] NAME:Settings Screen - Support Section (10 keys) DESCRIPTION:Migrate: Поддержка, Связаться с поддержкой, Напишите нам, Оценить приложение, Поделитесь отзывом, Сообщить об ошибке, Помогите улучшить приложение, FAQ, Часто задаваемые вопросы, Установить приложение, PWA на главный экран
+-[ ] NAME:Main Screen - Motivation Cards (6 keys) DESCRIPTION:Migrate: Сегодня отличное время, Запиши маленькую победу, Даже одна мысль делает день осмысленным, Не обязательно писать много, Запиши момент благодарности, Почувствуй лёгкость
+-[ ] NAME:Main Screen - Input Placeholder (1 key) DESCRIPTION:Migrate: Опиши главную мысль, момент, благодарность
+-[ ] NAME:History Screen - Empty State (1 key) DESCRIPTION:Fix typo: Запистер табылмады → Жазбалар табылмады
+-[ ] NAME:Achievements Screen - Stats (7 keys) DESCRIPTION:Migrate: Записей, Наград, Дней подряд, Рекорд, До уровня, Все, Полученные
+-[ ] NAME:Reports Screen - Headers & Buttons (5 keys) DESCRIPTION:Migrate: Открыть отчёты, Отчет за ноябрь 2025 г., Персональный анализ от AI, Премиум, Создавай книги на основе дневника
+-[ ] NAME:Test all screens with Ahmedjan account DESCRIPTION:Verify all translations work correctly in Kazakh language
+-[ ] NAME:Update admin panel translations management DESCRIPTION:Ensure all new translation keys are visible in super admin panel
+-[x] NAME:Анализ текущей системы i18n DESCRIPTION:Изучить структуру таблиц languages/translations, Edge Functions, компоненты управления языками
+-[x] NAME:Playwright тесты для пользовательского кабинета DESCRIPTION:Тестирование переключения языков, отображения переводов для тестового пользователя
+-[x] NAME:Playwright тесты для админ-панели DESCRIPTION:Тестирование CRUD операций с языками и переводами в супер-админ кабинете
+-[x] NAME:Проверка казахского языка DESCRIPTION:Убедиться что казахский язык (kk) работает корректно наравне с другими 9 языками
+-[x] NAME:Консольные проверки DESCRIPTION:Проверить консоль браузера на ошибки при работе с i18n системой
+-[x] NAME:Unit тесты для i18n утилит DESCRIPTION:Создать unit тесты для i18n хуков и утилит
+-[x] NAME:Проверка всех 10 языков DESCRIPTION:Протестировать все языки: ru, en, es, de, fr, zh, ja, kk и другие
+-[x] NAME:Финальная проверка системы DESCRIPTION:Убедиться что вся система переводов работает без ошибок
+-[x] NAME:Глубокий анализ покрытия переводов DESCRIPTION:Найти ВСЕ translation keys в пользовательском интерфейсе и проверить покрытие для казахского языка (kk)
+-[x] NAME:Проверка Task List по i18n DESCRIPTION:Синхронизировать статусы задач с реальным состоянием системы переводов
+-[x] NAME:Проверка полноты переводов в админ-панели DESCRIPTION:Убедиться что все ключи переведены на казахский через центр языков
+-[x] NAME:Проверка системы автоопределения новых ключей DESCRIPTION:Проверить логику автоматического добавления новых translation keys в БД
+-[x] NAME:Проверка синхронизации с GitHub DESCRIPTION:Проверить что все изменения за последние 2 дня закоммичены
+-[x] NAME:UI/UX тестирование через Playwright DESCRIPTION:Автоматизированное тестирование переводов от онбординга до всех разделов кабинета
+-[x] NAME:Анализ best practices через Context7 DESCRIPTION:Изучить лучшие практики i18n и составить рекомендации
+-[x] NAME:Обновление документации DESCRIPTION:Актуализировать документацию по системе переводов

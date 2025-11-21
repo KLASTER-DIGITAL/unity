@@ -24,7 +24,6 @@ import { SubscriptionsTab } from '@/features/admin/settings';
 import { CompactErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
-import { useTranslation } from '@/shared/lib/i18n';
 import type {
 	AdminDashboardProps,
 	AdminStats,
@@ -52,14 +51,12 @@ import {
 	LazySettingsTab,
 	LazyTestLab,
 	LazyUsersManagementTab,
-	useTabPreload,
 } from './tabs/LazyTabs';
 
 // Re-export types for backward compatibility
 export type { AdminDashboardProps };
 
 export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
-	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<TabId>('overview');
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [isLoadingStats, setIsLoadingStats] = useState(false);
@@ -76,10 +73,10 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	// Memoized stats loader to avoid recreation
 	const handleLoadStats = useCallback(async () => {
 		setIsLoadingStats(true);
-		const statsData = await loadAdminStats(t as any);
+		const statsData = await loadAdminStats();
 		setStats(statsData);
 		setIsLoadingStats(false);
-	}, [t]);
+	}, []);
 
 	// Load stats when super admin status changes
 	useEffect(() => {
@@ -97,8 +94,13 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 
 	// Слушаем события навигации - memoized handler
 	useEffect(() => {
-		const handleAdminNavigate = (event: any) => {
-			const { tab, subtab, pwaSubTab: pwaSubTabParam } = event.detail;
+		const handleAdminNavigate = (event: Event) => {
+			const customEvent = event as CustomEvent<{
+				tab?: string;
+				subtab?: string;
+				pwaSubTab?: string;
+			}>;
+			const { tab, subtab, pwaSubTab: pwaSubTabParam } = customEvent.detail || {};
 			if (import.meta.env.DEV) {
 				console.log('[AdminDashboard] admin-navigate event:', {
 					tab,
@@ -151,28 +153,28 @@ export function AdminDashboard({ userData, onLogout }: AdminDashboardProps) {
 	const menuItems: MenuItem[] = [
 		{
 			id: 'overview',
-			label: t('admin_overview', 'Обзор'),
+			label: 'Обзор',
 			icon: LayoutDashboard,
 		},
-		{ id: 'users', label: t('admin_users', 'Пользователи'), icon: Users },
+		{ id: 'users', label: 'Пользователи', icon: Users },
 		{
 			id: 'subscriptions',
-			label: t('admin_subscriptions', 'Подписки'),
+			label: 'Подписки',
 			icon: CreditCard,
 		},
 		{
 			id: 'ai-analytics',
-			label: t('admin_ai_analytics', 'AI Analytics'),
+			label: 'AI Analytics',
 			icon: Brain,
 		},
-		{ id: 'pwa', label: t('admin_pwa', 'PWA'), icon: Smartphone },
+		{ id: 'pwa', label: 'PWA', icon: Smartphone },
 		{ id: 'test-lab', label: 'Test Lab', icon: TestTube },
 		{
 			id: 'developer',
-			label: t('admin_developer', 'Developer Tools'),
+			label: 'Developer Tools',
 			icon: Code,
 		},
-		{ id: 'settings', label: t('admin_settings', 'Настройки'), icon: Settings },
+		{ id: 'settings', label: 'Настройки', icon: Settings },
 	];
 
 	return (

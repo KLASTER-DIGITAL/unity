@@ -150,7 +150,10 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
 					filter: `user_id=eq.${userId}`,
 				},
 				(payload) => {
-					console.log('[StatsStore] 🔔 Achievement changed, invalidating cache:', payload.eventType);
+					console.log(
+						'[StatsStore] 🔔 Achievement changed, invalidating cache:',
+						payload.eventType
+					);
 
 					// Инвалидируем кэш и перезагружаем
 					get().fetchStats(userId, true);
@@ -244,4 +247,3 @@ export function useUserStats(userId: string | undefined) {
 		subscribeToUpdates,
 	};
 }
-

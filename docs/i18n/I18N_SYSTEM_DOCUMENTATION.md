@@ -16,10 +16,9 @@
 
 ## 📖 Overview
 
-UNITY-v2 features a comprehensive internationalization (i18n) system supporting **8 languages** with advanced features including:
+UNITY-v2 features a comprehensive internationalization (i18n) system supporting **9 active languages** with advanced features including:
 
-- ✅ **8 Languages**: Russian, English, Spanish, German, French, Chinese, Japanese, Georgian
-- ✅ **RTL Support**: Arabic, Hebrew, Persian, Urdu (prepared)
+- ✅ **9 Languages**: Russian, English, Spanish, German, French, Chinese, Japanese, Kazakh, Georgian
 - ✅ **Dynamic Loading**: Lazy loading with smart caching
 - ✅ **Type Safety**: Auto-generated TypeScript types for all translation keys
 - ✅ **Pluralization**: Support for 6 plural forms across 11 languages
@@ -30,8 +29,8 @@ UNITY-v2 features a comprehensive internationalization (i18n) system supporting 
 
 ### System Stats
 
-- **Translation Keys**: 165+ keys across 12 categories
-- **Languages**: 8 active + 4 RTL prepared
+- **Translation Keys**: ~674 keys per language
+- **Languages**: 9 active languages
 - **Bundle Size**: Optimized with compression (30-50% savings)
 - **Cache Hit Rate**: 85%+ with smart caching
 - **Load Time**: ~0.5-1s initial, ~0.2-0.5s language switch

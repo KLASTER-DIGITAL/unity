@@ -32,15 +32,21 @@ import { useTranslation } from '@/shared/lib/i18n';
 ```typescript
 {
   // Core translation
-  t: (key: TranslationKey, fallback: string) => string;
+  t: (key: TranslationKey, fallback?: string) => string;
   changeLanguage: (code: LanguageCode) => Promise<void>;
   currentLanguage: LanguageCode;
   isLoading: boolean;
   isLoaded: boolean;
   error: Error | null;
+  refreshTranslations: () => Promise<void>;
+  
+  // Translation utilities
+  hasTranslation: (key: TranslationKey) => boolean;
+  getAvailableLanguages: () => LanguageCode[];
+  isLanguageLoaded: (language: LanguageCode) => boolean;
   
   // Pluralization
-  plural: (baseKey: string, count: number, forms: PluralForms) => string;
+  plural: (baseKey: string, count: number, fallback?: string) => string;
   
   // Date formatting
   formatDate: (date: Date | string | number, options?: DateFormatOptions) => string;
@@ -89,7 +95,7 @@ t('welcome.title', 'Welcome to UNITY')
 Change current language.
 
 **Parameters:**
-- `code: LanguageCode` - Language code ('ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja' | 'ka')
+- `code: LanguageCode` - Language code ('ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja' | 'kk' | 'ka')
 
 **Returns:** `Promise<void>`
 
@@ -98,23 +104,76 @@ Change current language.
 await changeLanguage('es');
 ```
 
-#### plural(baseKey, count, forms)
+#### hasTranslation(key)
 
-Get pluralized translation.
+Check if translation exists for a key.
+
+**Parameters:**
+- `key: TranslationKey` - Translation key to check
+
+**Returns:** `boolean`
+
+**Example:**
+```typescript
+if (hasTranslation('welcome.title')) {
+  // Translation exists
+}
+```
+
+#### getAvailableLanguages()
+
+Get all available language codes that are loaded in cache.
+
+**Returns:** `LanguageCode[]`
+
+**Example:**
+```typescript
+const languages = getAvailableLanguages();
+// → ['ru', 'en', 'es']
+```
+
+#### isLanguageLoaded(language)
+
+Check if a language is loaded in cache.
+
+**Parameters:**
+- `language: LanguageCode` - Language code to check
+
+**Returns:** `boolean`
+
+**Example:**
+```typescript
+if (isLanguageLoaded('kk')) {
+  // Kazakh translations are cached
+}
+```
+
+#### refreshTranslations()
+
+Refresh translations for current language (force reload from API).
+
+**Returns:** `Promise<void>`
+
+**Example:**
+```typescript
+await refreshTranslations();
+```
+
+#### plural(baseKey, count, fallback)
+
+Get pluralized translation based on count.
 
 **Parameters:**
 - `baseKey: string` - Base translation key
 - `count: number` - Count for pluralization
-- `forms: PluralForms` - Plural forms object
+- `fallback?: string` - Optional fallback text if translation not found
 
 **Returns:** `string`
 
 **Example:**
 ```typescript
-t.plural('item.count', 5, {
-  one: '1 item',
-  other: '{count} items'
-})
+t.plural('items', 1, '1 item')  // → "1 item" (en) / "1 элемент" (ru)
+t.plural('items', 5, '5 items')  // → "5 items" (en) / "5 элементов" (ru)
 ```
 
 ---
@@ -465,7 +524,7 @@ type TranslationKey =
 Union type of supported language codes.
 
 ```typescript
-type LanguageCode = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja' | 'ka';
+type LanguageCode = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'zh' | 'ja' | 'kk' | 'ka';
 ```
 
 ### TextDirection
