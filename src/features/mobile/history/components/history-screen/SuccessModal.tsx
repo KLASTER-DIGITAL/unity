@@ -1,5 +1,7 @@
+import confetti from 'canvas-confetti';
 import { CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 import { useTranslation } from '@/shared/lib/i18n';
 
 type SuccessModalProps = {
@@ -13,6 +15,24 @@ type SuccessModalProps = {
  */
 export function SuccessModal({ isOpen, message }: SuccessModalProps) {
 	const { t } = useTranslation();
+
+	// ✅ NEW: Confetti effect when modal opens
+	useEffect(() => {
+		if (isOpen) {
+			// Check if user prefers reduced motion
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			if (!prefersReducedMotion) {
+				// Launch confetti with celebration effect
+				confetti({
+					particleCount: 100,
+					spread: 70,
+					origin: { y: 0.6 },
+					colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
+				});
+			}
+		}
+	}, [isOpen]);
 
 	if (!isOpen) {
 		return null;

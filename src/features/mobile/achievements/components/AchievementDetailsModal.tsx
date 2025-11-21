@@ -1,3 +1,4 @@
+import confetti from 'canvas-confetti';
 import { AnimatePresence, motion, useSpring } from 'framer-motion';
 import { toPng } from 'html-to-image';
 import { Share2, X } from 'lucide-react';
@@ -69,6 +70,42 @@ export function AchievementDetailsModal({
 			progressSpring.set(achievement.progress);
 		}
 	}, [isOpen, achievement, progressSpring]);
+
+	// ✅ NEW: Confetti effect when opening modal for earned achievements
+	useEffect(() => {
+		if (isOpen && achievement?.earned) {
+			// Check if user prefers reduced motion
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			if (!prefersReducedMotion) {
+				// Launch confetti with celebration effect
+				confetti({
+					particleCount: 100,
+					spread: 70,
+					origin: { y: 0.6 },
+					colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
+				});
+
+				// Additional burst after a short delay
+				setTimeout(() => {
+					confetti({
+						particleCount: 50,
+						angle: 60,
+						spread: 55,
+						origin: { x: 0 },
+						colors: ['#FFD700', '#FFA500', '#FF6347'],
+					});
+					confetti({
+						particleCount: 50,
+						angle: 120,
+						spread: 55,
+						origin: { x: 1 },
+						colors: ['#00CED1', '#9370DB', '#FF6347'],
+					});
+				}, 300);
+			}
+		}
+	}, [isOpen, achievement?.earned]);
 
 	if (!achievement) return null;
 

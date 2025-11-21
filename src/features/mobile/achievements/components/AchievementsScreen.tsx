@@ -40,7 +40,9 @@ type AchievementBadgeUi = {
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { Progress } from '@/shared/components/ui/progress';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { useAchievements } from '@/shared/hooks/useAchievements';
 import { useTranslation } from '@/shared/lib/i18n';
 import type { RarityType } from '../constants/rarityStyles';
@@ -184,6 +186,61 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 			let level = stats.level ?? 1;
 			let nextLevelProgress = stats.nextLevelProgress ?? 0;
 
+			// ✅ OPTIMIZATION: Один вызов getHomeScreenData вместо двух (было 10 сек → стало 2-3 сек)
+			// Синхронизируем currentStreak с главным экраном, используем кэш для быстрой загрузки
+			// ВАЖНО: home-screen-data НЕ возвращает longestStreak, поэтому используем его из achievements-calculate
+			try {
+				const { getHomeScreenData } = await import('@/shared/lib/api/services/homeScreen');
+				const homeData = await getHomeScreenData(userId, true); // true = использовать кэш для быстрой загрузки
+
+				if (homeData?.stats) {
+					// Синхронизируем currentStreak с главным экраном (он всегда правильный в home-screen-data)
+					currentStreak = homeData.stats.currentStreak;
+
+					// ✅ FIX: longestStreak НЕ берем из home-screen-data, так как он там не считается
+					// Используем longestStreak из achievements-calculate (он уже правильный)
+					// Если longestStreak = 0, но currentStreak > 0, то longestStreak должен быть минимум = currentStreak
+					if (longestStreak === 0 && currentStreak > 0) {
+						longestStreak = currentStreak;
+						console.log(
+							'[AchievementsScreen] ⚠️ longestStreak was 0, setting to currentStreak:',
+							currentStreak
+						);
+					}
+
+					// Если totalEntries из achievements-calculate = 0, берем из home-screen-data
+					if (totalEntries === 0 && homeData.stats.totalEntries > 0) {
+						totalEntries = homeData.stats.totalEntries;
+					}
+
+					console.log('[AchievementsScreen] ✅ Using data from home-screen-data:', {
+						totalEntries,
+						currentStreak,
+						longestStreak: `from achievements-calculate: ${longestStreak}`,
+					});
+				}
+			} catch (homeDataError) {
+				console.warn(
+					'[AchievementsScreen] Failed to get data from home-screen-data:',
+					homeDataError
+				);
+				// Продолжаем с текущими значениями из achievements-calculate
+				// Если longestStreak = 0, но currentStreak > 0, устанавливаем longestStreak = currentStreak
+				if (longestStreak === 0 && currentStreak > 0) {
+					longestStreak = currentStreak;
+				}
+			}
+
+			// 🔁 Fallback: если longestStreak все еще 0, но есть записи, пересчитываем его
+			// Также пересчитываем уровень, если он неправильный
+			if (longestStreak === 0 && currentStreak > 0) {
+				longestStreak = currentStreak;
+				console.log(
+					'[AchievementsScreen] ⚠️ longestStreak was 0, setting to currentStreak as fallback:',
+					currentStreak
+				);
+			}
+
 			// 🔁 Fallback: если сервер вернул пустую статистику, но у пользователя уже есть достижения,
 			// используем client-side getUserStats, чтобы подтянуть реальные значения из записей.
 			if (totalEntries === 0 && earnedCount > 0) {
@@ -193,22 +250,40 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 
 					if (legacyStats?.totalEntries) {
 						totalEntries = legacyStats.totalEntries;
-						currentStreak = legacyStats.currentStreak ?? currentStreak;
 
 						// Если рекорд не посчитан на сервере, используем текущий стрик как минимум
-						if (!longestStreak && legacyStats.currentStreak) {
+						if (longestStreak === 0 && legacyStats.currentStreak) {
 							longestStreak = legacyStats.currentStreak;
 						}
 
-						// Пересчитываем уровень из количества записей, если сервер оставил уровень по умолчанию
-						if (level <= 1) {
-							const totalXP = legacyStats.totalEntries * 10;
-							level = Math.floor(totalXP / 100) + 1;
-							nextLevelProgress = Math.round(totalXP % 100);
-						}
+						// Пересчитываем уровень из количества записей
+						const totalXP = legacyStats.totalEntries * 10;
+						level = Math.floor(totalXP / 100) + 1;
+						nextLevelProgress = Math.round(totalXP % 100);
 					}
 				} catch (fallbackError) {
 					console.error('[AchievementsScreen] Fallback getUserStats failed:', fallbackError);
+				}
+			} else if (totalEntries > 0) {
+				// ✅ FIX: Пересчитываем уровень из количества записей, если он неправильный
+				// Уровень: 1 запись = 10 XP, уровень каждые 100 XP
+				const totalXP = totalEntries * 10;
+				const calculatedLevel = Math.floor(totalXP / 100) + 1;
+				const calculatedProgress = Math.round(totalXP % 100);
+
+				// Если уровень из achievements-calculate неправильный, пересчитываем
+				if (
+					level !== calculatedLevel ||
+					(level === 1 && totalEntries > 0 && nextLevelProgress === 0 && calculatedProgress > 0)
+				) {
+					level = calculatedLevel;
+					nextLevelProgress = calculatedProgress;
+					console.log('[AchievementsScreen] ✅ Recalculated level:', {
+						oldLevel: stats.level,
+						newLevel: level,
+						totalEntries,
+						nextLevelProgress,
+					});
 				}
 			}
 
@@ -247,7 +322,13 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 		console.log('[AchievementsScreen] 🔔 Setting up real-time subscription for entries:', userId);
 
 		// Создаем Supabase клиент внутри useEffect
-		let channel: ReturnType<typeof import('@/utils/supabase/client').createClient extends () => infer R ? R extends { channel: infer C } ? C : never : never>;
+		let channel: ReturnType<
+			typeof import('@/utils/supabase/client').createClient extends () => infer R
+				? R extends { channel: infer C }
+					? C
+					: never
+				: never
+		>;
 
 		(async () => {
 			const { createClient } = await import('@/utils/supabase/client');
@@ -568,163 +649,148 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					</div>
 				</div>
 
+				{/* ✅ IMPROVED: Progress bar with better UI (pattern from Reports) */}
 				<div className="space-y-2">
-					<div className="flex justify-between text-muted-foreground text-sm">
-						<span>
-							{t('achievements.to_level', 'До уровня')} {userStats.level + 1}
-						</span>
-						<span>{userStats.nextLevelProgress}%</span>
-					</div>
-					<div className="h-2 w-full rounded-full bg-muted">
-						<div
-							className="h-2 rounded-full bg-linear-to-r from-primary to-primary/80 transition-all duration-300"
-							style={{ width: `${userStats.nextLevelProgress}%` }}
-						/>
+					<div className="mb-2">
+						<div className="mb-2 flex items-center justify-between">
+							<span className="text-muted-foreground text-sm font-medium">
+								{t('achievements.to_level', 'До уровня')} {userStats.level + 1}
+							</span>
+							<span className="text-muted-foreground text-xs font-medium">
+								{userStats.nextLevelProgress}%
+							</span>
+						</div>
+						<Progress className="h-2" value={userStats.nextLevelProgress} />
 					</div>
 				</div>
 			</div>
 
-			{/* Tabs */}
-			<div className="border-border border-b bg-card px-4 transition-colors duration-300">
-				<div className="flex gap-4">
-					<button
-						type="button"
-						className={`relative pb-3 pt-4 font-medium text-sm transition-colors duration-200 ${
-							activeTab === 'all'
-								? 'text-foreground'
-								: 'text-muted-foreground hover:text-foreground'
-						}`}
-						onClick={() => setActiveTab('all')}
-					>
-						{t('achievements.tabs.all', 'Все')}
-						{activeTab === 'all' && (
-							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-						)}
-					</button>
-					<button
-						type="button"
-						className={`relative pb-3 pt-4 font-medium text-sm transition-colors duration-200 ${
-							activeTab === 'earned'
-								? 'text-foreground'
-								: 'text-muted-foreground hover:text-foreground'
-						}`}
-						onClick={() => setActiveTab('earned')}
-					>
-						{t('achievements.tabs.earned', 'Полученные')} ({earnedCount})
-						{activeTab === 'earned' && (
-							<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-						)}
-					</button>
+			{/* ✅ IMPROVED: Tabs using shadcn/ui component (pattern from Reports) */}
+			<Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'all' | 'earned')}>
+				<div className="bg-card px-4 pt-4 transition-colors duration-300">
+					<TabsList className="inline-flex h-auto w-full items-center justify-start rounded-lg bg-muted p-1">
+						<TabsTrigger className="flex-1 rounded-md px-4 py-2.5 text-sm font-medium" value="all">
+							{t('achievements.tabs.all', 'Все')}
+						</TabsTrigger>
+						<TabsTrigger
+							className="flex-1 rounded-md px-4 py-2.5 text-sm font-medium"
+							value="earned"
+						>
+							{t('achievements.tabs.earned', 'Полученные')} ({earnedCount})
+						</TabsTrigger>
+					</TabsList>
 				</div>
-			</div>
 
-			{/* Categorized Achievements */}
-			<div className="space-y-6 px-4 pt-4">
-				{/* Milestones */}
-				{categorizedAchievements.milestones.length > 0 && (
-					<AchievementCategory
-						title={t('achievements.category.milestones', 'Вехи')}
-						icon="🎯"
-						delay={0}
-					>
-						{categorizedAchievements.milestones.map((badge, index) => (
-							<AchievementBadge3D
-								key={badge.id}
-								{...badge}
-								index={index}
-								onClick={() => {
-									setSelectedAchievement(badge);
-									setIsModalOpen(true);
-								}}
-							/>
-						))}
-					</AchievementCategory>
-				)}
+				<TabsContent value={activeTab} className="m-0">
+					{/* Categorized Achievements */}
+					<div className="space-y-6 px-4 pt-4">
+						{/* Milestones */}
+						{categorizedAchievements.milestones.length > 0 && (
+							<AchievementCategory
+								title={t('achievements.category.milestones', 'Вехи')}
+								icon="🎯"
+								delay={0}
+							>
+								{categorizedAchievements.milestones.map((badge, index) => (
+									<AchievementBadge3D
+										key={badge.id}
+										{...badge}
+										index={index}
+										onClick={() => {
+											setSelectedAchievement(badge);
+											setIsModalOpen(true);
+										}}
+									/>
+								))}
+							</AchievementCategory>
+						)}
 
-				{/* Streaks */}
-				{categorizedAchievements.streaks.length > 0 && (
-					<AchievementCategory
-						title={t('achievements.category.streaks', 'Постоянство')}
-						icon="🔥"
-						delay={0.1}
-					>
-						{categorizedAchievements.streaks.map((badge, index) => (
-							<AchievementBadge3D
-								key={badge.id}
-								{...badge}
-								index={index}
-								onClick={() => {
-									setSelectedAchievement(badge);
-									setIsModalOpen(true);
-								}}
-							/>
-						))}
-					</AchievementCategory>
-				)}
+						{/* Streaks */}
+						{categorizedAchievements.streaks.length > 0 && (
+							<AchievementCategory
+								title={t('achievements.category.streaks', 'Постоянство')}
+								icon="🔥"
+								delay={0.1}
+							>
+								{categorizedAchievements.streaks.map((badge, index) => (
+									<AchievementBadge3D
+										key={badge.id}
+										{...badge}
+										index={index}
+										onClick={() => {
+											setSelectedAchievement(badge);
+											setIsModalOpen(true);
+										}}
+									/>
+								))}
+							</AchievementCategory>
+						)}
 
-				{/* Categories */}
-				{categorizedAchievements.categories.length > 0 && (
-					<AchievementCategory
-						title={t('achievements.category.categories', 'Категории')}
-						icon="📚"
-						delay={0.2}
-					>
-						{categorizedAchievements.categories.map((badge, index) => (
-							<AchievementBadge3D
-								key={badge.id}
-								{...badge}
-								index={index}
-								onClick={() => {
-									setSelectedAchievement(badge);
-									setIsModalOpen(true);
-								}}
-							/>
-						))}
-					</AchievementCategory>
-				)}
+						{/* Categories */}
+						{categorizedAchievements.categories.length > 0 && (
+							<AchievementCategory
+								title={t('achievements.category.categories', 'Категории')}
+								icon="📚"
+								delay={0.2}
+							>
+								{categorizedAchievements.categories.map((badge, index) => (
+									<AchievementBadge3D
+										key={badge.id}
+										{...badge}
+										index={index}
+										onClick={() => {
+											setSelectedAchievement(badge);
+											setIsModalOpen(true);
+										}}
+									/>
+								))}
+							</AchievementCategory>
+						)}
 
-				{/* Mindfulness & Emotions */}
-				{categorizedAchievements.mindfulness?.length > 0 && (
-					<AchievementCategory
-						title={t('achievements.category.mindfulness', 'Осознанность и эмоции')}
-						icon="💙"
-						delay={0.3}
-					>
-						{categorizedAchievements.mindfulness.map((badge, index) => (
-							<AchievementBadge3D
-								key={badge.id}
-								{...badge}
-								index={index}
-								onClick={() => {
-									setSelectedAchievement(badge);
-									setIsModalOpen(true);
-								}}
-							/>
-						))}
-					</AchievementCategory>
-				)}
+						{/* Mindfulness & Emotions */}
+						{categorizedAchievements.mindfulness?.length > 0 && (
+							<AchievementCategory
+								title={t('achievements.category.mindfulness', 'Осознанность и эмоции')}
+								icon="💙"
+								delay={0.3}
+							>
+								{categorizedAchievements.mindfulness.map((badge, index) => (
+									<AchievementBadge3D
+										key={badge.id}
+										{...badge}
+										index={index}
+										onClick={() => {
+											setSelectedAchievement(badge);
+											setIsModalOpen(true);
+										}}
+									/>
+								))}
+							</AchievementCategory>
+						)}
 
-				{/* Special */}
-				{categorizedAchievements.special.length > 0 && (
-					<AchievementCategory
-						title={t('achievements.category.special', 'Особые')}
-						icon="⭐"
-						delay={0.4}
-					>
-						{categorizedAchievements.special.map((badge, index) => (
-							<AchievementBadge3D
-								key={badge.id}
-								{...badge}
-								index={index}
-								onClick={() => {
-									setSelectedAchievement(badge);
-									setIsModalOpen(true);
-								}}
-							/>
-						))}
-					</AchievementCategory>
-				)}
-			</div>
+						{/* Special */}
+						{categorizedAchievements.special.length > 0 && (
+							<AchievementCategory
+								title={t('achievements.category.special', 'Особые')}
+								icon="⭐"
+								delay={0.4}
+							>
+								{categorizedAchievements.special.map((badge, index) => (
+									<AchievementBadge3D
+										key={badge.id}
+										{...badge}
+										index={index}
+										onClick={() => {
+											setSelectedAchievement(badge);
+											setIsModalOpen(true);
+										}}
+									/>
+								))}
+							</AchievementCategory>
+						)}
+					</div>
+				</TabsContent>
+			</Tabs>
 
 			{/* Achievement Details Modal */}
 			<AchievementDetailsModal

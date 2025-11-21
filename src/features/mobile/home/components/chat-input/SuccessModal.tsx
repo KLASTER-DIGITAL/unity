@@ -1,6 +1,8 @@
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 
+import confetti from 'canvas-confetti';
 import { useEffect } from 'react';
+import { useTranslation } from '@/shared/lib/i18n';
 import { AnimatedPresence, motion } from '@/shared/lib/platform/animation';
 
 type SuccessModalProps = {
@@ -26,6 +28,26 @@ export function SuccessModal({
 	onClose,
 	autoCloseDuration = 3000,
 }: SuccessModalProps) {
+	const { t } = useTranslation();
+
+	// ✅ NEW: Confetti effect when modal opens
+	useEffect(() => {
+		if (isOpen) {
+			// Check if user prefers reduced motion
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			if (!prefersReducedMotion) {
+				// Launch confetti with celebration effect
+				confetti({
+					particleCount: 100,
+					spread: 70,
+					origin: { y: 0.6 },
+					colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'],
+				});
+			}
+		}
+	}, [isOpen]);
+
 	// Автозакрытие через 3 секунды
 	useEffect(() => {
 		if (isOpen && onClose) {
