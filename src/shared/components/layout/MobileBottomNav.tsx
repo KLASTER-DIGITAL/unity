@@ -35,25 +35,7 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
 	const { t } = useTranslation();
 	const isKeyboardVisible = useKeyboardVisible();
-	const [isScrolledDown, setIsScrolledDown] = useState(false);
-
-	// Проблема 3 FIX: Корректная логика scroll detection
-	// Меню поднимается ТОЛЬКО когда близко к концу страницы
-	useEffect(() => {
-		const handleScroll = () => {
-			const scrollTop = window.scrollY;
-			const windowHeight = window.innerHeight;
-			const documentHeight = document.documentElement.scrollHeight;
-
-			// Поднимаем меню ТОЛЬКО когда близко к концу страницы (в пределах 100px от низа)
-			// НЕ поднимаем при обычном скролле вниз
-			const isNearBottom = scrollTop + windowHeight >= documentHeight - 100;
-			setIsScrolledDown(isNearBottom);
-		};
-
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, []);
+	// ✅ FIX: Убрана логика scroll detection - меню всегда фиксировано на одном месте
 
 	const tabs = [
 		{ id: 'home', label: t('home', 'Главная'), icon: Home },
@@ -71,26 +53,19 @@ export function MobileBottomNav({
 		<nav
 			className={cn(
 				// Position & Layout - FIXED позиционирование (НЕ двигается при скролле)
-				'fixed left-1/2 z-9999 -translate-x-1/2',
+				'fixed left-1/2 z-[9999] -translate-x-1/2',
 				// Width - full width для sticky, max-w-md для floating
 				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
-				// Adaptive positioning - Mobile-first + Scroll-aware
-				// ✅ ОБНОВЛЕНО: Небольшой отступ снизу (bottom-4 = 16px) вместо bottom-20 (80px)
-				stickyBottom
-					? 'bottom-0'
-					: isScrolledDown
-						? 'bottom-8' // При скролле вниз - поднимаем немного выше (32px)
-						: 'bottom-4', // По умолчанию - небольшой отступ (16px)
+				// ✅ FIX: Фиксированная позиция - меню всегда на одном месте, не меняется при скролле
+				stickyBottom ? 'bottom-0' : 'bottom-4',
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 16px для floating, none для sticky
 				stickyBottom ? 'rounded-none border-t' : 'rounded-[16px] shadow-xl',
 				// Padding
 				'px-2 py-3',
-				// Transitions - smooth transitions для всех изменений
-				'transition-all duration-300',
-				// Проблема 1: Скрытие при клавиатуре через CSS transform (НЕ Framer Motion)
-				isKeyboardVisible ? 'translate-y-full opacity-0' : 'translate-y-0 opacity-100'
+				// Transitions - только для opacity, transform управляется через style
+				'transition-opacity duration-300'
 			)}
 			style={{
 				// iOS-style blur effect
@@ -98,6 +73,16 @@ export function MobileBottomNav({
 				backdropFilter: 'blur(20px)',
 				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
 				paddingBottom: stickyBottom ? 'calc(0.75rem + env(safe-area-inset-bottom))' : '0.75rem',
+				// ✅ FIX: Оптимизация для предотвращения скачков на мобильных устройствах
+				// transform: translateZ(0) создает новый слой композиции, предотвращая рефлоу
+				// Это гарантирует что меню всегда рендерится на отдельном слое и не "скачет"
+				transform: isKeyboardVisible
+					? 'translateY(100%) translateZ(0)'
+					: 'translateY(0) translateZ(0)',
+				// will-change оптимизирует анимации (только когда клавиатура видна)
+				willChange: isKeyboardVisible ? 'transform' : 'auto',
+				// opacity для плавного скрытия/показа
+				opacity: isKeyboardVisible ? 0 : 1,
 			}}
 		>
 			<div className="flex items-center justify-around gap-1">
