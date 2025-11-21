@@ -6,9 +6,9 @@
  */
 
 import { trackInstallAccepted, trackInstallDismissed } from '@/shared/lib/analytics/pwa-tracking';
+import { signOut } from '@/shared/lib/auth';
 import { setUser } from '@/shared/lib/monitoring/lazy';
 import { markLogoAsShown } from '@/shared/utils/firstLaunch';
-import { signOut } from '@/utils/auth';
 import type { OnboardingData } from '../hooks/useAppState';
 
 type AppHandlersProps = {

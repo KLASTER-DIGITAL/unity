@@ -10,13 +10,18 @@
 @import "./styles/theme-tokens.css";
 
 /* Premium Themes (доступно только для Premium пользователей) */
+/* Светлые темы */
 @import "./styles/themes/premium-sunset.css";
 @import "./styles/themes/premium-ocean.css";
 @import "./styles/themes/premium-forest.css";
 @import "./styles/themes/premium-sakura.css";
-@import "./styles/themes/premium-night.css";
 @import "./styles/themes/premium-coffee.css";
 @import "./styles/themes/premium-lavender.css";
+/* Темные темы */
+@import "./styles/themes/premium-evening.css";
+@import "./styles/themes/premium-dusk.css";
+@import "./styles/themes/premium-midnight.css";
+@import "./styles/themes/premium-night.css";
 
 /* NEW: Theme Extensions */
 @import "./styles/theme/theme-gradients.css";

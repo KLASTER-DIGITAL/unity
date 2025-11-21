@@ -1,0 +1,55 @@
+/**
+ * Premium Theme: Dusk
+ * Темные тона заката
+ * Доступно только для Premium пользователей
+ * Работает как модификатор темной базовой темы
+ */
+
+/* Применяется только для темной базовой темы */
+.dark.theme-dusk,
+.theme-dusk {
+	/* Backgrounds */
+	--background: oklch(0.1 0.02 20); /* Очень темно-красный */
+	--foreground: oklch(0.9 0.02 10); /* Светло-красный */
+
+	/* Cards */
+	--card: oklch(0.15 0.02 20); /* Темно-красный */
+	--card-foreground: oklch(0.9 0.02 10);
+
+	/* Popovers */
+	--popover: oklch(0.15 0.02 20);
+	--popover-foreground: oklch(0.9 0.02 10);
+
+	/* Primary - Темно-красный */
+	--primary: oklch(0.45 0.15 20); /* #8b0000 */
+	--primary-foreground: oklch(1 0 0);
+
+	/* Secondary - Томатный */
+	--secondary: oklch(0.6 0.18 15); /* #ff6347 */
+	--secondary-foreground: oklch(0.1 0.02 20);
+
+	/* Muted */
+	--muted: oklch(0.2 0.02 20);
+	--muted-foreground: oklch(0.6 0.02 15);
+
+	/* Accent - Оранжево-красный */
+	--accent: oklch(0.65 0.2 25); /* #ff4500 */
+	--accent-foreground: oklch(0.1 0.02 20);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.25 0.02 20);
+	--input: oklch(0.2 0.02 20);
+	--ring: oklch(0.45 0.15 20);
+
+	/* Charts */
+	--chart-1: oklch(0.45 0.15 20); /* Темно-красный */
+	--chart-2: oklch(0.6 0.18 15); /* Томатный */
+	--chart-3: oklch(0.65 0.2 25); /* Оранжево-красный */
+	--chart-4: oklch(0.7 0.15 20); /* Светло-красный */
+	--chart-5: oklch(0.4 0.12 18); /* Очень темно-красный */
+}
+

@@ -19,13 +19,13 @@ import {
 	isAdminRoute as checkIsAdminRoute,
 	isPerformanceRoute as checkIsPerformanceRoute,
 	isTestRoute as checkIsTestRoute,
+	checkSession,
 	parseRouteParams,
 } from '@/shared/lib/auth';
 import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
 import { initBackgroundSync } from '@/shared/lib/offline';
 import { reportWebVitals } from '@/shared/lib/performance';
 import { markLogoAsShown } from '@/shared/utils/firstLaunch';
-import { checkSession } from '@/utils/auth';
 
 type UseAppInitializationProps = {
 	userData: any;
@@ -228,7 +228,7 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 					// ✅ CRITICAL: Check if super_admin trying to access PWA → redirect to admin panel
 					const params = parseRouteParams();
 					const isAdminRoute = checkIsAdminRoute(params);
-					const userRole = session.profile?.role || session.role;
+					const userRole = session.profile?.role;
 
 					if (userRole === 'super_admin' && !isAdminRoute) {
 						console.log('🔄 [App.tsx] super_admin detected on PWA, redirecting to admin panel');

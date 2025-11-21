@@ -5,7 +5,7 @@ import {
 	signInWithFacebook,
 	signInWithGoogle,
 	signUpWithEmail,
-} from '@/utils/auth';
+} from '@/shared/lib/auth';
 import type { createClient } from '@/utils/supabase/client';
 import type { UserData } from './types';
 

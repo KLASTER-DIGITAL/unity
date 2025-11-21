@@ -1,0 +1,55 @@
+/**
+ * Premium Theme: Evening
+ * Теплые вечерние тона
+ * Доступно только для Premium пользователей
+ * Работает как модификатор темной базовой темы
+ */
+
+/* Применяется только для темной базовой темы */
+.dark.theme-evening,
+.theme-evening {
+	/* Backgrounds */
+	--background: oklch(0.15 0.02 40); /* Темно-коричневый */
+	--foreground: oklch(0.9 0.01 50); /* Светло-бежевый */
+
+	/* Cards */
+	--card: oklch(0.2 0.02 40); /* Коричневый */
+	--card-foreground: oklch(0.9 0.01 50);
+
+	/* Popovers */
+	--popover: oklch(0.2 0.02 40);
+	--popover-foreground: oklch(0.9 0.01 50);
+
+	/* Primary - Коричневый вечерний */
+	--primary: oklch(0.55 0.12 40); /* #8b4513 */
+	--primary-foreground: oklch(1 0 0);
+
+	/* Secondary - Персиковый */
+	--secondary: oklch(0.65 0.1 50); /* #cd853f */
+	--secondary-foreground: oklch(0.15 0.02 40);
+
+	/* Muted */
+	--muted: oklch(0.25 0.02 40);
+	--muted-foreground: oklch(0.6 0.02 40);
+
+	/* Accent - Золотистый */
+	--accent: oklch(0.7 0.12 60); /* #daa520 */
+	--accent-foreground: oklch(0.15 0.02 40);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 25);
+	--destructive-foreground: oklch(1 0 0);
+
+	/* Borders */
+	--border: oklch(0.3 0.02 40);
+	--input: oklch(0.25 0.02 40);
+	--ring: oklch(0.55 0.12 40);
+
+	/* Charts */
+	--chart-1: oklch(0.55 0.12 40); /* Коричневый */
+	--chart-2: oklch(0.65 0.1 50); /* Персиковый */
+	--chart-3: oklch(0.7 0.12 60); /* Золотистый */
+	--chart-4: oklch(0.75 0.08 50); /* Светло-бежевый */
+	--chart-5: oklch(0.45 0.1 35); /* Темно-коричневый */
+}
+

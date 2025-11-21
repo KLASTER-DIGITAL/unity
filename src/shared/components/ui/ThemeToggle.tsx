@@ -5,9 +5,10 @@
  * React Native ready: 90%+ compatibility
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
-import { useTheme } from '../theme-provider';
+import { createClient } from '@/utils/supabase/client';
+import { useActiveBaseTheme, useTheme } from '../theme-provider';
 import { cn } from './utils';
 import './ThemeToggle.css';
 
@@ -16,30 +17,49 @@ type ThemeToggleProps = {
 };
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
-	const { theme, setTheme } = useTheme();
+	const { baseTheme, setBaseTheme, colorScheme } = useTheme();
+	const activeBaseTheme = useActiveBaseTheme();
+	const [userId, setUserId] = useState<string | null>(null);
 
-	// Determine if dark mode is active
-	const isDark = React.useMemo(() => {
-		if (theme === 'dark') {
-			return true;
-		}
-		if (theme === 'light') {
-			return false;
-		}
-		// System theme - check media query
-		if (typeof window !== 'undefined') {
-			return window.matchMedia('(prefers-color-scheme: dark)').matches;
-		}
-		return false;
-	}, [theme]);
+	// Загрузка user ID для сохранения в БД
+	useEffect(() => {
+		(async () => {
+			const supabase = createClient();
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			if (user) {
+				setUserId(user.id);
+			}
+		})();
+	}, []);
 
-	const handleToggle = () => {
-		const newTheme = isDark ? 'light' : 'dark';
-		setTheme(newTheme);
+	// Определяем, темная ли тема активна
+	const isDark = activeBaseTheme === 'dark';
 
-		// Проблема 2 FIX: Устанавливаем флаг ручного изменения темы
-		// Это предотвратит автоматическое переопределение темы в MobileView
-		storage.setItem('unity-theme-manual-override', 'true');
+	const handleToggle = async () => {
+		const newBaseTheme = isDark ? 'light' : 'dark';
+		// setBaseTheme автоматически сохраняет в localStorage
+		await setBaseTheme(newBaseTheme);
+
+		// Если текущая цветовая схема не соответствует новой базовой теме - сбрасываем
+		// (это обработается автоматически в ThemeProvider)
+
+		// Устанавливаем флаг ручного изменения темы
+		await storage.setItem('unity-theme-manual-override', 'true');
+
+		// Сохранение в базу данных для синхронизации между устройствами
+		if (userId) {
+			try {
+				const supabase = createClient();
+				// Сохраняем базовую тему (цветовая схема будет сохранена отдельно при выборе)
+				const themeValue = colorScheme ? `${newBaseTheme}-${colorScheme}` : newBaseTheme;
+				await supabase.from('profiles').update({ theme: themeValue }).eq('id', userId);
+			} catch (error) {
+				console.error('Failed to save base theme to database:', error);
+				// Не прерываем работу, если не удалось сохранить в БД
+			}
+		}
 	};
 
 	return (
