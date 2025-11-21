@@ -567,7 +567,9 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							<Brain className="h-6 w-6" strokeWidth={2} />
 						</div>
 						<div>
-							<h2 className="text-xl">{t('ai_reviews', 'AI Обзоры')}</h2>
+							<h2 className="text-lg transition-colors duration-300 sm:text-xl">
+								{t('ai_reviews', 'AI Обзоры')}
+							</h2>
 							<p className="text-muted-foreground opacity-90">
 								{t('analysis_achievements', 'Анализ твоих достижений')}
 							</p>
@@ -644,7 +646,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 						<CardContent>
 							<div className="mb-6 grid grid-cols-2 gap-4">
 								<div className="text-center">
-									<div className="mb-1 text-2xl text-(--ios-purple)">
+									<div className="mb-1 text-xl text-(--ios-purple) transition-colors duration-300 sm:text-2xl">
 										{monthlyReport.totalEntries}
 									</div>
 									<div className="text-muted-foreground text-sm">
@@ -652,7 +654,9 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 									</div>
 								</div>
 								<div className="text-center">
-									<div className="mb-1 text-2xl text-(--ios-green)">{monthlyReport.activeDays}</div>
+									<div className="mb-1 text-xl text-(--ios-green) transition-colors duration-300 sm:text-2xl">
+										{monthlyReport.activeDays}
+									</div>
 									<div className="text-muted-foreground text-sm">
 										{t('reports.stats.active_days', 'Активных дней')}
 									</div>
@@ -730,7 +734,9 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 									<div className="space-y-4">
 										{monthlyReport.moodDistribution.map((item, index) => (
 											<div className="flex items-center gap-3" key={`${item.label}-${index}`}>
-												<div className="text-2xl">{item.mood}</div>
+												<div className="text-xl transition-colors duration-300 sm:text-2xl">
+													{item.mood}
+												</div>
 												<div className="flex-1">
 													<div className="mb-1 flex justify-between">
 														<span>{item.label}</span>

@@ -21,6 +21,7 @@ interface AchievementBadge3DProps {
 	progress: number;
 	earned: boolean;
 	earnedDate?: string | null;
+	earnedText?: string; // ✅ NEW: Правильный текст для выполненных достижений
 	index: number;
 	onPress?: () => void;
 }
@@ -56,7 +57,8 @@ export function AchievementBadge3D({
 	rarity,
 	progress,
 	earned,
-	earnedDate,
+	earnedDate: _earnedDate, // ✅ REMOVED: Дата убрана из карточек (есть в модальном окне)
+	earnedText = 'Выполнено', // ✅ NEW: Правильный текст для выполненных достижений
 	index: _index, // unused but kept for API compatibility
 	onPress,
 }: AchievementBadge3DProps) {
@@ -98,7 +100,7 @@ export function AchievementBadge3D({
 			</View>
 
 			{/* Name */}
-			<Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+			<Text style={[styles.name, { color: colors.text }]} numberOfLines={2}>
 				{name}
 			</Text>
 
@@ -109,13 +111,8 @@ export function AchievementBadge3D({
 
 			{/* Status */}
 			{earned ? (
-				<View style={styles.statusContainer}>
-					<View style={[styles.badge, { backgroundColor: rarityStyle.badge }]}>
-						<Text style={[styles.badgeText, { color: rarityStyle.badgeText }]}>✅ Выполнено</Text>
-					</View>
-					{earnedDate && (
-						<Text style={[styles.earnedDate, { color: colors.mutedForeground }]}>{earnedDate}</Text>
-					)}
+				<View style={[styles.badge, { backgroundColor: rarityStyle.badge }]}>
+					<Text style={[styles.badgeText, { color: rarityStyle.badgeText }]}>✅ {earnedText}</Text>
 				</View>
 			) : (
 				<View style={styles.statusContainer}>
@@ -164,33 +161,27 @@ const styles = StyleSheet.create({
 		fontSize: 32,
 	},
 	name: {
-		fontSize: 14,
+		fontSize: 12, // ✅ FIXED: Уменьшен размер для маленьких экранов (было 14)
 		fontWeight: '600',
 		marginBottom: 4,
 		textAlign: 'center',
 	},
 	description: {
-		fontSize: 12,
+		fontSize: 10, // ✅ FIXED: Уменьшен размер для маленьких экранов (было 12)
 		marginBottom: 8,
 		textAlign: 'center',
-		lineHeight: 16,
-	},
-	statusContainer: {
-		width: '100%',
-		alignItems: 'center',
-		gap: 4,
+		lineHeight: 14, // ✅ FIXED: Уменьшен line-height (было 16)
 	},
 	badge: {
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		borderRadius: 12,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	badgeText: {
-		fontSize: 10,
+		fontSize: 10, // ✅ FIXED: Единый размер для всех платформ
 		fontWeight: '500',
-	},
-	earnedDate: {
-		fontSize: 10,
 	},
 	progressBar: {
 		width: '100%',

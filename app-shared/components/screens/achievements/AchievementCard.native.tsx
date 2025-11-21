@@ -12,6 +12,7 @@ interface Achievement {
 	earned: boolean;
 	rarity: string;
 	earnedDate?: string;
+	earnedText?: string; // ✅ NEW: Правильный текст для выполненных достижений
 	progress?: number;
 }
 
@@ -107,29 +108,39 @@ export function AchievementCard({ achievement, index = 0 }: AchievementCardProps
 
 					{/* Footer */}
 					<View style={styles.footer}>
-						<View
-							style={[
-								styles.rarityBadge,
-								{
-									backgroundColor: rarityColor.bg,
-									borderColor: rarityColor.border,
-								},
-							]}
-						>
-							<Text style={[styles.rarityText, { color: rarityColor.text }]}>{rarityLabel}</Text>
-						</View>
-
-						{achievement.earned && achievement.earnedDate && (
-							<Text style={styles.earnedDate}>
-								{new Date(achievement.earnedDate).toLocaleDateString('ru-RU', {
-									day: 'numeric',
-									month: 'short',
-								})}
-							</Text>
-						)}
-
-						{!achievement.earned && achievement.progress !== undefined && (
-							<Text style={styles.progress}>{Math.round(achievement.progress)}%</Text>
+						{achievement.earned ? (
+							<View
+								style={[
+									styles.earnedBadge,
+									{
+										backgroundColor: rarityColor.bg || '#f3f4f6',
+										borderColor: rarityColor.border,
+									},
+								]}
+							>
+								<Text style={[styles.earnedText, { color: rarityColor.text }]}>
+									✅ {achievement.earnedText || 'Выполнено'}
+								</Text>
+							</View>
+						) : (
+							<>
+								<View
+									style={[
+										styles.rarityBadge,
+										{
+											backgroundColor: rarityColor.bg,
+											borderColor: rarityColor.border,
+										},
+									]}
+								>
+									<Text style={[styles.rarityText, { color: rarityColor.text }]}>
+										{rarityLabel}
+									</Text>
+								</View>
+								{achievement.progress !== undefined && (
+									<Text style={styles.progress}>{Math.round(achievement.progress)}%</Text>
+								)}
+							</>
 						)}
 					</View>
 				</View>
@@ -207,9 +218,14 @@ const styles = StyleSheet.create({
 		fontSize: DesignTokens.fontSizes.caption,
 		fontWeight: DesignTokens.fontWeights.medium,
 	},
-	earnedDate: {
+	earnedBadge: {
+		paddingHorizontal: DesignTokens.spacing.sm,
+		paddingVertical: DesignTokens.spacing.xs,
+		borderRadius: DesignTokens.borderRadius.md,
+		borderWidth: 1,
+	},
+	earnedText: {
 		fontSize: DesignTokens.fontSizes.caption,
-		color: DesignTokens.colors.success,
 		fontWeight: DesignTokens.fontWeights.medium,
 	},
 	progress: {

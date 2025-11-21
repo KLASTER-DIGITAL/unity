@@ -90,17 +90,37 @@ export default function AchievementsScreen() {
 	};
 
 	// ✅ NEW: Преобразовать достижения из БД в формат для UI с иконками
-	const formattedAchievements = useMemo(
-		() =>
-			achievements.map((achievement) => ({
-				...achievement,
-				icon: iconMap[achievement.icon] || '⭐', // Fallback to star if icon not found
-				earnedDate: achievement.earnedAt
-					? new Date(achievement.earnedAt).toLocaleDateString('ru-RU')
-					: undefined,
-			})),
-		[achievements]
-	);
+	// ✅ FIX: Добавляем earnedText для правильного отображения текста выполненных достижений
+	const formattedAchievements = useMemo(() => {
+		// Простая функция для определения earnedText (без i18n для React Native пока)
+		const getEarnedTextSimple = (achievementId: string): string => {
+			if (
+				achievementId.startsWith('entries_') ||
+				achievementId === 'first_entry' ||
+				achievementId.startsWith('category_')
+			) {
+				return 'Вы создали';
+			}
+			if (
+				achievementId.startsWith('streak_') ||
+				achievementId.includes('mood') ||
+				achievementId.includes('sentiment')
+			) {
+				return 'Вы выполнили';
+			}
+			if (achievementId.startsWith('achievements_')) {
+				return 'Вы отметили';
+			}
+			return 'Выполнено';
+		};
+
+		return achievements.map((achievement) => ({
+			...achievement,
+			icon: iconMap[achievement.icon] || '⭐', // Fallback to star if icon not found
+			earnedText: achievement.isEarned ? getEarnedTextSimple(achievement.id) : undefined,
+			// ✅ REMOVED: earnedDate убрана из карточек (есть в модальном окне)
+		}));
+	}, [achievements]);
 
 	// ✅ NEW: Категоризация достижений (как в PWA версии)
 	const categorizedAchievements = useMemo(() => {

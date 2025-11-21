@@ -46,6 +46,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui
 import { useAchievements } from '@/shared/hooks/useAchievements';
 import { useTranslation } from '@/shared/lib/i18n';
 import type { RarityType } from '../constants/rarityStyles';
+import { getEarnedText } from '../utils/getEarnedText';
 import { AchievementBadge3D } from './AchievementBadge3D';
 import { AchievementCategory } from './AchievementCategory';
 import { AchievementDetailsModal } from './AchievementDetailsModal';
@@ -463,6 +464,9 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					}
 				}
 
+				// ✅ NEW: Определяем правильный текст для выполненных достижений
+				const earnedText = getEarnedText(achievement.id, t);
+
 				return {
 					id: achievement.id,
 					name: translatedName,
@@ -471,6 +475,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					earned: achievement.isEarned, // ✅ NEW: используем isEarned из БД
 					rarity: achievement.rarity, // ✅ NEW: rarity из БД (common/rare/epic/legendary)
 					earnedDate: formattedDate,
+					earnedText, // ✅ NEW: Правильный текст для выполненных достижений
 					progress: achievement.progress || 0, // ✅ NEW: прогресс 0-100 из БД (default 0)
 				};
 			}),
@@ -608,42 +613,44 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 					<div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-muted shadow-lg transition-colors duration-300">
 						<Crown className="h-10 w-10 text-foreground transition-colors duration-300" />
 					</div>
-					<h1 className="mb-1 font-semibold text-2xl text-foreground">
+					<h1 className="mb-1 font-semibold text-xl text-foreground transition-colors duration-300 sm:text-2xl">
 						{t('level', 'Уровень')} {userStats.level}
 					</h1>
-					<p className="text-muted-foreground">{t('achievement_master', 'Мастер достижений')}</p>
+					<p className="text-muted-foreground text-sm transition-colors duration-300 sm:text-base">
+						{t('achievement_master', 'Мастер достижений')}
+					</p>
 				</div>
 
-				<div className="mb-6 grid grid-cols-4 gap-4">
+				<div className="mb-6 grid grid-cols-4 gap-2 transition-colors duration-300 sm:gap-4">
 					<div className="text-center">
-						<div className="mb-1 font-semibold text-2xl text-foreground">
+						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.totalEntries}
 						</div>
-						<div className="text-muted-foreground text-sm">
+						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.entries', 'Записей')}
 						</div>
 					</div>
 					<div className="text-center">
-						<div className="mb-1 font-semibold text-2xl text-foreground">
+						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.totalBadges}
 						</div>
-						<div className="text-muted-foreground text-sm">
+						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.badges', 'Наград')}
 						</div>
 					</div>
 					<div className="text-center">
-						<div className="mb-1 font-semibold text-2xl text-foreground">
+						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.currentStreak}
 						</div>
-						<div className="text-muted-foreground text-sm">
+						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.days_streak', 'Дней подряд')}
 						</div>
 					</div>
 					<div className="text-center">
-						<div className="mb-1 font-semibold text-2xl text-foreground">
+						<div className="mb-1 font-semibold text-lg text-foreground transition-colors duration-300 sm:text-2xl">
 							{userStats.longestStreak}
 						</div>
-						<div className="text-muted-foreground text-sm">
+						<div className="text-muted-foreground text-[10px] transition-colors duration-300 sm:text-sm">
 							{t('achievements.stats.record', 'Рекорд')}
 						</div>
 					</div>

@@ -210,7 +210,9 @@ export function MotivationCardsSection({
 				<div className="relative mb-responsive-md min-h-[280px] w-full">
 					<div className="rounded-[36px] border border-border bg-card p-8 text-center">
 						<div className="mb-4 text-6xl">🎉</div>
-						<h3 className="mb-2 font-semibold text-xl">Все прочитано!</h3>
+						<h3 className="mb-2 font-semibold text-lg transition-colors duration-300 sm:text-xl">
+							Все прочитано!
+						</h3>
 						<p className="text-muted-foreground">Новые карточки появятся завтра</p>
 					</div>
 				</div>

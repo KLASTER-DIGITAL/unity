@@ -14,6 +14,7 @@ interface AchievementBadge3DProps {
 	progress: number;
 	earned: boolean;
 	earnedDate?: string | null;
+	earnedText?: string; // ✅ NEW: Правильный текст для выполненных достижений
 	index: number;
 	onClick?: () => void;
 }
@@ -25,7 +26,8 @@ export function AchievementBadge3D({
 	rarity,
 	progress,
 	earned,
-	earnedDate,
+	earnedDate: _earnedDate, // ✅ REMOVED: Дата убрана из карточек (есть в модальном окне)
+	earnedText = 'Выполнено', // ✅ NEW: Правильный текст для выполненных достижений
 	index,
 	onClick,
 }: AchievementBadge3DProps) {
@@ -105,28 +107,21 @@ export function AchievementBadge3D({
 						</motion.div>
 					</div>
 
-					<h4 className="mb-1 font-semibold text-foreground text-sm transition-colors duration-300">
+					<h4 className="mb-1 line-clamp-2 font-semibold text-foreground text-xs transition-colors duration-300 sm:text-sm">
 						{name}
 					</h4>
-					<p className="mb-2 text-muted-foreground text-sm leading-tight transition-colors duration-300">
+					<p className="mb-2 line-clamp-2 text-muted-foreground text-[11px] leading-tight transition-colors duration-300 sm:text-xs">
 						{description}
 					</p>
 
 					{earned ? (
-						<div className="space-y-1">
-							<Badge
-								className={`text-xs transition-colors duration-300 ${
-									RARITY_STYLES[rarity]?.badge || RARITY_STYLES.common.badge
-								}`}
-							>
-								✅ Выполнено
-							</Badge>
-							{earnedDate && (
-								<p className="text-muted-foreground text-[10px] transition-colors duration-300">
-									{earnedDate}
-								</p>
-							)}
-						</div>
+						<Badge
+							className={`text-[10px] transition-colors duration-300 sm:text-xs ${
+								RARITY_STYLES[rarity]?.badge || RARITY_STYLES.common.badge
+							}`}
+						>
+							✅ {earnedText}
+						</Badge>
 					) : (
 						<div className="space-y-1">
 							<div className="h-2 w-full rounded-full bg-muted transition-colors duration-300">
