@@ -39,7 +39,7 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [language.code]);
 
 	useEffect(() => {
 		loadData();

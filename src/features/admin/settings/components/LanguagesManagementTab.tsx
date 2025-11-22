@@ -476,6 +476,7 @@ export function LanguagesManagementTab({
 								<CardDescription>Языки, которые не отображаются пользователям</CardDescription>
 							</CardHeader>
 							<CardContent>
+								// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy languages rendering
 								<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 									{inactiveLanguages.map((language) => (
 										<Card

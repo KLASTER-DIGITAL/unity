@@ -9,7 +9,7 @@ interface AchievementBadge3DProps {
 	id: string;
 	name: string;
 	description: string;
-	icon: any;
+	icon: React.ReactNode;
 	rarity: RarityType;
 	progress: number;
 	earned: boolean;
@@ -19,6 +19,7 @@ interface AchievementBadge3DProps {
 	onClick?: () => void;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: visual component with many branches
 export function AchievementBadge3D({
 	name,
 	description,

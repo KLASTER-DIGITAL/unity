@@ -41,10 +41,10 @@ export function MissingTab({ missingKeys, languages }: MissingTabProps) {
 						</div>
 					) : (
 						<div className="max-h-[600px] space-y-3 overflow-y-auto">
-							{missingKeys.map((missing, index) => (
+							{missingKeys.map((missing) => (
 								<div
 									className="rounded-lg border border-destructive/20 bg-destructive/5 p-4"
-									key={index}
+									key={missing}
 								>
 									<div className="mb-2 flex items-start justify-between">
 										<div className="font-medium font-mono text-sm">{missing.key}</div>

@@ -27,8 +27,13 @@ const corsMiddleware = cors({
 });
 
 // Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+	throw new Error('[TRANSCRIPTION-API] Missing Supabase configuration');
+}
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Get OpenAI API key
@@ -53,7 +58,17 @@ async function getOpenAIKey(headerKey?: string | null): Promise<string | null> {
 }
 
 // Log OpenAI usage
-async function logOpenAIUsage(userId: string, operationType: string, model: string, usage: any) {
+type WhisperUsage = {
+	total_tokens?: number;
+	duration_seconds?: number;
+};
+
+async function logOpenAIUsage(
+	userId: string,
+	operationType: string,
+	model: string,
+	usage: WhisperUsage
+) {
 	try {
 		const totalTokens = usage.total_tokens || 0;
 		const estimatedCost = (totalTokens / 60) * 0.006; // Whisper: $0.006/minute
@@ -158,13 +173,15 @@ app.post('/transcribe', async (c) => {
 			text: transcribedText,
 			language: result.language || language,
 		});
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error';
 		console.error('[TRANSCRIPTION-API] Error:', error);
-		return c.json({ success: false, error: `Failed to transcribe: ${error.message}` }, 500);
+		return c.json({ success: false, error: `Failed to transcribe: ${message}` }, 500);
 	}
 });
 
 // Batch transcription
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Handler aggregates control flow branches for request/response
 app.post('/transcribe/batch', async (c) => {
 	try {
 		const { audios, userId, language = 'ru' } = await c.req.json();
@@ -228,8 +245,9 @@ app.post('/transcribe/batch', async (c) => {
 					text: result.text,
 					language: result.language || language,
 				});
-			} catch (error: any) {
-				results.push({ index: i, success: false, error: error.message });
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Unknown error';
+				results.push({ index: i, success: false, error: message });
 			}
 		}
 
@@ -245,9 +263,10 @@ app.post('/transcribe/batch', async (c) => {
 			failed: audios.length - successCount,
 			results,
 		});
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error';
 		console.error('[TRANSCRIPTION-API] Batch error:', error);
-		return c.json({ success: false, error: `Failed to batch transcribe: ${error.message}` }, 500);
+		return c.json({ success: false, error: `Failed to batch transcribe: ${message}` }, 500);
 	}
 });
 

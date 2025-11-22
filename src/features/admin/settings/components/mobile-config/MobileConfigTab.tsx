@@ -1,6 +1,6 @@
 import { Image, Languages, Lock, RefreshCw, Save, Smartphone, Users } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { toast } from '@/shared/components/ui/universal/Toast';
@@ -19,7 +19,7 @@ export const MobileConfigTab: React.FC = () => {
 	const [saving, setSaving] = useState(false);
 
 	// Загрузка настроек
-	const loadSettings = async () => {
+	const loadSettings = useCallback(async () => {
 		try {
 			setLoading(true);
 			const { data, error } = await supabase.from('mobile_settings').select('*').single();
@@ -36,7 +36,7 @@ export const MobileConfigTab: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	// Сохранение настроек
 	const saveSettings = async () => {
@@ -89,8 +89,7 @@ export const MobileConfigTab: React.FC = () => {
 
 	useEffect(() => {
 		loadSettings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Загружаем настройки только при монтировании компонента
+	}, [loadSettings]);
 
 	const tabs = [
 		{ value: 'general', label: 'Общие', icon: Smartphone },

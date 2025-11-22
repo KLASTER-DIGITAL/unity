@@ -83,6 +83,7 @@ async function sendTrialExpiryReminder(userId: string, daysLeft: number): Promis
 /**
  * Main handler
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Handler performs multi-branch validation and notifications
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {

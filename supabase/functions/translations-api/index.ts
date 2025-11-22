@@ -325,8 +325,7 @@ Deno.serve(async (req) => {
 			case 'health': {
 				if (req.method === 'GET') {
 					// Simple health check
-					const { data, error } = await supabaseClient.from('languages').select('count').limit(1);
-
+					const { error } = await supabaseClient.from('languages').select('count').limit(1);
 					if (error) throw error;
 
 					return new Response(
@@ -356,9 +355,10 @@ Deno.serve(async (req) => {
 			status: 405,
 			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error';
 		console.error('Edge Function error:', error);
-		return new Response(JSON.stringify({ error: error.message }), {
+		return new Response(JSON.stringify({ error: message }), {
 			status: 500,
 			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
