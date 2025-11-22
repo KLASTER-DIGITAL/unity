@@ -38,7 +38,8 @@ export function NotificationOption({
 
 		const time = type === 'morning' ? morningTime : eveningTime;
 		return (
-			<div
+			<button
+				type="button"
 				className="flex cursor-pointer items-center space-x-1 rounded-md px-2 py-1 transition-colors hover:bg-muted"
 				onClick={(e) => {
 					e.stopPropagation();
@@ -50,12 +51,10 @@ export function NotificationOption({
 						onTimeClick?.(type);
 					}
 				}}
-				role="button"
-				tabIndex={0}
 			>
 				<Clock className="h-3 w-3 text-[#756ef3]" />
 				<span className="!text-[#756ef3] font-medium! text-[13px]!">({time})</span>
-			</div>
+			</button>
 		);
 	};
 

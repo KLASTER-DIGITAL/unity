@@ -77,6 +77,7 @@ export function EntryCard({ entry, index, onOpenActions }: EntryCardProps) {
 				</div>
 
 				<button
+					type="button"
 					className="rounded-[6px] p-1 transition-colors hover:bg-accent/10"
 					onClick={() => onOpenActions(entry)}
 				>

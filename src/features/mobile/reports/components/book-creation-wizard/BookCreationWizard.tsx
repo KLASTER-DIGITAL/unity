@@ -66,6 +66,15 @@ export function BookCreationWizard({
 		layout: '' as any,
 	});
 
+	// Auto-skip Step0 for Premium users
+	useEffect(() => {
+		if (isPremium && currentStep === 0 && config.planType !== 'premium') {
+			// Auto-select premium and move to step 1
+			setConfig((prev) => ({ ...prev, planType: 'premium' }));
+			setCurrentStep(1);
+		}
+	}, [isPremium, currentStep, config.planType]);
+
 	// Get user ID and profile from session
 	useEffect(() => {
 		const getUserData = async () => {

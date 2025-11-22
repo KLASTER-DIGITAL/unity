@@ -103,6 +103,7 @@ export function EditEntryModal({
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="font-semibold! text-[18px]! text-foreground">Редактировать запись</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10 disabled:opacity-50"
 						disabled={isSaving}
 						onClick={() => !isSaving && onClose()}
@@ -114,10 +115,14 @@ export function EditEntryModal({
 				<div className="space-y-4">
 					{/* Text Input */}
 					<div>
-						<label className="mb-2 block font-medium! text-[13px]! text-muted-foreground">
+						<label
+							className="mb-2 block font-medium! text-[13px]! text-muted-foreground"
+							htmlFor="edit-entry-text"
+						>
 							{t('entry_text', 'Текст записи')}
 						</label>
 						<textarea
+							id="edit-entry-text"
 							className="w-full resize-none rounded-[12px] border border-border bg-muted px-4 py-3 text-[15px]! text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent disabled:opacity-50"
 							disabled={isSaving}
 							onChange={(e) => onTextChange(e.target.value)}
@@ -129,7 +134,10 @@ export function EditEntryModal({
 
 					{/* Media Section */}
 					<div>
-						<label className="mb-2 block font-medium! text-[13px]! text-muted-foreground">
+						<label
+							className="mb-2 block font-medium! text-[13px]! text-muted-foreground"
+							htmlFor="edit-entry-photo"
+						>
 							Фото
 						</label>
 
@@ -172,10 +180,14 @@ export function EditEntryModal({
 
 					{/* Category Select */}
 					<div>
-						<label className="mb-2 block font-medium! text-[13px]! text-muted-foreground">
+						<label
+							className="mb-2 block font-medium! text-[13px]! text-muted-foreground"
+							htmlFor="edit-entry-category"
+						>
 							Категория
 						</label>
 						<select
+							id="edit-entry-category"
 							className="w-full rounded-[12px] border border-border bg-muted px-4 py-3 text-[15px]! text-foreground outline-none transition-colors focus:border-accent disabled:opacity-50"
 							disabled={isSaving}
 							onChange={(e) => onCategoryChange(e.target.value)}
@@ -192,6 +204,7 @@ export function EditEntryModal({
 					{/* Action Buttons */}
 					<div className="flex gap-3 pt-2">
 						<button
+							type="button"
 							className="flex-1 rounded-[12px] bg-muted px-4 py-3 font-medium! text-[15px]! text-foreground transition-colors hover:bg-muted/80 disabled:opacity-50"
 							disabled={isSaving}
 							onClick={() => !isSaving && onClose()}
@@ -199,6 +212,7 @@ export function EditEntryModal({
 							{t('history.edit.cancel', 'Отмена')}
 						</button>
 						<button
+							type="button"
 							className="flex flex-1 items-center justify-center gap-2 rounded-[12px] bg-accent px-4 py-3 font-medium! text-[15px]! text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
 							disabled={isSaving || !editText.trim()}
 							onClick={onSave}

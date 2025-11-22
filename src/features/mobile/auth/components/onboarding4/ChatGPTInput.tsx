@@ -107,11 +107,12 @@ export function ChatGPTInput({
 			animate={{ opacity: 1, scale: 1 }}
 			className="relative w-full rounded-xl border-2 border-border bg-card transition-all duration-300 focus-within:border-[#756ef3] focus-within:shadow-[0_4px_20px_rgba(117,110,243,0.2)]"
 			initial={{ opacity: 0, scale: 0.95 }}
-			transition={{ duration: 0.3 } as any}
+			transition={{ duration: 0.3 }}
 		>
 			<div className="flex items-start gap-2 p-3">
 				{/* Microphone Button */}
 				<button
+					type="button"
 					className={`mt-0 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200 active:scale-95 ${
 						isListening
 							? 'animate-pulse bg-red-100 text-red-600'
@@ -122,6 +123,7 @@ export function ChatGPTInput({
 				>
 					<div className="h-4 w-4">
 						<img
+							alt="Microphone"
 							className="h-full w-full"
 							src={imgMicrophone}
 							style={{
@@ -156,6 +158,7 @@ export function ChatGPTInput({
 
 				{/* Send Button */}
 				<button
+					type="button"
 					className={`mt-0 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200 active:scale-95 ${
 						value.trim() && !disabled
 							? 'bg-primary text-white hover:bg-primary/90'
@@ -166,6 +169,7 @@ export function ChatGPTInput({
 				>
 					<div className="h-4 w-4">
 						<img
+							alt="Send message"
 							className="h-full w-full"
 							src={imgPaperPlaneRight}
 							style={{
