@@ -19,11 +19,11 @@ export function OverviewTabSkeleton() {
 
 			{/* Stats Cards - 4 columns */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 xl:grid-cols-4">
-				{[...Array(4)].map((_, i) => (
-					<div
-						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-						key={`overview-stat-${i}`}
-					>
+					{['stat-a', 'stat-b', 'stat-c', 'stat-d'].map((key) => (
+						<div
+							className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
+							key={key}
+						>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
 								<Skeleton className="h-4 w-32" />
@@ -38,11 +38,11 @@ export function OverviewTabSkeleton() {
 
 			{/* Additional Stats - 2 columns */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
-				{[...Array(2)].map((_, i) => (
-					<div
-						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-						key={`overview-stat-${i}`}
-					>
+					{['stat-e', 'stat-f'].map((key) => (
+						<div
+							className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
+							key={key}
+						>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
 								<Skeleton className="h-4 w-32" />
@@ -59,8 +59,8 @@ export function OverviewTabSkeleton() {
 			<div className="rounded-lg border border-border bg-card p-6 transition-colors duration-300">
 				<Skeleton className="mb-4 h-6 w-40" />
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-					{[...Array(4)].map((_, i) => (
-						<Skeleton className="h-24 w-full rounded-md" key={`overview-stat-${i}`} />
+					{['stat-g', 'stat-h', 'stat-i', 'stat-j'].map((key) => (
+						<Skeleton className="h-24 w-full rounded-md" key={key} />
 					))}
 				</div>
 			</div>
@@ -69,8 +69,8 @@ export function OverviewTabSkeleton() {
 			<div className="rounded-lg border border-border bg-card p-6 transition-colors duration-300">
 				<Skeleton className="mb-4 h-6 w-40" />
 				<div className="space-y-3">
-					{[...Array(3)].map((_, i) => (
-						<div className="flex items-center justify-between" key={`overview-stat-${i}`}>
+					{['stat-k', 'stat-l', 'stat-m'].map((key) => (
+						<div className="flex items-center justify-between" key={key}>
 							<div className="flex items-center gap-3">
 								<Skeleton className="h-10 w-10 rounded-full" />
 								<div className="space-y-2">

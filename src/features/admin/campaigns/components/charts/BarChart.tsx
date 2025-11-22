@@ -7,8 +7,8 @@
 import {
 	BarElement,
 	CategoryScale,
-	type ChartData,
 	Chart as ChartJS,
+	type ChartData,
 	type ChartOptions,
 	Legend,
 	LinearScale,

@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
  */
 
 export type AdminDashboardProps = {
-	userData?: any;
+	userData?: unknown;
 	onLogout: () => void;
 };
 
@@ -40,7 +40,7 @@ export type MenuItem = {
 export type SidebarProps = {
 	menuItems: MenuItem[];
 	activeTab: TabId;
-	userData?: any;
+	userData?: unknown;
 	onTabChange: (tab: TabId) => void;
 	onLogout: () => void;
 };

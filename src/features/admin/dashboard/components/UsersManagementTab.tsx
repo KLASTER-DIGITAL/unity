@@ -29,7 +29,18 @@ import { logUserAction } from '@/shared/lib/api/services/auditLog';
 import { createClient } from '@/utils/supabase/client';
 
 export function UsersManagementTab() {
-	const [users, setUsers] = useState<any[]>([]);
+	type UserRow = {
+		id: string;
+		name: string | null;
+		email: string | null;
+		status: string;
+		registeredAt: string | null;
+		lastActive: string | null;
+		entriesCount: number | null;
+		streak: number;
+	};
+
+	const [users, setUsers] = useState<UserRow[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'premium' | 'blocked'>('all');
 	const [isLoading, setIsLoading] = useState(false);
@@ -69,16 +80,27 @@ export function UsersManagementTab() {
 			const result = await response.json();
 
 			// Преобразуем данные к нужному формату
-			const formattedUsers = result.users.map((user: any) => ({
-				id: user.id,
-				name: user.name,
-				email: user.email,
-				status: user.isPremium ? 'premium' : 'active',
-				registeredAt: user.createdAt,
-				lastActive: user.lastActivity,
-				entriesCount: user.entriesCount,
-				streak: user.currentStreak || 0, // ✅ FIXED: Use currentStreak from API
-			}));
+			const formattedUsers: UserRow[] = result.users.map(
+				(user: {
+					id: string;
+					name: string | null;
+					email: string | null;
+					isPremium?: boolean;
+					createdAt: string | null;
+					lastActivity: string | null;
+					entriesCount: number | null;
+					currentStreak?: number;
+				}) => ({
+					id: user.id,
+					name: user.name,
+					email: user.email,
+					status: user.isPremium ? 'premium' : 'active',
+					registeredAt: user.createdAt,
+					lastActive: user.lastActivity,
+					entriesCount: user.entriesCount,
+					streak: user.currentStreak || 0, // ✅ FIXED: Use currentStreak from API
+				})
+			);
 
 			setUsers(formattedUsers);
 			setTotalPages(Math.ceil(result.total / 50));

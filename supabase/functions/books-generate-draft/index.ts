@@ -47,6 +47,16 @@ function replacePlaceholders(template: string, vars: Record<string, string>): st
 
 // Removed unused getOpenAIKey function - OpenAI key is fetched inline in the main handler
 
+// ✅ P2: Content Hash для агрессивного кэширования
+async function generateContentHash(data: any): Promise<string> {
+	const jsonString = JSON.stringify(data);
+	const encoder = new TextEncoder();
+	const data_encoded = encoder.encode(jsonString);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', data_encoded);
+	const hashArray = Array.from(new Uint8Array(hashBuffer));
+	return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -145,48 +155,41 @@ Deno.serve(async (req) => {
 		console.log('[BOOKS-DRAFT] Plan type:', finalPlanType);
 		console.log('[BOOKS-DRAFT] Book type:', type);
 
-		// ✅ CHECK FOR EXISTING DRAFT (AI Optimization - save tokens!)
-		if (!regenerate) {
-			const { data: existingDraft } = await supabaseAdmin
-				.from('books_archive')
+		// ✅ P2: PARALLEL GENERATION - fetch all data in parallel
+		const [summariesResult, entriesResult, snapshotResult] = await Promise.all([
+			// Summaries
+			supabaseAdmin
+				.from('entry_summaries')
+				.select('entry_id, summary_json')
+				.eq('user_id', userId)
+				.gte('created_at', periodStart)
+				.lte('created_at', periodEnd)
+				.order('created_at', { ascending: true }),
+			
+			// Entries (needed for photos and achievements)
+			supabaseAdmin
+				.from('entries')
+				.select(
+					'id, text, sentiment, category, tags, mood, ai_summary, ai_insight, is_achievement, created_at, media'
+				)
+				.eq('user_id', userId)
+				.gte('created_at', periodStart)
+				.lte('created_at', periodEnd)
+				.order('created_at', { ascending: true }),
+			
+			// Snapshot
+			supabaseAdmin
+				.from('monthly_snapshots')
 				.select('*')
 				.eq('user_id', userId)
 				.eq('period_start', periodStart)
 				.eq('period_end', periodEnd)
-				.eq('style', style)
-				.eq('is_draft', true)
-				.order('created_at', { ascending: false })
-				.limit(1)
-				.single();
+				.single(),
+		]);
 
-			if (existingDraft?.story_json) {
-				console.log('[BOOKS-DRAFT] ✅ Using cached story_json (AI tokens saved!)');
-				return new Response(
-					JSON.stringify({
-						success: true,
-						draftId: existingDraft.id,
-						storyJson: existingDraft.story_json,
-						cached: true, // ✅ Flag that this is cached
-						estimatedPages: Math.ceil(existingDraft.metadata?.entriesCount || 0 / 10),
-					}),
-					{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-				);
-			}
-
-			console.log('[BOOKS-DRAFT] No cached draft found, generating new...');
-		} else {
-			console.log('[BOOKS-DRAFT] Regenerate flag set, generating new draft...');
-		}
-
-		// ✅ NEW: Try to use entry_summaries first (90% token savings!)
-		// Note: summaries use summary_json JSONB column
-		const { data: summaries } = await supabaseAdmin
-			.from('entry_summaries')
-			.select('entry_id, summary_json')
-			.eq('user_id', userId)
-			.gte('created_at', periodStart)
-			.lte('created_at', periodEnd)
-			.order('created_at', { ascending: true });
+		const { data: summaries } = summariesResult;
+		const { data: entries, error: entriesError } = entriesResult;
+		const { data: snapshot } = snapshotResult;
 
 		// Fallback to entries if no summaries exist
 		const useSummaries = summaries && summaries.length > 0;
@@ -196,17 +199,10 @@ Deno.serve(async (req) => {
 		} else {
 			console.log('[BOOKS-DRAFT] ⚠️ No summaries found, using raw entries (expensive)');
 		}
-
-		// Fetch entries for the period (still needed for photos and achievements)
-		const { data: entries, error: entriesError } = await supabaseAdmin
-			.from('entries')
-			.select(
-				'id, text, sentiment, category, tags, mood, ai_summary, ai_insight, is_achievement, created_at, media'
-			)
-			.eq('user_id', userId)
-			.gte('created_at', periodStart)
-			.lte('created_at', periodEnd)
-			.order('created_at', { ascending: true });
+		
+		if (snapshot) {
+			console.log('[BOOKS-DRAFT] ✅ Using snapshot for period context');
+		}
 
 		if (entriesError) {
 			console.error('[BOOKS-DRAFT] Error fetching entries:', entriesError);
@@ -223,6 +219,8 @@ Deno.serve(async (req) => {
 			);
 		}
 
+		console.log('[BOOKS-DRAFT] Found', entries.length, 'entries');
+
 		// Collect photos from entries
 		const photosFromEntries = entries.flatMap((entry) => {
 			if (!entry.media || !Array.isArray(entry.media)) return [];
@@ -235,8 +233,6 @@ Deno.serve(async (req) => {
 				}));
 		});
 		console.log('[BOOKS-DRAFT] Found', photosFromEntries.length, 'photos in entries');
-
-		console.log('[BOOKS-DRAFT] Found', entries.length, 'entries');
 
 		// Filter by contexts if specified
 		let filteredEntries = entries;
@@ -260,19 +256,6 @@ Deno.serve(async (req) => {
 			ka: 'ka-GE',
 		};
 		const locale = localeMap[userLanguage] || `${userLanguage}-${userLanguage.toUpperCase()}`;
-
-		// ✅ NEW: Load snapshot if exists (context for AI)
-		const { data: snapshot } = await supabaseAdmin
-			.from('monthly_snapshots')
-			.select('*')
-			.eq('user_id', userId)
-			.eq('period_start', periodStart)
-			.eq('period_end', periodEnd)
-			.single();
-
-		if (snapshot) {
-			console.log('[BOOKS-DRAFT] ✅ Using snapshot for period context');
-		}
 
 		// Prepare data for AI
 		// ✅ Context Engine: Collect all persons
@@ -328,6 +311,39 @@ Deno.serve(async (req) => {
 			category: entry.category,
 			summary: entry.ai_summary || entry.text.substring(0, 200),
 		}));
+
+		// ✅ P2: AGGRESSIVE CACHING - Content Hash
+		if (!regenerate) {
+			const contentForHash = { entriesSummary, stats, style, layout };
+			const contentHash = await generateContentHash(contentForHash);
+			
+			// Check if we have a draft with same content hash
+			const { data: cachedDraft } = await supabaseAdmin
+				.from('books_archive')
+				.select('*')
+				.eq('user_id', userId)
+				.eq('metadata->>contentHash', contentHash)
+				.eq('is_draft', true)
+				.order('created_at', { ascending: false })
+				.limit(1)
+				.maybeSingle();
+			
+			if (cachedDraft) {
+				console.log('[BOOKS-DRAFT] ✅ CACHE HIT by content hash! AI tokens saved!');
+				return new Response(
+					JSON.stringify({
+						success: true,
+						draftId: cachedDraft.id,
+						storyJson: cachedDraft.story_json,
+						cached: true,
+						cacheType: 'content_hash',
+					}),
+					{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				);
+			}
+			
+			console.log('[BOOKS-DRAFT] No content hash match, generating new...');
+		}
 
 		// ✅ Load AI operation config based on style
 		const aiOperationId = `book_generation_${style}`;
@@ -566,8 +582,12 @@ ${JSON.stringify(entriesSummary, null, 2)}
 
 		console.log('[BOOKS-DRAFT] AI generation complete. Tokens:', total_tokens);
 
+		// ✅ P2: Generate content hash for caching
+		const contentForHash = { entriesSummary, stats, style, layout };
+		const contentHash = await generateContentHash(contentForHash);
+
 		// Save draft to database
-		// ✅ Include plan_type, type, language
+		// ✅ Include plan_type, type, language, contentHash
 		const { data: draft, error: draftError } = await supabaseAdmin
 			.from('books_archive')
 			.insert({
@@ -590,6 +610,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 					estimatedCost,
 					diaryName: diaryName || 'Мой дневник',
 					diaryEmoji: diaryEmoji || '📝',
+					contentHash, // ✅ P2: For aggressive caching
 				},
 				is_draft: true,
 				is_final: false,

@@ -43,6 +43,7 @@ interface CampaignData {
 	translations: Record<string, { title: string; body: string }>;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy campaign form; refactor separately
 export function CampaignCreator() {
 	const [campaignData, setCampaignData] = useState<CampaignData>({
 		title: '',
