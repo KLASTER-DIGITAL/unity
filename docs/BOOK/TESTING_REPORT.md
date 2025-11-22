@@ -20,41 +20,20 @@
 
 ## 🐛 Найденные проблемы
 
-### 1. 🔴 КРИТИЧНО: Дублирование кода в BooksLibraryScreen.native.tsx
+### 1. ✅ ИСПРАВЛЕНО: Дублирование кода в BooksLibraryScreen.native.tsx
 
 **Проблема**: 
-- `BooksLibraryScreen.native.tsx` НЕ использует `useBooksList` хук
+- `BooksLibraryScreen.native.tsx` НЕ использовал `useBooksList` хук
 - Дублирована логика `fetchBooks`, `formatPeriod`, `getStyleLabel`
 - Нет поддержки `planFilter` (FREE/PREMIUM фильтр)
 
-**Файл**: `src/features/mobile/reports/components/BooksLibraryScreen.native.tsx`
+**Решение**: ✅ ИСПРАВЛЕНО
+- Теперь использует `useBooksList` хук
+- Удалена дублированная логика (~100 строк)
+- Добавлен `planFilter` в native версию
+- Добавлены badges для planType и version
 
-**Решение**:
-```typescript
-// ✅ ИСПРАВИТЬ: Использовать useBooksList хук
-import { useBooksList } from '../hooks/useBooksList';
-
-export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
-  const { user } = useAuth();
-  const {
-    books,
-    loading: isLoading,
-    filter,
-    setFilter,
-    planFilter,
-    setPlanFilter,
-    fetchBooks,
-    deleteBook,
-    createNewVersion,
-  } = useBooksList(user?.id || null);
-  
-  // Удалить дублированную логику fetchBooks
-  // Удалить дублированную логику formatPeriod
-  // Удалить дублированную логику getStyleLabel
-}
-```
-
-**Приоритет**: P0 (критично для чистоты кода)
+**Статус**: ✅ ИСПРАВЛЕНО
 
 ---
 
@@ -70,16 +49,18 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 
 ---
 
-### 3. 🟡 ВАЖНО: Отсутствие planFilter в native версии
+### 3. ✅ ИСПРАВЛЕНО: Отсутствие planFilter в native версии
 
 **Проблема**:
-- `BooksLibraryScreen.native.tsx` не поддерживает фильтр по planType (FREE/PREMIUM)
-- Web версия имеет planFilter, native - нет
+- `BooksLibraryScreen.native.tsx` не поддерживал фильтр по planType (FREE/PREMIUM)
+- Web версия имела planFilter, native - нет
 
-**Решение**:
-- Добавить planFilter в native версию после использования useBooksList
+**Решение**: ✅ ИСПРАВЛЕНО
+- Добавлен planFilter в native версию
+- UI для фильтра FREE/PREMIUM
+- Badges для planType и version
 
-**Приоритет**: P1 (важно для консистентности)
+**Статус**: ✅ ИСПРАВЛЕНО
 
 ---
 
@@ -102,23 +83,17 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 
 ---
 
-## 📋 План исправлений
+## ✅ Исправления выполнены
 
-### Срочно (P0):
-1. **Исправить BooksLibraryScreen.native.tsx**
-   - Использовать `useBooksList` хук
-   - Удалить дублированную логику
-   - Добавить поддержку `planFilter`
+### ✅ P0: BooksLibraryScreen.native.tsx
+- ✅ Использует `useBooksList` хук
+- ✅ Удалена дублированная логика (~100 строк)
+- ✅ Добавлен `planFilter` (FREE/PREMIUM)
+- ✅ Добавлены badges для planType и version
 
-### Важно (P1):
-2. **Добавить planFilter в native версию**
-   - UI для фильтра FREE/PREMIUM
-   - Интеграция с useBooksList
-
-### Можно отложить (P2):
-3. **Реализовать PDF download для React Native**
-   - Использовать expo-file-system
-   - Или отложить до полной миграции на RN
+### ⏸️ P2: PDF download для React Native
+- ⏸️ TODO: Реализовать через expo-file-system
+- ⏸️ Можно отложить до полной миграции на RN
 
 ---
 
