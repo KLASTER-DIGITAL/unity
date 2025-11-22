@@ -630,17 +630,36 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 
 					{/* Edit Tab */}
 					<TabsContent className="space-y-4" value="edit">
-						{/* FREE Book Notice */}
+						{/* FREE Book Notice with Upsell */}
 						{draft?.planType === 'free' && (
-							<Card className="border-primary/30 bg-primary/5">
-								<CardContent className="py-3">
-									<p className="text-primary text-sm font-medium">
-										📖 FREE книга — упрощенный редактор
-									</p>
-									<p className="text-muted-foreground mt-1 text-xs">
-										Вы можете изменить название, подзаголовок и добавить фото. Для редактирования
-										текста перейдите на Premium.
-									</p>
+							<Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5">
+								<CardContent className="py-4">
+									<div className="flex items-start gap-3">
+										<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20">
+											<Sparkles className="h-5 w-5 text-primary" strokeWidth={2} />
+										</div>
+										<div className="flex-1 space-y-2">
+											<p className="text-primary text-sm font-semibold">
+												📖 FREE книга — упрощенный редактор
+											</p>
+											<p className="text-muted-foreground text-xs leading-relaxed">
+												Вы можете изменить название, подзаголовок и добавить фото. Для редактирования
+												текста, AI-глав и персональных историй перейдите на Premium.
+											</p>
+											<Button
+												className="mt-2 h-8 text-xs"
+												onClick={() => {
+													// Navigate to premium upsell
+													window.location.href = '/?view=admin#subscriptions';
+												}}
+												size="sm"
+												variant="default"
+											>
+												<Sparkles className="mr-1.5 h-3 w-3" />
+												Перейти на Premium
+											</Button>
+										</div>
+									</div>
 								</CardContent>
 							</Card>
 						)}

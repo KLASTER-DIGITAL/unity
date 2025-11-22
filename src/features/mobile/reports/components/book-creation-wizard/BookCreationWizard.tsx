@@ -50,6 +50,7 @@ export function BookCreationWizard({
 
 	const [config, setConfig] = useState<BookConfig>({
 		planType: '' as any,
+		type: 'month',
 		periodStart: new Date(Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000)
 			.toISOString()
 			.split('T')[0],
@@ -333,7 +334,11 @@ export function BookCreationWizard({
 								/>
 							)}
 							{currentStep === 1 && (
-								<Step1Period config={config} onConfigChange={handleConfigChange} />
+								<Step1Period
+									config={config}
+									onConfigChange={handleConfigChange}
+									isPremium={isPremium}
+								/>
 							)}
 							{currentStep === 2 && (
 								<Step2Contexts

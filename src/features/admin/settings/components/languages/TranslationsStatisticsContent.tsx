@@ -13,16 +13,6 @@ import {
 import { Progress } from '@/shared/components/ui/progress';
 import { createClient } from '@/utils/supabase/client';
 
-type Language = {
-	code: string;
-	name: string;
-	native_name: string;
-	is_active: boolean;
-	translation_count?: number;
-	total_keys?: number;
-	progress?: number;
-};
-
 type TranslationStats = {
 	totalKeys: number;
 	totalTranslations: number;
@@ -49,7 +39,7 @@ export function TranslationsStatisticsContent() {
 
 	const supabase = createClient();
 
-	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy stats loader
 	const loadStatistics = useCallback(async () => {
 		setIsLoading(true);
 		try {

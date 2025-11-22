@@ -189,7 +189,7 @@ async function recordPushSend(
 /**
  * Get users by segment criteria
  */
-async function getUsersBySegmentCriteria(criteria: Record<string, unknown>): Promise<unknown[]> {
+async function getUsersBySegmentCriteria(criteria: Record<string, unknown>): Promise<{ id: string }[]> {
 	let query = supabaseAdmin
 		.from('profiles')
 		.select('id, email, full_name, role, created_at, last_active');
@@ -202,7 +202,7 @@ async function getUsersBySegmentCriteria(criteria: Record<string, unknown>): Pro
 			.select('user_id')
 			.eq('status', 'active');
 
-		const premiumUserIds = subscriptions?.map((s: any) => s.user_id) || [];
+		const premiumUserIds = subscriptions?.map((s: { user_id: string }) => s.user_id) || [];
 
 		if (criteria.is_premium) {
 			query = query.in(
@@ -281,7 +281,7 @@ async function sendViaWebPush(
 	body: string,
 	icon?: string,
 	badge?: string,
-	data?: Record<string, any>
+	data?: Record<string, unknown>
 ): Promise<ChannelResult> {
 	try {
 		const response = await fetch(`${supabaseUrl}/functions/v1/push-sender`, {
@@ -456,6 +456,7 @@ async function getPreferredChannels(userId: string): Promise<NotificationChannel
 /**
  * Send notification through unified sender with channel selection and fallback
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: unified sender handles multiple channel flows
 async function sendUnifiedNotification(payload: NotificationPayload) {
 	const { user_ids, title, body, icon, badge, data, channels, fallback = true } = payload;
 
@@ -643,6 +644,7 @@ async function sendUnifiedNotification(payload: NotificationPayload) {
 }
 
 // Main handler
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: handler orchestrates routing and auth
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {

@@ -99,9 +99,16 @@ export async function generateBookDraft(
 			return { success: false, error: 'Не авторизован' };
 		}
 
-		// Choose the right endpoint based on plan type
+		// Choose the right endpoint based on plan type and book type
 		const isFree = config.planType === 'free';
-		const endpoint = isFree ? API_URLS.BOOKS_GENERATE_FREE : API_URLS.BOOKS_GENERATE_DRAFT;
+		let endpoint = isFree ? API_URLS.BOOKS_GENERATE_FREE : API_URLS.BOOKS_GENERATE_DRAFT;
+
+		// Premium books: use specific endpoint for quarter/year
+		if (!isFree && config.type === 'quarter') {
+			endpoint = API_URLS.BOOKS_GENERATE_QUARTER;
+		} else if (!isFree && config.type === 'year') {
+			endpoint = API_URLS.BOOKS_GENERATE_ANNUAL;
+		}
 
 		console.log('[WIZARD] Generating book with config:', {
 			planType: config.planType,
@@ -124,18 +131,30 @@ export async function generateBookDraft(
 					diaryName: diaryName || 'Мой дневник',
 					diaryEmoji: diaryEmoji || '📝',
 				}
-			: {
-					// PREMIUM: full payload with AI config
-					userId,
-					periodStart: config.periodStart,
-					periodEnd: config.periodEnd,
-					contexts: config.contexts,
-					style: config.style,
-					layout: config.layout,
-					theme: 'light',
-					diaryName: diaryName || 'Мой дневник',
-					diaryEmoji: diaryEmoji || '📝',
-				};
+			: config.type === 'year'
+				? {
+						// YEAR: uses year instead of period
+						userId,
+						year: new Date(config.periodStart).getFullYear(),
+						style: config.style,
+						layout: config.layout,
+						theme: 'light',
+						diaryName: diaryName || 'Мой дневник',
+						diaryEmoji: diaryEmoji || '📝',
+					}
+				: {
+						// PREMIUM: full payload with AI config
+						userId,
+						periodStart: config.periodStart,
+						periodEnd: config.periodEnd,
+						contexts: config.contexts,
+						style: config.style,
+						layout: config.layout,
+						theme: 'light',
+						type: config.type || 'month',
+						diaryName: diaryName || 'Мой дневник',
+						diaryEmoji: diaryEmoji || '📝',
+					};
 
 		const response = await fetch(endpoint, {
 			method: 'POST',

@@ -25,6 +25,40 @@ const isAllowedOrigin = (origin?: string | null) => {
 	);
 };
 
+/**
+ * Generate entry summary asynchronously (non-blocking)
+ * This optimizes AI token usage for book generation
+ */
+async function generateEntrySummaryAsync(
+	entryId: string,
+	userId: string,
+	supabaseUrl: string,
+	accessToken: string
+): Promise<void> {
+	try {
+		const response = await fetch(`${supabaseUrl}/functions/v1/entry-summaries-generate`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify({
+				entryIds: [entryId],
+				userId,
+			}),
+		});
+
+		if (!response.ok) {
+			const error = await response.text();
+			console.error('[ENTRIES] Summary generation failed:', error);
+		} else {
+			console.log('[ENTRIES] Summary generated for entry:', entryId);
+		}
+	} catch (error) {
+		console.error('[ENTRIES] Error calling summary generation:', error);
+	}
+}
+
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
 	const origin = req.headers.get('Origin') || undefined;
@@ -160,6 +194,14 @@ Deno.serve(async (req) => {
 			};
 
 			console.log('[ENTRIES] Entry created successfully:', entry.id);
+
+			// ✅ Auto-generate entry summary (async, non-blocking)
+			// This optimizes AI token usage for book generation (90% savings)
+			generateEntrySummaryAsync(data.id, user.id, supabaseUrl, accessToken).catch((error) => {
+				console.error('[ENTRIES] Failed to generate summary:', error);
+				// Don't fail the entry creation if summary generation fails
+			});
+
 			return new Response(JSON.stringify({ success: true, entry }), {
 				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 			});

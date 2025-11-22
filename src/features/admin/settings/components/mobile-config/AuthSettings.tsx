@@ -12,7 +12,7 @@ import { Label } from '@/shared/components/ui/label';
 import type { MobileSettingsProps } from './types';
 
 export const AuthSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
-	const handleChange = (field: string, value: any) => {
+	const handleChange = (field: string, value: unknown) => {
 		onChange({ ...settings, [field]: value });
 	};
 

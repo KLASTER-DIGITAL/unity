@@ -12,6 +12,7 @@ export type WizardStep = 0 | 1 | 2 | 3 | 4;
 
 export type BookConfig = {
 	planType: 'free' | 'premium' | '';
+	type: 'month' | 'quarter' | 'year' | 'family' | 'custom';
 	periodStart: string;
 	periodEnd: string;
 	contexts: string[];

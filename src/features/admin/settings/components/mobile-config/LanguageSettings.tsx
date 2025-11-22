@@ -18,7 +18,7 @@ import { Switch } from '@/shared/components/ui/switch';
 import type { MobileSettingsProps } from './types';
 
 export const LanguageSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
-	const handleConfigChange = (field: string, value: any) => {
+	const handleConfigChange = (field: string, value: unknown) => {
 		onChange({
 			...settings,
 			languages_config: {
