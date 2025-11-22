@@ -1,6 +1,6 @@
 /**
  * Books Analytics Tab
- * 
+ *
  * Displays analytics for books generation (FREE vs PREMIUM, conversion, usage)
  */
 
@@ -30,11 +30,14 @@ export function BooksAnalyticsTab() {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy analytics loader with multiple branches
 		const loadAnalytics = async () => {
 			try {
 				const supabase = createClient();
-				const { data: { session } } = await supabase.auth.getSession();
-				
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+
 				if (!session) return;
 
 				// Get all books
@@ -49,27 +52,27 @@ export function BooksAnalyticsTab() {
 
 				// Calculate analytics
 				const totalBooks = books?.length || 0;
-				const freeBooks = books?.filter(b => b.plan_type === 'free').length || 0;
-				const premiumBooks = books?.filter(b => b.plan_type === 'premium').length || 0;
-				
+				const freeBooks = books?.filter((b) => b.plan_type === 'free').length || 0;
+				const premiumBooks = books?.filter((b) => b.plan_type === 'premium').length || 0;
+
 				// Conversion rate (users who created FREE then PREMIUM)
-				const userIds = new Set(books?.map(b => b.user_id) || []);
+				const userIds = new Set(books?.map((b) => b.user_id) || []);
 				let convertedUsers = 0;
 				for (const userId of userIds) {
-					const userBooks = books?.filter(b => b.user_id === userId) || [];
-					const hasFree = userBooks.some(b => b.plan_type === 'free');
-					const hasPremium = userBooks.some(b => b.plan_type === 'premium');
+					const userBooks = books?.filter((b) => b.user_id === userId) || [];
+					const hasFree = userBooks.some((b) => b.plan_type === 'free');
+					const hasPremium = userBooks.some((b) => b.plan_type === 'premium');
 					if (hasFree && hasPremium) convertedUsers++;
 				}
 				const conversionRate = userIds.size > 0 ? (convertedUsers / userIds.size) * 100 : 0;
 
 				// Books by type
 				const booksByType = {
-					month: books?.filter(b => b.type === 'month').length || 0,
-					quarter: books?.filter(b => b.type === 'quarter').length || 0,
-					year: books?.filter(b => b.type === 'year').length || 0,
-					family: books?.filter(b => b.type === 'family').length || 0,
-					custom: books?.filter(b => b.type === 'custom').length || 0,
+					month: books?.filter((b) => b.type === 'month').length || 0,
+					quarter: books?.filter((b) => b.type === 'quarter').length || 0,
+					year: books?.filter((b) => b.type === 'year').length || 0,
+					family: books?.filter((b) => b.type === 'family').length || 0,
+					custom: books?.filter((b) => b.type === 'custom').length || 0,
 				};
 
 				setAnalytics({
@@ -194,4 +197,3 @@ export function BooksAnalyticsTab() {
 		</div>
 	);
 }
-

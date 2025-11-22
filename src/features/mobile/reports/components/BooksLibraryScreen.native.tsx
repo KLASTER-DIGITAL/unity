@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { DesignTokens } from '@/shared/design-system/tokens';
 import { useAuth } from '@/shared/lib/hooks/useAuth';
-import { type Book, useBooksList } from '../hooks/useBooksList';
+import { useBooksList } from '../hooks/useBooksList';
 
 type BookDraft = {
 	id: string;
@@ -66,8 +66,6 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 		planFilter,
 		setPlanFilter,
 		fetchBooks,
-		deleteBook: deleteBookHook,
-		createNewVersion: createNewVersionHook,
 	} = useBooksList(user?.id || null);
 
 	// Convert Book type to BookDraft for native compatibility
@@ -208,7 +206,10 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 							style={[styles.filterButton, filter === 'final' && styles.filterButtonActive]}
 						>
 							<Text
-								style={[styles.filterButtonText, filter === 'final' && styles.filterButtonTextActive]}
+								style={[
+									styles.filterButtonText,
+									filter === 'final' && styles.filterButtonTextActive,
+								]}
 							>
 								Готовые
 							</Text>
@@ -271,9 +272,7 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 			{/* Books List */}
 			<ScrollView
 				contentContainerStyle={styles.scrollContent}
-				refreshControl={
-					<RefreshControl onRefresh={handleRefresh} refreshing={isRefreshing} />
-				}
+				refreshControl={<RefreshControl onRefresh={handleRefresh} refreshing={isRefreshing} />}
 				style={styles.scrollView}
 			>
 				{isLoading ? (

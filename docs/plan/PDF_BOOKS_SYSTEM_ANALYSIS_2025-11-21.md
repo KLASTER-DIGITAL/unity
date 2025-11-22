@@ -1,3 +1,11 @@
+# ⚠️ Обновление: Каноничный план/чек-лист теперь в `docs/plan/BOOKS_SYSTEM_COMPLETE_IMPLEMENTATION_2025-11-21.md`
+
+Этот файл оставлен для истории, но все актуальные задачи и их статусы нужно менять в каноничном документе:
+- План и чек-лист реализации: `docs/plan/BOOKS_SYSTEM_COMPLETE_IMPLEMENTATION_2025-11-21.md`
+- Архитектура: `docs/architecture/BOOKS_SYSTEM_COMPLETE_ARCHITECTURE.md`
+
+Ниже — исходное содержание (read-only).
+
 # 🔍 Детальный анализ системы PDF книг и отчетов
 
 **Дата**: 2025-11-21  
@@ -198,5 +206,4 @@ await supabaseAdmin.from('user_reports').upsert(
 - `docs/new/ai-pdf-books.md` - Концепция PDF книг
 - `docs/new/achievements-and-reports.md` - Система отчетов
 - `docs/plan/REPORTS_PDF_BOOKS_CHECK_2025-11-21.md` - Предыдущий анализ
-
 

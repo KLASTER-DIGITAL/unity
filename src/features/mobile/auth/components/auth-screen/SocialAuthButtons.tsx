@@ -8,7 +8,7 @@ type SocialAuthButtonsProps = {
 	isLogin: boolean;
 	isLoading: boolean;
 	onSocialAuth: (provider: string) => void;
-	onTelegramAuth: (response: any) => void;
+	onTelegramAuth: (response: unknown) => void;
 };
 
 /**

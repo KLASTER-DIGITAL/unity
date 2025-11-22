@@ -1,6 +1,6 @@
 /**
  * Book Share Button
- * 
+ *
  * Generates public share link for books
  */
 
@@ -23,7 +23,9 @@ export function BookShareButton({ bookId, onShareGenerated }: BookShareButtonPro
 			setIsGenerating(true);
 
 			const supabase = createClient();
-			const { data: { session } } = await supabase.auth.getSession();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
 
 			if (!session) {
 				toast.error('Необходима авторизация');
@@ -31,13 +33,12 @@ export function BookShareButton({ bookId, onShareGenerated }: BookShareButtonPro
 			}
 
 			// Generate share token via Edge Function (or direct DB call)
-			const { data, error } = await supabase
-				.rpc('generate_book_share_token');
+			const { error } = await supabase.rpc('generate_book_share_token');
 
 			if (error) {
 				// Fallback: generate token client-side
 				const shareToken = btoa(bookId + Date.now()).replace(/[+/=]/g, '');
-				
+
 				const { error: updateError } = await supabase
 					.from('books_archive')
 					.update({
@@ -52,11 +53,11 @@ export function BookShareButton({ bookId, onShareGenerated }: BookShareButtonPro
 				}
 
 				const shareUrl = `${window.location.origin}/book/${shareToken}`;
-				
+
 				// Copy to clipboard
 				await navigator.clipboard.writeText(shareUrl);
 				toast.success('Ссылка скопирована в буфер обмена!');
-				
+
 				onShareGenerated?.(shareUrl);
 			}
 		} catch (error) {
@@ -80,4 +81,3 @@ export function BookShareButton({ bookId, onShareGenerated }: BookShareButtonPro
 		</Button>
 	);
 }
-

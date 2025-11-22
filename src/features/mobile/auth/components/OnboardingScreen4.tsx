@@ -117,7 +117,7 @@ function HabitsAndEntryForm({
 // NOTE: Sliedbar, NextButton components moved to ./onboarding4/
 
 function Frame2087324620({
-	selectedLanguage,
+	_selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
@@ -193,7 +193,7 @@ function Frame2087324620({
 }
 
 export function OnboardingScreen4({
-	selectedLanguage,
+	_selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,

@@ -10,16 +10,14 @@ import type { createClient } from '@/utils/supabase/client';
 import type { UserData } from './types';
 
 type TelegramAuthParams = {
-	response: any;
+	response: unknown;
 	selectedLanguage: string;
 	supabase: ReturnType<typeof createClient>;
 	handleComplete?: (userData: UserData) => void;
 	setIsTelegramLoading: (loading: boolean) => void;
 };
 
-/**
- * Handle Telegram authentication
- */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy auth handler with multiple branches
 export async function handleTelegramAuth({
 	response,
 	selectedLanguage,
@@ -150,11 +148,17 @@ export async function handleTelegramAuth({
 				},
 				onboardingCompleted: false,
 				createdAt: new Date().toISOString(),
-				telegramData: {
-					id: response.id,
-					username: response.username,
-					photo_url: response.photo_url,
-				},
+				telegramData:
+					typeof response === 'object' && response !== null
+						? {
+								// biome-ignore lint/suspicious/noExplicitAny: response structure comes from Telegram widget
+								id: (response as any).id,
+								// biome-ignore lint/suspicious/noExplicitAny: response structure comes from Telegram widget
+								username: (response as any).username,
+								// biome-ignore lint/suspicious/noExplicitAny: response structure comes from Telegram widget
+								photo_url: (response as any).photo_url,
+							}
+						: undefined,
 			};
 
 			handleComplete?.(userData);
@@ -162,10 +166,11 @@ export async function handleTelegramAuth({
 			const errorData = await response_data.json();
 			throw new Error(errorData.error || 'Failed to process Telegram authentication');
 		}
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
 		console.error('Telegram auth error:', error);
 		toast.error('Ошибка авторизации через Telegram', {
-			description: error.message,
+			description: message,
 		});
 	} finally {
 		setIsTelegramLoading(false);
@@ -178,7 +183,7 @@ type EmailAuthParams = {
 	password: string;
 	name?: string;
 	selectedLanguage: string;
-	onboardingData?: any;
+	onboardingData?: Record<string, unknown>;
 	handleComplete?: (userData: UserData) => void;
 	setIsLoading: (loading: boolean) => void;
 };
@@ -186,6 +191,7 @@ type EmailAuthParams = {
 /**
  * Handle email authentication (login or signup)
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy auth handler with multiple branches
 export async function handleEmailAuth({
 	isLogin,
 	email,
@@ -309,10 +315,11 @@ export async function handleEmailAuth({
 				}
 			}
 		}
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
 		console.error('Auth error:', error);
 		toast.error('Произошла ошибка', {
-			description: error.message,
+			description: message,
 		});
 	} finally {
 		setIsLoading(false);
@@ -356,10 +363,11 @@ export async function handleSocialAuth({ provider, setIsLoading }: SocialAuthPar
 			setIsLoading(false);
 		}
 		// OAuth редирект произойдет автоматически
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
 		console.error(`${provider} auth error:`, error);
 		toast.error('Произошла ошибка', {
-			description: error.message,
+			description: message,
 		});
 		setIsLoading(false);
 	}

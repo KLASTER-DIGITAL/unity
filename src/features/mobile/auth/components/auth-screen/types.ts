@@ -16,8 +16,8 @@ export type OnboardingData = {
 };
 
 export type AuthScreenProps = {
-	onComplete?: (userData: any) => void;
-	onAuthComplete?: (userData: any) => void;
+	onComplete?: (userData: UserData) => void;
+	onAuthComplete?: (userData: UserData) => void;
 	onBack?: () => void;
 	showTopBar?: boolean;
 	contextText?: string;

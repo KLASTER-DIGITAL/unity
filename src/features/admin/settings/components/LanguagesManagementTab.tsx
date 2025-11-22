@@ -234,7 +234,6 @@ export function LanguagesManagementTab({
 		);
 	}
 
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: UI layout contains multiple branches
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -392,8 +391,8 @@ export function LanguagesManagementTab({
 									<p className="text-sm">Добавьте хотя бы один язык</p>
 								</div>
 							) : (
-								// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy languages rendering
 								<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+									{/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy languages rendering */}
 									{activeLanguages.map((language) => (
 										<Card
 											className="cursor-pointer border-2 transition-shadow hover:border-primary/50 hover:shadow-md"

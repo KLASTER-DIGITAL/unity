@@ -3,8 +3,8 @@
  */
 
 import { Calendar } from 'lucide-react';
-import { Label } from '@/shared/components/ui/label';
 import { Button } from '@/shared/components/ui/button';
+import { Label } from '@/shared/components/ui/label';
 import type { BookConfig } from './types';
 
 type Step1PeriodProps = {

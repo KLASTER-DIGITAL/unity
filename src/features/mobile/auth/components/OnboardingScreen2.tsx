@@ -40,7 +40,7 @@ function Circle() {
 				},
 			}}
 		>
-			<img className="block size-full max-w-none" src={imgCircle} />
+			<img alt="Background circle" className="block size-full max-w-none" src={imgCircle} />
 		</motion.div>
 	);
 }
@@ -117,6 +117,7 @@ function Sliedbar({
 						index === 0 ? 'w-[25px]' : 'w-[8px]'
 					}`}
 					initial={{ scaleX: 0 }}
+					// biome-ignore lint/suspicious/noArrayIndexKey: static array, index is stable
 					key={index}
 					onClick={() => onStepClick(index + 1)}
 					style={{
@@ -140,7 +141,7 @@ function ArrowRight() {
 	return (
 		<div className="relative size-full" data-name="Arrow - Right">
 			<div className="absolute inset-[-5%_-6.22%]">
-				<img className="block size-full max-w-none" src={imgArrowRight} />
+				<img alt="Arrow right" className="block size-full max-w-none" src={imgArrowRight} />
 			</div>
 		</div>
 	);
@@ -149,6 +150,7 @@ function ArrowRight() {
 function ArrowRight1({ onClick }: { onClick: () => void }) {
 	return (
 		<button
+			type="button"
 			className="absolute z-10 size-6 cursor-pointer border-0 bg-transparent"
 			data-name="Arrow - Right"
 			onClick={onClick}
@@ -182,6 +184,7 @@ function NextButton({ onNext }: { onNext: () => void }) {
 			whileTap={{ scale: 0.95 }}
 		>
 			<button
+				type="button"
 				className="absolute cursor-pointer border-0 bg-transparent"
 				onClick={onNext}
 				style={{
@@ -192,7 +195,11 @@ function NextButton({ onNext }: { onNext: () => void }) {
 				}}
 			>
 				<div className="pointer-events-none absolute top-0 right-0 bottom-0 left-[7.57%]">
-					<img className="block size-full max-w-none" src={imgRectangle5904} />
+					<img
+						alt="Decorative rectangle"
+						className="block size-full max-w-none"
+						src={imgRectangle5904}
+					/>
 				</div>
 			</button>
 			<ArrowRight1 onClick={onNext} />

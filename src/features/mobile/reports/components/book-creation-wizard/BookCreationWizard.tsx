@@ -47,11 +47,12 @@ export function BookCreationWizard({
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [isPremium, setIsPremium] = useState(false);
 	const [showUpsellModal, setShowUpsellModal] = useState(false);
-	
+
 	// ✅ Prevent multiple calls to handleGenerate
 	const isGeneratingRef = useRef(false);
 
 	const [config, setConfig] = useState<BookConfig>({
+		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
 		planType: '' as any,
 		type: 'month',
 		periodStart: new Date(Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000)
@@ -59,7 +60,9 @@ export function BookCreationWizard({
 			.split('T')[0],
 		periodEnd: new Date().toISOString().split('T')[0],
 		contexts: [],
+		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
 		style: '' as any,
+		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
 		layout: '' as any,
 	});
 
@@ -136,6 +139,7 @@ export function BookCreationWizard({
 		}
 	};
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: book generation requires multiple validation steps
 	const handleGenerate = async () => {
 		// ✅ Prevent multiple calls
 		if (isGeneratingRef.current) {

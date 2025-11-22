@@ -2,8 +2,8 @@ import confetti from 'canvas-confetti';
 import { AnimatePresence, motion, useSpring } from 'framer-motion';
 import { toPng } from 'html-to-image';
 import { Share2, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import type { ComponentType } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -50,6 +50,7 @@ function getMotivationMessageForAchievement(name: string): string {
 	return EARNED_MOTIVATION_MESSAGES.default;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: modal mixes multiple UI branches/animations
 export function AchievementDetailsModal({
 	isOpen,
 	onClose,

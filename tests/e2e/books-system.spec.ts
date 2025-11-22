@@ -66,25 +66,25 @@ async function login(page: any, email: string, password: string) {
 }
 
 test.describe('Books System', () => {
-	test.beforeEach(async ({ page, context }) => {
+	test.beforeEach(async ({ page }) => {
 		// Navigate to production
 		await page.goto('https://unity-wine.vercel.app');
 		await page.waitForLoadState('networkidle');
 		await page.waitForTimeout(2000);
-		
+
 		// Check if already logged in (look for Reports button or user menu)
 		const reportsButton = page.getByRole('button', { name: /Отчеты|Reports/i });
 		const isLoggedIn = await reportsButton.isVisible({ timeout: 3000 }).catch(() => false);
-		
+
 		if (!isLoggedIn) {
 			// Login
 			await login(page, TEST_USERS.user.email, TEST_USERS.user.password);
 		}
-		
+
 		// Navigate to Reports section
 		await page.click('button:has-text("Отчеты")');
 		await page.waitForTimeout(2000);
-		
+
 		// Wait for Reports page to load
 		await page.waitForSelector('text=/Отчеты|PDF книги/', { timeout: 10000 });
 	});
@@ -108,7 +108,7 @@ test.describe('Books System', () => {
 		if (await freeButton.isVisible({ timeout: 5000 })) {
 			await freeButton.click();
 			await page.waitForTimeout(500);
-			
+
 			const nextButton = page.getByRole('button', { name: /Далее|Next/i });
 			await nextButton.click();
 			await page.waitForTimeout(1000);
@@ -126,18 +126,21 @@ test.describe('Books System', () => {
 
 		// Wait for generation progress or success
 		try {
-			await page.waitForSelector('text=/Создаем твою книгу|Черновик книги создан/', { timeout: 30000 });
+			await page.waitForSelector('text=/Создаем твою книгу|Черновик книги создан/', {
+				timeout: 30000,
+			});
 		} catch {
 			// If progress modal doesn't appear, check for success directly
 			await page.waitForSelector('text=/Черновик книги создан|Готово/', { timeout: 60000 });
 		}
 
 		// Filter out known non-critical errors
-		const criticalErrors = consoleErrors.filter(error => 
-			!error.includes('beforeinstallprompt') &&
-			!error.includes('PWA') &&
-			!error.includes('service worker') &&
-			!error.includes('favicon')
+		const criticalErrors = consoleErrors.filter(
+			(error) =>
+				!error.includes('beforeinstallprompt') &&
+				!error.includes('PWA') &&
+				!error.includes('service worker') &&
+				!error.includes('favicon')
 		);
 
 		// Check for console errors
@@ -211,11 +214,12 @@ test.describe('Books System', () => {
 		await expect(page.locator('text=/Библиотека книг|Library/i')).toBeVisible({ timeout: 10000 });
 
 		// Filter out known non-critical errors
-		const criticalErrors = consoleErrors.filter(error => 
-			!error.includes('beforeinstallprompt') &&
-			!error.includes('PWA') &&
-			!error.includes('service worker') &&
-			!error.includes('favicon')
+		const criticalErrors = consoleErrors.filter(
+			(error) =>
+				!error.includes('beforeinstallprompt') &&
+				!error.includes('PWA') &&
+				!error.includes('service worker') &&
+				!error.includes('favicon')
 		);
 
 		// Check for console errors

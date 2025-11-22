@@ -122,8 +122,8 @@ export function WelcomeScreen({
 	const [languages, setLanguages] = useState<Language[]>(fallbackLanguages);
 	const [_isLoadingLanguages, setIsLoadingLanguages] = useState(true);
 
-	// Загрузка языков из API (публичный endpoint с ANON_KEY)
 	useEffect(() => {
+		// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy language loader with multiple branches
 		const loadLanguages = async () => {
 			try {
 				const response = await fetch(
@@ -512,7 +512,15 @@ export function WelcomeScreen({
 			{showDropdown && (
 				<div
 					className="fixed inset-0 flex items-center justify-center bg-black/40 px-4 backdrop-blur-md"
+					role="dialog"
+					aria-modal="true"
 					onClick={() => setShowDropdown(false)}
+					onKeyDown={(event) => {
+						if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							setShowDropdown(false);
+						}
+					}}
 					style={{ zIndex: 999_999 }}
 				>
 					<motion.div
@@ -527,10 +535,11 @@ export function WelcomeScreen({
 						<div className="max-h-[65vh] overflow-y-auto">
 							{languages.map((language) => (
 								<button
+									type="button"
 									className="flex h-14 w-full items-center justify-between pr-[13px] pl-[22px] text-left transition-colors hover:bg-accent/5 active:bg-accent/10"
 									key={language.code}
 									onClick={() => {
-										setSelectedLanguage(language.code as any);
+										setSelectedLanguage(language.code);
 										setShowDropdown(false);
 										// ✅ FIX: changeLanguage вызывается автоматически через useEffect (строка 167-171)
 										// НЕ вызываем здесь, чтобы избежать двойной загрузки переводов

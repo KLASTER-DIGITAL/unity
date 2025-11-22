@@ -78,10 +78,10 @@ Deno.serve(async (req) => {
 		} = body;
 
 		if (!userId || !periodStart || !periodEnd) {
-			return new Response(
-				JSON.stringify({ success: false, error: 'Missing required fields' }),
-				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-			);
+			return new Response(JSON.stringify({ success: false, error: 'Missing required fields' }), {
+				status: 400,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
 		}
 
 		// Get user profile for language
@@ -97,31 +97,28 @@ Deno.serve(async (req) => {
 
 		// ✅ Use books-generate-draft with type='quarter'
 		// This reuses all the optimization logic (entry_summaries, snapshots, caching)
-		const draftResponse = await fetch(
-			`${supabaseUrl}/functions/v1/books-generate-draft`,
-			{
-				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${token}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					userId,
-					periodStart,
-					periodEnd,
-					contexts,
-					style,
-					layout,
-					theme,
-					plan_type: 'premium', // Quarterly books are Premium only
-					type: 'quarter',
-					language: userLanguage,
-					diaryName: finalDiaryName,
-					diaryEmoji: finalDiaryEmoji,
-					regenerate: false,
-				}),
-			}
-		);
+		const draftResponse = await fetch(`${supabaseUrl}/functions/v1/books-generate-draft`, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				userId,
+				periodStart,
+				periodEnd,
+				contexts,
+				style,
+				layout,
+				theme,
+				plan_type: 'premium', // Quarterly books are Premium only
+				type: 'quarter',
+				language: userLanguage,
+				diaryName: finalDiaryName,
+				diaryEmoji: finalDiaryEmoji,
+				regenerate: false,
+			}),
+		});
 
 		const draftResult = await draftResponse.json();
 
@@ -139,6 +136,7 @@ Deno.serve(async (req) => {
 			}),
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);
+		// biome-ignore lint/suspicious/noExplicitAny: Deno error types are unknown
 	} catch (error: any) {
 		console.error('[BOOKS-GENERATE-QUARTER] Error:', error);
 		return new Response(
@@ -150,4 +148,3 @@ Deno.serve(async (req) => {
 		);
 	}
 });
-

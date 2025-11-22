@@ -77,6 +77,7 @@ export async function checkFreeTierLimit(
 /**
  * Generate book draft via Edge Function (FREE or PREMIUM)
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: endpoint selection requires multiple conditions
 export async function generateBookDraft(
 	config: BookConfig,
 	userId: string,
@@ -101,7 +102,7 @@ export async function generateBookDraft(
 
 		// Choose the right endpoint based on plan type and book type
 		const isFree = config.planType === 'free';
-		let endpoint = isFree ? API_URLS.BOOKS_GENERATE_FREE : API_URLS.BOOKS_GENERATE_DRAFT;
+		let endpoint: string = isFree ? API_URLS.BOOKS_GENERATE_FREE : API_URLS.BOOKS_GENERATE_DRAFT;
 
 		// Premium books: use specific endpoint for quarter/year
 		if (!isFree && config.type === 'quarter') {

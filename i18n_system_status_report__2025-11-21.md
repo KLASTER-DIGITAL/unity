@@ -1,23 +1,6 @@
-# UNITY-v2 i18n System - Детальный отчет о статусе
+This file is a duplicate of the canonical status report: `docs/i18n/STATUS_REPORT_2025-11-21.md`.
 
-**Дата анализа**: 2025-11-21  
-**Источник**: `i18n_system_audit_and_fixes__2025-11-21T13-26-44.md`  
-**Статус**: В процессе разработки
-
----
-
-## 📊 Executive Summary
-
-### Текущее состояние системы
-
-**Языки в системе**: 9 активных языков ✅
-- 🇷🇺 Русский (ru) - 664 ключа
-- 🇬🇧 English (en) - 521 ключ
-- 🇪🇸 Español (es) - 515 ключей
-- 🇩🇪 Deutsch (de) - 521 ключ
-- 🇫🇷 Français (fr) - 515 ключей
-- 🇨🇳 中文 (zh) - 515 ключей
-- 🇯🇵 日本語 (ja) - 515 ключей
+Please update the canonical file; this placeholder remains for backward compatibility.
 - 🇰🇿 Қазақша (kk) - 812 ключей ⚠️ (больше всех!)
 - 🇬🇪 ქართული (ka) - 585 ключей
 
@@ -529,6 +512,5 @@
 4. Синхронизировать покрытие переводов для всех языков
 
 **Оценка времени на завершение**: ~15-20 часов работы
-
 
 

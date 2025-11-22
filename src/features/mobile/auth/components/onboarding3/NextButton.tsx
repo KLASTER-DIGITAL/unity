@@ -11,7 +11,7 @@ function ArrowRight() {
 	return (
 		<div className="relative size-full" data-name="Arrow - Right">
 			<div className="absolute inset-[-5%_-6.22%]">
-				<img className="block size-full max-w-none" src={imgArrowRight} />
+				<img alt="Arrow right" className="block size-full max-w-none" src={imgArrowRight} />
 			</div>
 		</div>
 	);
@@ -23,6 +23,7 @@ function ArrowRight() {
 function ArrowRight1({ onClick, disabled }: ArrowRight1Props) {
 	return (
 		<button
+			type="button"
 			className={`absolute z-10 size-6 cursor-pointer border-0 bg-transparent ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 			data-name="Arrow - Right"
 			disabled={disabled}
@@ -92,6 +93,7 @@ export function NextButton({ onNext, disabled, validationMessage }: NextButtonPr
 			whileTap={{ scale: disabled ? 1 : 0.95 }}
 		>
 			<button
+				type="button"
 				className={`absolute h-[191px] w-[129px] max-w-[30vw] border-0 bg-transparent ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
 				onClick={handleClick}
 				style={{
@@ -100,7 +102,7 @@ export function NextButton({ onNext, disabled, validationMessage }: NextButtonPr
 				}}
 			>
 				<div className="pointer-events-none absolute top-0 right-0 bottom-0 left-[7.57%]">
-					<img className="block size-full max-w-none" src={imgRectangle5904} />
+					<img alt="Decorative rectangle" className="block size-full max-w-none" src={imgRectangle5904} />
 				</div>
 			</button>
 			<ArrowRight1 disabled={disabled} onClick={handleClick} />

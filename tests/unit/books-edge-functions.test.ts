@@ -1,6 +1,6 @@
 /**
  * Books Edge Functions Unit Tests
- * 
+ *
  * Tests for book generation Edge Functions
  */
 
@@ -33,7 +33,8 @@ describe('Books Edge Functions', () => {
 
 	describe('books-render-puppeteer', () => {
 		it('should have correct endpoint URL', () => {
-			const endpoint = 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/books-render-puppeteer';
+			const endpoint =
+				'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/books-render-puppeteer';
 			expect(endpoint).toContain('books-render-puppeteer');
 		});
 
@@ -45,7 +46,8 @@ describe('Books Edge Functions', () => {
 
 	describe('entry-summaries-generate', () => {
 		it('should have correct endpoint URL', () => {
-			const endpoint = 'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/entry-summaries-generate';
+			const endpoint =
+				'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/entry-summaries-generate';
 			expect(endpoint).toContain('entry-summaries-generate');
 		});
 	});

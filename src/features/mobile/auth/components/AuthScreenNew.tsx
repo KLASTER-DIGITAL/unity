@@ -43,7 +43,7 @@ export function AuthScreen({
 	// Supabase клиент для работы с сессиями
 	const supabase = createClient();
 
-	const handleTelegramResponse = (response: any) =>
+	const handleTelegramResponse = (response: unknown) =>
 		handleTelegramAuth({
 			response,
 			selectedLanguage,

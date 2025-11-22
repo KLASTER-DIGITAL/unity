@@ -398,6 +398,7 @@ export function AchievementsScreen({ userData }: { userData?: AchievementsScreen
 	// ✅ NEW: Преобразовать достижения из БД в формат для UI с мемоизацией
 	const badges = useMemo(
 		() =>
+			// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: badge mapping includes multiple branching UI cases
 			achievements.map((achievement) => {
 				// ✅ SAFETY: Ensure icon is always a valid component
 				const IconComponent = iconMap[achievement.icon];
