@@ -5,7 +5,7 @@
  * React Native ready: 90%+ compatibility
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
 import { createClient } from '@/utils/supabase/client';
 import { useActiveBaseTheme, useTheme } from '../theme-provider';

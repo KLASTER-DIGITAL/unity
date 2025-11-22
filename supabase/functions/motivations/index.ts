@@ -601,7 +601,7 @@ async function getDefaultMotivations(
 	const t = (key: string, fallback: string) => translations[key] || fallback;
 
 	// Get locale for date formatting
-	const locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
+	const _locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
 
 	return [
 		{
@@ -801,10 +801,10 @@ async function handleRequest(req: Request): Promise<Response> {
 					// ❌ Fallback to manual extraction
 					console.log(`[MOTIVATIONS v11] ⚠️ Using fallback for entry ${entry.id}`);
 
-					if (entry.ai_summary && entry.ai_summary.trim()) {
+					if (entry.ai_summary?.trim()) {
 						const words = entry.ai_summary.trim().split(' ');
 						title = words.slice(0, 8).join(' ') + (words.length > 8 ? '...' : '');
-					} else if (entry.text && entry.text.trim()) {
+					} else if (entry.text?.trim()) {
 						const words = entry.text.trim().split(' ');
 						title = words.slice(0, 8).join(' ') + (words.length > 8 ? '...' : '');
 					} else {
@@ -814,11 +814,11 @@ async function handleRequest(req: Request): Promise<Response> {
 						);
 					}
 
-					if (entry.ai_insight && entry.ai_insight.trim()) {
+					if (entry.ai_insight?.trim()) {
 						description = entry.ai_insight.trim();
-					} else if (entry.ai_summary && entry.ai_summary.trim()) {
+					} else if (entry.ai_summary?.trim()) {
 						description = entry.ai_summary.trim();
-					} else if (entry.text && entry.text.trim()) {
+					} else if (entry.text?.trim()) {
 						description = entry.text.trim();
 					} else {
 						description =

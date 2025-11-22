@@ -31,15 +31,12 @@ export type Book = {
 };
 
 export type BooksFilter = 'all' | 'drafts' | 'final';
-export type BooksPlanFilter = 'all' | 'free' | 'premium';
-
 export function useBooksList(userId: string | null) {
 	const [books, setBooks] = useState<Book[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState<BooksFilter>('all');
-	const [planFilter, setPlanFilter] = useState<BooksPlanFilter>('all');
 
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy fetch merges multiple filters/sorts
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: fetchBooks aggregates multiple filters, sorting, and PDF URL generation logic
 	const fetchBooks = useCallback(async () => {
 		if (!userId) {
 			setBooks([]);
@@ -62,12 +59,7 @@ export function useBooksList(userId: string | null) {
 				query = query.eq('is_final', true);
 			}
 
-			// Apply plan filter
-			if (planFilter === 'free') {
-				query = query.eq('plan_type', 'free');
-			} else if (planFilter === 'premium') {
-				query = query.eq('plan_type', 'premium');
-			}
+			// Plan filter removed - это автоопределение тарифов, не показываем как фильтр
 
 			const { data, error } = await query;
 
@@ -79,28 +71,44 @@ export function useBooksList(userId: string | null) {
 
 			// Transform snake_case to camelCase
 			const transformedBooks: Book[] =
-				data?.map((book) => ({
-					id: book.id,
-					userId: book.user_id,
-					periodStart: book.period_start,
-					periodEnd: book.period_end,
-					contexts: book.contexts || [],
-					style: book.style,
-					layout: book.layout,
-					theme: book.theme,
-					planType: book.plan_type || 'premium',
-					type: book.type || 'month',
-					language: book.language || 'ru',
-					storyJson: book.story_json,
-					metadata: book.metadata || {},
-					pdfUrl: book.pdf_url,
-					isDraft: book.is_draft,
-					isFinal: book.is_final,
-					version: book.version || 1,
-					parentBookId: book.parent_book_id,
-					createdAt: book.created_at,
-					updatedAt: book.updated_at,
-				})) || [];
+				data?.map((book) => {
+					// ✅ FIX: Если книга готова (is_final = true), но pdf_url отсутствует,
+					// пытаемся сгенерировать URL из Storage (возможно, PDF есть, но URL не сохранен)
+					let pdfUrl = book.pdf_url;
+					if (!pdfUrl && book.is_final && book.user_id) {
+						// Генерируем возможный URL: books/{userId}/{bookId}.pdf
+						const supabase = createClient();
+						const { data: urlData } = supabase.storage
+							.from('books')
+							.getPublicUrl(`${book.user_id}/${book.id}.pdf`);
+						// Проверяем существование файла (async, но мы не можем ждать здесь)
+						// Устанавливаем URL, но проверка существования будет в компоненте
+						pdfUrl = urlData.publicUrl;
+					}
+
+					return {
+						id: book.id,
+						userId: book.user_id,
+						periodStart: book.period_start,
+						periodEnd: book.period_end,
+						contexts: book.contexts || [],
+						style: book.style,
+						layout: book.layout,
+						theme: book.theme,
+						planType: book.plan_type || 'premium',
+						type: book.type || 'month',
+						language: book.language || 'ru',
+						storyJson: book.story_json,
+						metadata: book.metadata || {},
+						pdfUrl,
+						isDraft: book.is_draft,
+						isFinal: book.is_final,
+						version: book.version || 1,
+						parentBookId: book.parent_book_id,
+						createdAt: book.created_at,
+						updatedAt: book.updated_at,
+					};
+				}) || [];
 
 			setBooks(transformedBooks);
 		} catch (error) {
@@ -109,7 +117,7 @@ export function useBooksList(userId: string | null) {
 		} finally {
 			setLoading(false);
 		}
-	}, [userId, filter, planFilter]);
+	}, [userId, filter]);
 
 	useEffect(() => {
 		fetchBooks();
@@ -228,8 +236,6 @@ export function useBooksList(userId: string | null) {
 		loading,
 		filter,
 		setFilter,
-		planFilter,
-		setPlanFilter,
 		fetchBooks,
 		deleteBook,
 		createNewVersion,

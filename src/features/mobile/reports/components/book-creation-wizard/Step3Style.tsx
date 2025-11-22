@@ -41,7 +41,7 @@ function getPreviewClasses(style: BookStyle, isActive: boolean) {
 export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 	return (
 		<div className="space-y-4">
-			<p className="text-muted-foreground text-sm">Выберите стиль повествования для вашей книги</p>
+			<p className="text-base text-foreground/90">Выберите стиль повествования для вашей книги</p>
 
 			<div className="space-y-3">
 				{STYLE_OPTIONS.map((option) => {
@@ -59,8 +59,8 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 							<div className="flex items-start gap-3">
 								<span className="text-2xl">{option.emoji}</span>
 								<div className="flex-1">
-									<h3 className="mb-1 font-semibold">{option.label}</h3>
-									<p className="text-muted-foreground text-sm">{option.description}</p>
+									<h3 className="mb-1 text-base font-semibold text-foreground">{option.label}</h3>
+									<p className="mb-3 text-sm text-foreground/80">{option.description}</p>
 
 									{/* Мини-превью страницы книги для выбранного стиля */}
 									<div className={getPreviewClasses(option.value, isActive)}>
@@ -95,9 +95,10 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 			</div>
 
 			<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
-				<p className="text-muted-foreground text-sm">
-					💡 <strong>Совет:</strong> Стиль влияет на тон повествования и структуру книги. Выберите
-					тот, который лучше всего отражает ваши воспоминания.
+				<p className="text-sm text-foreground/80">
+					💡 <strong className="font-semibold text-foreground">Совет:</strong> Стиль влияет на тон
+					повествования и структуру книги. Выберите тот, который лучше всего отражает ваши
+					воспоминания.
 				</p>
 			</div>
 		</div>

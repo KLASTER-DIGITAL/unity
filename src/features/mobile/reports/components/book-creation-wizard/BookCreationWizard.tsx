@@ -35,7 +35,6 @@ export function BookCreationWizard({
 	onCancel,
 	onGoToLibrary,
 }: BookCreationWizardProps) {
-	const [currentStep, setCurrentStep] = useState<WizardStep>(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [showProgress, setShowProgress] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -47,6 +46,7 @@ export function BookCreationWizard({
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [isPremium, setIsPremium] = useState(false);
 	const [showUpsellModal, setShowUpsellModal] = useState(false);
+	const [isLoadingUser, setIsLoadingUser] = useState(true); // ✅ FIX: Loading state to prevent flash
 
 	// ✅ Prevent multiple calls to handleGenerate
 	const isGeneratingRef = useRef(false);
@@ -66,42 +66,60 @@ export function BookCreationWizard({
 		layout: '' as any,
 	});
 
-	// Auto-skip Step0 for Premium users
-	useEffect(() => {
-		if (isPremium && currentStep === 0 && config.planType !== 'premium') {
-			// Auto-select premium and move to step 1
-			setConfig((prev) => ({ ...prev, planType: 'premium' }));
-			setCurrentStep(1);
-		}
-	}, [isPremium, currentStep, config.planType]);
+	// ✅ FIX: Initialize currentStep based on premium status to prevent flash
+	// Start with step 0, but will be updated after user data loads
+	const [currentStep, setCurrentStep] = useState<WizardStep>(0);
 
-	// Get user ID and profile from session
+	// ✅ FIX: Get user ID and profile from session FIRST, then set initial step
+	// This prevents the flash of Step0 for Premium users
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: getUserData handles multiple async operations and state updates
 	useEffect(() => {
 		const getUserData = async () => {
-			const supabase = createClient();
-			const {
-				data: { session },
-			} = await supabase.auth.getSession();
-			if (session?.user?.id) {
-				setUserId(session.user.id);
+			try {
+				setIsLoadingUser(true);
+				const supabase = createClient();
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
 
-				const { data: profile } = await supabase
-					.from('profiles')
-					.select('diary_name, diary_emoji, is_premium')
-					.eq('id', session.user.id)
-					.single();
+				if (session?.user?.id) {
+					setUserId(session.user.id);
 
-				if (profile) {
-					setDiaryName(profile.diary_name || '');
-					setDiaryEmoji(profile.diary_emoji || '');
-					setIsPremium(profile.is_premium || false);
+					const { data: profile } = await supabase
+						.from('profiles')
+						.select('diary_name, diary_emoji, is_premium')
+						.eq('id', session.user.id)
+						.single();
 
-					// Auto-select plan type for Premium users
-					if (profile.is_premium) {
-						setConfig((prev) => ({ ...prev, planType: 'premium' }));
-						setCurrentStep(1); // Skip step 0 for Premium
+					if (profile) {
+						setDiaryName(profile.diary_name || '');
+						setDiaryEmoji(profile.diary_emoji || '');
+						const userIsPremium = profile.is_premium || false;
+						setIsPremium(userIsPremium);
+
+						// ✅ FIX: Set initial step and planType BEFORE showing wizard
+						// This prevents flash of Step0 for Premium users
+						if (userIsPremium) {
+							setConfig((prev) => ({ ...prev, planType: 'premium' }));
+							setCurrentStep(1); // Skip step 0 for Premium - start directly at Step1 (Period)
+						} else {
+							// Free users start at Step0 (Plan Type selection)
+							setCurrentStep(0);
+						}
+					} else {
+						// No profile - default to Step0
+						setCurrentStep(0);
 					}
+				} else {
+					// No session - default to Step0
+					setCurrentStep(0);
 				}
+			} catch (error) {
+				console.error('[WIZARD] Error loading user data:', error);
+				// On error, default to Step0
+				setCurrentStep(0);
+			} finally {
+				setIsLoadingUser(false);
 			}
 		};
 		getUserData();
@@ -307,120 +325,129 @@ export function BookCreationWizard({
 			)}
 
 			{/* Wizard */}
-			<div className="flex h-full flex-col">
-				{/* Progress Bar */}
-				<div className="border-b border-border bg-card p-4 transition-colors duration-300">
-					{(() => {
-						// Calculate total steps and current step for display
-						let totalSteps: number;
-						let displayStep: number;
-
-						if (isPremium && config.planType === 'premium') {
-							// Premium: Step0 skipped, so 4 steps (1, 2, 3, 4)
-							totalSteps = 4;
-							displayStep = currentStep; // currentStep is already 1, 2, 3, 4
-						} else if (config.planType === 'free') {
-							// FREE: Step0 + Step1 + Step2 (skip 3, 4)
-							totalSteps = 3;
-							displayStep = currentStep + 1; // Convert 0-based to 1-based
-						} else {
-							// Default: Step0 + 1 + 2 + 3 + 4 = 5 steps
-							totalSteps = 5;
-							displayStep = currentStep + 1; // Convert 0-based to 1-based
-						}
-
-						const progress =
-							totalSteps > 1 ? Math.round(((displayStep - 1) / (totalSteps - 1)) * 100) : 0;
-
-						return (
-							<>
-								<div className="mb-2 flex items-center justify-between text-sm">
-									<span className="text-muted-foreground">
-										Шаг {displayStep} из {totalSteps}
-									</span>
-									<span className="font-medium">{progress}%</span>
-								</div>
-								<Progress className="h-2" value={progress} />
-							</>
-						);
-					})()}
+			{isLoadingUser ? (
+				<div className="flex h-full items-center justify-center">
+					<div className="text-center">
+						<div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+						<p className="text-muted-foreground text-sm">Загрузка...</p>
+					</div>
 				</div>
+			) : (
+				<div className="flex h-full flex-col">
+					{/* Progress Bar */}
+					<div className="border-b border-border bg-card p-4 transition-colors duration-300">
+						{(() => {
+							// Calculate total steps and current step for display
+							let totalSteps: number;
+							let displayStep: number;
 
-				{/* Content */}
-				<div className="max-h-[calc(100vh-180px)] overflow-y-auto p-4">
-					<Card>
-						<CardHeader>
-							<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3 sm:space-y-4">
-							{currentStep === 0 && (
-								<Step0PlanType
-									config={config}
-									isPremium={isPremium}
-									onConfigChange={handleConfigChange}
-									onUpgrade={() => setShowUpsellModal(true)}
-								/>
-							)}
-							{currentStep === 1 && (
-								<Step1Period
-									config={config}
-									onConfigChange={handleConfigChange}
-									isPremium={isPremium}
-								/>
-							)}
-							{currentStep === 2 && (
-								<Step2Contexts
-									availableCategories={availableCategories}
-									config={config}
-									onConfigChange={handleConfigChange}
-								/>
-							)}
-							{currentStep === 3 && (
-								<Step3Style config={config} onConfigChange={handleConfigChange} />
-							)}
-							{currentStep === 4 && (
-								<Step4Layout config={config} onConfigChange={handleConfigChange} />
-							)}
+							if (isPremium && config.planType === 'premium') {
+								// Premium: Step0 skipped, so 4 steps (1, 2, 3, 4)
+								totalSteps = 4;
+								displayStep = currentStep; // currentStep is already 1, 2, 3, 4
+							} else if (config.planType === 'free') {
+								// FREE: Step0 + Step1 + Step2 (skip 3, 4)
+								totalSteps = 3;
+								displayStep = currentStep + 1; // Convert 0-based to 1-based
+							} else {
+								// Default: Step0 + 1 + 2 + 3 + 4 = 5 steps
+								totalSteps = 5;
+								displayStep = currentStep + 1; // Convert 0-based to 1-based
+							}
 
-							{/* Error Display */}
-							{generationError && (
-								<div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-									<p className="mb-2 font-semibold text-destructive">❌ Ошибка генерации</p>
-									<p className="mb-3 text-sm text-destructive">{generationError}</p>
-									<button
-										className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors duration-300 hover:bg-destructive/90"
-										onClick={handleRetry}
-										type="button"
-									>
-										Повторить попытку
-									</button>
-								</div>
-							)}
+							const progress =
+								totalSteps > 1 ? Math.round(((displayStep - 1) / (totalSteps - 1)) * 100) : 0;
 
-							{/* Final step hint */}
-							{currentStep === 4 && (
-								<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
-									<p className="text-muted-foreground text-sm">
-										Сейчас будет создан черновик книги. На следующем шаге ты сможешь отредактировать
-										её и сохранить финальную PDF‑версию для скачивания.
-									</p>
-								</div>
-							)}
-						</CardContent>
-					</Card>
+							return (
+								<>
+									<div className="mb-2 flex items-center justify-between text-sm">
+										<span className="text-muted-foreground">
+											Шаг {displayStep} из {totalSteps}
+										</span>
+										<span className="font-medium">{progress}%</span>
+									</div>
+									<Progress className="h-2" value={progress} />
+								</>
+							);
+						})()}
+					</div>
+
+					{/* Content */}
+					<div className="max-h-[calc(100vh-180px)] overflow-y-auto p-4">
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-3 sm:space-y-4">
+								{currentStep === 0 && (
+									<Step0PlanType
+										config={config}
+										isPremium={isPremium}
+										onConfigChange={handleConfigChange}
+										onUpgrade={() => setShowUpsellModal(true)}
+									/>
+								)}
+								{currentStep === 1 && (
+									<Step1Period
+										config={config}
+										onConfigChange={handleConfigChange}
+										isPremium={isPremium}
+									/>
+								)}
+								{currentStep === 2 && (
+									<Step2Contexts
+										availableCategories={availableCategories}
+										config={config}
+										onConfigChange={handleConfigChange}
+									/>
+								)}
+								{currentStep === 3 && (
+									<Step3Style config={config} onConfigChange={handleConfigChange} />
+								)}
+								{currentStep === 4 && (
+									<Step4Layout config={config} onConfigChange={handleConfigChange} />
+								)}
+
+								{/* Error Display */}
+								{generationError && (
+									<div className="rounded-lg border border-destructive bg-destructive/10 p-4">
+										<p className="mb-2 font-semibold text-destructive">❌ Ошибка генерации</p>
+										<p className="mb-3 text-sm text-destructive">{generationError}</p>
+										<button
+											className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors duration-300 hover:bg-destructive/90"
+											onClick={handleRetry}
+											type="button"
+										>
+											Повторить попытку
+										</button>
+									</div>
+								)}
+
+								{/* Final step hint */}
+								{currentStep === 4 && (
+									<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
+										<p className="text-muted-foreground text-sm">
+											Сейчас будет создан черновик книги. На следующем шаге ты сможешь
+											отредактировать её и сохранить финальную PDF‑версию для скачивания.
+										</p>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					</div>
+
+					{/* Navigation */}
+					<WizardNavigation
+						config={config}
+						currentStep={currentStep}
+						isGenerating={isGenerating}
+						onCancel={onCancel}
+						onGenerate={handleGenerate}
+						onNext={handleNext}
+						onPrevious={handlePrevious}
+					/>
 				</div>
-
-				{/* Navigation */}
-				<WizardNavigation
-					config={config}
-					currentStep={currentStep}
-					isGenerating={isGenerating}
-					onCancel={onCancel}
-					onGenerate={handleGenerate}
-					onNext={handleNext}
-					onPrevious={handlePrevious}
-				/>
-			</div>
+			)}
 		</>
 	);
 }

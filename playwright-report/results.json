@@ -142,7 +142,7 @@
         {
           "title": "Books System",
           "file": "books-system.spec.ts",
-          "line": 17,
+          "line": 68,
           "column": 6,
           "specs": [
             {
@@ -160,40 +160,32 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 31624,
+                      "status": "failed",
+                      "duration": 21477,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:14:55.819Z",
+                      "startTime": "2025-11-22T14:56:51.496Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -214,8 +206,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -224,7 +216,7 @@
               ],
               "id": "de273373595cd8eb9807-a373c2f2395287fde95c",
               "file": "books-system.spec.ts",
-              "line": 35,
+              "line": 92,
               "column": 6
             },
             {
@@ -242,40 +234,32 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "timedOut",
-                      "duration": 32124,
+                      "status": "failed",
+                      "duration": 28128,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:14:55.833Z",
+                      "startTime": "2025-11-22T14:56:51.486Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -296,8 +280,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -306,7 +290,7 @@
               ],
               "id": "de273373595cd8eb9807-32dc0dbcf1284488cd6a",
               "file": "books-system.spec.ts",
-              "line": 71,
+              "line": 150,
               "column": 6
             },
             {
@@ -324,40 +308,32 @@
                     {
                       "workerIndex": 2,
                       "parallelIndex": 2,
-                      "status": "timedOut",
-                      "duration": 31636,
+                      "status": "failed",
+                      "duration": 20111,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:14:55.815Z",
+                      "startTime": "2025-11-22T14:56:51.500Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -378,8 +354,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -388,7 +364,7 @@
               ],
               "id": "de273373595cd8eb9807-ebe6192b9b36832a8fce",
               "file": "books-system.spec.ts",
-              "line": 120,
+              "line": 199,
               "column": 6
             },
             {
@@ -406,40 +382,32 @@
                     {
                       "workerIndex": 3,
                       "parallelIndex": 3,
-                      "status": "timedOut",
-                      "duration": 31750,
+                      "status": "failed",
+                      "duration": 21329,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:14:55.821Z",
+                      "startTime": "2025-11-22T14:56:51.514Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -460,8 +428,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -470,7 +438,7 @@
               ],
               "id": "de273373595cd8eb9807-0d6f371e95917ffc3599",
               "file": "books-system.spec.ts",
-              "line": 140,
+              "line": 229,
               "column": 6
             },
             {
@@ -487,41 +455,33 @@
                   "results": [
                     {
                       "workerIndex": 4,
-                      "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 31648,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 30119,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:15:34.135Z",
+                      "startTime": "2025-11-22T14:57:13.188Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -542,8 +502,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -552,7 +512,7 @@
               ],
               "id": "de273373595cd8eb9807-749cc1c7edee326061b4",
               "file": "books-system.spec.ts",
-              "line": 169,
+              "line": 258,
               "column": 6
             },
             {
@@ -568,42 +528,34 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 7,
-                      "parallelIndex": 1,
-                      "status": "timedOut",
-                      "duration": 31616,
+                      "workerIndex": 5,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 25242,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:15:34.133Z",
+                      "startTime": "2025-11-22T14:57:21.606Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -624,8 +576,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -634,7 +586,7 @@
               ],
               "id": "de273373595cd8eb9807-25bdf4d27325276ae3fb",
               "file": "books-system.spec.ts",
-              "line": 207,
+              "line": 296,
               "column": 6
             },
             {
@@ -651,41 +603,33 @@
                   "results": [
                     {
                       "workerIndex": 6,
-                      "parallelIndex": 2,
-                      "status": "timedOut",
-                      "duration": 31431,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 26722,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:15:34.137Z",
+                      "startTime": "2025-11-22T14:57:22.701Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -706,8 +650,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -716,7 +660,7 @@
               ],
               "id": "de273373595cd8eb9807-8998c38c079b580b75a1",
               "file": "books-system.spec.ts",
-              "line": 234,
+              "line": 323,
               "column": 6
             },
             {
@@ -732,42 +676,34 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 3,
-                      "status": "timedOut",
-                      "duration": 31499,
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 19158,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7",
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
                         "location": {
                           "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                          "column": 7,
-                          "line": 18
+                          "column": 19,
+                          "line": 53
                         },
-                        "snippet": "  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t"
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 7,
-                            "line": 18
+                            "column": 19,
+                            "line": 53
                           },
-                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  16 |\n  17 | test.describe('Books System', () => {\n> 18 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  19 | \t\t// Navigate to app\n  20 | \t\tawait page.goto('/');\n  21 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:18:7"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                            "column": 14,
-                            "line": 23
-                          },
-                          "message": "Error: page.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  21 | \t\t\n  22 | \t\t// Login\n> 23 | \t\tawait page.fill('input[type=\"email\"]', TEST_USER_EMAIL);\n     | \t\t           ^\n  24 | \t\tawait page.fill('input[type=\"password\"]', TEST_USER_PASSWORD);\n  25 | \t\tawait page.click('button[type=\"submit\"]');\n  26 | \t\t\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:23:14"
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-22T12:15:34.136Z",
+                      "startTime": "2025-11-22T14:57:38.096Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -788,8 +724,8 @@
                       ],
                       "errorLocation": {
                         "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
-                        "column": 7,
-                        "line": 18
+                        "column": 19,
+                        "line": 53
                       }
                     }
                   ],
@@ -798,7 +734,2353 @@
               ],
               "id": "de273373595cd8eb9807-991ed6ed6b20830bbc64",
               "file": "books-system.spec.ts",
-              "line": 277,
+              "line": 368,
+              "column": 6
+            },
+            {
+              "title": "should create FREE book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 21271,
+                      "error": {
+                        "message": "Error: page.goto: NS_BINDING_ABORTED\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: NS_BINDING_ABORTED\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: NS_BINDING_ABORTED\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:57:50.436Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-6f10346be88d403682b8",
+              "file": "books-system.spec.ts",
+              "line": 92,
+              "column": 6
+            },
+            {
+              "title": "should create PREMIUM book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 40999,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 46,
+                            "line": 42
+                          },
+                          "message": "Error: locator.count: Test timeout of 30000ms exceeded.\n\n  40 | \t// Check if we need to switch to login mode (from register mode)\n  41 | \tconst authToggleButton = page.getByText(/Уже есть аккаунт\\?/i);\n> 42 | \tconst needsToggle = (await authToggleButton.count()) > 0;\n     | \t                                            ^\n  43 |\n  44 | \tif (needsToggle) {\n  45 | \t\t// Click to switch to login mode\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:42:46)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:57:53.140Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-1d3aa3c6e94085a6b588",
+              "file": "books-system.spec.ts",
+              "line": 150,
+              "column": 6
+            },
+            {
+              "title": "should open book library and display books",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 41000,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:57:55.079Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-d503909d12448c8c9121",
+              "file": "books-system.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "should filter books by status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 34611,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 14,
+                            "line": 72
+                          },
+                          "message": "Error: page.waitForLoadState: Test timeout of 30000ms exceeded.\n\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n> 72 | \t\tawait page.waitForLoadState('networkidle');\n     | \t\t           ^\n  73 | \t\tawait page.waitForTimeout(2000);\n  74 |\n  75 | \t\t// Check if already logged in (look for Reports button or user menu)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:72:14"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:58:05.302Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-808d2d7c2eac4378f1ba",
+              "file": "books-system.spec.ts",
+              "line": 229,
+              "column": 6
+            },
+            {
+              "title": "should filter books by plan type",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 41764,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:58:53.465Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-0342ace689dfc487869b",
+              "file": "books-system.spec.ts",
+              "line": 258,
+              "column": 6
+            },
+            {
+              "title": "should open book editor",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 45809,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:58:53.438Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-1f28ba10abf7ce0f627b",
+              "file": "books-system.spec.ts",
+              "line": 296,
+              "column": 6
+            },
+            {
+              "title": "should prevent multiple book generation calls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 44804,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:58:53.455Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-6fbb3020ccb24847aa24",
+              "file": "books-system.spec.ts",
+              "line": 323,
+              "column": 6
+            },
+            {
+              "title": "should check console for errors on page load",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 41934,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 46,
+                            "line": 42
+                          },
+                          "message": "Error: locator.count: Test timeout of 30000ms exceeded.\n\n  40 | \t// Check if we need to switch to login mode (from register mode)\n  41 | \tconst authToggleButton = page.getByText(/Уже есть аккаунт\\?/i);\n> 42 | \tconst needsToggle = (await authToggleButton.count()) > 0;\n     | \t                                            ^\n  43 |\n  44 | \tif (needsToggle) {\n  45 | \t\t// Click to switch to login mode\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:42:46)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:58:56.093Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-firefox/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-e1eb4cb9f3529ff0aee0",
+              "file": "books-system.spec.ts",
+              "line": 368,
+              "column": 6
+            },
+            {
+              "title": "should create FREE book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 49441,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:59:51.249Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-d84b5f0d1f8503f245fe",
+              "file": "books-system.spec.ts",
+              "line": 92,
+              "column": 6
+            },
+            {
+              "title": "should create PREMIUM book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 50051,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 7,
+                          "line": 69
+                        },
+                        "snippet": "  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 7,
+                            "line": 69
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  67 |\n  68 | test.describe('Books System', () => {\n> 69 | \ttest.beforeEach(async ({ page }) => {\n     | \t     ^\n  70 | \t\t// Navigate to production\n  71 | \t\tawait page.goto('https://unity-wine.vercel.app');\n  72 | \t\tawait page.waitForLoadState('networkidle');\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:69:7"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:59:51.799Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 7,
+                        "line": 69
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-d7e75d06475ab16dd587",
+              "file": "books-system.spec.ts",
+              "line": 150,
+              "column": 6
+            },
+            {
+              "title": "should open book library and display books",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 27630,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:59:53.171Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-d28ab3f4948b6617a260",
+              "file": "books-system.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "should filter books by status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 27302,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T14:59:54.086Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-0302d89da526ffaa979e",
+              "file": "books-system.spec.ts",
+              "line": 229,
+              "column": 6
+            },
+            {
+              "title": "should filter books by plan type",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 10553,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:00:33.995Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-2a9177a4a316737710b7",
+              "file": "books-system.spec.ts",
+              "line": 258,
+              "column": 6
+            },
+            {
+              "title": "should open book editor",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 28335,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:00:34.016Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-4f4c2a5950c62ba04c81",
+              "file": "books-system.spec.ts",
+              "line": 296,
+              "column": 6
+            },
+            {
+              "title": "should prevent multiple book generation calls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 15662,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:00:50.920Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-3583afe23c2d1c05ccf1",
+              "file": "books-system.spec.ts",
+              "line": 323,
+              "column": 6
+            },
+            {
+              "title": "should check console for errors on page load",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 15719,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:00:51.055Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-webkit/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-e156ebd899e5e0225aba",
+              "file": "books-system.spec.ts",
+              "line": 368,
+              "column": 6
+            },
+            {
+              "title": "should create FREE book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 24,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 24827,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:00:51.444Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-25e5a75d8dd116661a23",
+              "file": "books-system.spec.ts",
+              "line": 92,
+              "column": 6
+            },
+            {
+              "title": "should create PREMIUM book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19041,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:08.516Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-ed428ea0d456040d6a2a",
+              "file": "books-system.spec.ts",
+              "line": 150,
+              "column": 6
+            },
+            {
+              "title": "should open book library and display books",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 26,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 26032,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:10.214Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-5516987aa4c86a8289e7",
+              "file": "books-system.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "should filter books by status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 27,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 25619,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:10.154Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-74b248d5cb6d234ca0c0",
+              "file": "books-system.spec.ts",
+              "line": 229,
+              "column": 6
+            },
+            {
+              "title": "should filter books by plan type",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 28,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 24797,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:27.589Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-0e25085fdbbfbc4d9d5d",
+              "file": "books-system.spec.ts",
+              "line": 258,
+              "column": 6
+            },
+            {
+              "title": "should open book editor",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 29,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18971,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:39.911Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-dbb4db52776ed4933320",
+              "file": "books-system.spec.ts",
+              "line": 296,
+              "column": 6
+            },
+            {
+              "title": "should prevent multiple book generation calls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 30,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 21598,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:41.969Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-66c408a14ea458d65a90",
+              "file": "books-system.spec.ts",
+              "line": 323,
+              "column": 6
+            },
+            {
+              "title": "should check console for errors on page load",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 31,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 21330,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:42.159Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-066ed2552bfe6c6959cf",
+              "file": "books-system.spec.ts",
+              "line": 368,
+              "column": 6
+            },
+            {
+              "title": "should create FREE book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 32,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 23526,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:01:59.777Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--9d66e-eate-FREE-book-successfully-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-6a2ab6646db1e71d669e",
+              "file": "books-system.spec.ts",
+              "line": 92,
+              "column": 6
+            },
+            {
+              "title": "should create PREMIUM book successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 33,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 21273,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:03.207Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--a3474-e-PREMIUM-book-successfully-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-9f30aacc6cf14668cad5",
+              "file": "books-system.spec.ts",
+              "line": 150,
+              "column": 6
+            },
+            {
+              "title": "should open book library and display books",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 34,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 11118,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:08.894Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--e2600-k-library-and-display-books-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-af34ab75cd25b398a656",
+              "file": "books-system.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "should filter books by status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 35,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 11188,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:08.930Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-status-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-487442903cf5f12254c3",
+              "file": "books-system.spec.ts",
+              "line": 229,
+              "column": 6
+            },
+            {
+              "title": "should filter books by plan type",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 37,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 22592,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:27.039Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-filter-books-by-plan-type-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-639bfce7dfb62d7e9302",
+              "file": "books-system.spec.ts",
+              "line": 258,
+              "column": 6
+            },
+            {
+              "title": "should open book editor",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 36,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 22290,
+                      "error": {
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 13,
+                          "line": 25
+                        },
+                        "snippet": "  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 13,
+                            "line": 25
+                          },
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4173/\" is interrupted by another navigation to \"https://unity-wine.vercel.app/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4173/\", waiting until \"load\"\u001b[22m\n\n\n  23 |  */\n  24 | async function login(page: any, email: string, password: string) {\n> 25 | \tawait page.goto('/');\n     | \t           ^\n  26 | \tawait page.waitForLoadState('networkidle');\n  27 |\n  28 | \t// Check if we're on WelcomeScreen (has \"У меня уже есть аккаунт\" button)\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:25:13)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:10"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:27.028Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System-should-open-book-editor-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 13,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-39436c8c581804f361f3",
+              "file": "books-system.spec.ts",
+              "line": 296,
+              "column": 6
+            },
+            {
+              "title": "should prevent multiple book generation calls",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 38,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 26028,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:28.031Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--1411a-tiple-book-generation-calls-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-a14e4d3831707fdcd412",
+              "file": "books-system.spec.ts",
+              "line": 323,
+              "column": 6
+            },
+            {
+              "title": "should check console for errors on page load",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 39,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 24536,
+                      "error": {
+                        "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n",
+                        "stack": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4",
+                        "location": {
+                          "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                          "column": 19,
+                          "line": 53
+                        },
+                        "snippet": "  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                            "column": 19,
+                            "line": 53
+                          },
+                          "message": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByPlaceholder(/email|почта/i)\u001b[22m\n\n\n  51 | \t// Fill email\n  52 | \tconst emailInput = page.getByPlaceholder(/email|почта/i);\n> 53 | \tawait emailInput.fill(email, { timeout: 10000 });\n     | \t                 ^\n  54 |\n  55 | \t// Fill password\n  56 | \tconst passwordInput = page.getByPlaceholder(/password|пароль/i);\n    at login (/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:53:19)\n    at /Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts:81:4"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-22T15:02:31.552Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/rustamkarimov/DEV/UNITY-v2/test-results/books-system-Books-System--c4ffc-ole-for-errors-on-page-load-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/rustamkarimov/DEV/UNITY-v2/tests/e2e/books-system.spec.ts",
+                        "column": 19,
+                        "line": 53
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "de273373595cd8eb9807-2b6882b381d79e012866",
+              "file": "books-system.spec.ts",
+              "line": 368,
               "column": 6
             }
           ]
@@ -808,11 +3090,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-11-22T12:14:54.082Z",
-    "duration": 75604.914,
+    "startTime": "2025-11-22T14:56:50.632Z",
+    "duration": 369530.80600000004,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 8,
+    "unexpected": 40,
     "flaky": 0
   }
 }

@@ -46,7 +46,7 @@ export function Checkbox({
 		if (disabled) return;
 		if (event.key === ' ' || event.code === 'Space') {
 			event.preventDefault();
-			onCheckedChange?.(checked === true ? false : true);
+			onCheckedChange?.(checked !== true);
 		}
 	};
 

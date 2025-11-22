@@ -13,9 +13,6 @@ import type { SoundAdapter, SoundOptions } from './types';
 // import { Audio } from 'expo-av';
 
 class NativeSoundAdapter implements SoundAdapter {
-	private currentSound: any = null;
-	private globalVolume = 1.0;
-
 	async play(soundPath: string, options: SoundOptions = {}): Promise<void> {
 		console.log('[NativeSoundAdapter] TODO: Implement with expo-av');
 		console.log('[NativeSoundAdapter] soundPath:', soundPath);

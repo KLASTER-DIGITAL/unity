@@ -13,8 +13,8 @@
  * @date 2025-11-07
  */
 
-import { BlobProvider, Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { Download, Eye, Image as ImageIcon, Save, Sparkles, Trash2, Upload } from 'lucide-react';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Eye, Image as ImageIcon, Save, Sparkles, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,7 +22,6 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Label } from '@/shared/components/ui/label';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { API_URLS } from '@/shared/lib/api/config/urls';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
@@ -171,7 +170,7 @@ function createPDFStyles(settings: BookSettings) {
 }
 
 // PDF Document Component
-function BookPDF({
+function _BookPDF({
 	story,
 	metadata,
 	translations,
@@ -306,16 +305,16 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	const { t } = useTranslation();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
-	const [isRendering, setIsRendering] = useState(false);
+	const [_isRendering, setIsRendering] = useState(false);
 	const [draft, setDraft] = useState<{
 		metadata?: BookMetadata | null;
 		layout?: 'photo_text' | 'text_only' | 'minimal';
 		style?: 'warm_family' | 'biographical' | 'motivational';
 		theme?: 'light' | 'dark';
 		planType?: 'free' | 'premium';
+		pdfUrl?: string | null;
 	} | null>(null);
 	const [story, setStory] = useState<StoryJson | null>(null);
-	const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 	const [userId, setUserId] = useState<string | null>(null);
 	const [photos, setPhotos] = useState<BookPhoto[]>([]);
 	const [uploadingPhotoForChapter, setUploadingPhotoForChapter] = useState<number | null>(null);
@@ -365,6 +364,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 						'warm_family',
 					theme: (data as { theme?: 'light' | 'dark' }).theme || 'light',
 					planType: (data as { plan_type?: 'free' | 'premium' }).plan_type || 'premium',
+					pdfUrl: (data as { pdf_url?: string | null }).pdf_url || null,
 				});
 				const storyData = (data as { story_json: StoryJson }).story_json;
 				// ✅ FIX: Ensure chapters array exists
@@ -478,13 +478,34 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 			setIsSaving(true);
 			const supabase = createClient();
 
-			const { error } = await supabase
+			// ✅ Получаем текущий статус книги
+			const { data: currentBook } = await supabase
 				.from('books_archive')
-				.update({
-					story_json: story,
-					updated_at: new Date().toISOString(),
-				})
-				.eq('id', draftId);
+				.select('is_draft, is_final')
+				.eq('id', draftId)
+				.single();
+
+			// ✅ Если это черновик - при сохранении делаем его готовой книгой
+			// ✅ Если это готовая книга - просто обновляем (сохраняем поверх старой версии)
+			const updateData: {
+				story_json: StoryJson;
+				updated_at: string;
+				is_draft?: boolean;
+				is_final?: boolean;
+			} = {
+				story_json: story,
+				updated_at: new Date().toISOString(),
+			};
+
+			// Если это черновик - меняем статус на "Готово"
+			const isDraftToFinal = currentBook?.is_draft;
+			if (isDraftToFinal) {
+				updateData.is_draft = false;
+				updateData.is_final = true;
+			}
+			// Если это готовая книга - просто обновляем (не меняем статус)
+
+			const { error } = await supabase.from('books_archive').update(updateData).eq('id', draftId);
 
 			if (error) {
 				console.error('[DRAFT-EDITOR] Error saving:', error);
@@ -492,7 +513,41 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				return;
 			}
 
-			toast.success(t('books.editor.save_success', 'Изменения сохранены'));
+			// ✅ FIX: Если черновик стал готовой книгой, автоматически создаем PDF
+			if (isDraftToFinal) {
+				console.log('[DRAFT-EDITOR] Draft became final, creating PDF automatically...');
+				toast.success(
+					t('books.editor.save_success_ready', 'Книга сохранена и готова! Создание PDF...')
+				);
+
+				// ✅ FIX: Ждем создания PDF перед закрытием редактора, чтобы PDF был готов к просмотру
+				try {
+					await handleRenderPDF();
+					console.log('[DRAFT-EDITOR] PDF created successfully, closing editor');
+				} catch (error) {
+					console.error('[DRAFT-EDITOR] Error creating PDF after save:', error);
+
+					// ✅ FIX: Показываем более детальное сообщение об ошибке
+					const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+					console.error('[DRAFT-EDITOR] PDF creation error details:', {
+						errorMessage,
+						bookId: draftId,
+						userId,
+					});
+
+					// Показываем предупреждение с деталями ошибки, но не блокируем закрытие
+					toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'), {
+						description:
+							errorMessage.length > 100 ? `${errorMessage.substring(0, 100)}...` : errorMessage,
+						duration: 5000,
+					});
+				}
+			} else {
+				toast.success(t('books.editor.save_success', 'Изменения сохранены'));
+			}
+
+			// ✅ После сохранения переходим обратно в полку книг
+			onComplete?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -536,15 +591,66 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				}),
 			});
 
+			if (!response.ok) {
+				let errorMessage = `HTTP ${response.status}`;
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.error || errorMessage;
+				} catch {
+					const errorText = await response.text();
+					errorMessage = errorText || errorMessage;
+				}
+				console.error('[DRAFT-EDITOR] PDF creation failed:', response.status, errorMessage);
+				throw new Error(errorMessage);
+			}
+
 			const result = await response.json();
 
 			if (!result.success) {
 				throw new Error(result.error || 'Не удалось создать PDF');
 			}
 
-			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
-			console.log('[DRAFT-EDITOR] PDF URL:', result.pdfUrl);
-			onComplete?.();
+			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// Проверяем доступность PDF с retry (до 3 попыток)
+			let isAvailable = false;
+			for (let attempt = 0; attempt < 3; attempt++) {
+				try {
+					const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
+					if (checkResponse.ok) {
+						isAvailable = true;
+						break;
+					}
+				} catch (error) {
+					console.warn(
+						`[DRAFT-EDITOR] PDF availability check attempt ${attempt + 1} failed:`,
+						error
+					);
+				}
+
+				if (attempt < 2 && !isAvailable) {
+					await new Promise((resolve) => setTimeout(resolve, 1000));
+				}
+			}
+
+			if (isAvailable) {
+				toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
+				console.log('[DRAFT-EDITOR] PDF URL:', result.pdfUrl);
+			} else {
+				console.warn('[DRAFT-EDITOR] PDF created but not yet available');
+				toast.warning(
+					t('books.editor.pdf_warning', 'PDF создан, но еще не доступен. Попробуйте позже.')
+				);
+			}
+
+			// ✅ FIX: onComplete вызывается только если handleRenderPDF вызван напрямую (не из handleSave)
+			// Если вызван из handleSave, onComplete уже будет вызван там
+			// Определяем это по наличию параметра _blob (если он undefined, значит вызван напрямую)
+			// Но также проверяем, что мы не в процессе сохранения (isSaving)
+			if (_blob === undefined && !isSaving) {
+				onComplete?.();
+			}
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
 			toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'));
@@ -619,320 +725,247 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 
 			{/* Content */}
 			<div className="max-h-[calc(100vh-120px)] overflow-y-auto p-4 sm:p-6">
-				<Tabs onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')} value={activeTab}>
-					<TabsList className="mb-4 grid w-full grid-cols-2">
-						<TabsTrigger className="text-xs sm:text-sm" value="edit">
-							<Save className="mr-1 h-4 w-4 sm:mr-2" strokeWidth={2} />
-							<span className="hidden sm:inline">Редактировать</span>
-							<span className="sm:hidden">Правка</span>
-						</TabsTrigger>
-						<TabsTrigger className="text-xs sm:text-sm" value="preview">
-							<Eye className="mr-1 h-4 w-4 sm:mr-2" strokeWidth={2} />
-							<span className="hidden sm:inline">Предпросмотр</span>
-							<span className="sm:hidden">Просмотр</span>
-						</TabsTrigger>
-					</TabsList>
-
-					{/* Edit Tab */}
-					<TabsContent className="space-y-4" value="edit">
-						{/* FREE Book Notice with Upsell */}
-						{draft?.planType === 'free' && (
-							<Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5">
-								<CardContent className="py-4">
-									<div className="flex items-start gap-3">
-										<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20">
-											<Sparkles className="h-5 w-5 text-primary" strokeWidth={2} />
-										</div>
-										<div className="flex-1 space-y-2">
-											<p className="text-primary text-sm font-semibold">
-												📖 FREE книга — упрощенный редактор
-											</p>
-											<p className="text-muted-foreground text-xs leading-relaxed">
-												Вы можете изменить название, подзаголовок и добавить фото. Для
-												редактирования текста, AI-глав и персональных историй перейдите на Premium.
-											</p>
-											<Button
-												className="mt-2 h-8 text-xs"
-												onClick={() => {
-													// Navigate to premium upsell
-													window.location.href = '/?view=admin#subscriptions';
-												}}
-												size="sm"
-												variant="default"
-											>
-												<Sparkles className="mr-1.5 h-3 w-3" />
-												Перейти на Premium
-											</Button>
-										</div>
+				<div className="space-y-4">
+					{/* FREE Book Notice with Upsell */}
+					{draft?.planType === 'free' && (
+						<Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5">
+							<CardContent className="py-4">
+								<div className="flex items-start gap-3">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20">
+										<Sparkles className="h-5 w-5 text-primary" strokeWidth={2} />
 									</div>
-								</CardContent>
-							</Card>
-						)}
-
-						<Card>
-							<CardHeader>
-								<CardTitle>{t('books.editor.title', 'Основная информация')}</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-3 sm:space-y-4">
-								<div>
-									<Label className="text-sm sm:text-base" htmlFor="title">
-										{t('books.editor.book_title', 'Название книги')}
-									</Label>
-									<input
-										className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
-										id="title"
-										onChange={(e) => setStory({ ...story, title: e.target.value })}
-										style={{ minHeight: '44px' }}
-										value={story.title}
-									/>
-								</div>
-								<div>
-									<Label className="text-sm sm:text-base" htmlFor="subtitle">
-										{t('books.editor.subtitle', 'Подзаголовок')}
-									</Label>
-									<input
-										className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
-										id="subtitle"
-										onChange={(e) => setStory({ ...story, subtitle: e.target.value })}
-										style={{ minHeight: '44px' }}
-										value={story.subtitle}
-									/>
-								</div>
-								{/* Prologue - только для PREMIUM */}
-								{draft?.planType !== 'free' && (
-									<div>
-										<Label className="text-sm sm:text-base" htmlFor="prologue">
-											{t('books.pdf.prologue', 'Вступление')}
-										</Label>
-										<textarea
-											className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
-											id="prologue"
-											onChange={(e) => setStory({ ...story, prologue: e.target.value })}
-											rows={4}
-											value={story.prologue}
-										/>
+									<div className="flex-1 space-y-2">
+										<p className="text-primary text-sm font-semibold">
+											📖 FREE книга — упрощенный редактор
+										</p>
+										<p className="text-muted-foreground text-xs leading-relaxed">
+											Вы можете изменить название, подзаголовок и добавить фото. Для редактирования
+											текста, AI-глав и персональных историй перейдите на Premium.
+										</p>
+										<Button
+											className="mt-2 h-8 text-xs"
+											onClick={() => {
+												// Navigate to premium upsell
+												window.location.href = '/?view=admin#subscriptions';
+											}}
+											size="sm"
+											variant="default"
+										>
+											<Sparkles className="mr-1.5 h-3 w-3" />
+											Перейти на Premium
+										</Button>
 									</div>
-								)}
+								</div>
 							</CardContent>
 						</Card>
+					)}
 
-						{/* Chapters - только для PREMIUM */}
-						{draft?.planType !== 'free' && (
-							<Card>
-								<CardHeader>
-									<CardTitle>Главы ({story.chapters?.length || 0})</CardTitle>
-								</CardHeader>
-								<CardContent className="space-y-4">
-									{(story.chapters || []).map((chapter, index) => (
-										<div className="rounded-lg border p-4" key={chapter.title || `${index}`}>
-											<Label>
-												{t('books.pdf.chapter', 'Глава')} {index + 1}
-											</Label>
-											<input
-												className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
-												onChange={(e) => {
-													const newChapters = [...(story.chapters || [])];
-													newChapters[index] = { ...chapter, title: e.target.value };
-													setStory({ ...story, chapters: newChapters });
-												}}
-												placeholder="Название главы"
-												value={chapter.title}
-											/>
-											<textarea
-												className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
-												onChange={(e) => {
-													const newChapters = [...(story.chapters || [])];
-													newChapters[index] = { ...chapter, content: e.target.value };
-													setStory({ ...story, chapters: newChapters });
-												}}
-												placeholder="Содержание главы"
-												rows={4}
-												value={chapter.content}
-											/>
-
-											{/* Photos for chapter */}
-											{draft?.layout === 'photo_text' && (
-												<div className="mt-4">
-													<Label className="mb-2 block text-xs text-muted-foreground">
-														{t('books.photos', 'Фотографии')}
-													</Label>
-													<div className="flex flex-wrap gap-2">
-														{photos
-															.filter((p) => p.chapterIndex === index)
-															.map((photo) => (
-																<div className="group relative" key={photo.id}>
-																	<img
-																		alt="Chapter"
-																		className="h-20 w-20 rounded-md border border-border object-cover"
-																		src={photo.photoUrl}
-																	/>
-																	<button
-																		className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-																		onClick={() => handleDeletePhoto(photo.id)}
-																		type="button"
-																	>
-																		<Trash2 className="h-3 w-3" />
-																	</button>
-																</div>
-															))}
-														<label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-md border border-muted-foreground/50 border-dashed transition-colors hover:bg-accent">
-															{uploadingPhotoForChapter === index ? (
-																<Sparkles className="h-5 w-5 animate-spin text-muted-foreground" />
-															) : (
-																<>
-																	<ImageIcon className="mb-1 h-5 w-5 text-muted-foreground" />
-																	<span className="text-[10px] text-muted-foreground">
-																		{t('books.add_photo', 'Добавить')}
-																	</span>
-																</>
-															)}
-															<input
-																accept="image/*"
-																className="hidden"
-																disabled={uploadingPhotoForChapter === index}
-																onChange={(e) => {
-																	if (e.target.files?.[0]) {
-																		handlePhotoUpload(index, e.target.files[0]);
-																	}
-																}}
-																type="file"
-															/>
-														</label>
-													</div>
-												</div>
-											)}
-										</div>
-									))}
-								</CardContent>
-							</Card>
-						)}
-
-						{/* FREE Book: Photo Collage */}
-						{draft?.planType === 'free' && photos.length > 0 && (
-							<Card>
-								<CardHeader>
-									<CardTitle>Фотографии</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="grid grid-cols-3 gap-2">
-										{photos.map((photo) => (
-											<div className="group relative" key={photo.id}>
-												<img
-													alt={photo.caption || 'Book photo'}
-													className="h-24 w-full rounded-md border border-border object-cover"
-													src={photo.photoUrl}
-												/>
-												<button
-													className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-													onClick={() => handleDeletePhoto(photo.id)}
-													type="button"
-												>
-													<Trash2 className="h-3 w-3" />
-												</button>
-											</div>
-										))}
-									</div>
-									<label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-4 transition-colors duration-300 hover:border-primary">
-										<Upload className="mb-2 h-8 w-8 text-muted-foreground" />
-										<span className="text-muted-foreground text-sm">Добавить фото</span>
-										<input
-											accept="image/*"
-											className="hidden"
-											disabled={uploadingPhotoForChapter !== null}
-											onChange={(e) => {
-												if (e.target.files?.[0]) {
-													handlePhotoUpload(0, e.target.files[0]); // Use chapter 0 for FREE
-												}
-											}}
-											type="file"
-										/>
-									</label>
-								</CardContent>
-							</Card>
-						)}
-
-						<div className="flex gap-2">
-							<Button className="flex-1" disabled={isSaving} onClick={handleSave}>
-								<Save className="mr-2 h-4 w-4" strokeWidth={2} />
-								{isSaving ? 'Сохранение...' : 'Сохранить'}
-							</Button>
-							{onCancel && (
-								<Button onClick={onCancel} variant="outline">
-									Отмена
-								</Button>
+					<Card>
+						<CardHeader>
+							<CardTitle>{t('books.editor.title', 'Основная информация')}</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3 sm:space-y-4">
+							<div>
+								<Label className="text-sm sm:text-base" htmlFor="title">
+									{t('books.editor.book_title', 'Название книги')}
+								</Label>
+								<input
+									className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
+									id="title"
+									onChange={(e) => setStory({ ...story, title: e.target.value })}
+									style={{ minHeight: '44px' }}
+									value={story.title}
+								/>
+							</div>
+							<div>
+								<Label className="text-sm sm:text-base" htmlFor="subtitle">
+									{t('books.editor.subtitle', 'Подзаголовок')}
+								</Label>
+								<input
+									className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
+									id="subtitle"
+									onChange={(e) => setStory({ ...story, subtitle: e.target.value })}
+									style={{ minHeight: '44px' }}
+									value={story.subtitle}
+								/>
+							</div>
+							{/* Prologue - только для PREMIUM */}
+							{draft?.planType !== 'free' && (
+								<div>
+									<Label className="text-sm sm:text-base" htmlFor="prologue">
+										{t('books.pdf.prologue', 'Вступление')}
+									</Label>
+									<textarea
+										className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
+										id="prologue"
+										onChange={(e) => setStory({ ...story, prologue: e.target.value })}
+										rows={4}
+										value={story.prologue}
+									/>
+								</div>
 							)}
-						</div>
-					</TabsContent>
+						</CardContent>
+					</Card>
 
-					{/* Preview Tab */}
-					<TabsContent value="preview">
+					{/* Chapters - только для PREMIUM */}
+					{draft?.planType !== 'free' && (
 						<Card>
 							<CardHeader>
-								<CardTitle>Предпросмотр PDF</CardTitle>
+								<CardTitle>Главы ({story.chapters?.length || 0})</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								{(story.chapters || []).map((chapter, index) => (
+									<div className="rounded-lg border p-4" key={chapter.title || `${index}`}>
+										<Label>
+											{t('books.pdf.chapter', 'Глава')} {index + 1}
+										</Label>
+										<input
+											className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
+											onChange={(e) => {
+												const newChapters = [...(story.chapters || [])];
+												newChapters[index] = { ...chapter, title: e.target.value };
+												setStory({ ...story, chapters: newChapters });
+											}}
+											placeholder="Название главы"
+											value={chapter.title}
+										/>
+										<textarea
+											className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
+											onChange={(e) => {
+												const newChapters = [...(story.chapters || [])];
+												newChapters[index] = { ...chapter, content: e.target.value };
+												setStory({ ...story, chapters: newChapters });
+											}}
+											placeholder="Содержание главы"
+											rows={4}
+											value={chapter.content}
+										/>
+
+										{/* Photos for chapter */}
+										{draft?.layout === 'photo_text' && (
+											<div className="mt-4">
+												<Label className="mb-2 block text-xs text-muted-foreground">
+													{t('books.photos', 'Фотографии')}
+												</Label>
+												<div className="flex flex-wrap gap-2">
+													{photos
+														.filter((p) => p.chapterIndex === index)
+														.map((photo) => (
+															<div className="group relative" key={photo.id}>
+																<img
+																	alt="Chapter"
+																	className="h-20 w-20 rounded-md border border-border object-cover"
+																	src={photo.photoUrl}
+																/>
+																<button
+																	className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+																	onClick={() => handleDeletePhoto(photo.id)}
+																	type="button"
+																>
+																	<Trash2 className="h-3 w-3" />
+																</button>
+															</div>
+														))}
+													<label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-md border border-muted-foreground/50 border-dashed transition-colors hover:bg-accent">
+														{uploadingPhotoForChapter === index ? (
+															<Sparkles className="h-5 w-5 animate-spin text-muted-foreground" />
+														) : (
+															<>
+																<ImageIcon className="mb-1 h-5 w-5 text-muted-foreground" />
+																<span className="text-[10px] text-muted-foreground">
+																	{t('books.add_photo', 'Добавить')}
+																</span>
+															</>
+														)}
+														<input
+															accept="image/*"
+															className="hidden"
+															disabled={uploadingPhotoForChapter === index}
+															onChange={(e) => {
+																if (e.target.files?.[0]) {
+																	handlePhotoUpload(index, e.target.files[0]);
+																}
+															}}
+															type="file"
+														/>
+													</label>
+												</div>
+											</div>
+										)}
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					)}
+
+					{/* FREE Book: Photo Collage */}
+					{draft?.planType === 'free' && photos.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Фотографии</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<BlobProvider
-									document={
-										<BookPDF
-											metadata={draft?.metadata ?? {}}
-											photos={photos}
-											settings={{
-												layout: draft?.layout || 'photo_text',
-												style: draft?.style || 'warm_family',
-												theme: draft?.theme || 'light',
-											}}
-											story={story}
-											translations={{
-												prologue: t('books.pdf.prologue', 'Вступление'),
-												chapter: t('books.pdf.chapter', 'Глава'),
-												epilogue: t('books.pdf.epilogue', 'Заключение'),
-												achievements: t('books.pdf.achievements_chapter', 'Достижения за период'),
-												table_of_contents: t('books.pdf.table_of_contents', 'Оглавление'),
-											}}
-										/>
-									}
-								>
-									{({ blob, url, loading }) => {
-										if (loading) {
-											return (
-												<div className="py-12 text-center">
-													<Sparkles
-														className="mx-auto mb-4 h-12 w-12 animate-spin text-purple-500"
-														strokeWidth={2}
-													/>
-													<p className="text-muted-foreground">Генерация предпросмотра...</p>
-												</div>
-											);
-										}
-
-										return (
-											<div className="space-y-3 sm:space-y-4">
-												<iframe
-													className="h-[400px] w-full rounded-lg border sm:h-[600px]"
-													src={url || ''}
-													title="PDF Preview"
-												/>
-												<div className="flex gap-2">
-													<Button
-														className="flex-1"
-														disabled={isRendering}
-														onClick={() => blob && handleRenderPDF(blob)}
-														style={{ minHeight: '44px' }}
-													>
-														<Download className="mr-1 h-4 w-4 sm:mr-2" strokeWidth={2} />
-														<span className="text-sm sm:text-base">
-															{isRendering ? 'Создание PDF...' : 'Создать финальную версию'}
-														</span>
-													</Button>
-												</div>
-											</div>
-										);
-									}}
-								</BlobProvider>
+								<div className="grid grid-cols-3 gap-2">
+									{photos.map((photo) => (
+										<div className="group relative" key={photo.id}>
+											<img
+												alt={photo.caption || 'Book photo'}
+												className="h-24 w-full rounded-md border border-border object-cover"
+												src={photo.photoUrl}
+											/>
+											<button
+												className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+												onClick={() => handleDeletePhoto(photo.id)}
+												type="button"
+											>
+												<Trash2 className="h-3 w-3" />
+											</button>
+										</div>
+									))}
+								</div>
+								<label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-4 transition-colors duration-300 hover:border-primary">
+									<Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+									<span className="text-muted-foreground text-sm">Добавить фото</span>
+									<input
+										accept="image/*"
+										className="hidden"
+										disabled={uploadingPhotoForChapter !== null}
+										onChange={(e) => {
+											if (e.target.files?.[0]) {
+												handlePhotoUpload(0, e.target.files[0]); // Use chapter 0 for FREE
+											}
+										}}
+										type="file"
+									/>
+								</label>
 							</CardContent>
 						</Card>
-					</TabsContent>
-				</Tabs>
+					)}
+
+					<div className="flex gap-2">
+						<Button className="flex-1" disabled={isSaving} onClick={handleSave}>
+							<Save className="mr-2 h-4 w-4" strokeWidth={2} />
+							{isSaving ? 'Сохранение...' : 'Сохранить'}
+						</Button>
+						{/* Кнопка просмотра PDF - открывает в новой вкладке */}
+						{draft?.pdfUrl && (
+							<Button
+								onClick={() => {
+									window.open(draft.pdfUrl, '_blank');
+								}}
+								variant="outline"
+							>
+								<Eye className="mr-2 h-4 w-4" strokeWidth={2} />
+								Просмотр
+							</Button>
+						)}
+						{onCancel && (
+							<Button onClick={onCancel} variant="outline">
+								Отмена
+							</Button>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);

@@ -17,7 +17,6 @@
 
 import { BarChart3, History, Home, Settings, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
 import { cn } from '@/shared/components/ui/utils';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { useTranslation } from '@/shared/lib/i18n';

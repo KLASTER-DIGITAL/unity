@@ -41,7 +41,7 @@ export function PushDevicesList({
 
 	useEffect(() => {
 		loadDevices();
-	}, [userId]);
+	}, [loadDevices]);
 
 	const loadDevices = async () => {
 		try {
@@ -64,7 +64,7 @@ export function PushDevicesList({
 		}
 	};
 
-	const removeDevice = async (deviceId: string, endpoint: string) => {
+	const removeDevice = async (deviceId: string, _endpoint: string) => {
 		try {
 			setRemovingDeviceId(deviceId);
 			const supabase = createClient();

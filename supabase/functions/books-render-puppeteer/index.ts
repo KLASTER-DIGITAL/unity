@@ -44,11 +44,52 @@ type BookMetadata = {
 	diaryEmoji?: string;
 };
 
+// ✅ Функция экранирования HTML для безопасности и правильного отображения UTF-8
+function escapeHtml(text: string): string {
+	const map: Record<string, string> = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;',
+	};
+	return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+// ✅ Определение языка для правильного отображения текста
+function getLanguageCode(language?: string): string {
+	const langMap: Record<string, string> = {
+		ru: 'ru',
+		en: 'en',
+		es: 'es',
+		de: 'de',
+		fr: 'fr',
+		zh: 'zh-CN',
+		ja: 'ja',
+	};
+	return langMap[language || 'ru'] || 'ru';
+}
+
+// ✅ Получение правильных шрифтов для языка
+function getFontsForLanguage(language: string): string {
+	const fontMap: Record<string, string> = {
+		ru: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
+		en: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
+		es: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
+		de: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
+		fr: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
+		'zh-CN': 'family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600',
+		ja: 'family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;600',
+	};
+	return fontMap[language] || fontMap.ru;
+}
+
 function generateBookHTML(
 	story: BookStory,
 	metadata: BookMetadata,
 	style: string,
-	theme: string
+	theme: string,
+	language?: string
 ): string {
 	const isDark = theme === 'dark';
 	const bgColor = isDark ? '#1a1a1a' : '#FFFFFF';
@@ -62,16 +103,18 @@ function generateBookHTML(
 		motivational: { primary: '#16a34a', secondary: '#22c55e' },
 	};
 	const colors = styleColors[style as keyof typeof styleColors] || styleColors.warm_family;
+	const langCode = getLanguageCode(language);
+	const fonts = getFontsForLanguage(langCode);
 
 	return `
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="${langCode}">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>${story.title || 'Моя книга'}</title>
+	<title>${escapeHtml(story.title || 'Моя книга')}</title>
 	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600&display=swap');
+		@import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
 		
 		* {
 			margin: 0;
@@ -80,11 +123,13 @@ function generateBookHTML(
 		}
 		
 		body {
-			font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			font-family: 'Noto Sans', 'Noto Sans SC', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 			background: ${bgColor};
 			color: ${textColor};
 			line-height: 1.8;
 			font-size: 11pt;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
 		}
 		
 		.page {
@@ -191,9 +236,9 @@ function generateBookHTML(
 	<!-- Title Page -->
 	<div class="page title-page">
 		<div class="book-emoji">${metadata.diaryEmoji || '📖'}</div>
-		<h1>${story.title || 'Моя книга'}</h1>
-		<div class="subtitle">${story.subtitle || ''}</div>
-		${story.dedication ? `<div class="dedication">${story.dedication}</div>` : ''}
+		<h1>${escapeHtml(story.title || 'Моя книга')}</h1>
+		<div class="subtitle">${escapeHtml(story.subtitle || '')}</div>
+		${story.dedication ? `<div class="dedication">${escapeHtml(story.dedication)}</div>` : ''}
 	</div>
 	
 	<!-- Prologue -->
@@ -205,7 +250,7 @@ function generateBookHTML(
 		<div class="prologue">
 			${story.prologue
 				.split('\n')
-				.map((p: string) => `<p>${p}</p>`)
+				.map((p: string) => `<p>${escapeHtml(p)}</p>`)
 				.join('')}
 		</div>
 	</div>
@@ -218,10 +263,10 @@ function generateBookHTML(
 		.map(
 			(chapter: BookChapter, index: number) => `
 	<div class="page">
-		<h2>Глава ${index + 1}: ${chapter.title}</h2>
+		<h2>Глава ${index + 1}: ${escapeHtml(chapter.title)}</h2>
 		${chapter.content
 			.split('\n')
-			.map((p: string) => `<p>${p}</p>`)
+			.map((p: string) => `<p>${escapeHtml(p)}</p>`)
 			.join('')}
 		
 		${
@@ -230,7 +275,7 @@ function generateBookHTML(
 		<div class="highlights">
 			<strong>Ключевые моменты:</strong>
 			<ul>
-				${chapter.highlights.map((h: string) => `<li>${h}</li>`).join('')}
+				${chapter.highlights.map((h: string) => `<li>${escapeHtml(h)}</li>`).join('')}
 			</ul>
 		</div>
 		`
@@ -250,7 +295,7 @@ function generateBookHTML(
 		<div class="epilogue">
 			${story.epilogue
 				.split('\n')
-				.map((p: string) => `<p>${p}</p>`)
+				.map((p: string) => `<p>${escapeHtml(p)}</p>`)
 				.join('')}
 		</div>
 	</div>
@@ -314,33 +359,53 @@ Deno.serve(async (req) => {
 			.single();
 
 		if (bookError || !book) {
-			return new Response(JSON.stringify({ success: false, error: 'Book not found' }), {
-				status: 404,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-			});
+			console.error('[PUPPETEER] Book not found:', { bookId, userId: user.id, bookError });
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: `Книга не найдена: ${bookError?.message || 'Неизвестная ошибка'}`,
+				}),
+				{
+					status: 404,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
 		}
 
 		const story = book.story_json;
 		const metadata = book.metadata || {};
 		const style = book.style || 'warm_family';
 		const theme = book.theme || 'light';
+		const language = book.language || 'ru';
+
+		// ✅ Получаем код языка для правильного отображения
+		const langCode = getLanguageCode(language);
 
 		// Generate HTML
-		const html = generateBookHTML(story, metadata, style, theme);
+		const html = generateBookHTML(story, metadata, style, theme, language);
 
 		// Launch Puppeteer
 		console.log('[PUPPETEER] Launching browser...');
 		const browser = await puppeteer.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
 		});
 
 		const page = await browser.newPage();
-		await page.setContent(html, { waitUntil: 'networkidle0' });
+
+		// ✅ Устанавливаем правильную кодировку и язык для страницы
+		await page.setContent(html, {
+			waitUntil: 'networkidle0',
+		});
+
+		// ✅ Устанавливаем язык страницы для правильного отображения текста
+		await page.evaluate((lang) => {
+			document.documentElement.lang = lang;
+		}, langCode);
 
 		// ✅ Wait for fonts to load (Google Fonts can be slow)
 		console.log('[PUPPETEER] Waiting for fonts to load...');
 		await page.evaluateHandle('document.fonts.ready');
-		await new Promise((resolve) => setTimeout(resolve, 1000)); // Extra 1s for safety
+		await new Promise((resolve) => setTimeout(resolve, 2000)); // Увеличено до 2s для надежности
 
 		// Generate PDF
 		console.log('[PUPPETEER] Generating PDF...');
@@ -354,6 +419,8 @@ Deno.serve(async (req) => {
 				bottom: '0mm',
 				left: '0mm',
 			},
+			waitForFonts: true, // ✅ Ждем загрузки всех шрифтов для правильного отображения текста
+			tagged: true, // ✅ Создаем доступный PDF с тегами
 		});
 
 		await browser.close();
@@ -370,10 +437,16 @@ Deno.serve(async (req) => {
 
 		if (uploadError) {
 			console.error('[PUPPETEER] Upload error:', uploadError);
-			return new Response(JSON.stringify({ success: false, error: 'Failed to upload PDF' }), {
-				status: 500,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: `Ошибка загрузки PDF в Storage: ${uploadError.message || 'Неизвестная ошибка'}`,
+				}),
+				{
+					status: 500,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
 		}
 
 		// Get public URL
@@ -402,10 +475,14 @@ Deno.serve(async (req) => {
 		);
 	} catch (error: unknown) {
 		console.error('[PUPPETEER] Error:', error);
+		const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+		const errorStack = error instanceof Error ? error.stack : undefined;
+		console.error('[PUPPETEER] Error details:', { errorMessage, errorStack });
+
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error',
+				error: `Ошибка создания PDF: ${errorMessage}`,
 			}),
 			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);
