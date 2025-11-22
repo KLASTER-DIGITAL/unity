@@ -23,20 +23,7 @@ const corsHeaders = (origin?: string | null) => ({
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 });
 
-interface Translation {
-	translation_key: string;
-	lang_code: string;
-	translation_value: string;
-	category?: string;
-}
-
-interface Language {
-	code: string;
-	name: string;
-	native_name: string;
-	is_active: boolean;
-}
-
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: route handler aggregates multiple branches
 Deno.serve(async (req) => {
 	const origin = req.headers.get('Origin') || undefined;
 	if (origin && !isAllowedOrigin(origin)) {

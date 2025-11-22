@@ -26,6 +26,7 @@ const corsHeaders = (origin?: string | null) => ({
 		'authorization, x-client-info, apikey, content-type, x-openai-key',
 });
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: route handler aggregates multiple branches
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
 	const origin = req.headers.get('Origin') || undefined;
@@ -80,7 +81,7 @@ Deno.serve(async (req) => {
 			}
 
 			// Convert to key-value object
-			const translationsObj = (translations || []).reduce((acc: any, t: any) => {
+			const translationsObj = (translations || []).reduce((acc: Record<string, string>, t) => {
 				acc[t.translation_key] = t.translation_value;
 				return acc;
 			}, {});
@@ -164,8 +165,8 @@ Deno.serve(async (req) => {
 						.eq('lang_code', 'ru');
 
 					const totalKeys = baseTranslations?.length || 0;
-					const translatedKeys: any = {};
-					const missingTranslations: any = {};
+					const translatedKeys: Record<string, number> = {};
+					const missingTranslations: Record<string, string[]> = {};
 
 					languages?.forEach((lang) => {
 						const langTranslations = translations?.filter((t) => t.lang_code === lang.code) || [];
@@ -213,7 +214,7 @@ Deno.serve(async (req) => {
 								flag: lang.flag,
 							})) || [],
 						translations:
-							translations?.reduce((acc: any, t: any) => {
+							translations?.reduce((acc: Record<string, Record<string, string>>, t) => {
 								if (!acc[t.lang_code]) acc[t.lang_code] = {};
 								acc[t.lang_code][t.translation_key] = t.translation_value;
 								return acc;

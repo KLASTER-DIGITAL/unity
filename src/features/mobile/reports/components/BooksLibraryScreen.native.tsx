@@ -20,8 +20,8 @@ import {
 	View,
 } from 'react-native';
 import { DesignTokens } from '@/shared/design-system/tokens';
-import { supabase } from '@/shared/lib/api/supabase/client';
 import { useAuth } from '@/shared/lib/hooks/useAuth';
+import { type Book, useBooksList } from '../hooks/useBooksList';
 
 type BookDraft = {
 	id: string;
@@ -32,6 +32,8 @@ type BookDraft = {
 	style: 'warm_family' | 'biographical' | 'motivational';
 	layout: 'photo_text' | 'text_only' | 'minimal';
 	theme: 'light' | 'dark';
+	planType?: 'free' | 'premium';
+	version?: number;
 	pdfUrl?: string;
 	storyJson: any;
 	metadata: {
@@ -55,72 +57,53 @@ type BooksLibraryScreenProps = {
 
 export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 	const { user } = useAuth();
-	const [books, setBooks] = useState<BookDraft[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	// ✅ Use shared hook for books list management (removes code duplication)
+	const {
+		books: booksFromHook,
+		loading: isLoadingFromHook,
+		filter,
+		setFilter,
+		planFilter,
+		setPlanFilter,
+		fetchBooks,
+		deleteBook: deleteBookHook,
+		createNewVersion: createNewVersionHook,
+	} = useBooksList(user?.id || null);
+
+	// Convert Book type to BookDraft for native compatibility
+	const books: BookDraft[] = booksFromHook.map((book) => ({
+		id: book.id,
+		userId: book.userId,
+		periodStart: book.periodStart,
+		periodEnd: book.periodEnd,
+		contexts: book.contexts,
+		style: book.style as 'warm_family' | 'biographical' | 'motivational',
+		layout: book.layout as 'photo_text' | 'text_only' | 'minimal',
+		theme: book.theme as 'light' | 'dark',
+		planType: book.planType,
+		version: book.version,
+		pdfUrl: book.pdfUrl || undefined,
+		storyJson: book.storyJson,
+		metadata: book.metadata,
+		isDraft: book.isDraft,
+		isFinal: book.isFinal,
+		createdAt: book.createdAt,
+		updatedAt: book.updatedAt,
+	}));
+
+	const isLoading = isLoadingFromHook;
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [filter, setFilter] = useState<'all' | 'drafts' | 'final'>('all');
 
-	// Fetch books
-	const fetchBooks = async (refresh = false) => {
-		if (!user?.id) return;
-
-		try {
-			if (refresh) {
-				setIsRefreshing(true);
-			} else {
-				setIsLoading(true);
-			}
-
-			let query = supabase
-				.from('books_archive')
-				.select('*')
-				.eq('user_id', user.id)
-				.order('created_at', { ascending: false });
-
-			if (filter === 'drafts') {
-				query = query.eq('is_draft', true);
-			} else if (filter === 'final') {
-				query = query.eq('is_final', true);
-			}
-
-			const { data, error } = await query;
-
-			if (error) {
-				console.error('[BOOKS-LIBRARY] Error fetching books:', error);
-				return;
-			}
-
-			// Convert snake_case to camelCase
-			const booksData: BookDraft[] = (data || []).map((book) => ({
-				id: book.id,
-				userId: book.user_id,
-				periodStart: book.period_start,
-				periodEnd: book.period_end,
-				contexts: book.contexts || [],
-				style: book.style,
-				layout: book.layout,
-				theme: book.theme,
-				pdfUrl: book.pdf_url,
-				storyJson: book.story_json,
-				metadata: book.metadata || {},
-				isDraft: book.is_draft,
-				isFinal: book.is_final,
-				createdAt: book.created_at,
-				updatedAt: book.updated_at,
-			}));
-
-			setBooks(booksData);
-		} catch (error) {
-			console.error('[BOOKS-LIBRARY] Error:', error);
-		} finally {
-			setIsLoading(false);
-			setIsRefreshing(false);
-		}
+	// Refresh handler
+	const handleRefresh = async () => {
+		setIsRefreshing(true);
+		await fetchBooks();
+		setIsRefreshing(false);
 	};
 
 	useEffect(() => {
 		fetchBooks();
-	}, [user?.id, filter]);
+	}, [user?.id, filter, planFilter, fetchBooks]);
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {
@@ -142,7 +125,7 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 	// Handle download
 	const handleDownload = async (book: BookDraft) => {
 		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-		// TODO: Implement PDF download for React Native
+		// TODO: Implement PDF download for React Native (P2)
 		console.log('[BOOKS-LIBRARY] Download book:', book.id);
 	};
 
@@ -150,6 +133,12 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 	const handleFilterChange = async (newFilter: 'all' | 'drafts' | 'final') => {
 		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 		setFilter(newFilter);
+	};
+
+	// Handle plan filter change
+	const handlePlanFilterChange = async (newPlanFilter: 'all' | 'free' | 'premium') => {
+		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		setPlanFilter(newPlanFilter);
 	};
 
 	return (
@@ -181,47 +170,101 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 			</View>
 
 			{/* Filters */}
-			<View style={styles.filters}>
-				<Ionicons
-					color={DesignTokens.colors.textSecondary}
-					name="filter"
-					size={16}
-					style={styles.filterIcon}
-				/>
-				<View style={styles.filterButtons}>
-					<Pressable
-						onPress={() => handleFilterChange('all')}
-						style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
-					>
-						<Text
-							style={[styles.filterButtonText, filter === 'all' && styles.filterButtonTextActive]}
+			<View style={styles.filtersContainer}>
+				{/* Status Filter */}
+				<View style={styles.filters}>
+					<Ionicons
+						color={DesignTokens.colors.textSecondary}
+						name="filter"
+						size={16}
+						style={styles.filterIcon}
+					/>
+					<View style={styles.filterButtons}>
+						<Pressable
+							onPress={() => handleFilterChange('all')}
+							style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
 						>
-							Все
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => handleFilterChange('drafts')}
-						style={[styles.filterButton, filter === 'drafts' && styles.filterButtonActive]}
-					>
-						<Text
-							style={[
-								styles.filterButtonText,
-								filter === 'drafts' && styles.filterButtonTextActive,
-							]}
+							<Text
+								style={[styles.filterButtonText, filter === 'all' && styles.filterButtonTextActive]}
+							>
+								Все
+							</Text>
+						</Pressable>
+						<Pressable
+							onPress={() => handleFilterChange('drafts')}
+							style={[styles.filterButton, filter === 'drafts' && styles.filterButtonActive]}
 						>
-							Черновики
-						</Text>
-					</Pressable>
-					<Pressable
-						onPress={() => handleFilterChange('final')}
-						style={[styles.filterButton, filter === 'final' && styles.filterButtonActive]}
-					>
-						<Text
-							style={[styles.filterButtonText, filter === 'final' && styles.filterButtonTextActive]}
+							<Text
+								style={[
+									styles.filterButtonText,
+									filter === 'drafts' && styles.filterButtonTextActive,
+								]}
+							>
+								Черновики
+							</Text>
+						</Pressable>
+						<Pressable
+							onPress={() => handleFilterChange('final')}
+							style={[styles.filterButton, filter === 'final' && styles.filterButtonActive]}
 						>
-							Готовые
-						</Text>
-					</Pressable>
+							<Text
+								style={[styles.filterButtonText, filter === 'final' && styles.filterButtonTextActive]}
+							>
+								Готовые
+							</Text>
+						</Pressable>
+					</View>
+				</View>
+
+				{/* Plan Type Filter */}
+				<View style={styles.filters}>
+					<Ionicons
+						color={DesignTokens.colors.textSecondary}
+						name="star"
+						size={16}
+						style={styles.filterIcon}
+					/>
+					<View style={styles.filterButtons}>
+						<Pressable
+							onPress={() => handlePlanFilterChange('all')}
+							style={[styles.filterButton, planFilter === 'all' && styles.filterButtonActive]}
+						>
+							<Text
+								style={[
+									styles.filterButtonText,
+									planFilter === 'all' && styles.filterButtonTextActive,
+								]}
+							>
+								Все типы
+							</Text>
+						</Pressable>
+						<Pressable
+							onPress={() => handlePlanFilterChange('free')}
+							style={[styles.filterButton, planFilter === 'free' && styles.filterButtonActive]}
+						>
+							<Text
+								style={[
+									styles.filterButtonText,
+									planFilter === 'free' && styles.filterButtonTextActive,
+								]}
+							>
+								FREE
+							</Text>
+						</Pressable>
+						<Pressable
+							onPress={() => handlePlanFilterChange('premium')}
+							style={[styles.filterButton, planFilter === 'premium' && styles.filterButtonActive]}
+						>
+							<Text
+								style={[
+									styles.filterButtonText,
+									planFilter === 'premium' && styles.filterButtonTextActive,
+								]}
+							>
+								Premium
+							</Text>
+						</Pressable>
+					</View>
 				</View>
 			</View>
 
@@ -229,7 +272,7 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 			<ScrollView
 				contentContainerStyle={styles.scrollContent}
 				refreshControl={
-					<RefreshControl onRefresh={() => fetchBooks(true)} refreshing={isRefreshing} />
+					<RefreshControl onRefresh={handleRefresh} refreshing={isRefreshing} />
 				}
 				style={styles.scrollView}
 			>
@@ -273,20 +316,53 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 											</Text>
 										</View>
 									</View>
-									<View
-										style={[
-											styles.bookBadge,
-											book.isFinal ? styles.bookBadgeFinal : styles.bookBadgeDraft,
-										]}
-									>
-										<Text
+									<View style={styles.bookBadges}>
+										{/* Plan Type Badge */}
+										{book.planType && (
+											<View
+												style={[
+													styles.bookBadge,
+													book.planType === 'premium'
+														? styles.bookBadgePremium
+														: styles.bookBadgeFree,
+												]}
+											>
+												<Text
+													style={[
+														styles.bookBadgeText,
+														book.planType === 'premium'
+															? styles.bookBadgeTextPremium
+															: styles.bookBadgeTextFree,
+													]}
+												>
+													{book.planType === 'premium' ? 'Premium' : 'FREE'}
+												</Text>
+											</View>
+										)}
+										{/* Version Badge */}
+										{book.version && book.version > 1 && (
+											<View style={[styles.bookBadge, styles.bookBadgeVersion]}>
+												<Text style={[styles.bookBadgeText, styles.bookBadgeTextVersion]}>
+													v{book.version}
+												</Text>
+											</View>
+										)}
+										{/* Status Badge */}
+										<View
 											style={[
-												styles.bookBadgeText,
-												book.isFinal ? styles.bookBadgeTextFinal : styles.bookBadgeTextDraft,
+												styles.bookBadge,
+												book.isFinal ? styles.bookBadgeFinal : styles.bookBadgeDraft,
 											]}
 										>
-											{book.isFinal ? 'Готово' : 'Черновик'}
-										</Text>
+											<Text
+												style={[
+													styles.bookBadgeText,
+													book.isFinal ? styles.bookBadgeTextFinal : styles.bookBadgeTextDraft,
+												]}
+											>
+												{book.isFinal ? 'Готово' : 'Черновик'}
+											</Text>
+										</View>
 									</View>
 								</View>
 
@@ -388,14 +464,16 @@ const styles = StyleSheet.create({
 		fontWeight: DesignTokens.fontWeights.medium,
 		color: DesignTokens.colors.card,
 	},
+	filtersContainer: {
+		backgroundColor: DesignTokens.colors.card,
+		borderBottomWidth: 1,
+		borderBottomColor: DesignTokens.colors.border,
+	},
 	filters: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
 		padding: DesignTokens.spacing.md,
-		backgroundColor: DesignTokens.colors.card,
-		borderBottomWidth: 1,
-		borderBottomColor: DesignTokens.colors.border,
 	},
 	filterIcon: {
 		marginRight: DesignTokens.spacing.xs,
@@ -504,6 +582,11 @@ const styles = StyleSheet.create({
 		fontSize: DesignTokens.fontSizes.xs,
 		color: DesignTokens.colors.textSecondary,
 	},
+	bookBadges: {
+		flexDirection: 'row',
+		gap: DesignTokens.spacing.xs,
+		flexWrap: 'wrap',
+	},
 	bookBadge: {
 		paddingHorizontal: DesignTokens.spacing.sm,
 		paddingVertical: DesignTokens.spacing.xs,
@@ -515,6 +598,19 @@ const styles = StyleSheet.create({
 	bookBadgeDraft: {
 		backgroundColor: DesignTokens.colors.secondary,
 	},
+	bookBadgePremium: {
+		backgroundColor: DesignTokens.colors.primary,
+	},
+	bookBadgeFree: {
+		backgroundColor: DesignTokens.colors.secondary,
+		borderWidth: 1,
+		borderColor: DesignTokens.colors.border,
+	},
+	bookBadgeVersion: {
+		backgroundColor: DesignTokens.colors.card,
+		borderWidth: 1,
+		borderColor: DesignTokens.colors.border,
+	},
 	bookBadgeText: {
 		fontSize: DesignTokens.fontSizes.xs,
 		fontWeight: DesignTokens.fontWeights.medium,
@@ -524,6 +620,15 @@ const styles = StyleSheet.create({
 	},
 	bookBadgeTextDraft: {
 		color: DesignTokens.colors.text,
+	},
+	bookBadgeTextPremium: {
+		color: DesignTokens.colors.card,
+	},
+	bookBadgeTextFree: {
+		color: DesignTokens.colors.text,
+	},
+	bookBadgeTextVersion: {
+		color: DesignTokens.colors.textSecondary,
 	},
 	bookMeta: {
 		gap: DesignTokens.spacing.sm,
