@@ -50,8 +50,9 @@ type LanguagesManagementTabProps = {
 	onNavigateToTranslations?: (languageCode: string) => void;
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy languages management UI
 export function LanguagesManagementTab({
-	onNavigateToTranslations,
+	onNavigateToTranslations: _onNavigateToTranslations,
 }: LanguagesManagementTabProps = {}) {
 	const [languages, setLanguages] = useState<Language[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
