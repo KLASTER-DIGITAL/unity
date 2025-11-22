@@ -259,7 +259,7 @@ export const AISettingsTab: React.FC = () => {
 		};
 
 		loadAISettings();
-	}, []); // Empty dependency array - load only once on mount
+	}, [groupOperations]); // Empty dependency array - load only once on mount
 
 	const handleSaveSettings = async () => {
 		setIsSaving(true);

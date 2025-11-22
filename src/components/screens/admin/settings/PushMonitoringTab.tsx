@@ -1,5 +1,4 @@
 import { Activity, AlertCircle, CheckCircle, Clock, RefreshCw, XCircle } from 'lucide-react';
-import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -10,7 +9,6 @@ import {
 	CardTitle,
 } from '@/shared/components/ui/card';
 import { toast } from '@/shared/components/ui/universal/Toast';
-import { createClient } from '@/utils/supabase/client';
 
 type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
 

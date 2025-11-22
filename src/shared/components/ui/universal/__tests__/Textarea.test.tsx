@@ -23,7 +23,10 @@ const Textarea = ({
 		aria-label={ariaLabel}
 		className={className}
 		disabled={disabled}
-		onChange={onChange}
+		onChange={(e) => {
+			if (disabled) return;
+			onChange?.(e);
+		}}
 		placeholder={placeholder}
 		rows={rows}
 		value={value}

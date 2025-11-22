@@ -194,7 +194,7 @@ describe('Universal Select Component', () => {
 		const { container } = render(
 			<div>
 				<Select options={options} placeholder="Select" />
-				<button>Outside</button>
+				<button type="button">Outside</button>
 			</div>
 		);
 

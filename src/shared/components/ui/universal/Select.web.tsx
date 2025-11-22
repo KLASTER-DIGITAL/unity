@@ -36,6 +36,8 @@ export type SelectProps = {
 	options: SelectOption[];
 	/** Disabled state */
 	disabled?: boolean;
+	/** Accessibility label */
+	'aria-label'?: string;
 	/** Custom className */
 	className?: string;
 	/** Size variant */
@@ -55,6 +57,7 @@ export function Select({
 	disabled,
 	className,
 	size = 'default',
+	'aria-label': ariaLabel,
 }: SelectProps) {
 	return (
 		<SelectPrimitive.Root
@@ -64,6 +67,8 @@ export function Select({
 			value={value}
 		>
 			<SelectPrimitive.Trigger
+				aria-disabled={disabled ? 'true' : 'false'}
+				aria-label={ariaLabel}
 				className={cn(
 					"flex w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-input-background px-3 py-2 text-sm outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 [&_svg:not([class*='text-'])]:text-muted-foreground",
 					size === 'default' && 'h-9',

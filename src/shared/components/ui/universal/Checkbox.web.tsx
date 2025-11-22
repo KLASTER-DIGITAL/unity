@@ -8,6 +8,7 @@
 
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { CheckIcon } from 'lucide-react';
+import type React from 'react';
 import { cn } from '../utils';
 
 // ============================================================================
@@ -41,6 +42,14 @@ export function Checkbox({
 	className,
 	'aria-label': ariaLabel,
 }: CheckboxProps) {
+	const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
+		if (disabled) return;
+		if (event.key === ' ' || event.code === 'Space') {
+			event.preventDefault();
+			onCheckedChange?.(checked === true ? false : true);
+		}
+	};
+
 	return (
 		<CheckboxPrimitive.Root
 			aria-label={ariaLabel}
@@ -52,6 +61,7 @@ export function Checkbox({
 			defaultChecked={defaultChecked}
 			disabled={disabled}
 			onCheckedChange={onCheckedChange}
+			onKeyDown={handleKeyDown}
 		>
 			<CheckboxPrimitive.Indicator className="flex items-center justify-center text-current transition-none">
 				<CheckIcon className="size-3.5" />
