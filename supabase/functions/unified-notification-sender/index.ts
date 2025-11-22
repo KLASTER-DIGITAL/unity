@@ -189,7 +189,9 @@ async function recordPushSend(
 /**
  * Get users by segment criteria
  */
-async function getUsersBySegmentCriteria(criteria: Record<string, unknown>): Promise<{ id: string }[]> {
+async function getUsersBySegmentCriteria(
+	criteria: Record<string, unknown>
+): Promise<{ id: string }[]> {
 	let query = supabaseAdmin
 		.from('profiles')
 		.select('id, email, full_name, role, created_at, last_active');

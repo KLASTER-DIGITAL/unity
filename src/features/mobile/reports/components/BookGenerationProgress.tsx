@@ -74,6 +74,9 @@ export function BookGenerationProgress({
 			return;
 		}
 
+		// ✅ Prevent multiple calls to onComplete
+		let completed = false;
+
 		// Simulate progress through steps
 		const totalDuration = GENERATION_STEPS.reduce((sum, step) => sum + step.duration, 0);
 		let elapsed = 0;
@@ -93,8 +96,9 @@ export function BookGenerationProgress({
 				}
 			}
 
-			// Complete when done
-			if (elapsed >= totalDuration) {
+			// Complete when done (only once)
+			if (elapsed >= totalDuration && !completed) {
+				completed = true;
 				clearInterval(interval);
 				setTimeout(() => {
 					onComplete?.();
@@ -102,7 +106,10 @@ export function BookGenerationProgress({
 			}
 		}, 500);
 
-		return () => clearInterval(interval);
+		return () => {
+			clearInterval(interval);
+			completed = true; // Prevent call if component unmounts
+		};
 	}, [isOpen, onComplete]);
 
 	if (!isOpen) return null;

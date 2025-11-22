@@ -7,7 +7,7 @@
  * @date 2025-11-08
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Progress } from '@/shared/components/ui/progress';
@@ -47,6 +47,9 @@ export function BookCreationWizard({
 	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [isPremium, setIsPremium] = useState(false);
 	const [showUpsellModal, setShowUpsellModal] = useState(false);
+	
+	// ✅ Prevent multiple calls to handleGenerate
+	const isGeneratingRef = useRef(false);
 
 	const [config, setConfig] = useState<BookConfig>({
 		planType: '' as any,
@@ -117,7 +120,7 @@ export function BookCreationWizard({
 				setCurrentStep(2); // 1 → 2 (contexts)
 			else if (currentStep === 2) {
 				// FREE: skip style and layout, go directly to generation
-				handleGenerateBook();
+				handleGenerate();
 			}
 		} else {
 			// PREMIUM: full flow
@@ -134,12 +137,19 @@ export function BookCreationWizard({
 	};
 
 	const handleGenerate = async () => {
+		// ✅ Prevent multiple calls
+		if (isGeneratingRef.current) {
+			console.log('[WIZARD] Generation already in progress, skipping...');
+			return;
+		}
+
 		if (!userId) {
 			toast.error('Ошибка', { description: 'Пользователь не авторизован' });
 			return;
 		}
 
 		try {
+			isGeneratingRef.current = true;
 			setIsGenerating(true);
 			setShowProgress(true);
 
@@ -198,6 +208,7 @@ export function BookCreationWizard({
 			setGenerationError(errorMessage);
 			toast.error('Ошибка генерации', { description: errorMessage });
 			setShowProgress(false);
+			isGeneratingRef.current = false;
 		} finally {
 			setIsGenerating(false);
 		}
@@ -208,13 +219,15 @@ export function BookCreationWizard({
 		handleGenerate();
 	};
 
-	const handleProgressComplete = () => {
+	// ✅ Use useCallback to prevent multiple calls
+	const handleProgressComplete = useCallback(() => {
 		setShowProgress(false);
+		isGeneratingRef.current = false; // Reset flag
 		if (generatedDraftId) {
 			// Show success modal instead of immediately calling onComplete
 			setShowSuccessModal(true);
 		}
-	};
+	}, [generatedDraftId]);
 
 	const handleGoToEditor = () => {
 		setShowSuccessModal(false);

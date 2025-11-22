@@ -60,7 +60,7 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 				<CardContent className="space-y-6">
 					{/* Source Language */}
 					<div className="space-y-2">
-						<label className="font-medium text-sm">Исходный язык</label>
+						<label className="font-medium text-sm" htmlFor="auto-translate-source">Исходный язык</label>
 						<Select
 							onValueChange={setAutoTranslateSource}
 							options={languages
@@ -76,8 +76,8 @@ export function AutoTranslateTab({ languages, onAutoTranslate }: AutoTranslateTa
 
 					{/* Target Languages */}
 					<div className="space-y-2">
-						<label className="font-medium text-sm">Целевые языки</label>
-						<div className="flex flex-wrap gap-2">
+						<label className="font-medium text-sm" htmlFor="auto-translate-targets">Целевые языки</label>
+						<div className="flex flex-wrap gap-2" id="auto-translate-targets">
 							{languages
 								.filter((l) => l.is_active && l.code !== autoTranslateSource)
 								.map((lang) => (
