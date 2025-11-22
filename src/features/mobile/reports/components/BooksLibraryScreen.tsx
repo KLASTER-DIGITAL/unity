@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
@@ -338,7 +338,7 @@ export function BooksLibraryScreen({
 					</div>
 					<div className="flex-1">
 						<h2 className="text-lg sm:text-xl">{t('books.library_title', 'Библиотека книг')}</h2>
-						<p className="text-muted-foreground text-xs opacity-90 sm:text-sm">
+						<p className="text-muted-foreground text-xs sm:text-sm">
 							{t('books.library_subtitle', 'Твои персональные истории')}
 						</p>
 					</div>
@@ -409,145 +409,116 @@ export function BooksLibraryScreen({
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{books.map((book) => (
 							<div
-								className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
+								className="group relative flex h-40 flex-row overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
 								key={book.id}
 							>
-								{/* Book Cover Area */}
-								<div className="relative flex items-center justify-center overflow-hidden bg-muted/30 p-4 sm:p-6">
-									{/* Background pattern based on style */}
-									<div
-										className={`absolute inset-0 opacity-10 ${
-											book.style === 'warm_family'
-												? 'bg-[radial-gradient(circle_at_center,_var(--ios-purple),_transparent_70%)]'
-												: book.style === 'biographical'
-													? 'bg-[radial-gradient(circle_at_center,_var(--ios-blue),_transparent_70%)]'
-													: 'bg-[radial-gradient(circle_at_center,_var(--ios-green),_transparent_70%)]'
-										}`}
-									/>
+								{/* Book Spine / Cover Strip */}
+								<div
+									className={`w-3 h-full ${
+										book.style === 'warm_family'
+											? 'bg-gradient-to-b from-[--ios-purple] to-[--ios-blue]'
+											: book.style === 'biographical'
+												? 'bg-gradient-to-b from-[--ios-blue] to-[--ios-green]'
+												: 'bg-gradient-to-b from-[--ios-green] to-[--ios-yellow]'
+									}`}
+								/>
 
-									{/* Book Cover */}
-									<div className="relative z-10 flex aspect-[3/4] w-24 flex-col items-center justify-center rounded-md bg-card p-2 text-center shadow-lg transition-transform duration-300 group-hover:scale-105 sm:w-32">
-										<div className="mb-2 text-2xl sm:text-3xl">
-											{book.metadata.diaryEmoji || '📖'}
-										</div>
-										<div className="line-clamp-2 text-[10px] font-medium leading-tight text-foreground sm:text-xs">
-											{book.storyJson?.title || t('books.untitled', 'Без названия')}
-										</div>
-										{book.version && book.version > 1 && (
-											<div className="mt-1 rounded-full bg-muted px-1.5 py-0.5 text-[8px] font-bold text-muted-foreground">
-												v{book.version}
+								{/* Content Area */}
+								<div className="flex flex-1 flex-col p-3">
+									{/* Header */}
+									<div className="mb-2 flex items-start justify-between gap-2">
+										<div className="min-w-0 flex-1">
+											<h3 className="line-clamp-2 text-sm font-medium leading-tight text-foreground">
+												{book.metadata.diaryEmoji || '📖'}{' '}
+												{book.storyJson?.title || t('books.untitled', 'Без названия')}
+											</h3>
+											<div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+												<Calendar className="h-3 w-3" />
+												{formatPeriod(book.periodStart, book.periodEnd)}
 											</div>
-										)}
-									</div>
+										</div>
 
-									{/* Status Badge */}
-									<div className="absolute top-3 right-3">
-										<Badge className="shadow-sm" variant={book.isFinal ? 'default' : 'secondary'}>
+										{/* Status Badge */}
+										<Badge
+											className="h-5 px-1.5 text-[10px]"
+											variant={book.isFinal ? 'default' : 'secondary'}
+										>
 											{book.isFinal
 												? t('books.status.ready_short', 'Готово')
 												: t('books.status.draft_short', 'Черновик')}
 										</Badge>
 									</div>
-								</div>
 
-								{/* Book Details */}
-								<div className="flex flex-1 flex-col p-4">
-									<div className="mb-3">
-										<div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-											<Calendar className="h-3 w-3" />
-											{formatPeriod(book.periodStart, book.periodEnd)}
-										</div>
-										<h3 className="line-clamp-1 font-medium text-base">
-											{book.storyJson?.title || t('books.untitled', 'Без названия')}
-										</h3>
-									</div>
-
-									<div className="mb-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-										<div className="flex items-center gap-1.5">
+									{/* Meta */}
+									<div className="mb-auto flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+										<div className="flex items-center gap-1">
 											<Sparkles className="h-3 w-3 text-[--ios-purple]" />
-											<span className="truncate">{getStyleLabel(book.style)}</span>
+											<span className="truncate max-w-[80px]">{getStyleLabel(book.style)}</span>
 										</div>
-										{book.metadata.entriesCount && (
-											<div className="flex items-center gap-1.5">
-												<span className="text-base">📝</span>
-												<span>{book.metadata.entriesCount}</span>
-											</div>
-										)}
-										{book.metadata.pages && (
-											<div className="flex items-center gap-1.5">
-												<span className="text-base">📄</span>
-												<span>{book.metadata.pages} стр.</span>
-											</div>
-										)}
-										{book.metadata.achievementsCount && (
-											<div className="flex items-center gap-1.5">
-												<span className="text-base">🏆</span>
-												<span>{book.metadata.achievementsCount}</span>
+										{book.version && book.version > 1 && (
+											<div className="flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 font-medium">
+												<span>v{book.version}</span>
 											</div>
 										)}
 									</div>
 
-									<div className="mt-auto space-y-2">
-										{/* Primary Actions */}
-										<div className="grid grid-cols-2 gap-2">
+									{/* Actions */}
+									<div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2">
+										<div className="flex items-center gap-2">
 											{book.isFinal && book.pdfUrl ? (
 												<>
 													<Button
-														className="h-8"
+														className="h-7 w-7 p-0"
 														onClick={() => handleView(book)}
 														size="sm"
-														variant="outline"
+														variant="ghost"
+														title={t('books.view', 'Просмотр')}
 													>
-														<Eye className="mr-1.5 h-3.5 w-3.5" />
-														{t('books.view', 'Просмотр')}
+														<Eye className="h-4 w-4 text-[--ios-purple]" />
 													</Button>
 													<Button
-														className="h-8 bg-[--ios-purple] text-white hover:bg-[--ios-purple]/90"
+														className="h-7 w-7 p-0"
 														onClick={() => handleDownload(book)}
 														size="sm"
+														variant="ghost"
+														title={t('books.download', 'Скачать')}
 													>
-														<Download className="mr-1.5 h-3.5 w-3.5" />
-														{t('books.download', 'Скачать')}
+														<Download className="h-4 w-4 text-[--ios-purple]" />
 													</Button>
 												</>
 											) : (
 												<Button
-													className="col-span-2 h-8"
+													className="h-7 px-2 text-xs"
 													onClick={() => handleEditDraft(book)}
 													size="sm"
 													variant="outline"
 												>
-													<Edit className="mr-1.5 h-3.5 w-3.5" />
+													<Edit className="mr-1.5 h-3 w-3" />
 													{t('books.edit_draft', 'Редактировать')}
 												</Button>
 											)}
 										</div>
 
-										{/* Secondary Actions (Edit version / Delete) */}
-										<div className="flex items-center justify-between border-t border-border/50 pt-1">
-											{book.isFinal ? (
+										<div className="flex items-center gap-1">
+											{book.isFinal && (
 												<Button
-													className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+													className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
 													disabled={creatingVersionId === book.id}
 													onClick={() => handleCreateNewVersion(book)}
 													size="sm"
 													variant="ghost"
+													title={t('books.new_version', 'Новая версия')}
 												>
-													<Edit className="mr-1.5 h-3 w-3" />
-													{creatingVersionId === book.id
-														? 'Создание...'
-														: t('books.new_version', 'Новая версия')}
+													<Edit className="h-3.5 w-3.5" />
 												</Button>
-											) : (
-												<div /> /* Spacer */
 											)}
-
 											<Button
-												className="h-7 px-2 text-destructive text-xs hover:bg-destructive/10 hover:text-destructive/80"
+												className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
 												disabled={deletingBookId === book.id}
 												onClick={() => handleDeleteClick(book)}
 												size="sm"
 												variant="ghost"
+												title={t('common.delete', 'Удалить')}
 											>
 												<Trash2 className="h-3.5 w-3.5" />
 											</Button>

@@ -164,7 +164,7 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 			<div className="bg-[--ios-purple] p-4 text-white sm:p-6">
 				<div className="mb-4 flex items-center gap-3">
 					<Button
-						className="h-10 w-10 rounded-full bg-card/20 p-0 text-white hover:bg-card/30"
+						className="h-10 w-10 rounded-full bg-card/20 p-0 text-foreground hover:bg-card/30"
 						onClick={onBack}
 						variant="ghost"
 					>

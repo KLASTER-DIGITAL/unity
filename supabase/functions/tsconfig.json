@@ -12,12 +12,6 @@
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true
 	},
-	"include": [
-		"**/*.ts",
-		"deno.d.ts"
-	],
-	"exclude": [
-		"node_modules"
-	]
+	"include": ["**/*.ts", "deno.d.ts"],
+	"exclude": ["node_modules"]
 }
-

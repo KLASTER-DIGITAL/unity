@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
 import { ThemeProvider, useTheme } from '@/shared/components/theme-provider';
+import { TranslationProvider } from '@/shared/lib/i18n';
 import { storage } from '@/shared/lib/platform/storage';
 
 const MobileApp = lazy(() =>
@@ -103,7 +104,7 @@ function MobileViewContent({
 	}, [onboardingComplete, currentStep, userData, setTheme]);
 
 	return (
-		<>
+		<TranslationProvider defaultLanguage={selectedLanguage || 'ru'} fallbackLanguage="ru">
 			<Suspense fallback={null}>
 				<PWAHead />
 				<PWASplash />
@@ -113,10 +114,9 @@ function MobileViewContent({
 
 				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
-				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
-				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
-
-				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
+				{userData?.user?.id && !isAdminRoute && (
+					<OfflineSyncIndicator userId={userData.user.id} />
+				)}
 
 				{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
 
@@ -146,7 +146,7 @@ function MobileViewContent({
 				showAuth={showAuth}
 				userData={userData}
 			/>
-		</>
+		</TranslationProvider>
 	);
 }
 

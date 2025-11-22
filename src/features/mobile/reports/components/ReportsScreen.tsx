@@ -1,17 +1,5 @@
 import { BlobProvider } from '@react-pdf/renderer';
-import {
-	BarChart3,
-	BookOpen,
-	Brain,
-	Crown,
-	Download,
-	FileText,
-	Heart,
-	Sparkles,
-	Star,
-	Target,
-	TrendingUp,
-} from 'lucide-react';
+import { BookOpen, Brain, Crown, Download, FileText, Heart, Sparkles, Target } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
@@ -104,7 +92,7 @@ type ReportsUserData = {
 export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	// Получаем переводы для языка пользователя
 	const { t, currentLanguage } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = useState<ReportsPeriod>('month');
+	const [selectedPeriod] = useState<ReportsPeriod>('month');
 	const [isLoading, setIsLoading] = useState(true);
 	const [showBooksLibrary, setShowBooksLibrary] = useState(false);
 	const [showBookWizard, setShowBookWizard] = useState(false);
@@ -116,7 +104,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	const [isLoadingAiReport, setIsLoadingAiReport] = useState(false);
 	const [showReportsArchive, setShowReportsArchive] = useState(false);
 	const [isExportingPDF, setIsExportingPDF] = useState(false);
-	const [reportPDFUrl, setReportPDFUrl] = useState<string | null>(null);
+	const [_reportPDFUrl, setReportPDFUrl] = useState<string | null>(null);
 	const [reportPDFData, setReportPDFData] = useState<PDFReportData | null>(null);
 	const [currentReportId, setCurrentReportId] = useState<string | null>(null);
 
@@ -287,7 +275,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	);
 
 	// ✅ NEW: Export PDF function
-	const exportReportPDF = useCallback(async () => {
+	const _exportReportPDF = useCallback(async () => {
 		if (!isPremium || !reportStats || !aiReport) {
 			toast.error(t('reports.pdf.premium_required', 'Экспорт PDF доступен только для Premium'));
 			return;
@@ -695,7 +683,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			'Продолжай бегать и фиксировать небольшие рабочие победы, а также добавь больше творчества в свой распорядок.'
 		);
 
-	const aiQuotes = extraAiInsights;
+	const _aiQuotes = extraAiInsights;
 
 	// Weekly stats (currently unused but kept for future use)
 	// const weeklyStats = [
@@ -767,138 +755,260 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 
 	return (
 		<>
-			<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-(--ios-bg-primary) pb-20">
+			<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-[var(--ios-bg-primary)] pb-20">
 				{/* Заголовок */}
-				<div className="border-b border-border bg-(--ios-bg-primary) p-6 text-(--ios-text-primary)">
+				<div className="border-b border-border bg-[var(--ios-bg-primary)] p-6 text-[var(--ios-text-primary)]">
 					<div className="mb-4 flex items-center gap-3">
 						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm">
-							<Brain className="h-6 w-6" strokeWidth={2} />
+							<FileText className="h-6 w-6 text-[var(--ios-text-primary)]" strokeWidth={2} />
 						</div>
 						<div>
 							<h2 className="text-lg transition-colors duration-300 sm:text-xl">
-								{t('ai_reviews', 'AI Обзоры')}
+								{t('reports.title', 'Отчеты')}
 							</h2>
-							<p className="text-muted-foreground opacity-90">
-								{t('analysis_achievements', 'Анализ твоих достижений')}
+							<p className="text-muted-foreground">
+								{t('reports.subtitle', 'Анализ твоих достижений и прогресса')}
 							</p>
 						</div>
 					</div>
-
-					{/* ✅ FIX: Improved period buttons with better visual feedback */}
-					<div className="scrollbar-hide flex gap-2 overflow-x-auto">
-						{['week', 'month', 'quarter'].map((period) => (
-							<Button
-								className={
-									selectedPeriod === period
-										? 'transition-all duration-300'
-										: 'border-card/30 text-white transition-all duration-300 hover:bg-card/10'
-								}
-								key={period}
-								onClick={() => setSelectedPeriod(period)}
-								size="sm"
-								variant={selectedPeriod === period ? 'secondary' : 'outline'}
-							>
-								{period === 'week'
-									? t('week', 'Неделя')
-									: period === 'month'
-										? t('month', 'Месяц')
-										: t('quarter', 'Квартал')}
-							</Button>
-						))}
-					</div>
-					<div className="mt-3 flex justify-end gap-2">
-						{isPremium && (
-							<>
-								<Button
-									className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
-									onClick={() => void loadAiReport(selectedPeriod)}
-									disabled={isLoadingAiReport}
-									size="sm"
-									variant="ghost"
-								>
-									{isLoadingAiReport
-										? t('reports_ai_generating_short', 'AI готовит обзор...')
-										: t('reports_ai_generate_button', 'Обновить AI-обзор')}
-								</Button>
-								{reportPDFUrl ? (
-									<Button
-										className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
-										onClick={() => window.open(reportPDFUrl, '_blank')}
-										size="sm"
-										variant="ghost"
-									>
-										<FileText className="mr-1 h-3 w-3" strokeWidth={2} />
-										{t('reports.pdf.download', 'Скачать PDF')}
-									</Button>
-								) : (
-									<Button
-										className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
-										onClick={() => void exportReportPDF()}
-										disabled={isExportingPDF || !reportStats || !aiReport}
-										size="sm"
-										variant="ghost"
-									>
-										<Download className="mr-1 h-3 w-3" strokeWidth={2} />
-										{isExportingPDF
-											? t('reports.pdf.generating', 'Генерация...')
-											: t('reports.pdf.export', 'Экспорт PDF')}
-									</Button>
-								)}
-							</>
-						)}
-						<Button
-							className="h-9 rounded-full bg-card/20 px-4 text-xs font-medium text-white hover:bg-card/30"
-							onClick={() => setShowReportsArchive(true)}
-							size="sm"
-							variant="ghost"
-						>
-							{t('reports.open_reports', 'Открыть отчёты')}
-						</Button>
-					</div>
 				</div>
 
-				{/* Основной отчет */}
+				{/* Основной контент */}
 				<div className="space-y-4 p-4">
-					<Card className="border border-(--ios-purple)/40 bg-card shadow-sm">
+					{/* Карточка отчетов */}
+					<Card className="border-border bg-card shadow-sm">
 						<CardHeader>
-							<div className="flex items-center justify-between">
-								<div>
-									<CardTitle className="flex items-center gap-2">
-										<Sparkles className="h-5 w-5 text-(--action-ai)" strokeWidth={2} />
-										{t('reports.report_for', 'Отчет за')} {monthlyReport.period}
-									</CardTitle>
-									<p className="text-muted-foreground text-sm">
-										{t('reports.personal_analysis', 'Персональный анализ от AI')}
-									</p>
-								</div>
-								<Badge className="bg-(--ios-bg-secondary) text-(--ios-purple)">
-									<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
-									Премиум
-								</Badge>
-							</div>
+							<CardTitle className="flex items-center gap-2">
+								<FileText className="h-5 w-5 text-[var(--ios-purple)]" strokeWidth={2} />
+								{t('reports.title', 'Отчеты')}
+							</CardTitle>
+							<p className="text-muted-foreground text-sm">
+								{t(
+									'reports_description',
+									'Создавай отчеты на основе дневника и анализируй свои достижения. AI обзоры включены в отчеты.'
+								)}
+							</p>
 						</CardHeader>
 						<CardContent>
-							<div className="mb-6 grid grid-cols-2 gap-4">
-								<div className="text-center">
-									<div className="mb-1 text-xl text-(--ios-purple) transition-colors duration-300 sm:text-2xl">
-										{monthlyReport.totalEntries}
-									</div>
-									<div className="text-muted-foreground text-sm">
-										{t('entries_count', 'Записей')}
-									</div>
-								</div>
-								<div className="text-center">
-									<div className="mb-1 text-xl text-(--ios-green) transition-colors duration-300 sm:text-2xl">
-										{monthlyReport.activeDays}
-									</div>
-									<div className="text-muted-foreground text-sm">
-										{t('reports.stats.active_days', 'Активных дней')}
-									</div>
-								</div>
+							<div className="space-y-3">
+								<Button
+									className="w-full"
+									variant="default"
+									onClick={() => setShowReportsArchive(true)}
+								>
+									<FileText className="mr-2 h-5 w-5" strokeWidth={2} />
+									{t('reports.open_reports', 'Открыть отчёты')}
+								</Button>
+								{isPremium && (
+									<Button
+										className="w-full border-foreground/20 text-foreground hover:bg-accent hover:text-accent-foreground"
+										variant="outline"
+										onClick={() => void loadAiReport(selectedPeriod)}
+										disabled={isLoadingAiReport}
+									>
+										<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
+										{isLoadingAiReport
+											? t('reports_ai_generating_short', 'AI готовит обзор...')
+											: t('reports.create_report', 'Создать отчет')}
+									</Button>
+								)}
 							</div>
 						</CardContent>
 					</Card>
+
+					{/* Основной отчет (если есть) */}
+					{monthlyReport && (
+						<Card className="border border-(--ios-purple)/40 bg-card shadow-sm">
+							<CardHeader>
+								<div className="flex items-center justify-between">
+									<div>
+										<CardTitle className="flex items-center gap-2">
+											<Sparkles className="h-5 w-5 text-(--action-ai)" strokeWidth={2} />
+											{t('reports.report_for', 'Отчет за')} {monthlyReport.period}
+										</CardTitle>
+										<p className="text-muted-foreground text-sm">
+											{t('reports.personal_analysis', 'Персональный анализ от AI')}
+										</p>
+									</div>
+									<Badge className="bg-(--ios-bg-secondary) text-(--ios-purple)">
+										<Crown className="mr-1 h-3 w-3" strokeWidth={2} />
+										Премиум
+									</Badge>
+								</div>
+							</CardHeader>
+							<CardContent>
+								<div className="mb-6 grid grid-cols-2 gap-4">
+									<div className="text-center">
+										<div className="mb-1 text-xl text-(--ios-purple) transition-colors duration-300 sm:text-2xl">
+											{monthlyReport.totalEntries}
+										</div>
+										<div className="text-muted-foreground text-sm">
+											{t('entries_count', 'Записей')}
+										</div>
+									</div>
+									<div className="text-center">
+										<div className="mb-1 text-xl text-(--ios-green) transition-colors duration-300 sm:text-2xl">
+											{monthlyReport.activeDays}
+										</div>
+										<div className="text-muted-foreground text-sm">
+											{t('reports.stats.active_days', 'Активных дней')}
+										</div>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* Tabs с деталями отчета (если есть) */}
+					{monthlyReport && (
+						<div className="mt-4">
+							<Tabs defaultValue="mood">
+								<TabsList className="inline-flex h-auto w-full items-center justify-between rounded-lg bg-muted p-1">
+									<TabsTrigger
+										className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
+										value="ai"
+									>
+										{t('ai_overview', 'AI Обзор')}
+									</TabsTrigger>
+									<TabsTrigger
+										className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
+										value="mood"
+									>
+										{t('mood', 'Настроение')}
+									</TabsTrigger>
+									<TabsTrigger
+										className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
+										value="categories"
+									>
+										{t('categories', 'Категории')}
+									</TabsTrigger>
+								</TabsList>
+
+								<TabsContent className="mt-4" value="mood">
+									<Card>
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2">
+												<Heart className="h-5 w-5 text-(--ios-pink)" strokeWidth={2} />
+												{t('reports.mood_analysis', 'Анализ настроения')}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className="space-y-4">
+												{monthlyReport.moodDistribution.map((item, index) => (
+													<div key={index} className="space-y-2">
+														<div className="flex items-center justify-between">
+															<div className="flex items-center gap-2">
+																<span className="text-xl">{item.mood}</span>
+																<span className="text-muted-foreground text-sm">{item.label}</span>
+																<span className="text-muted-foreground text-sm">
+																	{item.count} записей
+																</span>
+															</div>
+															<div className="text-muted-foreground text-sm">
+																{item.percentage}%
+															</div>
+														</div>
+														<Progress value={item.percentage} />
+													</div>
+												))}
+												{monthlyReport.moodSummary && (
+													<p className="text-muted-foreground text-sm">
+														<strong>{t('reports.conclusion', 'Вывод:')}</strong>{' '}
+														{monthlyReport.moodSummary}
+													</p>
+												)}
+											</div>
+										</CardContent>
+									</Card>
+								</TabsContent>
+
+								<TabsContent className="mt-4" value="categories">
+									<Card>
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2">
+												<Target className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
+												{t('reports.top_categories', 'Топ категории')}
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className="space-y-3">
+												{monthlyReport.topCategories.map((category, index) => (
+													<div key={index} className="flex items-center justify-between">
+														<span className="text-foreground text-sm">{category.name}</span>
+														<span className="text-muted-foreground text-sm">
+															{category.count} записей
+														</span>
+													</div>
+												))}
+											</div>
+										</CardContent>
+									</Card>
+								</TabsContent>
+
+								<TabsContent className="mt-4" value="ai">
+									<div className="space-y-4">
+										{!isPremium ? (
+											<Card>
+												<CardContent className="py-12 text-center">
+													<Crown
+														className="mx-auto mb-4 h-12 w-12 text-yellow-500"
+														strokeWidth={1.5}
+													/>
+													<p className="mb-4 text-foreground text-lg font-semibold">
+														{t('reports.premium_required', 'Премиум функция')}
+													</p>
+													<p className="text-muted-foreground text-sm">
+														{t(
+															'reports.premium_description',
+															'AI Обзор доступен только для премиум пользователей'
+														)}
+													</p>
+												</CardContent>
+											</Card>
+										) : (
+											<>
+												{monthlyReport.summary && (
+													<Card>
+														<CardHeader>
+															<CardTitle className="flex items-center gap-2">
+																<Sparkles className="h-5 w-5 text-(--action-ai)" strokeWidth={2} />
+																{t('reports.summary', 'Краткое резюме')}
+															</CardTitle>
+														</CardHeader>
+														<CardContent>
+															<p className="mb-3 text-foreground text-sm">
+																{monthlyReport.summary}
+															</p>
+														</CardContent>
+													</Card>
+												)}
+												{monthlyReport.personalInsights.length > 0 && (
+													<Card>
+														<CardHeader>
+															<CardTitle className="flex items-center gap-2">
+																<Brain className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+																{t('reports.personal_insights', 'Персональные инсайты')}
+															</CardTitle>
+														</CardHeader>
+														<CardContent>
+															<div className="space-y-3">
+																{monthlyReport.personalInsights.map((insight) => (
+																	<p className="text-foreground text-sm">{insight}</p>
+																))}
+															</div>
+														</CardContent>
+													</Card>
+												)}
+											</>
+										)}
+									</div>
+								</TabsContent>
+							</Tabs>
+						</div>
+					)}
 				</div>
+
+				{/* Блок книг */}
 				<div className="p-4 pt-0">
 					<Card className="border-border bg-card shadow-sm">
 						<CardHeader>
@@ -916,14 +1026,15 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 						<CardContent>
 							<div className="space-y-3">
 								<Button
-									className="w-full bg-(--ios-purple) hover:bg-(--ios-purple)/90"
+									className="w-full"
+									variant="default"
 									onClick={() => setShowBooksLibrary(true)}
 								>
 									<Download className="mr-2 h-5 w-5" strokeWidth={2} />
 									{t('reports_books_shelf', 'Открыть полку книг')}
 								</Button>
 								<Button
-									className="w-full"
+									className="w-full border-foreground/20 text-foreground hover:bg-accent hover:text-accent-foreground"
 									variant="outline"
 									onClick={() => setShowBookWizard(true)}
 								>
@@ -1022,239 +1133,8 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 						</Card>
 					</div>
 				)}
-
-				{/* Вкладки с деталями */}
-				<div className="px-4">
-					<Tabs data-testid="stats-tab" defaultValue="mood">
-						<TabsList className="inline-flex h-auto w-full items-center justify-between rounded-lg bg-muted p-1">
-							<TabsTrigger className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium" value="ai">
-								{t('ai_overview', 'AI Обзор')}
-							</TabsTrigger>
-							<TabsTrigger
-								className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
-								value="mood"
-							>
-								{t('mood', 'Настроение')}
-							</TabsTrigger>
-							<TabsTrigger
-								className="flex-1 rounded-md px-3 py-2.5 text-sm font-medium"
-								value="categories"
-							>
-								{t('reports.tabs.categories', 'Категории')}
-							</TabsTrigger>
-						</TabsList>
-
-						<TabsContent className="mt-4" value="mood">
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Heart className="h-5 w-5 text-pink-500" strokeWidth={2} />
-										{t('reports.mood.analysis_title', 'Анализ настроения')}
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="space-y-4">
-										{monthlyReport.moodDistribution.map((item, index) => (
-											<div className="flex items-center gap-3" key={`${item.label}-${index}`}>
-												<div className="text-xl transition-colors duration-300 sm:text-2xl">
-													{item.mood}
-												</div>
-												<div className="flex-1">
-													<div className="mb-1 flex justify-between">
-														<span>{item.label}</span>
-														<span className="text-muted-foreground text-sm">
-															{item.count} {t('reports.mood.entries_count', 'записей')}
-														</span>
-													</div>
-													<Progress className="h-2" value={item.percentage} />
-												</div>
-												<div className="text-muted-foreground text-sm">{item.percentage}%</div>
-											</div>
-										))}
-									</div>
-
-									<div className="mt-6 rounded-lg bg-(--ios-bg-secondary) p-4">
-										<p className="text-(--ios-text-secondary) text-sm">
-											<strong>{t('reports.mood.conclusion', 'Вывод:')}</strong>{' '}
-											{t(
-												'reports.mood.default_summary',
-												'В этом месяце преобладали позитивные эмоции. Особенно заметен рост записей с восторгом - это говорит о том, что ты активнее достигаешь своих целей! 🎉'
-											)}
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-						</TabsContent>
-
-						<TabsContent className="mt-4" value="categories">
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<BarChart3 className="h-5 w-5 text-blue-500" strokeWidth={2} />
-										{t('reports.categories.title', 'Категории активности')}
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="space-y-4">
-										{monthlyReport.topCategories.map((category, index) => (
-											<div className="flex items-center justify-between" key={category.name}>
-												<div className="flex items-center gap-3">
-													<div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-														<span className="text-sm">{index + 1}</span>
-													</div>
-													<div>
-														<h4>{category.name}</h4>
-														<p className="text-muted-foreground text-sm">
-															{category.count} {t('reports.categories.entries', 'записей')}
-														</p>
-													</div>
-												</div>
-												<Badge
-													variant={
-														category.trend.startsWith('+')
-															? 'default'
-															: category.trend.startsWith('-')
-																? 'destructive'
-																: 'secondary'
-													}
-												>
-													{category.trend.startsWith('+') && (
-														<TrendingUp className="mr-1 h-3 w-3" strokeWidth={2} />
-													)}
-													{category.trend}
-												</Badge>
-											</div>
-										))}
-									</div>
-
-									<div className="mt-6 rounded-lg bg-(--ios-bg-secondary) p-4">
-										<p className="text-(--ios-text-secondary) text-sm">
-											<strong>Наблюдение:</strong> Твой фокус на спорте значительно усилился. Это
-											отличная тенденция для здоровья и дисциплины! 💪
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-						</TabsContent>
-
-						<TabsContent className="mt-4" value="ai">
-							<div className="space-y-4">
-								{!isPremium ? (
-									<Card>
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2">
-												<Crown className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
-												{t('reports_ai_premium_title', 'AI обзоры доступны в Premium')}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<p className="text-muted-foreground text-sm">
-												{t(
-													'reports_ai_premium_description',
-													'Базовые отчёты и книги доступны на бесплатном тарифе. AI-инсайты и умные рекомендации доступны после перехода на Premium.'
-												)}
-											</p>
-										</CardContent>
-									</Card>
-								) : isLoadingAiReport ? (
-									<Card>
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2">
-												<Sparkles className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
-												{t('reports_ai_loading', 'Готовим AI-обзор за период...')}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="space-y-3">
-												<Skeleton className="h-4 w-full" />
-												<Skeleton className="h-4 w-5/6" />
-												<Skeleton className="h-4 w-4/6" />
-											</div>
-										</CardContent>
-									</Card>
-								) : (
-									<>
-										<Card>
-											<CardHeader>
-												<CardTitle className="flex items-center gap-2">
-													<Brain className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
-													{t('reports_ai_summary_title', 'Персональный AI-обзор')}
-												</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<p className="mb-3 text-foreground text-sm">
-													{aiReport?.summary || _aiSummaryText}
-												</p>
-												{monthlyReport.personalInsights.length > 0 && (
-													<div className="space-y-3">
-														{monthlyReport.personalInsights.map((insight) => (
-															<div
-																className="flex items-start gap-3 rounded-lg bg-(--ios-bg-secondary) p-3"
-																key={insight}
-															>
-																<Star
-																	className="mt-0.5 h-5 w-5 shrink-0 text-(--ios-purple)"
-																	strokeWidth={2}
-																/>
-																<p className="text-foreground text-sm">{insight}</p>
-															</div>
-														))}
-													</div>
-												)}
-											</CardContent>
-										</Card>
-										<Card>
-											<CardHeader>
-												<CardTitle className="flex items-center gap-2">
-													<TrendingUp className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
-													{t('reports_ai_changes_title', 'Твои изменения за период')}
-												</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<p className="text-foreground text-sm">{_aiCategoriesObservation}</p>
-											</CardContent>
-										</Card>
-
-										<Card>
-											<CardHeader>
-												<CardTitle className="flex items-center gap-2">
-													<Sparkles className="h-5 w-5 text-yellow-500" strokeWidth={2} />
-													{t('reports_ai_quotes_title', 'Дополнительный вывод AI')}
-												</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className="space-y-3">
-													{aiQuotes.map((quote) => (
-														<div
-															className="rounded-lg border-yellow-400 border-l-4 bg-linear-to-r from-yellow-50 to-orange-50 p-4"
-															key={quote}
-														>
-															<p className="text-foreground text-sm italic">"{quote}"</p>
-														</div>
-													))}
-												</div>
-											</CardContent>
-										</Card>
-										<Card>
-											<CardHeader>
-												<CardTitle className="flex items-center gap-2">
-													<Target className="h-5 w-5 text-(--ios-green)" strokeWidth={2} />
-													{t('reports_ai_next_month_title', 'Рекомендации на следующий месяц')}
-												</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<p className="text-foreground text-sm">
-													{aiReport?.next_month_strategy || _aiNextMonthStrategy}
-												</p>
-											</CardContent>
-										</Card>
-									</>
-								)}
-							</div>
-						</TabsContent>
-					</Tabs>
-				</div>
 			</div>
+
 			{showReportsArchive && (
 				<div className="fixed inset-0 z-50 bg-background">
 					<ReportsArchiveScreen onBack={() => setShowReportsArchive(false)} />

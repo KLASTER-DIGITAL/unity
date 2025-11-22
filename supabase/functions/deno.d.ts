@@ -17,4 +17,3 @@ declare module 'jsr:@supabase/supabase-js@2' {
 declare module 'jsr:@supabase/functions-js/edge-runtime.d.ts' {
 	// Types are provided by the reference above
 }
-
