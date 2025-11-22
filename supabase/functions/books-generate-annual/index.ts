@@ -322,6 +322,7 @@ ${JSON.stringify(monthlySummaries, null, 2)}
 		const periodEnd = `${year}-12-31`;
 
 		// Save annual book to books_archive
+		// ✅ Use plan_type: 'premium', type: 'year', language from profile
 		const { data: draft, error: draftError } = await supabaseAdmin
 			.from('books_archive')
 			.insert({
@@ -332,6 +333,9 @@ ${JSON.stringify(monthlySummaries, null, 2)}
 				style,
 				layout,
 				theme,
+				plan_type: 'premium', // ✅ Annual books are always Premium
+				type: 'year', // ✅ Annual book type
+				language: userLanguage, // ✅ User's language
 				story_json: {
 					...storyJson,
 					metadata: {

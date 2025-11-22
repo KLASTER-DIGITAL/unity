@@ -7,12 +7,27 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 console.log('[STATS v2] 🚀 Starting stats microservice...');
 
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) =>
+	!origin ||
+	ALLOWED_ORIGINS.includes(origin) ||
+	origin.startsWith('http://localhost') ||
+	origin.startsWith('https://localhost') ||
+	origin.startsWith('http://127.0.0.1') ||
+	origin.startsWith('https://127.0.0.1');
+
 // CORS headers
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
 	'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 	'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
-};
+});
 
 // Calculate streak from entries
 function calculateStreak(entries: any[]) {
@@ -122,15 +137,23 @@ function calculateTopCategories(entries: any[]) {
 Deno.serve(async (req) => {
 	const url = new URL(req.url);
 	const path = url.pathname;
+	const origin = req.headers.get('Origin') || undefined;
 
 	console.log(`[STATS v2] ${req.method} ${path}`);
+
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(JSON.stringify({ success: false, error: 'Origin not allowed' }), {
+			status: 403,
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+		});
+	}
 
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
 		console.log('[STATS v2] ✅ OPTIONS handled');
 		return new Response(null, {
 			status: 204,
-			headers: corsHeaders,
+			headers: corsHeaders(origin),
 		});
 	}
 
@@ -158,7 +181,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 400,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -176,7 +199,7 @@ Deno.serve(async (req) => {
 			console.error('[STATS v2] Error getting entries:', entriesError);
 			return new Response(JSON.stringify({ success: false, error: entriesError.message }), {
 				status: 500,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -225,7 +248,7 @@ Deno.serve(async (req) => {
 			}),
 			{
 				status: 200,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			}
 		);
 	} catch (error) {
@@ -238,7 +261,7 @@ Deno.serve(async (req) => {
 			}),
 			{
 				status: 500,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			}
 		);
 	}

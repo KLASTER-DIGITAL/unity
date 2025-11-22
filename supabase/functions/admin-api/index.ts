@@ -1,15 +1,44 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
-	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) => {
+	if (!origin) return true;
+	return (
+		ALLOWED_ORIGINS.includes(origin) ||
+		origin.startsWith('http://localhost') ||
+		origin.startsWith('https://localhost') ||
+		origin.startsWith('http://127.0.0.1') ||
+		origin.startsWith('https://127.0.0.1')
+	);
 };
+
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+});
 
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(
+			JSON.stringify({
+				success: false,
+				error: 'Origin not allowed',
+			}),
+			{ status: 403, headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
+		);
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {
@@ -26,7 +55,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 401,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -45,7 +74,7 @@ Deno.serve(async (req) => {
 			console.error('[AUTH] User verification failed:', authError);
 			return new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
 				status: 401,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -67,7 +96,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 403,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -83,7 +112,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 403,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -177,7 +206,7 @@ Deno.serve(async (req) => {
 			console.log('[ADMIN-API] ✅ Stats:', stats);
 
 			return new Response(JSON.stringify({ success: true, ...stats }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -223,7 +252,7 @@ Deno.serve(async (req) => {
 				}));
 
 				return new Response(JSON.stringify({ success: true, users: usersWithStats }), {
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				});
 			}
 
@@ -254,7 +283,7 @@ Deno.serve(async (req) => {
 					users: usersFormatted,
 					total: usersFormatted.length,
 				}),
-				{ headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				{ headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -265,7 +294,7 @@ Deno.serve(async (req) => {
 			if (error) throw error;
 
 			return new Response(JSON.stringify({ success: true, languages: data || [] }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -279,7 +308,7 @@ Deno.serve(async (req) => {
 			if (error) throw error;
 
 			return new Response(JSON.stringify({ success: true, translations: data || [] }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -334,7 +363,7 @@ Deno.serve(async (req) => {
 			}
 
 			return new Response(JSON.stringify({ success: true, ...stats }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -355,7 +384,7 @@ Deno.serve(async (req) => {
 			}
 
 			return new Response(JSON.stringify({ success: true, setting: data || null }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -367,7 +396,7 @@ Deno.serve(async (req) => {
 			if (!key) {
 				return new Response(JSON.stringify({ success: false, error: 'Setting key is required' }), {
 					status: 400,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				});
 			}
 
@@ -397,7 +426,7 @@ Deno.serve(async (req) => {
 			console.log('[ADMIN-API] Setting saved successfully:', key);
 
 			return new Response(JSON.stringify({ success: true, setting: data }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -414,7 +443,7 @@ Deno.serve(async (req) => {
 					}),
 					{
 						status: 400,
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					}
 				);
 			}
@@ -433,7 +462,7 @@ Deno.serve(async (req) => {
 					message: 'Push notification sent to all users',
 					notification: { title, body: notificationBody, icon, badge },
 				}),
-				{ headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				{ headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -452,7 +481,7 @@ Deno.serve(async (req) => {
 					}),
 					{
 						status: 400,
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					}
 				);
 			}
@@ -470,7 +499,7 @@ Deno.serve(async (req) => {
 					service,
 					timestamp: new Date().toISOString(),
 				}),
-				{ headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				{ headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -493,7 +522,7 @@ Deno.serve(async (req) => {
 			console.log('[ADMIN-API] System status:', systemStatus);
 
 			return new Response(JSON.stringify({ success: true, status: systemStatus }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -505,14 +534,14 @@ Deno.serve(async (req) => {
 			}),
 			{
 				status: 404,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			}
 		);
 	} catch (error: any) {
 		console.error('[ADMIN-API] Error:', error);
 		return new Response(JSON.stringify({ success: false, error: error.message }), {
 			status: 500,
-			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
 	}
 });

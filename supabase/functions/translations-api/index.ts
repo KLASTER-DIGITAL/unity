@@ -1,16 +1,43 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+	Deno.env.get('PREVIEW_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) => {
+	if (!origin) return true;
+	return (
+		ALLOWED_ORIGINS.includes(origin) ||
+		origin.startsWith('http://localhost') ||
+		origin.startsWith('https://localhost') ||
+		origin.startsWith('http://127.0.0.1') ||
+		origin.startsWith('https://127.0.0.1')
+	);
+};
+
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
 	'Access-Control-Allow-Headers':
 		'authorization, x-client-info, apikey, content-type, x-openai-key',
-};
+});
 
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(JSON.stringify({ success: false, error: 'Origin not allowed' }), {
+			status: 403,
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+		});
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {
@@ -61,7 +88,7 @@ Deno.serve(async (req) => {
 			console.log(`Translations found for ${langCode}:`, Object.keys(translationsObj).length);
 
 			return new Response(JSON.stringify(translationsObj), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -82,7 +109,7 @@ Deno.serve(async (req) => {
 					console.log('Languages found:', languages?.length || 0);
 
 					return new Response(JSON.stringify(languages || []), {
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					});
 				}
 
@@ -98,7 +125,7 @@ Deno.serve(async (req) => {
 					if (error) throw error;
 
 					return new Response(JSON.stringify(language), {
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					});
 				}
 				break;
@@ -114,7 +141,7 @@ Deno.serve(async (req) => {
 					if (error) throw error;
 
 					return new Response(JSON.stringify(translations), {
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					});
 				}
 				break;
@@ -161,7 +188,7 @@ Deno.serve(async (req) => {
 					};
 
 					return new Response(JSON.stringify(stats), {
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					});
 				}
 				break;
@@ -196,7 +223,7 @@ Deno.serve(async (req) => {
 
 					return new Response(JSON.stringify(exportData, null, 2), {
 						headers: {
-							...corsHeaders,
+							...corsHeaders(origin),
 							'Content-Type': 'application/json',
 							'Content-Disposition': `attachment; filename="translations-${new Date().toISOString().split('T')[0]}.json"`,
 						},
@@ -220,7 +247,7 @@ Deno.serve(async (req) => {
 					console.log('Translation keys found:', keys.length);
 
 					return new Response(JSON.stringify({ success: true, keys }), {
-						headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 					});
 				}
 				break;
@@ -238,7 +265,7 @@ Deno.serve(async (req) => {
 							}),
 							{
 								status: 400,
-								headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+								headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 							}
 						);
 					}
@@ -287,7 +314,7 @@ Deno.serve(async (req) => {
 							message: 'Missing translation reported',
 						}),
 						{
-							headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+							headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 						}
 					);
 				}
@@ -309,7 +336,7 @@ Deno.serve(async (req) => {
 							timestamp: new Date().toISOString(),
 						}),
 						{
-							headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+							headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 						}
 					);
 				}
@@ -320,19 +347,19 @@ Deno.serve(async (req) => {
 				console.log('Unknown path:', path);
 				return new Response(JSON.stringify({ error: `Not found: ${path}` }), {
 					status: 404,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				});
 		}
 
 		return new Response(JSON.stringify({ error: 'Method not allowed' }), {
 			status: 405,
-			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
 	} catch (error: any) {
 		console.error('Edge Function error:', error);
 		return new Response(JSON.stringify({ error: error.message }), {
 			status: 500,
-			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
 	}
 });

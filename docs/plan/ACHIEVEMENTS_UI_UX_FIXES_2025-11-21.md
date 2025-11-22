@@ -74,3 +74,4 @@
 1. ✅ Achievements UI/UX P1 updates - **ВЫПОЛНЕНО**
 2. ⏭️ Achievements - Виджет на главную - **СЛЕДУЮЩАЯ ЗАДАЧА**
 
+

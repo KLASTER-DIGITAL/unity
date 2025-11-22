@@ -308,6 +308,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 		layout?: 'photo_text' | 'text_only' | 'minimal';
 		style?: 'warm_family' | 'biographical' | 'motivational';
 		theme?: 'light' | 'dark';
+		planType?: 'free' | 'premium';
 	} | null>(null);
 	const [story, setStory] = useState<StoryJson | null>(null);
 	const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -358,6 +359,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 						(data as { style?: 'warm_family' | 'biographical' | 'motivational' }).style ||
 						'warm_family',
 					theme: (data as { theme?: 'light' | 'dark' }).theme || 'light',
+					planType: (data as { plan_type?: 'free' | 'premium' }).plan_type || 'premium',
 				});
 				const storyData = (data as { story_json: StoryJson }).story_json;
 				// ✅ FIX: Ensure chapters array exists
@@ -655,6 +657,21 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 
 					{/* Edit Tab */}
 					<TabsContent className="space-y-4" value="edit">
+						{/* FREE Book Notice */}
+						{draft?.planType === 'free' && (
+							<Card className="border-primary/30 bg-primary/5">
+								<CardContent className="py-3">
+									<p className="text-primary text-sm font-medium">
+										📖 FREE книга — упрощенный редактор
+									</p>
+									<p className="text-muted-foreground mt-1 text-xs">
+										Вы можете изменить название, подзаголовок и добавить фото. Для редактирования
+										текста перейдите на Premium.
+									</p>
+								</CardContent>
+							</Card>
+						)}
+
 						<Card>
 							<CardHeader>
 								<CardTitle>{t('books.editor.title', 'Основная информация')}</CardTitle>
@@ -684,108 +701,158 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 										value={story.subtitle}
 									/>
 								</div>
-								<div>
-									<Label className="text-sm sm:text-base" htmlFor="prologue">
-										{t('books.pdf.prologue', 'Вступление')}
-									</Label>
-									<textarea
-										className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
-										id="prologue"
-										onChange={(e) => setStory({ ...story, prologue: e.target.value })}
-										rows={4}
-										value={story.prologue}
-									/>
-								</div>
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader>
-								<CardTitle>Главы ({story.chapters?.length || 0})</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								{(story.chapters || []).map((chapter, index) => (
-									<div className="rounded-lg border p-4" key={chapter.title || `${index}`}>
-										<Label>
-											{t('books.pdf.chapter', 'Глава')} {index + 1}
+								{/* Prologue - только для PREMIUM */}
+								{draft?.planType !== 'free' && (
+									<div>
+										<Label className="text-sm sm:text-base" htmlFor="prologue">
+											{t('books.pdf.prologue', 'Вступление')}
 										</Label>
-										<input
-											className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
-											onChange={(e) => {
-												const newChapters = [...(story.chapters || [])];
-												newChapters[index] = { ...chapter, title: e.target.value };
-												setStory({ ...story, chapters: newChapters });
-											}}
-											placeholder="Название главы"
-											value={chapter.title}
-										/>
 										<textarea
-											className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
-											onChange={(e) => {
-												const newChapters = [...(story.chapters || [])];
-												newChapters[index] = { ...chapter, content: e.target.value };
-												setStory({ ...story, chapters: newChapters });
-											}}
-											placeholder="Содержание главы"
+											className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm transition-colors duration-300 sm:text-base"
+											id="prologue"
+											onChange={(e) => setStory({ ...story, prologue: e.target.value })}
 											rows={4}
-											value={chapter.content}
+											value={story.prologue}
 										/>
-
-										{/* Photos for chapter */}
-										{draft?.layout === 'photo_text' && (
-											<div className="mt-4">
-												<Label className="mb-2 block text-xs text-muted-foreground">
-													{t('books.photos', 'Фотографии')}
-												</Label>
-												<div className="flex flex-wrap gap-2">
-													{photos
-														.filter((p) => p.chapterIndex === index)
-														.map((photo) => (
-															<div className="group relative" key={photo.id}>
-																<img
-																	alt="Chapter"
-																	className="h-20 w-20 rounded-md border border-border object-cover"
-																	src={photo.photoUrl}
-																/>
-																<button
-																	className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-																	onClick={() => handleDeletePhoto(photo.id)}
-																	type="button"
-																>
-																	<Trash2 className="h-3 w-3" />
-																</button>
-															</div>
-														))}
-													<label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-md border border-muted-foreground/50 border-dashed transition-colors hover:bg-accent">
-														{uploadingPhotoForChapter === index ? (
-															<Sparkles className="h-5 w-5 animate-spin text-muted-foreground" />
-														) : (
-															<>
-																<ImageIcon className="mb-1 h-5 w-5 text-muted-foreground" />
-																<span className="text-[10px] text-muted-foreground">
-																	{t('books.add_photo', 'Добавить')}
-																</span>
-															</>
-														)}
-														<input
-															accept="image/*"
-															className="hidden"
-															disabled={uploadingPhotoForChapter === index}
-															onChange={(e) => {
-																if (e.target.files?.[0]) {
-																	handlePhotoUpload(index, e.target.files[0]);
-																}
-															}}
-															type="file"
-														/>
-													</label>
-												</div>
-											</div>
-										)}
 									</div>
-								))}
+								)}
 							</CardContent>
 						</Card>
+
+						{/* Chapters - только для PREMIUM */}
+						{draft?.planType !== 'free' && (
+							<Card>
+								<CardHeader>
+									<CardTitle>Главы ({story.chapters?.length || 0})</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									{(story.chapters || []).map((chapter, index) => (
+										<div className="rounded-lg border p-4" key={chapter.title || `${index}`}>
+											<Label>
+												{t('books.pdf.chapter', 'Глава')} {index + 1}
+											</Label>
+											<input
+												className="mt-2 w-full rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
+												onChange={(e) => {
+													const newChapters = [...(story.chapters || [])];
+													newChapters[index] = { ...chapter, title: e.target.value };
+													setStory({ ...story, chapters: newChapters });
+												}}
+												placeholder="Название главы"
+												value={chapter.title}
+											/>
+											<textarea
+												className="mt-2 w-full resize-none rounded-lg border bg-background px-3 py-2 transition-colors duration-300"
+												onChange={(e) => {
+													const newChapters = [...(story.chapters || [])];
+													newChapters[index] = { ...chapter, content: e.target.value };
+													setStory({ ...story, chapters: newChapters });
+												}}
+												placeholder="Содержание главы"
+												rows={4}
+												value={chapter.content}
+											/>
+
+											{/* Photos for chapter */}
+											{draft?.layout === 'photo_text' && (
+												<div className="mt-4">
+													<Label className="mb-2 block text-xs text-muted-foreground">
+														{t('books.photos', 'Фотографии')}
+													</Label>
+													<div className="flex flex-wrap gap-2">
+														{photos
+															.filter((p) => p.chapterIndex === index)
+															.map((photo) => (
+																<div className="group relative" key={photo.id}>
+																	<img
+																		alt="Chapter"
+																		className="h-20 w-20 rounded-md border border-border object-cover"
+																		src={photo.photoUrl}
+																	/>
+																	<button
+																		className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+																		onClick={() => handleDeletePhoto(photo.id)}
+																		type="button"
+																	>
+																		<Trash2 className="h-3 w-3" />
+																	</button>
+																</div>
+															))}
+														<label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-md border border-muted-foreground/50 border-dashed transition-colors hover:bg-accent">
+															{uploadingPhotoForChapter === index ? (
+																<Sparkles className="h-5 w-5 animate-spin text-muted-foreground" />
+															) : (
+																<>
+																	<ImageIcon className="mb-1 h-5 w-5 text-muted-foreground" />
+																	<span className="text-[10px] text-muted-foreground">
+																		{t('books.add_photo', 'Добавить')}
+																	</span>
+																</>
+															)}
+															<input
+																accept="image/*"
+																className="hidden"
+																disabled={uploadingPhotoForChapter === index}
+																onChange={(e) => {
+																	if (e.target.files?.[0]) {
+																		handlePhotoUpload(index, e.target.files[0]);
+																	}
+																}}
+																type="file"
+															/>
+														</label>
+													</div>
+												</div>
+											)}
+										</div>
+									))}
+								</CardContent>
+							</Card>
+						)}
+
+						{/* FREE Book: Photo Collage */}
+						{draft?.planType === 'free' && photos.length > 0 && (
+							<Card>
+								<CardHeader>
+									<CardTitle>Фотографии</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="grid grid-cols-3 gap-2">
+										{photos.map((photo) => (
+											<div className="group relative" key={photo.id}>
+												<img
+													alt="Photo"
+													className="h-24 w-full rounded-md border border-border object-cover"
+													src={photo.photoUrl}
+												/>
+												<button
+													className="absolute -top-1 -right-1 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+													onClick={() => handleDeletePhoto(photo.id)}
+													type="button"
+												>
+													<Trash2 className="h-3 w-3" />
+												</button>
+											</div>
+										))}
+									</div>
+									<label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-4 transition-colors duration-300 hover:border-primary">
+										<Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+										<span className="text-muted-foreground text-sm">Добавить фото</span>
+										<input
+											accept="image/*"
+											className="hidden"
+											disabled={uploadingPhotoForChapter !== null}
+											onChange={(e) => {
+												if (e.target.files?.[0]) {
+													handlePhotoUpload(0, e.target.files[0]); // Use chapter 0 for FREE
+												}
+											}}
+											type="file"
+										/>
+									</label>
+								</CardContent>
+							</Card>
+						)}
 
 						<div className="flex gap-2">
 							<Button className="flex-1" disabled={isSaving} onClick={handleSave}>

@@ -1,15 +1,42 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+	Deno.env.get('PREVIEW_URL') || '',
+].filter(Boolean);
+
 // CORS headers
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+});
+
+const isAllowedOrigin = (origin?: string | null) => {
+	if (!origin) return true;
+	return (
+		ALLOWED_ORIGINS.includes(origin) ||
+		origin.startsWith('http://localhost') ||
+		origin.startsWith('https://localhost') ||
+		origin.startsWith('http://127.0.0.1') ||
+		origin.startsWith('https://127.0.0.1')
+	);
 };
 
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(JSON.stringify({ success: false, error: 'Origin not allowed' }), {
+			status: 403,
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+		});
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {

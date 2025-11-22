@@ -128,15 +128,22 @@ Deno.serve(async (req) => {
 			);
 		}
 
-		// Get user language from profile
+		// Get user language and premium status from profile
 		const { data: profile } = await supabaseAdmin
 			.from('profiles')
-			.select('language')
+			.select('language, is_premium')
 			.eq('id', userId)
 			.single();
 
 		const userLanguage = profile?.language || 'ru';
+		const isPremium = profile?.is_premium || false;
+
+		// ✅ Determine plan_type: from request or from profile
+		const finalPlanType = planType || (isPremium ? 'premium' : 'free');
+
 		console.log('[BOOKS-DRAFT] User language:', userLanguage);
+		console.log('[BOOKS-DRAFT] Plan type:', finalPlanType);
+		console.log('[BOOKS-DRAFT] Book type:', type);
 
 		// ✅ CHECK FOR EXISTING DRAFT (AI Optimization - save tokens!)
 		if (!regenerate) {
@@ -171,7 +178,25 @@ Deno.serve(async (req) => {
 			console.log('[BOOKS-DRAFT] Regenerate flag set, generating new draft...');
 		}
 
-		// Fetch entries for the period
+		// ✅ NEW: Try to use entry_summaries first (90% token savings!)
+		const { data: summaries } = await supabaseAdmin
+			.from('entry_summaries')
+			.select('entry_id, short_summary, insight, mood, topics, persons, has_achievement, excerpt')
+			.eq('user_id', userId)
+			.gte('created_at', periodStart)
+			.lte('created_at', periodEnd)
+			.order('created_at', { ascending: true });
+
+		// Fallback to entries if no summaries exist
+		const useSummaries = summaries && summaries.length > 0;
+
+		if (useSummaries) {
+			console.log('[BOOKS-DRAFT] ✅ Using entry_summaries (90% token savings!)');
+		} else {
+			console.log('[BOOKS-DRAFT] ⚠️ No summaries found, using raw entries (expensive)');
+		}
+
+		// Fetch entries for the period (still needed for photos and achievements)
 		const { data: entries, error: entriesError } = await supabaseAdmin
 			.from('entries')
 			.select(
@@ -235,16 +260,46 @@ Deno.serve(async (req) => {
 		};
 		const locale = localeMap[userLanguage] || `${userLanguage}-${userLanguage.toUpperCase()}`;
 
+		// ✅ NEW: Load snapshot if exists (context for AI)
+		const { data: snapshot } = await supabaseAdmin
+			.from('monthly_snapshots')
+			.select('*')
+			.eq('user_id', userId)
+			.eq('period_start', periodStart)
+			.eq('period_end', periodEnd)
+			.single();
+
+		if (snapshot) {
+			console.log('[BOOKS-DRAFT] ✅ Using snapshot for period context');
+		}
+
 		// Prepare data for AI
-		const entriesSummary = filteredEntries.map((entry) => ({
-			id: entry.id, // Pass ID so AI can reference it
-			date: new Date(entry.created_at).toLocaleDateString(locale),
-			category: entry.category,
-			sentiment: entry.sentiment,
-			summary: entry.ai_summary || entry.text.substring(0, 200),
-			isAchievement: entry.is_achievement,
-			mood: entry.mood,
-		}));
+		const entriesSummary = useSummaries
+			? summaries.map((summary: any, index: number) => {
+					const entry = filteredEntries.find((e) => e.id === summary.entry_id);
+					return {
+						id: summary.entry_id,
+						date: entry
+							? new Date(entry.created_at).toLocaleDateString(locale)
+							: new Date().toLocaleDateString(locale),
+						summary: summary.short_summary,
+						insight: summary.insight,
+						mood: summary.mood,
+						topics: summary.topics || [],
+						persons: summary.persons || [],
+						isAchievement: summary.has_achievement,
+						excerpt: summary.excerpt,
+					};
+				})
+			: filteredEntries.map((entry) => ({
+					id: entry.id,
+					date: new Date(entry.created_at).toLocaleDateString(locale),
+					category: entry.category,
+					sentiment: entry.sentiment,
+					summary: entry.ai_summary || entry.text.substring(0, 200),
+					isAchievement: entry.is_achievement,
+					mood: entry.mood,
+				}));
 
 		// Calculate statistics
 		const achievementEntries = filteredEntries.filter((e) => e.is_achievement);
@@ -279,6 +334,19 @@ Deno.serve(async (req) => {
 				book_style: style,
 			});
 
+			// ✅ NEW: Include snapshot context if available
+			const snapshotContext = snapshot
+				? `
+Контекст периода (из snapshot):
+- Всего записей: ${snapshot.total_entries}
+- Активных дней: ${snapshot.active_days}
+- Эмоции: ${JSON.stringify(snapshot.emotions_distribution)}
+- Топ темы: ${snapshot.top_topics?.join(', ') || 'нет'}
+- Топ люди: ${snapshot.top_persons?.join(', ') || 'нет'}
+- Достижений: ${snapshot.achievements_count}
+`
+				: '';
+
 			userPrompt = replacePlaceholders(config.user_prompt_template, {
 				user_language: userLanguage,
 				period_start: new Date(periodStart).toLocaleDateString(locale),
@@ -289,6 +357,7 @@ Deno.serve(async (req) => {
 				achievements_count: String(stats.achievements),
 				positive_count: String(stats.positiveEntries),
 				categories_list: stats.categories.join(', '),
+				snapshot_context: snapshotContext,
 				entries_summary: JSON.stringify(entriesSummary, null, 2),
 			});
 		} else {
@@ -323,9 +392,24 @@ Create a JSON book structure with fields:
 Use the diary entries data to create a cohesive narrative.
 IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
 
+			// ✅ NEW: Include snapshot context if available
+			const snapshotContext = snapshot
+				? `
+Контекст периода (из snapshot):
+- Всего записей: ${snapshot.total_entries}
+- Активных дней: ${snapshot.active_days}
+- Эмоции: ${JSON.stringify(snapshot.emotions_distribution)}
+- Топ темы: ${snapshot.top_topics?.join(', ') || 'нет'}
+- Топ люди: ${snapshot.top_persons?.join(', ') || 'нет'}
+- Достижений: ${snapshot.achievements_count}
+`
+				: '';
+
 			userPrompt = `Period: ${new Date(periodStart).toLocaleDateString(locale)} - ${new Date(periodEnd).toLocaleDateString(locale)}
 Diary: ${diaryName || 'My Diary'} ${diaryEmoji || '📝'}
 User Language: ${userLanguage}
+
+${snapshotContext}
 
 Статистика:
 - Всего записей: ${stats.totalEntries}
@@ -333,8 +417,13 @@ User Language: ${userLanguage}
 - Позитивных моментов: ${stats.positiveEntries}
 - Категории: ${stats.categories.join(', ')}
 
-Записи:
+Записи${useSummaries ? ' (summaries)' : ''}:
 ${JSON.stringify(entriesSummary, null, 2)}
+
+ВАЖНО:
+- Если в summaries есть поле persons с людьми (например ["Карина", "Арина", "семья"]), создай отдельную главу для каждого человека.
+- Используй source_entry_ids в главах чтобы привязать фото.
+- Пиши тёплым, поддерживающим тоном, без осуждения.
 
 Создай вдохновляющую книгу на основе этих данных.`;
 		}
@@ -441,6 +530,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		console.log('[BOOKS-DRAFT] AI generation complete. Tokens:', total_tokens);
 
 		// Save draft to database
+		// ✅ Include plan_type, type, language
 		const { data: draft, error: draftError } = await supabaseAdmin
 			.from('books_archive')
 			.insert({
@@ -451,6 +541,9 @@ ${JSON.stringify(entriesSummary, null, 2)}
 				style,
 				layout,
 				theme,
+				plan_type: finalPlanType, // ✅ FREE or PREMIUM
+				type: type, // ✅ month, quarter, year, family, custom
+				language: userLanguage, // ✅ User's language
 				story_json: storyJson,
 				metadata: {
 					entriesCount: filteredEntries.length,

@@ -144,3 +144,4 @@ type PDFReportData = {
 6. `supabase/functions/books-generate-annual/index.ts` - улучшена обработка AI operation config
 7. `docs/plan/REPORTS_PDF_BOOKS_CHECK_2025-11-21.md` - обновлен статус задач
 
+

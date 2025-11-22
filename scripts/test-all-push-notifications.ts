@@ -25,7 +25,7 @@ const PUSH_TYPES: { type: PushType; name: string; emoji: string }[] = [
 	{ type: 'achievement', name: 'Достижение', emoji: '🎉' },
 ];
 
-async function sleep(ms: number) {
+function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -42,7 +42,7 @@ async function testAllPushNotifications(userEmail?: string) {
 
 	console.log(`\n📱 Получатель: ${userEmail || 'все подписанные пользователи'}`);
 	console.log(`⏱️  Задержка между уведомлениями: ${DELAY_BETWEEN_NOTIFICATIONS / 1000} секунд`);
-	console.log('\n' + '─'.repeat(60));
+	console.log(`\n${'─'.repeat(60)}`);
 
 	let successCount = 0;
 	let failCount = 0;
@@ -75,13 +75,13 @@ async function testAllPushNotifications(userEmail?: string) {
 	}
 
 	// Итоговая статистика
-	console.log('\n' + '═'.repeat(60));
+	console.log(`\n${'═'.repeat(60)}`);
 	console.log('📊 ИТОГОВАЯ СТАТИСТИКА');
 	console.log('═'.repeat(60));
 	console.log(`✅ Успешно отправлено: ${successCount}/${PUSH_TYPES.length}`);
 	console.log(`❌ Ошибок: ${failCount}/${PUSH_TYPES.length}`);
 	console.log('\n💡 Проверьте ваш телефон/браузер - push уведомления должны прийти!');
-	console.log('═'.repeat(60) + '\n');
+	console.log(`${'═'.repeat(60)}\n`);
 }
 
 async function testScheduledPush(type: PushType) {

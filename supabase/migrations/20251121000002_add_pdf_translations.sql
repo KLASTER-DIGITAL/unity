@@ -209,3 +209,4 @@ ON CONFLICT (lang_code, translation_key) DO UPDATE
 SET translation_value = EXCLUDED.translation_value,
     updated_at = NOW();
 
+

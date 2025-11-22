@@ -224,3 +224,4 @@ Error: useTranslationContext must be used within TranslationProvider
 - Все изменения соответствуют документу `BOOKS_SYSTEM_COMPLETE_IMPLEMENTATION_2025-11-21.md`
 - Генерация книги занимает ~60 секунд (ожидаемое время)
 
+

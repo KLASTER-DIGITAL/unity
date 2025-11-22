@@ -5,17 +5,44 @@ import {
 	replacePlaceholders,
 } from '../_shared/ai/getAiOperationConfig.ts';
 
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+	Deno.env.get('PREVIEW_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) => {
+	if (!origin) return true;
+	return (
+		ALLOWED_ORIGINS.includes(origin) ||
+		origin.startsWith('http://localhost') ||
+		origin.startsWith('https://localhost') ||
+		origin.startsWith('http://127.0.0.1') ||
+		origin.startsWith('https://127.0.0.1')
+	);
+};
+
 // CORS headers
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
 	'Access-Control-Allow-Headers':
 		'authorization, x-client-info, apikey, content-type, x-openai-key',
-};
+});
 
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(JSON.stringify({ success: false, error: 'Origin not allowed' }), {
+			status: 403,
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+		});
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {
@@ -32,7 +59,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 401,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -52,7 +79,7 @@ Deno.serve(async (req) => {
 			console.error('[AI-ANALYSIS] Auth error:', authError);
 			return new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
 				status: 401,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -75,7 +102,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 500,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -90,7 +117,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 403,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -118,25 +145,17 @@ Deno.serve(async (req) => {
 			if (setting?.value) {
 				openaiApiKey = setting.value;
 				console.log('[AI-ANALYSIS] ✅ Using OpenAI key from admin_settings');
-				console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
-				console.log('[AI-ANALYSIS] 🔑 Key prefix:', openaiApiKey.substring(0, 20));
-				console.log(
-					'[AI-ANALYSIS] 🔑 Key suffix:',
-					openaiApiKey.substring(openaiApiKey.length - 20)
-				);
 			} else {
 				console.log('[AI-ANALYSIS] ⚠️ No key in admin_settings, trying env variable');
 				openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 				if (openaiApiKey) {
 					console.log('[AI-ANALYSIS] ✅ Using OpenAI key from env variable (fallback)');
-					console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
 				} else {
 					console.log('[AI-ANALYSIS] ❌ No key in env variable either');
 				}
 			}
 		} else {
 			console.log('[AI-ANALYSIS] ✅ Using OpenAI key from header');
-			console.log('[AI-ANALYSIS] 🔑 Key length:', openaiApiKey.length);
 		}
 
 		if (!openaiApiKey) {
@@ -148,7 +167,7 @@ Deno.serve(async (req) => {
 				}),
 				{
 					status: 500,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			);
 		}
@@ -169,7 +188,7 @@ Deno.serve(async (req) => {
 			if (!text) {
 				return new Response(JSON.stringify({ success: false, error: 'Text is required' }), {
 					status: 400,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				});
 			}
 

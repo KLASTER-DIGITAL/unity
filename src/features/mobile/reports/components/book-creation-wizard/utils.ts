@@ -75,14 +75,20 @@ export async function checkFreeTierLimit(
 }
 
 /**
- * Generate book draft via Edge Function
+ * Generate book draft via Edge Function (FREE or PREMIUM)
  */
 export async function generateBookDraft(
 	config: BookConfig,
 	userId: string,
 	diaryName: string,
 	diaryEmoji: string
-): Promise<{ success: boolean; draftId?: string; error?: string }> {
+): Promise<{
+	success: boolean;
+	draftId?: string;
+	error?: string;
+	cached?: boolean;
+	isFree?: boolean;
+}> {
 	try {
 		const supabase = createClient();
 		const {
@@ -93,35 +99,51 @@ export async function generateBookDraft(
 			return { success: false, error: 'Не авторизован' };
 		}
 
+		// Choose the right endpoint based on plan type
+		const isFree = config.planType === 'free';
+		const endpoint = isFree ? API_URLS.BOOKS_GENERATE_FREE : API_URLS.BOOKS_GENERATE_DRAFT;
+
 		console.log('[WIZARD] Generating book with config:', {
+			planType: config.planType,
+			endpoint: isFree ? 'FREE' : 'PREMIUM',
 			userId,
 			periodStart: config.periodStart,
 			periodEnd: config.periodEnd,
 			contexts: config.contexts,
 			style: config.style,
 			layout: config.layout,
-			theme: 'light',
-			diaryName: diaryName || 'Мой дневник',
-			diaryEmoji: diaryEmoji || '📝',
 		});
 
-		const response = await fetch(API_URLS.BOOKS_GENERATE_DRAFT, {
+		const requestBody = isFree
+			? {
+					// FREE: minimal payload (no AI, no style/layout)
+					userId,
+					periodStart: config.periodStart,
+					periodEnd: config.periodEnd,
+					contexts: config.contexts,
+					diaryName: diaryName || 'Мой дневник',
+					diaryEmoji: diaryEmoji || '📝',
+				}
+			: {
+					// PREMIUM: full payload with AI config
+					userId,
+					periodStart: config.periodStart,
+					periodEnd: config.periodEnd,
+					contexts: config.contexts,
+					style: config.style,
+					layout: config.layout,
+					theme: 'light',
+					diaryName: diaryName || 'Мой дневник',
+					diaryEmoji: diaryEmoji || '📝',
+				};
+
+		const response = await fetch(endpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${session.access_token}`,
 			},
-			body: JSON.stringify({
-				userId,
-				periodStart: config.periodStart,
-				periodEnd: config.periodEnd,
-				contexts: config.contexts,
-				style: config.style,
-				layout: config.layout,
-				theme: 'light', // Always use light theme
-				diaryName: diaryName || 'Мой дневник',
-				diaryEmoji: diaryEmoji || '📝',
-			}),
+			body: JSON.stringify(requestBody),
 		});
 
 		const result = await response.json();
@@ -138,6 +160,8 @@ export async function generateBookDraft(
 		return {
 			success: true,
 			draftId: result.draftId,
+			cached: result.cached || false,
+			isFree,
 		};
 	} catch (error) {
 		console.error('[WIZARD] Error generating book:', error);

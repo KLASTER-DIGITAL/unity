@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
 					continue;
 				}
 
-				// Trigger generation
+				// Trigger generation via books-generate-draft
+				// ✅ Use plan_type: 'premium', type: 'month', language from profile
 				console.log(`[AUTO-BOOKS] Generating book for user ${user.id}...`);
 
 				const generateRes = await fetch(`${supabaseUrl}/functions/v1/books-generate-draft`, {
@@ -115,6 +116,8 @@ Deno.serve(async (req) => {
 						diaryName: user.diary_name,
 						diaryEmoji: user.diary_emoji,
 						regenerate: true, // Force new draft
+						planType: 'premium', // ✅ Auto-generated books are always Premium
+						type: 'month', // ✅ Monthly auto-generated book
 					}),
 				});
 

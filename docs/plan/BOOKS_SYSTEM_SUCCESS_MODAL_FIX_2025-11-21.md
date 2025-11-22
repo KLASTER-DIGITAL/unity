@@ -114,3 +114,4 @@ const handleGoToLibrary = () => {
 - `docs/plan/BOOKS_SYSTEM_COMPLETE_TESTING_REPORT_2025-11-21.md` - Полный отчет о тестировании
 - `docs/plan/IDEAL_BOOKS_SYSTEM_RECOMMENDATIONS_2025-11-21.md` - Рекомендации по системе книг
 
+

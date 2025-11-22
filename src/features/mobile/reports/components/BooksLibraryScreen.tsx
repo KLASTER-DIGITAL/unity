@@ -9,7 +9,7 @@
 
 import {
 	ArrowLeft,
-	Book,
+	Book as BookIcon,
 	Calendar,
 	Download,
 	Edit,
@@ -27,35 +27,10 @@ import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
+import { type Book, useBooksList } from '../hooks/useBooksList';
 import { BookDeleteConfirmModal } from './BookDeleteConfirmModal';
 
-type BookDraft = {
-	id: string;
-	userId: string;
-	parentBookId?: string | null;
-	version?: number | null;
-	periodStart: string;
-	periodEnd: string;
-	contexts: string[];
-	style: 'warm_family' | 'biographical' | 'motivational';
-	layout: 'photo_text' | 'text_only' | 'minimal';
-	theme: 'light' | 'dark';
-	pdfUrl?: string;
-	storyJson: any;
-	metadata: {
-		entriesCount?: number;
-		achievementsCount?: number;
-		tokensUsed?: number;
-		diaryName?: string;
-		diaryEmoji?: string;
-		pages?: number;
-		wordCount?: number;
-	};
-	isDraft: boolean;
-	isFinal: boolean;
-	createdAt: string;
-	updatedAt: string;
-};
+type BookDraft = Book;
 
 type BooksLibraryScreenProps = {
 	onCreateBook?: () => void;
@@ -71,9 +46,6 @@ export function BooksLibraryScreen({
 	refreshKey,
 }: BooksLibraryScreenProps) {
 	const { t, currentLanguage } = useTranslation();
-	const [books, setBooks] = useState<BookDraft[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [filter, setFilter] = useState<'all' | 'drafts' | 'final'>('all');
 	const [userId, setUserId] = useState<string | null>(null);
 	const [deletingBookId, setDeletingBookId] = useState<string | null>(null);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -94,67 +66,23 @@ export function BooksLibraryScreen({
 		getUserId();
 	}, []);
 
-	// Fetch books
+	// ✅ Use shared hook for books list management
+	const {
+		books,
+		loading: isLoading,
+		filter,
+		setFilter,
+		fetchBooks,
+		deleteBook: deleteBookHook,
+		createNewVersion: createNewVersionHook,
+	} = useBooksList(userId);
+
+	// Refetch when refreshKey changes
 	useEffect(() => {
-		if (!userId) return;
-
-		const fetchBooks = async () => {
-			try {
-				setIsLoading(true);
-				const supabase = createClient();
-
-				let query = supabase
-					.from('books_archive')
-					.select('*')
-					.eq('user_id', userId)
-					.order('created_at', { ascending: false });
-
-				if (filter === 'drafts') {
-					query = query.eq('is_draft', true);
-				} else if (filter === 'final') {
-					query = query.eq('is_final', true);
-				}
-
-				const { data, error } = await query;
-
-				if (error) {
-					console.error('[BOOKS-LIBRARY] Error fetching books:', error);
-					toast.error(t('books.load_error', 'Не удалось загрузить книги'));
-					return;
-				}
-
-				// Convert snake_case to camelCase
-				const booksData: BookDraft[] = (data || []).map((book) => ({
-					id: book.id,
-					userId: book.user_id,
-					parentBookId: (book as { parent_book_id?: string | null }).parent_book_id ?? null,
-					version: (book as { version?: number | null }).version ?? 1,
-					periodStart: book.period_start,
-					periodEnd: book.period_end,
-					contexts: book.contexts || [],
-					style: book.style,
-					layout: book.layout,
-					theme: book.theme,
-					pdfUrl: book.pdf_url,
-					storyJson: book.story_json,
-					metadata: book.metadata || {},
-					isDraft: book.is_draft,
-					isFinal: book.is_final,
-					createdAt: book.created_at,
-					updatedAt: book.updated_at,
-				}));
-
-				setBooks(booksData);
-			} catch (error) {
-				console.error('[BOOKS-LIBRARY] Error:', error);
-				toast.error(t('books.editor.error', 'Произошла ошибка'));
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchBooks();
-	}, [userId, filter, refreshKey]); // ✅ Добавлен refreshKey для принудительного обновления
+		if (refreshKey > 0) {
+			fetchBooks();
+		}
+	}, [refreshKey, fetchBooks]);
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {
@@ -230,40 +158,15 @@ export function BooksLibraryScreen({
 
 		try {
 			setDeletingBookId(bookToDelete.id);
-			const supabase = createClient();
 
-			// Delete from database
-			const { error } = await supabase.from('books_archive').delete().eq('id', bookToDelete.id);
-
-			if (error) {
-				console.error('[BOOKS-LIBRARY] Error deleting book:', error);
-				toast.error(t('books.delete_error', 'Не удалось удалить книгу'));
-				return;
-			}
-
-			// If has PDF, delete from storage
-			if (bookToDelete.pdfUrl) {
-				const fileName = bookToDelete.pdfUrl.split('/').pop();
-				if (fileName) {
-					const { error: storageError } = await supabase.storage
-						.from('books')
-						.remove([`${bookToDelete.userId}/${fileName}`]);
-
-					if (storageError) {
-						console.error('[BOOKS-LIBRARY] Error deleting PDF:', storageError);
-						// Don't show error to user, book is already deleted from DB
-					}
-				}
-			}
-
-			// Remove from local state
-			setBooks((prev) => prev.filter((b) => b.id !== bookToDelete.id));
-			toast.success(t('books.delete_success', 'Книга удалена'));
+			// ✅ Use hook's delete function
+			await deleteBookHook(bookToDelete.id);
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
 		} finally {
 			setDeletingBookId(null);
+			setShowDeleteConfirm(false);
 			setBookToDelete(null);
 		}
 	};
@@ -272,7 +175,7 @@ export function BooksLibraryScreen({
 	const handleCreateNewVersion = async (book: BookDraft) => {
 		if (!onEditDraft) return;
 
-		// Простое подтверждение, чтобы объяснить пользователю, что оригинал останется
+		// Простое подтверждение
 		const confirmed = window.confirm(
 			'Мы создадим копию текущей книги как новый черновик. Оригинальный PDF останется доступен.'
 		);
@@ -280,37 +183,13 @@ export function BooksLibraryScreen({
 
 		try {
 			setCreatingVersionId(book.id);
-			const supabase = createClient();
 
-			const { data, error } = await supabase
-				.from('books_archive')
-				.insert({
-					user_id: book.userId,
-					parent_book_id: book.parentBookId || book.id,
-					version: (book.version ?? 1) + 1,
-					period_start: book.periodStart,
-					period_end: book.periodEnd,
-					contexts: book.contexts,
-					style: book.style,
-					layout: book.layout,
-					theme: book.theme,
-					metadata: book.metadata,
-					story_json: book.storyJson,
-					is_draft: true,
-					is_final: false,
-					pdf_url: null,
-				})
-				.select('id')
-				.single();
+			// ✅ Use hook's create new version function
+			const newBookId = await createNewVersionHook(book.id);
 
-			if (error || !data) {
-				console.error('[BOOKS-LIBRARY] Error creating new version:', error);
-				toast.error(t('books.version_error', 'Не удалось создать новую версию книги'));
-				return;
+			if (newBookId) {
+				onEditDraft(newBookId);
 			}
-
-			toast.success(t('books.version_created', 'Создан новый черновик книги'));
-			onEditDraft(data.id);
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -334,7 +213,7 @@ export function BooksLibraryScreen({
 						</button>
 					)}
 					<div className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm sm:h-12 sm:w-12">
-						<Book className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
+						<BookIcon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
 					</div>
 					<div className="flex-1">
 						<h2 className="text-lg sm:text-xl">{t('books.library_title', 'Библиотека книг')}</h2>
@@ -451,10 +330,28 @@ export function BooksLibraryScreen({
 
 									{/* Meta */}
 									<div className="mb-auto flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
-										<div className="flex items-center gap-1">
-											<Sparkles className="h-3 w-3 text-[--ios-purple]" />
-											<span className="truncate max-w-[80px]">{getStyleLabel(book.style)}</span>
-										</div>
+										{/* Plan Type Badge */}
+										<Badge
+											className="h-4 px-1.5 text-[9px]"
+											variant={book.planType === 'premium' ? 'default' : 'outline'}
+										>
+											{book.planType === 'premium' ? (
+												<>
+													<Sparkles className="mr-1 h-2.5 w-2.5" />
+													Premium
+												</>
+											) : (
+												'FREE'
+											)}
+										</Badge>
+										{/* Style */}
+										{book.planType === 'premium' && book.style && (
+											<div className="flex items-center gap-1">
+												<Sparkles className="h-3 w-3 text-[--ios-purple]" />
+												<span className="truncate max-w-[80px]">{getStyleLabel(book.style)}</span>
+											</div>
+										)}
+										{/* Version */}
 										{book.version && book.version > 1 && (
 											<div className="flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 font-medium">
 												<span>v{book.version}</span>

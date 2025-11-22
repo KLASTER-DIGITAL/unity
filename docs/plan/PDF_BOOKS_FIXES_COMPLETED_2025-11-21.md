@@ -98,3 +98,4 @@
 - `docs/plan/REPORTS_PDF_BOOKS_CHECK_2025-11-21.md` - Предыдущий анализ
 - `docs/new/ai-pdf-books.md` - Концепция PDF книг
 
+

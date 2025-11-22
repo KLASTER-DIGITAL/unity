@@ -5,54 +5,58 @@ import './index.css';
 // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ (2025-11-09): Предотвращение зацикливания обновлений
 // Версия обновляется скриптом generate-sw-version.js перед build
 const APP_VERSION = '2.0.1';
-const STORED_VERSION = localStorage.getItem('app_version');
-const UPDATE_IN_PROGRESS = localStorage.getItem('pwa_update_in_progress');
 
-console.log(
-	`[PWA] Version check: stored=${STORED_VERSION}, current=${APP_VERSION}, updateInProgress=${UPDATE_IN_PROGRESS}`
-);
+if (import.meta.env.PROD) {
+	const STORED_VERSION = localStorage.getItem('app_version');
+	const UPDATE_IN_PROGRESS = localStorage.getItem('pwa_update_in_progress');
 
-// Проверяем если обновление было в процессе
-if (UPDATE_IN_PROGRESS && UPDATE_IN_PROGRESS === APP_VERSION) {
-	console.log('[PWA] Update completed successfully, clearing update flag');
-	localStorage.removeItem('pwa_update_in_progress');
-	localStorage.setItem('app_version', APP_VERSION);
-}
+	console.log(
+		`[PWA] Version check: stored=${STORED_VERSION}, current=${APP_VERSION}, updateInProgress=${UPDATE_IN_PROGRESS}`
+	);
 
-if (STORED_VERSION !== APP_VERSION) {
-	console.log(`[PWA] Version changed: ${STORED_VERSION} → ${APP_VERSION}. Clearing cache...`);
-
-	// Очистить все кеши
-	if ('caches' in window) {
-		caches.keys().then((names) => {
-			names.forEach((name) => {
-				console.log('[PWA] Deleting cache:', name);
-				caches.delete(name);
-			});
-		});
+	// Проверяем если обновление было в процессе
+	if (UPDATE_IN_PROGRESS && UPDATE_IN_PROGRESS === APP_VERSION) {
+		console.log('[PWA] Update completed successfully, clearing update flag');
+		localStorage.removeItem('pwa_update_in_progress');
+		localStorage.setItem('app_version', APP_VERSION);
 	}
 
-	// Сохранить новую версию
-	localStorage.setItem('app_version', APP_VERSION);
-	localStorage.removeItem('pwa_update_in_progress');
-	console.log('[PWA] Version updated in localStorage');
-} else {
-	console.log('[PWA] Version is up to date');
-}
+	if (STORED_VERSION !== APP_VERSION) {
+		console.log(`[PWA] Version changed: ${STORED_VERSION} → ${APP_VERSION}. Clearing cache...`);
 
-// ✅ PWA: Регистрация Service Worker
-// ВАЖНО: Регистрируем в dev режиме для тестирования push notifications
-if ('serviceWorker' in navigator) {
-	window.addEventListener('load', () => {
-		navigator.serviceWorker
-			.register('/service-worker.js')
-			.then((registration) => {
-				console.log('✅ [PWA] Service Worker registered:', registration.scope);
-			})
-			.catch((error) => {
-				console.error('❌ [PWA] Service Worker registration failed:', error);
+		// Очистить все кеши
+		if ('caches' in window) {
+			caches.keys().then((names) => {
+				names.forEach((name) => {
+					console.log('[PWA] Deleting cache:', name);
+					caches.delete(name);
+				});
 			});
-	});
+		}
+
+		// Сохранить новую версию
+		localStorage.setItem('app_version', APP_VERSION);
+		localStorage.removeItem('pwa_update_in_progress');
+		console.log('[PWA] Version updated in localStorage');
+	} else {
+		console.log('[PWA] Version is up to date');
+	}
+
+	// ✅ PWA: Регистрация Service Worker только в production
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => {
+			navigator.serviceWorker
+				.register('/service-worker.js')
+				.then((registration) => {
+					console.log('✅ [PWA] Service Worker registered:', registration.scope);
+				})
+				.catch((error) => {
+					console.error('❌ [PWA] Service Worker registration failed:', error);
+				});
+		});
+	}
+} else {
+	console.log('ℹ️ [PWA] Service Worker and cache cleanup disabled in development');
 }
 
 // ✅ LAZY LOADING: Sentry загружается асинхронно для уменьшения initial bundle на ~83 KB

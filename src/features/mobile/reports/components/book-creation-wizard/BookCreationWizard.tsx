@@ -14,7 +14,9 @@ import { Progress } from '@/shared/components/ui/progress';
 import { createClient } from '@/utils/supabase/client';
 import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
+import { PremiumUpsellModal } from '../PremiumUpsellModal';
 import { DEFAULT_PERIOD_DAYS } from './constants';
+import { Step0PlanType } from './Step0PlanType';
 import { Step1Period } from './Step1Period';
 import { Step2Contexts } from './Step2Contexts';
 import { Step3Style } from './Step3Style';
@@ -33,7 +35,7 @@ export function BookCreationWizard({
 	onCancel,
 	onGoToLibrary,
 }: BookCreationWizardProps) {
-	const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+	const [currentStep, setCurrentStep] = useState<WizardStep>(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [showProgress, setShowProgress] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -43,8 +45,11 @@ export function BookCreationWizard({
 	const [diaryName, setDiaryName] = useState<string>('');
 	const [diaryEmoji, setDiaryEmoji] = useState<string>('');
 	const [generationError, setGenerationError] = useState<string | null>(null);
+	const [isPremium, setIsPremium] = useState(false);
+	const [showUpsellModal, setShowUpsellModal] = useState(false);
 
 	const [config, setConfig] = useState<BookConfig>({
+		planType: '' as any,
 		periodStart: new Date(Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000)
 			.toISOString()
 			.split('T')[0],
@@ -66,13 +71,20 @@ export function BookCreationWizard({
 
 				const { data: profile } = await supabase
 					.from('profiles')
-					.select('diary_name, diary_emoji')
+					.select('diary_name, diary_emoji, is_premium')
 					.eq('id', session.user.id)
 					.single();
 
 				if (profile) {
 					setDiaryName(profile.diary_name || '');
 					setDiaryEmoji(profile.diary_emoji || '');
+					setIsPremium(profile.is_premium || false);
+
+					// Auto-select plan type for Premium users
+					if (profile.is_premium) {
+						setConfig((prev) => ({ ...prev, planType: 'premium' }));
+						setCurrentStep(1); // Skip step 0 for Premium
+					}
 				}
 			}
 		};
@@ -96,13 +108,26 @@ export function BookCreationWizard({
 	};
 
 	const handleNext = () => {
-		if (currentStep < 4) {
-			setCurrentStep((prev) => (prev + 1) as WizardStep);
+		// Skip steps for FREE users
+		if (config.planType === 'free') {
+			if (currentStep === 0)
+				setCurrentStep(1); // 0 → 1 (period)
+			else if (currentStep === 1)
+				setCurrentStep(2); // 1 → 2 (contexts)
+			else if (currentStep === 2) {
+				// FREE: skip style and layout, go directly to generation
+				handleGenerateBook();
+			}
+		} else {
+			// PREMIUM: full flow
+			if (currentStep < 4) {
+				setCurrentStep((prev) => (prev + 1) as WizardStep);
+			}
 		}
 	};
 
 	const handlePrevious = () => {
-		if (currentStep > 1) {
+		if (currentStep > 0) {
 			setCurrentStep((prev) => (prev - 1) as WizardStep);
 		}
 	};
@@ -204,6 +229,8 @@ export function BookCreationWizard({
 
 	const getStepTitle = () => {
 		switch (currentStep) {
+			case 0:
+				return 'Выберите тип книги';
 			case 1:
 				return 'Выберите период';
 			case 2:
@@ -237,15 +264,57 @@ export function BookCreationWizard({
 				onClose={handleGoToLibraryFromModal}
 			/>
 
+			{/* Premium Upsell Modal */}
+			{showUpsellModal && (
+				<PremiumUpsellModal
+					onClose={() => {
+						setShowUpsellModal(false);
+						setConfig((prev) => ({ ...prev, planType: 'free' }));
+					}}
+					onUpgrade={() => {
+						window.location.href = '/premium';
+					}}
+				/>
+			)}
+
 			{/* Wizard */}
 			<div className="flex h-full flex-col">
 				{/* Progress Bar */}
 				<div className="border-b border-border bg-card p-4 transition-colors duration-300">
-					<div className="mb-2 flex items-center justify-between text-sm">
-						<span className="text-muted-foreground">Шаг {currentStep} из 4</span>
-						<span className="font-medium">{Math.round((currentStep / 4) * 100)}%</span>
-					</div>
-					<Progress className="h-2" value={(currentStep / 4) * 100} />
+					{(() => {
+						// Calculate total steps and current step for display
+						let totalSteps: number;
+						let displayStep: number;
+
+						if (isPremium && config.planType === 'premium') {
+							// Premium: Step0 skipped, so 4 steps (1, 2, 3, 4)
+							totalSteps = 4;
+							displayStep = currentStep; // currentStep is already 1, 2, 3, 4
+						} else if (config.planType === 'free') {
+							// FREE: Step0 + Step1 + Step2 (skip 3, 4)
+							totalSteps = 3;
+							displayStep = currentStep + 1; // Convert 0-based to 1-based
+						} else {
+							// Default: Step0 + 1 + 2 + 3 + 4 = 5 steps
+							totalSteps = 5;
+							displayStep = currentStep + 1; // Convert 0-based to 1-based
+						}
+
+						const progress =
+							totalSteps > 1 ? Math.round(((displayStep - 1) / (totalSteps - 1)) * 100) : 0;
+
+						return (
+							<>
+								<div className="mb-2 flex items-center justify-between text-sm">
+									<span className="text-muted-foreground">
+										Шаг {displayStep} из {totalSteps}
+									</span>
+									<span className="font-medium">{progress}%</span>
+								</div>
+								<Progress className="h-2" value={progress} />
+							</>
+						);
+					})()}
 				</div>
 
 				{/* Content */}
@@ -255,6 +324,14 @@ export function BookCreationWizard({
 							<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-3 sm:space-y-4">
+							{currentStep === 0 && (
+								<Step0PlanType
+									config={config}
+									isPremium={isPremium}
+									onConfigChange={handleConfigChange}
+									onUpgrade={() => setShowUpsellModal(true)}
+								/>
+							)}
 							{currentStep === 1 && (
 								<Step1Period config={config} onConfigChange={handleConfigChange} />
 							)}

@@ -1,10 +1,28 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
-	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) => {
+	if (!origin) return true;
+	return (
+		ALLOWED_ORIGINS.includes(origin) ||
+		origin.startsWith('http://localhost') ||
+		origin.startsWith('https://localhost') ||
+		origin.startsWith('http://127.0.0.1') ||
+		origin.startsWith('https://127.0.0.1')
+	);
 };
+
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
+	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+});
 
 // ============================================
 // EMBEDDED UTILITY: Super Admin Auth Middleware
@@ -12,6 +30,7 @@ const corsHeaders = {
 async function verifySuperAdmin(req: Request) {
 	const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 	const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+	const origin = req.headers.get('Origin') || undefined;
 
 	// Get access token from Authorization header
 	const authHeader = req.headers.get('Authorization');
@@ -24,7 +43,7 @@ async function verifySuperAdmin(req: Request) {
 				}),
 				{
 					status: 401,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			),
 		};
@@ -45,7 +64,7 @@ async function verifySuperAdmin(req: Request) {
 		return {
 			error: new Response(JSON.stringify({ success: false, error: 'Invalid access token' }), {
 				status: 401,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 			}),
 		};
 	}
@@ -69,7 +88,7 @@ async function verifySuperAdmin(req: Request) {
 				}),
 				{
 					status: 403,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			),
 		};
@@ -87,7 +106,7 @@ async function verifySuperAdmin(req: Request) {
 				}),
 				{
 					status: 403,
-					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 				}
 			),
 		};
@@ -95,7 +114,7 @@ async function verifySuperAdmin(req: Request) {
 
 	console.log('[AUTH] ✅ Super admin verified:', user.email);
 
-	return { supabaseAdmin, user };
+	return { supabaseAdmin, user, origin };
 }
 
 // ============================================
@@ -103,8 +122,16 @@ async function verifySuperAdmin(req: Request) {
 // ============================================
 Deno.serve(async (req) => {
 	// Handle CORS preflight requests
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return new Response(JSON.stringify({ success: false, error: 'Origin not allowed' }), {
+			status: 403,
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+		});
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {
@@ -114,7 +141,7 @@ Deno.serve(async (req) => {
 			return authResult.error;
 		}
 
-		const { supabaseAdmin } = authResult;
+		const { supabaseAdmin, origin: verifiedOrigin } = authResult;
 
 		console.log('[ADMIN-USERS-API] Fetching users list...');
 
@@ -155,7 +182,7 @@ Deno.serve(async (req) => {
 			}));
 
 			return new Response(JSON.stringify({ success: true, users: usersWithStats }), {
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				headers: { ...corsHeaders(verifiedOrigin), 'Content-Type': 'application/json' },
 			});
 		}
 
@@ -188,13 +215,13 @@ Deno.serve(async (req) => {
 				users: usersFormatted,
 				total: usersFormatted.length,
 			}),
-			{ headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			{ headers: { ...corsHeaders(verifiedOrigin), 'Content-Type': 'application/json' } }
 		);
 	} catch (error) {
 		console.error('[ADMIN-USERS-API] ❌ Error:', error);
 		return new Response(JSON.stringify({ success: false, error: error.message }), {
 			status: 500,
-			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 		});
 	}
 });

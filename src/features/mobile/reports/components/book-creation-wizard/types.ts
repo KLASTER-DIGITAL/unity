@@ -8,9 +8,10 @@ export type BookCreationWizardProps = {
 	onGoToLibrary?: () => void;
 };
 
-export type WizardStep = 1 | 2 | 3 | 4;
+export type WizardStep = 0 | 1 | 2 | 3 | 4;
 
 export type BookConfig = {
+	planType: 'free' | 'premium' | '';
 	periodStart: string;
 	periodEnd: string;
 	contexts: string[];

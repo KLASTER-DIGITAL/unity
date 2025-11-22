@@ -230,3 +230,4 @@ theme: 'light' | 'dark'
    - Специфичные промпты для `warm_family`, `biographical`, `motivational`
    - Учет стиля при генерации контента через AI
 
+

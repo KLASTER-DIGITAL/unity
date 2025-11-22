@@ -46,18 +46,33 @@ function isOperationAvailable(config: AIOperationConfig | null): boolean {
 	return config !== null && config.is_enabled === true;
 }
 
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
+const ALLOWED_ORIGINS = [
+	'https://unity-wine.vercel.app',
+	Deno.env.get('APP_URL') || '',
+	Deno.env.get('ADMIN_URL') || '',
+].filter(Boolean);
+
+const isAllowedOrigin = (origin?: string | null) =>
+	!origin ||
+	ALLOWED_ORIGINS.includes(origin) ||
+	origin.startsWith('http://localhost') ||
+	origin.startsWith('https://localhost') ||
+	origin.startsWith('http://127.0.0.1') ||
+	origin.startsWith('https://127.0.0.1');
+
+const corsHeaders = (origin?: string | null) => ({
+	'Access-Control-Allow-Origin':
+		origin && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0] || 'null',
 	'Access-Control-Allow-Headers':
 		'authorization, x-client-info, apikey, content-type, x-openai-key',
-};
+});
 
 type PeriodType = 'weekly' | 'monthly';
 
-function jsonResponse(body: unknown, status = 200): Response {
+function jsonResponse(body: unknown, status = 200, origin?: string | null): Response {
 	return new Response(JSON.stringify(body), {
 		status,
-		headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+		headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
 	});
 }
 
@@ -131,8 +146,13 @@ async function resolveOpenAiKey(req: Request, supabaseAdmin: any): Promise<strin
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: reports edge function orchestrates multiple branches and IO operations
 Deno.serve(async (req) => {
+	const origin = req.headers.get('Origin') || undefined;
+	if (origin && !isAllowedOrigin(origin)) {
+		return jsonResponse({ success: false, error: 'Origin not allowed' }, 403, origin);
+	}
+
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', { headers: corsHeaders(origin) });
 	}
 
 	try {
@@ -141,7 +161,7 @@ Deno.serve(async (req) => {
 
 		const authHeader = req.headers.get('Authorization');
 		if (!authHeader) {
-			return jsonResponse({ success: false, error: 'Missing authorization header' }, 401);
+			return jsonResponse({ success: false, error: 'Missing authorization header' }, 401, origin);
 		}
 
 		const accessToken = authHeader.replace('Bearer ', '');
@@ -153,7 +173,7 @@ Deno.serve(async (req) => {
 		} = await supabaseAdmin.auth.getUser(accessToken);
 
 		if (authError || !user) {
-			return jsonResponse({ success: false, error: 'Invalid access token' }, 401);
+			return jsonResponse({ success: false, error: 'Invalid access token' }, 401, origin);
 		}
 
 		const { data: profile, error: profileError } = await supabaseAdmin

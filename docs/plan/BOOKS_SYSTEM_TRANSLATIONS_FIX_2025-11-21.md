@@ -133,3 +133,4 @@ SET translation_value = EXCLUDED.translation_value,
 - ✅ Все тексты будут отображаться корректно
 - ✅ UX улучшится (нет fallback значений)
 
+
