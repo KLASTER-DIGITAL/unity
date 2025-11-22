@@ -114,9 +114,7 @@ function MobileViewContent({
 
 				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
-				{userData?.user?.id && !isAdminRoute && (
-					<OfflineSyncIndicator userId={userData.user.id} />
-				)}
+				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
 
 				{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
 
