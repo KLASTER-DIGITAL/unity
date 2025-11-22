@@ -72,7 +72,7 @@ function updateFile(filePath) {
 	let updated = false;
 	let changes = 0;
 
-	patterns.forEach(({ regex, replacement, name }) => {
+	patterns.forEach(({ regex, replacement }) => {
 		const matches = content.match(regex);
 		if (matches) {
 			content = content.replace(regex, replacement);

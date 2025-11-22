@@ -11,7 +11,7 @@ import {
 	Zap,
 } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
 	Accordion,
@@ -191,6 +191,7 @@ export const AISettingsTab: React.FC = () => {
 	};
 
 	// Load AI settings (all in one useEffect to avoid infinite loop)
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy logic to be refactored separately
 	useEffect(() => {
 		const loadAISettings = async () => {
 			setIsLoading(true);

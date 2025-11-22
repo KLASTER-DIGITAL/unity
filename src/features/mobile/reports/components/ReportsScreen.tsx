@@ -12,7 +12,7 @@ import { API_URLS } from '@/shared/lib/api/config/urls';
 import { useTranslation } from '@/shared/lib/i18n';
 import type { PDFReportData } from '@/shared/types/reports';
 import { createClient } from '@/utils/supabase/client';
-import { BookCreationWizard } from './BookCreationWizard';
+import { BookCreationWizard } from './book-creation-wizard/BookCreationWizard';
 import { BookDraftEditor } from './BookDraftEditor';
 import { BooksLibraryScreen } from './BooksLibraryScreen';
 import { ReportPDFDocument } from './ReportPDFDocument';

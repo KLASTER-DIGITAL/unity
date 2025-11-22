@@ -179,9 +179,10 @@ Deno.serve(async (req) => {
 		}
 
 		// ✅ NEW: Try to use entry_summaries first (90% token savings!)
+		// Note: summaries use summary_json JSONB column
 		const { data: summaries } = await supabaseAdmin
 			.from('entry_summaries')
-			.select('entry_id, short_summary, insight, mood, topics, persons, has_achievement, excerpt')
+			.select('entry_id, summary_json')
 			.eq('user_id', userId)
 			.gte('created_at', periodStart)
 			.lte('created_at', periodEnd)
@@ -277,18 +278,19 @@ Deno.serve(async (req) => {
 		const entriesSummary = useSummaries
 			? summaries.map((summary: any, index: number) => {
 					const entry = filteredEntries.find((e) => e.id === summary.entry_id);
+					const summaryData = summary.summary_json || {};
 					return {
 						id: summary.entry_id,
 						date: entry
 							? new Date(entry.created_at).toLocaleDateString(locale)
 							: new Date().toLocaleDateString(locale),
-						summary: summary.short_summary,
-						insight: summary.insight,
-						mood: summary.mood,
-						topics: summary.topics || [],
-						persons: summary.persons || [],
-						isAchievement: summary.has_achievement,
-						excerpt: summary.excerpt,
+						summary: summaryData.short_summary || entry?.text?.substring(0, 200) || '',
+						insight: summaryData.insight || '',
+						mood: summaryData.mood || 'neutral',
+						topics: summaryData.topics || [],
+						persons: summaryData.persons || [],
+						isAchievement: summaryData.has_achievement || entry?.is_achievement || false,
+						excerpt: summaryData.excerpt || entry?.text?.substring(0, 100) || '',
 					};
 				})
 			: filteredEntries.map((entry) => ({

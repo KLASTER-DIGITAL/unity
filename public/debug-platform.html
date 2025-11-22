@@ -50,8 +50,8 @@
         log('Is Android', isAndroid);
         
         // PWA Detection
-        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                      (window.navigator as any).standalone === true;
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                      Boolean(window.navigator?.standalone === true);
         log('Is PWA', isPWA);
         
         // Display Mode
@@ -70,4 +70,3 @@
     </script>
 </body>
 </html>
-

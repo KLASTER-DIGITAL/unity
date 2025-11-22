@@ -70,7 +70,7 @@ async function findMissingTranslations() {
 	});
 
 	// 4. Get Russian keys as base
-	const russianKeys = translationsByLang['ru'];
+	const russianKeys = translationsByLang.ru;
 	console.log(`🇷🇺 Russian (base language): ${russianKeys.size} keys\n`);
 
 	// 5. Find missing keys for each language

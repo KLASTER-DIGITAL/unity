@@ -73,7 +73,7 @@
         log('Detected Device', detectDevice());
         
         // PWA Mode
-        const isPWA = (window.navigator as any).standalone === true || 
+        const isPWA = Boolean(window.navigator?.standalone === true) ||
                       window.matchMedia('(display-mode: standalone)').matches;
         log('Is PWA Mode', isPWA);
         
@@ -84,4 +84,3 @@
     </script>
 </body>
 </html>
-

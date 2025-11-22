@@ -37,7 +37,7 @@ async function main() {
 
 	console.log('✅ Logged in successfully');
 	console.log('👤 User ID:', authData.user.id);
-	console.log('🔑 Access Token:', authData.session.access_token.substring(0, 50) + '...\n');
+	console.log('🔑 Access Token:', `${authData.session.access_token.substring(0, 50)}...\n`);
 
 	// 3. Fetch home screen data
 	console.log('📊 Fetching home screen data...');
@@ -65,10 +65,10 @@ async function main() {
 		data.recentEntries.forEach((entry, index) => {
 			console.log(`\n📝 Entry ${index + 1}:`);
 			console.log('  ID:', entry.id);
-			console.log('  Text:', entry.text?.substring(0, 50) + '...');
+			console.log('  Text:', `${entry.text?.substring(0, 50)}...`);
 			console.log(
 				'  AI Reply:',
-				entry.ai_reply ? '✅ EXISTS (' + entry.ai_reply.substring(0, 50) + '...)' : '❌ MISSING'
+				entry.ai_reply ? `✅ EXISTS (${entry.ai_reply.substring(0, 50)}...)` : '❌ MISSING'
 			);
 			console.log('  AI Summary:', entry.ai_summary ? '✅ EXISTS' : '❌ MISSING');
 			console.log('  AI Insight:', entry.ai_insight ? '✅ EXISTS' : '❌ MISSING');
@@ -94,10 +94,10 @@ async function main() {
 		dbEntries.forEach((entry, index) => {
 			console.log(`\n📝 DB Entry ${index + 1}:`);
 			console.log('  ID:', entry.id);
-			console.log('  Text:', entry.text?.substring(0, 50) + '...');
+			console.log('  Text:', `${entry.text?.substring(0, 50)}...`);
 			console.log(
 				'  AI Reply:',
-				entry.ai_reply ? '✅ EXISTS (' + entry.ai_reply.substring(0, 50) + '...)' : '❌ MISSING'
+				entry.ai_reply ? `✅ EXISTS (${entry.ai_reply.substring(0, 50)}...)` : '❌ MISSING'
 			);
 			console.log('  AI Summary:', entry.ai_summary ? '✅ EXISTS' : '❌ MISSING');
 			console.log('  AI Insight:', entry.ai_insight ? '✅ EXISTS' : '❌ MISSING');
@@ -125,7 +125,7 @@ async function main() {
 				console.log('  Table:', payload.table);
 				if (payload.new) {
 					console.log('  New record ID:', payload.new.id);
-					console.log('  Text:', payload.new.text?.substring(0, 50) + '...');
+					console.log('  Text:', `${payload.new.text?.substring(0, 50)}...`);
 					console.log('  AI Reply:', payload.new.ai_reply ? '✅ EXISTS' : '❌ MISSING');
 				}
 				if (payload.old) {

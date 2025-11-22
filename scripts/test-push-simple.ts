@@ -83,7 +83,7 @@ const NOTIFICATIONS: { name: string; emoji: string; data: NotificationData }[] =
 	},
 ];
 
-async function sleep(ms: number) {
+function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -151,7 +151,7 @@ async function testAllPushNotifications() {
 
 	console.log(`\n📱 Получатель: rustam@leadshunter.biz (${USER_ID})`);
 	console.log(`⏱️  Задержка между уведомлениями: ${DELAY_BETWEEN_NOTIFICATIONS / 1000} секунд`);
-	console.log('\n' + '─'.repeat(60));
+	console.log(`\n${'─'.repeat(60)}`);
 
 	let successCount = 0;
 	let failCount = 0;
@@ -183,13 +183,13 @@ async function testAllPushNotifications() {
 	}
 
 	// Итоговая статистика
-	console.log('\n' + '═'.repeat(60));
+	console.log(`\n${'═'.repeat(60)}`);
 	console.log('📊 ИТОГОВАЯ СТАТИСТИКА');
 	console.log('═'.repeat(60));
 	console.log(`✅ Успешно отправлено: ${successCount}/${NOTIFICATIONS.length}`);
 	console.log(`❌ Ошибок: ${failCount}/${NOTIFICATIONS.length}`);
 	console.log('\n💡 Проверьте ваш телефон/браузер - push уведомления должны прийти!');
-	console.log('═'.repeat(60) + '\n');
+	console.log(`${'═'.repeat(60)}\n`);
 }
 
 // Запуск скрипта
