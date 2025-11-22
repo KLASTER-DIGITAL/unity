@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useSpring } from 'framer-motion';
 import { toPng } from 'html-to-image';
 import { Share2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import type { ComponentType } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -14,7 +15,7 @@ interface AchievementDetailsModalProps {
 	achievement: {
 		name: string;
 		description: string;
-		icon: any;
+		icon: ComponentType<{ className?: string }> | null;
 		rarity: RarityType;
 		progress: number;
 		earned: boolean;
