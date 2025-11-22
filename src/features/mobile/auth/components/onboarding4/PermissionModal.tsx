@@ -50,12 +50,14 @@ export function PermissionModal({
 
 				<div className="flex gap-3">
 					<button
+						type="button"
 						className="flex-1 rounded-(--radius) bg-secondary px-4 py-3 text-secondary-foreground transition-all duration-200 hover:bg-secondary/80 active:scale-95"
 						onClick={onLater}
 					>
 						{laterLabel}
 					</button>
 					<button
+						type="button"
 						className="flex-1 rounded-(--radius) bg-[#756ef3] px-4 py-3 text-white transition-all duration-200 hover:bg-[#6b62e8] active:scale-95"
 						onClick={onAllow}
 					>

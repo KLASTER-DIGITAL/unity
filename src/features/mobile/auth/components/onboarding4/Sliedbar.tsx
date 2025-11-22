@@ -30,7 +30,7 @@ export function Sliedbar({ currentStep, totalSteps, onStepClick }: SliedbarProps
 						index === 0 ? 'w-[25px]' : 'w-[8px]'
 					}`}
 					initial={{ scaleX: 0 }}
-					key={index}
+					key={`step-${index + 1}`}
 					onClick={() => onStepClick(index + 1)}
 					style={{
 						background: 'linear-gradient(135.96deg, #8B78FF 0%, #5451D6 101.74%)',

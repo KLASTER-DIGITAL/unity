@@ -44,6 +44,14 @@ export function NotificationOption({
 					e.stopPropagation();
 					onTimeClick?.(type);
 				}}
+				onKeyDown={(event) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						onTimeClick?.(type);
+					}
+				}}
+				role="button"
+				tabIndex={0}
 			>
 				<Clock className="h-3 w-3 text-[#756ef3]" />
 				<span className="!text-[#756ef3] font-medium! text-[13px]!">({time})</span>

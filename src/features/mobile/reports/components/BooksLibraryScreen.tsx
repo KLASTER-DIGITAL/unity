@@ -307,7 +307,10 @@ export function BooksLibraryScreen({
 				) : books.length === 0 ? (
 					<Card>
 						<CardContent className="py-12 text-center">
-							<Book className="mx-auto mb-4 h-12 w-12 text-muted-foreground" strokeWidth={1.5} />
+							<BookIcon
+								className="mx-auto mb-4 h-12 w-12 text-muted-foreground"
+								strokeWidth={1.5}
+							/>
 							<h3 className="mb-2 text-lg">{t('books.empty.title', 'Пока нет книг')}</h3>
 							<p className="mb-4 text-muted-foreground text-sm">
 								{t('books.empty.description', 'Создай свою первую книгу достижений')}
@@ -320,6 +323,7 @@ export function BooksLibraryScreen({
 					</Card>
 				) : (
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: book card rendering requires multiple conditional branches */}
 						{books.map((book) => (
 							<div
 								className="group relative flex h-40 flex-row overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
