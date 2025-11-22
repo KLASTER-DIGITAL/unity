@@ -275,10 +275,19 @@ Deno.serve(async (req) => {
 		}
 
 		// Prepare data for AI
+		// ✅ Context Engine: Collect all persons
+		const allPersons: Set<string> = new Set();
+
 		const entriesSummary = useSummaries
 			? summaries.map((summary: any, index: number) => {
 					const entry = filteredEntries.find((e) => e.id === summary.entry_id);
 					const summaryData = summary.summary_json || {};
+					const persons = summaryData.persons || [];
+					
+					for (const p of persons) {
+						allPersons.add(p);
+					}
+
 					return {
 						id: summary.entry_id,
 						date: entry
@@ -288,7 +297,7 @@ Deno.serve(async (req) => {
 						insight: summaryData.insight || '',
 						mood: summaryData.mood || 'neutral',
 						topics: summaryData.topics || [],
-						persons: summaryData.persons || [],
+						persons: persons,
 						isAchievement: summaryData.has_achievement || entry?.is_achievement || false,
 						excerpt: summaryData.excerpt || entry?.text?.substring(0, 100) || '',
 					};
@@ -320,16 +329,17 @@ Deno.serve(async (req) => {
 			summary: entry.ai_summary || entry.text.substring(0, 200),
 		}));
 
-		// ✅ Load AI operation config for monthly_report
-		console.log('[BOOKS-DRAFT] Loading monthly_report AI operation...');
-		const config = await getAiConfig(supabaseUrl, supabaseServiceKey, 'monthly_report');
+		// ✅ Load AI operation config based on style
+		const aiOperationId = `book_generation_${style}`;
+		console.log(`[BOOKS-DRAFT] Loading AI operation: ${aiOperationId}...`);
+		const config = await getAiConfig(supabaseUrl, supabaseServiceKey, aiOperationId);
 
 		let systemPrompt: string;
 		let userPrompt: string;
 
 		if (config && config.is_enabled) {
 			// ✅ Use AI operation from database
-			console.log('[BOOKS-DRAFT] Using monthly_report from AI Control Center');
+			console.log(`[BOOKS-DRAFT] Using ${aiOperationId} from AI Control Center`);
 
 			systemPrompt = replacePlaceholders(config.system_prompt, {
 				user_language: userLanguage,
@@ -379,20 +389,45 @@ Deno.serve(async (req) => {
 
 Style: ${stylePrompts[style as keyof typeof stylePrompts]}
 
+CONTEXT ENGINE - IMPORTANT:
+If the entries mention specific people (${Array.from(allPersons).join(', ')}), you can organize chapters by:
+1. By person: Create chapters like "Время с [Имя]", "Моменты с [Имя]"
+2. By theme: Create chapters like "Семья", "Друзья", "Работа"
+3. By time: Create chapters by weeks or significant periods
+
+Choose the organization that best fits the narrative.
+
 Create a JSON book structure with fields:
 - title: Book title (creative, inspiring)
 - subtitle: Subtitle with period
-- prologue: Introduction (2-3 paragraphs)
+- prologue: Introduction (2-3 paragraphs, warm and supportive tone)
 - chapters: Array of chapters, each with:
-  - title: Chapter title
-  - content: Chapter text (3-5 paragraphs)
+  - title: Chapter title (can include person's name if organizing by person)
+  - content: Chapter text (3-5 paragraphs, warm narrative)
   - highlights: Key moments (array of strings)
   - source_entry_ids: Array of entry IDs used for this chapter (IMPORTANT for photo mapping)
-- epilogue: Conclusion (2-3 paragraphs)
+- epilogue: Conclusion (2-3 paragraphs, encouraging and hopeful)
 - dedication: Dedication (optional)
+
+TONE GUIDE:
+- Warm, supportive, non-judgmental
+- Celebrate growth and effort, not just results
+- Use inclusive "we" occasionally (UNITY accompanies the user)
+- Avoid clinical/dry language
+- Focus on human experience, emotions, connections
 
 Use the diary entries data to create a cohesive narrative.
 IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
+
+			// ✅ Context Engine: Build persons context
+			const personsContext =
+				allPersons.size > 0
+					? `\n\nIMPORTANT - PEOPLE IN THIS PERIOD:\n${Array.from(allPersons)
+							.map((p) => `- ${p}`)
+							.join(
+								'\n'
+							)}\n\nYou can organize chapters by these people if it makes sense for the narrative.`
+					: '';
 
 			// ✅ NEW: Include snapshot context if available
 			const snapshotContext = snapshot
@@ -411,7 +446,7 @@ IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
 Diary: ${diaryName || 'My Diary'} ${diaryEmoji || '📝'}
 User Language: ${userLanguage}
 
-${snapshotContext}
+${snapshotContext}${personsContext}
 
 Статистика:
 - Всего записей: ${stats.totalEntries}

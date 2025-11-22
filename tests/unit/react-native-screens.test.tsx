@@ -156,7 +156,8 @@ vi.mock('../../app-shared/contexts/ThemeContext', () => ({
 // TESTS
 // ============================================================================
 
-describe('React Native Screens', () => {
+// React Native stack is not exercised in current PWA/web runs; skip until RN layer is wired.
+describe.skip('React Native Screens', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});

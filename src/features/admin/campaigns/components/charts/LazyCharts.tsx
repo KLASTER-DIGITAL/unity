@@ -5,6 +5,7 @@
  * Уменьшает initial bundle size на ~30 KB
  */
 
+import type { ComponentProps } from 'react';
 import { lazy, Suspense } from 'react';
 
 // Lazy load Chart.js components
@@ -21,7 +22,7 @@ function ChartLoadingFallback() {
 }
 
 // Lazy Line Chart wrapper
-export function LazyLineChart(props: any) {
+export function LazyLineChart(props: ComponentProps<typeof LineChartComponent>) {
 	return (
 		<Suspense fallback={<ChartLoadingFallback />}>
 			<LineChartComponent {...props} />
@@ -30,7 +31,7 @@ export function LazyLineChart(props: any) {
 }
 
 // Lazy Bar Chart wrapper
-export function LazyBarChart(props: any) {
+export function LazyBarChart(props: ComponentProps<typeof BarChartComponent>) {
 	return (
 		<Suspense fallback={<ChartLoadingFallback />}>
 			<BarChartComponent {...props} />

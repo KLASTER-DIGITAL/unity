@@ -44,6 +44,7 @@ export function TwoFactorVerification({
 
 	const supabase = createClient();
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy flow to be refactored
 	async function handleVerify() {
 		if (!code || (useBackupCode ? code.length !== 8 : code.length !== 6)) {
 			toast.error(useBackupCode ? 'Введите 8-значный резервный код' : 'Введите 6-значный код');
@@ -105,7 +106,7 @@ export function TwoFactorVerification({
 			// If backup code was used, remove it from the list
 			if (useBackupCode && isValid) {
 				const hashedCode = backupCodes.find(async (hash) => {
-					const { default: crypto } = await import('crypto');
+					const { default: crypto } = await import('node:crypto');
 					const hashedInput = crypto.createHash('sha256').update(code.toUpperCase()).digest('hex');
 					return hash === hashedInput;
 				});

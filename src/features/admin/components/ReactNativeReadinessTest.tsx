@@ -90,6 +90,7 @@ export function ReactNativeReadinessTest() {
 			</div>
 
 			<button
+				type="button"
 				className="rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors duration-300 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted"
 				disabled={loading}
 				onClick={runTest}
@@ -144,10 +145,10 @@ export function ReactNativeReadinessTest() {
 					<div className="space-y-4">
 						<h3 className="font-bold text-lg">Детальные проверки</h3>
 
-						{report.checks.map((check, index) => (
+						{report.checks.map((check) => (
 							<div
 								className="rounded-lg border border-border bg-muted p-4 transition-shadow hover:shadow-md"
-								key={index}
+								key={check.name}
 							>
 								<div className="mb-2 flex items-start justify-between">
 									<div className="flex-1">

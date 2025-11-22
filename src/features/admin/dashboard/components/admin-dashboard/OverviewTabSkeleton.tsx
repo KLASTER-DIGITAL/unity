@@ -22,7 +22,7 @@ export function OverviewTabSkeleton() {
 				{[...Array(4)].map((_, i) => (
 					<div
 						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-						key={i}
+						key={`overview-stat-${i}`}
 					>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
@@ -41,7 +41,7 @@ export function OverviewTabSkeleton() {
 				{[...Array(2)].map((_, i) => (
 					<div
 						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-						key={i}
+						key={`overview-stat-${i}`}
 					>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
@@ -60,7 +60,7 @@ export function OverviewTabSkeleton() {
 				<Skeleton className="mb-4 h-6 w-40" />
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 					{[...Array(4)].map((_, i) => (
-						<Skeleton className="h-24 w-full rounded-md" key={i} />
+						<Skeleton className="h-24 w-full rounded-md" key={`overview-stat-${i}`} />
 					))}
 				</div>
 			</div>
@@ -70,7 +70,7 @@ export function OverviewTabSkeleton() {
 				<Skeleton className="mb-4 h-6 w-40" />
 				<div className="space-y-3">
 					{[...Array(3)].map((_, i) => (
-						<div className="flex items-center justify-between" key={i}>
+						<div className="flex items-center justify-between" key={`overview-stat-${i}`}>
 							<div className="flex items-center gap-3">
 								<Skeleton className="h-10 w-10 rounded-full" />
 								<div className="space-y-2">

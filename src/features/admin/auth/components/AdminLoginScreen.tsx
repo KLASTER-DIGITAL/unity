@@ -14,8 +14,23 @@ import { Input } from '@/shared/components/ui/input';
 import { createClient } from '@/utils/supabase/client';
 import { TwoFactorVerification } from './TwoFactorVerification';
 
+type AdminUserData = {
+	id: string;
+	email: string | null;
+	name: string | null;
+	role: string | null;
+	diaryData: {
+		name: string | null;
+		emoji: string | null;
+	};
+	language: string | null;
+	notificationSettings: unknown;
+	createdAt: string | null;
+	profile: Record<string, unknown>;
+};
+
 type AdminLoginScreenProps = {
-	onComplete: (userData: any) => void;
+	onComplete: (userData: AdminUserData) => void;
 	onBack: () => void;
 };
 
@@ -24,7 +39,7 @@ type TwoFactorData = {
 	userEmail: string;
 	twoFactorSecret: string;
 	backupCodes: string[];
-	userData: any;
+	userData: AdminUserData;
 };
 
 export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) {
@@ -36,6 +51,7 @@ export function AdminLoginScreen({ onComplete, onBack }: AdminLoginScreenProps) 
 	const [show2FA, setShow2FA] = useState(false);
 	const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null);
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy login flow; refactor separately
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
 		console.log('🔐 [AdminLoginScreen] handleLogin called');

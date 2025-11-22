@@ -7,7 +7,9 @@
 import {
 	BarElement,
 	CategoryScale,
+	type ChartData,
 	Chart as ChartJS,
+	type ChartOptions,
 	Legend,
 	LinearScale,
 	Title,
@@ -19,8 +21,8 @@ import { Bar } from 'react-chartjs-2';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface BarChartProps {
-	data: any;
-	options?: any;
+	data: ChartData<'bar'>;
+	options?: ChartOptions<'bar'>;
 }
 
 export default function BarChart({ data, options }: BarChartProps) {

@@ -7,6 +7,7 @@
  */
 
 import * as SwitchPrimitive from '@radix-ui/react-switch';
+import type React from 'react';
 import { cn } from '../utils';
 
 // ============================================================================
@@ -40,6 +41,14 @@ export function Switch({
 	className,
 	'aria-label': ariaLabel,
 }: SwitchProps) {
+	const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
+		if (disabled) return;
+		if (event.key === ' ' || event.code === 'Space') {
+			event.preventDefault();
+			onCheckedChange?.(!checked);
+		}
+	};
+
 	return (
 		<SwitchPrimitive.Root
 			aria-label={ariaLabel}
@@ -51,6 +60,7 @@ export function Switch({
 			defaultChecked={defaultChecked}
 			disabled={disabled}
 			onCheckedChange={onCheckedChange}
+			onKeyDown={handleKeyDown}
 			style={{
 				backgroundColor: checked ? '#007aff' : '#e5e5ea',
 			}}

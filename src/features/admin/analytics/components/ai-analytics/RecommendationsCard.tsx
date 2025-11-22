@@ -36,7 +36,7 @@ export function RecommendationsCard({ recommendations }: RecommendationsCardProp
 						Загрузите данные для получения рекомендаций
 					</p>
 				) : (
-					recommendations.map((rec, index) => (
+					recommendations.map((rec) => (
 						<Alert
 							className={
 								rec.type === 'success'
@@ -45,7 +45,7 @@ export function RecommendationsCard({ recommendations }: RecommendationsCardProp
 										? 'border-blue-500/50 bg-blue-500/10'
 										: ''
 							}
-							key={index}
+							key={`${rec.type}-${rec.title}`}
 							variant={rec.type === 'warning' ? 'destructive' : 'default'}
 						>
 							<AlertTriangle className="h-4 w-4" />

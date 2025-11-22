@@ -79,30 +79,43 @@ describe('Pluralization', () => {
 			items_one: 'предмет',
 			items_few: 'предмета',
 			items_many: 'предметов',
+			items_other: 'предметов',
 		};
 
 		it('должен возвращать правильную форму для 1', () => {
-			expect(pluralize('items', 1, 'ru', translations)).toBe('1 предмет');
+			expect(pluralize({ baseKey: 'items', count: 1, language: 'ru', translations })).toBe(
+				'1 предмет'
+			);
 		});
 
 		it('должен возвращать правильную форму для 2', () => {
-			expect(pluralize('items', 2, 'ru', translations)).toBe('2 предмета');
+			expect(pluralize({ baseKey: 'items', count: 2, language: 'ru', translations })).toBe(
+				'2 предмета'
+			);
 		});
 
 		it('должен возвращать правильную форму для 5', () => {
-			expect(pluralize('items', 5, 'ru', translations)).toBe('5 предметов');
+			expect(pluralize({ baseKey: 'items', count: 5, language: 'ru', translations })).toBe(
+				'5 предметов'
+			);
 		});
 
 		it('должен возвращать правильную форму для 21', () => {
-			expect(pluralize('items', 21, 'ru', translations)).toBe('21 предмет');
+			expect(pluralize({ baseKey: 'items', count: 21, language: 'ru', translations })).toBe(
+				'21 предмет'
+			);
 		});
 
 		it('должен возвращать правильную форму для 22', () => {
-			expect(pluralize('items', 22, 'ru', translations)).toBe('22 предмета');
+			expect(pluralize({ baseKey: 'items', count: 22, language: 'ru', translations })).toBe(
+				'22 предмета'
+			);
 		});
 
 		it('должен возвращать правильную форму для 25', () => {
-			expect(pluralize('items', 25, 'ru', translations)).toBe('25 предметов');
+			expect(pluralize({ baseKey: 'items', count: 25, language: 'ru', translations })).toBe(
+				'25 предметов'
+			);
 		});
 	});
 
@@ -113,15 +126,21 @@ describe('Pluralization', () => {
 		};
 
 		it('должен возвращать "item" для 1', () => {
-			expect(pluralize('items', 1, 'en', translations)).toBe('1 item');
+			expect(pluralize({ baseKey: 'items', count: 1, language: 'en', translations })).toBe(
+				'1 item'
+			);
 		});
 
 		it('должен возвращать "items" для 2', () => {
-			expect(pluralize('items', 2, 'en', translations)).toBe('2 items');
+			expect(pluralize({ baseKey: 'items', count: 2, language: 'en', translations })).toBe(
+				'2 items'
+			);
 		});
 
 		it('должен возвращать "items" для 0', () => {
-			expect(pluralize('items', 0, 'en', translations)).toBe('0 items');
+			expect(pluralize({ baseKey: 'items', count: 0, language: 'en', translations })).toBe(
+				'0 items'
+			);
 		});
 	});
 
@@ -132,15 +151,19 @@ describe('Pluralization', () => {
 		};
 
 		it('должен возвращать "зат" для 1', () => {
-			expect(pluralize('items', 1, 'kk', translations)).toBe('1 зат');
+			expect(pluralize({ baseKey: 'items', count: 1, language: 'kk', translations })).toBe('1 зат');
 		});
 
 		it('должен возвращать "заттар" для 2', () => {
-			expect(pluralize('items', 2, 'kk', translations)).toBe('2 заттар');
+			expect(pluralize({ baseKey: 'items', count: 2, language: 'kk', translations })).toBe(
+				'2 заттар'
+			);
 		});
 
 		it('должен возвращать "заттар" для 5', () => {
-			expect(pluralize('items', 5, 'kk', translations)).toBe('5 заттар');
+			expect(pluralize({ baseKey: 'items', count: 5, language: 'kk', translations })).toBe(
+				'5 заттар'
+			);
 		});
 	});
 });

@@ -45,7 +45,10 @@ test.describe('PWA Functionality', () => {
 		expect(manifestLink).toBeTruthy();
 
 		// Fetch and validate manifest
-		const manifestResponse = await page.goto(manifestLink!);
+		if (!manifestLink) {
+			throw new Error('Manifest link not found');
+		}
+		const manifestResponse = await page.goto(manifestLink);
 		expect(manifestResponse?.status()).toBe(200);
 
 		const manifest = await manifestResponse?.json();

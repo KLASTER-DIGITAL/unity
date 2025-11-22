@@ -217,6 +217,7 @@ export default defineConfig(({ mode }) => ({
 			],
 			output: {
 				// Настраиваем code splitting для оптимизации производительности
+				// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: chunking logic is intentionally exhaustive
 				manualChunks: (id) => {
 					// Vendor chunks - внешние библиотеки
 					if (id.includes('node_modules')) {

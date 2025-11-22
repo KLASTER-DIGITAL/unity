@@ -95,10 +95,11 @@ export function AIAnalyticsTab() {
 			}
 
 			// Process logs
-			const processedLogs: AIUsageLog[] = (logsData || []).map((log: any) => ({
-				...log,
-				user_name: log.profiles?.name || 'Unknown',
-				user_email: log.profiles?.email || 'unknown@example.com',
+			const processedLogs: AIUsageLog[] = (logsData || []).map((log) => ({
+				...(log as AIUsageLog),
+				user_name: (log as { profiles?: { name?: string } }).profiles?.name || 'Unknown',
+				user_email:
+					(log as { profiles?: { email?: string } }).profiles?.email || 'unknown@example.com',
 			}));
 
 			setLogs(processedLogs);
@@ -201,9 +202,10 @@ export function AIAnalyticsTab() {
 			setForecast(forecastData);
 
 			toast.success('AI аналитика загружена');
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error loading AI analytics:', error);
-			toast.error(`Ошибка загрузки: ${error.message}`);
+			const message = error instanceof Error ? error.message : 'Unknown error';
+			toast.error(`Ошибка загрузки: ${message}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -234,7 +236,7 @@ export function AIAnalyticsTab() {
 				<div className="flex items-center gap-3">
 					<Select
 						className="w-[140px]"
-						onValueChange={(value: any) => setPeriod(value)}
+						onValueChange={(value: string) => setPeriod(value as PeriodType)}
 						options={[
 							{ value: '7d', label: '7 дней' },
 							{ value: '30d', label: '30 дней' },

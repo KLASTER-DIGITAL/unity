@@ -6,10 +6,10 @@
 
 import {
 	CategoryScale,
+	type ChartData,
 	Chart as ChartJS,
-	Filler,
+	type ChartOptions,
 	Legend,
-	LinearScale,
 	LineElement,
 	PointElement,
 	Title,
@@ -17,21 +17,11 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-// Register Chart.js components
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Title,
-	Tooltip,
-	Legend,
-	Filler
-);
+ChartJS.register(CategoryScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 interface LineChartProps {
-	data: any;
-	options?: any;
+	data: ChartData<'line'>;
+	options?: ChartOptions<'line'>;
 }
 
 export default function LineChart({ data, options }: LineChartProps) {

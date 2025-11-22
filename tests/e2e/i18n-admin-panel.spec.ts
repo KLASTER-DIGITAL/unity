@@ -205,7 +205,9 @@ test.describe('i18n - Админ-панель', () => {
 		// Проверяем что нет ошибок
 		if (errors.length > 0) {
 			console.log('❌ Найдены ошибки в консоли:');
-			errors.forEach((err) => console.log(`  - ${err}`));
+			errors.forEach((err) => {
+				console.log(`  - ${err}`);
+			});
 		} else {
 			console.log('✅ Ошибок в консоли не найдено');
 		}

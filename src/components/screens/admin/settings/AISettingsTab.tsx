@@ -129,7 +129,11 @@ export const AISettingsTab: React.FC = () => {
 	// Testing state
 	const [testingOperation, setTestingOperation] = useState<string | null>(null);
 	const [testInput, setTestInput] = useState<string>('');
-	const [testResult, setTestResult] = useState<any>(null);
+	const [testResult, setTestResult] = useState<{
+		success: boolean;
+		message?: string;
+		data?: unknown;
+	} | null>(null);
 	const [isTestingAI, setIsTestingAI] = useState(false);
 
 	// Legacy model configs (deprecated, will be removed)
@@ -191,8 +195,8 @@ export const AISettingsTab: React.FC = () => {
 	};
 
 	// Load AI settings (all in one useEffect to avoid infinite loop)
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy logic to be refactored separately
 	useEffect(() => {
+		// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy logic to be refactored separately
 		const loadAISettings = async () => {
 			setIsLoading(true);
 			try {
@@ -259,7 +263,7 @@ export const AISettingsTab: React.FC = () => {
 		};
 
 		loadAISettings();
-	}, [groupOperations]); // Empty dependency array - load only once on mount
+	}, []); // load once
 
 	const handleSaveSettings = async () => {
 		setIsSaving(true);
@@ -382,7 +386,7 @@ export const AISettingsTab: React.FC = () => {
 	};
 
 	// Test AI operation
-	const handleTestOperation = async (operationId: string) => {
+	const handleTestOperation = async (_operationId: string) => {
 		if (!testInput.trim()) {
 			toast.error('Введите тестовые данные');
 			return;
