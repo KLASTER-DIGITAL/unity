@@ -28,7 +28,7 @@ export type NotificationConfig = {
 	body: string;
 	icon?: string;
 	badge?: string;
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 	priority?: NotificationPriority;
 	requireInteraction?: boolean;
 	silent?: boolean;

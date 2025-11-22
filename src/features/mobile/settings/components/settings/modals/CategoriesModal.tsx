@@ -13,7 +13,7 @@ type CategoriesModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	userId: string | undefined;
-	t: any;
+	t: (key: string, fallback?: string) => string;
 };
 
 // Emoji picker - 21 emojis (3 rows x 7 columns)
@@ -74,8 +74,9 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 				icon: '✨',
 				color: 'var(--gradient-blue-1-start)',
 			});
-		} catch (error: any) {
-			toast.error(error.message || 'Ошибка при добавлении категории');
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Ошибка при добавлении категории';
+			toast.error(message);
 		}
 	};
 
@@ -92,8 +93,9 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 		try {
 			await removeCategory(categoryId);
 			toast.success('Категория удалена');
-		} catch (error: any) {
-			toast.error(error.message || 'Ошибка при удалении категории');
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Ошибка при удалении категории';
+			toast.error(message);
 		}
 	};
 
@@ -120,6 +122,7 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">{t.categories || 'Мои категории'}</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>
@@ -134,6 +137,7 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 				{/* Add Category Button */}
 				{!showAddForm && customCount < maxCategories && (
 					<button
+						type="button"
 						className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-border border-dashed p-4 transition-all hover:border-primary hover:bg-primary/5"
 						onClick={() => setShowAddForm(true)}
 					>
@@ -181,6 +185,7 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 
 						<div className="flex gap-2">
 							<button
+								type="button"
 								className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
 								disabled={isLoading}
 								onClick={handleAdd}
@@ -188,6 +193,7 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 								Сохранить
 							</button>
 							<button
+								type="button"
 								className="flex-1 rounded-xl bg-muted px-4 py-2.5 font-medium text-foreground transition-all hover:bg-muted/80"
 								onClick={() => {
 									setShowAddForm(false);
@@ -228,6 +234,7 @@ export function CategoriesModal({ isOpen, onClose, userId, t }: CategoriesModalP
 									</div>
 								</div>
 								<button
+									type="button"
 									className="rounded-lg p-2 transition-colors hover:bg-destructive/10"
 									onClick={() => handleDelete(category.id, category.is_default)}
 								>

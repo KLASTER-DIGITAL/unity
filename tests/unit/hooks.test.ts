@@ -22,6 +22,7 @@ import { useMediaUploader } from '@/shared/hooks/useMediaUploader';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
 import { useVoiceRecorder } from '@/shared/hooks/useVoiceRecorder';
 import { useOfflineMode } from '@/shared/lib/offline/useOfflineMode';
+import { speech } from '@/shared/lib/platform/speech';
 
 // ============================================================================
 // MOCKS
@@ -474,9 +475,7 @@ describe('useSpeechRecognition', () => {
 	});
 
 	it('should not start if not supported', () => {
-		// Save original
-		const original = (global as any).webkitSpeechRecognition;
-		(global as any).webkitSpeechRecognition = undefined;
+		const isSupportedSpy = vi.spyOn(speech, 'isSupported').mockReturnValue(false);
 
 		const { result } = renderHook(() => useSpeechRecognition());
 
@@ -488,8 +487,7 @@ describe('useSpeechRecognition', () => {
 
 		expect(result.current.isListening).toBe(false);
 
-		// Restore mock
-		(global as any).webkitSpeechRecognition = original;
+		isSupportedSpy.mockRestore();
 	});
 
 	it('should handle recognition error', async () => {

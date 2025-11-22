@@ -113,7 +113,9 @@ export function PushNotificationSettingsModal({
 
 						{/* Time Selection */}
 						<div className="mb-6 space-y-3">
-							<label className="text-sm font-medium text-foreground">Когда напоминать?</label>
+							<label className="text-sm font-medium text-foreground" htmlFor="when-remind-settings">
+								Когда напоминать?
+							</label>
 
 							<div className="space-y-2">
 								{/* Morning Checkbox */}

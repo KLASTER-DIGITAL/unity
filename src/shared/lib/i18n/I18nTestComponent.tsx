@@ -9,6 +9,7 @@ import {
 	CardTitle,
 } from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
+import type { Translations } from '@/shared/lib/api/i18n-types';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from './useTranslation';
 
@@ -66,7 +67,7 @@ export const I18nTestComponent: React.FC = () => {
 							{testKeys.map((key) => (
 								<div className="rounded border p-3" key={key}>
 									<div className="mb-1 font-mono text-muted-foreground text-xs">{key}</div>
-									<div className="text-sm">{t(key as any, `[${key}]`)}</div>
+									<div className="text-sm">{t(key as keyof Translations, `[${key}]`)}</div>
 								</div>
 							))}
 						</div>

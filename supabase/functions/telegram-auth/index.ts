@@ -68,6 +68,7 @@ async function validateTelegramHash(data: TelegramAuthData, botToken: string): P
 	}
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: handler keeps multiple branches for legacy compatibility
 serve(async (req) => {
 	// Handle CORS preflight requests
 	if (req.method === 'OPTIONS') {

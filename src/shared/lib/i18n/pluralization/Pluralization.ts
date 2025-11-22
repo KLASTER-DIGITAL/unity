@@ -106,6 +106,7 @@ export function createPluralTranslations(
  *
  * Returns missing forms that should be provided
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex validation logic required for multi-language plural rules
 export function validatePluralTranslations(
 	language: string,
 	forms: Partial<PluralTranslations>
@@ -176,6 +177,7 @@ export function validatePluralTranslations(
  * // → { one: '{{count}} день', few: '{{count}} дня', many: '{{count}} дней' }
  * ```
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex generation logic required for multi-language plural rules
 export function generatePluralTranslations(
 	language: string,
 	...templates: string[]

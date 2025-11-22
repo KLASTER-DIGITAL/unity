@@ -28,7 +28,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
 	// Загрузка доступных языков
 	useEffect(() => {
-		const loadLanguages = async () => {
+		const loadLanguages = () => {
 			setIsLoading(true);
 			try {
 				// Временный список языков, пока не реализован API
@@ -99,7 +99,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
 	const handleLanguageSelect = async (languageCode: string) => {
 		setIsOpen(false);
-		await changeLanguage(languageCode as any);
+		await changeLanguage(languageCode);
 		onLanguageChange?.(languageCode);
 	};
 
@@ -201,7 +201,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 									)}
 								</div>
 								<Button className="mt-4 w-full" onClick={() => setIsOpen(false)} variant="outline">
-									{t('cancel_button' as any, 'Cancel')}
+									{t('cancel_button', 'Cancel')}
 								</Button>
 							</motion.div>
 						</div>

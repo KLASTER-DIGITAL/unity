@@ -83,6 +83,7 @@ export function AddCategoryModal({ isOpen, onClose, onSave, isSaving }: AddCateg
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">Новая категория</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={handleCancel}
 					>
@@ -94,7 +95,6 @@ export function AddCategoryModal({ isOpen, onClose, onSave, isSaving }: AddCateg
 				<div className="rounded-xl border border-border bg-muted/50 p-4">
 					{/* Name Input */}
 					<input
-						autoFocus
 						className="mb-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
 						maxLength={30}
 						onChange={(e) => setName(e.target.value)}
@@ -139,6 +139,7 @@ export function AddCategoryModal({ isOpen, onClose, onSave, isSaving }: AddCateg
 					{/* Buttons */}
 					<div className="flex gap-2">
 						<button
+							type="button"
 							className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
 							disabled={isSaving || !name.trim()}
 							onClick={handleSave}
@@ -146,6 +147,7 @@ export function AddCategoryModal({ isOpen, onClose, onSave, isSaving }: AddCateg
 							{isSaving ? 'Сохранение...' : 'Сохранить'}
 						</button>
 						<button
+							type="button"
 							className="flex-1 rounded-xl bg-muted px-4 py-2.5 font-medium text-foreground transition-all hover:bg-muted/80"
 							disabled={isSaving}
 							onClick={handleCancel}

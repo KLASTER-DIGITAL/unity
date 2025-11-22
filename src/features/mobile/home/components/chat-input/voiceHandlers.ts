@@ -13,16 +13,14 @@ type VoiceHandlerParams = {
 	setShowPermissionGuide: (type: 'microphone' | 'camera' | null) => void;
 };
 
-/**
- * Handle voice input - start/stop recording and transcribe
- */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy handler kept for compatibility; new VoicePoweredOrb should be used instead
 export async function handleVoiceInput({
 	isRecording,
 	isVoiceSupported,
-	stopRecording,
-	startRecording,
-	setIsTranscribing,
-	setInputText,
+	stopRecording: _stopRecording,
+	startRecording: _startRecording,
+	setIsTranscribing: _setIsTranscribing,
+	setInputText: _setInputText,
 	setShowPermissionGuide,
 }: VoiceHandlerParams) {
 	if (!isVoiceSupported) {
@@ -70,7 +68,7 @@ export async function handleVoiceInput({
 
 			// Haptic feedback
 			triggerHapticFeedback([50, 100, 50]);
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Transcription error:', error);
 
 			// Более информативные сообщения об ошибках
@@ -128,23 +126,24 @@ export async function handleVoiceInput({
 
 			// Haptic feedback
 			triggerHapticFeedback(50);
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Recording error:', error);
+			const message = error instanceof Error ? error.message : '';
 
 			// Показываем понятное сообщение об ошибке
-			if (error.message.includes('Доступ к микрофону запрещен')) {
+			if (message.includes('Доступ к микрофону запрещен')) {
 				// Пользователь отклонил разрешение
 				setShowPermissionGuide('microphone');
 				toast.info('Доступ к микрофону необходим', {
 					description: 'Следуйте инструкциям для настройки',
 					duration: 5000,
 				});
-			} else if (error.message.includes('Микрофон не найден')) {
+			} else if (message.includes('Микрофон не найден')) {
 				toast.error('Микрофон не найден', {
 					description: 'Подключите микрофон и попробуйте снова',
 					duration: 5000,
 				});
-			} else if (error.message.includes('используется другим приложением')) {
+			} else if (message.includes('используется другим приложением')) {
 				toast.error('Микрофон занят', {
 					description: 'Закройте другие приложения, использующие микрофон',
 					duration: 5000,

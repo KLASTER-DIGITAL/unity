@@ -136,6 +136,7 @@ export function SubscriptionInfoModal({ open, onClose, userId }: SubscriptionInf
 								<h3 className="text-foreground text-title-2">UNITY Premium</h3>
 							</div>
 							<button
+								type="button"
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
 							>

@@ -42,6 +42,7 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 						{t('history.actions.title', 'Действия')}
 					</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>
@@ -51,6 +52,7 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 
 				<div className="space-y-2">
 					<button
+						type="button"
 						className="flex w-full items-center gap-3 rounded-[12px] p-3 text-foreground transition-colors hover:bg-accent/10"
 						onClick={() => onEdit(entry)}
 					>
@@ -61,6 +63,7 @@ export function EntryActionsModal({ entry, onClose, onEdit, onDelete }: EntryAct
 					</button>
 
 					<button
+						type="button"
 						className="flex w-full items-center gap-3 rounded-[12px] p-3 text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
 						onClick={() => onDelete(entry.id)}
 					>

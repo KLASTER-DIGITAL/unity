@@ -9,7 +9,7 @@ type OfflineSectionProps = {
 	onOfflineChange: (enabled: boolean) => void;
 	onOfflineSettingsClick: () => void;
 	onPremiumRequired: () => void;
-	t: any; // Translation object
+	t: (key: string, fallback?: string) => string; // Translation object
 };
 
 /**

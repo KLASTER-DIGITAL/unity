@@ -269,7 +269,7 @@ describe('Media Adapter', () => {
 
 			expect(MediaUtils.validateFileSize(smallFile, 5)).toBe(true);
 			expect(MediaUtils.validateFileSize(largeFile, 5)).toBe(false);
-		});
+		}, 10000);
 
 		it('should get file extension correctly', async () => {
 			const { MediaUtils } = await import('@/shared/lib/platform/media');

@@ -10,7 +10,6 @@
 
 import { Book, Check, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Button } from '@/shared/components/ui/button';
 import { Progress } from '@/shared/components/ui/progress';
 
 export type BookGenerationProgressProps = {
@@ -61,7 +60,7 @@ const GENERATION_STEPS: GenerationStep[] = [
 
 export function BookGenerationProgress({
 	isOpen,
-	onClose,
+	onClose: _onClose,
 	onComplete,
 }: BookGenerationProgressProps) {
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);

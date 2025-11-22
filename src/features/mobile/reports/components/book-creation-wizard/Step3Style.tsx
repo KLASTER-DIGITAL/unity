@@ -16,19 +16,25 @@ function getPreviewClasses(style: BookStyle, isActive: boolean) {
 
 	if (style === 'warm_family') {
 		return `${base} ${
-			isActive ? 'border-[--ios-purple] bg-(--ios-bg-secondary)' : 'border-border bg-muted/60'
+			isActive
+				? 'border-[var(--ios-purple)] bg-[var(--ios-bg-secondary)]'
+				: 'border-border bg-muted/60'
 		}`;
 	}
 
 	if (style === 'biographical') {
 		return `${base} ${
-			isActive ? 'border-[--ios-blue] bg-(--ios-bg-secondary)' : 'border-border bg-muted/60'
+			isActive
+				? 'border-[var(--ios-blue)] bg-[var(--ios-bg-secondary)]'
+				: 'border-border bg-muted/60'
 		}`;
 	}
 
 	// motivational
 	return `${base} ${
-		isActive ? 'border-[--ios-green] bg-(--ios-bg-secondary)' : 'border-border bg-muted/60'
+		isActive
+			? 'border-[var(--ios-green)] bg-[var(--ios-bg-secondary)]'
+			: 'border-border bg-muted/60'
 	}`;
 }
 
@@ -74,7 +80,10 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 											stroke="currentColor"
 											strokeWidth={2}
 											viewBox="0 0 24 24"
+											aria-label="Selected"
+											role="img"
 										>
+											<title>Selected</title>
 											<path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
 										</svg>
 									</div>

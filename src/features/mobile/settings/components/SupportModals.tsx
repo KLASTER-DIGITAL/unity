@@ -281,7 +281,7 @@ export function FAQModal({ open, onClose }: FAQModalProps) {
 
 				<Accordion className="mt-4 w-full" collapsible type="single">
 					{faqs.map((faq, index) => (
-						<AccordionItem key={index} value={`item-${index}`}>
+						<AccordionItem key={faq.question || `faq-`} value={`item-${index}`}>
 							<AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
 							<AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
 						</AccordionItem>

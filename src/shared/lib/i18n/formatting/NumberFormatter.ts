@@ -121,10 +121,11 @@ export function formatFileSize(bytes: number, locale: string, decimals = 2): str
 
 /**
  * Format duration (seconds to human-readable)
+ * biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Duration formatting requires multiple locale-specific branches
  */
 export function formatDuration(
 	seconds: number,
-	_locale: string,
+	locale: string,
 	style: 'short' | 'long' = 'short'
 ): string {
 	const hours = Math.floor(seconds / 3600);
@@ -133,14 +134,28 @@ export function formatDuration(
 
 	const parts: string[] = [];
 
+	const isRu = locale.startsWith('ru');
+
 	if (hours > 0) {
-		parts.push(style === 'short' ? `${hours}h` : `${hours} hours`);
+		if (style === 'short') {
+			parts.push(isRu ? `${hours} ч` : `${hours} h`);
+		} else {
+			parts.push(isRu ? `${hours} часов` : `${hours} hours`);
+		}
 	}
 	if (minutes > 0) {
-		parts.push(style === 'short' ? `${minutes}m` : `${minutes} minutes`);
+		if (style === 'short') {
+			parts.push(isRu ? `${minutes} мин` : `${minutes} min`);
+		} else {
+			parts.push(isRu ? `${minutes} минут` : `${minutes} minutes`);
+		}
 	}
 	if (secs > 0 || parts.length === 0) {
-		parts.push(style === 'short' ? `${secs}s` : `${secs} seconds`);
+		if (style === 'short') {
+			parts.push(isRu ? `${secs} сек` : `${secs} sec`);
+		} else {
+			parts.push(isRu ? `${secs} секунд` : `${secs} seconds`);
+		}
 	}
 
 	return parts.join(' ');
@@ -174,6 +189,7 @@ export function formatNumberRange(
 
 /**
  * Format ordinal numbers (1st, 2nd, 3rd)
+ * biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Ordinal formatting requires multiple locale-specific branches
  */
 export function formatOrdinal(value: number, locale: string): string {
 	// English ordinals

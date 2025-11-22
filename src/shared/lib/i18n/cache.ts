@@ -1,6 +1,7 @@
 import { storage } from '../platform/storage';
 import type { CacheConfig, TranslationCache } from './types';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Cache manager is intentionally static for global i18n cache coordination
 export class TranslationCacheManager {
 	private static readonly CACHE_PREFIX = 'i18n_cache_';
 	private static readonly LAST_SYNC_KEY = 'i18n_last_sync';
@@ -233,8 +234,8 @@ export class TranslationCacheManager {
 		return new Blob([str]).size;
 	}
 
-	private static async handleStorageError(error: any): Promise<void> {
-		if (error.name === 'QuotaExceededError') {
+	private static async handleStorageError(error: unknown): Promise<void> {
+		if ((error as { name?: string }).name === 'QuotaExceededError') {
 			console.warn('Storage quota exceeded, cleaning up old cache...');
 			await TranslationCacheManager.cleanupOldCache();
 		} else if (error.name === 'SecurityError') {

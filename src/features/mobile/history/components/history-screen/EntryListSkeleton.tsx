@@ -16,8 +16,8 @@ type EntryListSkeletonProps = {
 export function EntryListSkeleton({ count = 3 }: EntryListSkeletonProps) {
 	return (
 		<div className="space-y-3">
-			{Array.from({ length: count }).map((_, index) => (
-				<EntryCardSkeleton key={index} />
+			{Array.from({ length: count }, (_, index) => `skeleton-${count}-${index}`).map((key) => (
+				<EntryCardSkeleton key={key} />
 			))}
 		</div>
 	);

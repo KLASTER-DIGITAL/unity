@@ -65,8 +65,8 @@ Deno.serve(async (req) => {
 	}
 });
 
-async function loadEntries(supabase: any, fromIso: string) {
-	const all: any[] = [];
+async function loadEntries(supabase: ReturnType<typeof createClient>, fromIso: string) {
+	const all: EntryRow[] = [];
 	let page = 0;
 	const pageSize = 1000;
 
@@ -113,7 +113,17 @@ type DailyStatInternal = {
 	categoryCounts: Record<string, number>;
 };
 
-function buildDailyStats(entries: any[]): Map<string, DailyStatInternal> {
+type EntryRow = {
+	id: string;
+	user_id: string;
+	created_at: string;
+	category?: string | null;
+	sentiment?: string | null;
+	is_achievement?: boolean | null;
+	mood?: number | null;
+};
+
+function buildDailyStats(entries: EntryRow[]): Map<string, DailyStatInternal> {
 	const map = new Map<string, DailyStatInternal>();
 
 	for (const entry of entries) {
@@ -160,7 +170,10 @@ function buildDailyStats(entries: any[]): Map<string, DailyStatInternal> {
 	return map;
 }
 
-async function upsertDailyStats(supabase: any, daily: DailyStatInternal[]) {
+async function upsertDailyStats(
+	supabase: ReturnType<typeof createClient>,
+	daily: DailyStatInternal[]
+) {
 	if (!daily.length) return;
 
 	const payload = daily.map((d) => {
@@ -195,7 +208,7 @@ type MonthlyStatRecord = {
 	entries_count: number;
 	achievements_count: number;
 	avg_mood: number | null;
-	top_categories: any;
+	top_categories: { name: string; count: number }[];
 };
 
 function buildMonthlyStats(daily: DailyStatInternal[]): MonthlyStatRecord[] {
@@ -214,7 +227,7 @@ function buildMonthlyStats(daily: DailyStatInternal[]): MonthlyStatRecord[] {
 	>();
 
 	for (const d of daily) {
-		const date = new Date(d.date + 'T00:00:00Z');
+		const date = new Date(`${d.date}T00:00:00Z`);
 		const year = date.getUTCFullYear();
 		const month = date.getUTCMonth() + 1;
 		const key = `${d.user_id}:${year}-${month}`;
@@ -272,7 +285,10 @@ function buildMonthlyStats(daily: DailyStatInternal[]): MonthlyStatRecord[] {
 	return result;
 }
 
-async function upsertMonthlyStats(supabase: any, monthly: MonthlyStatRecord[]) {
+async function upsertMonthlyStats(
+	supabase: ReturnType<typeof createClient>,
+	monthly: MonthlyStatRecord[]
+) {
 	if (!monthly.length) return;
 
 	const { error } = await supabase

@@ -57,6 +57,7 @@ export function FiltersPanel({
 							</p>
 							<div className="flex flex-wrap gap-2">
 								<button
+									type="button"
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										!selectedCategory
 											? 'bg-accent text-white'
@@ -76,6 +77,7 @@ export function FiltersPanel({
 
 									return (
 										<button
+											type="button"
 											className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 												selectedCategory === cat
 													? 'bg-accent text-white'
@@ -98,6 +100,7 @@ export function FiltersPanel({
 							</p>
 							<div className="flex flex-wrap gap-2">
 								<button
+									type="button"
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										!selectedSentiment
 											? 'bg-accent text-white'
@@ -108,6 +111,7 @@ export function FiltersPanel({
 									{t('filter.all', 'Все')}
 								</button>
 								<button
+									type="button"
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										selectedSentiment === 'positive'
 											? 'bg-green-500 text-white'
@@ -118,6 +122,7 @@ export function FiltersPanel({
 									{t('entry.sentiment.positive', '😊 Позитив')}
 								</button>
 								<button
+									type="button"
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										selectedSentiment === 'neutral'
 											? 'bg-primary text-white'
@@ -128,6 +133,7 @@ export function FiltersPanel({
 									{t('entry.sentiment.neutral', '😐 Нейтрал')}
 								</button>
 								<button
+									type="button"
 									className={`rounded-[8px] px-3 py-1.5 text-[13px]! transition-colors ${
 										selectedSentiment === 'negative'
 											? 'bg-red-500 text-white'

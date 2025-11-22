@@ -54,9 +54,9 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 	};
 
 	return (
-		<div
+		<button
 			className={cn(
-				'flex items-center justify-between p-row transition-colors',
+				'flex w-full items-center justify-between p-row text-left transition-colors',
 				// iOS HIG: minimum 44px touch target
 				'min-h-[44px]',
 				// Make entire row clickable for switch
@@ -72,6 +72,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				className
 			)}
 			onClick={handleClick}
+			type="button"
 		>
 			<div className="flex min-w-0 flex-1 items-center gap-responsive-md">
 				{/* Icon */}
@@ -104,7 +105,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				)}
 				{rightElement === 'custom' && customRightElement}
 			</div>
-		</div>
+		</button>
 	);
 };
 

@@ -153,6 +153,7 @@ export async function generateBookDraft(
 						layout: config.layout,
 						theme: 'light',
 						type: config.type || 'month',
+						planType: config.planType || 'premium', // ✅ Include planType
 						diaryName: diaryName || 'Мой дневник',
 						diaryEmoji: diaryEmoji || '📝',
 					};
@@ -194,7 +195,9 @@ export async function generateBookDraft(
 
 /**
  * Fetch available categories from user's entries
+ * ✅ Deduplicates categories by normalizing to lowercase
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy fetch merges deduplication and fallbacks
 export async function fetchAvailableCategories(userId: string): Promise<string[]> {
 	try {
 		const supabase = createClient();
@@ -209,8 +212,36 @@ export async function fetchAvailableCategories(userId: string): Promise<string[]
 			return [];
 		}
 
-		const uniqueCategories = Array.from(new Set(data.map((entry) => entry.category)));
-		return uniqueCategories.filter((cat) => cat && cat.trim() !== '');
+		// ✅ Normalize categories: lowercase for deduplication, but keep best case for display
+		const categoryMap = new Map<string, string>();
+
+		for (const entry of data) {
+			const category = entry.category?.trim();
+			if (!category) continue;
+
+			const normalized = category.toLowerCase();
+			const existing = categoryMap.get(normalized);
+
+			// Keep the best version: prefer capitalized over all lowercase
+			if (!existing) {
+				categoryMap.set(normalized, category);
+			} else {
+				const existingIsLower = existing === existing.toLowerCase();
+				const categoryIsLower = category === category.toLowerCase();
+
+				// Prefer non-lowercase over all lowercase
+				if (categoryIsLower && !existingIsLower) {
+					// Keep existing (it's better)
+					continue;
+				}
+				if (!categoryIsLower && existingIsLower) {
+					// Replace with better version
+					categoryMap.set(normalized, category);
+				}
+			}
+		}
+
+		return Array.from(categoryMap.values()).sort();
 	} catch (error) {
 		console.error('[WIZARD] Error fetching categories:', error);
 		return [];

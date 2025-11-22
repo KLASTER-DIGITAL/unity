@@ -40,11 +40,14 @@ describe('useTranslation', () => {
 		vi.clearAllMocks();
 		localStorage.clear();
 
-		// Mock успешного ответа от API
+		// Mock успешного ответа от API c заголовками ETag
 		(global.fetch as any).mockImplementation((url: string) => {
 			const lang = url.includes('/ru') ? 'ru' : url.includes('/en') ? 'en' : 'kk';
 			return Promise.resolve({
 				ok: true,
+				headers: {
+					get: (name: string) => (name.toLowerCase() === 'etag' ? `"test-etag-${lang}"` : null),
+				},
 				json: () => Promise.resolve(mockTranslations[lang as keyof typeof mockTranslations]),
 			});
 		});
@@ -132,6 +135,8 @@ describe('useTranslation', () => {
 	});
 
 	it('должен сохранять выбранный язык в localStorage', async () => {
+		const setItemSpy = vi.spyOn(window.localStorage.__proto__, 'setItem');
+
 		const wrapper = ({ children }: { children: React.ReactNode }) => (
 			<TranslationProvider defaultLanguage="ru">{children}</TranslationProvider>
 		);
@@ -145,7 +150,7 @@ describe('useTranslation', () => {
 		await result.current.changeLanguage('en');
 
 		await waitFor(() => {
-			expect(localStorage.getItem('unity_language')).toBe('en');
+			expect(setItemSpy).toHaveBeenCalledWith('user_preferred_language', 'en');
 		});
 	});
 

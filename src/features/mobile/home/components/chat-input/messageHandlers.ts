@@ -7,7 +7,7 @@ import type { ChatMessage } from './types';
 
 type MessageHandlerParams = {
 	inputText: string;
-	uploadedMedia: any[];
+	uploadedMedia: { url?: string; type?: string }[];
 	selectedCategory: string | null;
 	userName: string;
 	userId: string;
@@ -18,13 +18,10 @@ type MessageHandlerParams = {
 	setIsProcessing: (processing: boolean) => void;
 	clearMedia: () => void;
 	onMessageSent?: (message: ChatMessage) => void;
-	onEntrySaved?: (entry: any) => void;
+	onEntrySaved?: (entry: Record<string, unknown>) => void;
 };
 
-/**
- * Handle sending a message
- * Analyzes text with AI, saves entry to database, and handles offline mode
- */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy handler combines AI, storage, offline, and UI flows
 export async function handleSendMessage({
 	inputText,
 	uploadedMedia,

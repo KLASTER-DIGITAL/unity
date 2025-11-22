@@ -23,7 +23,7 @@ import { SwipeCard } from './achievement';
 import { useDefaultMotivations } from './achievement/useDefaultMotivations';
 
 type MotivationCardsSectionProps = {
-	userData: any;
+	userData: Record<string, unknown>;
 	onCardSwipe?: () => void;
 	motivationCards?: AchievementCard[]; // ✅ OPTIMIZATION: Accept cards from parent (unified API)
 	isLoading?: boolean; // ✅ OPTIMIZATION: Accept loading state from parent
@@ -91,7 +91,7 @@ export function MotivationCardsSection({
 				setIsLoading(false);
 			}
 		},
-		[userData?.user?.id, userData?.id, userData?.language, externalCards]
+		[userData?.user?.id, userData?.id, externalCards, defaultMotivations, t]
 	);
 
 	// ✅ FIX: Сохраняем ссылку на функцию загрузки для realtime подписки

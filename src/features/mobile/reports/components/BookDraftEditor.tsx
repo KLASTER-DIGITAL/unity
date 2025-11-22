@@ -601,7 +601,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 	return (
 		<div className="scrollbar-hide fixed inset-0 z-50 overflow-y-auto bg-background">
 			{/* Header */}
-			<div className="border-b border-border bg-(--ios-bg-primary) p-4 text-(--ios-text-primary) sm:p-6">
+			<div className="border-b border-border bg-[var(--ios-bg-primary)] p-4 text-[var(--ios-text-primary)] sm:p-6">
 				<div className="flex items-center gap-2 sm:gap-3">
 					<div className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm sm:h-12 sm:w-12">
 						<Sparkles className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />

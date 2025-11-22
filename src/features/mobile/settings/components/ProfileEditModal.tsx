@@ -38,7 +38,7 @@ type ProfileEditModalProps = {
 		diaryName?: string;
 		diaryEmoji?: string;
 	};
-	onProfileUpdated?: (updatedProfile: any) => void;
+	onProfileUpdated?: (updatedProfile: Record<string, unknown>) => void;
 };
 
 export function ProfileEditModal({
@@ -118,6 +118,7 @@ export function ProfileEditModal({
 	};
 
 	// Handle save
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy save flow with multiple branches and side-effects
 	const handleSave = async () => {
 		if (!profile?.id) {
 			toast.error('Ошибка', { description: 'ID пользователя не найден' });
@@ -177,10 +178,13 @@ export function ProfileEditModal({
 							description: 'Не удалось получить URL фото. Профиль будет сохранен без нового фото',
 						});
 					}
-				} catch (uploadError: any) {
+				} catch (uploadError) {
 					console.error('📸 [PROFILE] Avatar upload error:', uploadError);
 					toast.error('Ошибка загрузки фото', {
-						description: uploadError.message || 'Профиль будет сохранен без нового фото',
+						description:
+							uploadError instanceof Error
+								? uploadError.message
+								: 'Профиль будет сохранен без нового фото',
 					});
 				}
 			}
@@ -319,6 +323,7 @@ export function ProfileEditModal({
 						<div className="mb-6 flex items-center justify-between">
 							<h2 className="text-foreground text-title-3">Редактировать профиль</h2>
 							<button
+								type="button"
 								className="rounded-full p-1 transition-colors hover:bg-accent/10 disabled:opacity-50"
 								disabled={isSaving}
 								onClick={handleCancel}
@@ -366,7 +371,8 @@ export function ProfileEditModal({
 										</Avatar>
 
 										{/* Hover overlay - clickable to upload */}
-										<div
+										<button
+											type="button"
 											className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
 											onClick={() => !isUploading && fileInputRef.current?.click()}
 										>
@@ -375,7 +381,7 @@ export function ProfileEditModal({
 											) : (
 												<Camera className="h-8 w-8 text-white" strokeWidth={2} />
 											)}
-										</div>
+										</button>
 									</div>
 								</div>
 
@@ -393,8 +399,11 @@ export function ProfileEditModal({
 							<div className="space-y-4">
 								{/* Name Input */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">Имя</label>
+									<label className="font-semibold text-foreground text-sm" htmlFor="edit-name">
+										Имя
+									</label>
 									<Input
+										id="edit-name"
 										disabled={isSaving}
 										maxLength={50}
 										onChange={(e) => setName(e.target.value)}
@@ -407,8 +416,11 @@ export function ProfileEditModal({
 
 								{/* Email (Editable) */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">Email</label>
+									<label className="font-semibold text-foreground text-sm" htmlFor="edit-email">
+										Email
+									</label>
 									<Input
+										id="edit-email"
 										disabled={isSaving}
 										maxLength={100}
 										onChange={(e) => setEmail(e.target.value)}
@@ -425,8 +437,14 @@ export function ProfileEditModal({
 
 								{/* Diary Name */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">Название дневника</label>
+									<label
+										className="font-semibold text-foreground text-sm"
+										htmlFor="edit-diary-name"
+									>
+										Название дневника
+									</label>
 									<Input
+										id="edit-diary-name"
 										disabled={isSaving}
 										maxLength={30}
 										onChange={(e) => setDiaryName(e.target.value)}
@@ -441,9 +459,15 @@ export function ProfileEditModal({
 
 								{/* Diary Emoji */}
 								<div className="space-y-2">
-									<label className="font-semibold text-foreground text-sm">Эмодзи дневника</label>
+									<label
+										className="font-semibold text-foreground text-sm"
+										htmlFor="edit-diary-emoji"
+									>
+										Эмодзи дневника
+									</label>
 									<div className="flex gap-2">
 										<Input
+											id="edit-diary-emoji"
 											className="text-2xl text-center"
 											disabled={isSaving}
 											maxLength={2}

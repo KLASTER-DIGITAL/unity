@@ -35,6 +35,7 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 				>
 					{/* Close Button */}
 					<button
+						type="button"
 						className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
 						onClick={onClose}
 					>
@@ -51,7 +52,8 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 					)}
 
 					{/* Media Content */}
-					<div
+					<button
+						type="button"
 						className="relative flex h-full w-full items-center justify-center p-4"
 						onClick={(e) => e.stopPropagation()}
 					>
@@ -76,16 +78,19 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 										className="max-h-full max-w-full rounded-[12px]"
 										controls
 										src={currentMedia.url}
-									/>
+									>
+										<track kind="captions" label="captions" src="" />
+									</video>
 								) : null}
 							</motion.div>
 						</AnimatePresence>
-					</div>
+					</button>
 
 					{/* Navigation Arrows */}
 					{media.length > 1 && (
 						<>
 							<button
+								type="button"
 								className="-translate-y-1/2 absolute top-1/2 left-4 flex h-12 w-12 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
 								onClick={(e) => {
 									e.stopPropagation();
@@ -96,6 +101,7 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 							</button>
 
 							<button
+								type="button"
 								className="-translate-y-1/2 absolute top-1/2 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-card/10 transition-colors hover:bg-card/20"
 								onClick={(e) => {
 									e.stopPropagation();
@@ -112,6 +118,7 @@ export function MediaLightbox({ media, initialIndex = 0, isOpen, onClose }: Medi
 						<div className="-translate-x-1/2 scrollbar-hide absolute bottom-4 left-1/2 flex max-w-full gap-2 overflow-x-auto px-4">
 							{media.map((item, index) => (
 								<button
+									type="button"
 									className={`h-16 w-16 shrink-0 overflow-hidden rounded-[8px] border-2 transition-all ${
 										index === currentIndex
 											? 'scale-110 border-white'

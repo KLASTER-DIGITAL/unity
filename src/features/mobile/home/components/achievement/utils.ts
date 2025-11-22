@@ -10,7 +10,7 @@ import type { AchievementCard } from './types';
 // ❌ DEPRECATED: Use useDefaultMotivations() hook instead
 // Функция получения дефолтных мотиваций с учетом языка
 // Оставлена для обратной совместимости с Edge Function
-export function getDefaultMotivations(language: string): AchievementCard[] {
+export function getDefaultMotivations(_language: string): AchievementCard[] {
 	// Fallback для Edge Function - возвращаем базовые карточки
 	// В PWA используйте useDefaultMotivations() hook для переводов
 	return [

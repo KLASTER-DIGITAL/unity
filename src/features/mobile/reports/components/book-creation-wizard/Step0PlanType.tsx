@@ -70,7 +70,7 @@ export function Step0PlanType({
 					>
 						{config.planType === 'free' && (
 							<div className="flex h-full items-center justify-center">
-								<div className="h-2 w-2 rounded-full bg-white" />
+								<div className="h-2 w-2 rounded-full bg-primary-foreground" />
 							</div>
 						)}
 					</div>
@@ -138,7 +138,7 @@ export function Step0PlanType({
 					>
 						{config.planType === 'premium' && (
 							<div className="flex h-full items-center justify-center">
-								<div className="h-2 w-2 rounded-full bg-white" />
+								<div className="h-2 w-2 rounded-full bg-primary-foreground" />
 							</div>
 						)}
 					</div>

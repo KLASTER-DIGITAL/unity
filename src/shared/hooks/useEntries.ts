@@ -72,6 +72,7 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			}
 
 			// Convert to camelCase
+			// biome-ignore lint/suspicious/noExplicitAny: Supabase returns database row type which is complex
 			const formattedEntries: DiaryEntry[] = (data || []).map((entry: any) => ({
 				id: entry.id,
 				userId: entry.user_id,
@@ -107,7 +108,10 @@ export function useEntries(userId: string | undefined, limit?: number): UseEntri
 			console.error('[useEntries] ❌ Error fetching entries:', err);
 			setError(err as Error);
 		} finally {
-			setIsLoading(false);
+			// ✅ FIX: Check window exists before setState (prevents errors in test cleanup)
+			if (typeof window !== 'undefined') {
+				setIsLoading(false);
+			}
 		}
 	}, [userId, limit, supabase.from]); // ✅ FIX: supabase - singleton, не включаем в dependencies
 

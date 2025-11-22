@@ -42,6 +42,7 @@ export function PushNotificationOnboardingModal({
 	const [eveningTime, setEveningTime] = useState('21:00');
 	const [isLoading, setIsLoading] = useState(false);
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy onboarding flow with multiple async branches
 	const handleEnableNotifications = async () => {
 		setIsLoading(true);
 
@@ -195,7 +196,7 @@ export function PushNotificationOnboardingModal({
 
 							{/* Time Selection */}
 							<div className="space-y-3">
-								<label className="text-sm font-medium text-foreground">
+								<label className="text-sm font-medium text-foreground" htmlFor="when-remind">
 									{t('notifications.modal.whenRemind', 'Когда напоминать?')}
 								</label>
 

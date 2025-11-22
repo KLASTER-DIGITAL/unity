@@ -216,12 +216,14 @@ describe('i18n System', () => {
 
 	describe('TranslationLoader Integration', () => {
 		it('should return translation result with required fields', async () => {
-			// Mock successful API response
+			// Mock successful API response (new API returns translations object напрямую)
 			(global.fetch as any).mockResolvedValue({
 				ok: true,
+				headers: {
+					get: vi.fn().mockReturnValue(null),
+				},
 				json: async () => ({
-					success: true,
-					translations: { greeting: 'Hello!' },
+					greeting: 'Hello!',
 				}),
 			});
 
@@ -240,9 +242,11 @@ describe('i18n System', () => {
 		it('should call fetch API when loading translations', async () => {
 			(global.fetch as any).mockResolvedValue({
 				ok: true,
+				headers: {
+					get: vi.fn().mockReturnValue(null),
+				},
 				json: async () => ({
-					success: true,
-					translations: {},
+					greeting: 'Hello!',
 				}),
 			});
 

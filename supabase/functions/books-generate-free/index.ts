@@ -30,6 +30,7 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Edge function requires multiple branches for validation, fetching, and persistence
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
@@ -124,13 +125,17 @@ Deno.serve(async (req) => {
 		}
 
 		// Collect photos from entries
+		type EntryMedia = {
+			type: string;
+			url?: string | null;
+		};
 		const photosFromEntries = filteredEntries.flatMap((entry) => {
 			if (!entry.media || !Array.isArray(entry.media)) return [];
 			return entry.media
-				.filter((m: any) => m.type === 'image' && m.url)
-				.map((m: any) => ({
+				.filter((m: EntryMedia) => m.type === 'image' && m.url)
+				.map((m: EntryMedia) => ({
 					entryId: entry.id,
-					url: m.url,
+					url: m.url as string,
 					createdAt: entry.created_at,
 				}));
 		});
@@ -275,7 +280,7 @@ Deno.serve(async (req) => {
 		// Attach photos as a simple photo collage (first chapter)
 		if (photosFromEntries.length > 0) {
 			// Take max 9 photos for FREE version (3x3 grid)
-			const photosToInsert = photosFromEntries.slice(0, 9).map((photo, index) => ({
+			const photosToInsert = photosFromEntries.slice(0, 9).map((photo) => ({
 				book_id: draft.id,
 				chapter_index: 0, // All photos in first chapter
 				photo_url: photo.url,

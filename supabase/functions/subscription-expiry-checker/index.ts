@@ -23,8 +23,13 @@ const corsHeaders = {
 };
 
 // Supabase Admin Client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+	throw new Error('[subscription-expiry-checker] Missing Supabase configuration');
+}
+
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
@@ -38,7 +43,7 @@ interface ExpiredSubscription {
 	metadata: {
 		is_trial?: boolean;
 		trial_days?: number;
-		[key: string]: any;
+		[key: string]: unknown;
 	};
 }
 
@@ -83,6 +88,7 @@ async function sendExpiryNotification(userId: string, isTrial: boolean): Promise
 /**
  * Main handler
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Handler performs multi-branch validation and notifications
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {

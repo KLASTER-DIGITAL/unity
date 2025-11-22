@@ -16,7 +16,7 @@ type AdditionalSectionProps = {
 	onLanguageClick: () => void;
 	userId: string;
 	userEmail: string;
-	t: any;
+	t: (key: string, fallback?: string) => string;
 };
 
 export function AdditionalSection({

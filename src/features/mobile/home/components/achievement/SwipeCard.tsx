@@ -121,7 +121,10 @@ export function SwipeCard({
 
 	const stackStyle = getStackStyle();
 
-	const handleDragEnd = (_event: any, info: any) => {
+	const handleDragEnd = (
+		_event: unknown,
+		info: { offset: { x: number }; velocity: { x: number } }
+	) => {
 		const offset = info.offset.x;
 		const velocity = info.velocity.x;
 
@@ -144,6 +147,7 @@ export function SwipeCard({
 	const cardTypeStyle = getCardTypeStyle(card.card_type);
 
 	// ✅ FIX: Конвертируем Tailwind градиент в CSS gradient для inline style
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: gradient parsing covers multiple fallbacks
 	const getGradientStyle = () => {
 		// ✅ ПРИОРИТЕТ 1: Используем градиент из card_type если доступен
 		if (card.card_type) {

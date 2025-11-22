@@ -29,8 +29,15 @@ const corsHeaders = (origin?: string | null) => ({
 	'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
 });
 
-// Calculate streak from entries
-function calculateStreak(entries: any[]) {
+type EntryRow = {
+	id: string;
+	created_at: string;
+	sentiment?: string | null;
+	category?: string | null;
+};
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy calculations kept for compatibility
+function calculateStreak(entries: EntryRow[]) {
 	if (!entries || entries.length === 0) {
 		return { current: 0, longest: 0 };
 	}
@@ -95,8 +102,7 @@ function calculateStreak(entries: any[]) {
 	return { current: currentStreak, longest: longestStreak };
 }
 
-// Calculate mood distribution
-function calculateMoodDistribution(entries: any[]) {
+function calculateMoodDistribution(entries: EntryRow[]) {
 	const moodCounts: Record<string, number> = {};
 
 	entries.forEach((entry) => {
@@ -115,8 +121,7 @@ function calculateMoodDistribution(entries: any[]) {
 		.sort((a, b) => b.count - a.count);
 }
 
-// Calculate top categories
-function calculateTopCategories(entries: any[]) {
+function calculateTopCategories(entries: EntryRow[]) {
 	const categoryCounts: Record<string, number> = {};
 
 	entries.forEach((entry) => {
@@ -134,6 +139,7 @@ function calculateTopCategories(entries: any[]) {
 		.slice(0, 5);
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: handler aggregates multiple branches
 Deno.serve(async (req) => {
 	const url = new URL(req.url);
 	const path = url.pathname;
@@ -159,8 +165,13 @@ Deno.serve(async (req) => {
 
 	try {
 		// Initialize Supabase client
-		const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+		const supabaseUrl = Deno.env.get('SUPABASE_URL');
+		const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+		if (!supabaseUrl || !supabaseKey) {
+			throw new Error('Supabase configuration missing');
+		}
+
 		const supabase = createClient(supabaseUrl, supabaseKey);
 
 		// Parse path: /stats/user/{userId} or /{userId}

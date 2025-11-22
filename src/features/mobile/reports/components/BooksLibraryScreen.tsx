@@ -201,13 +201,13 @@ export function BooksLibraryScreen({
 	};
 
 	return (
-		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-(--ios-bg-primary) pb-20">
+		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-[var(--ios-bg-primary)] pb-20">
 			{/* Header */}
-			<div className="border-b border-border bg-(--ios-bg-primary) p-4 text-(--ios-text-primary) sm:p-6">
+			<div className="border-b border-border bg-[var(--ios-bg-primary)] p-4 text-[var(--ios-text-primary)] sm:p-6">
 				<div className="flex items-center gap-2 sm:gap-3">
 					{onBack && (
 						<button
-							className="flex h-10 w-10 items-center justify-center rounded-full bg-(--ios-bg-secondary) backdrop-blur-sm transition-colors duration-300 hover:bg-accent"
+							className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--ios-bg-secondary)] backdrop-blur-sm transition-colors duration-300 hover:bg-accent"
 							onClick={onBack}
 							type="button"
 						>

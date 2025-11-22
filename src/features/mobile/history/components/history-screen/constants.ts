@@ -1,9 +1,10 @@
+import type { LucideIcon } from 'lucide-react';
 import { Briefcase, DollarSign, Heart, Sparkles, Users } from 'lucide-react';
 
 /**
  * Category icons mapping
  */
-export const CATEGORY_ICONS: { [key: string]: any } = {
+export const CATEGORY_ICONS: Record<string, LucideIcon> = {
 	Другое: Sparkles,
 	Семья: Users,
 	Работа: Briefcase,

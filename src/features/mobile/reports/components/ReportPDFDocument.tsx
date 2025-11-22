@@ -124,6 +124,7 @@ type ReportPDFProps = {
 	translations: PDFTranslations;
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: PDF rendering mixes many layout cases
 export function ReportPDFDocument({ reportData, translations }: ReportPDFProps) {
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);

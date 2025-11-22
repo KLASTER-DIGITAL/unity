@@ -89,6 +89,7 @@ type ReportsUserData = {
 	} | null;
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Reports screen aggregates multiple data sources and UI sections in a single component
 export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	// Получаем переводы для языка пользователя
 	const { t, currentLanguage } = useTranslation();
@@ -217,7 +218,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 			try {
 				if (!isPremium) {
 					toast.error(
-						t('reports_ai_premium_only', 'AI-обзоры доступны только в Premium-подписке.')
+						t('reports.premium_description', 'AI Обзор доступен только для премиум пользователей')
 					);
 					return;
 				}
@@ -275,6 +276,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 	);
 
 	// ✅ NEW: Export PDF function
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Export flow needs multiple validation and data-loading branches
 	const _exportReportPDF = useCallback(async () => {
 		if (!isPremium || !reportStats || !aiReport) {
 			toast.error(t('reports.pdf.premium_required', 'Экспорт PDF доступен только для Premium'));
@@ -344,7 +346,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 					.limit(50);
 
 				if (!entriesError && entriesData) {
-					entries = entriesData.map((entry: any) => ({
+					entries = entriesData.map((entry) => ({
 						id: entry.id,
 						date: entry.created_at,
 						text: entry.text || '',
@@ -388,7 +390,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 					positiveEntries,
 					neutralEntries,
 					negativeEntries,
-					categories: reportStats.categories?.map((c: any) => c.name) || [],
+					categories: reportStats.categories?.map((c) => c.name) || [],
 					topCategory: reportStats.categories?.[0]?.name || '',
 					topMood: reportStats.mood_distribution?.[0]?.mood || '',
 				},
@@ -411,7 +413,7 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 		} finally {
 			setIsExportingPDF(false);
 		}
-	}, [isPremium, reportStats, aiReport, selectedPeriod, t]);
+	}, [isPremium, reportStats, aiReport, selectedPeriod, t, userData?.user?.id, userData?.id]);
 
 	// ✅ NEW: Save PDF function
 	const handleSavePDF = useCallback(
@@ -894,8 +896,8 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 										</CardHeader>
 										<CardContent>
 											<div className="space-y-4">
-												{monthlyReport.moodDistribution.map((item, index) => (
-													<div key={index} className="space-y-2">
+												{monthlyReport.moodDistribution.map((item) => (
+													<div key={item.mood} className="space-y-2">
 														<div className="flex items-center justify-between">
 															<div className="flex items-center gap-2">
 																<span className="text-xl">{item.mood}</span>
@@ -932,8 +934,8 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 										</CardHeader>
 										<CardContent>
 											<div className="space-y-3">
-												{monthlyReport.topCategories.map((category, index) => (
-													<div key={index} className="flex items-center justify-between">
+												{monthlyReport.topCategories.map((category) => (
+													<div key={category.name} className="flex items-center justify-between">
 														<span className="text-foreground text-sm">{category.name}</span>
 														<span className="text-muted-foreground text-sm">
 															{category.count} записей
@@ -992,8 +994,13 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 														</CardHeader>
 														<CardContent>
 															<div className="space-y-3">
-																{monthlyReport.personalInsights.map((insight) => (
-																	<p className="text-foreground text-sm">{insight}</p>
+																{monthlyReport.personalInsights.map((insight, index) => (
+																	<p
+																		key={`${index}-${insight}`}
+																		className="text-foreground text-sm"
+																	>
+																		{insight}
+																	</p>
 																))}
 															</div>
 														</CardContent>

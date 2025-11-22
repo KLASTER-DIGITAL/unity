@@ -143,13 +143,16 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				return;
 			}
 
-			// Call Edge Function to render PDF server-side
-			const response = await fetch(`${API_URLS.BOOKS_RENDER_PDF}/${draftId}`, {
+			// Call Edge Function to render PDF server-side (Puppeteer parity with PWA)
+			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
 				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
 					'Content-Type': 'application/json',
 				},
+				body: JSON.stringify({
+					bookId: draftId,
+				}),
 			});
 
 			const result = await response.json();
@@ -270,7 +273,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					<Text style={styles.cardTitle}>Главы ({story.chapters.length})</Text>
 
 					{story.chapters.map((chapter, index) => (
-						<View key={index} style={styles.chapterCard}>
+						<View key={`${chapter.title || 'chapter'}-${index}`} style={styles.chapterCard}>
 							<Text style={styles.chapterLabel}>Глава {index + 1}</Text>
 							<TextInput
 								onChangeText={(text) => {

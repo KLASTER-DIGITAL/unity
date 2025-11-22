@@ -5,6 +5,7 @@ import type { LanguageConfig, MissingTranslationReport } from './types';
 // Получаем publicAnonKey для авторизации из Platform Adapter
 const publicAnonKey = env.SUPABASE_ANON_KEY;
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Using static methods keeps API client stateless and tree-shakeable
 export class I18nAPI {
 	// ✅ FIXED: Use translations-api microservice (2025-10-20)
 	private static readonly BASE_URL =
@@ -48,6 +49,7 @@ export class I18nAPI {
 	}
 
 	// Получение переводов для языка
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: API client needs multiple branches for caching and error handling
 	static async getTranslations(
 		language: string,
 		options?: {
@@ -327,7 +329,7 @@ export class I18nAPI {
 			// Обновляем кэш для переведенных языков
 			for (const language of targetLanguages) {
 				const translations = data.results[language]?.reduce(
-					(acc: Record<string, string>, result: any) => {
+					(acc: Record<string, string>, result: { key: string; translatedText: string }) => {
 						acc[result.key] = result.translatedText;
 						return acc;
 					},

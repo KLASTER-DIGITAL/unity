@@ -84,7 +84,7 @@ export function VoiceRecordingModal({
 
 				{/* Audio Level Visualizer */}
 				<div className="mb-8 flex h-20 w-full items-center justify-center gap-1 px-4">
-					{[...new Array(20)].map((_, i) => {
+					{Array.from({ length: 20 }, (_, i) => `bar-${i}`).map((key, i) => {
 						// Создаем волнообразный эффект
 						const intensity = Math.sin((i / 20) * Math.PI) * audioLevel;
 						const height = 8 + intensity * 56;
@@ -95,7 +95,7 @@ export function VoiceRecordingModal({
 									height: `${height}px`,
 								}}
 								className="flex-1 rounded-full bg-linear-to-t from-red-500 to-pink-500"
-								key={i}
+								key={key}
 								transition={{ duration: 0.1 }}
 							/>
 						);

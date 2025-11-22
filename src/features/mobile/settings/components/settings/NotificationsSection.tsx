@@ -9,8 +9,8 @@ type NotificationsSectionProps = {
 	notifications: NotificationSettings;
 	onNotificationsChange: (notifications: NotificationSettings) => void;
 	userId?: string;
-	profile?: any; // User profile with notification_time_preferences
-	t: any; // Translation object (deprecated, using useTranslation hook instead)
+	profile?: Record<string, unknown>; // User profile with notification_time_preferences
+	t: (key: string, fallback?: string) => string; // Translation object (deprecated, using useTranslation hook instead)
 };
 
 /**

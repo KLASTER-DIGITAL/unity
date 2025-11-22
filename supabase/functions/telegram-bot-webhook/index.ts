@@ -42,6 +42,7 @@ type TelegramUpdate = {
 	};
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: webhook handler branches by update type
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
@@ -49,9 +50,17 @@ Deno.serve(async (req) => {
 	}
 
 	try {
-		const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-		const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+		const supabaseUrl = Deno.env.get('SUPABASE_URL');
+		const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 		const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+
+		if (!supabaseUrl || !supabaseServiceKey) {
+			console.error('[TELEGRAM-WEBHOOK] Missing Supabase configuration');
+			return new Response(JSON.stringify({ error: 'Supabase config missing' }), {
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
 
 		if (!botToken) {
 			console.error('[TELEGRAM-WEBHOOK] TELEGRAM_BOT_TOKEN not configured');

@@ -30,6 +30,7 @@ export function AIHintSection({ showHint, messagesCount, onClose }: AIHintSectio
 					<div className="relative rounded-[16px] border border-border/20 bg-muted/10 p-card backdrop-blur-md transition-colors duration-300">
 						{/* Close Button */}
 						<button
+							type="button"
 							aria-label={t('common.close', 'Закрыть')}
 							className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-card/50 transition-colors duration-300 hover:bg-card"
 							onClick={onClose}

@@ -1,5 +1,6 @@
 import type { AutoTranslationResult } from './types';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Utility-style static class keeps API stateless and easy to mock
 export class AutoTranslationService {
 	private static readonly BATCH_SIZE = 10;
 	private static readonly MAX_RETRIES = 3;
@@ -457,7 +458,9 @@ IMPORTANT:
 			}
 
 			const data = await response.json();
-			const hasGPT4 = data.data.some((model: any) => model.id.includes('gpt-4'));
+			const hasGPT4 = data.data.some(
+				(model: { id: string }) => typeof model.id === 'string' && model.id.includes('gpt-4')
+			);
 
 			return {
 				available: true,

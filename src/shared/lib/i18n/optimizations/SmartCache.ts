@@ -28,6 +28,7 @@ type CacheStats = {
 	evictions: number;
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: SmartCache utility intentionally uses static state for cross-app coordination
 export class SmartCache {
 	private static cache: Map<LanguageCode, CacheEntry> = new Map();
 	private static maxEntries = 5;
@@ -74,7 +75,7 @@ export class SmartCache {
 		const size = JSON.stringify(translations).length;
 
 		// Check if we need to evict entries
-		await SmartCache.ensureSpace(size);
+		SmartCache.ensureSpace(size);
 
 		const entry: CacheEntry = {
 			language,
@@ -105,7 +106,7 @@ export class SmartCache {
 	/**
 	 * Clear all cache
 	 */
-	static async clear(): Promise<void> {
+	static clear(): void {
 		SmartCache.cache.clear();
 		SmartCache.hits = 0;
 		SmartCache.misses = 0;
@@ -191,7 +192,7 @@ export class SmartCache {
 
 	// Private methods
 
-	private static async ensureSpace(requiredSize: number): Promise<void> {
+	private static ensureSpace(requiredSize: number): void {
 		const currentSize = Array.from(SmartCache.cache.values()).reduce(
 			(sum, entry) => sum + entry.size,
 			0
@@ -199,16 +200,16 @@ export class SmartCache {
 
 		// Check if we need to evict by count
 		if (SmartCache.cache.size >= SmartCache.maxEntries) {
-			await SmartCache.evictLRU();
+			SmartCache.evictLRU();
 		}
 
 		// Check if we need to evict by size
 		if (currentSize + requiredSize > SmartCache.maxSize) {
-			await SmartCache.evictBySize(requiredSize);
+			SmartCache.evictBySize(requiredSize);
 		}
 	}
 
-	private static async evictLRU(): Promise<void> {
+	private static evictLRU(): void {
 		// Find least recently used entry with lowest priority
 		let lruEntry: [LanguageCode, CacheEntry] | null = null;
 		let lruScore = Number.POSITIVE_INFINITY;
@@ -232,7 +233,7 @@ export class SmartCache {
 		}
 	}
 
-	private static async evictBySize(requiredSize: number): Promise<void> {
+	private static evictBySize(requiredSize: number): void {
 		const currentSize = Array.from(SmartCache.cache.values()).reduce(
 			(sum, entry) => sum + entry.size,
 			0
@@ -269,6 +270,7 @@ export class SmartCache {
 /**
  * Automatic cache warming on app start
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: CacheWarmer utility intentionally uses static methods for cross-app coordination
 export class CacheWarmer {
 	private static warmed = false;
 

@@ -65,6 +65,7 @@ export function InputArea({
 	const maxCategories = 20;
 	const canAddMoreCategories = customCategories.length < maxCategories;
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy flow with multiple validation branches
 	const handleAddCategory = async (name: string, icon: string) => {
 		const trimmedName = name.trim();
 
@@ -96,9 +97,10 @@ export function InputArea({
 			triggerHapticFeedback();
 			toast.success('Категория добавлена');
 			setIsAddCategoryOpen(false);
-		} catch (error: any) {
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
 			console.error('[InputArea] Error adding category from home screen:', error);
-			toast.error(error?.message || 'Ошибка при добавлении категории');
+			toast.error(message || 'Ошибка при добавлении категории');
 		} finally {
 			setIsSavingCategory(false);
 		}
@@ -133,6 +135,7 @@ export function InputArea({
 					<div className="flex items-end gap-responsive-xs p-2">
 						{/* Voice Button - открывает Voice Powered Orb */}
 						<button
+							type="button"
 							className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all hover:bg-muted active:scale-95"
 							onClick={onVoiceClick}
 						>
@@ -161,6 +164,7 @@ export function InputArea({
 
 						{/* Media Upload Button */}
 						<button
+							type="button"
 							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
 								isUploading ? 'cursor-not-allowed opacity-50' : 'hover:bg-muted active:scale-95'
 							}`}
@@ -184,6 +188,7 @@ export function InputArea({
 
 						{/* Send Button */}
 						<button
+							type="button"
 							className={`flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[16px] transition-all ${
 								inputText.trim() || uploadedMedia.length > 0
 									? 'hover:bg-muted active:scale-95'
@@ -227,6 +232,7 @@ export function InputArea({
 					<div className="flex flex-nowrap items-center gap-2 pr-2">
 						{categories.map((category) => (
 							<button
+								type="button"
 								className={`flex shrink-0 items-center gap-1.5 rounded-[12px] border px-3 py-1.5 transition-all ${
 									selectedCategory === category.id
 										? 'border-accent bg-accent/10 text-foreground'
@@ -251,6 +257,7 @@ export function InputArea({
 						))}
 
 						<button
+							type="button"
 							className={`ml-1 flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[12px] border text-[18px] transition-all ${
 								canAddMoreCategories && userId && userId !== 'anonymous'
 									? 'border-dashed border-border bg-transparent hover:bg-accent/5 active:scale-95'
@@ -258,7 +265,6 @@ export function InputArea({
 							}`}
 							disabled={!canAddMoreCategories || !userId || userId === 'anonymous'}
 							onClick={() => setIsAddCategoryOpen(true)}
-							type="button"
 						>
 							+
 						</button>

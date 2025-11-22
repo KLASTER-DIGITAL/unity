@@ -65,7 +65,7 @@ export function useVoiceRecorder(): VoiceRecorderHook {
 			}, 50);
 
 			console.log('Recording started');
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Error starting recording:', error);
 			throw error;
 		}

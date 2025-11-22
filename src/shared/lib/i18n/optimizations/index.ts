@@ -46,7 +46,7 @@ export async function initializeOptimizations(options?: {
 
 	// Warm cache with popular languages
 	if (enablePrefetch && prefetchLanguages.length > 0) {
-		await CacheWarmer.warm(prefetchLanguages as any);
+		await CacheWarmer.warm(prefetchLanguages);
 	}
 
 	console.log('✅ Translation optimizations initialized');

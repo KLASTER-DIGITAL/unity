@@ -8,7 +8,7 @@ export type PerformanceMetric = {
 	name: string;
 	value: number;
 	timestamp: number;
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 };
 
 export type PerformanceStats = {

@@ -20,6 +20,7 @@ type CompressedData = {
 	version: number;
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Compression utility intentionally uses static methods for cross-app coordination
 export class Compression {
 	private static readonly VERSION = 1;
 	private static readonly MIN_SIZE_FOR_COMPRESSION = 1024; // 1KB
@@ -177,6 +178,7 @@ export class Compression {
 /**
  * Optimized storage manager with compression
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: OptimizedStorage utility intentionally uses static methods for cross-app coordination
 export class OptimizedStorage {
 	private static readonly STORAGE_PREFIX = 'i18n_optimized_';
 

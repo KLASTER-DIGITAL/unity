@@ -19,6 +19,7 @@ type LoadingTask = {
 	promise?: Promise<Translations>;
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Lazy loader intentionally uses static state for cross-app coordination
 export class LazyLoader {
 	private static loadingQueue: Map<LanguageCode, LoadingTask> = new Map();
 	private static loadedLanguages: Set<LanguageCode> = new Set();
@@ -104,7 +105,7 @@ export class LazyLoader {
 	/**
 	 * Unload a language to free memory
 	 */
-	static async unload(language: LanguageCode): Promise<void> {
+	static unload(language: LanguageCode): void {
 		console.log(`🗑️ LazyLoader: Unloading ${language}`);
 
 		LazyLoader.loadedLanguages.delete(language);
@@ -212,7 +213,7 @@ export class LazyLoader {
 		return cached?.timestamp || 0;
 	}
 
-	private static isCacheStale(cache: any): boolean {
+	private static isCacheStale(cache: { timestamp: number }): boolean {
 		const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 		const age = Date.now() - cache.timestamp;
 		return age > maxAge;

@@ -53,13 +53,13 @@ export function RecordingIndicator({
 
 						{/* Audio Level Visualizer */}
 						<div className="flex items-center gap-1">
-							{[...new Array(5)].map((_, i) => (
+							{['a', 'b', 'c', 'd', 'e'].map((key, i) => (
 								<motion.div
 									animate={{
 										height: audioLevel * 20 * (1 + i * 0.2),
 									}}
 									className="w-1 rounded-full bg-card"
-									key={i}
+									key={`level-${key}`}
 									style={{ minHeight: '4px' }}
 									transition={{ duration: 0.1 }}
 								/>
@@ -69,6 +69,7 @@ export function RecordingIndicator({
 						{/* Stop and Cancel buttons */}
 						<div className="flex items-center gap-2">
 							<button
+								type="button"
 								aria-label="Остановить запись"
 								className="flex items-center gap-1.5 rounded-full bg-muted/20 px-3 py-1.5 transition-colors duration-300 hover:bg-muted/30"
 								onClick={onStop}
@@ -77,6 +78,7 @@ export function RecordingIndicator({
 								<span className="font-medium! text-[11px]! text-white">Stop</span>
 							</button>
 							<button
+								type="button"
 								aria-label="Отменить запись"
 								className="rounded-full p-1 transition-colors hover:bg-card/20"
 								onClick={onCancel}

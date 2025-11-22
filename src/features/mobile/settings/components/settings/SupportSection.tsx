@@ -13,7 +13,7 @@ type SupportSectionProps = {
 	onRateAppClick: () => void;
 	onFAQClick: () => void;
 	onPWAInstallClick: () => void;
-	t: any;
+	t: (key: string, fallback?: string) => string;
 };
 
 export function SupportSection({

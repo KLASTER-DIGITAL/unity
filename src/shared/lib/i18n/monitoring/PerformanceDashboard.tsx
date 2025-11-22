@@ -5,7 +5,7 @@
  */
 
 import { Activity, AlertCircle, Download, TrendingUp, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PerformanceMonitor, type PerformanceStats } from './PerformanceMonitor';
 
 export function PerformanceDashboard() {
@@ -13,10 +13,10 @@ export function PerformanceDashboard() {
 	const [autoRefresh, setAutoRefresh] = useState(true);
 
 	// Update stats
-	const updateStats = () => {
+	const updateStats = useCallback(() => {
 		const currentStats = PerformanceMonitor.getStats();
 		setStats(currentStats);
-	};
+	}, []);
 
 	// Auto-refresh every 2 seconds
 	useEffect(() => {
@@ -98,6 +98,7 @@ export function PerformanceDashboard() {
 				{/* Controls */}
 				<div className="flex gap-2">
 					<button
+						type="button"
 						className={`rounded-lg px-4 py-2 font-semibold ${
 							autoRefresh ? 'bg-blue-600 text-white' : 'bg-muted text-foreground'
 						}`}
@@ -107,6 +108,7 @@ export function PerformanceDashboard() {
 					</button>
 
 					<button
+						type="button"
 						className="rounded-lg bg-muted px-4 py-2 font-semibold text-foreground hover:bg-muted"
 						onClick={updateStats}
 					>
@@ -114,6 +116,7 @@ export function PerformanceDashboard() {
 					</button>
 
 					<button
+						type="button"
 						className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700"
 						onClick={handleExport}
 					>
@@ -122,6 +125,7 @@ export function PerformanceDashboard() {
 					</button>
 
 					<button
+						type="button"
 						className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
 						onClick={handleClear}
 					>

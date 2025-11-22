@@ -38,6 +38,7 @@ export function SearchBar({
 
 			{/* Filters Button */}
 			<button
+				type="button"
 				className="flex shrink-0 items-center gap-2 rounded-[12px] bg-accent/10 px-4 py-3 font-medium! text-[14px]! text-accent transition-colors hover:bg-accent/20"
 				onClick={onToggleFilters}
 			>

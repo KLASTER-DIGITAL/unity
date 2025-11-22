@@ -121,7 +121,7 @@ export function ChatInputSection({
 	// Auto-resize textarea on input change
 	useEffect(() => {
 		debouncedResizeTextarea();
-	}, [debouncedResizeTextarea, inputText]);
+	}, [debouncedResizeTextarea]);
 
 	// Обработка отправки сообщения - СРАЗУ показать Success Modal
 	const handleSendMessage = () => {

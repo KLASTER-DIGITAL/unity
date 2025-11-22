@@ -4,7 +4,7 @@ import { triggerHapticFeedback } from './PermissionUtils';
 type MediaUploadParams = {
 	userId: string;
 	selectAndUploadMedia: (userId: string) => Promise<void>;
-	uploadedMedia: any[];
+	uploadedMedia: { url?: string }[];
 };
 
 /**
@@ -31,10 +31,10 @@ export async function handleMediaUpload({
 			// Haptic feedback
 			triggerHapticFeedback(50);
 		}
-	} catch (error: any) {
+	} catch (error) {
 		console.error('Media upload error:', error);
 
-		const errorMessage = error.message || 'Неизвестная ошибка';
+		const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
 
 		// Показываем понятное сообщение
 		if (errorMessage.includes('Файл слишком большой')) {
@@ -72,7 +72,7 @@ type FilesDroppedParams = {
 /**
  * Handle drag & drop files
  */
-export async function handleFilesDropped({ userId, files: _files }: FilesDroppedParams) {
+export function handleFilesDropped({ userId, files: _files }: FilesDroppedParams) {
 	if (!userId || userId === 'anonymous') {
 		toast.error('Необходимо авторизоваться', {
 			description: 'Войдите в аккаунт для загрузки медиа',
@@ -86,10 +86,11 @@ export async function handleFilesDropped({ userId, files: _files }: FilesDropped
 
 		// Haptic feedback
 		triggerHapticFeedback(50);
-	} catch (error: any) {
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
 		console.error('Drag & drop upload error:', error);
 		toast.error('Ошибка загрузки', {
-			description: error.message || 'Попробуйте еще раз',
+			description: message || 'Попробуйте еще раз',
 		});
 	}
 }

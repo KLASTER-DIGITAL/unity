@@ -25,7 +25,31 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-function generateBookHTML(story: any, metadata: any, style: string, theme: string): string {
+type BookChapter = {
+	title?: string;
+	content?: string;
+	highlights?: string[];
+};
+
+type BookStory = {
+	title?: string;
+	subtitle?: string;
+	prologue?: string;
+	epilogue?: string;
+	dedication?: string;
+	chapters?: BookChapter[];
+};
+
+type BookMetadata = {
+	diaryEmoji?: string;
+};
+
+function generateBookHTML(
+	story: BookStory,
+	metadata: BookMetadata,
+	style: string,
+	theme: string
+): string {
 	const isDark = theme === 'dark';
 	const bgColor = isDark ? '#1a1a1a' : '#FFFFFF';
 	const textColor = isDark ? '#e5e5e5' : '#1a1a1a';
@@ -192,7 +216,7 @@ function generateBookHTML(story: any, metadata: any, style: string, theme: strin
 	<!-- Chapters -->
 	${(story.chapters || [])
 		.map(
-			(chapter: any, index: number) => `
+			(chapter: BookChapter, index: number) => `
 	<div class="page">
 		<h2>Глава ${index + 1}: ${chapter.title}</h2>
 		${chapter.content
@@ -238,6 +262,7 @@ function generateBookHTML(story: any, metadata: any, style: string, theme: strin
 	`;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Edge function requires multiple branches for auth, validation and rendering
 Deno.serve(async (req) => {
 	if (req.method === 'OPTIONS') {
 		return new Response('ok', { headers: corsHeaders });
@@ -312,11 +337,17 @@ Deno.serve(async (req) => {
 		const page = await browser.newPage();
 		await page.setContent(html, { waitUntil: 'networkidle0' });
 
+		// ✅ Wait for fonts to load (Google Fonts can be slow)
+		console.log('[PUPPETEER] Waiting for fonts to load...');
+		await page.evaluateHandle('document.fonts.ready');
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // Extra 1s for safety
+
 		// Generate PDF
 		console.log('[PUPPETEER] Generating PDF...');
 		const pdfBuffer = await page.pdf({
 			format: 'A4',
 			printBackground: true,
+			preferCSSPageSize: true, // ✅ Use CSS page size from @page rules
 			margin: {
 				top: '0mm',
 				right: '0mm',
@@ -349,10 +380,14 @@ Deno.serve(async (req) => {
 		const { data: urlData } = supabaseAdmin.storage.from('books').getPublicUrl(fileName);
 		const pdfUrl = urlData.publicUrl;
 
-		// Update book with PDF URL
+		// Update book with PDF URL and mark as final (also set is_draft to false)
 		await supabaseAdmin
 			.from('books_archive')
-			.update({ pdf_url: pdfUrl, is_final: true })
+			.update({
+				pdf_url: pdfUrl,
+				is_final: true,
+				is_draft: false, // ✅ Mark as not draft when final PDF is generated
+			})
 			.eq('id', bookId);
 
 		console.log('[PUPPETEER] PDF saved:', pdfUrl);
@@ -365,12 +400,12 @@ Deno.serve(async (req) => {
 			}),
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error('[PUPPETEER] Error:', error);
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: error?.message || 'Unknown error',
+				error: error instanceof Error ? error.message : 'Unknown error',
 			}),
 			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);

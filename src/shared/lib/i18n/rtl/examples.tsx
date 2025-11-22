@@ -19,22 +19,22 @@ export function ExampleNavigation() {
 		<nav className="border-b bg-card" dir={t.direction}>
 			<ul className="flex p-4">
 				<li className="me-4">
-					<a className="text-blue-600" href="#">
+					<a className="text-blue-600" href="/">
 						{t('nav.home', 'Home')}
 					</a>
 				</li>
 				<li className="me-4">
-					<a className="text-muted-foreground" href="#">
+					<a className="text-muted-foreground" href="/history">
 						{t('nav.history', 'History')}
 					</a>
 				</li>
 				<li className="me-4">
-					<a className="text-muted-foreground" href="#">
+					<a className="text-muted-foreground" href="/achievements">
 						{t('nav.achievements', 'Achievements')}
 					</a>
 				</li>
 				<li>
-					<a className="text-muted-foreground" href="#">
+					<a className="text-muted-foreground" href="/settings">
 						{t('nav.settings', 'Settings')}
 					</a>
 				</li>
@@ -113,7 +113,11 @@ export function ExampleModal({
 			<div className="w-full max-w-md rounded-lg bg-card" dir={t.direction}>
 				<div className="relative border-b p-6">
 					<h2 className="text-start font-semibold text-xl">{title}</h2>
-					<button className="absolute end-4 top-4 rounded p-2 hover:bg-muted" onClick={onClose}>
+					<button
+						type="button"
+						className="absolute end-4 top-4 rounded p-2 hover:bg-muted"
+						onClick={onClose}
+					>
 						<X className="h-5 w-5" />
 					</button>
 				</div>
@@ -132,7 +136,7 @@ export function ExampleBreadcrumbs({ items }: { items: Array<{ label: string; hr
 	return (
 		<nav className="flex items-center gap-2" dir={t.direction}>
 			{items.map((item, index) => (
-				<React.Fragment key={index}>
+				<React.Fragment key={item.href || `breadcrumb-${index}`}>
 					{item.href ? (
 						<a className="text-blue-600 hover:underline" href={item.href}>
 							{item.label}
@@ -175,8 +179,10 @@ export function ExampleEntryCard({
 			</div>
 			<p className="text-start">{entry.text}</p>
 			<div className="mt-4 flex gap-2">
-				<button className="text-blue-600 text-sm hover:underline">{t('entry.edit', 'Edit')}</button>
-				<button className="text-red-600 text-sm hover:underline">
+				<button type="button" className="text-blue-600 text-sm hover:underline">
+					{t('entry.edit', 'Edit')}
+				</button>
+				<button type="button" className="text-red-600 text-sm hover:underline">
 					{t('entry.delete', 'Delete')}
 				</button>
 			</div>
@@ -203,11 +209,11 @@ export function ExampleSettingsList() {
 
 	return (
 		<div className="rounded-lg bg-card shadow" dir={t.direction}>
-			{settings.map((setting, index) => (
+			{settings.map((setting) => (
 				<a
 					className="flex items-center gap-3 border-b p-4 last:border-b-0 hover:bg-muted"
 					href={setting.href}
-					key={index}
+					key={setting.label}
 				>
 					<setting.icon className="h-5 w-5 text-muted-foreground" />
 					<span className="flex-1 text-start">{setting.label}</span>
@@ -281,6 +287,7 @@ export function ExampleLanguageSwitcher() {
 			<div className="space-y-2">
 				{languages.map((lang) => (
 					<button
+						type="button"
 						className={`flex w-full items-center justify-between rounded-lg border p-3 ${currentLanguage === lang.code ? 'border-blue-600 bg-blue-50' : 'border-border'}hover:bg-muted`}
 						key={lang.code}
 						onClick={() => changeLanguage(lang.code)}
@@ -314,8 +321,8 @@ export function ExampleRTLTextDetection() {
 			<h3 className="mb-4 text-start font-semibold text-lg">RTL Text Detection</h3>
 
 			<div className="space-y-3">
-				{texts.map((item, index) => (
-					<div className="rounded border p-3" key={index}>
+				{texts.map((item) => (
+					<div className="rounded border p-3" key={item.text}>
 						<RTLText className="mb-2 block">{item.text}</RTLText>
 						<span className="text-muted-foreground text-xs">Expected: {item.expected}</span>
 					</div>

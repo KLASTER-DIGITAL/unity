@@ -19,8 +19,8 @@ export type Book = {
 	planType: 'free' | 'premium';
 	type: string;
 	language: string;
-	storyJson: any;
-	metadata: any;
+	storyJson: Record<string, unknown>;
+	metadata: Record<string, unknown>;
 	pdfUrl: string | null;
 	isDraft: boolean;
 	isFinal: boolean;
@@ -39,6 +39,7 @@ export function useBooksList(userId: string | null) {
 	const [filter, setFilter] = useState<BooksFilter>('all');
 	const [planFilter, setPlanFilter] = useState<BooksPlanFilter>('all');
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy fetch merges multiple filters/sorts
 	const fetchBooks = useCallback(async () => {
 		if (!userId) {
 			setBooks([]);

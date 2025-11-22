@@ -8,7 +8,7 @@ import type { Language } from '@/shared/lib/i18n';
 import { useTranslation } from '@/shared/lib/i18n';
 
 type RecentEntriesFeedProps = {
-	userData?: any;
+	userData?: Record<string, unknown>;
 	language?: Language;
 	onEntryClick?: (entry: DiaryEntry) => void;
 	onViewAllClick?: () => void;
@@ -48,6 +48,7 @@ export function RecentEntriesFeed({
 		console.log('[RecentEntriesFeed] 📝 First entry text:', entries[0]?.text);
 	}
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy humanized time formatter
 	const formatTimeAgo = (dateString: string): string => {
 		const date = new Date(dateString);
 		const now = new Date();

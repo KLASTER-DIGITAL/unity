@@ -108,11 +108,11 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 				console.log(`Loading translations for language: ${language}`);
 
 				// Try SmartCache first (optimized)
-				let translations = await SmartCache.get(language as any);
+				let translations = await SmartCache.get(language);
 
 				if (!translations) {
 					// Use LazyLoader for optimized loading
-					translations = await LazyLoader.load(language as any, 'high');
+					translations = await LazyLoader.load(language, 'high');
 				}
 
 				console.log(
@@ -230,6 +230,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 	// Инициализация при монтировании
 	// ✅ CRITICAL FIX: loadTranslations is now stable (useCallback), safe to include in deps
 	// Removed state.currentLanguage from deps to prevent re-initialization on language change
+	// biome-ignore lint/correctness/useExhaustiveDependencies: state.currentLanguage intentionally excluded to avoid infinite reload loop
 	useEffect(() => {
 		// Wait for initial language detection
 		if (!initialLanguage) {
@@ -265,6 +266,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 
 	// ✅ FIX: Следим за изменением defaultLanguage и обновляем язык
 	// Это нужно для случая когда пользователь входит в систему и язык загружается из профиля
+	// biome-ignore lint/correctness/useExhaustiveDependencies: changeLanguage and state.currentLanguage are stable and intentionally omitted to avoid double-loading
 	useEffect(() => {
 		if (defaultLanguage && defaultLanguage !== state.currentLanguage) {
 			console.log(

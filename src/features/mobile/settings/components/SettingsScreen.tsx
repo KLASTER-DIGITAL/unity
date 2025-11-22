@@ -118,7 +118,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 					table: 'profiles',
 					filter: `id=eq.${userId}`,
 				},
-				(payload: any) => {
+				(payload) => {
 					console.log('[SettingsScreen] 🔔 Profile updated:', payload);
 
 					// Проверяем изменился ли is_premium с false на true
@@ -130,7 +130,7 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 						setShowPremiumActivated(true);
 
 						// Обновляем локальный профиль
-						setProfile((prev: any) => ({
+						setProfile((prev) => ({
 							...prev,
 							is_premium: true,
 						}));

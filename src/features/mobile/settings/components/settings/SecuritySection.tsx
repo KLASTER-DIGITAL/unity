@@ -7,7 +7,7 @@ type SecuritySectionProps = {
 	isPremium: boolean;
 	onAutoBackupChange: (enabled: boolean) => void;
 	onPremiumRequired: () => void;
-	t: any; // Translation object
+	t: (key: string, fallback?: string) => string; // Translation object
 };
 
 /**

@@ -3,6 +3,7 @@ import { I18nAPI } from './api';
 import { TranslationCacheManager } from './cache';
 import type { LoadTranslationsOptions, TranslationResult } from './types';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Static loader keeps translation pipeline stateless and easy to reason about
 export class TranslationLoader {
 	private static readonly DEFAULT_TIMEOUT = 10_000; // 10 секунд
 	private static readonly DEFAULT_RETRY_COUNT = 3;
@@ -233,7 +234,7 @@ export class TranslationLoader {
 
 	// Получение статистики загрузки
 	static async getLoadingStats(): Promise<{
-		cacheStats: any;
+		cacheStats: Awaited<ReturnType<typeof TranslationCacheManager.getCacheStats>>;
 		lastSync: Date | null;
 		supportedLanguages: string[];
 	}> {
@@ -246,7 +247,7 @@ export class TranslationLoader {
 
 	// Вспомогательные методы
 
-	private static async withTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
+	private static withTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
 		const timeoutPromise = new Promise<never>((_, reject) => {
 			setTimeout(() => reject(new Error(`Timeout after ${timeout}ms`)), timeout);
 		});
@@ -258,13 +259,18 @@ export class TranslationLoader {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
-	private static isCacheStale(cache: any): boolean {
+	private static isCacheStale(cache: { lastUpdated: string } | { timestamp: number }): boolean {
 		const maxAge = 24 * 60 * 60 * 1000; // 24 часа
 		const age = Date.now() - new Date(cache.lastUpdated).getTime();
 		return age > maxAge;
 	}
 
-	private static validateCacheIntegrity(cache: any): boolean {
+	private static validateCacheIntegrity(cache: {
+		language: string;
+		translations: Record<string, string>;
+		lastUpdated: string;
+		version: string;
+	}): boolean {
 		return !!(
 			cache.language &&
 			cache.translations &&
@@ -315,8 +321,8 @@ export class TranslationLoader {
 
 	// Метод для отладки
 	static async debugInfo(): Promise<{
-		currentCache: any;
-		loadingStats: any;
+		currentCache: ReturnType<typeof TranslationCacheManager.exportCache>;
+		loadingStats: Awaited<ReturnType<typeof TranslationLoader.getLoadingStats>>;
 		apiHealth: boolean;
 		storageUsage: number;
 	}> {

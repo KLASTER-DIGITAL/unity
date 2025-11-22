@@ -9,7 +9,7 @@ export type DiaryData = {
 
 export type AchievementHomeScreenProps = {
 	diaryData?: DiaryData;
-	userData?: any;
+	userData?: Record<string, unknown>;
 	onNavigateToHistory?: () => void;
 	onNavigateToSettings?: () => void;
 };

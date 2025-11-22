@@ -1,4 +1,4 @@
-import { Check, Crown, X } from 'lucide-react';
+import { Crown, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';

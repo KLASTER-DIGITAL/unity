@@ -8,7 +8,7 @@ import { SettingsRow, SettingsSection } from '../SettingsRow';
 
 type CategoriesSectionProps = {
 	onCategoriesClick: () => void;
-	t: any;
+	t: (key: string, fallback?: string) => string;
 };
 
 export function CategoriesSection({ onCategoriesClick, t }: CategoriesSectionProps) {

@@ -232,6 +232,7 @@ export function I18nE2ETest() {
 				<button
 					className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
 					onClick={runAllTests}
+					type="button"
 				>
 					Run All Tests
 				</button>

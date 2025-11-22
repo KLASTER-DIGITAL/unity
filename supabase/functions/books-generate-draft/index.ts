@@ -48,7 +48,7 @@ function replacePlaceholders(template: string, vars: Record<string, string>): st
 // Removed unused getOpenAIKey function - OpenAI key is fetched inline in the main handler
 
 // ✅ P2: Content Hash для агрессивного кэширования
-async function generateContentHash(data: any): Promise<string> {
+async function generateContentHash(data: unknown): Promise<string> {
 	const jsonString = JSON.stringify(data);
 	const encoder = new TextEncoder();
 	const data_encoded = encoder.encode(jsonString);
@@ -62,6 +62,7 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Edge function requires multiple branches for auth, validation and AI handling
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
@@ -108,6 +109,8 @@ Deno.serve(async (req) => {
 			diaryName,
 			diaryEmoji,
 			regenerate = false, // ✅ NEW: Force regeneration flag
+			planType, // ✅ Plan type (free/premium)
+			type = 'month', // ✅ Book type (month/quarter/year/custom)
 		} = body;
 
 		console.log('[BOOKS-DRAFT] Generating draft for user:', userId);
@@ -222,13 +225,18 @@ Deno.serve(async (req) => {
 		console.log('[BOOKS-DRAFT] Found', entries.length, 'entries');
 
 		// Collect photos from entries
+		type EntryMedia = {
+			type: string;
+			url?: string | null;
+		};
+
 		const photosFromEntries = entries.flatMap((entry) => {
 			if (!entry.media || !Array.isArray(entry.media)) return [];
 			return entry.media
-				.filter((m: any) => m.type === 'image' && m.url)
-				.map((m: any) => ({
+				.filter((m: EntryMedia) => m.type === 'image' && m.url)
+				.map((m: EntryMedia) => ({
 					entryId: entry.id,
-					url: m.url,
+					url: m.url as string,
 					createdAt: entry.created_at,
 				}));
 		});
@@ -261,8 +269,21 @@ Deno.serve(async (req) => {
 		// ✅ Context Engine: Collect all persons
 		const allPersons: Set<string> = new Set();
 
+		type EntrySummaryRow = {
+			entry_id: string;
+			summary_json?: {
+				short_summary?: string;
+				insight?: string;
+				mood?: string;
+				topics?: string[];
+				persons?: string[];
+				has_achievement?: boolean;
+				excerpt?: string;
+			} | null;
+		};
+
 		const entriesSummary = useSummaries
-			? summaries.map((summary: any, index: number) => {
+			? summaries.map((summary: EntrySummaryRow) => {
 					const entry = filteredEntries.find((e) => e.id === summary.entry_id);
 					const summaryData = summary.summary_json || {};
 					const persons = summaryData.persons || [];
@@ -353,7 +374,7 @@ Deno.serve(async (req) => {
 		let systemPrompt: string;
 		let userPrompt: string;
 
-		if (config && config.is_enabled) {
+		if (config?.is_enabled) {
 			// ✅ Use AI operation from database
 			console.log(`[BOOKS-DRAFT] Using ${aiOperationId} from AI Control Center`);
 
@@ -545,7 +566,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		}
 
 		// Parse story JSON
-		let storyJson: any;
+		let storyJson: unknown;
 		try {
 			const content = aiResult.choices[0].message.content;
 			console.log('[BOOKS-DRAFT] AI content length:', content.length, 'chars');
@@ -565,6 +586,28 @@ ${JSON.stringify(entriesSummary, null, 2)}
 				}
 			);
 		}
+
+		// ✅ VALIDATE: Ensure chapters exist and not empty
+		const storyChapters = (storyJson as { chapters?: unknown }).chapters;
+
+		if (!storyChapters || !Array.isArray(storyChapters) || storyChapters.length === 0) {
+			console.error(
+				'[BOOKS-DRAFT] AI response missing or empty chapters:',
+				JSON.stringify(storyJson, null, 2)
+			);
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: 'AI failed to generate book chapters. Please try again.',
+				}),
+				{
+					status: 500,
+					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+				}
+			);
+		}
+
+		console.log('[BOOKS-DRAFT] Validated chapters:', storyChapters.length, 'chapters generated');
 
 		// Log OpenAI usage (GPT-4o-mini pricing: $0.15/1M input, $0.60/1M output)
 		const { prompt_tokens, completion_tokens, total_tokens } = aiResult.usage;
@@ -627,10 +670,17 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		}
 
 		// ✅ Auto-attach photos to chapters based on AI mapping
-		if (photosFromEntries.length > 0 && storyJson.chapters) {
-			const photosToInsert: any[] = [];
+		if (photosFromEntries.length > 0 && storyChapters) {
+			type BookPhotoInsert = {
+				book_id: string;
+				chapter_index: number;
+				photo_url: string;
+				caption: string;
+			};
 
-			storyJson.chapters.forEach((chapter: any, index: number) => {
+			const photosToInsert: BookPhotoInsert[] = [];
+
+			storyChapters.forEach((chapter: { source_entry_ids?: string[] }, index: number) => {
 				if (chapter.source_entry_ids && Array.isArray(chapter.source_entry_ids)) {
 					// Find photos for entries used in this chapter
 					const chapterPhotos = photosFromEntries.filter((p) =>
