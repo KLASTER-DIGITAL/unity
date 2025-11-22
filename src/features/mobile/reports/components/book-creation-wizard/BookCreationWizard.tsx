@@ -165,6 +165,7 @@ export function BookCreationWizard({
 				toast.error('Недостаточно записей', {
 					description: `Найдено ${count} записей. Минимум 5 записей требуется для создания книги.`,
 				});
+				isGeneratingRef.current = false;
 				setIsGenerating(false);
 				setShowProgress(false);
 				return;
@@ -186,6 +187,7 @@ export function BookCreationWizard({
 					description:
 						'Free пользователи могут создавать 1 книгу в месяц. Перейдите на Premium для неограниченной генерации.',
 				});
+				isGeneratingRef.current = false;
 				setIsGenerating(false);
 				setShowProgress(false);
 				return;
