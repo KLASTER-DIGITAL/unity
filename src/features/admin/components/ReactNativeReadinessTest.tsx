@@ -228,8 +228,8 @@ export function ReactNativeReadinessTest() {
 
 							{report.checks
 								.filter((c) => c.status !== 'ready')
-								.map((check, index) => (
-									<li className="text-foreground" key={index}>
+								.map((check) => (
+									<li className="text-foreground" key={`${check.name}-${check.status}`}>
 										• {check.name}: {check.details}
 									</li>
 								))}
@@ -239,6 +239,7 @@ export function ReactNativeReadinessTest() {
 					{/* Actions */}
 					<div className="flex gap-4">
 						<button
+							type="button"
 							className="rounded-lg bg-muted px-4 py-2 text-white transition-colors hover:bg-muted"
 							onClick={() => {
 								const text = JSON.stringify(report, null, 2);
@@ -250,6 +251,7 @@ export function ReactNativeReadinessTest() {
 						</button>
 
 						<button
+							type="button"
 							className="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
 							onClick={() => {
 								console.log('React Native Readiness Report:', report);

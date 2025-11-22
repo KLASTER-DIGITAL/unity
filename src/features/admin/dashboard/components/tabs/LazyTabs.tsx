@@ -126,7 +126,7 @@ export const LazyPWACache = () => (
 	</Suspense>
 );
 
-export const LazySettingsTab = (props: any) => (
+export const LazySettingsTab = (props: React.ComponentProps<typeof SettingsTab>) => (
 	<Suspense fallback={<TabLoadingFallback />}>
 		<SettingsTab {...props} />
 	</Suspense>

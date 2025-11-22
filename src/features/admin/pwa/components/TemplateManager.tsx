@@ -8,7 +8,7 @@
  */
 
 import { Crown, Edit, FileText, Globe, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // ✅ PERFORMANCE: Lazy load PushTemplateEditor (484 строк)
@@ -64,7 +64,7 @@ export function TemplateManager() {
 	const supabase = createClient();
 
 	// Load templates
-	const loadTemplates = async () => {
+	const loadTemplates = useCallback(async () => {
 		try {
 			setLoading(true);
 			const { data, error } = await supabase
@@ -80,12 +80,11 @@ export function TemplateManager() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	// Load on mount
 	useEffect(() => {
 		loadTemplates();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [loadTemplates]);
 
 	// Save template

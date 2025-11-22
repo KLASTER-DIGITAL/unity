@@ -120,6 +120,7 @@ export function UsersManagementTab() {
 		loadUsers();
 	}, [loadUsers]);
 
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy admin flow; refactor separately
 	const handleTogglePremium = async (userId: string, currentStatus: string) => {
 		try {
 			const newIsPremium = currentStatus !== 'premium';

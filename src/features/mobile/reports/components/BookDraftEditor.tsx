@@ -496,8 +496,8 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 		}
 	};
 
-	// Render PDF and upload
-	const handleRenderPDF = async (blob: Blob) => {
+	// Render PDF using Puppeteer (server-side)
+	const handleRenderPDF = async (_blob?: Blob) => {
 		if (!userId) {
 			toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
 			return;
@@ -518,54 +518,27 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				return;
 			}
 
-			// Convert Blob to base64 string
-			const reader = new FileReader();
-			const base64Promise = new Promise<string>((resolve, reject) => {
-				reader.onloadend = () => {
-					const base64String = reader.result as string;
-					resolve(base64String);
-				};
-				reader.onerror = reject;
-			});
-			reader.readAsDataURL(blob);
-			const base64String = await base64Promise;
-
-			// Calculate pages and word count from story
-			const pages =
-				Math.ceil(
-					(story.prologue?.length || 0) +
-						(story.chapters || []).reduce((sum, ch) => sum + (ch.content?.length || 0), 0) +
-						(story.epilogue?.length || 0)
-				) / 2000; // Rough estimate: ~2000 chars per page
-			const wordCount =
-				(story.prologue?.split(/\s+/).length || 0) +
-				(story.chapters || []).reduce(
-					(sum, ch) => sum + (ch.content?.split(/\s+/).length || 0),
-					0
-				) +
-				(story.epilogue?.split(/\s+/).length || 0);
-
-			// Upload PDF to Supabase Storage via Edge Function
-			const response = await fetch(`${API_URLS.BOOKS_RENDER_PDF}/${draftId}/upload`, {
-				method: 'PUT',
+			// ✅ P1: Use Puppeteer for server-side PDF rendering
+			// This provides better Unicode support, stability for long books
+			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
+				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					pdfBlob: base64String,
-					pages: Math.max(1, pages),
-					wordCount,
+					bookId: draftId,
 				}),
 			});
 
 			const result = await response.json();
 
 			if (!result.success) {
-				throw new Error(result.error || 'Не удалось загрузить PDF');
+				throw new Error(result.error || 'Не удалось создать PDF');
 			}
 
 			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
+			console.log('[DRAFT-EDITOR] PDF URL:', result.pdfUrl);
 			onComplete?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);

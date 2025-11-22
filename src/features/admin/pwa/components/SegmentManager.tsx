@@ -284,6 +284,7 @@ function CreateSegmentModal({ onClose, onSuccess }: CreateSegmentModalProps) {
 	/**
 	 * Создает сегмент
 	 */
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy flow to refactor later
 	const handleCreate = async () => {
 		if (!name.trim()) {
 			toast.error('Введите название сегмента');

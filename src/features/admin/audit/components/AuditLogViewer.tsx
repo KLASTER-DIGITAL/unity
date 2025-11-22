@@ -115,8 +115,8 @@ export function AuditLogViewer() {
 				{/* Loading State */}
 				{isLoading && (
 					<div className="space-y-3">
-						{[...Array(5)].map((_, i) => (
-							<Skeleton key={`audit-skeleton-${i}`} className="h-20 w-full" />
+						{['a', 'b', 'c', 'd', 'e'].map((key) => (
+							<Skeleton key={`audit-skeleton-${key}`} className="h-20 w-full" />
 						))}
 					</div>
 				)}

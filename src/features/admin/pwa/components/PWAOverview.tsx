@@ -74,6 +74,7 @@ export function PWAOverview() {
 	const supabase = createClient();
 
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy stats loader; refactor later
 	const loadStats = useCallback(async () => {
 		setIsLoading(true);
 		try {
