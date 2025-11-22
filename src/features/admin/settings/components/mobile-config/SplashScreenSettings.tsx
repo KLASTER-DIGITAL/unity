@@ -20,7 +20,7 @@ import { Switch } from '@/shared/components/ui/switch';
 import type { MobileSettingsProps } from './types';
 
 export const SplashScreenSettings: React.FC<MobileSettingsProps> = ({ settings, onChange }) => {
-	const handleChange = (field: string, value: any) => {
+	const handleChange = (field: string, value: unknown) => {
 		onChange({ ...settings, [field]: value });
 	};
 

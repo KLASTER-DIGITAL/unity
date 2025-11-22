@@ -723,7 +723,7 @@ Deno.serve(async (req) => {
 
 			// Get users matching segment criteria
 			const users = await getUsersBySegmentCriteria(segment.criteria);
-			payload.user_ids = users.map((u: any) => u.id);
+			payload.user_ids = users.map((u: { id: string }) => u.id);
 
 			console.log('[UNIFIED-SENDER] Segment users:', {
 				segment_id: payload.segment_id,

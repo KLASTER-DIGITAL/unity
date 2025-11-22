@@ -24,6 +24,7 @@ const corsHeaders = (origin?: string | null) => ({
 });
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: route handler aggregates multiple branches
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy handler
 Deno.serve(async (req) => {
 	const origin = req.headers.get('Origin') || undefined;
 	if (origin && !isAllowedOrigin(origin)) {

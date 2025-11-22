@@ -18,7 +18,7 @@ export type MobileSettings = {
 	splash_animation: 'fade' | 'zoom' | 'slide' | 'none';
 	splash_next_screen: 'onboarding' | 'login' | 'home';
 	onboarding_enabled: boolean;
-	onboarding_screens: any[];
+	onboarding_screens: unknown[];
 	onboarding_skip_enabled: boolean;
 	auth_methods: string[];
 	auth_bg_color: string;
