@@ -177,10 +177,10 @@ export const AISettingsTab: React.FC = () => {
 	});
 
 	// Helper: Group AI operations by group_name
-		const groupOperations = useCallback((operations: AIOperationConfig[]): GroupedOperations => {
-			const grouped: GroupedOperations = {
-				cards: [],
-				push: [],
+	const groupOperations = useCallback((operations: AIOperationConfig[]): GroupedOperations => {
+		const grouped: GroupedOperations = {
+			cards: [],
+			push: [],
 			reports: [],
 			coach: [],
 		};
@@ -191,13 +191,13 @@ export const AISettingsTab: React.FC = () => {
 			}
 		}
 
-			return grouped;
-		}, []);
+		return grouped;
+	}, []);
 
 	// Load AI settings (all in one useEffect to avoid infinite loop)
-		useEffect(() => {
-			// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy logic to be refactored separately
-			const loadAISettings = async () => {
+	useEffect(() => {
+		// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy logic to be refactored separately
+		const loadAISettings = async () => {
 			setIsLoading(true);
 			try {
 				const supabase = createClient();
@@ -262,8 +262,8 @@ export const AISettingsTab: React.FC = () => {
 			}
 		};
 
-			loadAISettings();
-		}, [groupOperations]);
+		loadAISettings();
+	}, [groupOperations]);
 
 	const handleSaveSettings = async () => {
 		setIsSaving(true);

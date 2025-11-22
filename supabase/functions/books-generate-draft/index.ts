@@ -54,7 +54,7 @@ async function generateContentHash(data: any): Promise<string> {
 	const data_encoded = encoder.encode(jsonString);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', data_encoded);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+	return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 const corsHeaders = {
@@ -165,7 +165,7 @@ Deno.serve(async (req) => {
 				.gte('created_at', periodStart)
 				.lte('created_at', periodEnd)
 				.order('created_at', { ascending: true }),
-			
+
 			// Entries (needed for photos and achievements)
 			supabaseAdmin
 				.from('entries')
@@ -176,7 +176,7 @@ Deno.serve(async (req) => {
 				.gte('created_at', periodStart)
 				.lte('created_at', periodEnd)
 				.order('created_at', { ascending: true }),
-			
+
 			// Snapshot
 			supabaseAdmin
 				.from('monthly_snapshots')
@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
 		} else {
 			console.log('[BOOKS-DRAFT] ⚠️ No summaries found, using raw entries (expensive)');
 		}
-		
+
 		if (snapshot) {
 			console.log('[BOOKS-DRAFT] ✅ Using snapshot for period context');
 		}
@@ -266,7 +266,7 @@ Deno.serve(async (req) => {
 					const entry = filteredEntries.find((e) => e.id === summary.entry_id);
 					const summaryData = summary.summary_json || {};
 					const persons = summaryData.persons || [];
-					
+
 					for (const p of persons) {
 						allPersons.add(p);
 					}
@@ -316,7 +316,7 @@ Deno.serve(async (req) => {
 		if (!regenerate) {
 			const contentForHash = { entriesSummary, stats, style, layout };
 			const contentHash = await generateContentHash(contentForHash);
-			
+
 			// Check if we have a draft with same content hash
 			const { data: cachedDraft } = await supabaseAdmin
 				.from('books_archive')
@@ -327,7 +327,7 @@ Deno.serve(async (req) => {
 				.order('created_at', { ascending: false })
 				.limit(1)
 				.maybeSingle();
-			
+
 			if (cachedDraft) {
 				console.log('[BOOKS-DRAFT] ✅ CACHE HIT by content hash! AI tokens saved!');
 				return new Response(
@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
 					{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 				);
 			}
-			
+
 			console.log('[BOOKS-DRAFT] No content hash match, generating new...');
 		}
 

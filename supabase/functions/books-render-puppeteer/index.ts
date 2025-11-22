@@ -17,8 +17,8 @@
  */
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { createClient } from 'jsr:@supabase/supabase-js@2';
 import puppeteer from 'https://deno.land/x/puppeteer@16.2.0/mod.ts';
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
@@ -179,7 +179,10 @@ function generateBookHTML(story: any, metadata: any, style: string, theme: strin
 	<div class="page">
 		<h2>Вступление</h2>
 		<div class="prologue">
-			${story.prologue.split('\n').map((p: string) => `<p>${p}</p>`).join('')}
+			${story.prologue
+				.split('\n')
+				.map((p: string) => `<p>${p}</p>`)
+				.join('')}
 		</div>
 	</div>
 	`
@@ -192,7 +195,10 @@ function generateBookHTML(story: any, metadata: any, style: string, theme: strin
 			(chapter: any, index: number) => `
 	<div class="page">
 		<h2>Глава ${index + 1}: ${chapter.title}</h2>
-		${chapter.content.split('\n').map((p: string) => `<p>${p}</p>`).join('')}
+		${chapter.content
+			.split('\n')
+			.map((p: string) => `<p>${p}</p>`)
+			.join('')}
 		
 		${
 			chapter.highlights && chapter.highlights.length > 0
@@ -218,7 +224,10 @@ function generateBookHTML(story: any, metadata: any, style: string, theme: strin
 	<div class="page">
 		<h2>Заключение</h2>
 		<div class="epilogue">
-			${story.epilogue.split('\n').map((p: string) => `<p>${p}</p>`).join('')}
+			${story.epilogue
+				.split('\n')
+				.map((p: string) => `<p>${p}</p>`)
+				.join('')}
 		</div>
 	</div>
 	`
@@ -367,4 +376,3 @@ Deno.serve(async (req) => {
 		);
 	}
 });
-

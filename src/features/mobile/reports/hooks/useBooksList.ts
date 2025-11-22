@@ -31,11 +31,13 @@ export type Book = {
 };
 
 export type BooksFilter = 'all' | 'drafts' | 'final';
+export type BooksPlanFilter = 'all' | 'free' | 'premium';
 
 export function useBooksList(userId: string | null) {
 	const [books, setBooks] = useState<Book[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState<BooksFilter>('all');
+	const [planFilter, setPlanFilter] = useState<BooksPlanFilter>('all');
 
 	const fetchBooks = useCallback(async () => {
 		if (!userId) {
@@ -52,11 +54,18 @@ export function useBooksList(userId: string | null) {
 				.eq('user_id', userId)
 				.order('created_at', { ascending: false });
 
-			// Apply filter
+			// Apply status filter
 			if (filter === 'drafts') {
 				query = query.eq('is_draft', true);
 			} else if (filter === 'final') {
 				query = query.eq('is_final', true);
+			}
+
+			// Apply plan filter
+			if (planFilter === 'free') {
+				query = query.eq('plan_type', 'free');
+			} else if (planFilter === 'premium') {
+				query = query.eq('plan_type', 'premium');
 			}
 
 			const { data, error } = await query;
@@ -99,7 +108,7 @@ export function useBooksList(userId: string | null) {
 		} finally {
 			setLoading(false);
 		}
-	}, [userId, filter]);
+	}, [userId, filter, planFilter]);
 
 	useEffect(() => {
 		fetchBooks();
@@ -218,6 +227,8 @@ export function useBooksList(userId: string | null) {
 		loading,
 		filter,
 		setFilter,
+		planFilter,
+		setPlanFilter,
 		fetchBooks,
 		deleteBook,
 		createNewVersion,

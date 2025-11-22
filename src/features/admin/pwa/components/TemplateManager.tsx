@@ -80,7 +80,7 @@ export function TemplateManager() {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [supabase]);
 
 	// Load on mount
 	useEffect(() => {

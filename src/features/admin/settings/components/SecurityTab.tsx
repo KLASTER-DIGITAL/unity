@@ -1,5 +1,5 @@
 import { Shield } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
 	Card,
@@ -16,11 +16,7 @@ export function SecurityTab() {
 	const [userEmail, setUserEmail] = useState<string>('');
 	const [isLoading, setIsLoading] = useState(true);
 
-	useEffect(() => {
-		loadUserData();
-	}, []);
-
-	async function loadUserData() {
+	const loadUserData = useCallback(async () => {
 		try {
 			const supabase = createClient();
 			const {
@@ -40,7 +36,11 @@ export function SecurityTab() {
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	}, []);
+
+	useEffect(() => {
+		loadUserData();
+	}, [loadUserData]);
 
 	if (isLoading) {
 		return (

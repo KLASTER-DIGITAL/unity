@@ -18,7 +18,7 @@ import {
 } from '@/shared/components/ui/table';
 
 export function SubscriptionsTab() {
-	const [subscriptions, setSubscriptions] = useState<any[]>([]);
+	const [subscriptions, setSubscriptions] = useState<Record<string, unknown>[]>([]);
 	const [stats, _setStats] = useState({
 		totalRevenue: 47_280,
 		activeSubscriptions: 156,
@@ -27,7 +27,7 @@ export function SubscriptionsTab() {
 	});
 
 	// ✅ FIX: Define function BEFORE useEffect with useCallback
-	const loadSubscriptions = useCallback(async () => {
+	const loadSubscriptions = useCallback(() => {
 		try {
 			// TODO: Загрузка подписок с сервера
 			setSubscriptions([

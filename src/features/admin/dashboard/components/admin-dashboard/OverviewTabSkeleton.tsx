@@ -19,11 +19,11 @@ export function OverviewTabSkeleton() {
 
 			{/* Stats Cards - 4 columns */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6 xl:grid-cols-4">
-					{['stat-a', 'stat-b', 'stat-c', 'stat-d'].map((key) => (
-						<div
-							className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-							key={key}
-						>
+				{['stat-a', 'stat-b', 'stat-c', 'stat-d'].map((key) => (
+					<div
+						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
+						key={key}
+					>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
 								<Skeleton className="h-4 w-32" />
@@ -38,11 +38,11 @@ export function OverviewTabSkeleton() {
 
 			{/* Additional Stats - 2 columns */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
-					{['stat-e', 'stat-f'].map((key) => (
-						<div
-							className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
-							key={key}
-						>
+				{['stat-e', 'stat-f'].map((key) => (
+					<div
+						className="rounded-lg border border-border bg-card p-6 transition-colors duration-300"
+						key={key}
+					>
 						<div className="flex items-center justify-between">
 							<div className="space-y-3 flex-1">
 								<Skeleton className="h-4 w-32" />

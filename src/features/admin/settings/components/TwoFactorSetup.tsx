@@ -4,7 +4,7 @@
  */
 
 import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
@@ -45,7 +45,7 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 
 	const supabase = createClient();
 
-	async function loadTwoFactorStatus() {
+	const loadTwoFactorStatus = useCallback(async () => {
 		try {
 			const { data, error } = await supabase
 				.from('profiles')
@@ -62,13 +62,12 @@ export function TwoFactorSetup({ userId, userEmail }: TwoFactorSetupProps) {
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	}, [supabase, userId]);
 
 	// Load 2FA status on mount
 	useEffect(() => {
 		loadTwoFactorStatus();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [loadTwoFactorStatus]);
 
 	async function handleEnableTwoFactor() {
 		setIsSetupMode(true);

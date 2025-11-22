@@ -1,5 +1,5 @@
 import { ArrowLeft, Search, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -20,7 +20,7 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 	const [isLoading, setIsLoading] = useState(true);
 	const [isTranslating, setIsTranslating] = useState(false);
 
-	const loadData = async () => {
+	const loadData = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const translationsData = await loadTranslations();
@@ -43,8 +43,7 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 
 	useEffect(() => {
 		loadData();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [loadData]);
 
 	const handleAutoTranslate = async () => {
 		if (missingKeys.length === 0) {
@@ -65,7 +64,7 @@ export function LanguageDetailPage({ language, onBack }: LanguageDetailPageProps
 				return;
 			}
 
-			console.log('🔑 Session token:', session.access_token.substring(0, 50) + '...');
+			console.log('🔑 Session token:', `${session.access_token.substring(0, 50)}...`);
 			console.log('👤 User ID:', session.user.id);
 
 			const response = await fetch(

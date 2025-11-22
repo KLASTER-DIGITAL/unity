@@ -72,6 +72,8 @@ export function BooksLibraryScreen({
 		loading: isLoading,
 		filter,
 		setFilter,
+		planFilter,
+		setPlanFilter,
 		fetchBooks,
 		deleteBook: deleteBookHook,
 		createNewVersion: createNewVersionHook,
@@ -226,30 +228,62 @@ export function BooksLibraryScreen({
 
 			{/* Filters */}
 			<div className="border-border border-b bg-card p-4">
-				<div className="flex items-center gap-2">
-					<Filter className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
-					<div className="flex gap-2">
-						<Button
-							onClick={() => setFilter('all')}
-							size="sm"
-							variant={filter === 'all' ? 'default' : 'outline'}
-						>
-							{t('books.filter.all', 'Все')}
-						</Button>
-						<Button
-							onClick={() => setFilter('drafts')}
-							size="sm"
-							variant={filter === 'drafts' ? 'default' : 'outline'}
-						>
-							{t('books.filter.drafts', 'Черновики')}
-						</Button>
-						<Button
-							onClick={() => setFilter('final')}
-							size="sm"
-							variant={filter === 'final' ? 'default' : 'outline'}
-						>
-							{t('books.filter.final', 'Готовые')}
-						</Button>
+				<div className="space-y-3">
+					{/* Status Filter */}
+					<div className="flex items-center gap-2">
+						<Filter className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
+						<div className="flex gap-2">
+							<Button
+								onClick={() => setFilter('all')}
+								size="sm"
+								variant={filter === 'all' ? 'default' : 'outline'}
+							>
+								{t('books.filter.all', 'Все')}
+							</Button>
+							<Button
+								onClick={() => setFilter('drafts')}
+								size="sm"
+								variant={filter === 'drafts' ? 'default' : 'outline'}
+							>
+								{t('books.filter.drafts', 'Черновики')}
+							</Button>
+							<Button
+								onClick={() => setFilter('final')}
+								size="sm"
+								variant={filter === 'final' ? 'default' : 'outline'}
+							>
+								{t('books.filter.final', 'Готовые')}
+							</Button>
+						</div>
+					</div>
+
+					{/* Plan Type Filter */}
+					<div className="flex items-center gap-2">
+						<Sparkles className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
+						<div className="flex gap-2">
+							<Button
+								onClick={() => setPlanFilter('all')}
+								size="sm"
+								variant={planFilter === 'all' ? 'default' : 'outline'}
+							>
+								{t('books.filter.all_types', 'Все типы')}
+							</Button>
+							<Button
+								onClick={() => setPlanFilter('free')}
+								size="sm"
+								variant={planFilter === 'free' ? 'default' : 'outline'}
+							>
+								FREE
+							</Button>
+							<Button
+								onClick={() => setPlanFilter('premium')}
+								size="sm"
+								variant={planFilter === 'premium' ? 'default' : 'outline'}
+							>
+								<Sparkles className="mr-1 h-3 w-3" />
+								Premium
+							</Button>
+						</div>
 					</div>
 				</div>
 			</div>

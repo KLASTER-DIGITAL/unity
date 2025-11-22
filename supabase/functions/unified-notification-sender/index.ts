@@ -40,8 +40,12 @@ const corsHeaders = {
 };
 
 // Supabase Admin Client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+if (!(supabaseUrl && supabaseServiceKey)) {
+	throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+}
+
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
@@ -59,7 +63,7 @@ interface NotificationPayload {
 	body: string;
 	icon?: string;
 	badge?: string;
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 	channels?: NotificationChannel[];
 	fallback?: boolean;
 }
@@ -103,7 +107,9 @@ async function checkRateLimit(userId: string): Promise<RateLimitResult> {
 				'push_rate_limit_enabled',
 			]);
 
-		const settingsMap = new Map(settings?.map((s: any) => [s.key, s.value]) || []);
+		const settingsMap = new Map(
+			settings?.map((s: { key: string; value: string }) => [s.key, s.value]) || []
+		);
 
 		// Check if rate limiting is enabled
 		const isEnabled = settingsMap.get('push_rate_limit_enabled') === 'true';
@@ -120,8 +126,8 @@ async function checkRateLimit(userId: string): Promise<RateLimitResult> {
 			};
 		}
 
-		const maxPerHour = Number.parseInt(settingsMap.get('push_rate_limit_per_hour') || '100');
-		const maxPerDay = Number.parseInt(settingsMap.get('push_rate_limit_per_day') || '500');
+		const maxPerHour = Number.parseInt(settingsMap.get('push_rate_limit_per_hour') || '100', 10);
+		const maxPerDay = Number.parseInt(settingsMap.get('push_rate_limit_per_day') || '500', 10);
 
 		// Call database function to check rate limit
 		const { data, error } = await supabaseAdmin.rpc('check_push_rate_limit', {
@@ -183,7 +189,7 @@ async function recordPushSend(
 /**
  * Get users by segment criteria
  */
-async function getUsersBySegmentCriteria(criteria: Record<string, any>): Promise<any[]> {
+async function getUsersBySegmentCriteria(criteria: Record<string, unknown>): Promise<unknown[]> {
 	let query = supabaseAdmin
 		.from('profiles')
 		.select('id, email, full_name, role, created_at, last_active');
