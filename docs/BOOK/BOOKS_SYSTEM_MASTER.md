@@ -630,6 +630,8 @@ CREATE INDEX idx_book_photos_chapter ON book_photos(book_id, chapter_index);
   theme: 'light' | 'dark';
   diaryName?: string;
   diaryEmoji?: string;
+  planType?: 'free' | 'premium';    // Если не указано, берется из профиля
+  type?: 'month' | 'quarter' | 'year' | 'custom'; // Тип книги
   regenerate?: boolean;            // Принудительная регенерация (игнорировать кэш)
 }
 ```
@@ -1311,4 +1313,3 @@ Book v3 (еще одна версия)
 **Версия**: 1.0  
 **Статус**: ✅ ЕДИНЫЙ ИСТОЧНИК ИСТИНЫ  
 **Автор**: UNITY Team
-
