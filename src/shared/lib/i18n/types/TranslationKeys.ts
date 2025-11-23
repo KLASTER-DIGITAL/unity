@@ -208,7 +208,10 @@ export type TranslationKey =
 	| 'user_management_desc'
 	| 'week'
 	| 'yourEmail'
-	| 'yourName';
+	| 'yourName'
+
+	// Books (temporary until regenerated from database)
+	| `books.${string}`;
 
 /**
  * Translation function type with autocomplete support

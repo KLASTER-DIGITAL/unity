@@ -85,7 +85,7 @@ export function BooksLibraryScreen({
 
 	// Refetch when refreshKey changes
 	useEffect(() => {
-		if (refreshKey > 0) {
+		if (refreshKey && refreshKey > 0) {
 			fetchBooks();
 		}
 	}, [refreshKey, fetchBooks]);
@@ -113,11 +113,11 @@ export function BooksLibraryScreen({
 	const getStyleLabel = (style: string) => {
 		switch (style) {
 			case 'warm_family':
-				return t('books.style.warm_family', 'Семейная история');
+				return t('books.style.warm_family' as any, 'Семейная история');
 			case 'biographical':
-				return t('books.style.biographical', 'Биография');
+				return t('books.style.biographical' as any, 'Биография');
 			case 'motivational':
-				return t('books.style.motivational', 'Мотивация');
+				return t('books.style.motivational' as any, 'Мотивация');
 			default:
 				return style;
 		}
@@ -243,8 +243,11 @@ export function BooksLibraryScreen({
 		}
 
 		// Генерируем имя файла для отображения
-		const bookTitle = book.storyJson?.title || 'book';
-		const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
+		const bookTitle = (book.storyJson as any)?.title || 'book';
+		const safeTitle =
+			String(bookTitle)
+				.replace(/[^a-zа-яё0-9\s-]/gi, '')
+				.trim() || 'book';
 		const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
 
 		console.log('[BOOKS-LIBRARY] Opening PDF viewer:', { fileName, pdfUrl });
@@ -431,9 +434,15 @@ export function BooksLibraryScreen({
 			const blob = await response.blob();
 
 			// Генерируем имя файла из названия книги
-			const bookTitle = book.storyJson?.title || 'book';
-			const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
-			const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
+			const bookTitle = (book.storyJson as any)?.title || 'book';
+			const safeTitle =
+				String(bookTitle)
+					.replace(/[^a-zа-яё0-9\s-]/gi, '')
+					.trim() || 'book';
+			const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(
+				/\s/g,
+				'_'
+			)}.pdf`;
 
 			// Используем pdfUrl (может быть сгенерирован из Storage)
 			console.log('[BOOKS-LIBRARY] Downloading PDF from:', pdfUrl);
@@ -727,8 +736,13 @@ export function BooksLibraryScreen({
 											<div className="min-w-0 flex-1">
 												<h3 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
 													{book.metadata.diaryEmoji || '📖'}{' '}
-													{book.storyJson?.title || t('books.untitled', 'Без названия')}
+													{(book.storyJson as any)?.title || t('books.untitled', 'Без названия')}
 												</h3>
+												{(book.storyJson as any)?.dedication && (
+													<div className="mb-2 text-xs text-muted-foreground italic">
+														{(book.storyJson as any)?.dedication}
+													</div>
+												)}
 												<div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
 													<Calendar className="h-3 w-3" />
 													{formatPeriod(book.periodStart, book.periodEnd)}
@@ -867,7 +881,9 @@ export function BooksLibraryScreen({
 
 			{/* Delete Confirmation Modal */}
 			<BookDeleteConfirmModal
-				bookTitle={bookToDelete?.storyJson?.title || t('books.untitled', 'Без названия')}
+				bookTitle={
+					(bookToDelete?.storyJson as any)?.title || t('books.untitled' as any, 'Без названия')
+				}
 				isOpen={showDeleteConfirm}
 				onClose={() => {
 					setShowDeleteConfirm(false);
