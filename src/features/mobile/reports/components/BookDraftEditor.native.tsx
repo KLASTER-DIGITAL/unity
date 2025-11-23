@@ -113,7 +113,8 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 
 			if (error) {
 				console.error('[DRAFT-EDITOR] Error saving:', error);
-				Alert.alert('Ошибка', 'Не удалось сохранить изменения');
+				console.error('[DRAFT-EDITOR] Error details:', JSON.stringify(error, null, 2));
+				Alert.alert('Ошибка', `Не удалось сохранить изменения: ${error.message}`);
 				return;
 			}
 

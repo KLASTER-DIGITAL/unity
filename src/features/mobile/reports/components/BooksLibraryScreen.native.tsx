@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import { DesignTokens } from '@/shared/design-system/tokens';
 import { useAuth } from '@/shared/lib/hooks/useAuth';
-import { useBooksList } from '../hooks/useBooksList';
+import { useBooksList } from '@/shared/lib/hooks/useBooksList';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -110,7 +110,7 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 
 	useEffect(() => {
 		fetchBooks();
-	}, [user?.id, filter, planFilter, fetchBooks]);
+	}, [fetchBooks]);
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {

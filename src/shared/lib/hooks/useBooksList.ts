@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/shared/components/ui/universal/Toast';
 import { createClient } from '@/utils/supabase/client';
 
 export type Book = {
@@ -31,6 +31,7 @@ export type Book = {
 };
 
 export type BooksFilter = 'all' | 'drafts' | 'final';
+
 export function useBooksList(userId: string | null) {
 	const [books, setBooks] = useState<Book[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -57,8 +58,6 @@ export function useBooksList(userId: string | null) {
 			} else if (filter === 'final') {
 				query = query.eq('is_final', true);
 			}
-
-			// Plan filter removed - это автоопределение тарифов, не показываем как фильтр
 
 			const { data, error } = await query;
 
@@ -126,9 +125,9 @@ export function useBooksList(userId: string | null) {
 		async (bookId: string) => {
 			if (!userId) return false;
 
-			// Import dynamically to avoid circular dependencies if any (though utils is safe)
+			// Import dynamically to avoid circular dependencies
 			const { deleteBook: deleteBookUtil } = await import(
-				'../components/book-creation-wizard/utils'
+				'@/features/mobile/reports/components/book-creation-wizard/utils'
 			);
 
 			const success = await deleteBookUtil(bookId, userId);

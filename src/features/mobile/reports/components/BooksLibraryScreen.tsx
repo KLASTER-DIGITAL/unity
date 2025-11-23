@@ -29,9 +29,9 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { API_URLS } from '@/shared/lib/api/config/urls';
+import { type Book, useBooksList } from '@/shared/lib/hooks/useBooksList';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
-import { type Book, useBooksList } from '../hooks/useBooksList';
 import { BookDeleteConfirmModal } from './BookDeleteConfirmModal';
 
 type BookDraft = Book;

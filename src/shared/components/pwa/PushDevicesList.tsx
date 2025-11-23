@@ -5,7 +5,7 @@
  */
 
 import { Monitor, Smartphone, Tablet, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/utils/supabase/client';
 
@@ -39,11 +39,7 @@ export function PushDevicesList({
 	const [isLoading, setIsLoading] = useState(true);
 	const [removingDeviceId, setRemovingDeviceId] = useState<string | null>(null);
 
-	useEffect(() => {
-		loadDevices();
-	}, [loadDevices]);
-
-	const loadDevices = async () => {
+	const loadDevices = useCallback(async () => {
 		try {
 			const supabase = createClient();
 			const { data, error } = await supabase
@@ -62,7 +58,11 @@ export function PushDevicesList({
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [userId]);
+
+	useEffect(() => {
+		loadDevices();
+	}, [loadDevices]);
 
 	const removeDevice = async (deviceId: string, _endpoint: string) => {
 		try {
