@@ -5,6 +5,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from '@/shared/components/ui/universal/Toast';
+import { offlineStorage } from '@/shared/lib/storage/offline-storage';
 import { createClient } from '@/utils/supabase/client';
 
 export type Book = {
@@ -22,6 +23,7 @@ export type Book = {
 	storyJson: Record<string, unknown>;
 	metadata: Record<string, unknown>;
 	pdfUrl: string | null;
+	isAvailableOffline?: boolean; // ✨ NEW: Offline availability
 	isDraft: boolean;
 	isFinal: boolean;
 	version: number;
@@ -108,7 +110,15 @@ export function useBooksList(userId: string | null) {
 					};
 				}) || [];
 
-			setBooks(transformedBooks);
+			// ✨ Check offline availability for each book
+			const booksWithOfflineStatus = await Promise.all(
+				transformedBooks.map(async (book) => {
+					const isAvailableOffline = await offlineStorage.hasPDF(book.id);
+					return { ...book, isAvailableOffline };
+				})
+			);
+
+			setBooks(booksWithOfflineStatus);
 		} catch (error) {
 			console.error('[useBooksList] Error:', error);
 			toast.error('Произошла ошибка');
