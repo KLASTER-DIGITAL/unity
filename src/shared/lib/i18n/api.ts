@@ -10,8 +10,13 @@ export class I18nAPI {
 	// ✅ FIXED: Use translations-api microservice (2025-10-20)
 	private static readonly BASE_URL =
 		'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/translations-api';
-	private static readonly ADMIN_API_URL =
-		'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-api';
+	// ✅ Admin endpoints split into dedicated microservices (2025-10-24)
+	private static readonly ADMIN_I18N_URL =
+		'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/admin-i18n-api';
+	private static readonly TRANSLATIONS_MANAGEMENT_URL =
+		'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/translations-management';
+	private static readonly AUTO_TRANSLATE_URL =
+		'https://ecuwuzqlwdkkdncampnc.supabase.co/functions/v1/auto-translate';
 
 	// Получение всех поддерживаемых языков
 	static async getSupportedLanguages(): Promise<LanguageConfig[]> {
@@ -209,7 +214,7 @@ export class I18nAPI {
 	}> {
 		try {
 			const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-			const response = await fetch(`${I18nAPI.ADMIN_API_URL}/admin/translation-stats`, {
+			const response = await fetch(`${I18nAPI.ADMIN_I18N_URL}/translation-stats`, {
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
@@ -222,11 +227,16 @@ export class I18nAPI {
 
 			const data = await response.json();
 
-			if (!data.success) {
+			if (data.success === false) {
 				throw new Error(data.error || 'Failed to fetch stats');
 			}
 
-			return data.stats;
+			return {
+				totalKeys: data.totalKeys ?? 0,
+				translatedKeys: data.translatedKeys ?? {},
+				progress: data.progress ?? {},
+				lastUpdated: data.lastUpdated ?? {},
+			};
 		} catch (error) {
 			console.error('Error fetching translation stats:', error);
 			return {
@@ -245,27 +255,32 @@ export class I18nAPI {
 	): Promise<boolean> {
 		try {
 			const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-			const response = await fetch(`${I18nAPI.ADMIN_API_URL}/admin/translations`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					language,
-					translations,
-				}),
-			});
+			const entries = Object.entries(translations);
 
-			if (!response.ok) {
-				throw new Error(`Failed to update translations: ${response.status}`);
-			}
-
-			const data = await response.json();
-
-			if (!data.success) {
-				throw new Error(data.error || 'Failed to update translations');
-			}
+			await Promise.all(
+				entries.map(([translation_key, translation_value]) =>
+					fetch(`${I18nAPI.TRANSLATIONS_MANAGEMENT_URL}`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify({
+							translation_key,
+							lang_code: language,
+							translation_value,
+						}),
+					}).then(async (res) => {
+						if (!res.ok) {
+							const text = await res.text();
+							throw new Error(
+								`Failed to update translation ${translation_key}: ${res.status} ${text}`
+							);
+						}
+						return res.json();
+					})
+				)
+			);
 
 			// Обновляем кэш
 			TranslationCacheManager.setCache(language, translations);
@@ -297,18 +312,11 @@ export class I18nAPI {
 	}> {
 		try {
 			const token = localStorage.getItem('sb-ecuwuzqlwdkkdncampnc-auth-token');
-			const openaiApiKey = localStorage.getItem('admin_openai_api_key');
-
-			if (!openaiApiKey) {
-				throw new Error('OpenAI API key not configured');
-			}
-
-			const response = await fetch(`${I18nAPI.ADMIN_API_URL}/admin/translate`, {
+			const response = await fetch(`${I18nAPI.AUTO_TRANSLATE_URL}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
-					'X-OpenAI-Key': openaiApiKey,
 				},
 				body: JSON.stringify({
 					sourceLanguage,
@@ -322,7 +330,7 @@ export class I18nAPI {
 
 			const data = await response.json();
 
-			if (!data.success) {
+			if (data.success === false) {
 				throw new Error(data.error || 'Auto-translation failed');
 			}
 

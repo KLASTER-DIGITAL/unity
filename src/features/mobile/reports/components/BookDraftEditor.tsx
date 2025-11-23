@@ -13,7 +13,7 @@
  * @date 2025-11-07
  */
 
-import { Document, Font, Image, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer';
+// ✅ Удалены неиспользуемые импорты @react-pdf/renderer (перешли на Vercel API)
 import { Eye, Image as ImageIcon, Save, Sparkles, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Label } from '@/shared/components/ui/label';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { API_URLS } from '@/shared/lib/api/config/urls';
-import { blobToBase64 } from '@/shared/lib/api/core/request';
+// ✅ Удален неиспользуемый импорт blobToBase64 (перешли на Vercel API)
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
@@ -78,10 +78,11 @@ type BookPhoto = {
 // ✅ FIX: Регистрация шрифта с поддержкой кириллицы для правильной кодировки PDF
 // Используем Noto Sans, который поддерживает кириллицу и другие языки
 // Регистрация выполняется лениво, только при необходимости
-let fontRegistered = false;
+// ✅ Удалена неиспользуемая функция registerPDFFont (перешли на Vercel API)
+let _fontRegistered = false;
 
-function registerPDFFont() {
-	if (fontRegistered) {
+function _registerPDFFont() {
+	if (_fontRegistered) {
 		return;
 	}
 
@@ -750,6 +751,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				return {
 					...prev,
 					pdfUrl: result.pdfUrl,
+					pdf_url: result.pdfUrl, // ✅ FIX: Также обновляем pdf_url для совместимости
 					is_draft: false,
 					is_final: true,
 				};
@@ -758,7 +760,9 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
 			console.log('[DRAFT-EDITOR] PDF generated successfully:', result.pdfUrl);
 
-			// ✅ FIX: Вызываем onComplete для обновления списка книг в библиотеке
+			// ✅ FIX: Вызываем onSave для обновления списка книг в библиотеке (без закрытия редактора)
+			onSave?.();
+			// ✅ FIX: Также вызываем onComplete для обновления списка книг
 			onComplete?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
@@ -1084,10 +1088,31 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 							</Button>
 						)}
 						{/* Кнопка просмотра PDF - открывает в новой вкладке */}
-						{draft?.pdfUrl && (
+						{(draft?.pdfUrl || draft?.pdf_url) && (
 							<Button
 								onClick={() => {
-									window.open(draft.pdfUrl, '_blank');
+									const pdfUrl = draft.pdfUrl || draft.pdf_url;
+									if (!pdfUrl) {
+										toast.error(t('books.editor.pdf_not_available', 'PDF файл недоступен'));
+										return;
+									}
+									try {
+										// ✅ FIX: Пытаемся открыть в новой вкладке, если заблокировано - показываем ошибку
+										const newWindow = window.open(pdfUrl, '_blank');
+										if (!newWindow) {
+											// Если popup заблокирован, показываем toast с инструкцией
+											toast.error(
+												t(
+													'books.editor.popup_blocked',
+													'Всплывающее окно заблокировано. Разрешите всплывающие окна для этого сайта или используйте кнопку "Просмотр" в библиотеке.'
+												),
+												{ duration: 5000 }
+											);
+										}
+									} catch (error) {
+										console.error('[DRAFT-EDITOR] Error opening PDF:', error);
+										toast.error(t('books.editor.pdf_open_error', 'Не удалось открыть PDF файл'));
+									}
 								}}
 								variant="outline"
 							>
