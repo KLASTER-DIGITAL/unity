@@ -84,7 +84,7 @@ export const toast = {
 	/**
 	 * Dismiss a toast by ID
 	 */
-	dismiss: (id?: string) => {
+	dismiss: (_id?: string) => {
 		ToastMessage.hide();
 	},
 
