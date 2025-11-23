@@ -19,13 +19,26 @@
 
 ### Шаг 1: Получите Service Role Key из Supabase
 
+В новом интерфейсе Supabase структура изменилась. Вот как найти `service_role` key:
+
+**Вариант 1: Legacy API Keys (старый интерфейс)**
 1. Откройте https://supabase.com/dashboard
 2. Выберите проект `ecuwuzqlwdkkdncampnc`
-3. Перейдите в **Settings** → **API**
-4. Найдите секцию **Project API keys**
-5. Скопируйте **`service_role`** key
+3. Перейдите в **Settings** → **API Keys**
+4. Переключитесь на вкладку **"Legacy API Keys"** (вверху страницы)
+5. Найдите секцию **"Project API keys"**
+6. Скопируйте **`service_role`** key (нажмите "Reveal" чтобы показать)
    - ⚠️ **ВАЖНО**: Это НЕ `anon` key, а именно `service_role` key!
    - Он обычно начинается с `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+**Вариант 2: Если Legacy API Keys нет**
+1. В разделе **Settings** → **API Keys**
+2. В секции **"Secret keys"** нажмите **"+ New secret key"**
+3. Создайте новый ключ с правами **service_role**
+4. Скопируйте созданный ключ
+
+**Вариант 3: Через старый URL**
+Попробуйте прямой URL: `https://supabase.com/dashboard/project/ecuwuzqlwdkkdncampnc/settings/api`
 
 ### Шаг 2: Добавьте в Vercel
 

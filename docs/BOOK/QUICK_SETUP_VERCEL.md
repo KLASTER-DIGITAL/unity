@@ -8,17 +8,19 @@
 ### 2️⃣ Добавьте переменные окружения
 1. **Settings** → **Environment Variables**
 2. Нажмите **Add New**
-3. Добавьте две переменные:
+3. Добавьте переменные (все три окружения: Production, Preview, Development):
 
 **Переменная 1:**
 - **Key**: `SUPABASE_URL`
 - **Value**: `https://ecuwuzqlwdkkdncampnc.supabase.co`
-- **Environment**: Production, Preview, Development (все три)
 
 **Переменная 2:**
 - **Key**: `SUPABASE_SERVICE_ROLE_KEY`
 - **Value**: (скопируйте из Supabase Dashboard, см. ниже)
-- **Environment**: Production, Preview, Development (все три)
+
+**Переменная 3 (для совместимости с функциями, где нужен anon):**
+- **Key**: `SUPABASE_ANON_KEY`
+- **Value**: (anon key из Supabase Dashboard)
 
 ### 3️⃣ Получите Service Role Key из Supabase
 1. Откройте https://supabase.com/dashboard
@@ -52,7 +54,7 @@
 → Проверьте, что `SUPABASE_SERVICE_ROLE_KEY` добавлен в Vercel
 
 **Ошибка: "Invalid access token"**
-→ Проверьте, что используется правильный `service_role` key (не `anon`)
+→ Проверьте, что используется правильный `service_role` key (не `anon`). Если функция требует публичного доступа, убедитесь, что `SUPABASE_ANON_KEY` заполнен.
 
 **Ошибка: "Function timeout"**
 → Vercel Hobby plan имеет timeout 10 секунд. Для больших книг может потребоваться Pro plan (60 секунд)
@@ -60,4 +62,3 @@
 ## 📞 Нужна помощь?
 
 Смотрите полную документацию: `docs/BOOK/PDF_GENERATION_VERCEL_SETUP.md`
-
