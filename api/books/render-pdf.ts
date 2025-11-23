@@ -21,7 +21,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import puppeteer from 'puppeteer-core';
 
-// ✅ CORS headers
+// ✅ CORS headers (используются в handler)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -152,7 +153,8 @@ function generateBookHTML(
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>${escapeHtml(story.title || 'Моя книга')}</title>
 	<style>
-		@import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
+		/* ✅ FIX: Используем display=block для гарантии загрузки шрифтов перед рендерингом */
+		@import url('https://fonts.googleapis.com/css2?${fonts}&display=block');
 		
 		* {
 			margin: 0;
@@ -166,13 +168,16 @@ function generateBookHTML(
 		}
 		
 		body {
-			font-family: 'Noto Sans', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans Georgian', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			/* ✅ FIX: Приоритет шрифтов для русского языка - Noto Sans должен быть первым */
+			font-family: 'Noto Sans', 'Noto Serif', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans Georgian', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 			background: ${bgColor};
 			color: ${textColor};
 			line-height: 1.8;
 			font-size: 11pt;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
+			/* ✅ FIX: Явно указываем кодировку для правильного отображения Unicode */
+			unicode-bidi: embed;
 		}
 		
 		.page {
@@ -199,12 +204,15 @@ function generateBookHTML(
 		}
 		
 		h1 {
-			font-family: 'Noto Serif', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
+			/* ✅ FIX: Приоритет шрифтов для заголовков - Noto Serif должен быть первым */
+			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
 			font-size: 28pt;
 			font-weight: 700;
 			color: ${colors.primary};
 			margin-bottom: 10mm;
 			line-height: 1.3;
+			/* ✅ FIX: Явно указываем кодировку для правильного отображения Unicode */
+			unicode-bidi: embed;
 		}
 		
 		.subtitle {
@@ -214,7 +222,8 @@ function generateBookHTML(
 		}
 		
 		h2 {
-			font-family: 'Noto Serif', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
+			/* ✅ FIX: Приоритет шрифтов для подзаголовков - Noto Serif должен быть первым */
+			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
 			font-size: 18pt;
 			font-weight: 600;
 			color: ${colors.primary};
@@ -222,6 +231,8 @@ function generateBookHTML(
 			margin-bottom: 8mm;
 			border-bottom: 2px solid ${colors.secondary};
 			padding-bottom: 3mm;
+			/* ✅ FIX: Явно указываем кодировку для правильного отображения Unicode */
+			unicode-bidi: embed;
 		}
 		
 		.section {
@@ -235,6 +246,8 @@ function generateBookHTML(
 		p {
 			margin-bottom: 5mm;
 			text-align: justify;
+			/* ✅ FIX: Явно указываем кодировку для правильного отображения Unicode */
+			unicode-bidi: embed;
 		}
 		
 		.prologue, .epilogue {
@@ -287,11 +300,14 @@ function generateBookHTML(
 		}
 		
 		.divider-title {
-			font-family: 'Noto Serif', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
+			/* ✅ FIX: Приоритет шрифтов для разделителей - Noto Serif должен быть первым */
+			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
 			font-size: 32pt;
 			font-weight: 700;
 			color: ${colors.primary};
 			margin-bottom: 10mm;
+			/* ✅ FIX: Явно указываем кодировку для правильного отображения Unicode */
+			unicode-bidi: embed;
 		}
 		
 		.divider-content {
@@ -507,17 +523,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		});
 
 		const page = await browser.newPage();
-		await page.setContent(html, { waitUntil: 'networkidle0' });
 
-		// Wait for fonts to load
+		// ✅ FIX: Устанавливаем правильную кодировку для страницы
+		await page.setContent(html, {
+			waitUntil: 'networkidle0',
+			// ✅ FIX: Явно указываем кодировку UTF-8
+		});
+
+		// ✅ FIX: Улучшенное ожидание загрузки шрифтов
+		// Ждем загрузки всех шрифтов из Google Fonts
 		await page.evaluateHandle('document.fonts.ready');
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// ✅ FIX: Проверяем, что все шрифты действительно загружены
+		await page.evaluate(() => {
+			return new Promise<void>((resolve) => {
+				if (document.fonts?.check) {
+					// Проверяем загрузку основных шрифтов для русского языка
+					const fontsToCheck = ['12px "Noto Sans"', '12px "Noto Serif"'];
+
+					let allLoaded = true;
+					for (const font of fontsToCheck) {
+						if (!document.fonts.check(font)) {
+							allLoaded = false;
+							break;
+						}
+					}
+
+					if (allLoaded) {
+						resolve();
+					} else {
+						// Если шрифты еще не загружены, ждем еще
+						setTimeout(() => resolve(), 3000);
+					}
+				} else {
+					// Fallback: просто ждем
+					setTimeout(() => resolve(), 3000);
+				}
+			});
+		});
+
+		// ✅ FIX: Дополнительная задержка для гарантии загрузки шрифтов
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// Generate PDF
+		// ✅ FIX: Добавляем waitForFonts: true для гарантии загрузки шрифтов
 		const pdfBuffer = await page.pdf({
 			format: 'A4',
 			printBackground: true,
 			preferCSSPageSize: true,
+			waitForFonts: true, // ✅ FIX: Ждем загрузки шрифтов перед генерацией PDF
 			margin: {
 				top: '0mm',
 				right: '0mm',

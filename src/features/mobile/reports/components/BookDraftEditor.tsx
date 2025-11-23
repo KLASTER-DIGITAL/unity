@@ -79,7 +79,7 @@ type BookPhoto = {
 // Используем Noto Sans, который поддерживает кириллицу и другие языки
 // Регистрация выполняется лениво, только при необходимости
 // ✅ Удалена неиспользуемая функция registerPDFFont (перешли на Vercel API)
-let _fontRegistered = false;
+const _fontRegistered = false;
 
 function _registerPDFFont() {
 	if (_fontRegistered) {
