@@ -695,22 +695,41 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			console.log('[DRAFT-EDITOR] Generating PDF via Vercel Serverless Function...');
 
 			// ✅ Используем Vercel API для качественной генерации PDF с поддержкой всех языков
-			const response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					bookId: draftId,
-					accessToken: session.access_token,
-				}),
-			});
+			let response: Response;
+			try {
+				response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						bookId: draftId,
+						accessToken: session.access_token,
+					}),
+				});
+			} catch (fetchError) {
+				// ✅ FALLBACK: Если Vercel API недоступен, показываем понятную ошибку
+				console.error('[DRAFT-EDITOR] Vercel API недоступен:', fetchError);
+				throw new Error(
+					'Сервис генерации PDF временно недоступен. Пожалуйста, проверьте настройки Vercel или попробуйте позже.'
+				);
+			}
 
 			if (!response.ok) {
 				let errorMessage = `HTTP ${response.status}`;
 				try {
 					const errorData = await response.json();
 					errorMessage = errorData.error || errorMessage;
+
+					// ✅ Улучшенная обработка ошибок
+					if (response.status === 500 && errorMessage.includes('Supabase configuration')) {
+						errorMessage =
+							'Ошибка конфигурации сервера. Проверьте переменные окружения в Vercel Dashboard.';
+					} else if (response.status === 401) {
+						errorMessage = 'Ошибка авторизации. Перезагрузите страницу и попробуйте снова.';
+					} else if (response.status === 404) {
+						errorMessage = 'Книга не найдена. Обновите страницу и попробуйте снова.';
+					}
 				} catch {
 					const errorText = await response.text();
 					errorMessage = errorText || errorMessage;
@@ -744,10 +763,20 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
-			toast.error(
-				t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'),
-				errorMessage ? { description: errorMessage } : undefined
-			);
+
+			// ✅ Улучшенное сообщение об ошибке с подсказками
+			let errorDescription = errorMessage;
+			if (
+				errorMessage.includes('Supabase configuration') ||
+				errorMessage.includes('переменные окружения')
+			) {
+				errorDescription = `${errorMessage}\n\nПроверьте документацию: docs/BOOK/PDF_GENERATION_VERCEL_SETUP.md`;
+			}
+
+			toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'), {
+				description: errorDescription,
+				duration: 8000,
+			});
 		} finally {
 			setIsRendering(false);
 		}
