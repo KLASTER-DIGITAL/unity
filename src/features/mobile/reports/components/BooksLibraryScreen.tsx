@@ -2,9 +2,10 @@
  * Books Library Screen
  *
  * Displays user's PDF books library with filters and download options.
+ * Enhanced with Framer Motion animations and premium styling.
  *
  * @author UNITY Team
- * @date 2025-11-07
+ * @date 2025-11-23
  */
 
 import {
@@ -19,6 +20,7 @@ import {
 	Sparkles,
 	Trash2,
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PDFViewer } from '@/shared/components/PDFViewer';
@@ -49,7 +51,7 @@ export function BooksLibraryScreen({
 }: BooksLibraryScreenProps) {
 	const { t, currentLanguage } = useTranslation();
 	const [userId, setUserId] = useState<string | null>(null);
-	const [deletingBookId, setDeletingBookId] = useState<string | null>(null);
+	const [_deletingBookId, setDeletingBookId] = useState<string | null>(null);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [bookToDelete, setBookToDelete] = useState<BookDraft | null>(null);
 	const [_creatingVersionId, setCreatingVersionId] = useState<string | null>(null);
@@ -550,32 +552,54 @@ export function BooksLibraryScreen({
 
 	return (
 		<div className="scrollbar-hide min-h-screen overflow-x-hidden bg-[var(--ios-bg-primary)] pb-20">
-			{/* Header */}
-			<div className="border-b border-border bg-[var(--ios-bg-primary)] p-4 text-[var(--ios-text-primary)] sm:p-6">
-				<div className="flex items-center gap-2 sm:gap-3">
+			{/* Header with Gradient Background */}
+			<div className="relative overflow-hidden border-b border-border bg-[var(--ios-bg-primary)] p-4 text-[var(--ios-text-primary)] sm:p-6">
+				{/* Gradient Orb */}
+				<div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--ios-purple)]/10 blur-3xl" />
+				<div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[var(--ios-blue)]/10 blur-3xl" />
+
+				<div className="relative z-10 flex items-center gap-2 sm:gap-3">
 					{onBack && (
-						<button
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
 							className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--ios-bg-secondary)] backdrop-blur-sm transition-colors duration-300 hover:bg-accent"
 							onClick={onBack}
 							type="button"
 						>
 							<ArrowLeft className="h-5 w-5" strokeWidth={2} />
-						</button>
+						</motion.button>
 					)}
-					<div className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm sm:h-12 sm:w-12">
+					<motion.div
+						initial={{ rotate: -10, scale: 0.9 }}
+						animate={{ rotate: 0, scale: 1 }}
+						transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+						className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm sm:h-12 sm:w-12"
+					>
 						<BookIcon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
-					</div>
+					</motion.div>
 					<div className="flex-1">
-						<h2 className="text-lg sm:text-xl">{t('books.library_title', 'Библиотека книг')}</h2>
-						<p className="text-muted-foreground text-xs sm:text-sm">
+						<motion.h2
+							initial={{ opacity: 0, y: 5 }}
+							animate={{ opacity: 1, y: 0 }}
+							className="text-lg sm:text-xl"
+						>
+							{t('books.library_title', 'Библиотека книг')}
+						</motion.h2>
+						<motion.p
+							initial={{ opacity: 0, y: 5 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.1 }}
+							className="text-muted-foreground text-xs sm:text-sm"
+						>
 							{t('books.library_subtitle', 'Твои персональные истории')}
-						</p>
+						</motion.p>
 					</div>
 				</div>
 			</div>
 
 			{/* Filters */}
-			<div className="border-border border-b bg-card p-4">
+			<div className="sticky top-0 z-20 border-border border-b bg-card/80 p-4 backdrop-blur-md">
 				<div className="space-y-3">
 					{/* Status Filter */}
 					<div className="flex items-center gap-2">
@@ -585,6 +609,7 @@ export function BooksLibraryScreen({
 								onClick={() => setFilter('all')}
 								size="sm"
 								variant={filter === 'all' ? 'default' : 'outline'}
+								className="transition-all duration-300"
 							>
 								{t('books.filter.all', 'Все')}
 							</Button>
@@ -592,6 +617,7 @@ export function BooksLibraryScreen({
 								onClick={() => setFilter('drafts')}
 								size="sm"
 								variant={filter === 'drafts' ? 'default' : 'outline'}
+								className="transition-all duration-300"
 							>
 								{t('books.filter.drafts', 'Черновики')}
 							</Button>
@@ -599,13 +625,12 @@ export function BooksLibraryScreen({
 								onClick={() => setFilter('final')}
 								size="sm"
 								variant={filter === 'final' ? 'default' : 'outline'}
+								className="transition-all duration-300"
 							>
 								{t('books.filter.final', 'Готовые')}
 							</Button>
 						</div>
 					</div>
-
-					{/* Убрали Plan Type Filter - это автоопределение тарифов */}
 				</div>
 			</div>
 
@@ -614,7 +639,7 @@ export function BooksLibraryScreen({
 				{isLoading ? (
 					<div className="space-y-4">
 						{[1, 2, 3].map((i) => (
-							<Card key={i}>
+							<Card key={i} className="overflow-hidden">
 								<CardHeader>
 									<Skeleton className="h-6 w-3/4" />
 									<Skeleton className="h-4 w-1/2" />
@@ -626,254 +651,223 @@ export function BooksLibraryScreen({
 						))}
 					</div>
 				) : books.length === 0 ? (
-					<Card>
-						<CardContent className="py-12 text-center">
-							<BookIcon
-								className="mx-auto mb-4 h-12 w-12 text-muted-foreground"
-								strokeWidth={1.5}
-							/>
-							<h3 className="mb-2 text-lg">{t('books.empty.title', 'Пока нет книг')}</h3>
-							<p className="mb-4 text-muted-foreground text-sm">
-								{t('books.empty.description', 'Создай свою первую книгу достижений')}
-							</p>
-							<Button onClick={onCreateBook}>
-								<Plus className="mr-2 h-4 w-4" strokeWidth={2} />
-								{t('books.create', 'Создать книгу')}
-							</Button>
-						</CardContent>
-					</Card>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.5 }}
+					>
+						<Card className="border-dashed border-2 bg-card/50">
+							<CardContent className="py-12 text-center">
+								<motion.div
+									animate={{
+										y: [0, -10, 0],
+									}}
+									transition={{
+										duration: 4,
+										repeat: Number.POSITIVE_INFINITY,
+										ease: 'easeInOut',
+									}}
+								>
+									<BookIcon
+										className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50"
+										strokeWidth={1.5}
+									/>
+								</motion.div>
+								<h3 className="mb-2 text-lg font-medium">
+									{t('books.empty.title', 'Пока нет книг')}
+								</h3>
+								<p className="mb-6 text-muted-foreground text-sm">
+									{t('books.empty.description', 'Создай свою первую книгу достижений')}
+								</p>
+								<Button onClick={onCreateBook} className="group relative overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-shimmer" />
+									<Plus className="mr-2 h-4 w-4" strokeWidth={2} />
+									{t('books.create', 'Создать книгу')}
+								</Button>
+							</CardContent>
+						</Card>
+					</motion.div>
 				) : (
-					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-						{/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: book card rendering requires multiple conditional branches */}
-						{books.map((book) => (
-							<div
-								className="group relative flex h-40 flex-row overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
-								key={book.id}
-								role="button"
-								tabIndex={0}
-								onClick={(e) => {
-									// ✅ FIX: Предотвращаем клик по карточке если кликнули по кнопке
-									// Проверяем, был ли клик по кнопке или её дочерним элементам
-									const target = e.target as HTMLElement;
-									const button = target.closest('button');
-									if (button) {
-										console.log(
-											'[BOOKS-LIBRARY] Card onClick: button clicked, stopping propagation',
-											{
-												bookId: book.id,
-												button: button,
-												target: target,
-											}
-										);
-										// НЕ вызываем stopPropagation здесь, так как кнопка уже должна была это сделать
-										// Просто не обрабатываем клик по карточке
-										return;
-									}
-									console.log('[BOOKS-LIBRARY] Card clicked (not button):', book.id);
-								}}
-							>
-								{/* Book Spine / Cover Strip */}
-								<div
-									className={`w-3 h-full ${
-										book.style === 'warm_family'
-											? 'bg-gradient-to-b from-[--ios-purple] to-[--ios-blue]'
-											: book.style === 'biographical'
-												? 'bg-gradient-to-b from-[--ios-blue] to-[--ios-green]'
-												: 'bg-gradient-to-b from-[--ios-green] to-[--ios-yellow]'
-									}`}
-								/>
+					<motion.div layout className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						<AnimatePresence mode="popLayout">
+							{books.map((book, index) => (
+								<motion.div
+									layout
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									transition={{ delay: index * 0.05 }}
+									key={book.id}
+									className="group relative flex h-40 flex-row overflow-hidden rounded-xl border border-border bg-card/50 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:bg-card/80 hover:border-[var(--ios-purple)]/30"
+									role="button"
+									tabIndex={0}
+									onClick={(e) => {
+										// ✅ FIX: Предотвращаем клик по карточке если кликнули по кнопке
+										const target = e.target as HTMLElement;
+										const button = target.closest('button');
+										if (button) return;
+										console.log('[BOOKS-LIBRARY] Card clicked (not button):', book.id);
+									}}
+								>
+									{/* Book Spine / Cover Strip with Gradient */}
+									<div
+										className={`w-4 h-full transition-all duration-300 group-hover:w-5 ${
+											book.style === 'warm_family'
+												? 'bg-gradient-to-b from-[--ios-purple] to-[--ios-blue]'
+												: book.style === 'biographical'
+													? 'bg-gradient-to-b from-[--ios-blue] to-[--ios-green]'
+													: 'bg-gradient-to-b from-[--ios-green] to-[--ios-yellow]'
+										}`}
+									/>
 
-								{/* Content Area */}
-								<div className="flex flex-1 flex-col p-3">
-									{/* Header */}
-									<div className="mb-2 flex items-start justify-between gap-2">
-										<div className="min-w-0 flex-1">
-											{/* Полное название без сокращения */}
-											<h3 className="text-sm font-medium leading-tight text-foreground">
-												{book.metadata.diaryEmoji || '📖'}{' '}
-												{book.storyJson?.title || t('books.untitled', 'Без названия')}
-											</h3>
-											<div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-												<Calendar className="h-3 w-3" />
-												{formatPeriod(book.periodStart, book.periodEnd)}
+									{/* Content Area */}
+									<div className="flex flex-1 flex-col p-4">
+										{/* Header */}
+										<div className="mb-2 flex items-start justify-between gap-2">
+											<div className="min-w-0 flex-1">
+												<h3 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
+													{book.metadata.diaryEmoji || '📖'}{' '}
+													{book.storyJson?.title || t('books.untitled', 'Без названия')}
+												</h3>
+												<div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+													<Calendar className="h-3 w-3" />
+													{formatPeriod(book.periodStart, book.periodEnd)}
+												</div>
 											</div>
+
+											{/* Status Badge */}
+											<Badge
+												className={`h-5 px-2 text-[10px] transition-colors ${
+													book.isFinal
+														? 'bg-[var(--ios-green)]/10 text-[var(--ios-green)] hover:bg-[var(--ios-green)]/20'
+														: 'bg-secondary text-secondary-foreground'
+												}`}
+												variant="outline"
+											>
+												{book.isFinal
+													? t('books.status.ready_short', 'Готово')
+													: t('books.status.draft_short', 'Черновик')}
+											</Badge>
 										</div>
 
-										{/* Status Badge */}
-										<Badge
-											className="h-5 px-1.5 text-[10px]"
-											variant={book.isFinal ? 'default' : 'secondary'}
-										>
-											{book.isFinal
-												? t('books.status.ready_short', 'Готово')
-												: t('books.status.draft_short', 'Черновик')}
-										</Badge>
-									</div>
+										{/* Meta */}
+										<div className="mb-auto space-y-1">
+											{book.planType === 'premium' && book.style && (
+												<div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+													<Sparkles className="h-3 w-3 text-[--ios-purple]" />
+													<span>{getStyleLabel(book.style)}</span>
+												</div>
+											)}
+											{book.version && book.version > 1 && (
+												<div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+													<span className="rounded-sm bg-muted px-1">v{book.version}</span>
+												</div>
+											)}
+										</div>
 
-									{/* Meta - перемещаем стиль (мотивация) в отдельную строку */}
-									<div className="mb-auto space-y-1">
-										{/* Стиль книги (мотивация, семейная история и т.д.) - отдельной строкой */}
-										{book.planType === 'premium' && book.style && (
-											<div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-												<Sparkles className="h-3 w-3 text-[--ios-purple]" />
-												<span>{getStyleLabel(book.style)}</span>
-											</div>
-										)}
-										{/* Version */}
-										{book.version && book.version > 1 && (
-											<div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-												<span>v{book.version}</span>
-											</div>
-										)}
-									</div>
-
-									{/* Actions - иконки для готовых книг: Редактировать, Просмотр, Скачать, Удалить */}
-									{/* ✅ FIX: Добавлен relative z-10 для правильного z-index и pointer-events-auto */}
-									<div className="relative z-10 mt-2 flex items-center justify-between gap-2 border-t border-border/50 pt-2">
-										<div className="flex items-center gap-1.5">
-											{/* Для готовых книг - показываем все иконки в ряд */}
-											{book.isFinal ? (
-												<>
-													{/* Редактировать - всегда показываем */}
-													<button
-														className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
-														onClick={(e) => {
-															e.preventDefault();
-															e.stopPropagation();
-															console.log('[BOOKS-LIBRARY] Edit button clicked:', book.id);
-															handleEditDraft(book);
-														}}
-														title={t('books.edit', 'Редактировать')}
-														type="button"
-													>
-														<Edit className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-													</button>
-													{/* Просмотр - показываем для готовых книг, даже если pdfUrl не установлен (проверим существование в handleView) */}
-													{book.isFinal ? (
-														<button
-															className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent hover:text-[--ios-purple] disabled:pointer-events-none disabled:opacity-50"
+										{/* Actions */}
+										<div className="relative z-10 mt-2 flex items-center justify-between gap-2 border-t border-border/50 pt-2 opacity-80 transition-opacity group-hover:opacity-100">
+											<div className="flex items-center gap-1">
+												{book.isFinal ? (
+													<>
+														<motion.button
+															whileHover={{ scale: 1.1, color: 'var(--foreground)' }}
+															whileTap={{ scale: 0.9 }}
+															className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent"
 															onClick={(e) => {
-																console.log('[BOOKS-LIBRARY] View button onClick triggered:', {
-																	bookId: book.id,
-																	pdfUrl: book.pdfUrl,
-																	isFinal: book.isFinal,
-																	event: e,
-																	target: e.target,
-																	currentTarget: e.currentTarget,
-																});
 																e.preventDefault();
 																e.stopPropagation();
-																console.log('[BOOKS-LIBRARY] Calling handleView...');
-																handleView(book, e);
-																console.log('[BOOKS-LIBRARY] handleView called');
+																handleEditDraft(book);
 															}}
-															onMouseDown={(_e) => {
-																console.log('[BOOKS-LIBRARY] View button onMouseDown:', book.id);
+															title={t('books.edit', 'Редактировать')}
+															type="button"
+														>
+															<Edit className="h-3.5 w-3.5 pointer-events-none shrink-0" />
+														</motion.button>
+														<motion.button
+															whileHover={{ scale: 1.1, color: 'var(--ios-purple)' }}
+															whileTap={{ scale: 0.9 }}
+															className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent"
+															onClick={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																handleView(book, e);
 															}}
 															title={t('books.view', 'Просмотр')}
 															type="button"
 														>
 															<Eye className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-														</button>
-													) : (
-														<button
-															className="flex h-7 w-7 shrink-0 cursor-not-allowed items-center justify-center rounded-md p-0 text-muted-foreground/50 disabled:pointer-events-none disabled:opacity-50"
-															disabled
-															title={t('books.no_pdf', 'PDF не создан')}
-															type="button"
-														>
-															<Eye className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-														</button>
-													)}
-													{/* Скачать - показываем для готовых книг, даже если pdfUrl не установлен (проверим существование в handleDownload) */}
-													{book.isFinal ? (
-														<button
-															className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent hover:text-[--ios-purple] disabled:pointer-events-none disabled:opacity-50"
+														</motion.button>
+														<motion.button
+															whileHover={{ scale: 1.1, color: 'var(--ios-blue)' }}
+															whileTap={{ scale: 0.9 }}
+															className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent"
 															onClick={(e) => {
-																console.log('[BOOKS-LIBRARY] Download button onClick triggered:', {
-																	bookId: book.id,
-																	pdfUrl: book.pdfUrl,
-																	isFinal: book.isFinal,
-																	event: e,
-																	target: e.target,
-																	currentTarget: e.currentTarget,
-																});
 																e.preventDefault();
 																e.stopPropagation();
-																console.log('[BOOKS-LIBRARY] Calling handleDownload...');
-																void handleDownload(book, e);
-																console.log('[BOOKS-LIBRARY] handleDownload called');
-															}}
-															onMouseDown={(_e) => {
-																console.log(
-																	'[BOOKS-LIBRARY] Download button onMouseDown:',
-																	book.id
-																);
+																handleDownload(book, e);
 															}}
 															title={t('books.download', 'Скачать')}
 															type="button"
 														>
 															<Download className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-														</button>
-													) : (
-														<button
-															className="flex h-7 w-7 shrink-0 cursor-not-allowed items-center justify-center rounded-md p-0 text-muted-foreground/50 disabled:pointer-events-none disabled:opacity-50"
-															disabled
-															title={t('books.no_pdf', 'PDF не создан')}
-															type="button"
-														>
-															<Download className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-														</button>
-													)}
-													{/* Удалить - всегда показываем справа */}
-												</>
-											) : (
-												/* Для черновиков - только Редактировать */
-												<Button
-													className="h-7 px-2 text-[10px]"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleEditDraft(book);
-													}}
-													size="sm"
-													variant="outline"
-													type="button"
-												>
-													<Edit className="mr-1 h-3 w-3" />
-													Редактировать
-												</Button>
-											)}
-										</div>
+														</motion.button>
+													</>
+												) : (
+													<Button
+														variant="ghost"
+														size="sm"
+														className="h-7 px-2 text-xs font-normal"
+														onClick={(e) => {
+															e.preventDefault();
+															e.stopPropagation();
+															handleEditDraft(book);
+														}}
+													>
+														{t('books.continue_editing', 'Продолжить')}
+													</Button>
+												)}
+											</div>
 
-										{/* Удалить - всегда справа, для готовых книг иконка, для черновиков скрыта */}
-										{book.isFinal && (
-											<button
-												className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
-												disabled={deletingBookId === book.id}
+											<motion.button
+												whileHover={{ scale: 1.1, color: 'var(--destructive)' }}
+												whileTap={{ scale: 0.9 }}
+												className="relative z-10 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md p-0 text-muted-foreground/50 transition-colors hover:bg-destructive/10"
 												onClick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
-													console.log('[BOOKS-LIBRARY] Delete button clicked:', book.id);
 													handleDeleteClick(book);
 												}}
-												title={t('common.delete', 'Удалить')}
+												title={t('books.delete', 'Удалить')}
 												type="button"
 											>
 												<Trash2 className="h-3.5 w-3.5 pointer-events-none shrink-0" />
-											</button>
-										)}
+											</motion.button>
+										</div>
 									</div>
-								</div>
-							</div>
-						))}
-					</div>
+								</motion.div>
+							))}
+						</AnimatePresence>
+					</motion.div>
 				)}
 			</div>
 
+			{/* PDF Viewer Modal */}
+			{viewingPdfUrl && viewingPdfFileName && (
+				<PDFViewer
+					fileName={viewingPdfFileName}
+					isOpen={!!viewingPdfUrl}
+					onClose={() => {
+						setViewingPdfUrl(null);
+						setViewingPdfFileName(null);
+					}}
+					url={viewingPdfUrl}
+				/>
+			)}
+
 			{/* Delete Confirmation Modal */}
 			<BookDeleteConfirmModal
-				bookTitle={bookToDelete?.storyJson?.title}
-				isFinal={bookToDelete?.isFinal || false}
+				bookTitle={bookToDelete?.storyJson?.title || t('books.untitled', 'Без названия')}
 				isOpen={showDeleteConfirm}
 				onClose={() => {
 					setShowDeleteConfirm(false);
@@ -881,19 +875,6 @@ export function BooksLibraryScreen({
 				}}
 				onConfirm={handleDeleteConfirm}
 			/>
-
-			{/* PDF Viewer Modal */}
-			{viewingPdfUrl && (
-				<PDFViewer
-					fileName={viewingPdfFileName || undefined}
-					isOpen={!!viewingPdfUrl}
-					pdfUrl={viewingPdfUrl}
-					onClose={() => {
-						setViewingPdfUrl(null);
-						setViewingPdfFileName(null);
-					}}
-				/>
-			)}
 		</div>
 	);
 }

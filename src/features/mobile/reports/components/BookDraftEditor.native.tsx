@@ -25,10 +25,10 @@ import {
 	TextInput,
 	View,
 } from 'react-native';
-import { DesignTokens } from '@/app-shared/design-system/tokens';
-import { API_URLS } from '@/shared/lib/api/config/urls';
-import { supabase } from '@/shared/lib/api/supabase/client';
-import { useAuth } from '@/shared/lib/hooks/useAuth';
+import { DesignTokens } from '../../../../shared/design-system/tokens';
+import { API_URLS } from '../../../../shared/lib/api/config/urls';
+import { useAuth } from '../../../../shared/lib/hooks/useAuth';
+import { supabase } from '../../../../utils/supabase/client';
 
 type BookDraftEditorProps = {
 	draftId: string;
@@ -44,6 +44,9 @@ type StoryJson = {
 		title: string;
 		content: string;
 		highlights: string[];
+		is_divider?: boolean;
+		is_chronicle?: boolean;
+		source_entry_ids?: string[];
 	}>;
 	epilogue: string;
 	dedication?: string;
@@ -272,36 +275,83 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				<View style={styles.card}>
 					<Text style={styles.cardTitle}>Главы ({story.chapters.length})</Text>
 
-					{story.chapters.map((chapter, index) => (
-						<View key={`${chapter.title || 'chapter'}-${index}`} style={styles.chapterCard}>
-							<Text style={styles.chapterLabel}>Глава {index + 1}</Text>
-							<TextInput
-								onChangeText={(text) => {
-									const newChapters = [...story.chapters];
-									newChapters[index] = { ...chapter, title: text };
-									setStory({ ...story, chapters: newChapters });
-								}}
-								placeholder="Название главы"
-								placeholderTextColor={DesignTokens.colors.textSecondary}
-								style={styles.input}
-								value={chapter.title}
-							/>
-							<TextInput
-								multiline
-								numberOfLines={4}
-								onChangeText={(text) => {
-									const newChapters = [...story.chapters];
-									newChapters[index] = { ...chapter, content: text };
-									setStory({ ...story, chapters: newChapters });
-								}}
-								placeholder="Содержание главы"
-								placeholderTextColor={DesignTokens.colors.textSecondary}
-								style={[styles.input, styles.textArea, { marginTop: DesignTokens.spacing.sm }]}
-								textAlignVertical="top"
-								value={chapter.content}
-							/>
-						</View>
-					))}
+					{story.chapters.map((chapter, index) => {
+						if (chapter.is_divider) {
+							return (
+								<View
+									// biome-ignore lint/suspicious/noArrayIndexKey: static list
+									key={`divider-${index}`}
+									style={styles.dividerCard}
+								>
+									<Text style={styles.dividerTitle}>{chapter.title}</Text>
+									<Text style={styles.dividerContent}>{chapter.content}</Text>
+								</View>
+							);
+						}
+
+						// ✅ 2. Chronicle Chapter (Read-only)
+						if (chapter.is_chronicle) {
+							return (
+								<View
+									// biome-ignore lint/suspicious/noArrayIndexKey: static list
+									key={`chronicle-${index}`}
+									style={styles.chronicleCard}
+								>
+									<Text style={styles.chapterLabel}>{chapter.title}</Text>
+									<View style={styles.chronicleContentContainer}>
+										{(chapter.content || '').split('\n').map((line, lineIndex) => {
+											if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
+												return (
+													// biome-ignore lint/suspicious/noArrayIndexKey: static list
+													<Text key={lineIndex} style={styles.chronicleDate}>
+														{line.replace(/\*\*/g, '')}
+													</Text>
+												);
+											}
+											return (
+												// biome-ignore lint/suspicious/noArrayIndexKey: static list
+												<Text key={lineIndex} style={styles.chronicleText}>
+													{line}
+												</Text>
+											);
+										})}
+									</View>
+								</View>
+							);
+						}
+
+						// ✅ 3. Standard Story Chapter
+						return (
+							<View key={`${chapter.title || 'chapter'}-${index}`} style={styles.chapterCard}>
+								<Text style={styles.chapterLabel}>Глава {index + 1}</Text>
+								<TextInput
+									onChangeText={(text) => {
+										const newChapters = [...story.chapters];
+										newChapters[index] = { ...chapter, title: text };
+										setStory({ ...story, chapters: newChapters });
+									}}
+									placeholder="Название главы"
+									placeholderTextColor={DesignTokens.colors.textSecondary}
+									style={styles.input}
+									value={chapter.title}
+								/>
+								<TextInput
+									multiline
+									numberOfLines={4}
+									onChangeText={(text) => {
+										const newChapters = [...story.chapters];
+										newChapters[index] = { ...chapter, content: text };
+										setStory({ ...story, chapters: newChapters });
+									}}
+									placeholder="Содержание главы"
+									placeholderTextColor={DesignTokens.colors.textSecondary}
+									style={[styles.input, styles.textArea, { marginTop: DesignTokens.spacing.sm }]}
+									textAlignVertical="top"
+									value={chapter.content}
+								/>
+							</View>
+						);
+					})}
 				</View>
 
 				{/* Actions */}
@@ -496,5 +546,54 @@ const styles = StyleSheet.create({
 		fontSize: DesignTokens.typography.body.fontSize,
 		fontWeight: '600',
 		color: DesignTokens.colors.text,
+	},
+	// Divider Styles
+	dividerCard: {
+		backgroundColor: DesignTokens.colors.background,
+		borderRadius: DesignTokens.borderRadius.md,
+		padding: DesignTokens.spacing.xl,
+		borderWidth: 1,
+		borderColor: DesignTokens.colors.border,
+		alignItems: 'center',
+		justifyContent: 'center',
+		minHeight: 200,
+	},
+	dividerTitle: {
+		fontSize: DesignTokens.typography.h2.fontSize,
+		fontWeight: 'bold',
+		color: DesignTokens.colors.purple,
+		marginBottom: DesignTokens.spacing.md,
+		textAlign: 'center',
+	},
+	dividerContent: {
+		fontSize: DesignTokens.typography.body.fontSize,
+		color: DesignTokens.colors.textSecondary,
+		textAlign: 'center',
+		fontStyle: 'italic',
+	},
+	// Chronicle Styles
+	chronicleCard: {
+		backgroundColor: DesignTokens.colors.background,
+		borderRadius: DesignTokens.borderRadius.md,
+		padding: DesignTokens.spacing.md,
+		borderWidth: 1,
+		borderColor: DesignTokens.colors.border,
+		borderLeftWidth: 4,
+		borderLeftColor: DesignTokens.colors.purple,
+	},
+	chronicleContentContainer: {
+		marginTop: DesignTokens.spacing.sm,
+	},
+	chronicleDate: {
+		fontSize: DesignTokens.typography.body.fontSize,
+		fontWeight: 'bold',
+		color: DesignTokens.colors.purple,
+		marginTop: DesignTokens.spacing.md,
+		marginBottom: DesignTokens.spacing.xs,
+	},
+	chronicleText: {
+		fontSize: DesignTokens.typography.body.fontSize,
+		color: DesignTokens.colors.text,
+		lineHeight: 24,
 	},
 });

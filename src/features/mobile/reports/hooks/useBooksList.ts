@@ -36,7 +36,6 @@ export function useBooksList(userId: string | null) {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState<BooksFilter>('all');
 
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: fetchBooks aggregates multiple filters, sorting, and PDF URL generation logic
 	const fetchBooks = useCallback(async () => {
 		if (!userId) {
 			setBooks([]);
@@ -125,47 +124,22 @@ export function useBooksList(userId: string | null) {
 
 	const deleteBook = useCallback(
 		async (bookId: string) => {
-			try {
-				const supabase = createClient();
+			if (!userId) return false;
 
-				// Get book to find PDF URL
-				const { data: book } = await supabase
-					.from('books_archive')
-					.select('pdf_url')
-					.eq('id', bookId)
-					.single();
+			// Import dynamically to avoid circular dependencies if any (though utils is safe)
+			const { deleteBook: deleteBookUtil } = await import(
+				'../components/book-creation-wizard/utils'
+			);
 
-				// Delete from database (CASCADE will delete book_photos)
-				const { error } = await supabase.from('books_archive').delete().eq('id', bookId);
+			const success = await deleteBookUtil(bookId, userId);
 
-				if (error) {
-					console.error('[useBooksList] Error deleting book:', error);
-					toast.error('Не удалось удалить книгу');
-					return false;
-				}
-
-				// Try to delete PDF from storage (optional, don't fail if it errors)
-				if (book?.pdf_url) {
-					try {
-						const fileName = book.pdf_url.split('/').pop();
-						if (fileName && userId) {
-							await supabase.storage.from('books').remove([`${userId}/${fileName}`]);
-						}
-					} catch (storageError) {
-						console.warn('[useBooksList] Could not delete PDF from storage:', storageError);
-						// Don't fail the whole operation
-					}
-				}
-
-				// Remove from local state
+			if (success) {
 				setBooks((prev) => prev.filter((b) => b.id !== bookId));
 				toast.success('Книга удалена');
-				return true;
-			} catch (error) {
-				console.error('[useBooksList] Error:', error);
-				toast.error('Произошла ошибка');
-				return false;
+			} else {
+				toast.error('Не удалось удалить книгу');
 			}
+			return success;
 		},
 		[userId]
 	);

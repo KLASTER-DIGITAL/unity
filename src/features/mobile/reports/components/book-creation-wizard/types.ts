@@ -6,6 +6,7 @@ export type BookCreationWizardProps = {
 	onComplete?: (draftId: string) => void;
 	onCancel?: () => void;
 	onGoToLibrary?: () => void;
+	existingBookId?: string; // ✅ NEW: For Edit -> Overwrite
 };
 
 export type WizardStep = 0 | 1 | 2 | 3 | 4;
@@ -16,8 +17,9 @@ export type BookConfig = {
 	periodStart: string;
 	periodEnd: string;
 	contexts: string[];
-	style: 'warm_family' | 'biographical' | 'motivational' | '';
-	layout: 'photo_text' | 'text_only' | 'minimal' | '';
+	style: BookStyle;
+	layout: BookLayout;
+	theme?: 'light' | 'dark'; // ✅ NEW: Theme preference
 };
 
 export type BookStyle = 'warm_family' | 'biographical' | 'motivational';

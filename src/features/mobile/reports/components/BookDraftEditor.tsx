@@ -40,6 +40,9 @@ type StoryJson = {
 		title: string;
 		content: string;
 		highlights: string[];
+		is_divider?: boolean;
+		is_chronicle?: boolean;
+		source_entry_ids?: string[];
 	}>;
 	epilogue: string;
 	dedication?: string;
@@ -129,6 +132,35 @@ function createPDFStyles(settings: BookSettings) {
 				settings.layout === 'minimal' ? 1.5 : settings.style === 'warm_family' ? 1.8 : 1.6,
 			textAlign: 'justify' as const,
 			color: textColor,
+		},
+		// Divider Styles
+		dividerPage: {
+			padding: 40,
+			backgroundColor: bgColor,
+			justifyContent: 'center' as const,
+			alignItems: 'center' as const,
+			height: '100%',
+		},
+		dividerTitle: {
+			fontSize: 32,
+			marginBottom: 20,
+			textAlign: 'center' as const,
+			fontWeight: 'bold' as const,
+			color: accentColor,
+		},
+		dividerContent: {
+			fontSize: 14,
+			textAlign: 'center' as const,
+			color: subtitleColor,
+			fontStyle: 'italic' as const,
+		},
+		// Chronicle Styles
+		chronicleDate: {
+			fontSize: 12,
+			fontWeight: 'bold' as const,
+			color: settings.style === 'warm_family' ? accentColor : subtitleColor,
+			marginTop: 15,
+			marginBottom: 5,
 		},
 	};
 
@@ -231,44 +263,85 @@ function _BookPDF({
 				)}
 
 				{/* Chapters */}
-				{(story.chapters || []).map((chapter, index) => (
-					<View break key={chapter.title || `${index}`} style={pdfStyles.section}>
-						<Text style={pdfStyles.sectionTitle}>
-							{translations.chapter} {index + 1}: {chapter.title}
-						</Text>
+				{(story.chapters || []).map((chapter, index) => {
+					// ✅ 1. Divider Page
+					if (chapter.is_divider) {
+						return (
+							// biome-ignore lint/suspicious/noArrayIndexKey: static list
+							<View break key={`divider-${index}`} style={pdfStyles.dividerPage}>
+								<Text style={pdfStyles.dividerTitle}>{chapter.title}</Text>
+								<Text style={pdfStyles.dividerContent}>{chapter.content}</Text>
+							</View>
+						);
+					}
 
-						{/* Photos for this chapter */}
-						{photos
-							.filter((p) => p.chapterIndex === index)
-							.map((photo) => (
-								<View key={photo.id} style={{ marginBottom: 10, alignItems: 'center' }}>
-									<Image
-										src={photo.photoUrl}
-										style={{
-											width: '100%',
-											height: 200,
-											objectFit: 'contain',
-											marginBottom: 5,
-										}}
-									/>
-									{photo.caption && (
-										<Text
-											style={{
-												fontSize: 10,
-												color: '#666',
-												textAlign: 'center',
-												fontStyle: 'italic',
-											}}
-										>
-											{photo.caption}
+					// ✅ 2. Chronicle Chapter
+					if (chapter.is_chronicle) {
+						return (
+							// biome-ignore lint/suspicious/noArrayIndexKey: static list
+							<View break key={`chronicle-${index}`} style={pdfStyles.section}>
+								<Text style={pdfStyles.sectionTitle}>{chapter.title}</Text>
+								{(chapter.content || '').split('\n').map((line, lineIndex) => {
+									// Check if line is a date header (starts with **)
+									if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
+										return (
+											// biome-ignore lint/suspicious/noArrayIndexKey: static list
+											<Text key={lineIndex} style={pdfStyles.chronicleDate}>
+												{line.replace(/\*\*/g, '')}
+											</Text>
+										);
+									}
+									return (
+										// biome-ignore lint/suspicious/noArrayIndexKey: static list
+										<Text key={lineIndex} style={pdfStyles.text}>
+											{line}
 										</Text>
-									)}
-								</View>
-							))}
+									);
+								})}
+							</View>
+						);
+					}
 
-						<Text style={pdfStyles.text}>{chapter.content}</Text>
-					</View>
-				))}
+					// ✅ 3. Standard Story Chapter
+					return (
+						<View break key={chapter.title || `${index}`} style={pdfStyles.section}>
+							<Text style={pdfStyles.sectionTitle}>
+								{translations.chapter} {index + 1}: {chapter.title}
+							</Text>
+
+							{/* Photos for this chapter */}
+							{photos
+								.filter((p) => p.chapterIndex === index)
+								.map((photo) => (
+									<View key={photo.id} style={{ marginBottom: 10, alignItems: 'center' }}>
+										<Image
+											src={photo.photoUrl}
+											style={{
+												width: '100%',
+												height: 200,
+												objectFit: 'contain',
+												marginBottom: 5,
+											}}
+										/>
+										{photo.caption && (
+											<Text
+												style={{
+													fontSize: 10,
+													color: '#666',
+													textAlign: 'center',
+													fontStyle: 'italic',
+												}}
+											>
+												{photo.caption}
+											</Text>
+										)}
+									</View>
+								))}
+
+							<Text style={pdfStyles.text}>{chapter.content}</Text>
+						</View>
+					);
+				})}
 
 				{/* Achievements Chapter */}
 				{Array.isArray(metadata.achievements) && metadata.achievements.length > 0 && (

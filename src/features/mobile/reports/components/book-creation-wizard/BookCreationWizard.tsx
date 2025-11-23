@@ -2,272 +2,90 @@
  * Book Creation Wizard - Main Component
  *
  * 4-step wizard for creating a personalized PDF book.
+ * Enhanced with Framer Motion animations and confetti effects.
  *
  * @author UNITY Team
- * @date 2025-11-08
+ * @date 2025-11-23
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Progress } from '@/shared/components/ui/progress';
-import { createClient } from '@/utils/supabase/client';
+import { useBookCreation } from '../../hooks/useBookCreation';
 import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
 import { PremiumUpsellModal } from '../PremiumUpsellModal';
-import { DEFAULT_PERIOD_DAYS } from './constants';
 import { Step0PlanType } from './Step0PlanType';
 import { Step1Period } from './Step1Period';
 import { Step2Contexts } from './Step2Contexts';
 import { Step3Style } from './Step3Style';
 import { Step4Layout } from './Step4Layout';
-import type { BookConfig, BookCreationWizardProps, WizardStep } from './types';
-import {
-	checkFreeTierLimit,
-	fetchAvailableCategories,
-	generateBookDraft,
-	validateMinimumEntries,
-} from './utils';
+import type { BookCreationWizardProps } from './types';
 import { WizardNavigation } from './WizardNavigation';
 
 export function BookCreationWizard({
 	onComplete,
 	onCancel,
 	onGoToLibrary,
+	existingBookId,
 }: BookCreationWizardProps) {
-	const [isGenerating, setIsGenerating] = useState(false);
-	const [showProgress, setShowProgress] = useState(false);
-	const [showSuccessModal, setShowSuccessModal] = useState(false);
-	const [generatedDraftId, setGeneratedDraftId] = useState<string | null>(null);
-	const [availableCategories, setAvailableCategories] = useState<string[]>([]);
-	const [userId, setUserId] = useState<string | null>(null);
-	const [diaryName, setDiaryName] = useState<string>('');
-	const [diaryEmoji, setDiaryEmoji] = useState<string>('');
-	const [generationError, setGenerationError] = useState<string | null>(null);
-	const [isPremium, setIsPremium] = useState(false);
-	const [showUpsellModal, setShowUpsellModal] = useState(false);
-	const [isLoadingUser, setIsLoadingUser] = useState(true); // ✅ FIX: Loading state to prevent flash
+	const {
+		currentStep,
+		config,
+		isGenerating,
+		showProgress,
+		showSuccessModal,
+		availableCategories,
+		isPremium,
+		showUpsellModal,
+		isLoadingUser,
+		generationError,
+		setConfig,
+		setShowProgress,
+		setShowSuccessModal,
+		setShowUpsellModal,
+		handleNext,
+		handlePrevious,
+		handleGenerate,
+		handleRetry,
+		handleProgressComplete,
+		handleGoToEditor,
+	} = useBookCreation(onComplete, existingBookId);
 
-	// ✅ Prevent multiple calls to handleGenerate
-	const isGeneratingRef = useRef(false);
-
-	const [config, setConfig] = useState<BookConfig>({
-		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
-		planType: '' as any,
-		type: 'month',
-		periodStart: new Date(Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000)
-			.toISOString()
-			.split('T')[0],
-		periodEnd: new Date().toISOString().split('T')[0],
-		contexts: [],
-		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
-		style: '' as any,
-		// biome-ignore lint/suspicious/noExplicitAny: initial state, will be set by wizard steps
-		layout: '' as any,
-	});
-
-	// ✅ FIX: Initialize currentStep based on premium status to prevent flash
-	// Start with step 0, but will be updated after user data loads
-	const [currentStep, setCurrentStep] = useState<WizardStep>(0);
-
-	// ✅ FIX: Get user ID and profile from session FIRST, then set initial step
-	// This prevents the flash of Step0 for Premium users
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: getUserData handles multiple async operations and state updates
+	// 🎉 Trigger confetti on success
 	useEffect(() => {
-		const getUserData = async () => {
-			try {
-				setIsLoadingUser(true);
-				const supabase = createClient();
-				const {
-					data: { session },
-				} = await supabase.auth.getSession();
+		if (showSuccessModal) {
+			const duration = 3 * 1000;
+			const animationEnd = Date.now() + duration;
+			const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-				if (session?.user?.id) {
-					setUserId(session.user.id);
+			const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-					const { data: profile } = await supabase
-						.from('profiles')
-						.select('diary_name, diary_emoji, is_premium')
-						.eq('id', session.user.id)
-						.single();
+			const interval: any = setInterval(() => {
+				const timeLeft = animationEnd - Date.now();
 
-					if (profile) {
-						setDiaryName(profile.diary_name || '');
-						setDiaryEmoji(profile.diary_emoji || '');
-						const userIsPremium = profile.is_premium || false;
-						setIsPremium(userIsPremium);
-
-						// ✅ FIX: Set initial step and planType BEFORE showing wizard
-						// This prevents flash of Step0 for Premium users
-						if (userIsPremium) {
-							setConfig((prev) => ({ ...prev, planType: 'premium' }));
-							setCurrentStep(1); // Skip step 0 for Premium - start directly at Step1 (Period)
-						} else {
-							// Free users start at Step0 (Plan Type selection)
-							setCurrentStep(0);
-						}
-					} else {
-						// No profile - default to Step0
-						setCurrentStep(0);
-					}
-				} else {
-					// No session - default to Step0
-					setCurrentStep(0);
+				if (timeLeft <= 0) {
+					return clearInterval(interval);
 				}
-			} catch (error) {
-				console.error('[WIZARD] Error loading user data:', error);
-				// On error, default to Step0
-				setCurrentStep(0);
-			} finally {
-				setIsLoadingUser(false);
-			}
-		};
-		getUserData();
-	}, []);
 
-	// Fetch available categories
-	useEffect(() => {
-		if (!userId) return;
-
-		const loadCategories = async () => {
-			const categories = await fetchAvailableCategories(userId);
-			setAvailableCategories(categories);
-		};
-
-		loadCategories();
-	}, [userId]);
-
-	const handleConfigChange = (updates: Partial<BookConfig>) => {
-		setConfig((prev) => ({ ...prev, ...updates }));
-	};
-
-	const handleNext = () => {
-		// Skip steps for FREE users
-		if (config.planType === 'free') {
-			if (currentStep === 0)
-				setCurrentStep(1); // 0 → 1 (period)
-			else if (currentStep === 1)
-				setCurrentStep(2); // 1 → 2 (contexts)
-			else if (currentStep === 2) {
-				// FREE: skip style and layout, go directly to generation
-				handleGenerate();
-			}
-		} else {
-			// PREMIUM: full flow
-			if (currentStep < 4) {
-				setCurrentStep((prev) => (prev + 1) as WizardStep);
-			}
-		}
-	};
-
-	const handlePrevious = () => {
-		if (currentStep > 0) {
-			setCurrentStep((prev) => (prev - 1) as WizardStep);
-		}
-	};
-
-	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: book generation requires multiple validation steps
-	const handleGenerate = async () => {
-		// ✅ Prevent multiple calls
-		if (isGeneratingRef.current) {
-			console.log('[WIZARD] Generation already in progress, skipping...');
-			return;
-		}
-
-		if (!userId) {
-			toast.error('Ошибка', { description: 'Пользователь не авторизован' });
-			return;
-		}
-
-		try {
-			isGeneratingRef.current = true;
-			setIsGenerating(true);
-			setShowProgress(true);
-
-			// Validate minimum entries
-			const { valid, count } = await validateMinimumEntries(
-				userId,
-				config.periodStart,
-				config.periodEnd,
-				config.contexts
-			);
-
-			if (!valid) {
-				toast.error('Недостаточно записей', {
-					description: `Найдено ${count} записей. Минимум 5 записей требуется для создания книги.`,
+				const particleCount = 50 * (timeLeft / duration);
+				confetti({
+					...defaults,
+					particleCount,
+					origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
 				});
-				isGeneratingRef.current = false;
-				setIsGenerating(false);
-				setShowProgress(false);
-				return;
-			}
-
-			// Check free tier limit
-			const supabase = createClient();
-			const { data: profile } = await supabase
-				.from('profiles')
-				.select('is_premium')
-				.eq('id', userId)
-				.single();
-
-			const isPremium = profile?.is_premium || false;
-			const { canGenerate } = await checkFreeTierLimit(userId, isPremium);
-
-			if (!canGenerate) {
-				toast.error('Лимит исчерпан', {
-					description:
-						'Free пользователи могут создавать 1 книгу в месяц. Перейдите на Premium для неограниченной генерации.',
+				confetti({
+					...defaults,
+					particleCount,
+					origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
 				});
-				isGeneratingRef.current = false;
-				setIsGenerating(false);
-				setShowProgress(false);
-				return;
-			}
+			}, 250);
 
-			// Generate book draft
-			const result = await generateBookDraft(config, userId, diaryName, diaryEmoji);
-
-			if (!result.success) {
-				throw new Error(result.error || 'Не удалось создать черновик');
-			}
-
-			setGeneratedDraftId(result.draftId || null);
-			setGenerationError(null);
-			toast.success('Черновик книги создан!');
-		} catch (error) {
-			console.error('[WIZARD] Error generating book:', error);
-			const errorMessage =
-				error instanceof Error ? error.message : 'Произошла ошибка при создании книги';
-			setGenerationError(errorMessage);
-			toast.error('Ошибка генерации', { description: errorMessage });
-			setShowProgress(false);
-			isGeneratingRef.current = false;
-		} finally {
-			setIsGenerating(false);
+			return () => clearInterval(interval);
 		}
-	};
-
-	const handleRetry = () => {
-		setGenerationError(null);
-		handleGenerate();
-	};
-
-	// ✅ Use useCallback to prevent multiple calls
-	const handleProgressComplete = useCallback(() => {
-		setShowProgress(false);
-		isGeneratingRef.current = false; // Reset flag
-		if (generatedDraftId) {
-			// Show success modal instead of immediately calling onComplete
-			setShowSuccessModal(true);
-		}
-	}, [generatedDraftId]);
-
-	const handleGoToEditor = () => {
-		setShowSuccessModal(false);
-		if (generatedDraftId) {
-			onComplete?.(generatedDraftId);
-		}
-	};
+	}, [showSuccessModal]);
 
 	const handleGoToLibraryFromModal = () => {
 		setShowSuccessModal(false);
@@ -374,43 +192,70 @@ export function BookCreationWizard({
 
 					{/* Content */}
 					<div className="max-h-[calc(100vh-180px)] overflow-y-auto p-4">
-						<Card>
+						<Card className="overflow-hidden border-none shadow-none sm:border sm:shadow-sm">
 							<CardHeader>
-								<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
+								<motion.div
+									key={currentStep}
+									initial={{ opacity: 0, x: -20 }}
+									animate={{ opacity: 1, x: 0 }}
+									transition={{ duration: 0.3 }}
+								>
+									<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
+								</motion.div>
 							</CardHeader>
 							<CardContent className="space-y-3 sm:space-y-4">
-								{currentStep === 0 && (
-									<Step0PlanType
-										config={config}
-										isPremium={isPremium}
-										onConfigChange={handleConfigChange}
-										onUpgrade={() => setShowUpsellModal(true)}
-									/>
-								)}
-								{currentStep === 1 && (
-									<Step1Period
-										config={config}
-										onConfigChange={handleConfigChange}
-										isPremium={isPremium}
-									/>
-								)}
-								{currentStep === 2 && (
-									<Step2Contexts
-										availableCategories={availableCategories}
-										config={config}
-										onConfigChange={handleConfigChange}
-									/>
-								)}
-								{currentStep === 3 && (
-									<Step3Style config={config} onConfigChange={handleConfigChange} />
-								)}
-								{currentStep === 4 && (
-									<Step4Layout config={config} onConfigChange={handleConfigChange} />
-								)}
+								<AnimatePresence mode="wait">
+									<motion.div
+										key={currentStep}
+										initial={{ opacity: 0, x: 20 }}
+										animate={{ opacity: 1, x: 0 }}
+										exit={{ opacity: 0, x: -20 }}
+										transition={{ duration: 0.3 }}
+									>
+										{currentStep === 0 && (
+											<Step0PlanType
+												config={config}
+												isPremium={isPremium}
+												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+												onUpgrade={() => setShowUpsellModal(true)}
+											/>
+										)}
+										{currentStep === 1 && (
+											<Step1Period
+												config={config}
+												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+												isPremium={isPremium}
+											/>
+										)}
+										{currentStep === 2 && (
+											<Step2Contexts
+												availableCategories={availableCategories}
+												config={config}
+												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+											/>
+										)}
+										{currentStep === 3 && (
+											<Step3Style
+												config={config}
+												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+											/>
+										)}
+										{currentStep === 4 && (
+											<Step4Layout
+												config={config}
+												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+											/>
+										)}
+									</motion.div>
+								</AnimatePresence>
 
 								{/* Error Display */}
 								{generationError && (
-									<div className="rounded-lg border border-destructive bg-destructive/10 p-4">
+									<motion.div
+										initial={{ opacity: 0, height: 0 }}
+										animate={{ opacity: 1, height: 'auto' }}
+										className="rounded-lg border border-destructive bg-destructive/10 p-4"
+									>
 										<p className="mb-2 font-semibold text-destructive">❌ Ошибка генерации</p>
 										<p className="mb-3 text-sm text-destructive">{generationError}</p>
 										<button
@@ -420,17 +265,22 @@ export function BookCreationWizard({
 										>
 											Повторить попытку
 										</button>
-									</div>
+									</motion.div>
 								)}
 
 								{/* Final step hint */}
 								{currentStep === 4 && (
-									<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
+									<motion.div
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300"
+									>
 										<p className="text-muted-foreground text-sm">
-											Сейчас будет создан черновик книги. На следующем шаге ты сможешь
-											отредактировать её и сохранить финальную PDF‑версию для скачивания.
+											{existingBookId
+												? 'Сейчас книга будет обновлена. Старая версия будет удалена.'
+												: 'Сейчас будет создан черновик книги. На следующем шаге ты сможешь отредактировать её.'}
 										</p>
-									</div>
+									</motion.div>
 								)}
 							</CardContent>
 						</Card>

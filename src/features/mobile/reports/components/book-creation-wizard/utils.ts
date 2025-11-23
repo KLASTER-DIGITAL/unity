@@ -2,8 +2,8 @@
  * Utility functions for Book Creation Wizard
  */
 
-import { API_URLS } from '@/shared/lib/api/config/urls';
-import { createClient } from '@/utils/supabase/client';
+import { API_URLS } from '../../../../../shared/lib/api/config/urls';
+import { createClient } from '../../../../../utils/supabase/client';
 import { FREE_TIER_LIMIT, MIN_ENTRIES_REQUIRED } from './constants';
 import type { BookConfig } from './types';
 
@@ -245,5 +245,46 @@ export async function fetchAvailableCategories(userId: string): Promise<string[]
 	} catch (error) {
 		console.error('[WIZARD] Error fetching categories:', error);
 		return [];
+	}
+}
+
+/**
+ * Delete book draft (DB + Storage)
+ */
+export async function deleteBook(bookId: string, userId: string): Promise<boolean> {
+	try {
+		const supabase = createClient();
+
+		// Get book to find PDF URL
+		const { data: book } = await supabase
+			.from('books_archive')
+			.select('pdf_url')
+			.eq('id', bookId)
+			.single();
+
+		// Delete from database (CASCADE will delete book_photos)
+		const { error } = await supabase.from('books_archive').delete().eq('id', bookId);
+
+		if (error) {
+			console.error('[UTILS] Error deleting book:', error);
+			return false;
+		}
+
+		// Try to delete PDF from storage
+		if (book?.pdf_url) {
+			try {
+				const fileName = book.pdf_url.split('/').pop();
+				if (fileName && userId) {
+					await supabase.storage.from('books').remove([`${userId}/${fileName}`]);
+				}
+			} catch (storageError) {
+				console.warn('[UTILS] Could not delete PDF from storage:', storageError);
+			}
+		}
+
+		return true;
+	} catch (error) {
+		console.error('[UTILS] Error:', error);
+		return false;
 	}
 }

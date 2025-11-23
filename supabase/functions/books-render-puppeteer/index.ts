@@ -29,6 +29,9 @@ type BookChapter = {
 	title?: string;
 	content?: string;
 	highlights?: string[];
+	is_divider?: boolean;
+	is_chronicle?: boolean;
+	source_entry_ids?: string[];
 };
 
 type BookStory = {
@@ -230,6 +233,37 @@ function generateBookHTML(
 				page-break-after: always;
 			}
 		}
+
+		/* Divider Page */
+		.divider-page {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			min-height: 257mm;
+			text-align: center;
+			background: ${isDark ? '#252525' : '#f8f9fa'};
+		}
+		
+		.divider-title {
+			font-family: 'Noto Serif', serif;
+			font-size: 32pt;
+			font-weight: 700;
+			color: ${colors.primary};
+			margin-bottom: 10mm;
+		}
+		
+		.divider-content {
+			font-size: 14pt;
+			color: ${mutedColor};
+			max-width: 80%;
+			font-style: italic;
+		}
+
+		/* Chronicle Styles */
+		.chronicle-chapter p {
+			white-space: pre-wrap; /* Preserve line breaks in raw entries */
+		}
 	</style>
 </head>
 <body>
@@ -260,30 +294,60 @@ function generateBookHTML(
 	
 	<!-- Chapters -->
 	${(story.chapters || [])
-		.map(
-			(chapter: BookChapter, index: number) => `
-	<div class="page">
-		<h2>Глава ${index + 1}: ${escapeHtml(chapter.title)}</h2>
-		${chapter.content
-			.split('\n')
-			.map((p: string) => `<p>${escapeHtml(p)}</p>`)
-			.join('')}
-		
-		${
-			chapter.highlights && chapter.highlights.length > 0
-				? `
-		<div class="highlights">
-			<strong>Ключевые моменты:</strong>
-			<ul>
-				${chapter.highlights.map((h: string) => `<li>${escapeHtml(h)}</li>`).join('')}
-			</ul>
-		</div>
-		`
-				: ''
-		}
-	</div>
-	`
-		)
+		.map((chapter: BookChapter, index: number) => {
+			// ✅ 1. Divider Page
+			if (chapter.is_divider) {
+				return `
+				<div class="page divider-page">
+					<div class="divider-title">${escapeHtml(chapter.title || '')}</div>
+					<div class="divider-content">${escapeHtml(chapter.content || '')}</div>
+				</div>
+				`;
+			}
+
+			// ✅ 2. Chronicle Chapter (Raw entries)
+			if (chapter.is_chronicle) {
+				return `
+				<div class="page chronicle-chapter">
+					<h2>${escapeHtml(chapter.title || '')}</h2>
+					${(chapter.content || '')
+						.split('\n')
+						.map((p: string) => {
+							// Check if line is a date header (starts with **)
+							if (p.trim().startsWith('**') && p.trim().endsWith('**')) {
+								return `<p style="font-weight: bold; color: ${colors.secondary}; margin-top: 10mm; margin-bottom: 2mm;">${escapeHtml(p.replace(/\*\*/g, ''))}</p>`;
+							}
+							return `<p>${escapeHtml(p)}</p>`;
+						})
+						.join('')}
+				</div>
+				`;
+			}
+
+			// ✅ 3. Standard Story Chapter
+			return `
+			<div class="page">
+				<h2>Глава ${index + 1}: ${escapeHtml(chapter.title || '')}</h2>
+				${(chapter.content || '')
+					.split('\n')
+					.map((p: string) => `<p>${escapeHtml(p)}</p>`)
+					.join('')}
+				
+				${
+					chapter.highlights && chapter.highlights.length > 0
+						? `
+				<div class="highlights">
+					<strong>Ключевые моменты:</strong>
+					<ul>
+						${chapter.highlights.map((h: string) => `<li>${escapeHtml(h)}</li>`).join('')}
+					</ul>
+				</div>
+				`
+						: ''
+				}
+			</div>
+			`;
+		})
 		.join('')}
 	
 	<!-- Epilogue -->

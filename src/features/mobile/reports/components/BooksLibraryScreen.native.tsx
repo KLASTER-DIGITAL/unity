@@ -2,9 +2,10 @@
  * Books Library Screen (React Native)
  *
  * Displays user's PDF books library with filters and download options.
+ * Enhanced with Premium Styling and Layout Animations.
  *
  * @author UNITY Team
- * @date 2025-11-07
+ * @date 2025-11-23
  */
 
 import { Ionicons } from '@expo/vector-icons';
@@ -12,16 +13,26 @@ import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
+	LayoutAnimation,
+	Platform,
 	Pressable,
 	RefreshControl,
 	ScrollView,
 	StyleSheet,
 	Text,
+	UIManager,
 	View,
 } from 'react-native';
 import { DesignTokens } from '@/shared/design-system/tokens';
 import { useAuth } from '@/shared/lib/hooks/useAuth';
 import { useBooksList } from '../hooks/useBooksList';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android') {
+	if (UIManager.setLayoutAnimationEnabledExperimental) {
+		UIManager.setLayoutAnimationEnabledExperimental(true);
+	}
+}
 
 type BookDraft = {
 	id: string;
@@ -63,8 +74,6 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 		loading: isLoadingFromHook,
 		filter,
 		setFilter,
-		planFilter,
-		setPlanFilter,
 		fetchBooks,
 	} = useBooksList(user?.id || null);
 
@@ -130,18 +139,25 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 	// Handle filter change
 	const handleFilterChange = async (newFilter: 'all' | 'drafts' | 'final') => {
 		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 		setFilter(newFilter);
 	};
 
-	// Handle plan filter change
-	const handlePlanFilterChange = async (newPlanFilter: 'all' | 'free' | 'premium') => {
-		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-		setPlanFilter(newPlanFilter);
+	const handleCreateBook = () => {
+		// setEditingBookId(null); // Clear editing state - handled in parent or navigation
+		onCreateBook?.();
+	};
+
+	const handleEditDraft = (book: BookDraft) => {
+		// setEditingBookId(book.id); // Set editing book - handled in parent or navigation
+		// setShowWizard(true);
+		console.log('Edit draft:', book.id);
+		onCreateBook?.(); // Temporary fallback
 	};
 
 	return (
 		<View style={styles.container}>
-			{/* Header */}
+			{/* Header with Gradient Background Effect */}
 			<View style={styles.header}>
 				<View style={styles.headerContent}>
 					<View style={styles.headerIcon}>
@@ -158,7 +174,7 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 					accessibilityLabel="Создать новую книгу"
 					onPress={async () => {
 						await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-						onCreateBook?.();
+						handleCreateBook();
 					}}
 					style={({ pressed }) => [styles.createButton, pressed && styles.createButtonPressed]}
 				>
@@ -170,103 +186,61 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 			{/* Filters */}
 			<View style={styles.filtersContainer}>
 				{/* Status Filter */}
-				<View style={styles.filters}>
-					<Ionicons
-						color={DesignTokens.colors.textSecondary}
-						name="filter"
-						size={16}
-						style={styles.filterIcon}
-					/>
-					<View style={styles.filterButtons}>
-						<Pressable
-							onPress={() => handleFilterChange('all')}
-							style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[styles.filterButtonText, filter === 'all' && styles.filterButtonTextActive]}
+				<ScrollView
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					contentContainerStyle={styles.filtersScroll}
+				>
+					<View style={styles.filters}>
+						<Ionicons
+							color={DesignTokens.colors.textSecondary}
+							name="filter"
+							size={16}
+							style={styles.filterIcon}
+						/>
+						<View style={styles.filterButtons}>
+							<Pressable
+								onPress={() => handleFilterChange('all')}
+								style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
 							>
-								Все
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={() => handleFilterChange('drafts')}
-							style={[styles.filterButton, filter === 'drafts' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[
-									styles.filterButtonText,
-									filter === 'drafts' && styles.filterButtonTextActive,
-								]}
+								<Text
+									style={[
+										styles.filterButtonText,
+										filter === 'all' && styles.filterButtonTextActive,
+									]}
+								>
+									Все
+								</Text>
+							</Pressable>
+							<Pressable
+								onPress={() => handleFilterChange('drafts')}
+								style={[styles.filterButton, filter === 'drafts' && styles.filterButtonActive]}
 							>
-								Черновики
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={() => handleFilterChange('final')}
-							style={[styles.filterButton, filter === 'final' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[
-									styles.filterButtonText,
-									filter === 'final' && styles.filterButtonTextActive,
-								]}
+								<Text
+									style={[
+										styles.filterButtonText,
+										filter === 'drafts' && styles.filterButtonTextActive,
+									]}
+								>
+									Черновики
+								</Text>
+							</Pressable>
+							<Pressable
+								onPress={() => handleFilterChange('final')}
+								style={[styles.filterButton, filter === 'final' && styles.filterButtonActive]}
 							>
-								Готовые
-							</Text>
-						</Pressable>
+								<Text
+									style={[
+										styles.filterButtonText,
+										filter === 'final' && styles.filterButtonTextActive,
+									]}
+								>
+									Готовые
+								</Text>
+							</Pressable>
+						</View>
 					</View>
-				</View>
-
-				{/* Plan Type Filter */}
-				<View style={styles.filters}>
-					<Ionicons
-						color={DesignTokens.colors.textSecondary}
-						name="star"
-						size={16}
-						style={styles.filterIcon}
-					/>
-					<View style={styles.filterButtons}>
-						<Pressable
-							onPress={() => handlePlanFilterChange('all')}
-							style={[styles.filterButton, planFilter === 'all' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[
-									styles.filterButtonText,
-									planFilter === 'all' && styles.filterButtonTextActive,
-								]}
-							>
-								Все типы
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={() => handlePlanFilterChange('free')}
-							style={[styles.filterButton, planFilter === 'free' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[
-									styles.filterButtonText,
-									planFilter === 'free' && styles.filterButtonTextActive,
-								]}
-							>
-								FREE
-							</Text>
-						</Pressable>
-						<Pressable
-							onPress={() => handlePlanFilterChange('premium')}
-							style={[styles.filterButton, planFilter === 'premium' && styles.filterButtonActive]}
-						>
-							<Text
-								style={[
-									styles.filterButtonText,
-									planFilter === 'premium' && styles.filterButtonTextActive,
-								]}
-							>
-								Premium
-							</Text>
-						</Pressable>
-					</View>
-				</View>
+				</ScrollView>
 			</View>
 
 			{/* Books List */}
@@ -298,110 +272,113 @@ export function BooksLibraryScreen({ onCreateBook }: BooksLibraryScreenProps) {
 				) : (
 					<View style={styles.booksList}>
 						{books.map((book) => (
-							<View key={book.id} style={styles.bookCard}>
-								<View style={styles.bookHeader}>
-									<View style={styles.bookTitleContainer}>
-										<Text style={styles.bookTitle}>
-											{book.metadata.diaryEmoji || '📖'} {book.storyJson?.title || 'Без названия'}
-										</Text>
-										<View style={styles.bookPeriod}>
-											<Ionicons
-												color={DesignTokens.colors.textSecondary}
-												name="calendar-outline"
-												size={12}
-											/>
-											<Text style={styles.bookPeriodText}>
-												{formatPeriod(book.periodStart, book.periodEnd)}
+							<Pressable
+								key={book.id}
+								style={({ pressed }) => [
+									styles.bookCard,
+									pressed && { transform: [{ scale: 0.98 }] },
+								]}
+								onPress={() => {
+									if (book.isFinal) {
+										// handleView(book);
+									} else {
+										handleEditDraft(book);
+									}
+								}}
+							>
+								{/* Spine Indicator */}
+								<View
+									style={[
+										styles.bookSpine,
+										{
+											backgroundColor:
+												book.style === 'warm_family'
+													? DesignTokens.colors.purple
+													: book.style === 'biographical'
+														? DesignTokens.colors.primary
+														: DesignTokens.colors.secondary,
+										},
+									]}
+								/>
+
+								<View style={styles.bookContent}>
+									<View style={styles.bookHeader}>
+										<View style={styles.bookTitleContainer}>
+											<Text style={styles.bookTitle} numberOfLines={2}>
+												{book.metadata.diaryEmoji || '📖'} {book.storyJson?.title || 'Без названия'}
 											</Text>
+											<View style={styles.bookPeriod}>
+												<Ionicons
+													color={DesignTokens.colors.textSecondary}
+													name="calendar-outline"
+													size={12}
+												/>
+												<Text style={styles.bookPeriodText}>
+													{formatPeriod(book.periodStart, book.periodEnd)}
+												</Text>
+											</View>
 										</View>
-									</View>
-									<View style={styles.bookBadges}>
-										{/* Plan Type Badge */}
-										{book.planType && (
+										<View style={styles.bookBadges}>
+											{/* Status Badge */}
 											<View
 												style={[
 													styles.bookBadge,
-													book.planType === 'premium'
-														? styles.bookBadgePremium
-														: styles.bookBadgeFree,
+													book.isFinal ? styles.bookBadgeFinal : styles.bookBadgeDraft,
 												]}
 											>
 												<Text
 													style={[
 														styles.bookBadgeText,
-														book.planType === 'premium'
-															? styles.bookBadgeTextPremium
-															: styles.bookBadgeTextFree,
+														book.isFinal ? styles.bookBadgeTextFinal : styles.bookBadgeTextDraft,
 													]}
 												>
-													{book.planType === 'premium' ? 'Premium' : 'FREE'}
+													{book.isFinal ? 'Готово' : 'Черновик'}
 												</Text>
 											</View>
-										)}
-										{/* Version Badge */}
+										</View>
+									</View>
+
+									<View style={styles.bookMeta}>
+										<View style={styles.bookMetaItem}>
+											<Ionicons color={DesignTokens.colors.purple} name="sparkles" size={14} />
+											<Text style={styles.bookMetaText}>{getStyleLabel(book.style)}</Text>
+										</View>
 										{book.version && book.version > 1 && (
-											<View style={[styles.bookBadge, styles.bookBadgeVersion]}>
-												<Text style={[styles.bookBadgeText, styles.bookBadgeTextVersion]}>
-													v{book.version}
-												</Text>
+											<View style={styles.bookMetaItem}>
+												<Text style={styles.bookMetaText}>v{book.version}</Text>
 											</View>
 										)}
-										{/* Status Badge */}
-										<View
-											style={[
-												styles.bookBadge,
-												book.isFinal ? styles.bookBadgeFinal : styles.bookBadgeDraft,
-											]}
-										>
-											<Text
-												style={[
-													styles.bookBadgeText,
-													book.isFinal ? styles.bookBadgeTextFinal : styles.bookBadgeTextDraft,
+									</View>
+
+									<View style={styles.bookActions}>
+										{book.isFinal && book.pdfUrl ? (
+											<Pressable
+												onPress={() => handleDownload(book)}
+												style={({ pressed }) => [
+													styles.bookButton,
+													pressed && styles.bookButtonPressed,
 												]}
 											>
-												{book.isFinal ? 'Готово' : 'Черновик'}
-											</Text>
-										</View>
+												<Ionicons color={DesignTokens.colors.card} name="download" size={16} />
+												<Text style={styles.bookButtonText}>Скачать</Text>
+											</Pressable>
+										) : (
+											<View style={styles.bookButtonDisabled}>
+												<Text style={styles.bookButtonDisabledText}>
+													{book.isFinal ? 'Обработка...' : 'Редактировать'}
+												</Text>
+												{!book.isFinal && (
+													<Ionicons
+														color={DesignTokens.colors.textSecondary}
+														name="chevron-forward"
+														size={16}
+													/>
+												)}
+											</View>
+										)}
 									</View>
 								</View>
-
-								<View style={styles.bookMeta}>
-									<View style={styles.bookMetaItem}>
-										<Ionicons color={DesignTokens.colors.purple} name="sparkles" size={16} />
-										<Text style={styles.bookMetaText}>{getStyleLabel(book.style)}</Text>
-									</View>
-									{book.metadata.entriesCount && (
-										<Text style={styles.bookMetaText}>📝 {book.metadata.entriesCount} записей</Text>
-									)}
-									{book.metadata.pages && (
-										<Text style={styles.bookMetaText}>📄 {book.metadata.pages} страниц</Text>
-									)}
-								</View>
-
-								<View style={styles.bookActions}>
-									{book.isFinal && book.pdfUrl ? (
-										<Pressable
-											onPress={() => handleDownload(book)}
-											style={({ pressed }) => [
-												styles.bookButton,
-												pressed && styles.bookButtonPressed,
-											]}
-										>
-											<Ionicons color={DesignTokens.colors.card} name="download" size={16} />
-											<Text style={styles.bookButtonText}>Скачать</Text>
-										</Pressable>
-									) : (
-										<View style={styles.bookButtonDisabled}>
-											<Ionicons
-												color={DesignTokens.colors.textSecondary}
-												name="sparkles"
-												size={16}
-											/>
-											<Text style={styles.bookButtonDisabledText}>Генерация...</Text>
-										</View>
-									)}
-								</View>
-							</View>
+							</Pressable>
 						))}
 					</View>
 				)}
@@ -418,6 +395,15 @@ const styles = StyleSheet.create({
 	header: {
 		backgroundColor: DesignTokens.colors.purple,
 		padding: DesignTokens.spacing.lg,
+		paddingTop: DesignTokens.spacing.xl * 1.5, // More space for status bar
+		borderBottomLeftRadius: 24,
+		borderBottomRightRadius: 24,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.1,
+		shadowRadius: 8,
+		elevation: 5,
+		zIndex: 10,
 	},
 	headerContent: {
 		flexDirection: 'row',
@@ -438,7 +424,7 @@ const styles = StyleSheet.create({
 	},
 	headerTitle: {
 		fontSize: DesignTokens.fontSizes.xl,
-		fontWeight: DesignTokens.fontWeights.semibold,
+		fontWeight: DesignTokens.fontWeights.bold,
 		color: DesignTokens.colors.card,
 	},
 	headerSubtitle: {
@@ -453,26 +439,30 @@ const styles = StyleSheet.create({
 		gap: DesignTokens.spacing.sm,
 		backgroundColor: 'rgba(255, 255, 255, 0.2)',
 		padding: DesignTokens.spacing.md,
-		borderRadius: DesignTokens.borderRadius.md,
+		borderRadius: DesignTokens.borderRadius.lg,
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.3)',
 	},
 	createButtonPressed: {
-		opacity: 0.7,
+		backgroundColor: 'rgba(255, 255, 255, 0.3)',
 	},
 	createButtonText: {
 		fontSize: DesignTokens.fontSizes.body,
-		fontWeight: DesignTokens.fontWeights.medium,
+		fontWeight: DesignTokens.fontWeights.semibold,
 		color: DesignTokens.colors.card,
 	},
 	filtersContainer: {
-		backgroundColor: DesignTokens.colors.card,
-		borderBottomWidth: 1,
-		borderBottomColor: DesignTokens.colors.border,
+		backgroundColor: 'transparent',
+		marginTop: DesignTokens.spacing.md,
+		marginBottom: DesignTokens.spacing.xs,
+	},
+	filtersScroll: {
+		paddingHorizontal: DesignTokens.spacing.md,
 	},
 	filters: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: DesignTokens.spacing.sm,
-		padding: DesignTokens.spacing.md,
 	},
 	filterIcon: {
 		marginRight: DesignTokens.spacing.xs,
@@ -483,28 +473,35 @@ const styles = StyleSheet.create({
 	},
 	filterButton: {
 		paddingHorizontal: DesignTokens.spacing.md,
-		paddingVertical: DesignTokens.spacing.sm,
-		borderRadius: DesignTokens.borderRadius.md,
+		paddingVertical: 8,
+		borderRadius: 20,
+		backgroundColor: DesignTokens.colors.card,
 		borderWidth: 1,
 		borderColor: DesignTokens.colors.border,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.05,
+		shadowRadius: 2,
+		elevation: 1,
 	},
 	filterButtonActive: {
-		backgroundColor: DesignTokens.colors.primary,
-		borderColor: DesignTokens.colors.primary,
+		backgroundColor: DesignTokens.colors.text,
+		borderColor: DesignTokens.colors.text,
 	},
 	filterButtonText: {
 		fontSize: DesignTokens.fontSizes.sm,
 		color: DesignTokens.colors.text,
+		fontWeight: DesignTokens.fontWeights.medium,
 	},
 	filterButtonTextActive: {
 		color: DesignTokens.colors.card,
-		fontWeight: DesignTokens.fontWeights.medium,
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollContent: {
 		padding: DesignTokens.spacing.md,
+		paddingBottom: 100, // Space for bottom tab bar
 	},
 	loadingContainer: {
 		flex: 1,
@@ -517,6 +514,13 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		paddingVertical: DesignTokens.spacing.xl * 2,
 		gap: DesignTokens.spacing.md,
+		backgroundColor: DesignTokens.colors.card,
+		borderRadius: DesignTokens.borderRadius.xl,
+		padding: DesignTokens.spacing.xl,
+		marginVertical: DesignTokens.spacing.lg,
+		borderWidth: 1,
+		borderColor: DesignTokens.colors.border,
+		borderStyle: 'dashed',
 	},
 	emptyTitle: {
 		fontSize: DesignTokens.fontSizes.lg,
@@ -539,7 +543,7 @@ const styles = StyleSheet.create({
 		marginTop: DesignTokens.spacing.md,
 	},
 	emptyButtonPressed: {
-		opacity: 0.7,
+		opacity: 0.8,
 	},
 	emptyButtonText: {
 		fontSize: DesignTokens.fontSizes.body,
@@ -550,133 +554,132 @@ const styles = StyleSheet.create({
 		gap: DesignTokens.spacing.md,
 	},
 	bookCard: {
+		flexDirection: 'row',
 		backgroundColor: DesignTokens.colors.card,
-		borderRadius: DesignTokens.borderRadius.lg,
-		padding: DesignTokens.spacing.md,
+		borderRadius: 16,
+		overflow: 'hidden',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.08,
+		shadowRadius: 8,
+		elevation: 3,
 		borderWidth: 1,
-		borderColor: DesignTokens.colors.border,
+		borderColor: 'rgba(0,0,0,0.03)',
+	},
+	bookSpine: {
+		width: 6,
+		height: '100%',
+	},
+	bookContent: {
+		flex: 1,
+		padding: DesignTokens.spacing.md,
 	},
 	bookHeader: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'flex-start',
-		marginBottom: DesignTokens.spacing.md,
+		marginBottom: DesignTokens.spacing.sm,
 	},
 	bookTitleContainer: {
 		flex: 1,
 		marginRight: DesignTokens.spacing.sm,
 	},
 	bookTitle: {
-		fontSize: DesignTokens.fontSizes.body,
-		fontWeight: DesignTokens.fontWeights.semibold,
+		fontSize: 17,
+		fontWeight: '700',
 		color: DesignTokens.colors.text,
-		marginBottom: DesignTokens.spacing.xs,
+		marginBottom: 4,
+		letterSpacing: -0.3,
 	},
 	bookPeriod: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		gap: DesignTokens.spacing.xs,
+		gap: 4,
 	},
 	bookPeriodText: {
-		fontSize: DesignTokens.fontSizes.xs,
+		fontSize: 12,
 		color: DesignTokens.colors.textSecondary,
+		fontWeight: '500',
 	},
 	bookBadges: {
 		flexDirection: 'row',
-		gap: DesignTokens.spacing.xs,
-		flexWrap: 'wrap',
+		gap: 4,
 	},
 	bookBadge: {
-		paddingHorizontal: DesignTokens.spacing.sm,
-		paddingVertical: DesignTokens.spacing.xs,
-		borderRadius: DesignTokens.borderRadius.sm,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 6,
 	},
 	bookBadgeFinal: {
-		backgroundColor: DesignTokens.colors.primary,
+		backgroundColor: 'rgba(52, 199, 89, 0.1)',
 	},
 	bookBadgeDraft: {
-		backgroundColor: DesignTokens.colors.secondary,
-	},
-	bookBadgePremium: {
-		backgroundColor: DesignTokens.colors.primary,
-	},
-	bookBadgeFree: {
-		backgroundColor: DesignTokens.colors.secondary,
-		borderWidth: 1,
-		borderColor: DesignTokens.colors.border,
-	},
-	bookBadgeVersion: {
-		backgroundColor: DesignTokens.colors.card,
+		backgroundColor: DesignTokens.colors.background,
 		borderWidth: 1,
 		borderColor: DesignTokens.colors.border,
 	},
 	bookBadgeText: {
-		fontSize: DesignTokens.fontSizes.xs,
-		fontWeight: DesignTokens.fontWeights.medium,
+		fontSize: 10,
+		fontWeight: '700',
+		textTransform: 'uppercase',
 	},
 	bookBadgeTextFinal: {
-		color: DesignTokens.colors.card,
+		color: '#34C759',
 	},
 	bookBadgeTextDraft: {
-		color: DesignTokens.colors.text,
-	},
-	bookBadgeTextPremium: {
-		color: DesignTokens.colors.card,
-	},
-	bookBadgeTextFree: {
-		color: DesignTokens.colors.text,
-	},
-	bookBadgeTextVersion: {
 		color: DesignTokens.colors.textSecondary,
 	},
 	bookMeta: {
-		gap: DesignTokens.spacing.sm,
-		marginBottom: DesignTokens.spacing.md,
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 12,
+		marginBottom: 12,
 	},
 	bookMetaItem: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		gap: DesignTokens.spacing.sm,
+		gap: 4,
 	},
 	bookMetaText: {
-		fontSize: DesignTokens.fontSizes.sm,
+		fontSize: 12,
 		color: DesignTokens.colors.textSecondary,
+		fontWeight: '500',
 	},
 	bookActions: {
 		flexDirection: 'row',
 		gap: DesignTokens.spacing.sm,
+		borderTopWidth: 1,
+		borderTopColor: DesignTokens.colors.border,
+		paddingTop: 12,
 	},
 	bookButton: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		gap: DesignTokens.spacing.sm,
+		gap: 6,
 		backgroundColor: DesignTokens.colors.primary,
-		padding: DesignTokens.spacing.md,
-		borderRadius: DesignTokens.borderRadius.md,
+		paddingVertical: 10,
+		borderRadius: 10,
 	},
 	bookButtonPressed: {
-		opacity: 0.7,
+		opacity: 0.8,
 	},
 	bookButtonText: {
-		fontSize: DesignTokens.fontSizes.body,
-		fontWeight: DesignTokens.fontWeights.medium,
+		fontSize: 14,
+		fontWeight: '600',
 		color: DesignTokens.colors.card,
 	},
 	bookButtonDisabled: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'center',
-		gap: DesignTokens.spacing.sm,
-		backgroundColor: DesignTokens.colors.secondary,
-		padding: DesignTokens.spacing.md,
-		borderRadius: DesignTokens.borderRadius.md,
+		justifyContent: 'space-between', // Align text left, icon right
+		paddingHorizontal: 4,
 	},
 	bookButtonDisabledText: {
-		fontSize: DesignTokens.fontSizes.body,
-		fontWeight: DesignTokens.fontWeights.medium,
-		color: DesignTokens.colors.textSecondary,
+		fontSize: 14,
+		fontWeight: '500',
+		color: DesignTokens.colors.primary,
 	},
 });
