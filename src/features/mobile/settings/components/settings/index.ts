@@ -2,6 +2,7 @@
  * Settings Screen - Modular exports
  */
 
+export { AboutSection } from './AboutSection';
 export { AdditionalSection } from './AdditionalSection';
 export { CategoriesSection } from './CategoriesSection';
 export { DEFAULT_AVATAR_URL, DEFAULT_LANGUAGES } from './constants';

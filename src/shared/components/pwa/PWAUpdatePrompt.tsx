@@ -1,6 +1,8 @@
 import { RefreshCw, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { WhatsNewModal } from '@/shared/components/version/WhatsNewModal';
+import { CURRENT_VERSION } from '@/shared/lib/version/changelog';
 
 /**
  * Компонент показывает уведомление когда доступно обновление приложения
@@ -20,6 +22,8 @@ export function PWAUpdatePrompt() {
 	const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [autoUpdateEnabled] = useState(true); // ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ВКЛЮЧЕНО
+	const [showWhatsNew, setShowWhatsNew] = useState(false);
+	const [previousVersion, setPreviousVersion] = useState<string | undefined>();
 
 	useEffect(() => {
 		if (!('serviceWorker' in navigator)) {
@@ -92,6 +96,14 @@ export function PWAUpdatePrompt() {
 		// Слушаем событие обновления контроллера
 		const handleControllerChange = () => {
 			console.log('[PWA Update] Controller changed, reloading page...');
+			// Сохраняем предыдущую версию для показа "Что нового"
+			const storedVersion = localStorage.getItem('app_version');
+			if (storedVersion && storedVersion !== CURRENT_VERSION) {
+				setPreviousVersion(storedVersion);
+				setShowWhatsNew(true);
+				// Не перезагружаем сразу - показываем "Что нового"
+				return;
+			}
 			// Сохраняем текущую версию чтобы не показывать окно снова
 			const appVersion = localStorage.getItem('app_version');
 			if (appVersion) {
@@ -146,65 +158,84 @@ export function PWAUpdatePrompt() {
 		}
 	};
 
+	const handleCloseWhatsNew = () => {
+		setShowWhatsNew(false);
+		// После закрытия "Что нового" перезагружаем страницу
+		const appVersion = localStorage.getItem('app_version');
+		if (appVersion) {
+			localStorage.setItem('pwa_last_updated_version', appVersion);
+		}
+		window.location.reload();
+	};
+
 	return (
-		<AnimatePresence>
-			{showUpdate && (
-				<motion.div
-					animate={{ opacity: 1, y: 0 }}
-					className="-translate-x-1/2 fixed bottom-20 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
-					exit={{ opacity: 0, y: 100 }}
-					initial={{ opacity: 0, y: 100 }}
-				>
-					<div className="rounded-xl border border-border bg-card p-4 shadow-2xl">
-						<div className="flex items-start gap-3">
-							<div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-								<RefreshCw className="h-5 w-5 text-accent" />
-							</div>
+		<>
+			{/* "Что нового" модальное окно */}
+			<WhatsNewModal
+				isOpen={showWhatsNew}
+				onClose={handleCloseWhatsNew}
+				previousVersion={previousVersion}
+			/>
 
-							<div className="flex-1">
-								<h3 className="mb-1 font-semibold! text-[15px]! text-foreground">
-									{isUpdating ? 'Обновление...' : 'Доступно обновление'}
-								</h3>
-								<p className="mb-3 font-normal! text-[13px]! text-muted-foreground">
-									Новая версия приложения готова к установке
-								</p>
+			<AnimatePresence>
+				{showUpdate && (
+					<motion.div
+						animate={{ opacity: 1, y: 0 }}
+						className="-translate-x-1/2 fixed bottom-20 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+						exit={{ opacity: 0, y: 100 }}
+						initial={{ opacity: 0, y: 100 }}
+					>
+						<div className="rounded-xl border border-border bg-card p-4 shadow-2xl">
+							<div className="flex items-start gap-3">
+								<div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+									<RefreshCw className="h-5 w-5 text-accent" />
+								</div>
 
-								{autoUpdateEnabled ? (
-									// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ: только показываем прогресс
-									<div className="flex items-center gap-2">
-										<RefreshCw className="h-4 w-4 animate-spin text-accent" />
-										<span className="font-medium! text-[13px]! text-muted-foreground">
-											Приложение обновляется...
-										</span>
-									</div>
-								) : (
-									// Ручное обновление: показываем кнопки
-									<div className="flex gap-2">
-										<button
-											className="flex-1 rounded-lg bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-											disabled={isUpdating}
-											onClick={handleUpdate}
-											type="button"
-										>
-											<span className="font-semibold! text-[13px]!">
-												{isUpdating ? 'Обновление...' : 'Обновить'}
+								<div className="flex-1">
+									<h3 className="mb-1 font-semibold! text-[15px]! text-foreground">
+										{isUpdating ? 'Обновление...' : 'Доступно обновление'}
+									</h3>
+									<p className="mb-3 font-normal! text-[13px]! text-muted-foreground">
+										Новая версия приложения готова к установке
+									</p>
+
+									{autoUpdateEnabled ? (
+										// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ: только показываем прогресс
+										<div className="flex items-center gap-2">
+											<RefreshCw className="h-4 w-4 animate-spin text-accent" />
+											<span className="font-medium! text-[13px]! text-muted-foreground">
+												Приложение обновляется...
 											</span>
-										</button>
-										<button
-											className="px-3 text-muted-foreground transition-colors hover:text-foreground"
-											onClick={handleSkip}
-											type="button"
-										>
-											<X className="h-5 w-5" />
-										</button>
-									</div>
-								)}
+										</div>
+									) : (
+										// Ручное обновление: показываем кнопки
+										<div className="flex gap-2">
+											<button
+												className="flex-1 rounded-lg bg-accent px-4 py-2 text-accent-foreground transition-all hover:bg-accent/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+												disabled={isUpdating}
+												onClick={handleUpdate}
+												type="button"
+											>
+												<span className="font-semibold! text-[13px]!">
+													{isUpdating ? 'Обновление...' : 'Обновить'}
+												</span>
+											</button>
+											<button
+												className="px-3 text-muted-foreground transition-colors hover:text-foreground"
+												onClick={handleSkip}
+												type="button"
+											>
+												<X className="h-5 w-5" />
+											</button>
+										</div>
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
-				</motion.div>
-			)}
-		</AnimatePresence>
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</>
 	);
 }
 export default PWAUpdatePrompt;

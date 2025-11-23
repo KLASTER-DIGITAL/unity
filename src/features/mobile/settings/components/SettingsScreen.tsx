@@ -17,6 +17,7 @@ const ProfileEditModal = lazy(() =>
 import type { NotificationSettings, SettingsScreenProps } from './settings';
 // Import modular components and handlers
 import {
+	AboutSection,
 	AdditionalSection,
 	CategoriesModal,
 	CategoriesSection,
@@ -294,6 +295,9 @@ export function SettingsScreen({ userData, onLogout, onProfileUpdate }: Settings
 
 			{/* Персонализация */}
 			<CategoriesSection onCategoriesClick={() => setShowCategories(true)} t={t} />
+
+			{/* О проекте */}
+			<AboutSection t={t} />
 
 			{/* Дополнительно */}
 			<AdditionalSection

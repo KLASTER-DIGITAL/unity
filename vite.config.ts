@@ -82,7 +82,17 @@ export default defineConfig(({ mode }) => ({
 	},
 	resolve: {
 		extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-		dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'], // Дедупликация React для предотвращения ошибок
+		// ✅ КРИТИЧЕСКИ ВАЖНО: Дедупликация React для предотвращения Invalid Hook Call Error
+		// Проблема: Vite может создать multiple React copies в dev mode
+		// Решение: Принудительная дедупликация всех React модулей
+		dedupe: [
+			'react',
+			'react-dom',
+			'react/jsx-runtime',
+			'react/jsx-dev-runtime',
+			'react-dom/client',
+			'react-dom/server',
+		],
 		alias: {
 			// ✅ КРИТИЧЕСКИ ВАЖНО: Принудительно использовать React 18.3.1 из корневого node_modules
 			// Проблема: @expo/cli содержит React 19.2.0-canary в node_modules/@expo/cli/static/canary-full/node_modules/react
@@ -294,11 +304,18 @@ export default defineConfig(({ mode }) => ({
 	},
 	// Оптимизация зависимостей
 	optimizeDeps: {
+		// ✅ КРИТИЧЕСКИ ВАЖНО: Принудительное включение React в один chunk
+		// Проблема: Vite создает два разных chunks для React и React-DOM в dev mode
+		// Решение: Принудительно включаем все React модули в optimizeDeps
 		include: [
 			'react',
 			'react-dom',
+			'react-dom/client',
+			'react-dom/server',
 			'react/jsx-runtime',
 			'react/jsx-dev-runtime',
+			'react/index.js',
+			'react-dom/index.js',
 			'@supabase/supabase-js',
 			'motion',
 			'lucide-react',
@@ -322,12 +339,24 @@ export default defineConfig(({ mode }) => ({
 			'@react-navigation/native',
 		],
 		esbuildOptions: {
-			// Принудительная дедупликация React
+			// ✅ КРИТИЧЕСКИ ВАЖНО: Принудительная дедупликация React через alias
+			// Проблема: Vite может создать multiple React copies в dev mode
+			// Решение: Принудительно указываем путь к React из корневого node_modules
 			alias: {
-				react: 'react',
-				'react-dom': 'react-dom',
+				react: path.resolve(__dirname, './node_modules/react'),
+				'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+				'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
+				'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime'),
 			},
 		},
+		// ✅ КРИТИЧЕСКИ ВАЖНО: Синхронизация загрузки зависимостей
+		// Проблема: Vite загружает зависимости асинхронно, что может создать multiple React copies
+		// Решение: Принудительно ждем завершения сканирования всех зависимостей
+		holdUntilCrawlEnd: true,
+		// ✅ КРИТИЧЕСКИ ВАЖНО: Принудительная пересборка зависимостей
+		// Проблема: Vite кеширует зависимости и может использовать старые chunks
+		// Решение: Принудительно пересобираем зависимости при каждом запуске
+		force: true,
 	},
 	server: {
 		port: 3000,

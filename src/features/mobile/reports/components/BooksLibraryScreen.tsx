@@ -88,9 +88,12 @@ export function BooksLibraryScreen({
 	useEffect(() => {
 		if (userId) {
 			// ✅ FIX: Всегда вызываем fetchBooks при изменении refreshKey или userId
+			// Важно: вызываем fetchBooks() даже если компонент был скрыт и снова показан
+			console.log('[BOOKS-LIBRARY] Refreshing books list, refreshKey:', refreshKey);
 			fetchBooks();
 		}
-	}, [refreshKey, userId, fetchBooks]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [refreshKey, userId]); // ✅ FIX: Убираем fetchBooks из зависимостей, чтобы избежать лишних вызовов
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {

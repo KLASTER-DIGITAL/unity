@@ -13,7 +13,7 @@
  * @date 2025-11-07
  */
 
-import { Document, Image, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Font, Image, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Eye, Image as ImageIcon, Save, Sparkles, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -75,6 +75,46 @@ type BookPhoto = {
 	caption?: string;
 };
 
+// ✅ FIX: Регистрация шрифта с поддержкой кириллицы для правильной кодировки PDF
+// Используем Noto Sans, который поддерживает кириллицу и другие языки
+// Регистрация выполняется лениво, только при необходимости
+let fontRegistered = false;
+
+function registerPDFFont() {
+	if (fontRegistered) {
+		return;
+	}
+
+	try {
+		Font.register({
+			family: 'NotoSans',
+			fonts: [
+				{
+					src: 'https://fonts.gstatic.com/s/notosans/v36/o-0IIpQlx3QUlC5A4PNb4j5Ba_2c7A.woff2',
+					fontWeight: 400,
+				},
+				{
+					src: 'https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFlY9aA.woff2',
+					fontWeight: 500,
+				},
+				{
+					src: 'https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFlY9aA.woff2',
+					fontWeight: 600,
+				},
+				{
+					src: 'https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFlY9aA.woff2',
+					fontWeight: 700,
+				},
+			],
+		});
+		fontRegistered = true;
+		console.log('[PDF] Font NotoSans registered successfully');
+	} catch (error) {
+		console.warn('[PDF] Failed to register font:', error);
+		// Продолжаем без кастомного шрифта - будет использован дефолтный
+	}
+}
+
 // PDF Styles Factory - создает стили в зависимости от настроек
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: PDF styles require multiple theme/style combinations (35 > 15)
 function createPDFStyles(settings: BookSettings) {
@@ -104,6 +144,7 @@ function createPDFStyles(settings: BookSettings) {
 		page: {
 			padding: settings.layout === 'minimal' ? 30 : 40,
 			backgroundColor: bgColor,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		title: {
 			fontSize: settings.layout === 'minimal' ? 20 : 24,
@@ -111,6 +152,7 @@ function createPDFStyles(settings: BookSettings) {
 			textAlign: 'center' as const,
 			fontWeight: 'bold' as const,
 			color: settings.style === 'warm_family' ? accentColor : textColor,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		subtitle: {
 			fontSize: settings.layout === 'minimal' ? 12 : 14,
@@ -118,6 +160,7 @@ function createPDFStyles(settings: BookSettings) {
 			textAlign: 'center' as const,
 			color: subtitleColor,
 			fontStyle: settings.style === 'warm_family' ? ('italic' as const) : ('normal' as const),
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		section: {
 			marginBottom: settings.layout === 'minimal' ? 15 : 20,
@@ -127,6 +170,7 @@ function createPDFStyles(settings: BookSettings) {
 			marginBottom: settings.layout === 'minimal' ? 8 : 10,
 			fontWeight: 'bold' as const,
 			color: accentColor,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		text: {
 			fontSize: settings.layout === 'minimal' ? 11 : 12,
@@ -134,6 +178,7 @@ function createPDFStyles(settings: BookSettings) {
 				settings.layout === 'minimal' ? 1.5 : settings.style === 'warm_family' ? 1.8 : 1.6,
 			textAlign: 'justify' as const,
 			color: textColor,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		// Divider Styles
 		dividerPage: {
@@ -149,12 +194,14 @@ function createPDFStyles(settings: BookSettings) {
 			textAlign: 'center' as const,
 			fontWeight: 'bold' as const,
 			color: accentColor,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		dividerContent: {
 			fontSize: 14,
 			textAlign: 'center' as const,
 			color: subtitleColor,
 			fontStyle: 'italic' as const,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 		// Chronicle Styles
 		chronicleDate: {
@@ -163,6 +210,7 @@ function createPDFStyles(settings: BookSettings) {
 			color: settings.style === 'warm_family' ? accentColor : subtitleColor,
 			marginTop: 15,
 			marginBottom: 5,
+			fontFamily: 'NotoSans', // ✅ FIX: Добавляем шрифт с поддержкой кириллицы
 		},
 	};
 
@@ -663,6 +711,9 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			const metadata: BookMetadata = draft.metadata || {};
 
 			console.log('[DRAFT-EDITOR] Generating PDF on client-side...');
+
+			// ✅ FIX: Регистрируем шрифт перед генерацией PDF
+			registerPDFFont();
 
 			// ✅ Generate PDF on client-side using @react-pdf/renderer
 			const pdfDoc = pdf(

@@ -4,7 +4,7 @@ import './index.css';
 
 // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ (2025-11-09): Предотвращение зацикливания обновлений
 // Версия обновляется скриптом generate-sw-version.js перед build
-const APP_VERSION = '2.0.1';
+const APP_VERSION = '2.0.2';
 
 if (import.meta.env.PROD) {
 	const STORED_VERSION = localStorage.getItem('app_version');
