@@ -27,6 +27,7 @@ export const API_URLS = {
 	BOOKS_GENERATE_ANNUAL: `https://${projectId}.supabase.co/functions/v1/books-generate-annual`,
 	BOOKS_RENDER_PDF: `https://${projectId}.supabase.co/functions/v1/books-render-pdf`,
 	BOOKS_RENDER_PUPPETEER: `https://${projectId}.supabase.co/functions/v1/books-render-puppeteer`,
+	BOOKS_RENDER_VERCEL: '/api/books/render-pdf', // ✅ Vercel Serverless Function для качественной генерации PDF
 	// Reports API
 	REPORTS: `https://${projectId}.supabase.co/functions/v1/reports`,
 

@@ -670,6 +670,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 
 	// ✅ FIX: Render PDF using @react-pdf/renderer (client-side)
 	// This is a temporary solution until Puppeteer works in Deno Deploy
+	// ✅ FIX: Используем Vercel Serverless Function для качественной генерации PDF с поддержкой всех языков
 	const handleRenderPDF = async (_blob?: Blob) => {
 		if (!userId || !story || !draft) {
 			toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
@@ -691,64 +692,17 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				return;
 			}
 
-			// ✅ Prepare translations
-			const translations = {
-				prologue: t('books.pdf.prologue', 'Вступление'),
-				chapter: t('books.pdf.chapter', 'Глава'),
-				epilogue: t('books.pdf.epilogue', 'Заключение'),
-				achievements: t('books.pdf.achievements', 'Достижения'),
-				table_of_contents: t('books.pdf.table_of_contents', 'Содержание'),
-			};
+			console.log('[DRAFT-EDITOR] Generating PDF via Vercel Serverless Function...');
 
-			// ✅ Prepare settings
-			const settings: BookSettings = {
-				layout: draft.layout || 'photo_text',
-				style: draft.style || 'warm_family',
-				theme: draft.theme || 'light',
-			};
-
-			// ✅ Prepare metadata
-			const metadata: BookMetadata = draft.metadata || {};
-
-			console.log('[DRAFT-EDITOR] Generating PDF on client-side...');
-
-			// ✅ FIX: Регистрируем шрифт перед генерацией PDF
-			registerPDFFont();
-
-			// ✅ Generate PDF on client-side using @react-pdf/renderer
-			const pdfDoc = pdf(
-				<_BookPDF
-					story={story}
-					metadata={metadata}
-					translations={translations}
-					settings={settings}
-					photos={photos}
-				/>
-			);
-
-			const blob = await pdfDoc.toBlob();
-			console.log('[DRAFT-EDITOR] PDF generated, size:', blob.size, 'bytes');
-
-			// ✅ Convert blob to base64
-			const base64String = await blobToBase64(blob);
-			const pdfBlobBase64 = `data:application/pdf;base64,${base64String}`;
-
-			// ✅ Upload PDF to Storage via Edge Function
-			const uploadUrl = `${API_URLS.BOOKS_RENDER_PDF}/${draftId}/upload`;
-			const response = await fetch(uploadUrl, {
-				method: 'POST', // ✅ FIX: Используем POST вместо PUT для обхода CORS проблем
+			// ✅ Используем Vercel API для качественной генерации PDF с поддержкой всех языков
+			const response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
+				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${session.access_token}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					pdfBlob: pdfBlobBase64,
-					pages: Math.max(1, (story.chapters?.length || 0) + 2), // Rough estimate
-					wordCount:
-						story.title.length +
-						story.subtitle.length +
-						(story.prologue?.length || 0) +
-						(story.chapters?.reduce((sum, ch) => sum + (ch.content?.length || 0), 0) || 0),
+					bookId: draftId,
+					accessToken: session.access_token,
 				}),
 			});
 
@@ -761,14 +715,14 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 					const errorText = await response.text();
 					errorMessage = errorText || errorMessage;
 				}
-				console.error('[DRAFT-EDITOR] PDF upload failed:', response.status, errorMessage);
+				console.error('[DRAFT-EDITOR] PDF generation failed:', response.status, errorMessage);
 				throw new Error(errorMessage);
 			}
 
 			const result = await response.json();
 
 			if (!result.success) {
-				throw new Error(result.error || 'Не удалось загрузить PDF');
+				throw new Error(result.error || 'Не удалось создать PDF');
 			}
 
 			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl и статусом
@@ -783,7 +737,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			});
 
 			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
-			console.log('[DRAFT-EDITOR] PDF uploaded successfully:', result.pdfUrl);
+			console.log('[DRAFT-EDITOR] PDF generated successfully:', result.pdfUrl);
 
 			// ✅ FIX: Вызываем onComplete для обновления списка книг в библиотеке
 			onComplete?.();
