@@ -145,3 +145,4 @@ type PDFReportData = {
 7. `docs/plan/REPORTS_PDF_BOOKS_CHECK_2025-11-21.md` - обновлен статус задач
 
 
+

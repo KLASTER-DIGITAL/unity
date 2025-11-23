@@ -1195,6 +1195,10 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							setBooksLibraryRefreshKey((prev) => prev + 1);
 							setShowBooksLibrary(true);
 						}}
+						onSave={() => {
+							// ✅ FIX: Обновляем список книг после сохранения (без закрытия редактора)
+							setBooksLibraryRefreshKey((prev) => prev + 1);
+						}}
 						onCancel={() => {
 							setEditingDraftId(null);
 							setShowBooksLibrary(true);

@@ -19,6 +19,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+	'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
 };
 
 Deno.serve(async (req) => {
@@ -71,7 +72,7 @@ Deno.serve(async (req) => {
 		}
 
 		// Handle PDF upload
-		if (action === 'upload' && req.method === 'PUT') {
+		if (action === 'upload' && (req.method === 'PUT' || req.method === 'POST')) {
 			const body = await req.json();
 			const { pdfBlob, pages, wordCount } = body;
 
@@ -108,7 +109,7 @@ Deno.serve(async (req) => {
 
 			// Upload PDF to Supabase Storage
 			const fileName = `${user.id}/${draftId}.pdf`;
-			const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+			const { error: uploadError } = await supabaseAdmin.storage
 				.from('books')
 				.upload(fileName, bytes, {
 					contentType: 'application/pdf',

@@ -13,7 +13,7 @@
  * @date 2025-11-07
  */
 
-import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Eye, Image as ImageIcon, Save, Sparkles, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Label } from '@/shared/components/ui/label';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { API_URLS } from '@/shared/lib/api/config/urls';
+import { blobToBase64 } from '@/shared/lib/api/core/request';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 
@@ -30,6 +31,7 @@ type BookDraftEditorProps = {
 	draftId: string;
 	onComplete?: () => void;
 	onCancel?: () => void;
+	onSave?: () => void; // ✅ NEW: Callback для обновления списка после сохранения (без закрытия редактора)
 };
 
 type StoryJson = {
@@ -374,11 +376,11 @@ function _BookPDF({
 	);
 }
 
-export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEditorProps) {
+export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookDraftEditorProps) {
 	const { t } = useTranslation();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
-	const [_isRendering, setIsRendering] = useState(false);
+	const [isRendering, setIsRendering] = useState(false);
 	const [draft, setDraft] = useState<{
 		metadata?: BookMetadata | null;
 		layout?: 'photo_text' | 'text_only' | 'minimal';
@@ -607,6 +609,9 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					is_final: isDraftToFinal,
 				};
 			});
+
+			// ✅ FIX: Вызываем onSave для обновления списка книг (но не закрываем редактор)
+			onSave?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -615,9 +620,10 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 		}
 	};
 
-	// Render PDF using Puppeteer (server-side)
+	// ✅ FIX: Render PDF using @react-pdf/renderer (client-side)
+	// This is a temporary solution until Puppeteer works in Deno Deploy
 	const handleRenderPDF = async (_blob?: Blob) => {
-		if (!userId) {
+		if (!userId || !story || !draft) {
 			toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
 			return;
 		}
@@ -637,16 +643,61 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				return;
 			}
 
-			// ✅ P1: Use Puppeteer for server-side PDF rendering
-			// This provides better Unicode support, stability for long books
-			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
-				method: 'POST',
+			// ✅ Prepare translations
+			const translations = {
+				prologue: t('books.pdf.prologue', 'Вступление'),
+				chapter: t('books.pdf.chapter', 'Глава'),
+				epilogue: t('books.pdf.epilogue', 'Заключение'),
+				achievements: t('books.pdf.achievements', 'Достижения'),
+				table_of_contents: t('books.pdf.table_of_contents', 'Содержание'),
+			};
+
+			// ✅ Prepare settings
+			const settings: BookSettings = {
+				layout: draft.layout || 'photo_text',
+				style: draft.style || 'warm_family',
+				theme: draft.theme || 'light',
+			};
+
+			// ✅ Prepare metadata
+			const metadata: BookMetadata = draft.metadata || {};
+
+			console.log('[DRAFT-EDITOR] Generating PDF on client-side...');
+
+			// ✅ Generate PDF on client-side using @react-pdf/renderer
+			const pdfDoc = pdf(
+				<_BookPDF
+					story={story}
+					metadata={metadata}
+					translations={translations}
+					settings={settings}
+					photos={photos}
+				/>
+			);
+
+			const blob = await pdfDoc.toBlob();
+			console.log('[DRAFT-EDITOR] PDF generated, size:', blob.size, 'bytes');
+
+			// ✅ Convert blob to base64
+			const base64String = await blobToBase64(blob);
+			const pdfBlobBase64 = `data:application/pdf;base64,${base64String}`;
+
+			// ✅ Upload PDF to Storage via Edge Function
+			const uploadUrl = `${API_URLS.BOOKS_RENDER_PDF}/${draftId}/upload`;
+			const response = await fetch(uploadUrl, {
+				method: 'POST', // ✅ FIX: Используем POST вместо PUT для обхода CORS проблем
 				headers: {
 					Authorization: `Bearer ${session.access_token}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					bookId: draftId,
+					pdfBlob: pdfBlobBase64,
+					pages: Math.max(1, (story.chapters?.length || 0) + 2), // Rough estimate
+					wordCount:
+						story.title.length +
+						story.subtitle.length +
+						(story.prologue?.length || 0) +
+						(story.chapters?.reduce((sum, ch) => sum + (ch.content?.length || 0), 0) || 0),
 				}),
 			});
 
@@ -659,14 +710,14 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					const errorText = await response.text();
 					errorMessage = errorText || errorMessage;
 				}
-				console.error('[DRAFT-EDITOR] PDF creation failed:', response.status, errorMessage);
+				console.error('[DRAFT-EDITOR] PDF upload failed:', response.status, errorMessage);
 				throw new Error(errorMessage);
 			}
 
 			const result = await response.json();
 
 			if (!result.success) {
-				throw new Error(result.error || 'Не удалось создать PDF');
+				throw new Error(result.error || 'Не удалось загрузить PDF');
 			}
 
 			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl и статусом
@@ -680,63 +731,18 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				};
 			});
 
-			// ✅ FIX: Обновляем книгу в БД для синхронизации (на случай если Edge Function не обновил)
-			try {
-				const supabase = createClient();
-				await supabase
-					.from('books_archive')
-					.update({
-						pdf_url: result.pdfUrl,
-						is_final: true,
-						is_draft: false,
-					})
-					.eq('id', draftId);
-				console.log('[DRAFT-EDITOR] Book status updated in database');
-			} catch (error) {
-				console.warn('[DRAFT-EDITOR] Failed to update book status:', error);
-				// Не критично, Edge Function уже обновил
-			}
+			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
+			console.log('[DRAFT-EDITOR] PDF uploaded successfully:', result.pdfUrl);
 
-			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-
-			// Проверяем доступность PDF с retry (до 3 попыток)
-			let isAvailable = false;
-			for (let attempt = 0; attempt < 3; attempt++) {
-				try {
-					const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
-					if (checkResponse.ok) {
-						isAvailable = true;
-						break;
-					}
-				} catch (error) {
-					console.warn(
-						`[DRAFT-EDITOR] PDF availability check attempt ${attempt + 1} failed:`,
-						error
-					);
-				}
-
-				if (attempt < 2 && !isAvailable) {
-					await new Promise((resolve) => setTimeout(resolve, 1000));
-				}
-			}
-
-			if (isAvailable) {
-				toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
-				console.log('[DRAFT-EDITOR] PDF URL:', result.pdfUrl);
-
-				// ✅ FIX: Вызываем onComplete для обновления списка книг в библиотеке
-				// Это обновит список книг, если пользователь вернется в библиотеку
-				onComplete?.();
-			} else {
-				console.warn('[DRAFT-EDITOR] PDF created but not yet available');
-				toast.warning(
-					t('books.editor.pdf_warning', 'PDF создан, но еще не доступен. Попробуйте позже.')
-				);
-			}
+			// ✅ FIX: Вызываем onComplete для обновления списка книг в библиотеке
+			onComplete?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
-			toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'));
+			const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+			toast.error(
+				t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'),
+				errorMessage ? { description: errorMessage } : undefined
+			);
 		} finally {
 			setIsRendering(false);
 		}
@@ -1026,21 +1032,21 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 					)}
 
 					<div className="flex flex-wrap gap-2">
-						<Button className="flex-1" disabled={isSaving || _isRendering} onClick={handleSave}>
+						<Button className="flex-1" disabled={isSaving || isRendering} onClick={handleSave}>
 							<Save className="mr-2 h-4 w-4" strokeWidth={2} />
 							{isSaving ? 'Сохранение...' : 'Сохранить'}
 						</Button>
 						{/* Кнопка создания PDF - показывается если PDF еще не создан */}
 						{!draft?.pdfUrl && (
 							<Button
-								disabled={_isRendering || isSaving}
+								disabled={isRendering || isSaving}
 								onClick={() => {
 									void handleRenderPDF();
 								}}
 								variant="default"
 							>
 								<Sparkles className="mr-2 h-4 w-4" strokeWidth={2} />
-								{_isRendering ? 'Создание PDF...' : 'Создать PDF'}
+								{isRendering ? 'Создание PDF...' : 'Создать PDF'}
 							</Button>
 						)}
 						{/* Кнопка просмотра PDF - открывает в новой вкладке */}

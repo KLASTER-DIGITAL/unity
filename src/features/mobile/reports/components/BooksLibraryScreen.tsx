@@ -84,12 +84,13 @@ export function BooksLibraryScreen({
 		createNewVersion: createNewVersionHook,
 	} = useBooksList(userId);
 
-	// Refetch when refreshKey changes
+	// ✅ FIX: Refetch when refreshKey changes or component mounts
 	useEffect(() => {
-		if (refreshKey && refreshKey > 0) {
+		if (userId) {
+			// ✅ FIX: Всегда вызываем fetchBooks при изменении refreshKey или userId
 			fetchBooks();
 		}
-	}, [refreshKey, fetchBooks]);
+	}, [refreshKey, userId, fetchBooks]);
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {
@@ -144,13 +145,8 @@ export function BooksLibraryScreen({
 		if (!pdfUrl && book.isFinal && userId) {
 			console.log('[BOOKS-LIBRARY] PDF URL missing, trying to generate from Storage...');
 			const supabase = createClient();
-			const { data: urlData } = supabase.storage
-				.from('books')
-				.getPublicUrl(`${userId}/${book.id}.pdf`);
-			pdfUrl = urlData.publicUrl;
-			console.log('[BOOKS-LIBRARY] Generated PDF URL from Storage:', pdfUrl);
 
-			// Проверяем существование файла
+			// ✅ FIX: Сначала проверяем существование файла
 			try {
 				const { data: fileData } = await supabase.storage.from('books').list(`${userId}`, {
 					search: `${book.id}.pdf`,
@@ -167,8 +163,35 @@ export function BooksLibraryScreen({
 					return;
 				}
 
-				// Обновляем pdfUrl в БД для будущих запросов
-				await supabase.from('books_archive').update({ pdf_url: pdfUrl }).eq('id', book.id);
+				// ✅ FIX: Используем signed URL вместо public URL (более надежно)
+				const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+					.from('books')
+					.createSignedUrl(`${userId}/${book.id}.pdf`, 3600); // 1 час
+
+				if (signedUrlError || !signedUrlData?.signedUrl) {
+					console.warn(
+						'[BOOKS-LIBRARY] Failed to create signed URL, using public URL:',
+						signedUrlError
+					);
+					// Fallback to public URL
+					const { data: urlData } = supabase.storage
+						.from('books')
+						.getPublicUrl(`${userId}/${book.id}.pdf`);
+					pdfUrl = urlData.publicUrl;
+				} else {
+					pdfUrl = signedUrlData.signedUrl;
+				}
+
+				console.log('[BOOKS-LIBRARY] Generated PDF URL from Storage:', pdfUrl);
+
+				// Обновляем pdfUrl в БД для будущих запросов (сохраняем public URL для совместимости)
+				const { data: publicUrlData } = supabase.storage
+					.from('books')
+					.getPublicUrl(`${userId}/${book.id}.pdf`);
+				await supabase
+					.from('books_archive')
+					.update({ pdf_url: publicUrlData.publicUrl })
+					.eq('id', book.id);
 				console.log('[BOOKS-LIBRARY] Updated pdf_url in database');
 			} catch (error) {
 				console.error('[BOOKS-LIBRARY] Error checking PDF file:', error);
@@ -225,21 +248,72 @@ export function BooksLibraryScreen({
 		if (!isAvailable) {
 			console.error('[BOOKS-LIBRARY] PDF not accessible after retries:', lastError);
 
-			// ✅ FIX: Если PDF недоступен, пытаемся обновить URL из Storage и проверить еще раз
+			// ✅ FIX: Если PDF недоступен, проверяем существование файла и пытаемся получить signed URL
 			if (userId) {
 				const supabase = createClient();
-				const { data: urlData } = supabase.storage
-					.from('books')
-					.getPublicUrl(`${userId}/${book.id}.pdf`);
-				const newPdfUrl = urlData.publicUrl;
 
-				// Проверяем новый URL
+				// ✅ FIX: Сначала проверяем существование файла
 				try {
+					const { data: fileMetadata, error: fileError } = await supabase.storage
+						.from('books')
+						.list(`${userId}`, {
+							limit: 1000,
+						});
+
+					const fileExists =
+						!fileError &&
+						fileMetadata &&
+						fileMetadata.some((file) => file.name === `${book.id}.pdf`);
+
+					if (!fileExists) {
+						// Файл не существует, предлагаем создать PDF
+						toast.error(
+							t(
+								'books.pdf_not_accessible',
+								'PDF файл недоступен. Возможно, файл был удален или перемещен.'
+							),
+							{
+								duration: 5000,
+								action: {
+									label: t('books.create_pdf', 'Создать PDF'),
+									onClick: () => {
+										void handleCreatePDF(book);
+									},
+								},
+							}
+						);
+						return;
+					}
+
+					// ✅ FIX: Файл существует, используем signed URL вместо public URL
+					const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+						.from('books')
+						.createSignedUrl(`${userId}/${book.id}.pdf`, 3600);
+
+					let newPdfUrl: string | null = null;
+					if (!signedUrlError && signedUrlData?.signedUrl) {
+						newPdfUrl = signedUrlData.signedUrl;
+					} else {
+						// Fallback to public URL
+						const { data: urlData } = supabase.storage
+							.from('books')
+							.getPublicUrl(`${userId}/${book.id}.pdf`);
+						newPdfUrl = urlData.publicUrl;
+					}
+
+					// Проверяем новый URL
 					const checkResponse = await fetch(newPdfUrl, { method: 'HEAD' });
 					if (checkResponse.ok) {
-						// ✅ FIX: Обновляем pdfUrl в БД и используем новый URL
-						await supabase.from('books_archive').update({ pdf_url: newPdfUrl }).eq('id', book.id);
-						pdfUrl = newPdfUrl;
+						// ✅ FIX: Обновляем pdfUrl в БД (сохраняем public URL для совместимости) и используем signed URL
+						const { data: publicUrlData } = supabase.storage
+							.from('books')
+							.getPublicUrl(`${userId}/${book.id}.pdf`);
+						await supabase
+							.from('books_archive')
+							.update({ pdf_url: publicUrlData.publicUrl })
+							.eq('id', book.id);
+						pdfUrl = newPdfUrl; // Используем signed URL для просмотра
+						isAvailable = true; // ✅ FIX: Помечаем как доступный
 						console.log('[BOOKS-LIBRARY] PDF URL updated and verified');
 					} else {
 						// Если новый URL тоже не работает, предлагаем создать PDF заново
@@ -261,7 +335,7 @@ export function BooksLibraryScreen({
 						return;
 					}
 				} catch (error) {
-					console.error('[BOOKS-LIBRARY] Error checking updated PDF URL:', error);
+					console.error('[BOOKS-LIBRARY] Error checking PDF file:', error);
 					toast.error(
 						t(
 							'books.pdf_not_accessible',
@@ -298,6 +372,13 @@ export function BooksLibraryScreen({
 				);
 				return;
 			}
+		}
+
+		// ✅ FIX: Проверяем, что pdfUrl валидный перед открытием
+		if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') {
+			console.error('[BOOKS-LIBRARY] Invalid PDF URL:', pdfUrl);
+			toast.error(t('books.pdf_invalid_url', 'Неверный URL PDF файла'));
+			return;
 		}
 
 		// Генерируем имя файла для отображения
@@ -460,13 +541,8 @@ export function BooksLibraryScreen({
 		if (!pdfUrl && book.isFinal && userId) {
 			console.log('[BOOKS-LIBRARY] PDF URL missing, trying to generate from Storage...');
 			const supabase = createClient();
-			const { data: urlData } = supabase.storage
-				.from('books')
-				.getPublicUrl(`${userId}/${book.id}.pdf`);
-			pdfUrl = urlData.publicUrl;
-			console.log('[BOOKS-LIBRARY] Generated PDF URL from Storage:', pdfUrl);
 
-			// Проверяем существование файла
+			// ✅ FIX: Сначала проверяем существование файла
 			try {
 				const { data: fileData } = await supabase.storage.from('books').list(`${userId}`, {
 					search: `${book.id}.pdf`,
@@ -483,8 +559,35 @@ export function BooksLibraryScreen({
 					return;
 				}
 
-				// Обновляем pdfUrl в БД для будущих запросов
-				await supabase.from('books_archive').update({ pdf_url: pdfUrl }).eq('id', book.id);
+				// ✅ FIX: Используем signed URL вместо public URL (более надежно)
+				const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+					.from('books')
+					.createSignedUrl(`${userId}/${book.id}.pdf`, 3600); // 1 час
+
+				if (signedUrlError || !signedUrlData?.signedUrl) {
+					console.warn(
+						'[BOOKS-LIBRARY] Failed to create signed URL, using public URL:',
+						signedUrlError
+					);
+					// Fallback to public URL
+					const { data: urlData } = supabase.storage
+						.from('books')
+						.getPublicUrl(`${userId}/${book.id}.pdf`);
+					pdfUrl = urlData.publicUrl;
+				} else {
+					pdfUrl = signedUrlData.signedUrl;
+				}
+
+				console.log('[BOOKS-LIBRARY] Generated PDF URL from Storage:', pdfUrl);
+
+				// Обновляем pdfUrl в БД для будущих запросов (сохраняем public URL для совместимости)
+				const { data: publicUrlData } = supabase.storage
+					.from('books')
+					.getPublicUrl(`${userId}/${book.id}.pdf`);
+				await supabase
+					.from('books_archive')
+					.update({ pdf_url: publicUrlData.publicUrl })
+					.eq('id', book.id);
 				console.log('[BOOKS-LIBRARY] Updated pdf_url in database');
 			} catch (error) {
 				console.error('[BOOKS-LIBRARY] Error checking PDF file:', error);
@@ -563,19 +666,20 @@ export function BooksLibraryScreen({
 			console.log('[BOOKS-LIBRARY] Downloading PDF from:', pdfUrl);
 
 			// ✅ Проверяем поддержку Web Share API для мобильных устройств
-			if (
-				navigator.share &&
-				navigator.canShare?.({ files: [new File([blob], fileName, { type: 'application/pdf' })] })
-			) {
-				// Используем Web Share API для мобильных устройств
+			// ✅ FIX: Проверяем доступность File constructor перед использованием
+			if (typeof File !== 'undefined' && navigator.share) {
 				try {
-					await navigator.share({
-						title: bookTitle,
-						files: [new File([blob], fileName, { type: 'application/pdf' })],
-					});
-					toast.dismiss(loadingToast);
-					toast.success(t('books.downloaded', 'PDF скачан успешно!'));
-					return;
+					const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
+					if (navigator.canShare?.({ files: [pdfFile] })) {
+						// Используем Web Share API для мобильных устройств
+						await navigator.share({
+							title: bookTitle,
+							files: [pdfFile],
+						});
+						toast.dismiss(loadingToast);
+						toast.success(t('books.downloaded', 'PDF скачан успешно!'));
+						return;
+					}
 				} catch (shareError) {
 					// Если пользователь отменил шаринг, просто выходим
 					if (shareError instanceof Error && shareError.name === 'AbortError') {
@@ -1018,7 +1122,7 @@ export function BooksLibraryScreen({
 						setViewingPdfUrl(null);
 						setViewingPdfFileName(null);
 					}}
-					url={viewingPdfUrl}
+					pdfUrl={viewingPdfUrl}
 				/>
 			)}
 

@@ -714,3 +714,4 @@ CREATE TABLE book_photos (
 **UX рейтинг**: 5/5 ⭐ (полный цикл, понятный flow, красивый UI)
 
 
+

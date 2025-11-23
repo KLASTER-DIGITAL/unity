@@ -451,7 +451,17 @@ Deno.serve(async (req) => {
 		// Launch Puppeteer
 		console.log('[PUPPETEER] Launching browser...');
 		const browser = await puppeteer.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-gpu',
+				'--disable-software-rasterizer',
+			],
+			// ✅ FIX: Отключаем использование файловой системы для кэширования
+			// Это предотвращает использование lstatSync, который заблокирован в Deno Deploy
+			headless: true,
+			ignoreHTTPSErrors: true,
 		});
 
 		const page = await browser.newPage();

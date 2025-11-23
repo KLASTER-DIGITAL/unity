@@ -104,3 +104,4 @@ console.log('[REPORTS] Method:', req.method);
 1. `supabase/functions/reports/index.ts` - добавлено логирование для отладки
 
 
+

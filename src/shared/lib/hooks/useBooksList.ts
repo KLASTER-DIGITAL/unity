@@ -47,12 +47,13 @@ export function useBooksList(userId: string | null) {
 		}
 
 		try {
+			setLoading(true); // ✅ FIX: Устанавливаем loading перед запросом
 			const supabase = createClient();
 			let query = supabase
 				.from('books_archive')
 				.select('*')
 				.eq('user_id', userId)
-				.order('created_at', { ascending: false });
+				.order('updated_at', { ascending: false }); // ✅ FIX: Сортируем по updated_at для отображения последних изменений
 
 			// Apply status filter
 			if (filter === 'drafts') {

@@ -192,3 +192,4 @@ ORDER BY created_at DESC;
 7. ⏳ Зафиксировать результаты
 
 
+

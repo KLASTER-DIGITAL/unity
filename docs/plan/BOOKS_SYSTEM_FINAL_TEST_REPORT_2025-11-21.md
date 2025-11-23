@@ -319,3 +319,4 @@ Edge Function `books-generate-draft` использует AI операцию `m
 - `BOOKS_SYSTEM_TEST_REPORT_CONTINUED_2025-11-21.md` - Продолжение тестирования
 
 
+

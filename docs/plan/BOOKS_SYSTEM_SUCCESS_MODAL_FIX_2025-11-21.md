@@ -115,3 +115,4 @@ const handleGoToLibrary = () => {
 - `docs/plan/IDEAL_BOOKS_SYSTEM_RECOMMENDATIONS_2025-11-21.md` - Рекомендации по системе книг
 
 
+

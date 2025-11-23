@@ -134,3 +134,4 @@ SET translation_value = EXCLUDED.translation_value,
 - ✅ UX улучшится (нет fallback значений)
 
 
+

@@ -146,13 +146,15 @@ export function PDFViewer({ pdfUrl, fileName, isOpen, onClose }: PDFViewerProps)
 						)}
 
 						{/* PDF iframe with scroll - ✅ Fullscreen on mobile */}
-						<iframe
-							className={`h-full w-full border-0 sm:rounded-lg ${isLoading || hasError ? 'opacity-0' : 'opacity-100'}`}
-							onError={handleIframeError}
-							onLoad={handleIframeLoad}
-							src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&zoom=page-fit`}
-							title={fileName || 'Просмотр PDF документа'}
-						/>
+						{pdfUrl && (
+							<iframe
+								className={`h-full w-full border-0 sm:rounded-lg ${isLoading || hasError ? 'opacity-0' : 'opacity-100'}`}
+								onError={handleIframeError}
+								onLoad={handleIframeLoad}
+								src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&zoom=page-fit`}
+								title={fileName || 'Просмотр PDF документа'}
+							/>
+						)}
 					</motion.div>
 
 					{/* File name - ✅ MOBILE OPTIMIZED: Compact, only on desktop */}
