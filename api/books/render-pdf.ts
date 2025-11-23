@@ -438,9 +438,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Initialize Supabase client
 		// ✅ Используем переменные окружения Vercel
+		// Поддерживаем как VITE_SUPABASE_URL (уже настроен), так и SUPABASE_URL
 		const supabaseUrl =
-			process.env.NEXT_PUBLIC_SUPABASE_URL ||
 			process.env.SUPABASE_URL ||
+			process.env.NEXT_PUBLIC_SUPABASE_URL ||
+			process.env.VITE_SUPABASE_URL ||
 			'https://ecuwuzqlwdkkdncampnc.supabase.co';
 		const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
