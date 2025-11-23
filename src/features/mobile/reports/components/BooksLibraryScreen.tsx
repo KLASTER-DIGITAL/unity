@@ -224,23 +224,80 @@ export function BooksLibraryScreen({
 
 		if (!isAvailable) {
 			console.error('[BOOKS-LIBRARY] PDF not accessible after retries:', lastError);
-			// Если PDF недоступен после всех попыток, предлагаем создать его заново
-			toast.error(
-				t(
-					'books.pdf_not_accessible',
-					'PDF файл недоступен. Возможно, файл был удален или перемещен.'
-				),
-				{
-					duration: 5000,
-					action: {
-						label: t('books.create_pdf', 'Создать PDF'),
-						onClick: () => {
-							void handleCreatePDF(book);
-						},
-					},
+
+			// ✅ FIX: Если PDF недоступен, пытаемся обновить URL из Storage и проверить еще раз
+			if (userId) {
+				const supabase = createClient();
+				const { data: urlData } = supabase.storage
+					.from('books')
+					.getPublicUrl(`${userId}/${book.id}.pdf`);
+				const newPdfUrl = urlData.publicUrl;
+
+				// Проверяем новый URL
+				try {
+					const checkResponse = await fetch(newPdfUrl, { method: 'HEAD' });
+					if (checkResponse.ok) {
+						// ✅ FIX: Обновляем pdfUrl в БД и используем новый URL
+						await supabase.from('books_archive').update({ pdf_url: newPdfUrl }).eq('id', book.id);
+						pdfUrl = newPdfUrl;
+						console.log('[BOOKS-LIBRARY] PDF URL updated and verified');
+					} else {
+						// Если новый URL тоже не работает, предлагаем создать PDF заново
+						toast.error(
+							t(
+								'books.pdf_not_accessible',
+								'PDF файл недоступен. Возможно, файл был удален или перемещен.'
+							),
+							{
+								duration: 5000,
+								action: {
+									label: t('books.create_pdf', 'Создать PDF'),
+									onClick: () => {
+										void handleCreatePDF(book);
+									},
+								},
+							}
+						);
+						return;
+					}
+				} catch (error) {
+					console.error('[BOOKS-LIBRARY] Error checking updated PDF URL:', error);
+					toast.error(
+						t(
+							'books.pdf_not_accessible',
+							'PDF файл недоступен. Возможно, файл был удален или перемещен.'
+						),
+						{
+							duration: 5000,
+							action: {
+								label: t('books.create_pdf', 'Создать PDF'),
+								onClick: () => {
+									void handleCreatePDF(book);
+								},
+							},
+						}
+					);
+					return;
 				}
-			);
-			return;
+			} else {
+				// Если userId отсутствует, просто показываем ошибку
+				toast.error(
+					t(
+						'books.pdf_not_accessible',
+						'PDF файл недоступен. Возможно, файл был удален или перемещен.'
+					),
+					{
+						duration: 5000,
+						action: {
+							label: t('books.create_pdf', 'Создать PDF'),
+							onClick: () => {
+								void handleCreatePDF(book);
+							},
+						},
+					}
+				);
+				return;
+			}
 		}
 
 		// Генерируем имя файла для отображения
@@ -309,8 +366,28 @@ export function BooksLibraryScreen({
 			toast.dismiss(loadingToast);
 			toast.success(t('books.pdf_created', 'PDF книга создана!'));
 
-			// Обновляем список книг
+			// ✅ FIX: Обновляем список книг для отображения нового статуса
 			await fetchBooks();
+
+			// ✅ FIX: Если PDF доступен, сразу открываем его для просмотра
+			if (result.pdfUrl) {
+				// Проверяем доступность PDF с небольшой задержкой
+				setTimeout(async () => {
+					try {
+						const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
+						if (checkResponse.ok) {
+							const bookTitle = book.storyJson?.title || 'book';
+							const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
+							const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
+
+							setViewingPdfFileName(fileName);
+							setViewingPdfUrl(result.pdfUrl);
+						}
+					} catch (error) {
+						console.warn('[BOOKS-LIBRARY] PDF not yet available for viewing:', error);
+					}
+				}, 1000);
+			}
 
 			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
 			// Затем проверяем доступность перед открытием модального окна
@@ -421,18 +498,55 @@ export function BooksLibraryScreen({
 			return;
 		}
 
-		try {
-			// Показываем индикатор загрузки
-			const loadingToast = toast.loading(t('books.downloading', 'Скачивание PDF...'));
+		// ✅ FIX: Показываем индикатор загрузки
+		const loadingToast = toast.loading(t('books.downloading', 'Скачивание PDF...'));
 
-			// Скачиваем PDF через fetch
-			const response = await fetch(pdfUrl);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+		try {
+			// ✅ FIX: Скачиваем PDF через fetch с retry логикой (до 3 попыток)
+			let response: Response | null = null;
+			let blob: Blob | null = null;
+			let lastError: Error | null = null;
+
+			for (let attempt = 0; attempt < 3; attempt++) {
+				try {
+					console.log(`[BOOKS-LIBRARY] Download attempt ${attempt + 1}/3`);
+					response = await fetch(pdfUrl, {
+						method: 'GET',
+						// ✅ FIX: Добавляем timeout для предотвращения зависания
+						signal: AbortSignal.timeout(30000), // 30 секунд timeout
+					});
+
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+
+					// Создаем blob из ответа
+					blob = await response.blob();
+
+					// ✅ FIX: Проверяем, что blob не пустой
+					if (!blob || blob.size === 0) {
+						throw new Error('PDF файл пустой');
+					}
+
+					console.log(`[BOOKS-LIBRARY] PDF downloaded successfully, size: ${blob.size} bytes`);
+					break; // Успешно скачали, выходим из цикла
+				} catch (error) {
+					lastError = error instanceof Error ? error : new Error('Unknown error');
+					console.warn(`[BOOKS-LIBRARY] Download attempt ${attempt + 1} failed:`, lastError);
+
+					// Если это последняя попытка, выбрасываем ошибку
+					if (attempt === 2) {
+						throw lastError;
+					}
+
+					// Ждем перед следующей попыткой (экспоненциальная задержка)
+					await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+				}
 			}
 
-			// Создаем blob из ответа
-			const blob = await response.blob();
+			if (!blob) {
+				throw new Error('Не удалось скачать PDF файл');
+			}
 
 			// Генерируем имя файла из названия книги
 			const bookTitle = (book.storyJson as any)?.title || 'book';
@@ -491,11 +605,28 @@ export function BooksLibraryScreen({
 			// Освобождаем память
 			URL.revokeObjectURL(url);
 
+			// ✅ FIX: Всегда закрываем loading toast перед показом результата
 			toast.dismiss(loadingToast);
 			toast.success(t('books.downloaded', 'PDF скачан успешно!'));
 		} catch (error) {
+			// ✅ FIX: Всегда закрываем loading toast даже при ошибке
+			toast.dismiss(loadingToast);
+
 			console.error('[BOOKS-LIBRARY] Error downloading PDF:', error);
-			toast.error(t('books.download_error', 'Произошла ошибка при скачивании PDF'));
+			const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+
+			// ✅ FIX: Показываем более детальное сообщение об ошибке
+			toast.error(t('books.download_error', 'Произошла ошибка при скачивании PDF'), {
+				description:
+					errorMessage.length > 100 ? `${errorMessage.substring(0, 100)}...` : errorMessage,
+				duration: 5000,
+				action: {
+					label: t('books.retry', 'Повторить'),
+					onClick: () => {
+						void handleDownload(book);
+					},
+				},
+			});
 		}
 	};
 

@@ -114,6 +114,7 @@ export function BookCreationWizard({
 			{/* Progress Modal */}
 			{showProgress && (
 				<BookGenerationProgress
+					error={generationError}
 					isOpen={showProgress}
 					onClose={() => setShowProgress(false)}
 					onComplete={handleProgressComplete}

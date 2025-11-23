@@ -386,6 +386,8 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 		theme?: 'light' | 'dark';
 		planType?: 'free' | 'premium';
 		pdfUrl?: string | null;
+		is_draft?: boolean;
+		is_final?: boolean;
 	} | null>(null);
 	const [story, setStory] = useState<StoryJson | null>(null);
 	const [userId, setUserId] = useState<string | null>(null);
@@ -586,41 +588,25 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				return;
 			}
 
-			// ✅ FIX: Если черновик стал готовой книгой, автоматически создаем PDF
+			// ✅ FIX: Если черновик стал готовой книгой, просто меняем статус
+			// PDF создается отдельно через кнопку "Создать PDF" или автоматически при первом просмотре
 			if (isDraftToFinal) {
-				console.log('[DRAFT-EDITOR] Draft became final, creating PDF automatically...');
-				toast.success(
-					t('books.editor.save_success_ready', 'Книга сохранена и готова! Создание PDF...')
-				);
-
-				// ✅ FIX: Ждем создания PDF перед закрытием редактора, чтобы PDF был готов к просмотру
-				try {
-					await handleRenderPDF();
-					console.log('[DRAFT-EDITOR] PDF created successfully, closing editor');
-				} catch (error) {
-					console.error('[DRAFT-EDITOR] Error creating PDF after save:', error);
-
-					// ✅ FIX: Показываем более детальное сообщение об ошибке
-					const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
-					console.error('[DRAFT-EDITOR] PDF creation error details:', {
-						errorMessage,
-						bookId: draftId,
-						userId,
-					});
-
-					// Показываем предупреждение с деталями ошибки, но не блокируем закрытие
-					toast.error(t('books.editor.pdf_error', 'Произошла ошибка при создании PDF'), {
-						description:
-							errorMessage.length > 100 ? `${errorMessage.substring(0, 100)}...` : errorMessage,
-						duration: 5000,
-					});
-				}
+				console.log('[DRAFT-EDITOR] Draft became final, book saved successfully');
+				toast.success(t('books.editor.save_success_ready', 'Книга сохранена и готова!'));
 			} else {
 				toast.success(t('books.editor.save_success', 'Изменения сохранены'));
 			}
 
-			// ✅ После сохранения переходим обратно в полку книг
-			onComplete?.();
+			// ✅ После сохранения обновляем локальное состояние и НЕ закрываем редактор
+			// Пользователь может продолжить редактирование или создать PDF
+			setDraft((prev) => {
+				if (!prev) return prev;
+				return {
+					...prev,
+					is_draft: !isDraftToFinal,
+					is_final: isDraftToFinal,
+				};
+			});
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -683,6 +669,34 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 				throw new Error(result.error || 'Не удалось создать PDF');
 			}
 
+			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl и статусом
+			setDraft((prev) => {
+				if (!prev) return prev;
+				return {
+					...prev,
+					pdfUrl: result.pdfUrl,
+					is_draft: false,
+					is_final: true,
+				};
+			});
+
+			// ✅ FIX: Обновляем книгу в БД для синхронизации (на случай если Edge Function не обновил)
+			try {
+				const supabase = createClient();
+				await supabase
+					.from('books_archive')
+					.update({
+						pdf_url: result.pdfUrl,
+						is_final: true,
+						is_draft: false,
+					})
+					.eq('id', draftId);
+				console.log('[DRAFT-EDITOR] Book status updated in database');
+			} catch (error) {
+				console.warn('[DRAFT-EDITOR] Failed to update book status:', error);
+				// Не критично, Edge Function уже обновил
+			}
+
 			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -710,19 +724,15 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 			if (isAvailable) {
 				toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
 				console.log('[DRAFT-EDITOR] PDF URL:', result.pdfUrl);
+
+				// ✅ FIX: Вызываем onComplete для обновления списка книг в библиотеке
+				// Это обновит список книг, если пользователь вернется в библиотеку
+				onComplete?.();
 			} else {
 				console.warn('[DRAFT-EDITOR] PDF created but not yet available');
 				toast.warning(
 					t('books.editor.pdf_warning', 'PDF создан, но еще не доступен. Попробуйте позже.')
 				);
-			}
-
-			// ✅ FIX: onComplete вызывается только если handleRenderPDF вызван напрямую (не из handleSave)
-			// Если вызван из handleSave, onComplete уже будет вызван там
-			// Определяем это по наличию параметра _blob (если он undefined, значит вызван напрямую)
-			// Но также проверяем, что мы не в процессе сохранения (isSaving)
-			if (_blob === undefined && !isSaving) {
-				onComplete?.();
 			}
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
@@ -1015,11 +1025,24 @@ export function BookDraftEditor({ draftId, onComplete, onCancel }: BookDraftEdit
 						</Card>
 					)}
 
-					<div className="flex gap-2">
-						<Button className="flex-1" disabled={isSaving} onClick={handleSave}>
+					<div className="flex flex-wrap gap-2">
+						<Button className="flex-1" disabled={isSaving || _isRendering} onClick={handleSave}>
 							<Save className="mr-2 h-4 w-4" strokeWidth={2} />
 							{isSaving ? 'Сохранение...' : 'Сохранить'}
 						</Button>
+						{/* Кнопка создания PDF - показывается если PDF еще не создан */}
+						{!draft?.pdfUrl && (
+							<Button
+								disabled={_isRendering || isSaving}
+								onClick={() => {
+									void handleRenderPDF();
+								}}
+								variant="default"
+							>
+								<Sparkles className="mr-2 h-4 w-4" strokeWidth={2} />
+								{_isRendering ? 'Создание PDF...' : 'Создать PDF'}
+							</Button>
+						)}
 						{/* Кнопка просмотра PDF - открывает в новой вкладке */}
 						{draft?.pdfUrl && (
 							<Button

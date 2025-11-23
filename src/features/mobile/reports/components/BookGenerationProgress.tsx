@@ -16,6 +16,7 @@ export type BookGenerationProgressProps = {
 	isOpen: boolean;
 	onClose?: () => void;
 	onComplete?: () => void;
+	error?: string | null; // ✅ NEW: Error message to stop simulation
 };
 
 type GenerationStep = {
@@ -62,6 +63,7 @@ export function BookGenerationProgress({
 	isOpen,
 	onClose: _onClose,
 	onComplete,
+	error,
 }: BookGenerationProgressProps) {
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);
 	const [progress, setProgress] = useState(0);
@@ -70,6 +72,12 @@ export function BookGenerationProgress({
 		if (!isOpen) {
 			setCurrentStepIndex(0);
 			setProgress(0);
+			return;
+		}
+
+		// ✅ FIX: Если есть ошибка, останавливаем симуляцию
+		if (error) {
+			console.log('[BOOK-GENERATION-PROGRESS] Error detected, stopping simulation');
 			return;
 		}
 
@@ -109,7 +117,7 @@ export function BookGenerationProgress({
 			clearInterval(interval);
 			completed = true; // Prevent call if component unmounts
 		};
-	}, [isOpen, onComplete]);
+	}, [isOpen, onComplete, error]);
 
 	if (!isOpen) return null;
 
@@ -141,13 +149,22 @@ export function BookGenerationProgress({
 					</div>
 				</div>
 
-				{/* Current Step */}
-				<div className="mb-6 rounded-lg border border-border bg-muted/50 p-4">
-					<div className="flex items-center gap-3">
-						<div className="text-primary">{currentStep.icon}</div>
-						<p className="flex-1 text-sm font-medium sm:text-base">{currentStep.label}</p>
+				{/* Current Step or Error */}
+				{error ? (
+					<div className="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
+						<div className="flex items-center gap-3">
+							<div className="text-destructive">⚠️</div>
+							<p className="flex-1 text-sm font-medium text-destructive sm:text-base">{error}</p>
+						</div>
 					</div>
-				</div>
+				) : (
+					<div className="mb-6 rounded-lg border border-border bg-muted/50 p-4">
+						<div className="flex items-center gap-3">
+							<div className="text-primary">{currentStep.icon}</div>
+							<p className="flex-1 text-sm font-medium sm:text-base">{currentStep.label}</p>
+						</div>
+					</div>
+				)}
 
 				{/* Note: Success modal will be shown after completion */}
 			</div>
