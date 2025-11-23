@@ -10,12 +10,12 @@
 
 import {
 	ArrowLeft,
-	Book as BookIcon,
+	BookOpen,
 	Calendar,
 	Download,
 	Edit,
 	Eye,
-	Filter,
+	File,
 	Plus,
 	Sparkles,
 	Trash2,
@@ -29,7 +29,8 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { API_URLS } from '@/shared/lib/api/config/urls';
-import { type Book, useBooksList } from '@/shared/lib/hooks/useBooksList';
+import type { Book } from '@/shared/lib/hooks/useBooksList';
+import { useBooksList } from '@/shared/lib/hooks/useBooksList';
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';
 import { BookDeleteConfirmModal } from './BookDeleteConfirmModal';
@@ -585,7 +586,7 @@ export function BooksLibraryScreen({
 						transition={{ type: 'spring', stiffness: 300, damping: 15 }}
 						className="flex h-10 w-10 items-center justify-center rounded-full bg-card/20 backdrop-blur-sm sm:h-12 sm:w-12"
 					>
-						<BookIcon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
+						<BookOpen className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} />
 					</motion.div>
 					<div className="flex-1">
 						<motion.h2
@@ -612,7 +613,7 @@ export function BooksLibraryScreen({
 				<div className="space-y-3">
 					{/* Status Filter */}
 					<div className="flex items-center gap-2">
-						<Filter className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
+						<File className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
 						<div className="flex gap-2">
 							<Button
 								onClick={() => setFilter('all')}
@@ -677,7 +678,7 @@ export function BooksLibraryScreen({
 										ease: 'easeInOut',
 									}}
 								>
-									<BookIcon
+									<BookOpen
 										className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50"
 										strokeWidth={1.5}
 									/>
@@ -759,9 +760,20 @@ export function BooksLibraryScreen({
 												variant="outline"
 											>
 												{book.isFinal
-													? t('books.status.ready_short', 'Готово')
-													: t('books.status.draft_short', 'Черновик')}
+													? t('books.status.ready_short' as any, 'Готово')
+													: t('books.status.draft_short' as any, 'Черновик')}
 											</Badge>
+
+											{/* 🆕 Offline Status Badge */}
+											{book.isAvailableOffline && (
+												<Badge
+													className="h-5 px-2 text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+													variant="outline"
+												>
+													<Download className="h-2.5 w-2.5 mr-1" />
+													Offline
+												</Badge>
+											)}
 										</div>
 
 										{/* Meta */}
