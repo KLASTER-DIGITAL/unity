@@ -16,7 +16,7 @@
  * @date 2025-11-23
  */
 
-import chromium from '@sparticuz/chromium';
+import * as chromium from '@sparticuz/chromium';
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import puppeteer from 'puppeteer-core';
@@ -28,6 +28,13 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 	'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+function send(res: VercelResponse, status: number, body: Record<string, unknown>) {
+	for (const [k, v] of Object.entries(corsHeaders)) {
+		res.setHeader(k, v as string);
+	}
+	return res.status(status).json(body);
+}
 
 type BookChapter = {
 	title?: string;
@@ -85,23 +92,133 @@ function getLanguageCode(language?: string): string {
 	return langMap[language || 'ru'] || 'ru';
 }
 
-// ✅ Получение правильных шрифтов для языка (поддержка всех 9 языков)
-function getFontsForLanguage(language: string): string {
-	const fontMap: Record<string, string> = {
-		ru: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		en: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		es: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		de: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		fr: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		'zh-CN': 'family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600',
-		ja: 'family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;600',
-		kk: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600', // Казахский использует кириллицу
-		ka: 'family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif+Georgian:wght@400;600', // Грузинский
-	};
-	return fontMap[language] || fontMap.ru;
+// ✅ Базовый путь для локальных шрифтов (Supabase Storage, bucket assets/fonts)
+const FONT_BASE_URL =
+	'https://ecuwuzqlwdkkdncampnc.supabase.co/storage/v1/object/public/assets/fonts';
+
+type FontConfig = {
+	family: string;
+	path: string;
+	weights: Array<{ file: string; weight: number }>;
+	unicodeRange?: string;
+};
+
+// ✅ Локальные шрифты (WOFF2), загруженные в Supabase Storage через scripts/upload-fonts-to-storage.ts
+const FONT_MAP: Record<string, FontConfig[]> = {
+	// Кириллица / латиница (ru, en, es, de, fr, kk)
+	latin: [
+		{
+			family: 'Noto Sans',
+			path: 'noto-sans',
+			weights: [
+				{ file: 'NotoSans-Regular.woff2', weight: 400 },
+				{ file: 'NotoSans-Medium.woff2', weight: 500 },
+				{ file: 'NotoSans-SemiBold.woff2', weight: 600 },
+				{ file: 'NotoSans-Bold.woff2', weight: 700 },
+			],
+		},
+		{
+			family: 'Noto Serif',
+			path: 'noto-serif',
+			weights: [
+				{ file: 'NotoSerif-Regular.woff2', weight: 400 },
+				{ file: 'NotoSerif-Bold.woff2', weight: 700 },
+			],
+		},
+	],
+	// Упрощённый китайский (zh-CN)
+	'zh-CN': [
+		{
+			family: 'Noto Sans SC',
+			path: 'noto-sans-sc',
+			weights: [
+				{ file: 'NotoSansSC-Regular.woff2', weight: 400 },
+				{ file: 'NotoSansSC-Medium.woff2', weight: 500 },
+				{ file: 'NotoSansSC-SemiBold.woff2', weight: 600 },
+				{ file: 'NotoSansSC-Bold.woff2', weight: 700 },
+			],
+		},
+		{
+			family: 'Noto Serif SC',
+			path: 'noto-serif-sc',
+			weights: [
+				{ file: 'NotoSerifSC-Regular.woff2', weight: 400 },
+				{ file: 'NotoSerifSC-Bold.woff2', weight: 700 },
+			],
+		},
+	],
+	// Японский (ja)
+	ja: [
+		{
+			family: 'Noto Sans JP',
+			path: 'noto-sans-jp',
+			weights: [
+				{ file: 'NotoSansJP-Regular.woff2', weight: 400 },
+				{ file: 'NotoSansJP-Medium.woff2', weight: 500 },
+				{ file: 'NotoSansJP-SemiBold.woff2', weight: 600 },
+				{ file: 'NotoSansJP-Bold.woff2', weight: 700 },
+			],
+		},
+		{
+			family: 'Noto Serif JP',
+			path: 'noto-serif-jp',
+			weights: [
+				{ file: 'NotoSerifJP-Regular.woff2', weight: 400 },
+				{ file: 'NotoSerifJP-Bold.woff2', weight: 700 },
+			],
+		},
+	],
+	// Грузинский (ka) — используют те же Noto Sans/Serif (лат/кир), но Google-фонт для Georgian может отсутствовать,
+	// поэтому оставляем общий набор; для идеала можно добавить NotoSansGeorgian/NotoSerifGeorgian в Storage аналогично.
+	ka: [
+		{
+			family: 'Noto Sans',
+			path: 'noto-sans',
+			weights: [
+				{ file: 'NotoSans-Regular.woff2', weight: 400 },
+				{ file: 'NotoSans-Medium.woff2', weight: 500 },
+				{ file: 'NotoSans-SemiBold.woff2', weight: 600 },
+				{ file: 'NotoSans-Bold.woff2', weight: 700 },
+			],
+		},
+		{
+			family: 'Noto Serif',
+			path: 'noto-serif',
+			weights: [
+				{ file: 'NotoSerif-Regular.woff2', weight: 400 },
+				{ file: 'NotoSerif-Bold.woff2', weight: 700 },
+			],
+		},
+	],
+};
+
+function getFontConfigs(language: string): FontConfig[] {
+	if (FONT_MAP[language]) return FONT_MAP[language];
+	return FONT_MAP.latin; // fallback для ru/en/es/de/fr/kk
 }
 
-// ✅ Генерация HTML для книги с учетом всех настроек wizard
+function buildFontFaceCss(language: string): string {
+	const fonts = getFontConfigs(language);
+	return fonts
+		.map((font) =>
+			font.weights
+				.map(
+					(w) => `
+@font-face {
+	font-family: '${font.family}';
+	src: url('${FONT_BASE_URL}/${font.path}/${w.file}') format('woff2');
+	font-weight: ${w.weight};
+	font-style: normal;
+	font-display: swap;
+}
+`
+				)
+				.join('\n')
+		)
+		.join('\n');
+}
+
+/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: render builder aggregates branches */
 function generateBookHTML(
 	story: BookStory,
 	metadata: BookMetadata,
@@ -123,7 +240,7 @@ function generateBookHTML(
 	};
 	const colors = styleColors[style as keyof typeof styleColors] || styleColors.warm_family;
 	const langCode = getLanguageCode(language);
-	const fonts = getFontsForLanguage(langCode);
+	const fontFaceCss = buildFontFaceCss(langCode);
 
 	// Layout-specific styles
 	const layoutStyles = {
@@ -153,8 +270,8 @@ function generateBookHTML(
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>${escapeHtml(story.title || 'Моя книга')}</title>
 	<style>
-		/* ✅ FIX: Используем display=block для гарантии загрузки шрифтов перед рендерингом */
-		@import url('https://fonts.googleapis.com/css2?${fonts}&display=block');
+		/* ✅ Локальные шрифты из Supabase Storage */
+		${fontFaceCss}
 		
 		* {
 			margin: 0;
@@ -167,9 +284,9 @@ function generateBookHTML(
 			margin: 0;
 		}
 		
-		body {
-			/* ✅ FIX: Приоритет шрифтов для русского языка - Noto Sans должен быть первым */
-			font-family: 'Noto Sans', 'Noto Serif', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans Georgian', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	body {
+		/* ✅ FIX: Приоритет шрифтов - локальные Noto Sans/Serif */
+		font-family: 'Noto Sans', 'Noto Serif', 'Noto Sans SC', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 			background: ${bgColor};
 			color: ${textColor};
 			line-height: 1.8;
@@ -205,7 +322,7 @@ function generateBookHTML(
 		
 		h1 {
 			/* ✅ FIX: Приоритет шрифтов для заголовков - Noto Serif должен быть первым */
-			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
+			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', serif;
 			font-size: 28pt;
 			font-weight: 700;
 			color: ${colors.primary};
@@ -223,7 +340,7 @@ function generateBookHTML(
 		
 		h2 {
 			/* ✅ FIX: Приоритет шрифтов для подзаголовков - Noto Serif должен быть первым */
-			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', 'Noto Serif Georgian', serif;
+			font-family: 'Noto Serif', 'Noto Sans', 'Noto Serif SC', 'Noto Serif JP', serif;
 			font-size: 18pt;
 			font-weight: 600;
 			color: ${colors.primary};
@@ -432,22 +549,15 @@ function generateBookHTML(
 	`;
 }
 
+/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: handler covers auth, render, upload, error branches */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-	// ✅ FIX: Добавляем CORS headers для всех ответов
-	const corsHeaders = {
-		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-		'Access-Control-Allow-Methods': 'POST, OPTIONS',
-		'Content-Type': 'application/json',
-	};
-
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
-		return res.status(200).json({ ok: true });
+		return send(res, 200, { ok: true });
 	}
 
 	if (req.method !== 'POST') {
-		return res.status(405).json({ success: false, error: 'Method not allowed' });
+		return send(res, 405, { success: false, error: 'Method not allowed' });
 	}
 
 	try {
@@ -455,10 +565,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const { bookId, accessToken } = req.body;
 
 		if (!bookId || !accessToken) {
-			return res.status(400).json({
-				success: false,
-				error: 'Missing bookId or accessToken',
-			});
+			return send(res, 400, { success: false, error: 'Missing bookId or accessToken' });
 		}
 
 		// Initialize Supabase client
@@ -478,7 +585,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
 				hasViteUrl: !!process.env.VITE_SUPABASE_URL,
 			});
-			return res.status(500).json({
+			return send(res, 500, {
 				success: false,
 				error:
 					'Supabase configuration missing. Please check Vercel environment variables: SUPABASE_SERVICE_ROLE_KEY',
@@ -499,10 +606,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		} = await supabaseAdmin.auth.getUser(accessToken);
 
 		if (authError || !user) {
-			return res.status(401).json({
-				success: false,
-				error: 'Invalid access token',
-			});
+			return send(res, 401, { success: false, error: 'Invalid access token' });
 		}
 
 		// Fetch book data
@@ -514,10 +618,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			.single();
 
 		if (bookError || !book) {
-			return res.status(404).json({
-				success: false,
-				error: 'Book not found',
-			});
+			return send(res, 404, { success: false, error: 'Book not found' });
 		}
 
 		const story = book.story_json as BookStory;
@@ -533,31 +634,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		// Launch Puppeteer
 		// ✅ Настройка Chromium для Vercel
 		console.log('[VERCEL-PDF] Configuring Chromium...');
-		chromium.setGraphicsMode(false); // Отключаем графику для уменьшения размера
-
-		let browser;
+		let browser: puppeteer.Browser | null = null;
 		try {
 			console.log('[VERCEL-PDF] Launching browser...');
 			const executablePath = await chromium.executablePath();
 			console.log('[VERCEL-PDF] Chromium executable path:', executablePath);
 
-			browser = await puppeteer.launch({
+			const launchOptions: Parameters<typeof puppeteer.launch>[0] = {
 				args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-				defaultViewport: chromium.defaultViewport,
+				defaultViewport: { width: 1280, height: 720 },
 				executablePath,
-				headless: chromium.headless,
+				headless: true,
 				ignoreHTTPSErrors: true,
-			});
+			};
+
+			browser = await puppeteer.launch(launchOptions);
 			console.log('[VERCEL-PDF] Browser launched successfully');
 		} catch (browserError) {
 			console.error('[VERCEL-PDF] Failed to launch browser:', browserError);
-			return res.status(500).json({
+			return send(res, 500, {
 				success: false,
 				error: `Failed to launch browser: ${browserError instanceof Error ? browserError.message : 'Unknown error'}`,
 			});
 		}
 
-		let page;
+		let page: puppeteer.Page | null = null;
 		try {
 			console.log('[VERCEL-PDF] Creating new page...');
 			page = await browser.newPage();
@@ -580,27 +681,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			await page.evaluate(() => {
 				return new Promise<void>((resolve) => {
 					if (document.fonts?.check) {
-						// Проверяем загрузку основных шрифтов для русского языка
 						const fontsToCheck = ['12px "Noto Sans"', '12px "Noto Serif"'];
-
-						let allLoaded = true;
-						for (const font of fontsToCheck) {
-							if (!document.fonts.check(font)) {
-								allLoaded = false;
-								break;
-							}
-						}
-
+						const allLoaded = fontsToCheck.every((font) => document.fonts.check(font));
 						if (allLoaded) {
 							resolve();
-						} else {
-							// Если шрифты еще не загружены, ждем еще
-							setTimeout(() => resolve(), 3000);
+							return;
 						}
-					} else {
-						// Fallback: просто ждем
-						setTimeout(() => resolve(), 3000);
 					}
+					setTimeout(() => resolve(), 3000);
 				});
 			});
 
@@ -642,7 +730,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 			if (uploadError) {
 				console.error('[VERCEL-PDF] Upload error:', uploadError);
-				return res.status(500).json({
+				return send(res, 500, {
 					success: false,
 					error: `Ошибка загрузки PDF в Storage: ${uploadError.message}`,
 				});
@@ -664,10 +752,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				.eq('id', bookId);
 			console.log('[VERCEL-PDF] Book updated in database');
 
-			return res.status(200).json({
-				success: true,
-				pdfUrl,
-			});
+			return send(res, 200, { success: true, pdfUrl });
 		} catch (pageError) {
 			// ✅ FIX: Закрываем page и browser даже при ошибке
 			console.error('[VERCEL-PDF] Error in page operations:', pageError);
@@ -683,45 +768,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			}
 			throw pageError; // Пробрасываем ошибку дальше
 		}
-
-		// Upload to Supabase Storage
-		const fileName = `${user.id}/${bookId}.pdf`;
-		const { error: uploadError } = await supabaseAdmin.storage
-			.from('books')
-			.upload(fileName, pdfBuffer, {
-				contentType: 'application/pdf',
-				upsert: true,
-			});
-
-		if (uploadError) {
-			console.error('[VERCEL-PDF] Upload error:', uploadError);
-			return res.status(500).json({
-				success: false,
-				error: `Ошибка загрузки PDF в Storage: ${uploadError.message}`,
-			});
-		}
-
-		// Get public URL
-		const { data: urlData } = supabaseAdmin.storage.from('books').getPublicUrl(fileName);
-		const pdfUrl = urlData.publicUrl;
-
-		// Update book with PDF URL and mark as final
-		await supabaseAdmin
-			.from('books_archive')
-			.update({
-				pdf_url: pdfUrl,
-				is_final: true,
-				is_draft: false,
-			})
-			.eq('id', bookId);
-
-		return res.status(200).json({
-			success: true,
-			pdfUrl,
-		});
 	} catch (error) {
 		console.error('[VERCEL-PDF] Error:', error);
-		return res.status(500).json({
+		return send(res, 500, {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
 		});
