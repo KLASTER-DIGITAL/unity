@@ -423,15 +423,15 @@ export function BooksLibraryScreen({
 				return;
 			}
 
-			// Вызываем Edge Function для создания PDF
-			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
+			// ✅ FIX: Используем Vercel Serverless Function для качественной генерации PDF
+			const response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
 				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${session.access_token}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
 					bookId: book.id,
+					accessToken: session.access_token,
 				}),
 			});
 

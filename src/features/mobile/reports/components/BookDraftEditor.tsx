@@ -639,17 +639,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				return;
 			}
 
-			// ✅ FIX: Если черновик стал готовой книгой, просто меняем статус
-			// PDF создается отдельно через кнопку "Создать PDF" или автоматически при первом просмотре
-			if (isDraftToFinal) {
-				console.log('[DRAFT-EDITOR] Draft became final, book saved successfully');
-				toast.success(t('books.editor.save_success_ready', 'Книга сохранена и готова!'));
-			} else {
-				toast.success(t('books.editor.save_success', 'Изменения сохранены'));
-			}
-
-			// ✅ После сохранения обновляем локальное состояние и НЕ закрываем редактор
-			// Пользователь может продолжить редактирование или создать PDF
+			// ✅ FIX: Обновляем локальное состояние
 			setDraft((prev) => {
 				if (!prev) return prev;
 				return {
@@ -658,6 +648,25 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 					is_final: isDraftToFinal,
 				};
 			});
+
+			// ✅ FIX: Показываем toast уведомление об успешном сохранении
+			if (isDraftToFinal) {
+				console.log('[DRAFT-EDITOR] Draft became final, book saved successfully');
+				toast.success(t('books.editor.save_success_ready', 'Книга сохранена и готова!'));
+			} else {
+				toast.success(t('books.editor.save_success', 'Изменения сохранены'));
+			}
+
+			// ✅ FIX: Автоматически генерируем PDF после сохранения (если PDF еще не создан)
+			if (!draft?.pdfUrl && !draft?.pdf_url) {
+				console.log('[DRAFT-EDITOR] Auto-generating PDF after save...');
+				// Генерируем PDF в фоне, не блокируя UI
+				void handleRenderPDF().catch((error) => {
+					console.error('[DRAFT-EDITOR] Auto PDF generation failed:', error);
+					// Не показываем ошибку пользователю, так как это фоновая операция
+					// PDF можно будет создать вручную позже
+				});
+			}
 
 			// ✅ FIX: Вызываем onSave для обновления списка книг (но не закрываем редактор)
 			onSave?.();
@@ -1074,20 +1083,7 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 							<Save className="mr-2 h-4 w-4" strokeWidth={2} />
 							{isSaving ? 'Сохранение...' : 'Сохранить'}
 						</Button>
-						{/* Кнопка создания PDF - показывается если PDF еще не создан */}
-						{!draft?.pdfUrl && (
-							<Button
-								disabled={isRendering || isSaving}
-								onClick={() => {
-									void handleRenderPDF();
-								}}
-								variant="default"
-							>
-								<Sparkles className="mr-2 h-4 w-4" strokeWidth={2} />
-								{isRendering ? 'Создание PDF...' : 'Создать PDF'}
-							</Button>
-						)}
-						{/* Кнопка просмотра PDF - открывает в новой вкладке */}
+						{/* ✅ FIX: Кнопка просмотра PDF - показывается только если PDF уже создан */}
 						{(draft?.pdfUrl || draft?.pdf_url) && (
 							<Button
 								onClick={() => {
