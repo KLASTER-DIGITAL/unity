@@ -423,15 +423,15 @@ export function BooksLibraryScreen({
 				return;
 			}
 
-			// ✅ FIX: Используем Vercel Serverless Function для качественной генерации PDF
-			const response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
+			// ✅ FIX: Используем серверный Supabase Edge Function для стабильной генерации PDF
+			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					Authorization: `Bearer ${session.access_token}`, // ✅ Bearer токен в заголовке Authorization
 				},
 				body: JSON.stringify({
 					bookId: book.id,
-					accessToken: session.access_token,
 				}),
 			});
 

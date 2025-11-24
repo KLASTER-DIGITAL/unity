@@ -713,27 +713,27 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				return;
 			}
 
-			console.log('[DRAFT-EDITOR] Generating PDF via Vercel Serverless Function...');
+			console.log(
+				'[DRAFT-EDITOR] Generating PDF via Supabase Edge Function (books-render-puppeteer)...'
+			);
 
-			// ✅ Используем Vercel API для качественной генерации PDF с поддержкой всех языков
+			// ✅ Используем серверный Supabase Edge Function для стабильной генерации PDF с поддержкой всех языков
 			let response: Response;
 			try {
-				response = await fetch(API_URLS.BOOKS_RENDER_VERCEL, {
+				response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						Authorization: `Bearer ${session.access_token}`, // ✅ Bearer токен в заголовке Authorization
 					},
 					body: JSON.stringify({
 						bookId: draftId,
-						accessToken: session.access_token,
 					}),
 				});
 			} catch (fetchError) {
-				// ✅ FALLBACK: Если Vercel API недоступен, показываем понятную ошибку
-				console.error('[DRAFT-EDITOR] Vercel API недоступен:', fetchError);
-				throw new Error(
-					'Сервис генерации PDF временно недоступен. Пожалуйста, проверьте настройки Vercel или попробуйте позже.'
-				);
+				// ✅ FALLBACK: Если Edge Function недоступен, показываем понятную ошибку
+				console.error('[DRAFT-EDITOR] Edge Function недоступен:', fetchError);
+				throw new Error('Сервис генерации PDF временно недоступен. Пожалуйста, попробуйте позже.');
 			}
 
 			if (!response.ok) {

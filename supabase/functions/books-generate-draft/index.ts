@@ -607,6 +607,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 			.insert({
 				// ... (Insert logic)
 				story_json: storyJson,
+				language: userLanguage,
 				metadata: {
 					entriesCount: filteredEntries.length,
 					achievementsCount: stats.achievements,

@@ -480,11 +480,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 			return res.status(500).json({
 				success: false,
-				error: 'Supabase configuration missing. Please check Vercel environment variables: SUPABASE_SERVICE_ROLE_KEY',
+				error:
+					'Supabase configuration missing. Please check Vercel environment variables: SUPABASE_SERVICE_ROLE_KEY',
 			});
 		}
 
-		console.log('[VERCEL-PDF] Supabase configured:', { url: supabaseUrl, hasServiceKey: !!supabaseServiceKey });
+		console.log('[VERCEL-PDF] Supabase configured:', {
+			url: supabaseUrl,
+			hasServiceKey: !!supabaseServiceKey,
+		});
 
 		const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 

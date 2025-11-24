@@ -45,6 +45,7 @@ type BookStory = {
 
 type BookMetadata = {
 	diaryEmoji?: string;
+	language?: string;
 };
 
 // ✅ Функция экранирования HTML для безопасности и правильного отображения UTF-8
@@ -67,24 +68,101 @@ function getLanguageCode(language?: string): string {
 		es: 'es',
 		de: 'de',
 		fr: 'fr',
-		zh: 'zh-CN',
+		kk: 'kk',
+		ka: 'ka',
+		'zh-CN': 'zh-CN',
 		ja: 'ja',
 	};
 	return langMap[language || 'ru'] || 'ru';
 }
 
-// ✅ Получение правильных шрифтов для языка
-function getFontsForLanguage(language: string): string {
-	const fontMap: Record<string, string> = {
-		ru: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		en: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		es: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		de: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		fr: 'family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600',
-		'zh-CN': 'family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600',
-		ja: 'family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;600',
+// ✅ Получение правильных шрифтов для языка (путь в Storage)
+function getFontPathForLanguage(language: string): { sans: string; serif: string } {
+	const fontMap: Record<string, { sans: string; serif: string }> = {
+		ru: { sans: 'noto-sans', serif: 'noto-serif' },
+		en: { sans: 'noto-sans', serif: 'noto-serif' },
+		es: { sans: 'noto-sans', serif: 'noto-serif' },
+		de: { sans: 'noto-sans', serif: 'noto-serif' },
+		fr: { sans: 'noto-sans', serif: 'noto-serif' },
+		kk: { sans: 'noto-sans', serif: 'noto-serif' },
+		ka: { sans: 'noto-sans', serif: 'noto-serif' },
+		'zh-CN': { sans: 'noto-sans-sc', serif: 'noto-serif-sc' },
+		ja: { sans: 'noto-sans-jp', serif: 'noto-serif-jp' },
 	};
 	return fontMap[language] || fontMap.ru;
+}
+
+// ✅ Генерация @font-face правил для локальных шрифтов
+function getFontFacesForLanguage(language: string, fontBaseUrl: string): string {
+	const fonts = getFontPathForLanguage(language);
+
+	// Определяем префикс имени файла на основе пути
+	const getFontFileName = (weight: string, isSerif: boolean): string => {
+		const weightName =
+			weight === '400'
+				? 'Regular'
+				: weight === '500'
+					? 'Medium'
+					: weight === '600'
+						? 'SemiBold'
+						: 'Bold';
+		const familyName = isSerif ? 'NotoSerif' : 'NotoSans';
+
+		// Для SC и JP вариантов имя файла будет NotoSansSC, NotoSansJP и т.д.
+		if (fonts.sans === 'noto-sans-sc') {
+			return isSerif ? `NotoSerifSC-${weightName}.woff2` : `NotoSansSC-${weightName}.woff2`;
+		}
+		if (fonts.sans === 'noto-sans-jp') {
+			return isSerif ? `NotoSerifJP-${weightName}.woff2` : `NotoSansJP-${weightName}.woff2`;
+		}
+		// Базовые варианты (ru, en, es, de, fr, kk, ka)
+		return `${familyName}-${weightName}.woff2`;
+	};
+
+	return `
+		@font-face {
+			font-family: 'Noto Sans';
+			src: url('${fontBaseUrl}/${fonts.sans}/${getFontFileName('400', false)}') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'Noto Sans';
+			src: url('${fontBaseUrl}/${fonts.sans}/${getFontFileName('500', false)}') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'Noto Sans';
+			src: url('${fontBaseUrl}/${fonts.sans}/${getFontFileName('600', false)}') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'Noto Sans';
+			src: url('${fontBaseUrl}/${fonts.sans}/${getFontFileName('700', false)}') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'Noto Serif';
+			src: url('${fontBaseUrl}/${fonts.serif}/${getFontFileName('400', true)}') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'Noto Serif';
+			src: url('${fontBaseUrl}/${fonts.serif}/${getFontFileName('600', true)}') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+		}
+	`;
 }
 
 function generateBookHTML(
@@ -107,7 +185,11 @@ function generateBookHTML(
 	};
 	const colors = styleColors[style as keyof typeof styleColors] || styleColors.warm_family;
 	const langCode = getLanguageCode(language);
-	const fonts = getFontsForLanguage(langCode);
+
+	// ✅ Получаем базовый URL для шрифтов из Storage
+	const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+	const fontBaseUrl = `${supabaseUrl}/storage/v1/object/public/assets/fonts`;
+	const fontFaces = getFontFacesForLanguage(langCode, fontBaseUrl);
 
 	return `
 <!DOCTYPE html>
@@ -117,7 +199,7 @@ function generateBookHTML(
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>${escapeHtml(story.title || 'Моя книга')}</title>
 	<style>
-		@import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
+		${fontFaces}
 		
 		* {
 			margin: 0;
@@ -440,7 +522,7 @@ Deno.serve(async (req) => {
 		const metadata = book.metadata || {};
 		const style = book.style || 'warm_family';
 		const theme = book.theme || 'light';
-		const language = book.language || 'ru';
+		const language = book.language || metadata.language || book?.metadata?.language || 'ru';
 
 		// ✅ Получаем код языка для правильного отображения
 		const langCode = getLanguageCode(language);
