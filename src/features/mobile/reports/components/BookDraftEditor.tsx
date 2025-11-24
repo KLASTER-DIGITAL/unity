@@ -788,10 +788,10 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
 			console.log('[DRAFT-EDITOR] PDF generated successfully:', result.pdfUrl);
 
-			// ✅ FIX: Вызываем onSave для обновления списка книг в библиотеке (без закрытия редактора)
+			// ✅ FIX: Вызываем onSave для обновления списка книг в библиотеке
 			onSave?.();
-			// ✅ FIX: Также вызываем onComplete для обновления списка книг
-			onComplete?.();
+			// ✅ FIX: НЕ вызываем onComplete здесь, так как это может быть автоматическая генерация из handleSave
+			// onComplete будет вызван из handleSave после автоматической генерации PDF
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
