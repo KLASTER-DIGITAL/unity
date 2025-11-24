@@ -657,19 +657,30 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				toast.success(t('books.editor.save_success', 'Изменения сохранены'));
 			}
 
+			// ✅ FIX: Вызываем onSave для обновления списка книг
+			onSave?.();
+
 			// ✅ FIX: Автоматически генерируем PDF после сохранения (если PDF еще не создан)
+			// Генерируем PDF в фоне, затем закрываем редактор
 			if (!draft?.pdfUrl && !draft?.pdf_url) {
 				console.log('[DRAFT-EDITOR] Auto-generating PDF after save...');
 				// Генерируем PDF в фоне, не блокируя UI
-				void handleRenderPDF().catch((error) => {
-					console.error('[DRAFT-EDITOR] Auto PDF generation failed:', error);
-					// Не показываем ошибку пользователю, так как это фоновая операция
-					// PDF можно будет создать вручную позже
-				});
+				void handleRenderPDF()
+					.then(() => {
+						// ✅ FIX: После успешной генерации PDF закрываем редактор
+						console.log('[DRAFT-EDITOR] PDF generated, closing editor...');
+						onComplete?.();
+					})
+					.catch((error) => {
+						console.error('[DRAFT-EDITOR] Auto PDF generation failed:', error);
+						// ✅ FIX: Даже если PDF не создался, закрываем редактор (сохранение уже выполнено)
+						// Пользователь может создать PDF позже из библиотеки
+						onComplete?.();
+					});
+			} else {
+				// ✅ FIX: Если PDF уже есть, сразу закрываем редактор
+				onComplete?.();
 			}
-
-			// ✅ FIX: Вызываем onSave для обновления списка книг (но не закрываем редактор)
-			onSave?.();
 		} catch (error) {
 			console.error('[DRAFT-EDITOR] Error:', error);
 			toast.error(t('books.editor.error', 'Произошла ошибка'));
@@ -726,9 +737,11 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			}
 
 			if (!response.ok) {
+				// ✅ FIX: Клонируем response перед чтением, чтобы избежать "body stream already read"
+				const responseClone = response.clone();
 				let errorMessage = `HTTP ${response.status}`;
 				try {
-					const errorData = await response.json();
+					const errorData = await responseClone.json();
 					errorMessage = errorData.error || errorMessage;
 
 					// ✅ Улучшенная обработка ошибок
@@ -741,8 +754,14 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 						errorMessage = 'Книга не найдена. Обновите страницу и попробуйте снова.';
 					}
 				} catch {
-					const errorText = await response.text();
-					errorMessage = errorText || errorMessage;
+					// ✅ FIX: Если JSON парсинг не удался, пытаемся прочитать как текст из оригинального response
+					try {
+						const errorText = await response.text();
+						errorMessage = errorText || errorMessage;
+					} catch {
+						// Если и это не удалось, используем дефолтное сообщение
+						errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+					}
 				}
 				console.error('[DRAFT-EDITOR] PDF generation failed:', response.status, errorMessage);
 				throw new Error(errorMessage);
