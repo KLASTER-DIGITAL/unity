@@ -433,6 +433,14 @@ function generateBookHTML(
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+	// ✅ FIX: Добавляем CORS headers для всех ответов
+	const corsHeaders = {
+		'Access-Control-Allow-Origin': '*',
+		'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+		'Access-Control-Allow-Methods': 'POST, OPTIONS',
+		'Content-Type': 'application/json',
+	};
+
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
 		return res.status(200).json({ ok: true });
@@ -443,6 +451,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
+		console.log('[VERCEL-PDF] Request received:', { method: req.method, hasBody: !!req.body });
 		const { bookId, accessToken } = req.body;
 
 		if (!bookId || !accessToken) {
@@ -464,11 +473,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		if (!supabaseServiceKey) {
 			console.error('[VERCEL-PDF] Supabase service key missing');
+			console.error('[VERCEL-PDF] Available env vars:', {
+				hasSupabaseUrl: !!supabaseUrl,
+				hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+				hasViteUrl: !!process.env.VITE_SUPABASE_URL,
+			});
 			return res.status(500).json({
 				success: false,
-				error: 'Supabase configuration missing',
+				error: 'Supabase configuration missing. Please check Vercel environment variables: SUPABASE_SERVICE_ROLE_KEY',
 			});
 		}
+
+		console.log('[VERCEL-PDF] Supabase configured:', { url: supabaseUrl, hasServiceKey: !!supabaseServiceKey });
 
 		const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -512,75 +528,157 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Launch Puppeteer
 		// ✅ Настройка Chromium для Vercel
+		console.log('[VERCEL-PDF] Configuring Chromium...');
 		chromium.setGraphicsMode(false); // Отключаем графику для уменьшения размера
 
-		const browser = await puppeteer.launch({
-			args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-			defaultViewport: chromium.defaultViewport,
-			executablePath: await chromium.executablePath(),
-			headless: chromium.headless,
-			ignoreHTTPSErrors: true,
-		});
+		let browser;
+		try {
+			console.log('[VERCEL-PDF] Launching browser...');
+			const executablePath = await chromium.executablePath();
+			console.log('[VERCEL-PDF] Chromium executable path:', executablePath);
 
-		const page = await browser.newPage();
+			browser = await puppeteer.launch({
+				args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+				defaultViewport: chromium.defaultViewport,
+				executablePath,
+				headless: chromium.headless,
+				ignoreHTTPSErrors: true,
+			});
+			console.log('[VERCEL-PDF] Browser launched successfully');
+		} catch (browserError) {
+			console.error('[VERCEL-PDF] Failed to launch browser:', browserError);
+			return res.status(500).json({
+				success: false,
+				error: `Failed to launch browser: ${browserError instanceof Error ? browserError.message : 'Unknown error'}`,
+			});
+		}
 
-		// ✅ FIX: Устанавливаем правильную кодировку для страницы
-		await page.setContent(html, {
-			waitUntil: 'networkidle0',
-			// ✅ FIX: Явно указываем кодировку UTF-8
-		});
+		let page;
+		try {
+			console.log('[VERCEL-PDF] Creating new page...');
+			page = await browser.newPage();
+			console.log('[VERCEL-PDF] Page created');
 
-		// ✅ FIX: Улучшенное ожидание загрузки шрифтов
-		// Ждем загрузки всех шрифтов из Google Fonts
-		await page.evaluateHandle('document.fonts.ready');
+			// ✅ FIX: Устанавливаем правильную кодировку для страницы
+			console.log('[VERCEL-PDF] Setting page content...');
+			await page.setContent(html, {
+				waitUntil: 'networkidle0',
+				// ✅ FIX: Явно указываем кодировку UTF-8
+			});
+			console.log('[VERCEL-PDF] Page content set');
 
-		// ✅ FIX: Проверяем, что все шрифты действительно загружены
-		await page.evaluate(() => {
-			return new Promise<void>((resolve) => {
-				if (document.fonts?.check) {
-					// Проверяем загрузку основных шрифтов для русского языка
-					const fontsToCheck = ['12px "Noto Sans"', '12px "Noto Serif"'];
+			// ✅ FIX: Улучшенное ожидание загрузки шрифтов
+			// Ждем загрузки всех шрифтов из Google Fonts
+			console.log('[VERCEL-PDF] Waiting for fonts...');
+			await page.evaluateHandle('document.fonts.ready');
 
-					let allLoaded = true;
-					for (const font of fontsToCheck) {
-						if (!document.fonts.check(font)) {
-							allLoaded = false;
-							break;
+			// ✅ FIX: Проверяем, что все шрифты действительно загружены
+			await page.evaluate(() => {
+				return new Promise<void>((resolve) => {
+					if (document.fonts?.check) {
+						// Проверяем загрузку основных шрифтов для русского языка
+						const fontsToCheck = ['12px "Noto Sans"', '12px "Noto Serif"'];
+
+						let allLoaded = true;
+						for (const font of fontsToCheck) {
+							if (!document.fonts.check(font)) {
+								allLoaded = false;
+								break;
+							}
 						}
-					}
 
-					if (allLoaded) {
-						resolve();
+						if (allLoaded) {
+							resolve();
+						} else {
+							// Если шрифты еще не загружены, ждем еще
+							setTimeout(() => resolve(), 3000);
+						}
 					} else {
-						// Если шрифты еще не загружены, ждем еще
+						// Fallback: просто ждем
 						setTimeout(() => resolve(), 3000);
 					}
-				} else {
-					// Fallback: просто ждем
-					setTimeout(() => resolve(), 3000);
-				}
+				});
 			});
-		});
 
-		// ✅ FIX: Дополнительная задержка для гарантии загрузки шрифтов
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+			// ✅ FIX: Дополнительная задержка для гарантии загрузки шрифтов
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			console.log('[VERCEL-PDF] Fonts loaded');
 
-		// Generate PDF
-		// ✅ FIX: Добавляем waitForFonts: true для гарантии загрузки шрифтов
-		const pdfBuffer = await page.pdf({
-			format: 'A4',
-			printBackground: true,
-			preferCSSPageSize: true,
-			waitForFonts: true, // ✅ FIX: Ждем загрузки шрифтов перед генерацией PDF
-			margin: {
-				top: '0mm',
-				right: '0mm',
-				bottom: '0mm',
-				left: '0mm',
-			},
-		});
+			// Generate PDF
+			// ✅ FIX: Добавляем waitForFonts: true для гарантии загрузки шрифтов
+			console.log('[VERCEL-PDF] Generating PDF...');
+			const pdfBuffer = await page.pdf({
+				format: 'A4',
+				printBackground: true,
+				preferCSSPageSize: true,
+				waitForFonts: true, // ✅ FIX: Ждем загрузки шрифтов перед генерацией PDF
+				margin: {
+					top: '0mm',
+					right: '0mm',
+					bottom: '0mm',
+					left: '0mm',
+				},
+			});
+			console.log('[VERCEL-PDF] PDF generated, size:', pdfBuffer.length, 'bytes');
 
-		await browser.close();
+			// ✅ FIX: Закрываем page и browser перед загрузкой в Storage
+			await page.close();
+			await browser.close();
+			console.log('[VERCEL-PDF] Browser closed');
+
+			// Upload to Supabase Storage
+			console.log('[VERCEL-PDF] Uploading to Storage...');
+			const fileName = `${user.id}/${bookId}.pdf`;
+			const { error: uploadError } = await supabaseAdmin.storage
+				.from('books')
+				.upload(fileName, pdfBuffer, {
+					contentType: 'application/pdf',
+					upsert: true,
+				});
+
+			if (uploadError) {
+				console.error('[VERCEL-PDF] Upload error:', uploadError);
+				return res.status(500).json({
+					success: false,
+					error: `Ошибка загрузки PDF в Storage: ${uploadError.message}`,
+				});
+			}
+
+			// Get public URL
+			const { data: urlData } = supabaseAdmin.storage.from('books').getPublicUrl(fileName);
+			const pdfUrl = urlData.publicUrl;
+			console.log('[VERCEL-PDF] PDF uploaded, URL:', pdfUrl);
+
+			// Update book with PDF URL and mark as final
+			await supabaseAdmin
+				.from('books_archive')
+				.update({
+					pdf_url: pdfUrl,
+					is_final: true,
+					is_draft: false,
+				})
+				.eq('id', bookId);
+			console.log('[VERCEL-PDF] Book updated in database');
+
+			return res.status(200).json({
+				success: true,
+				pdfUrl,
+			});
+		} catch (pageError) {
+			// ✅ FIX: Закрываем page и browser даже при ошибке
+			console.error('[VERCEL-PDF] Error in page operations:', pageError);
+			try {
+				if (page) await page.close();
+			} catch {
+				// Ignore
+			}
+			try {
+				if (browser) await browser.close();
+			} catch {
+				// Ignore
+			}
+			throw pageError; // Пробрасываем ошибку дальше
+		}
 
 		// Upload to Supabase Storage
 		const fileName = `${user.id}/${bookId}.pdf`;
