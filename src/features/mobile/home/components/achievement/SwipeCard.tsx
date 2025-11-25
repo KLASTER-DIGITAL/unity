@@ -354,6 +354,16 @@ export function SwipeCard({
 						</div>
 					)}
 
+					{/* ✨ НОВОЕ: AI Insight Badge - показываем для карточек из записей */}
+					{!card.isDefault && (
+						<div className="absolute top-4 left-4 z-10">
+							<div className="flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-1.5">
+								<Sparkles className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+								<span className="text-xs font-medium text-white">AI инсайт</span>
+							</div>
+						</div>
+					)}
+
 					{/* Title */}
 					<motion.div className="mb-3">
 						<h3 className="text-title-2 text-white leading-tight tracking-[-0.5px]">

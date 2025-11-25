@@ -603,7 +603,9 @@ async function getDefaultMotivations(
 	// Get locale for date formatting
 	const _locale = language === 'ru' ? 'ru-RU' : language === 'kk' ? 'kk-KZ' : 'en-US';
 
-	return [
+	// ✅ РАСШИРЕНО: 15 шаблонных карточек вместо 3 для большего разнообразия
+	const allCards = [
+		// 1. Начало дня / Getting started
 		{
 			id: 'default-1',
 			date: t('motivation.card1.date', 'Начни сегодня'),
@@ -617,6 +619,7 @@ async function getDefaultMotivations(
 			isDefault: true,
 			sentiment: 'excited',
 		},
+		// 2. Осмысленность / Mindfulness
 		{
 			id: 'default-2',
 			date: t('motivation.card2.date', 'Совет дня'),
@@ -630,6 +633,7 @@ async function getDefaultMotivations(
 			isDefault: true,
 			sentiment: 'calm',
 		},
+		// 3. Благодарность / Gratitude
 		{
 			id: 'default-3',
 			date: t('motivation.card3.date', 'Мотивация'),
@@ -643,7 +647,185 @@ async function getDefaultMotivations(
 			isDefault: true,
 			sentiment: 'grateful',
 		},
+		// ✨ НОВОЕ: 4. Рефлексия / Reflection
+		{
+			id: 'default-4',
+			date: t('motivation.card4.date', 'Рефлексия'),
+			title: t('motivation.card4.title', 'Что тебя сегодня удивило?'),
+			description: t(
+				'motivation.card4.description',
+				'Запиши неожиданный момент дня. Именно в таких моментах скрыты важные открытия.'
+			),
+			gradient: UNIQUE_GRADIENTS[3], // Peachy
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'curious',
+		},
+		// ✨ НОВОЕ: 5. Цели / Goals
+		{
+			id: 'default-5',
+			date: t('motivation.card5.date', 'Планирование'),
+			title: t('motivation.card5.title', 'Какую цель поставишь на эту неделю?'),
+			description: t(
+				'motivation.card5.description',
+				'Чёткая цель — это половина пути. Запиши её, и она станет реальнее.'
+			),
+			gradient: UNIQUE_GRADIENTS[4], // Seafoam
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'focused',
+		},
+		// ✨ НОВОЕ: 6. Вдохновение / Inspiration
+		{
+			id: 'default-6',
+			date: t('motivation.card6.date', 'Вдохновение'),
+			title: t('motivation.card6.title', 'Что тебя вдохновляет прямо сейчас?'),
+			description: t(
+				'motivation.card6.description',
+				'Это может быть книга, человек, идея — всё, что наполняет энергией.'
+			),
+			gradient: UNIQUE_GRADIENTS[5], // Creamsicle
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'inspired',
+		},
+		// ✨ НОВОЕ: 7. Преодоление / Overcoming
+		{
+			id: 'default-7',
+			date: t('motivation.card7.date', 'Преодоление'),
+			title: t('motivation.card7.title', 'С какой трудностью ты справился сегодня?'),
+			description: t(
+				'motivation.card7.description',
+				'Даже маленькая победа над проблемой заслуживает признания. Отметь её.'
+			),
+			gradient: UNIQUE_GRADIENTS[6], // Flare
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'proud',
+		},
+		// ✨ НОВОЕ: 8. Эмоции / Emotions
+		{
+			id: 'default-8',
+			date: t('motivation.card8.date', 'Эмоции'),
+			title: t('motivation.card8.title', 'Какая эмоция была самой сильной сегодня?'),
+			description: t(
+				'motivation.card8.description',
+				'Называя эмоции, мы лучше их понимаем. Что ты чувствуешь прямо сейчас?'
+			),
+			gradient: UNIQUE_GRADIENTS[7], // Lavender
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'reflective',
+		},
+		// ✨ НОВОЕ: 9. Обучение / Learning
+		{
+			id: 'default-9',
+			date: t('motivation.card9.date', 'Обучение'),
+			title: t('motivation.card9.title', 'Чему новому ты научился сегодня?'),
+			description: t(
+				'motivation.card9.description',
+				'Каждый день — это возможность узнать что-то новое. Даже самое маленькое открытие важно.'
+			),
+			gradient: UNIQUE_GRADIENTS[0], // Sunset
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'curious',
+		},
+		// ✨ НОВОЕ: 10. Отношения / Relationships
+		{
+			id: 'default-10',
+			date: t('motivation.card10.date', 'Отношения'),
+			title: t('motivation.card10.title', 'Кто сделал твой день лучше?'),
+			description: t(
+				'motivation.card10.description',
+				'Люди вокруг нас влияют на наше настроение. Отметь тех, кто был рядом сегодня.'
+			),
+			gradient: UNIQUE_GRADIENTS[2], // Cotton Candy
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'connected',
+		},
+		// ✨ НОВОЕ: 11. Забота о себе / Self-care
+		{
+			id: 'default-11',
+			date: t('motivation.card11.date', 'Забота'),
+			title: t('motivation.card11.title', 'Как ты позаботился о себе сегодня?'),
+			description: t(
+				'motivation.card11.description',
+				'Отдых, хобби, прогулка — любой момент заботы о себе заслуживает внимания.'
+			),
+			gradient: UNIQUE_GRADIENTS[1], // Oceanic
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'peaceful',
+		},
+		// ✨ НОВОЕ: 12. Креативность / Creativity
+		{
+			id: 'default-12',
+			date: t('motivation.card12.date', 'Креативность'),
+			title: t('motivation.card12.title', 'Какая идея пришла тебе в голову?'),
+			description: t(
+				'motivation.card12.description',
+				'Даже странная или смешная идея может привести к чему-то важному. Запиши её.'
+			),
+			gradient: UNIQUE_GRADIENTS[4], // Seafoam
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'creative',
+		},
+		// ✨ НОВОЕ: 13. Энергия / Energy
+		{
+			id: 'default-13',
+			date: t('motivation.card13.date', 'Энергия'),
+			title: t('motivation.card13.title', 'Что дало тебе энергию сегодня?'),
+			description: t(
+				'motivation.card13.description',
+				'Кофе, музыка, хорошая новость — отметь то, что зарядило тебя позитивом.'
+			),
+			gradient: UNIQUE_GRADIENTS[6], // Flare
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'energized',
+		},
+		// ✨ НОВОЕ: 14. Маленькие радости / Small joys
+		{
+			id: 'default-14',
+			date: t('motivation.card14.date', 'Радость'),
+			title: t('motivation.card14.title', 'Какая мелочь порадовала тебя сегодня?'),
+			description: t(
+				'motivation.card14.description',
+				'Улыбка прохожего, вкусный обед, солнце в окне — радость часто в мелочах.'
+			),
+			gradient: UNIQUE_GRADIENTS[5], // Creamsicle
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'joyful',
+		},
+		// ✨ НОВОЕ: 15. Вечерняя рефлексия / Evening reflection
+		{
+			id: 'default-15',
+			date: t('motivation.card15.date', 'Итоги дня'),
+			title: t('motivation.card15.title', 'За что ты благодарен в конце дня?'),
+			description: t(
+				'motivation.card15.description',
+				'Перед сном вспомни, что хорошего было сегодня. Это поможет закончить день на позитивной ноте.'
+			),
+			gradient: UNIQUE_GRADIENTS[7], // Lavender
+			isMarked: false,
+			isDefault: true,
+			sentiment: 'grateful',
+		},
 	];
+
+	// ✅ НОВОЕ: Рандомизация порядка для разнообразия
+	// Используем простой shuffle алгоритм (Fisher-Yates)
+	const shuffled = [...allCards];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+
+	return shuffled;
 }
 
 // ======================
@@ -730,8 +912,20 @@ async function handleRequest(req: Request): Promise<Response> {
 			const userLanguage = profiles[0]?.language || 'ru';
 			console.log(`[MOTIVATIONS v11] User language: ${userLanguage}`);
 
-			// Step 2: Fetch recent entries (last 24 hours)
-			const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+			// ✅ УЛУЧШЕНО: Календарное окно вместо "последние 24 часа"
+			// Step 2: Fetch recent entries (today + yesterday)
+			// Было: последние 24 часа от текущего момента
+			// Стало: с начала вчерашнего дня (00:00)
+			const today = new Date();
+			today.setHours(0, 0, 0, 0); // Начало сегодняшнего дня
+
+			const yesterday = new Date(today);
+			yesterday.setDate(yesterday.getDate() - 1); // Начало вчерашнего дня
+
+			console.log(
+				`[MOTIVATIONS v11] 📅 Fetching entries from ${yesterday.toISOString()} (yesterday 00:00)`
+			);
+
 			const entriesResponse = await fetch(
 				`${supabaseUrl}/rest/v1/entries?user_id=eq.${userId}&created_at=gte.${yesterday.toISOString()}&order=created_at.desc&limit=10`,
 				{
@@ -774,16 +968,35 @@ async function handleRequest(req: Request): Promise<Response> {
 			const unviewedEntries = recentEntries.filter((entry: any) => !viewedIds.includes(entry.id));
 			console.log(`[MOTIVATIONS v11] Unviewed entries: ${unviewedEntries.length}`);
 
+			// ✅ ОПТИМИЗИРОВАНО: Параллельная AI генерация вместо последовательной
 			// Step 5: Create cards from entries using AI (БЕЗ градиентов)
-			const cards = [];
-			for (const entry of unviewedEntries.slice(0, 3)) {
-				// Try to generate card with AI
-				const aiCard = await generateCardWithAI(
-					entry,
-					userLanguage,
-					supabaseUrl,
-					supabaseServiceKey
-				);
+			const entriesToProcess = unviewedEntries.slice(0, 3);
+
+			console.log(
+				`[MOTIVATIONS v11] 🚀 Starting PARALLEL AI generation for ${entriesToProcess.length} entries...`
+			);
+			const startTime = Date.now();
+
+			// ✅ НОВОЕ: Параллельная генерация через Promise.all()
+			// Каждый promise имеет свой error handler
+			const aiCardsPromises = entriesToProcess.map((entry) =>
+				generateCardWithAI(entry, userLanguage, supabaseUrl, supabaseServiceKey).catch((err) => {
+					console.error(`[MOTIVATIONS v11] ❌ AI failed for ${entry.id}:`, err);
+					return null; // Fallback to null on error
+				})
+			);
+
+			// Ждём завершения всех AI запросов параллельно
+			const aiCards = await Promise.all(aiCardsPromises);
+
+			const aiTime = Date.now() - startTime;
+			console.log(
+				`[MOTIVATIONS v11] ✅ Parallel AI generation completed in ${aiTime}ms (was ~${aiTime * 3}ms sequential)`
+			);
+
+			// Обрабатываем результаты
+			const cards = entriesToProcess.map((entry, i) => {
+				const aiCard = aiCards[i];
 
 				let title = '';
 				let description = '';
@@ -828,7 +1041,7 @@ async function handleRequest(req: Request): Promise<Response> {
 					}
 				}
 
-				cards.push({
+				return {
 					id: entry.id,
 					entryId: entry.id,
 					date: new Date(entry.created_at).toLocaleDateString(
@@ -842,8 +1055,8 @@ async function handleRequest(req: Request): Promise<Response> {
 					sentiment: entry.sentiment || 'positive',
 					mood: entry.mood || 'хорошее',
 					card_type: cardType, // ✅ Add card type for UI styling
-				});
-			}
+				};
+			});
 
 			// Step 6: Add default cards if needed (БЕЗ градиентов)
 			if (cards.length < 3) {
