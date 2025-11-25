@@ -10,10 +10,9 @@
 
 import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-// ✅ ИСПРАВЛЕНО: Используем локальные шрифты из Supabase Storage вместо Google Fonts CDN
-// Google Fonts возвращали 404, локальные шрифты уже загружены через scripts/upload-fonts-to-storage.ts
-const FONT_BASE_URL =
-	'https://ecuwuzqlwdkkdncampnc.supabase.co/storage/v1/object/public/assets/fonts';
+// ✅ ИСПРАВЛЕНО: Используем переменную окружения вместо захардкоженного URL
+// ✅ ИСПРАВЛЕНО: Используем SemiBold (600) вместо Bold (700), так как Bold отсутствует в Storage
+const FONT_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/assets/fonts`;
 
 Font.register({
 	family: 'Noto Sans',
@@ -45,8 +44,8 @@ Font.register({
 			fontWeight: 400,
 		},
 		{
-			src: `${FONT_BASE_URL}/noto-serif/NotoSerif-Bold.woff2`,
-			fontWeight: 700,
+			src: `${FONT_BASE_URL}/noto-serif/NotoSerif-SemiBold.woff2`,
+			fontWeight: 600,
 		},
 	],
 });
