@@ -206,7 +206,7 @@ async function generateProgressCard(
 		let longestStreak = 0;
 		let tempStreak = 0;
 		const sortedDates = Array.from(uniqueDays)
-			.map((d) => new Date(d))
+			.map((d: string) => new Date(d))
 			.sort((a, b) => a.getTime() - b.getTime());
 
 		for (let i = 0; i < sortedDates.length; i++) {
@@ -330,7 +330,7 @@ async function generateCardWithAI(
 	userLanguage: string,
 	supabaseUrl: string,
 	supabaseServiceKey: string
-): Promise<{ title: string; body: string; optional_step: string } | null> {
+): Promise<{ title: string; body: string; optional_step: string; card_type: string } | null> {
 	try {
 		// Load AI operation config
 		const config = await getAiOperationConfig(supabaseUrl, supabaseServiceKey, 'card_from_entry');

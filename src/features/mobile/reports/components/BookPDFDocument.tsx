@@ -192,12 +192,7 @@ const styles = StyleSheet.create({
 	},
 });
 
-export function BookPDFDocument({
-	story,
-	metadata = {},
-	style = 'warm_family',
-	theme = 'light',
-}: BookPDFDocumentProps) {
+export function BookPDFDocument({ story, metadata = {} }: BookPDFDocumentProps) {
 	const { title = 'Моя книга', subtitle, prologue, epilogue, dedication, chapters = [] } = story;
 	const { diaryEmoji = '📖' } = metadata;
 
