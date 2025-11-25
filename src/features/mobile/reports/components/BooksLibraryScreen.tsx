@@ -447,7 +447,18 @@ export function BooksLibraryScreen({
 
 			// Генерируем blob
 			const blob = await pdf(pdfDoc).toBlob();
-			console.log('[BOOKS-LIBRARY] PDF blob generated:', blob.size, 'bytes');
+
+			// ✅ Validate blob before upload
+			if (!blob || blob.size === 0) {
+				toast.dismiss(loadingToast);
+				throw new Error('PDF blob is empty or invalid. Please try again.');
+			}
+
+			console.log('[BOOKS-LIBRARY] PDF blob generated:', {
+				size: blob.size,
+				type: blob.type,
+				sizeKB: Math.round(blob.size / 1024),
+			});
 
 			// Загружаем в Supabase Storage
 			const supabase = createClient();

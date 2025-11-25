@@ -275,6 +275,11 @@ export default defineConfig(({ mode }) => ({
 							return 'vendor-chartjs';
 						}
 
+						// @react-pdf/renderer - отдельный чанк для PDF generation
+						if (id.includes('@react-pdf/renderer')) {
+							return 'vendor-pdf';
+						}
+
 						// ✅ КРИТИЧЕСКИ ВАЖНО: React и React-DOM ДОЛЖНЫ быть в ОДНОМ chunk
 						// Проблема: Vite создает два разных chunks (chunk-QJTFJ6OV.js для React, chunk-YQ5BCTVV.js для React-DOM)
 						// Это вызывает Invalid Hook Call Error из-за несинхронизированных копий

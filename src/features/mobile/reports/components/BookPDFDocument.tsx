@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
 	},
 	dedication: {
 		fontSize: 12,
-		fontStyle: 'italic',
 		color: '#666',
 		marginTop: 20,
 		textAlign: 'center',
@@ -127,13 +126,11 @@ const styles = StyleSheet.create({
 		textAlign: 'justify',
 	},
 	prologue: {
-		fontStyle: 'italic',
 		padding: 10,
 		borderLeft: '3px solid #a855f7',
 		marginBottom: 15,
 	},
 	epilogue: {
-		fontStyle: 'italic',
 		padding: 10,
 		borderLeft: '3px solid #a855f7',
 		marginBottom: 15,
