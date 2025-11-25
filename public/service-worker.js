@@ -1,6 +1,6 @@
-const CACHE_NAME = 'achievement-diary-v1676129';
-const CACHE_NAME_API = 'achievement-diary-api-v1676129';
-const CACHE_NAME_STATIC = 'achievement-diary-static-v1676129';
+const CACHE_NAME = 'achievement-diary-v426000c';
+const CACHE_NAME_API = 'achievement-diary-api-v426000c';
+const CACHE_NAME_STATIC = 'achievement-diary-static-v426000c';
 
 // Cache TTL (Time To Live) в миллисекундах
 const CACHE_TTL = {
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
 			})
 	);
 	// ✅ АВТОМАТИЧЕСКИ активируем новый Service Worker
-	self.skipWaiting();
+	// self.skipWaiting(); // REMOVED: Controlled by UI now
 });
 
 // Activate event - clean up old caches
