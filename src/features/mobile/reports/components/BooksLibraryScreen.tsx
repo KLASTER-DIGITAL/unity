@@ -414,112 +414,98 @@ export function BooksLibraryScreen({
 		try {
 			const loadingToast = toast.loading(t('books.creating_pdf', 'Создание PDF...'));
 
-			// Get access token
+			console.log('[BOOKS-LIBRARY] Generating PDF client-side...');
+
+			// Динамически импортируем компоненты для PDF
+			const { pdf } = await import('@react-pdf/renderer');
+			const { BookPDFDocument } = await import('./BookPDFDocument');
+
+			// Создаем PDF документ
+			const pdfDoc = (
+				<BookPDFDocument
+					story={
+						book.storyJson as {
+							title?: string;
+							subtitle?: string;
+							prologue?: string;
+							epilogue?: string;
+							dedication?: string;
+							chapters?: Array<{
+								title?: string;
+								content?: string;
+								highlights?: string[];
+								is_divider?: boolean;
+								is_chronicle?: boolean;
+							}>;
+						}
+					}
+					metadata={book.metadata as { diaryEmoji?: string }}
+					style={book.style || 'warm_family'}
+					theme={book.theme || 'light'}
+				/>
+			);
+
+			// Генерируем blob
+			const blob = await pdf(pdfDoc).toBlob();
+			console.log('[BOOKS-LIBRARY] PDF blob generated:', blob.size, 'bytes');
+
+			// Загружаем в Supabase Storage
 			const supabase = createClient();
 			const {
 				data: { session },
 			} = await supabase.auth.getSession();
 
-			if (!session?.access_token) {
-				toast.error(t('books.auth_required', 'Необходима авторизация'));
+			if (!session?.user) {
 				toast.dismiss(loadingToast);
+				toast.error(t('books.auth_required', 'Необходима авторизация'));
 				return;
 			}
 
-			// ✅ FIX: Используем серверный Supabase Edge Function для стабильной генерации PDF
-			const response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${session.access_token}`, // ✅ Bearer токен в заголовке Authorization
-				},
-				body: JSON.stringify({
-					bookId: book.id,
-				}),
+			const fileName = `${session.user.id}/${book.id}.pdf`;
+			const { error: uploadError } = await supabase.storage.from('books').upload(fileName, blob, {
+				contentType: 'application/pdf',
+				upsert: true,
 			});
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error('[BOOKS-LIBRARY] PDF creation failed:', response.status, errorText);
-				throw new Error(`HTTP ${response.status}: ${errorText}`);
+			if (uploadError) {
+				console.error('[BOOKS-LIBRARY] Upload error:', uploadError);
+				toast.dismiss(loadingToast);
+				throw new Error(`Ошибка загрузки PDF: ${uploadError.message}`);
 			}
 
-			const result = await response.json();
+			// Получаем публичный URL
+			const { data: urlData } = supabase.storage.from('books').getPublicUrl(fileName);
+			const pdfUrl = urlData.publicUrl;
 
-			if (!result.success) {
-				throw new Error(result.error || 'Не удалось создать PDF');
-			}
+			// Обновляем базу данных
+			await supabase
+				.from('books_archive')
+				.update({
+					pdf_url: pdfUrl,
+					is_final: true,
+					is_draft: false,
+				})
+				.eq('id', book.id);
 
 			toast.dismiss(loadingToast);
 			toast.success(t('books.pdf_created', 'PDF книга создана!'));
 
-			// ✅ FIX: Обновляем список книг для отображения нового статуса
+			// Обновляем список книг
 			await fetchBooks();
 
-			// ✅ FIX: Если PDF доступен, сразу открываем его для просмотра
-			if (result.pdfUrl) {
-				// Проверяем доступность PDF с небольшой задержкой
-				setTimeout(async () => {
-					try {
-						const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
-						if (checkResponse.ok) {
-							const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
-							const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
-							const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
+			// Показываем PDF в модальном окне через некоторое время
+			setTimeout(() => {
+				try {
+					const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
+					const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
+					const displayFileName = `${safeTitle}.pdf`;
 
-							setViewingPdfFileName(fileName);
-							setViewingPdfUrl(result.pdfUrl);
-						}
-					} catch (error) {
-						console.warn('[BOOKS-LIBRARY] PDF not yet available for viewing:', error);
-					}
-				}, 1000);
-			}
-
-			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
-			// Затем проверяем доступность перед открытием модального окна
-			if (result.pdfUrl) {
-				const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
-				const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
-				const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
-
-				// Ждем 1 секунду и проверяем доступность PDF с retry
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Проверяем доступность PDF с retry (до 3 попыток)
-				let isAvailable = false;
-				for (let attempt = 0; attempt < 3; attempt++) {
-					try {
-						const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
-						if (checkResponse.ok) {
-							isAvailable = true;
-							break;
-						}
-					} catch (error) {
-						console.warn(
-							`[BOOKS-LIBRARY] PDF availability check attempt ${attempt + 1} failed:`,
-							error
-						);
-					}
-
-					// Ждем перед следующей попыткой
-					if (attempt < 2) {
-						await new Promise((resolve) => setTimeout(resolve, 1000));
-					}
+					setViewingPdfFileName(displayFileName);
+					setViewingPdfUrl(pdfUrl);
+				} catch (error) {
+					console.warn('[BOOKS-LIBRARY] Failed to open PDF viewer:', error);
 				}
-
-				if (isAvailable) {
-					setViewingPdfFileName(fileName);
-					setViewingPdfUrl(result.pdfUrl);
-				} else {
-					toast.warning(
-						t(
-							'books.pdf_check_warning',
-							'PDF создан, но еще не доступен. Попробуйте открыть через несколько секунд.'
-						)
-					);
-				}
-			}
+			}, 1500);
 		} catch (error) {
 			console.error('[BOOKS-LIBRARY] Error creating PDF:', error);
 			toast.error(

@@ -689,114 +689,100 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 		}
 	};
 
-	// ✅ FIX: Render PDF using @react-pdf/renderer (client-side)
-	// This is a temporary solution until Puppeteer works in Deno Deploy
-	// ✅ FIX: Используем Vercel Serverless Function для качественной генерации PDF с поддержкой всех языков
+	// ✅ ИСПРАВЛЕНО: Client-side PDF generation using @react-pdf/renderer
+	// Причина: /api/books/render-pdf не работает в локальной разработке (Vite ≠ Vercel)
+	// Решение: генерируем PDF на клиенте с помощью @react-pdf/renderer
 	const handleRenderPDF = async (_blob?: Blob) => {
-		if (!userId || !story || !draft) {
-			toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
-			return;
-		}
+		if (!draftId || !story) return;
 
 		try {
 			setIsRendering(true);
 
-			// Get access token
+			console.log('[DRAFT-EDITOR] Generating PDF client-side with @react-pdf/renderer...');
+
+			// Динамически импортируем компоненты для PDF
+			const { pdf } = await import('@react-pdf/renderer');
+			const { BookPDFDocument } = await import('./BookPDFDocument');
+
+			// Создаем PDF документ
+			const pdfDoc = (
+				<BookPDFDocument
+					story={story}
+					metadata={draft?.metadata as { diaryEmoji?: string }}
+					style={draft?.style || 'warm_family'}
+					theme={draft?.theme || 'light'}
+				/>
+			);
+
+			// Генерируем blob
+			console.log('[DRAFT-EDITOR] Rendering PDF blob...');
+			const blob = await pdf(pdfDoc).toBlob();
+			console.log('[DRAFT-EDITOR] PDF blob generated:', blob.size, 'bytes');
+
+			// Загружаем в Supabase Storage
 			const supabase = createClient();
 			const {
 				data: { session },
 			} = await supabase.auth.getSession();
 
-			if (!session?.access_token) {
-				toast.error(t('books.editor.auth_required', 'Необходима авторизация'));
-				setIsRendering(false);
-				return;
+			if (!session?.user) {
+				throw new Error('Необходима авторизация');
 			}
 
-			console.log(
-				'[DRAFT-EDITOR] Generating PDF via Supabase Edge Function (books-render-puppeteer)...'
-			);
+			const fileName = `${session.user.id}/${draftId}.pdf`;
+			console.log('[DRAFT-EDITOR] Uploading PDF to Storage:', fileName);
 
-			// ✅ Используем серверный Supabase Edge Function для стабильной генерации PDF с поддержкой всех языков
-			let response: Response;
-			try {
-				response = await fetch(API_URLS.BOOKS_RENDER_PUPPETEER, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${session.access_token}`, // ✅ Bearer токен в заголовке Authorization
-					},
-					body: JSON.stringify({
-						bookId: draftId,
-					}),
-				});
-			} catch (fetchError) {
-				// ✅ FALLBACK: Если Edge Function недоступен, показываем понятную ошибку
-				console.error('[DRAFT-EDITOR] Edge Function недоступен:', fetchError);
-				throw new Error('Сервис генерации PDF временно недоступен. Пожалуйста, попробуйте позже.');
+			const { error: uploadError } = await supabase.storage.from('books').upload(fileName, blob, {
+				contentType: 'application/pdf',
+				upsert: true,
+			});
+
+			if (uploadError) {
+				console.error('[DRAFT-EDITOR] Upload error:', uploadError);
+				throw new Error(`Ошибка загрузки PDF: ${uploadError.message}`);
 			}
 
-			if (!response.ok) {
-				// ✅ FIX: Клонируем response перед чтением, чтобы избежать "body stream already read"
-				const responseClone = response.clone();
-				let errorMessage = `HTTP ${response.status}`;
-				try {
-					const errorData = await responseClone.json();
-					errorMessage = errorData.error || errorMessage;
+			// Получаем публичный URL
+			const { data: urlData } = supabase.storage.from('books').getPublicUrl(fileName);
+			const pdfUrl = urlData.publicUrl;
 
-					// ✅ Улучшенная обработка ошибок
-					if (response.status === 500 && errorMessage.includes('Supabase configuration')) {
-						errorMessage =
-							'Ошибка конфигурации сервера. Проверьте переменные окружения в Vercel Dashboard.';
-					} else if (response.status === 401) {
-						errorMessage = 'Ошибка авторизации. Перезагрузите страницу и попробуйте снова.';
-					} else if (response.status === 404) {
-						errorMessage = 'Книга не найдена. Обновите страницу и попробуйте снова.';
-					}
-				} catch {
-					// ✅ FIX: Если JSON парсинг не удался, пытаемся прочитать как текст из оригинального response
-					try {
-						const errorText = await response.text();
-						errorMessage = errorText || errorMessage;
-					} catch {
-						// Если и это не удалось, используем дефолтное сообщение
-						errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-					}
-				}
-				console.error('[DRAFT-EDITOR] PDF generation failed:', response.status, errorMessage);
-				throw new Error(errorMessage);
+			console.log('[DRAFT-EDITOR] PDF uploaded successfully:', pdfUrl);
+
+			// Обновляем базу данных
+			const { error: dbError } = await supabase
+				.from('books_archive')
+				.update({
+					pdf_url: pdfUrl,
+					is_final: true,
+					is_draft: false,
+				})
+				.eq('id', draftId);
+
+			if (dbError) {
+				console.error('[DRAFT-EDITOR] Database update error:', dbError);
+				throw new Error(`Ошибка обновления БД: ${dbError.message}`);
 			}
 
-			const result = await response.json();
-
-			if (!result.success) {
-				throw new Error(result.error || 'Не удалось создать PDF');
-			}
-
-			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl и статусом
+			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl
 			setDraft((prev) => {
 				if (!prev) return prev;
 				return {
 					...prev,
-					pdfUrl: result.pdfUrl,
-					pdf_url: result.pdfUrl, // ✅ FIX: Также обновляем pdf_url для совместимости
+					pdfUrl,
+					pdf_url: pdfUrl,
 					is_draft: false,
 					is_final: true,
 				};
 			});
 
-			toast.success(t('books.editor.pdf_created', 'PDF книга создана!'));
-			console.log('[DRAFT-EDITOR] PDF generated successfully:', result.pdfUrl);
+			toast.success(t('books.editor.pdf_success', 'PDF книга создана!'));
 
-			// ✅ FIX: Вызываем onSave для обновления списка книг в библиотеке
-			onSave?.();
 			// ✅ FIX: НЕ вызываем onComplete здесь, так как это может быть автоматическая генерация из handleSave
 			// onComplete будет вызван из handleSave после автоматической генерации PDF
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('[DRAFT-EDITOR] Error rendering PDF:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
 
-			// ✅ Улучшенное сообщение об ошибке с подсказками
 			let errorDescription = errorMessage;
 			if (
 				errorMessage.includes('Supabase configuration') ||
