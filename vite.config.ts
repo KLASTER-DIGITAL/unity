@@ -206,7 +206,7 @@ export default defineConfig(({ mode }) => ({
 		minify: 'esbuild', // Используем esbuild вместо terser
 		cssCodeSplit: true, // Разделение CSS по chunks
 		assetsInlineLimit: 4096, // Inline assets < 4kb
-		chunkSizeWarningLimit: 1000, // Предупреждение для chunks > 1MB
+		chunkSizeWarningLimit: 1500, // Увеличен для vendor-pdf chunk (@react-pdf/renderer ~1.49MB, gzip 496KB)
 		rollupOptions: {
 			// Externalize React Native и Expo модули для web build
 			// Эти модули используются только в .native.ts файлах и будут tree-shaken
