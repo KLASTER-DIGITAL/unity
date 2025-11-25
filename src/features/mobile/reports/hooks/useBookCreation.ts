@@ -211,7 +211,7 @@ export function useBookCreation(
 
 			setGeneratedDraftId(result.draftId || null);
 			setGenerationError(null);
-			toast.success(existingBookId ? 'Книга обновлена!' : 'Черновик книги создан!');
+			// Toast will be shown in Success Modal after progress completes
 		} catch (error) {
 			console.error('[useBookCreation] Error generating book:', error);
 			const errorMessage =
