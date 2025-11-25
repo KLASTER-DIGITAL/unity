@@ -56,7 +56,7 @@ export function RateAppModal({ isOpen, onClose }: RateAppModalProps) {
 				<div className="space-y-6">
 					{/* Star Rating */}
 					<div className="space-y-3">
-						<label className="font-medium text-footnote text-foreground">Ваша оценка</label>
+						<p className="font-medium text-footnote text-foreground">Ваша оценка</p>
 						<div className="flex justify-center gap-responsive-sm py-4">
 							{[1, 2, 3, 4, 5].map((star) => (
 								<button className="transition-transform hover:scale-110" key={star} type="button">
@@ -69,11 +69,12 @@ export function RateAppModal({ isOpen, onClose }: RateAppModalProps) {
 
 					{/* Comment */}
 					<div className="space-y-2">
-						<label className="font-medium text-footnote text-foreground">
+						<label className="font-medium text-footnote text-foreground" htmlFor="rate-app-comment">
 							Комментарий (необязательно)
 						</label>
 						<Textarea
 							className="resize-none"
+							id="rate-app-comment"
 							placeholder="Расскажите, что вам понравилось или что можно улучшить..."
 							rows={4}
 						/>

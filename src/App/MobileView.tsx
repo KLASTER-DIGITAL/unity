@@ -11,20 +11,13 @@ const MobileApp = lazy(() =>
 const PWAHead = lazy(() => import('@/shared/components/pwa/PWAHead'));
 const PWASplash = lazy(() => import('@/shared/components/pwa/PWASplash'));
 const PWAStatus = lazy(() => import('@/shared/components/pwa/PWAStatus'));
-const PWAUpdatePrompt = lazy(() => import('@/shared/components/pwa/PWAUpdatePrompt'));
-const InstallPrompt = lazy(() => import('@/shared/components/pwa/InstallPrompt'));
 
-const OfflineSyncIndicator = lazy(() => import('@/shared/components/offline/OfflineSyncIndicator'));
-const OfflineModeBadge = lazy(() =>
-	import('@/shared/components/offline/OfflineModeBadge').then((m) => ({
-		default: m.OfflineModeBadge,
-	}))
-);
-const SyncCompletionModal = lazy(() =>
-	import('@/shared/components/offline/SyncCompletionModal').then((m) => ({
-		default: m.SyncCompletionModal,
-	}))
-);
+import { OfflineModeBadge } from '@/shared/components/offline/OfflineModeBadge';
+import { OfflineSyncIndicator } from '@/shared/components/offline/OfflineSyncIndicator';
+import { SyncCompletionModal } from '@/shared/components/offline/SyncCompletionModal';
+import { InstallPrompt } from '@/shared/components/pwa/InstallPrompt';
+// ✅ FIX: Import directly instead of lazy to prevent React hook context issues
+import { PWAUpdatePrompt } from '@/shared/components/pwa/PWAUpdatePrompt';
 
 interface MobileViewProps {
 	userData: UserData | null;
@@ -109,23 +102,24 @@ function MobileViewContent({
 				<PWAHead />
 				<PWASplash />
 				<PWAStatus />
+			</Suspense>
 
-				{userData && <PWAUpdatePrompt />}
+			{/* ✅ FIX: Direct imports outside Suspense to prevent React hook context issues */}
+			{userData && <PWAUpdatePrompt />}
 
-				{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
+			{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
-				{userData?.user?.id && !isAdminRoute && <OfflineSyncIndicator userId={userData.user.id} />}
-
-				{userData?.user?.id && !isAdminRoute && <OfflineModeBadge />}
-
-				{userData?.user?.id && !isAdminRoute && (
+			{userData?.user?.id && !isAdminRoute && (
+				<>
+					<OfflineSyncIndicator userId={userData.user.id} />
+					<OfflineModeBadge />
 					<SyncCompletionModal
 						isOpen={showSyncComplete}
 						onClose={() => setSyncComplete(false)}
 						syncedCount={syncedCount}
 					/>
-				)}
-			</Suspense>
+				</>
+			)}
 
 			<MobileApp
 				authMode={authMode}

@@ -10,13 +10,17 @@ const ALLOWED_ORIGINS = [
 
 const isAllowedOrigin = (origin?: string | null) => {
 	if (!origin) return true;
-	return (
-		ALLOWED_ORIGINS.includes(origin) ||
+
+	// ✅ FIX: Allow localhost with any port for development
+	const isLocalhost =
 		origin.startsWith('http://localhost') ||
 		origin.startsWith('https://localhost') ||
 		origin.startsWith('http://127.0.0.1') ||
-		origin.startsWith('https://127.0.0.1')
-	);
+		origin.startsWith('https://127.0.0.1') ||
+		origin.startsWith('http://0.0.0.0') ||
+		origin.startsWith('https://0.0.0.0');
+
+	return ALLOWED_ORIGINS.includes(origin) || isLocalhost;
 };
 
 const corsHeaders = (origin?: string | null) => ({
@@ -68,29 +72,62 @@ Deno.serve(async (req) => {
 		// Check if path is a 2-letter language code
 		if (path.length === 2 && /^[a-z]{2}$/.test(path) && req.method === 'GET') {
 			const langCode = path;
-			console.log('Fetching translations for language:', langCode);
+			console.log('[TRANSLATIONS-API] Fetching translations for language:', langCode);
+			console.log('[TRANSLATIONS-API] Origin:', origin);
+			console.log('[TRANSLATIONS-API] Supabase URL:', Deno.env.get('SUPABASE_URL'));
+			console.log('[TRANSLATIONS-API] Has ANON_KEY:', !!Deno.env.get('SUPABASE_ANON_KEY'));
 
-			const { data: translations, error } = await supabaseClient
-				.from('translations')
-				.select('translation_key, translation_value')
-				.eq('lang_code', langCode);
+			try {
+				const { data: translations, error } = await supabaseClient
+					.from('translations')
+					.select('translation_key, translation_value')
+					.eq('lang_code', langCode);
 
-			if (error) {
-				console.error('Error fetching translations:', error);
-				throw error;
+				if (error) {
+					console.error('[TRANSLATIONS-API] Error fetching translations:', {
+						message: error.message,
+						details: error.details,
+						hint: error.hint,
+						code: error.code,
+					});
+
+					// ✅ FIX: Return empty object instead of throwing to prevent 500 error
+					// This allows the frontend to use fallback translations
+					return new Response(JSON.stringify({}), {
+						status: 200, // Return 200 with empty object instead of 500
+						headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+					});
+				}
+
+				// Convert to key-value object
+				const translationsObj = (translations || []).reduce((acc: Record<string, string>, t) => {
+					acc[t.translation_key] = t.translation_value;
+					return acc;
+				}, {});
+
+				console.log(
+					`[TRANSLATIONS-API] Translations found for ${langCode}:`,
+					Object.keys(translationsObj).length
+				);
+
+				// ✅ FIX: Return empty object if no translations found (instead of error)
+				if (Object.keys(translationsObj).length === 0) {
+					console.warn(
+						`[TRANSLATIONS-API] No translations found for ${langCode}, returning empty object`
+					);
+				}
+
+				return new Response(JSON.stringify(translationsObj), {
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+				});
+			} catch (innerError) {
+				console.error('[TRANSLATIONS-API] Unexpected error:', innerError);
+				// ✅ FIX: Return empty object instead of throwing to prevent 500 error
+				return new Response(JSON.stringify({}), {
+					status: 200, // Return 200 with empty object instead of 500
+					headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+				});
 			}
-
-			// Convert to key-value object
-			const translationsObj = (translations || []).reduce((acc: Record<string, string>, t) => {
-				acc[t.translation_key] = t.translation_value;
-				return acc;
-			}, {});
-
-			console.log(`Translations found for ${langCode}:`, Object.keys(translationsObj).length);
-
-			return new Response(JSON.stringify(translationsObj), {
-				headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-			});
 		}
 
 		switch (path) {
@@ -357,10 +394,17 @@ Deno.serve(async (req) => {
 		});
 	} catch (error) {
 		const message = error instanceof Error ? error.message : 'Unknown error';
-		console.error('Edge Function error:', error);
+		console.error('[TRANSLATIONS-API] Edge Function error:', {
+			message,
+			stack: error instanceof Error ? error.stack : undefined,
+			error,
+		});
+
+		// ✅ FIX: Always return CORS headers even on error
+		const errorOrigin = req.headers.get('Origin') || undefined;
 		return new Response(JSON.stringify({ error: message }), {
 			status: 500,
-			headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+			headers: { ...corsHeaders(errorOrigin), 'Content-Type': 'application/json' },
 		});
 	}
 });

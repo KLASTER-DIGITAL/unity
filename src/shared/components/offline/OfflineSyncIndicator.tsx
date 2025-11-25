@@ -7,7 +7,7 @@
 
 import { AlertCircle, Cloud, CloudOff, RefreshCw, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	deleteFailedEntry,
 	getPendingEntries,
@@ -26,21 +26,27 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 	const [isSyncing, setIsSyncing] = useState(false);
 	const [showDetails, setShowDetails] = useState(false);
 
-	// Load pending entries
-	const loadPendingEntries = async () => {
+	// ✅ FIX: Обертываем loadPendingEntries в useCallback для стабильной ссылки
+	const loadPendingEntries = useCallback(async () => {
 		try {
 			const entries = await getPendingEntries(userId);
 			setPendingEntries(entries);
 		} catch (error) {
 			console.error('[OfflineSyncIndicator] Failed to load pending entries:', error);
 		}
-	};
+	}, [userId]);
+
+	// ✅ FIX: Используем ref для хранения стабильной ссылки на функцию
+	const loadPendingEntriesRef = useRef(loadPendingEntries);
+	useEffect(() => {
+		loadPendingEntriesRef.current = loadPendingEntries;
+	}, [loadPendingEntries]);
 
 	// Handle online/offline events
 	useEffect(() => {
 		const handleOnline = () => {
 			setIsOnline(true);
-			loadPendingEntries();
+			loadPendingEntriesRef.current();
 		};
 
 		const handleOffline = () => {
@@ -51,25 +57,30 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 		window.addEventListener('offline', handleOffline);
 
 		// Load initial pending entries
-		loadPendingEntries();
+		loadPendingEntriesRef.current();
 
 		// Listen for sync events from Service Worker
 		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.addEventListener('message', (event) => {
+			const handleMessage = (event: MessageEvent) => {
 				if (event.data.type === 'ENTRY_SYNCED' || event.data.type === 'ENTRY_SYNC_FAILED') {
-					loadPendingEntries();
+					loadPendingEntriesRef.current();
 				}
-			});
+			};
+			navigator.serviceWorker.addEventListener('message', handleMessage);
+
+			return () => {
+				window.removeEventListener('online', handleOnline);
+				window.removeEventListener('offline', handleOffline);
+				navigator.serviceWorker.removeEventListener('message', handleMessage);
+			};
 		}
 
 		return () => {
 			window.removeEventListener('online', handleOnline);
 			window.removeEventListener('offline', handleOffline);
 		};
-	}, [
-		// Load initial pending entries
-		loadPendingEntries,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // ✅ FIX: Убрали loadPendingEntries из зависимостей, используем ref
 
 	// Manual sync
 	const handleManualSync = async () => {
@@ -80,7 +91,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 		setIsSyncing(true);
 		try {
 			await syncPendingEntries();
-			await loadPendingEntries();
+			await loadPendingEntriesRef.current();
 		} catch (error) {
 			console.error('[OfflineSyncIndicator] Manual sync failed:', error);
 		} finally {
@@ -92,7 +103,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 	const handleRetry = async (entryId: string) => {
 		try {
 			await retryFailedEntry(entryId);
-			await loadPendingEntries();
+			await loadPendingEntriesRef.current();
 		} catch (error) {
 			console.error('[OfflineSyncIndicator] Retry failed:', error);
 		}
@@ -102,7 +113,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 	const handleDelete = async (entryId: string) => {
 		try {
 			await deleteFailedEntry(entryId);
-			await loadPendingEntries();
+			await loadPendingEntriesRef.current();
 		} catch (error) {
 			console.error('[OfflineSyncIndicator] Delete failed:', error);
 		}
@@ -121,7 +132,7 @@ export function OfflineSyncIndicator({ userId }: OfflineSyncIndicatorProps) {
 		<AnimatePresence>
 			<motion.div
 				animate={{ opacity: 1, y: 0 }}
-				className="fixed top-0 right-0 left-0 z-50 bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+				className="fixed top-0 right-0 left-0 z-50 bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
 				exit={{ opacity: 0, y: -20 }}
 				initial={{ opacity: 0, y: -20 }}
 			>

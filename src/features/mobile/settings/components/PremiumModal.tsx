@@ -132,7 +132,7 @@ export function PremiumModal({ open, onClose }: PremiumModalProps) {
 						{/* CTA - компактные кнопки */}
 						<div className="space-y-2">
 							<Button
-								className="h-11 w-full bg-linear-to-r from-yellow-500 to-orange-500 text-[15px] font-semibold text-white hover:from-yellow-600 hover:to-orange-600"
+								className="h-11 w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-[15px] font-semibold text-white hover:from-yellow-600 hover:to-orange-600"
 								onClick={() => {
 									toast.info(
 										t(

@@ -592,7 +592,7 @@ Deno.serve(async (req) => {
 
 			// Upload to Storage
 			const fileName = `${user.id}/${reportId}.pdf`;
-			const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+			const { error: uploadError } = await supabaseAdmin.storage
 				.from('reports')
 				.upload(fileName, pdfBuffer, {
 					contentType: 'application/pdf',

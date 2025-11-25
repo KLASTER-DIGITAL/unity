@@ -202,7 +202,13 @@ serve(async (req) => {
 			}
 
 			// Exclude read-only fields from update
-			const { id, version, created_at, updated_at, ...updateData } = body;
+			const {
+				id: _id,
+				version: _version,
+				created_at: _created_at,
+				updated_at: _updated_at,
+				...updateData
+			} = body;
 
 			// Update settings
 			const { data, error } = await supabaseAuth

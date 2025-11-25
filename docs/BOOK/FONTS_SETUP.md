@@ -1,3 +1,4 @@
+<!-- Detailed setup instructions for local fonts -->
 # Настройка локальных шрифтов для рендера книг
 
 ## Проблема

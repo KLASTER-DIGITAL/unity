@@ -41,7 +41,7 @@ function getPreviewClasses(style: BookStyle, isActive: boolean) {
 export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 	return (
 		<div className="space-y-4">
-			<p className="text-base text-foreground/90">Выберите стиль повествования для вашей книги</p>
+			<p className="text-base text-foreground">Выберите стиль повествования для вашей книги</p>
 
 			<div className="space-y-3">
 				{STYLE_OPTIONS.map((option) => {
@@ -60,15 +60,15 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 								<span className="text-2xl">{option.emoji}</span>
 								<div className="flex-1">
 									<h3 className="mb-1 text-base font-semibold text-foreground">{option.label}</h3>
-									<p className="mb-3 text-sm text-foreground/80">{option.description}</p>
+									<p className="mb-3 text-sm text-foreground">{option.description}</p>
 
 									{/* Мини-превью страницы книги для выбранного стиля */}
 									<div className={getPreviewClasses(option.value, isActive)}>
-										<div className="h-2 w-10 rounded-full bg-foreground/70" />
+										<div className="h-2 w-10 rounded-full bg-muted-foreground/60" />
 										<div className="space-y-1">
-											<div className="h-1.5 w-full rounded-full bg-foreground/30" />
-											<div className="h-1.5 w-4/5 rounded-full bg-foreground/20" />
-											<div className="h-1.5 w-3/5 rounded-full bg-foreground/10" />
+											<div className="h-1.5 w-full rounded-full bg-muted-foreground/40" />
+											<div className="h-1.5 w-4/5 rounded-full bg-muted-foreground/30" />
+											<div className="h-1.5 w-3/5 rounded-full bg-muted-foreground/20" />
 										</div>
 									</div>
 								</div>
@@ -95,7 +95,7 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 			</div>
 
 			<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
-				<p className="text-sm text-foreground/80">
+				<p className="text-sm text-foreground">
 					💡 <strong className="font-semibold text-foreground">Совет:</strong> Стиль влияет на тон
 					повествования и структуру книги. Выберите тот, который лучше всего отражает ваши
 					воспоминания.

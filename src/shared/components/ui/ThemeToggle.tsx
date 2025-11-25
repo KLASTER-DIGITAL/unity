@@ -17,7 +17,7 @@ type ThemeToggleProps = {
 };
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
-	const { baseTheme, setBaseTheme, colorScheme } = useTheme();
+	const { setBaseTheme, colorScheme } = useTheme();
 	const activeBaseTheme = useActiveBaseTheme();
 	const [userId, setUserId] = useState<string | null>(null);
 

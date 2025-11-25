@@ -1,6 +1,6 @@
-import { Calendar, ChevronRight, Clock } from 'lucide-react-native';
+import { Calendar, Clock } from 'lucide-react-native';
 
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { BookConfig } from './types';
 
 type Step1PeriodProps = {

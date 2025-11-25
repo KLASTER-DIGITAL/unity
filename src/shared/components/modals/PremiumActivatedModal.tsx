@@ -144,7 +144,7 @@ export function PremiumActivatedModal({ open, onClose }: PremiumActivatedModalPr
 							{/* Footer */}
 							<div className="border-border border-t bg-muted/30 px-6 py-4">
 								<Button
-									className="h-12 w-full gap-2 bg-linear-to-r from-yellow-500 to-orange-500 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+									className="h-12 w-full gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
 									onClick={onClose}
 									size="lg"
 								>

@@ -1,3 +1,4 @@
+// Fix Vercel PDF render typings and local fonts
 /**
  * Books Render PDF API (Vercel Serverless Function)
  *
@@ -16,9 +17,10 @@
  * @date 2025-11-23
  */
 
-import * as chromium from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium';
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { Browser, Page } from 'puppeteer-core';
 import puppeteer from 'puppeteer-core';
 
 // ✅ CORS headers (используются в handler)
@@ -634,18 +636,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		// Launch Puppeteer
 		// ✅ Настройка Chromium для Vercel
 		console.log('[VERCEL-PDF] Configuring Chromium...');
-		let browser: puppeteer.Browser | null = null;
+		let browser: Browser | null = null;
 		try {
 			console.log('[VERCEL-PDF] Launching browser...');
 			const executablePath = await chromium.executablePath();
 			console.log('[VERCEL-PDF] Chromium executable path:', executablePath);
 
 			const launchOptions: Parameters<typeof puppeteer.launch>[0] = {
-				args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+				args: chromium.args,
 				defaultViewport: { width: 1280, height: 720 },
 				executablePath,
 				headless: true,
-				ignoreHTTPSErrors: true,
 			};
 
 			browser = await puppeteer.launch(launchOptions);
@@ -658,7 +659,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 		}
 
-		let page: puppeteer.Page | null = null;
+		let page: Page | null = null;
 		try {
 			console.log('[VERCEL-PDF] Creating new page...');
 			page = await browser.newPage();

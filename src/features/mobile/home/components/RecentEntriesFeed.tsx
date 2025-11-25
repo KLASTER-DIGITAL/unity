@@ -61,13 +61,16 @@ export function RecentEntriesFeed({
 			return t('time.just_now', 'Только что');
 		}
 		if (diffInMinutes < 60) {
-			return t('time.minutes_ago', `${diffInMinutes} мин назад`).replace(
-				'{count}',
-				String(diffInMinutes)
-			);
+			const translation = t('time.minutes_ago', `${diffInMinutes} мин назад`);
+			return translation
+				.replace(/\{count\}/g, String(diffInMinutes))
+				.replace(/\{.*?\}/g, String(diffInMinutes));
 		}
 		if (diffInHours < 24) {
-			return t('time.hours_ago', `${diffInHours} ч назад`).replace('{count}', String(diffInHours));
+			const translation = t('time.hours_ago', `${diffInHours} ч назад`);
+			return translation
+				.replace(/\{count\}/g, String(diffInHours))
+				.replace(/\{.*?\}/g, String(diffInHours));
 		}
 		if (diffInDays === 0) {
 			return t('time.today', 'Сегодня');
@@ -76,7 +79,10 @@ export function RecentEntriesFeed({
 			return t('time.yesterday', 'Вчера');
 		}
 		if (diffInDays < 7) {
-			return t('time.days_ago', `${diffInDays} дн назад`).replace('{count}', String(diffInDays));
+			const translation = t('time.days_ago', `${diffInDays} дн назад`);
+			return translation
+				.replace(/\{count\}/g, String(diffInDays))
+				.replace(/\{.*?\}/g, String(diffInDays));
 		}
 
 		// Use user's language for date formatting

@@ -1,3 +1,4 @@
+<!-- Debug guide for function invocation failures -->
 # 🔍 Отладка ошибки FUNCTION_INVOCATION_FAILED
 
 **Дата**: 2025-01-30  
@@ -120,4 +121,5 @@ fra1::hzrqv-1763957122417-162953c3373e
 - [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
 - [Vercel Function Logs](https://vercel.com/docs/concepts/functions/serverless-functions#logs)
 - [Vercel Function Limits](https://vercel.com/docs/concepts/functions/serverless-functions#limits)
+
 

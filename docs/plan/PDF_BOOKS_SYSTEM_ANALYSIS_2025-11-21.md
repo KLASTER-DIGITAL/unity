@@ -208,3 +208,4 @@ await supabaseAdmin.from('user_reports').upsert(
 - `docs/plan/REPORTS_PDF_BOOKS_CHECK_2025-11-21.md` - Предыдущий анализ
 
 
+

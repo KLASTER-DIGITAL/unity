@@ -601,13 +601,52 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		const contentForHash = { entriesSummary, stats, style, layout };
 		const contentHash = await generateContentHash(contentForHash);
 
+		// ✅ Validate data before saving
+		if (!storyJson || typeof storyJson !== 'object') {
+			console.error('[BOOKS-DRAFT] Invalid storyJson:', storyJson);
+			return new Response(
+				JSON.stringify({ success: false, error: 'Invalid story data generated' }),
+				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			);
+		}
+
+		if (!periodStart || !periodEnd) {
+			console.error('[BOOKS-DRAFT] Missing period dates:', { periodStart, periodEnd });
+			return new Response(JSON.stringify({ success: false, error: 'Missing period dates' }), {
+				status: 500,
+				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			});
+		}
+
 		// Save draft to database
+		console.log('[BOOKS-DRAFT] Saving draft to database...', {
+			userId,
+			periodStart,
+			periodEnd,
+			style,
+			layout,
+			type,
+			planType: finalPlanType,
+			language: userLanguage,
+			hasStoryJson: !!storyJson,
+			chaptersCount: storyJson?.chapters?.length || 0,
+		});
+
 		const { data: draft, error: draftError } = await supabaseAdmin
 			.from('books_archive')
 			.insert({
-				// ... (Insert logic)
-				story_json: storyJson,
+				user_id: userId,
+				period_start: periodStart,
+				period_end: periodEnd,
+				contexts: contexts || [],
+				style: style || 'warm_family',
+				layout: layout || 'photo_text',
+				theme: theme || 'light',
+				type: type || 'month',
+				plan_type: finalPlanType || 'premium',
 				language: userLanguage,
+				version: 1,
+				story_json: storyJson,
 				metadata: {
 					entriesCount: filteredEntries.length,
 					achievementsCount: stats.achievements,
@@ -625,14 +664,31 @@ ${JSON.stringify(entriesSummary, null, 2)}
 			.select()
 			.single();
 
-		// ... (Rest of the function: Auto-attach photos, Response)
-
 		if (draftError) {
-			console.error('[BOOKS-DRAFT] Error saving draft:', draftError);
-			return new Response(JSON.stringify({ success: false, error: 'Failed to save draft' }), {
-				status: 500,
-				headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+			console.error('[BOOKS-DRAFT] Error saving draft:', {
+				error: draftError,
+				message: draftError.message,
+				details: draftError.details,
+				hint: draftError.hint,
+				code: draftError.code,
 			});
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: `Failed to save draft: ${draftError.message || 'Unknown error'}`,
+					details: draftError.details,
+					hint: draftError.hint,
+				}),
+				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			);
+		}
+
+		if (!draft || !draft.id) {
+			console.error('[BOOKS-DRAFT] Draft saved but no ID returned:', draft);
+			return new Response(
+				JSON.stringify({ success: false, error: 'Draft saved but no ID returned' }),
+				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			);
 		}
 
 		// ✅ Auto-attach photos to chapters based on AI mapping
@@ -697,10 +753,18 @@ ${JSON.stringify(entriesSummary, null, 2)}
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);
 	} catch (error) {
-		console.error('[BOOKS-DRAFT] Error:', error);
-		return new Response(JSON.stringify({ success: false, error: error.message }), {
-			status: 500,
-			headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+		console.error('[BOOKS-DRAFT] Unhandled error:', {
+			error,
+			message: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			name: error instanceof Error ? error.name : undefined,
 		});
+		return new Response(
+			JSON.stringify({
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown error occurred',
+			}),
+			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+		);
 	}
 });

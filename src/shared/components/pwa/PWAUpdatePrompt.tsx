@@ -45,7 +45,14 @@ export function PWAUpdatePrompt() {
 					// Отправляем SKIP_WAITING через 500ms (чтобы пользователь увидел уведомление)
 					setTimeout(() => {
 						registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+						console.log('[PWA Update] SKIP_WAITING message sent to Service Worker');
 					}, 500);
+
+					// ✅ FIX: Fallback таймаут - если controllerchange не сработает в течение 5 секунд, перезагружаем принудительно
+					setTimeout(() => {
+						console.log('[PWA Update] Timeout reached (5s), forcing reload...');
+						window.location.reload();
+					}, 5000);
 				} else {
 					// Ручное обновление (показываем окно)
 					setShowUpdate(true);
@@ -69,7 +76,14 @@ export function PWAUpdatePrompt() {
 							// Отправляем SKIP_WAITING через 500ms
 							setTimeout(() => {
 								sw.postMessage({ type: 'SKIP_WAITING' });
+								console.log('[PWA Update] SKIP_WAITING message sent to Service Worker');
 							}, 500);
+
+							// ✅ FIX: Fallback таймаут - если controllerchange не сработает в течение 5 секунд, перезагружаем принудительно
+							setTimeout(() => {
+								console.log('[PWA Update] Timeout reached (5s), forcing reload...');
+								window.location.reload();
+							}, 5000);
 						} else {
 							// Ручное обновление (показываем окно)
 							setShowUpdate(true);

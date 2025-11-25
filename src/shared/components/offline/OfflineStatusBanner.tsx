@@ -63,15 +63,15 @@ export function OfflineStatusBanner() {
 	const getVariantStyles = () => {
 		switch (variant) {
 			case 'offline':
-				return 'bg-linear-to-r from-gray-600 to-gray-700';
+				return 'bg-gradient-to-r from-gray-600 to-gray-700';
 			case 'syncing':
-				return 'bg-linear-to-r from-blue-500 to-blue-600';
+				return 'bg-gradient-to-r from-blue-500 to-blue-600';
 			case 'success':
-				return 'bg-linear-to-r from-green-500 to-green-600';
+				return 'bg-gradient-to-r from-green-500 to-green-600';
 			case 'error':
-				return 'bg-linear-to-r from-orange-500 to-orange-600';
+				return 'bg-gradient-to-r from-orange-500 to-orange-600';
 			default:
-				return 'bg-linear-to-r from-gray-600 to-gray-700';
+				return 'bg-gradient-to-r from-gray-600 to-gray-700';
 		}
 	};
 
@@ -164,7 +164,14 @@ export function OfflineStatusBanner() {
 										className="rounded-lg p-1.5 transition-colors duration-300 hover:bg-muted/20"
 										onClick={() => setShowBanner(false)}
 									>
-										<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg
+											aria-label="Close icon"
+											className="h-4 w-4"
+											fill="none"
+											role="img"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
 											<path
 												d="M6 18L18 6M6 6l12 12"
 												strokeLinecap="round"

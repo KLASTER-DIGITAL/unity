@@ -50,22 +50,36 @@ export function MotivationCardsSection({
 	const { t } = useTranslation();
 	const defaultMotivations = useDefaultMotivations();
 
+	// ✅ FIX: Используем useRef для defaultMotivations чтобы избежать бесконечного цикла
+	const defaultMotivationsRef = useRef(defaultMotivations);
+	useEffect(() => {
+		defaultMotivationsRef.current = defaultMotivations;
+	}, [defaultMotivations]);
+
 	// ✅ OPTIMIZATION: Use external cards if provided (from unified API)
 	useEffect(() => {
-		if (externalCards) {
+		// ✅ FIX: Проверяем что externalCards не undefined (может быть пустым массивом [])
+		if (externalCards !== undefined) {
 			console.log('[MotivationCardsSection] Using external cards from unified API:', externalCards);
-			setCards(externalCards);
+			// ✅ FIX: Если карточек нет, используем дефолтные
+			if (externalCards.length === 0 && !externalLoading) {
+				console.log('[MotivationCardsSection] No cards from API, using default motivations');
+				setCards(defaultMotivationsRef.current);
+			} else {
+				setCards(externalCards);
+			}
 			setCurrentIndex(0);
-			setIsLoading(externalLoading || false);
+			setIsLoading(externalLoading !== undefined ? externalLoading : false);
 			return;
 		}
-	}, [externalCards, externalLoading]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [externalCards, externalLoading]); // ✅ FIX: Убрали defaultMotivations из зависимостей
 
 	// Load motivation cards function - используем useCallback для стабильной ссылки
 	const loadMotivationCards = useCallback(
 		async (useCache = true) => {
-			// ✅ OPTIMIZATION: Skip if using external cards
-			if (externalCards) {
+			// ✅ OPTIMIZATION: Skip if using external cards (но не если это пустой массив)
+			if (externalCards !== undefined) {
 				console.log('[MotivationCardsSection] Skipping load - using external cards');
 				return;
 			}
@@ -100,9 +114,13 @@ export function MotivationCardsSection({
 	}, [loadMotivationCards]);
 
 	// Load motivation cards on mount
+	// ✅ FIX: Используем ref для предотвращения бесконечного цикла
 	useEffect(() => {
-		loadMotivationCards();
-	}, [loadMotivationCards]);
+		if (loadMotivationCardsRef.current) {
+			loadMotivationCardsRef.current();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // ✅ FIX: Запускаем только один раз при монтировании
 
 	// ✅ НОВОЕ: Real-time subscription для автообновления карточек при создании новых записей
 	useEffect(() => {

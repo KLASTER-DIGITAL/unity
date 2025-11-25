@@ -197,7 +197,7 @@ export default defineConfig(({ mode }) => ({
 	// SSR конфигурация для предотвращения парсинга react-native файлов
 	ssr: {
 		noExternal: [], // Пустой массив - не обрабатываем ничего в SSR
-		external: ['react-native', /^react-native/, /^@react-native/, /^expo-/, /^@react-navigation/],
+		external: ['react-native', 'expo', '@react-navigation'],
 	},
 	build: {
 		target: 'esnext',
@@ -353,10 +353,8 @@ export default defineConfig(({ mode }) => ({
 		// Проблема: Vite загружает зависимости асинхронно, что может создать multiple React copies
 		// Решение: Принудительно ждем завершения сканирования всех зависимостей
 		holdUntilCrawlEnd: true,
-		// ✅ КРИТИЧЕСКИ ВАЖНО: Принудительная пересборка зависимостей
-		// Проблема: Vite кеширует зависимости и может использовать старые chunks
-		// Решение: Принудительно пересобираем зависимости при каждом запуске
-		force: true,
+		// ✅ TEMP FIX: Отключаем force для стабильности (может вызывать проблемы с React chunks)
+		// force: true,
 	},
 	server: {
 		port: 3000,
@@ -368,6 +366,8 @@ export default defineConfig(({ mode }) => ({
 		// Оптимизация dev server
 		hmr: {
 			overlay: false, // Отключаем overlay для лучшей производительности
+			// protocol: 'ws', // Let Vite determine protocol
+			// host: 'localhost', // Let Vite determine host
 		},
 		fs: {
 			// Разрешаем доступ к файлам вне корня проекта

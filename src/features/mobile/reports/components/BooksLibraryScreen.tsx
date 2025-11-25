@@ -1,3 +1,4 @@
+// Fix Vercel PDF render typings and local fonts
 /**
  * Books Library Screen
  *
@@ -55,7 +56,7 @@ export function BooksLibraryScreen({
 	const [_deletingBookId, setDeletingBookId] = useState<string | null>(null);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [bookToDelete, setBookToDelete] = useState<BookDraft | null>(null);
-	const [_creatingVersionId, setCreatingVersionId] = useState<string | null>(null);
+
 	const [viewingPdfUrl, setViewingPdfUrl] = useState<string | null>(null);
 	const [viewingPdfFileName, setViewingPdfFileName] = useState<string | null>(null);
 
@@ -81,7 +82,6 @@ export function BooksLibraryScreen({
 		setFilter,
 		fetchBooks,
 		deleteBook: deleteBookHook,
-		createNewVersion: createNewVersionHook,
 	} = useBooksList(userId);
 
 	// ✅ FIX: Refetch when refreshKey changes or component mounts
@@ -93,7 +93,7 @@ export function BooksLibraryScreen({
 			fetchBooks();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [refreshKey, userId]); // ✅ FIX: Убираем fetchBooks из зависимостей, чтобы избежать лишних вызовов
+	}, [refreshKey, userId, fetchBooks]); // ✅ FIX: Убираем fetchBooks из зависимостей, чтобы избежать лишних вызовов
 
 	// Format date range
 	const formatPeriod = (start: string, end: string) => {
@@ -118,10 +118,13 @@ export function BooksLibraryScreen({
 	const getStyleLabel = (style: string) => {
 		switch (style) {
 			case 'warm_family':
+				// biome-ignore lint/suspicious/noExplicitAny: Dynamic translation key
 				return t('books.style.warm_family' as any, 'Семейная история');
 			case 'biographical':
+				// biome-ignore lint/suspicious/noExplicitAny: Dynamic translation key
 				return t('books.style.biographical' as any, 'Биография');
 			case 'motivational':
+				// biome-ignore lint/suspicious/noExplicitAny: Dynamic translation key
 				return t('books.style.motivational' as any, 'Мотивация');
 			default:
 				return style;
@@ -385,7 +388,7 @@ export function BooksLibraryScreen({
 		}
 
 		// Генерируем имя файла для отображения
-		const bookTitle = (book.storyJson as any)?.title || 'book';
+		const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
 		const safeTitle =
 			String(bookTitle)
 				.replace(/[^a-zа-яё0-9\s-]/gi, '')
@@ -460,7 +463,7 @@ export function BooksLibraryScreen({
 					try {
 						const checkResponse = await fetch(result.pdfUrl, { method: 'HEAD' });
 						if (checkResponse.ok) {
-							const bookTitle = book.storyJson?.title || 'book';
+							const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
 							const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
 							const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
 
@@ -476,7 +479,7 @@ export function BooksLibraryScreen({
 			// ✅ FIX: Ждем немного, чтобы PDF успел стать доступным в Storage
 			// Затем проверяем доступность перед открытием модального окна
 			if (result.pdfUrl) {
-				const bookTitle = book.storyJson?.title || 'book';
+				const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
 				const safeTitle = bookTitle.replace(/[^a-zа-яё0-9\s-]/gi, '').trim() || 'book';
 				const fileName = `${safeTitle}_${formatPeriod(book.periodStart, book.periodEnd).replace(/\s/g, '_')}.pdf`;
 
@@ -655,7 +658,7 @@ export function BooksLibraryScreen({
 			}
 
 			// Генерируем имя файла из названия книги
-			const bookTitle = (book.storyJson as any)?.title || 'book';
+			const bookTitle = (book.storyJson as { title?: string })?.title || 'book';
 			const safeTitle =
 				String(bookTitle)
 					.replace(/[^a-zа-яё0-9\s-]/gi, '')
@@ -672,7 +675,8 @@ export function BooksLibraryScreen({
 			// ✅ FIX: Проверяем доступность File constructor перед использованием
 			if (typeof File !== 'undefined' && navigator.share) {
 				try {
-					const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
+					// biome-ignore lint/suspicious/noExplicitAny: File constructor might not be typed in RN environment
+					const pdfFile = new (File as any)([blob], fileName, { type: 'application/pdf' });
 					if (navigator.canShare?.({ files: [pdfFile] })) {
 						// Используем Web Share API для мобильных устройств
 						await navigator.share({
@@ -768,33 +772,6 @@ export function BooksLibraryScreen({
 			setDeletingBookId(null);
 			setShowDeleteConfirm(false);
 			setBookToDelete(null);
-		}
-	};
-
-	// Handle create new version from final book
-	const _handleCreateNewVersion = async (book: BookDraft) => {
-		if (!onEditDraft) return;
-
-		// Простое подтверждение
-		const confirmed = window.confirm(
-			'Мы создадим копию текущей книги как новый черновик. Оригинальный PDF останется доступен.'
-		);
-		if (!confirmed) return;
-
-		try {
-			setCreatingVersionId(book.id);
-
-			// ✅ Use hook's create new version function
-			const newBookId = await createNewVersionHook(book.id);
-
-			if (newBookId) {
-				onEditDraft(newBookId);
-			}
-		} catch (error) {
-			console.error('[BOOKS-LIBRARY] Error:', error);
-			toast.error(t('books.editor.error', 'Произошла ошибка'));
-		} finally {
-			setCreatingVersionId(null);
 		}
 	};
 

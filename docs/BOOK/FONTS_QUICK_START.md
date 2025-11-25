@@ -1,3 +1,4 @@
+<!-- Quick‑start guide for adding local fonts -->
 # Быстрая установка локальных шрифтов
 
 ## ✅ Что уже сделано

@@ -118,7 +118,7 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 								{/* Header */}
 								<div className="mb-3 text-center">
 									<div className="mb-2 flex justify-center">
-										<div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-yellow-500 to-orange-500">
+										<div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-yellow-500 to-orange-500">
 											<Crown className="h-6 w-6 text-white" strokeWidth={2.5} />
 										</div>
 									</div>
@@ -162,7 +162,7 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 								{/* Footer - ✅ STICKY: прилипает к низу модального окна */}
 								<div className="sticky bottom-0 border-border border-t bg-card px-4 py-3 -mx-4 -mb-4">
 									<Button
-										className="h-11 w-full gap-2 bg-linear-to-r from-yellow-500 to-orange-500 font-semibold text-sm text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+										className="h-11 w-full gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 font-semibold text-sm text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
 										onClick={onClose}
 										size="lg"
 									>

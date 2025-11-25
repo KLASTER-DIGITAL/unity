@@ -167,6 +167,28 @@ export async function generateBookDraft(
 			body: JSON.stringify(requestBody),
 		});
 
+		// ✅ FIX: Check response status before parsing JSON
+		if (!response.ok) {
+			let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+			try {
+				const errorData = await response.json();
+				errorMessage = errorData.error || errorMessage;
+				console.error('[WIZARD] API error response:', errorData);
+			} catch {
+				// If JSON parsing fails, try to read as text
+				try {
+					const errorText = await response.text();
+					errorMessage = errorText || errorMessage;
+				} catch {
+					// Use default error message
+				}
+			}
+			return {
+				success: false,
+				error: errorMessage,
+			};
+		}
+
 		const result = await response.json();
 
 		console.log('[WIZARD] API response:', result);
@@ -175,6 +197,15 @@ export async function generateBookDraft(
 			return {
 				success: false,
 				error: result.error || 'Не удалось создать черновик',
+			};
+		}
+
+		// ✅ FIX: Validate that draftId exists
+		if (!result.draftId) {
+			console.error('[WIZARD] No draftId in response:', result);
+			return {
+				success: false,
+				error: 'Черновик создан, но ID не получен',
 			};
 		}
 

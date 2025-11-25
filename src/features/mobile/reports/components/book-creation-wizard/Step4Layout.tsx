@@ -41,7 +41,7 @@ function getLayoutPreviewClasses(layout: BookLayout, isActive: boolean) {
 export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
 	return (
 		<div className="space-y-4">
-			<p className="text-muted-foreground text-sm">Выберите макет для вашей книги</p>
+			<p className="text-foreground text-sm">Выберите макет для вашей книги</p>
 
 			<div className="space-y-3">
 				{LAYOUT_OPTIONS.map((option) => {
@@ -59,18 +59,18 @@ export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
 							<div className="flex items-start gap-3">
 								<span className="text-2xl">{option.emoji}</span>
 								<div className="flex-1">
-									<h3 className="mb-1 font-semibold">{option.label}</h3>
-									<p className="text-muted-foreground text-sm">{option.description}</p>
+									<h3 className="mb-1 font-semibold text-foreground">{option.label}</h3>
+									<p className="text-foreground text-sm">{option.description}</p>
 
 									{/* Мини-превью макета: фото + текст / только текст / минималистичный */}
 									<div className={getLayoutPreviewClasses(option.value, isActive)}>
 										{option.value === 'photo_text' && (
-											<div className="h-12 w-10 rounded-md bg-foreground/20" />
+											<div className="h-12 w-10 rounded-md bg-muted-foreground/30" />
 										)}
 										<div className="flex-1 space-y-1">
-											<div className="h-1.5 w-full rounded-full bg-foreground/30" />
-											<div className="h-1.5 w-4/5 rounded-full bg-foreground/20" />
-											<div className="h-1.5 w-3/5 rounded-full bg-foreground/10" />
+											<div className="h-1.5 w-full rounded-full bg-muted-foreground/40" />
+											<div className="h-1.5 w-4/5 rounded-full bg-muted-foreground/30" />
+											<div className="h-1.5 w-3/5 rounded-full bg-muted-foreground/20" />
 										</div>
 									</div>
 								</div>
@@ -97,9 +97,9 @@ export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
 			</div>
 
 			<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
-				<p className="text-muted-foreground text-sm">
-					💡 <strong>Совет:</strong> Макет определяет визуальное оформление книги. Выберите тот,
-					который лучше всего подходит для ваших записей.
+				<p className="text-foreground text-sm">
+					💡 <strong className="font-semibold text-foreground">Совет:</strong> Макет определяет
+					визуальное оформление книги. Выберите тот, который лучше всего подходит для ваших записей.
 				</p>
 			</div>
 		</div>

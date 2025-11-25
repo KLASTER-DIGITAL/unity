@@ -215,4 +215,44 @@ export type Translations = {
 	untranslated_keys: string;
 	translation_complete: string;
 	translation_failed: string;
+
+	// Welcome Trial
+	'welcomeTrial.title': string;
+	'welcomeTrial.description': string;
+	'welcomeTrial.feature1': string;
+	'welcomeTrial.feature2': string;
+	'welcomeTrial.feature3': string;
+	'welcomeTrial.startButton': string;
+	'welcomeTrial.skipButton': string;
+	'welcomeTrial.youReceived': string;
+	'welcomeTrial.premiumDays': string;
+	'welcomeTrial.free': string;
+	'welcomeTrial.startUsing': string;
+
+	// PWA Install
+	'pwa.install.title': string;
+	'pwa.install.description': string;
+	'pwa.install.feature1': string;
+	'pwa.install.feature2': string;
+	'pwa.install.feature3': string;
+	'pwa.install.button': string;
+	'pwa.install.skip': string;
+	'pwa.install.ios_instruction': string;
+	'pwa.install.ios_share': string;
+	'pwa.install.ios_then': string;
+	'pwa.install.ios_add_to_home': string;
+	'pwa.install.install_button': string;
+	'pwa.install.maybe_later': string;
+	'welcomeTrial.feature.aiAnalysis.title': string;
+	'welcomeTrial.feature.aiAnalysis.description': string;
+	'welcomeTrial.feature.unlimitedEntries.title': string;
+	'welcomeTrial.feature.unlimitedEntries.description': string;
+	'welcomeTrial.feature.offline.title': string;
+	'welcomeTrial.feature.offline.description': string;
+	'welcomeTrial.feature.pdfBooks.title': string;
+	'welcomeTrial.feature.pdfBooks.description': string;
+	'welcomeTrial.feature.premiumThemes.title': string;
+	'welcomeTrial.feature.premiumThemes.description': string;
+	'welcomeTrial.feature.analytics.title': string;
+	'welcomeTrial.feature.analytics.description': string;
 };

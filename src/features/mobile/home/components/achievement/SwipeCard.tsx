@@ -2,6 +2,31 @@ import { Heart, Sparkles, Target, ThumbsUp, TrendingUp } from 'lucide-react';
 // ✅ REACT NATIVE READY: Use Platform Adapter for animations
 import { motion, useMotionValue, useTransform } from '@/shared/lib/platform/animation';
 import type { CardType, SwipeCardProps } from './types';
+import { getGradientFromId } from './webgradients-collection';
+
+/**
+ * Auto-assign gradient based on card ID
+ * Uses hash of card.id to deterministically pick a gradient
+ */
+function getAutoGradient(cardId: string): string {
+	// Simple hash function for card ID
+	let hash = 0;
+	for (let i = 0; i < cardId.length; i++) {
+		hash = cardId.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	const index = Math.abs(hash) % 6;
+
+	const gradients = [
+		'linear-gradient(to bottom right, #f9a8d4, #d8b4fe, #818cf8)', // pink-purple-indigo
+		'linear-gradient(to bottom right, #93c5fd, #c084fc, #6366f1)', // blue-purple-indigo (reflect)
+		'linear-gradient(to bottom right, #86efac, #2dd4bf, #3b82f6)', // green-teal-blue (focus)
+		'linear-gradient(to bottom right, #fde047, #fb923c, #ec4899)', // yellow-orange-pink (celebrate)
+		'linear-gradient(to bottom right, #fda4af, #fb7185, #f87171)', // rose-rose-red (gratitude)
+		'linear-gradient(to bottom right, #bbf7d0, #60a5fa, #9333ea)', // green-blue-purple (progress)
+	];
+
+	return gradients[index];
+}
 
 /**
  * Get card type styling (gradient, icon, animation)
@@ -95,7 +120,7 @@ export function SwipeCard({
 					y: 8, // ✅ FIX: Положительный offset - карточка НИЖЕ первой
 					rotate: -2,
 					opacity: 0.9,
-					blur: 1.5, // ✅ FIX: Легкий blur для глубины
+					blur: 2, // ✅ IMPROVED: Увеличен blur для лучшей глубины
 					zIndex: 30,
 				};
 			case 2: // Третья карточка - видна за второй
@@ -104,7 +129,7 @@ export function SwipeCard({
 					y: 16, // ✅ FIX: Положительный offset - карточка НИЖЕ второй
 					rotate: 2,
 					opacity: 0.8,
-					blur: 2.5, // ✅ FIX: Средний blur для глубины
+					blur: 4, // ✅ IMPROVED: Увеличен blur для лучшей глубины
 					zIndex: 20,
 				};
 			default: // Остальные карточки - слегка видны
@@ -113,7 +138,7 @@ export function SwipeCard({
 					y: 24, // ✅ FIX: Положительный offset - карточка НИЖЕ третьей
 					rotate: 0,
 					opacity: 0.7,
-					blur: 3, // ✅ FIX: Сильный blur для глубины
+					blur: 6, // ✅ IMPROVED: Увеличен blur для лучшей глубины
 					zIndex: 10,
 				};
 		}
@@ -199,16 +224,28 @@ export function SwipeCard({
 			const toColor = gradientParts.find((p) => p.startsWith('to-'))?.replace('to-', '');
 
 			const colorMap: Record<string, string> = {
-				'pink-300': '#f9a8d4',
-				'pink-500': '#ec4899',
-				'purple-300': '#d8b4fe',
-				'purple-400': '#c084fc',
-				'purple-600': '#9333ea',
-				'red-500': '#ef4444',
-				'yellow-500': '#eab308',
-				'indigo-400': '#818cf8',
-				'green-300': '#86efac',
+				// ✅ Деловые цвета (business colors)
+				'slate-400': '#94a3b8',
+				'blue-300': '#93c5fd',
+				'blue-400': '#60a5fa',
 				'blue-500': '#3b82f6',
+				'sky-500': '#0ea5e9',
+				'cyan-500': '#06b6d4',
+				'cyan-600': '#0891b2',
+				'indigo-400': '#818cf8',
+				'indigo-500': '#6366f1',
+				'indigo-600': '#4f46e5',
+				'emerald-400': '#34d399',
+				'green-200': '#bbf7d0',
+				'green-300': '#86efac',
+				'teal-400': '#2dd4bf',
+				'teal-500': '#14b8a6',
+				'yellow-300': '#fde047',
+				'yellow-500': '#eab308',
+				'orange-400': '#fb923c',
+				'red-400': '#f87171',
+				'red-500': '#ef4444',
+				'rose-400': '#fb7185',
 			};
 
 			const from = fromColor ? colorMap[fromColor] || fromColor : '#ec4899';
@@ -218,8 +255,13 @@ export function SwipeCard({
 			return `linear-gradient(to bottom right, ${from}, ${via}, ${to})`;
 		}
 
-		// ✅ FALLBACK: Generic gradient
-		return 'linear-gradient(to bottom right, #f9a8d4, #d8b4fe, #818cf8)';
+		// ✅ НОВОЕ: ПРИОРИТЕТ 3: Auto-assign based on card.id
+		if (card.id) {
+			return getAutoGradient(card.id);
+		}
+
+		// ✅ FALLBACK: Use webgradients collection based on card ID
+		return getGradientFromId(card.id);
 	};
 
 	return (
@@ -270,10 +312,20 @@ export function SwipeCard({
 					boxShadow: index === 0 ? '0 20px 60px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.2)',
 				}}
 			>
+				{/* ✅ НОВОЕ: Depth overlay для задних карточек */}
+				{index > 0 && (
+					<div
+						className="pointer-events-none absolute inset-0"
+						style={{
+							background: `rgba(0, 0, 0, ${index * 0.05})`,
+							borderRadius: '36px',
+						}}
+					/>
+				)}
 				{/* Like overlay - показывается при свайпе вправо */}
 				{isTop && (
 					<motion.div
-						className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-linear-to-r from-transparent via-green-500/20 to-green-500/40"
+						className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-r from-transparent via-green-500/20 to-green-500/40"
 						style={{ opacity: likeOpacity }}
 					>
 						<div className="rotate-12 rounded-2xl border-4 border-white bg-green-500 px-8 py-4 text-white shadow-xl">

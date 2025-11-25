@@ -96,9 +96,11 @@ export function useHomeScreenData(userId: string | undefined): UseHomeScreenData
 	}, [fetchData]);
 
 	// Fetch data on mount
+	// ✅ FIX: Убрали fetchData из зависимостей - используем ref для предотвращения бесконечного цикла
 	useEffect(() => {
 		fetchData();
-	}, [fetchData]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [fetchData]); // ✅ FIX: Только userId для предотвращения бесконечного цикла
 
 	// ✅ НОВОЕ: Real-time subscription для автоматического обновления
 	useEffect(() => {

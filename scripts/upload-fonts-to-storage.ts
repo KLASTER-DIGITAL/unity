@@ -59,8 +59,10 @@ async function extractFontUrls(familyName: string, variant: string): Promise<Fon
 	const urlRegex = /url\(([^)]+\.woff2)\)/g;
 	const weightRegex = /font-weight:\s*(\d+)/;
 
-	let match;
-	while ((match = urlRegex.exec(css)) !== null) {
+	let match: RegExpExecArray | null = null;
+	while (true) {
+		match = urlRegex.exec(css);
+		if (!match) break;
 		const url = match[1].replace(/['"]/g, '');
 		const weightMatch = css.substring(0, match.index).match(weightRegex);
 		const weight = weightMatch ? weightMatch[1] : '400';

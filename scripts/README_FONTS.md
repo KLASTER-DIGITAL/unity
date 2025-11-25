@@ -1,3 +1,4 @@
+<!-- Fonts handling scripts -->
 # Загрузка шрифтов в Supabase Storage
 
 ## Быстрый старт

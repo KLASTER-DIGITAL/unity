@@ -1,4 +1,4 @@
-import { Download, Smartphone, X } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/shared/lib/i18n';
@@ -44,68 +44,68 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 					</button>
 
 					{/* Content */}
-					<div className="p-8 pt-10 pb-10">
+					<div className="p-6 pt-8 pb-6">
 						{/* Icon with animation */}
 						<motion.div
 							animate={{ scale: 1, rotate: 0 }}
-							className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-[24px] bg-linear-to-br from-primary to-accent shadow-xl transition-colors duration-300"
+							className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-primary to-accent shadow-lg transition-colors duration-300"
 							initial={{ scale: 0, rotate: -180 }}
 							transition={{ delay: 0.2, type: 'spring', damping: 15 }}
 						>
-							<span className="text-[48px]">🏆</span>
+							<span className="text-[32px]">🏆</span>
 						</motion.div>
 
 						{/* Title */}
 						<motion.h2
 							animate={{ y: 0, opacity: 1 }}
-							className="mb-3 text-center font-semibold! text-[24px]! text-foreground"
+							className="mb-2 text-center font-semibold text-[20px] text-foreground leading-tight"
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.3 }}
 						>
-							{t('pwa.install.title', 'Добавить на главный экран?')}
+							{t('pwa.install.title', 'Установить приложение')}
 						</motion.h2>
 
 						{/* Description */}
 						<motion.p
 							animate={{ y: 0, opacity: 1 }}
-							className="mb-8 text-center font-normal! text-[15px]! text-muted-foreground leading-[1.5]"
+							className="mb-5 text-center font-normal text-[13px] text-muted-foreground leading-[1.4]"
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.4 }}
 						>
 							{t(
 								'pwa.install.description',
-								'Установите приложение для быстрого доступа к вашему дневнику достижений'
+								'Установите приложение для быстрого доступа и работы офлайн'
 							)}
 						</motion.p>
 
 						{/* Features */}
 						<motion.div
 							animate={{ y: 0, opacity: 1 }}
-							className="mb-8 space-y-3"
+							className="mb-5 space-y-2.5"
 							initial={{ y: 20, opacity: 0 }}
 							transition={{ delay: 0.5 }}
 						>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-									<span className="text-[20px]">⚡️</span>
+								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10">
+									<span className="text-[16px]">⚡️</span>
 								</div>
-								<p className="font-normal! text-[14px]! text-foreground">
-									{t('pwa.install.feature1', 'Мгновенный запуск как нативное приложение')}
+								<p className="font-normal text-[13px] text-foreground">
+									{t('pwa.install.feature1', 'Быстрый запуск приложения')}
 								</p>
 							</div>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-									<span className="text-[20px]">📱</span>
+								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10">
+									<span className="text-[16px]">📱</span>
 								</div>
-								<p className="font-normal! text-[14px]! text-foreground">
-									{t('pwa.install.feature2', 'Работает без интернета')}
+								<p className="font-normal text-[13px] text-foreground">
+									{t('pwa.install.feature2', 'Быстрый доступ с главного экрана')}
 								</p>
 							</div>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-									<span className="text-[20px]">🔔</span>
+								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10">
+									<span className="text-[16px]">🔔</span>
 								</div>
-								<p className="font-normal! text-[14px]! text-foreground">
+								<p className="font-normal text-[13px] text-foreground">
 									{t('pwa.install.feature3', 'Push-уведомления о ваших целях')}
 								</p>
 							</div>
@@ -132,32 +132,38 @@ export function InstallPrompt({ onClose, onInstall }: InstallPromptProps) {
 								</p>
 							</motion.div>
 						) : (
-							<motion.button
-								animate={{ y: 0, opacity: 1 }}
-								className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-accent-foreground shadow-lg transition-all hover:bg-accent/90 hover:shadow-xl active:scale-95"
-								initial={{ y: 20, opacity: 0 }}
-								onClick={onInstall}
-								transition={{ delay: 0.6 }}
-							>
-								<Smartphone className="h-5 w-5" />
-								<span className="font-semibold! text-[16px]!">
-									{t('pwa.install.install_button', 'Установить приложение')}
-								</span>
-							</motion.button>
-						)}
+							<>
+								{/* Install Button */}
+								<motion.div
+									animate={{ y: 0, opacity: 1 }}
+									initial={{ y: 20, opacity: 0 }}
+									transition={{ delay: 0.6 }}
+								>
+									<button
+										type="button"
+										className="mb-3 w-full rounded-xl bg-primary px-6 py-3 font-semibold text-[15px] text-primary-foreground shadow-lg transition-all active:scale-[0.98]"
+										onClick={onInstall}
+									>
+										<span className="flex items-center justify-center gap-2">
+											<Download className="h-4 w-4" />
+											{t('pwa.install.button', 'Установить приложение')}
+										</span>
+									</button>
+								</motion.div>
 
-						{/* Skip button */}
-						<motion.button
-							animate={{ y: 0, opacity: 1 }}
-							className="mt-3 w-full py-3 text-muted-foreground transition-colors hover:text-foreground"
-							initial={{ y: 20, opacity: 0 }}
-							onClick={onClose}
-							transition={{ delay: 0.7 }}
-						>
-							<span className="font-normal! text-[14px]!">
-								{t('pwa.install.maybe_later', 'Может быть позже')}
-							</span>
-						</motion.button>
+								{/* Skip Button */}
+								<motion.button
+									animate={{ opacity: 1 }}
+									type="button"
+									className="w-full py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+									initial={{ opacity: 0 }}
+									onClick={onClose}
+									transition={{ delay: 0.7 }}
+								>
+									{t('pwa.install.skip', 'Может быть позже')}
+								</motion.button>
+							</>
+						)}
 					</div>
 				</motion.div>
 			</motion.div>

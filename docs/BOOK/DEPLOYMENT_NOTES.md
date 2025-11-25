@@ -1,3 +1,4 @@
+<!-- Added deployment notes for local fonts -->
 # Заметки о деплое - Локальные шрифты
 
 ## Дата: 2025-01-30

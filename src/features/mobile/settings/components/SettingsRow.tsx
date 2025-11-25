@@ -55,6 +55,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 
 	return (
 		<button
+			type="button"
 			className={cn(
 				'flex w-full items-center justify-between p-row text-left transition-colors',
 				// iOS HIG: minimum 44px touch target
@@ -72,7 +73,6 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				className
 			)}
 			onClick={handleClick}
-			type="button"
 		>
 			<div className="flex min-w-0 flex-1 items-center gap-responsive-md">
 				{/* Icon */}
