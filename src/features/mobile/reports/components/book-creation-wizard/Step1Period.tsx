@@ -4,7 +4,6 @@
 
 import { Calendar } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { Label } from '@/shared/components/ui/label';
 import type { BookConfig } from './types';
 
 type Step1PeriodProps = {
@@ -38,16 +37,21 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
 			{/* Book Type Selection (Premium only) */}
 			{isPremium && (
 				<div>
-					<Label>Тип книги</Label>
-					<div className="mt-2 flex gap-2">
+					<label className="block text-white text-sm font-semibold mb-3">Тип книги</label>
+					<div className="flex gap-2">
 						<Button
 							onClick={() => handleTypeChange('month')}
 							size="sm"
 							variant={config.type === 'month' ? 'default' : 'outline'}
+							className={
+								config.type === 'month'
+									? 'bg-white text-black hover:bg-white/90'
+									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+							}
 						>
 							Месяц
 						</Button>
@@ -55,6 +59,11 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('quarter')}
 							size="sm"
 							variant={config.type === 'quarter' ? 'default' : 'outline'}
+							className={
+								config.type === 'quarter'
+									? 'bg-white text-black hover:bg-white/90'
+									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+							}
 						>
 							Квартал
 						</Button>
@@ -62,6 +71,11 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('year')}
 							size="sm"
 							variant={config.type === 'year' ? 'default' : 'outline'}
+							className={
+								config.type === 'year'
+									? 'bg-white text-black hover:bg-white/90'
+									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+							}
 						>
 							Год
 						</Button>
@@ -69,6 +83,11 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('custom')}
 							size="sm"
 							variant={config.type === 'custom' ? 'default' : 'outline'}
+							className={
+								config.type === 'custom'
+									? 'bg-white text-black hover:bg-white/90'
+									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+							}
 						>
 							Произвольный
 						</Button>
@@ -77,14 +96,16 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 			)}
 
 			<div>
-				<Label htmlFor="periodStart">Начало периода</Label>
-				<div className="relative mt-2">
+				<label htmlFor="periodStart" className="block text-white text-sm font-semibold mb-3">
+					Начало периода
+				</label>
+				<div className="relative">
 					<Calendar
-						className="absolute top-3 left-3 h-5 w-5 text-muted-foreground"
+						className="absolute top-3.5 left-4 h-5 w-5 text-white/40 pointer-events-none"
 						strokeWidth={2}
 					/>
 					<input
-						className="w-full rounded-lg border bg-background py-2 pr-3 pl-10 transition-colors duration-300"
+						className="w-full rounded-xl border border-white/20 bg-white/10 py-3 pr-4 pl-12 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
 						id="periodStart"
 						max={config.periodEnd}
 						onChange={(e) => onConfigChange({ periodStart: e.target.value })}
@@ -95,14 +116,16 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 			</div>
 
 			<div>
-				<Label htmlFor="periodEnd">Конец периода</Label>
-				<div className="relative mt-2">
+				<label htmlFor="periodEnd" className="block text-white text-sm font-semibold mb-3">
+					Конец периода
+				</label>
+				<div className="relative">
 					<Calendar
-						className="absolute top-3 left-3 h-5 w-5 text-muted-foreground"
+						className="absolute top-3.5 left-4 h-5 w-5 text-white/40 pointer-events-none"
 						strokeWidth={2}
 					/>
 					<input
-						className="w-full rounded-lg border bg-background py-2 pr-3 pl-10 transition-colors duration-300"
+						className="w-full rounded-xl border border-white/20 bg-white/10 py-3 pr-4 pl-12 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
 						id="periodEnd"
 						max={new Date().toISOString().split('T')[0]}
 						min={config.periodStart}
@@ -113,8 +136,8 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 				</div>
 			</div>
 
-			<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
-				<p className="text-muted-foreground text-sm">
+			<div className="rounded-xl bg-white/5 border border-white/10 p-4">
+				<p className="text-white/60 text-xs leading-relaxed text-center">
 					💡 <strong>Совет:</strong> Выберите период с достаточным количеством записей (минимум 5)
 					для создания интересной книги.
 				</p>

@@ -41,14 +41,25 @@ export function WizardNavigation({
 	};
 
 	return (
-		<div className="flex items-center justify-between gap-3 border-t border-border bg-card p-4 transition-colors duration-300">
+		<div className="flex items-center justify-between gap-4">
 			{/* Cancel / Previous */}
 			{currentStep === 1 ? (
-				<Button onClick={onCancel} size="lg" variant="outline">
+				<Button
+					onClick={onCancel}
+					size="lg"
+					variant="ghost"
+					className="text-white/60 hover:text-white hover:bg-white/10"
+				>
 					Отмена
 				</Button>
 			) : (
-				<Button disabled={isGenerating} onClick={onPrevious} size="lg" variant="outline">
+				<Button
+					disabled={isGenerating}
+					onClick={onPrevious}
+					size="lg"
+					variant="ghost"
+					className="text-white/60 hover:text-white hover:bg-white/10"
+				>
 					<ChevronLeft className="mr-2 h-5 w-5" strokeWidth={2} />
 					Назад
 				</Button>
@@ -56,12 +67,22 @@ export function WizardNavigation({
 
 			{/* Next / Generate */}
 			{currentStep === 4 ? (
-				<Button disabled={!canProceed() || isGenerating} onClick={onGenerate} size="lg">
+				<Button
+					disabled={!canProceed() || isGenerating}
+					onClick={onGenerate}
+					size="lg"
+					className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg shadow-purple-500/20"
+				>
 					<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
 					Создать книгу
 				</Button>
 			) : (
-				<Button disabled={!canProceed() || isGenerating} onClick={onNext} size="lg">
+				<Button
+					disabled={!canProceed() || isGenerating}
+					onClick={onNext}
+					size="lg"
+					className="bg-white text-black hover:bg-white/90 border-0"
+				>
 					Далее
 					<ChevronRight className="ml-2 h-5 w-5" strokeWidth={2} />
 				</Button>

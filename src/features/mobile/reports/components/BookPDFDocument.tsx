@@ -29,10 +29,6 @@ Font.register({
 			src: `${FONT_BASE_URL}/noto-sans/NotoSans-SemiBold.woff2`,
 			fontWeight: 600,
 		},
-		{
-			src: `${FONT_BASE_URL}/noto-sans/NotoSans-Bold.woff2`,
-			fontWeight: 700,
-		},
 	],
 });
 
@@ -100,7 +96,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontFamily: 'Noto Serif',
 		fontSize: 28,
-		fontWeight: 700,
+		fontWeight: 600,
 		marginBottom: 10,
 		textAlign: 'center',
 	},
@@ -179,7 +175,7 @@ const styles = StyleSheet.create({
 	dividerTitle: {
 		fontFamily: 'Noto Serif',
 		fontSize: 24,
-		fontWeight: 700,
+		fontWeight: 600,
 		color: '#9333ea',
 		marginBottom: 10,
 	},

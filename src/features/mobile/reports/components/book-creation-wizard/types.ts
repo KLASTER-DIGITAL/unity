@@ -22,8 +22,8 @@ export type BookConfig = {
 	theme?: 'light' | 'dark'; // ✅ NEW: Theme preference
 };
 
-export type BookStyle = 'warm_family' | 'biographical' | 'motivational';
-export type BookLayout = 'photo_text' | 'text_only' | 'minimal';
+export type BookStyle = 'warm_family' | 'biographical' | 'motivational' | '';
+export type BookLayout = 'photo_text' | 'text_only' | 'minimal' | '';
 
 export type WizardState = {
 	currentStep: WizardStep;

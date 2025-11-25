@@ -111,6 +111,12 @@ export function BookCreationWizard({
 
 	return (
 		<>
+			{/* Background Effects */}
+			<div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+				<div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 blur-[100px]" />
+				<div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[100px]" />
+			</div>
+
 			{/* Progress Modal */}
 			{showProgress && (
 				<BookGenerationProgress
@@ -124,9 +130,7 @@ export function BookCreationWizard({
 			{/* Success Modal */}
 			<BookCreationSuccessModal
 				isOpen={showSuccessModal}
-				// Primary CTA → открыть редактор книги
 				onGoToLibrary={handleGoToEditor}
-				// Secondary CTA → перейти на полку
 				onClose={handleGoToLibraryFromModal}
 			/>
 
@@ -143,75 +147,75 @@ export function BookCreationWizard({
 				/>
 			)}
 
-			{/* Wizard */}
-			{isLoadingUser ? (
-				<div className="flex h-full items-center justify-center">
-					<div className="text-center">
-						<div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-						<p className="text-muted-foreground text-sm">Загрузка...</p>
+			{/* Wizard Content */}
+			<div className="relative z-10 flex flex-col h-full max-w-md mx-auto w-full">
+				{isLoadingUser ? (
+					<div className="flex-1 flex items-center justify-center">
+						<div className="text-center">
+							<div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+							<p className="text-muted-foreground text-sm font-medium">Загрузка...</p>
+						</div>
 					</div>
-				</div>
-			) : (
-				<div className="flex h-full flex-col">
-					{/* Progress Bar */}
-					<div className="border-b border-border bg-card p-4 transition-colors duration-300">
-						{(() => {
-							// Calculate total steps and current step for display
-							let totalSteps: number;
-							let displayStep: number;
+				) : (
+					<>
+						{/* Header & Progress */}
+						<div className="pt-6 pb-2 px-6">
+							{(() => {
+								let totalSteps: number;
+								let displayStep: number;
 
-							if (isPremium && config.planType === 'premium') {
-								// Premium: Step0 skipped, so 4 steps (1, 2, 3, 4)
-								totalSteps = 4;
-								displayStep = currentStep; // currentStep is already 1, 2, 3, 4
-							} else if (config.planType === 'free') {
-								// FREE: Step0 + Step1 + Step2 (skip 3, 4)
-								totalSteps = 3;
-								displayStep = currentStep + 1; // Convert 0-based to 1-based
-							} else {
-								// Default: Step0 + 1 + 2 + 3 + 4 = 5 steps
-								totalSteps = 5;
-								displayStep = currentStep + 1; // Convert 0-based to 1-based
-							}
+								if (isPremium && config.planType === 'premium') {
+									totalSteps = 4;
+									displayStep = currentStep;
+								} else if (config.planType === 'free') {
+									totalSteps = 3;
+									displayStep = currentStep + 1;
+								} else {
+									totalSteps = 5;
+									displayStep = currentStep + 1;
+								}
 
-							const progress =
-								totalSteps > 1 ? Math.round(((displayStep - 1) / (totalSteps - 1)) * 100) : 0;
+								const progress = totalSteps > 1 ? ((displayStep - 1) / (totalSteps - 1)) * 100 : 0;
 
-							return (
-								<>
-									<div className="mb-2 flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">
-											Шаг {displayStep} из {totalSteps}
-										</span>
-										<span className="font-medium">{progress}%</span>
+								return (
+									<div className="space-y-4">
+										{/* Progress Bar */}
+										<div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+											<motion.div
+												className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+												initial={{ width: 0 }}
+												animate={{ width: `${progress}%` }}
+												transition={{ duration: 0.5, ease: 'easeInOut' }}
+											/>
+										</div>
+
+										{/* Title */}
+										<div className="text-center">
+											<motion.h2
+												key={currentStep}
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80"
+											>
+												{getStepTitle()}
+											</motion.h2>
+										</div>
 									</div>
-									<Progress className="h-2" value={progress} />
-								</>
-							);
-						})()}
-					</div>
+								);
+							})()}
+						</div>
 
-					{/* Content */}
-					<div className="max-h-[calc(100vh-180px)] overflow-y-auto p-4">
-						<Card className="overflow-hidden border-none shadow-none sm:border sm:shadow-sm">
-							<CardHeader>
-								<motion.div
-									key={currentStep}
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ duration: 0.3 }}
-								>
-									<CardTitle className="text-base sm:text-lg">{getStepTitle()}</CardTitle>
-								</motion.div>
-							</CardHeader>
-							<CardContent className="space-y-3 sm:space-y-4">
+						{/* Main Content Area */}
+						<div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-hide">
+							<div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-2xl min-h-[400px] flex flex-col">
 								<AnimatePresence mode="wait">
 									<motion.div
 										key={currentStep}
-										initial={{ opacity: 0, x: 20 }}
-										animate={{ opacity: 1, x: 0 }}
-										exit={{ opacity: 0, x: -20 }}
-										transition={{ duration: 0.3 }}
+										initial={{ opacity: 0, x: 20, filter: 'blur(10px)' }}
+										animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+										exit={{ opacity: 0, x: -20, filter: 'blur(10px)' }}
+										transition={{ duration: 0.4, ease: 'easeOut' }}
+										className="flex-1"
 									>
 										{currentStep === 0 && (
 											<Step0PlanType
@@ -251,54 +255,44 @@ export function BookCreationWizard({
 								</AnimatePresence>
 
 								{/* Error Display */}
-								{generationError && (
-									<motion.div
-										initial={{ opacity: 0, height: 0 }}
-										animate={{ opacity: 1, height: 'auto' }}
-										className="rounded-lg border border-destructive bg-destructive/10 p-4"
-									>
-										<p className="mb-2 font-semibold text-destructive">❌ Ошибка генерации</p>
-										<p className="mb-3 text-sm text-destructive">{generationError}</p>
-										<button
-											className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors duration-300 hover:bg-destructive/90"
-											onClick={handleRetry}
-											type="button"
+								<AnimatePresence>
+									{generationError && (
+										<motion.div
+											initial={{ opacity: 0, height: 0, marginTop: 0 }}
+											animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+											exit={{ opacity: 0, height: 0, marginTop: 0 }}
+											className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 overflow-hidden"
 										>
-											Повторить попытку
-										</button>
-									</motion.div>
-								)}
+											<p className="mb-2 font-semibold text-red-400">❌ Ошибка генерации</p>
+											<p className="mb-3 text-sm text-white/70">{generationError}</p>
+											<button
+												className="w-full rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 py-2 text-sm font-medium text-red-200 transition-colors"
+												onClick={handleRetry}
+												type="button"
+											>
+												Повторить попытку
+											</button>
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</div>
+						</div>
 
-								{/* Final step hint */}
-								{currentStep === 4 && (
-									<motion.div
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300"
-									>
-										<p className="text-muted-foreground text-sm">
-											{existingBookId
-												? 'Сейчас книга будет обновлена. Старая версия будет удалена.'
-												: 'Сейчас будет создан черновик книги. На следующем шаге ты сможешь отредактировать её.'}
-										</p>
-									</motion.div>
-								)}
-							</CardContent>
-						</Card>
-					</div>
-
-					{/* Navigation */}
-					<WizardNavigation
-						config={config}
-						currentStep={currentStep}
-						isGenerating={isGenerating}
-						onCancel={onCancel}
-						onGenerate={handleGenerate}
-						onNext={handleNext}
-						onPrevious={handlePrevious}
-					/>
-				</div>
-			)}
+						{/* Navigation */}
+						<div className="p-4 pb-8">
+							<WizardNavigation
+								config={config}
+								currentStep={currentStep}
+								isGenerating={isGenerating}
+								onCancel={onCancel}
+								onGenerate={handleGenerate}
+								onNext={handleNext}
+								onPrevious={handlePrevious}
+							/>
+						</div>
+					</>
+				)}
+			</div>
 		</>
 	);
 }
