@@ -27,9 +27,6 @@ import { toast } from 'sonner';
 import { PDFViewer } from '@/shared/components/PDFViewer';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
-import { Skeleton } from '@/shared/components/ui/skeleton';
-import { API_URLS } from '@/shared/lib/api/config/urls';
 import type { Book } from '@/shared/lib/hooks/useBooksList';
 import { useBooksList } from '@/shared/lib/hooks/useBooksList';
 import { useTranslation } from '@/shared/lib/i18n';
@@ -949,11 +946,12 @@ export function BooksLibraryScreen({
 											<div className="min-w-0 flex-1">
 												<h3 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
 													{book.metadata.diaryEmoji || '📖'}{' '}
-													{(book.storyJson as any)?.title || t('books.untitled', 'Без названия')}
+													{(book.storyJson as unknown as StoryJson)?.title ||
+														t('books.untitled', 'Без названия')}
 												</h3>
-												{(book.storyJson as any)?.dedication && (
+												{(book.storyJson as unknown as StoryJson)?.dedication && (
 													<div className="mb-2 text-xs text-muted-foreground italic">
-														{(book.storyJson as any)?.dedication}
+														{(book.storyJson as unknown as StoryJson)?.dedication}
 													</div>
 												)}
 												<div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -972,8 +970,8 @@ export function BooksLibraryScreen({
 												variant="outline"
 											>
 												{book.isFinal
-													? t('books.status.ready_short' as any, 'Готово')
-													: t('books.status.draft_short' as any, 'Черновик')}
+													? t('books.status.ready_short', 'Готово')
+													: t('books.status.draft_short', 'Черновик')}
 											</Badge>
 
 											{/* 🆕 Offline Status Badge */}
@@ -1106,7 +1104,8 @@ export function BooksLibraryScreen({
 			{/* Delete Confirmation Modal */}
 			<BookDeleteConfirmModal
 				bookTitle={
-					(bookToDelete?.storyJson as any)?.title || t('books.untitled' as any, 'Без названия')
+					(bookToDelete?.storyJson as unknown as StoryJson)?.title ||
+					t('books.untitled', 'Без названия')
 				}
 				isOpen={showDeleteConfirm}
 				onClose={() => {

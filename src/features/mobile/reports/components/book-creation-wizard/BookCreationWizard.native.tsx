@@ -104,7 +104,12 @@ export function BookCreationWizard({
 						config={config}
 						onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
 						isPremium={isPremium}
-						onUpgrade={onUpgrade || (() => {})}
+						onUpgrade={
+							onUpgrade ||
+							(() => {
+								/* no-op */
+							})
+						}
 					/>
 				);
 			case 1:
@@ -127,6 +132,8 @@ export function BookCreationWizard({
 					<Step3Style
 						config={config}
 						onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+						isPremium={isPremium}
+						onUpgrade={onUpgrade}
 					/>
 				);
 			case 4:
@@ -134,6 +141,8 @@ export function BookCreationWizard({
 					<Step4Layout
 						config={config}
 						onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+						isPremium={isPremium}
+						onUpgrade={onUpgrade}
 					/>
 				);
 			default:
@@ -314,7 +323,7 @@ const styles = StyleSheet.create({
 	},
 	headerTitle: {
 		fontSize: DesignTokens.fontSizes.xl,
-		fontWeight: DesignTokens.fontWeights.bold,
+		fontWeight: DesignTokens.fontWeights.bold as any,
 		color: DesignTokens.colors.card,
 	},
 	headerSubtitle: {
@@ -407,7 +416,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		padding: 20,
-		backdropFilter: 'blur(10px)',
 	},
 	modalContent: {
 		backgroundColor: '#fff',

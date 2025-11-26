@@ -45,9 +45,9 @@ export function useBookCreation(
 		periodEnd: new Date().toISOString().split('T')[0],
 		contexts: [],
 		// biome-ignore lint/suspicious/noExplicitAny: initial state
-		style: '' as any,
+		style: 'warm_family' as any,
 		// biome-ignore lint/suspicious/noExplicitAny: initial state
-		layout: '' as any,
+		layout: 'photo_text' as any,
 		theme: 'light',
 	});
 
@@ -119,21 +119,9 @@ export function useBookCreation(
 	};
 
 	const handleNext = () => {
-		// Skip steps for FREE users
-		if (config.planType === 'free') {
-			if (currentStep === 0)
-				setCurrentStep(1); // 0 → 1 (period)
-			else if (currentStep === 1)
-				setCurrentStep(2); // 1 → 2 (contexts)
-			else if (currentStep === 2) {
-				// FREE: skip style and layout, go directly to generation
-				handleGenerate();
-			}
-		} else {
-			// PREMIUM: full flow
-			if (currentStep < 4) {
-				setCurrentStep((prev) => (prev + 1) as WizardStep);
-			}
+		// ✅ FIX: Always show all steps, but lock Premium ones in UI
+		if (currentStep < 4) {
+			setCurrentStep((prev) => (prev + 1) as WizardStep);
 		}
 	};
 

@@ -1,4 +1,4 @@
-import { Heart, Rocket, User } from 'lucide-react-native';
+import { Heart, Lock, Rocket, Sparkles, User } from 'lucide-react-native';
 
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { BookConfig, BookStyle } from './types';
@@ -6,6 +6,8 @@ import type { BookConfig, BookStyle } from './types';
 type Step3StyleProps = {
 	config: BookConfig;
 	onConfigChange: (updates: Partial<BookConfig>) => void;
+	isPremium?: boolean;
+	onUpgrade?: () => void;
 };
 
 const STYLES: { id: BookStyle; title: string; description: string; icon: any }[] = [
@@ -29,7 +31,12 @@ const STYLES: { id: BookStyle; title: string; description: string; icon: any }[]
 	},
 ];
 
-export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
+export function Step3Style({
+	config,
+	onConfigChange,
+	isPremium = false,
+	onUpgrade,
+}: Step3StyleProps) {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Выберите стиль</Text>
@@ -38,11 +45,26 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 			<ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
 				{STYLES.map((style) => {
 					const isSelected = config.style === style.id;
+					// Lock all styles for free users, or maybe allow one default?
+					// Plan says "stop skipping... show Premium Only overlay or lock interactions"
+					// Let's lock all interactions for free users and show overlay
+					const isLocked = !isPremium;
+
 					return (
 						<TouchableOpacity
 							key={style.id}
-							style={[styles.card, isSelected && styles.cardSelected]}
-							onPress={() => onConfigChange({ style: style.id })}
+							style={[
+								styles.card,
+								isSelected && styles.cardSelected,
+								isLocked && styles.cardLocked,
+							]}
+							onPress={() => {
+								if (isLocked) {
+									onUpgrade?.();
+								} else {
+									onConfigChange({ style: style.id });
+								}
+							}}
 							activeOpacity={0.7}
 						>
 							<View style={styles.cardHeader}>
@@ -50,15 +72,36 @@ export function Step3Style({ config, onConfigChange }: Step3StyleProps) {
 									style={[
 										styles.iconContainer,
 										isSelected ? styles.iconContainerSelected : styles.iconContainerDefault,
+										isLocked && styles.iconContainerLocked,
 									]}
 								>
-									<style.icon size={24} color={isSelected ? '#fff' : '#007AFF'} />
+									{isLocked ? (
+										<Lock size={20} color="#999" />
+									) : (
+										<style.icon size={24} color={isSelected ? '#fff' : '#007AFF'} />
+									)}
 								</View>
 								<View style={styles.textContainer}>
-									<Text style={[styles.cardTitle, isSelected && styles.cardTitleSelected]}>
-										{style.title}
+									<View style={styles.titleRow}>
+										<Text
+											style={[
+												styles.cardTitle,
+												isSelected && styles.cardTitleSelected,
+												isLocked && styles.textLocked,
+											]}
+										>
+											{style.title}
+										</Text>
+										{isLocked && (
+											<View style={styles.premiumBadge}>
+												<Sparkles size={12} color="#fff" />
+												<Text style={styles.premiumBadgeText}>Premium</Text>
+											</View>
+										)}
+									</View>
+									<Text style={[styles.cardDescription, isLocked && styles.textLocked]}>
+										{style.description}
 									</Text>
-									<Text style={styles.cardDescription}>{style.description}</Text>
 								</View>
 							</View>
 						</TouchableOpacity>
@@ -134,5 +177,36 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: '#666',
 		lineHeight: 20,
+	},
+	cardLocked: {
+		opacity: 0.8,
+		backgroundColor: '#F9F9F9',
+		borderColor: '#E5E5EA',
+	},
+	iconContainerLocked: {
+		backgroundColor: '#E5E5EA',
+	},
+	textLocked: {
+		color: '#999',
+	},
+	titleRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		marginBottom: 4,
+	},
+	premiumBadge: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+		backgroundColor: '#FFD700', // Gold
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 12,
+	},
+	premiumBadgeText: {
+		fontSize: 10,
+		fontWeight: '700',
+		color: '#fff',
 	},
 });

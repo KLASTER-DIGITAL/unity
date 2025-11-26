@@ -41,7 +41,7 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 			{/* Book Type Selection (Premium only) */}
 			{isPremium && (
 				<div>
-					<label className="block text-white text-sm font-semibold mb-3">Тип книги</label>
+					<div className="block text-white text-sm font-semibold mb-3">Тип книги</div>
 					<div className="flex gap-2">
 						<Button
 							onClick={() => handleTypeChange('month')}

@@ -1,4 +1,4 @@
-import { AlignLeft, Image, Minus, Moon, Sun } from 'lucide-react-native';
+import { AlignLeft, Image, Lock, Minus, Moon, Sparkles, Sun } from 'lucide-react-native';
 
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { BookConfig, BookLayout } from './types';
@@ -6,6 +6,8 @@ import type { BookConfig, BookLayout } from './types';
 type Step4LayoutProps = {
 	config: BookConfig;
 	onConfigChange: (updates: Partial<BookConfig>) => void;
+	isPremium?: boolean;
+	onUpgrade?: () => void;
 };
 
 const LAYOUTS: { id: BookLayout; title: string; description: string; icon: any }[] = [
@@ -29,7 +31,12 @@ const LAYOUTS: { id: BookLayout; title: string; description: string; icon: any }
 	},
 ];
 
-export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
+export function Step4Layout({
+	config,
+	onConfigChange,
+	isPremium = false,
+	onUpgrade,
+}: Step4LayoutProps) {
 	return (
 		<ScrollView style={styles.container} contentContainerStyle={styles.content}>
 			<View>
@@ -39,11 +46,24 @@ export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
 				<View style={styles.list}>
 					{LAYOUTS.map((layout) => {
 						const isSelected = config.layout === layout.id;
+						// Lock all layouts for free users
+						const isLocked = !isPremium;
+
 						return (
 							<TouchableOpacity
 								key={layout.id}
-								style={[styles.card, isSelected && styles.cardSelected]}
-								onPress={() => onConfigChange({ layout: layout.id })}
+								style={[
+									styles.card,
+									isSelected && styles.cardSelected,
+									isLocked && styles.cardLocked,
+								]}
+								onPress={() => {
+									if (isLocked) {
+										onUpgrade?.();
+									} else {
+										onConfigChange({ layout: layout.id });
+									}
+								}}
 								activeOpacity={0.7}
 							>
 								<View style={styles.cardHeader}>
@@ -51,15 +71,36 @@ export function Step4Layout({ config, onConfigChange }: Step4LayoutProps) {
 										style={[
 											styles.iconContainer,
 											isSelected ? styles.iconContainerSelected : styles.iconContainerDefault,
+											isLocked && styles.iconContainerLocked,
 										]}
 									>
-										<layout.icon size={24} color={isSelected ? '#fff' : '#007AFF'} />
+										{isLocked ? (
+											<Lock size={20} color="#999" />
+										) : (
+											<layout.icon size={24} color={isSelected ? '#fff' : '#007AFF'} />
+										)}
 									</View>
 									<View style={styles.textContainer}>
-										<Text style={[styles.cardTitle, isSelected && styles.cardTitleSelected]}>
-											{layout.title}
+										<View style={styles.titleRow}>
+											<Text
+												style={[
+													styles.cardTitle,
+													isSelected && styles.cardTitleSelected,
+													isLocked && styles.textLocked,
+												]}
+											>
+												{layout.title}
+											</Text>
+											{isLocked && (
+												<View style={styles.premiumBadge}>
+													<Sparkles size={12} color="#fff" />
+													<Text style={styles.premiumBadgeText}>Premium</Text>
+												</View>
+											)}
+										</View>
+										<Text style={[styles.cardDescription, isLocked && styles.textLocked]}>
+											{layout.description}
 										</Text>
-										<Text style={styles.cardDescription}>{layout.description}</Text>
 									</View>
 								</View>
 							</TouchableOpacity>
@@ -195,5 +236,36 @@ const styles = StyleSheet.create({
 	},
 	themeTextSelected: {
 		color: '#007AFF',
+	},
+	cardLocked: {
+		opacity: 0.8,
+		backgroundColor: '#F9F9F9',
+		borderColor: '#E5E5EA',
+	},
+	iconContainerLocked: {
+		backgroundColor: '#E5E5EA',
+	},
+	textLocked: {
+		color: '#999',
+	},
+	titleRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		marginBottom: 4,
+	},
+	premiumBadge: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+		backgroundColor: '#FFD700', // Gold
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 12,
+	},
+	premiumBadgeText: {
+		fontSize: 10,
+		fontWeight: '700',
+		color: '#fff',
 	},
 });

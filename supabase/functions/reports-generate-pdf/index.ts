@@ -144,7 +144,9 @@ async function getOpenAIKey(
  * Generate weekly summary using AI operation weekly_report
  */
 async function generateWeeklySummary(
+	// biome-ignore lint/suspicious/noExplicitAny: legacy code
 	entries: any[],
+	// biome-ignore lint/suspicious/noExplicitAny: legacy code
 	stats: any,
 	userLanguage: string,
 	supabaseUrl: string,
@@ -240,6 +242,7 @@ const corsHeaders = {
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy code
 Deno.serve(async (req) => {
 	// Handle CORS preflight
 	if (req.method === 'OPTIONS') {
@@ -464,6 +467,7 @@ Deno.serve(async (req) => {
 /**
  * Get top category from entries
  */
+// biome-ignore lint/suspicious/noExplicitAny: legacy code
 function getTopCategory(entries: any[]): string {
 	const categoryCounts: Record<string, number> = {};
 	entries.forEach((entry) => {
@@ -486,6 +490,7 @@ function getTopCategory(entries: any[]): string {
 /**
  * Get top mood from entries
  */
+// biome-ignore lint/suspicious/noExplicitAny: legacy code
 function getTopMood(entries: any[]): string {
 	const moodCounts: Record<string, number> = {};
 	entries.forEach((entry) => {

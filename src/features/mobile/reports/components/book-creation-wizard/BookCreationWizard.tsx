@@ -11,8 +11,6 @@
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Progress } from '@/shared/components/ui/progress';
 import { useBookCreation } from '../../hooks/useBookCreation';
 import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
@@ -161,19 +159,9 @@ export function BookCreationWizard({
 						{/* Header & Progress */}
 						<div className="pt-6 pb-2 px-6">
 							{(() => {
-								let totalSteps: number;
-								let displayStep: number;
-
-								if (isPremium && config.planType === 'premium') {
-									totalSteps = 4;
-									displayStep = currentStep;
-								} else if (config.planType === 'free') {
-									totalSteps = 3;
-									displayStep = currentStep + 1;
-								} else {
-									totalSteps = 5;
-									displayStep = currentStep + 1;
-								}
+								// ✅ FIX: Always show 5 steps (0-4) for consistency
+								const totalSteps = 5;
+								const displayStep = currentStep + 1;
 
 								const progress = totalSteps > 1 ? ((displayStep - 1) / (totalSteps - 1)) * 100 : 0;
 
@@ -243,12 +231,16 @@ export function BookCreationWizard({
 											<Step3Style
 												config={config}
 												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+												isPremium={isPremium}
+												onUpgrade={() => setShowUpsellModal(true)}
 											/>
 										)}
 										{currentStep === 4 && (
 											<Step4Layout
 												config={config}
 												onConfigChange={(updates) => setConfig((prev) => ({ ...prev, ...updates }))}
+												isPremium={isPremium}
+												onUpgrade={() => setShowUpsellModal(true)}
 											/>
 										)}
 									</motion.div>
