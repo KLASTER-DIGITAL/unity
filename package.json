@@ -154,6 +154,7 @@
 		"build": "vite build",
 		"build:analyze": "ANALYZE=true vite build",
 		"preview": "vite preview",
+		"sync-fonts": "node scripts/sync-fonts.js",
 		"type-check": "tsc --noEmit",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
