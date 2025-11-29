@@ -14,6 +14,7 @@ type SpeechRecognitionHook = {
 export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
 	const [transcript, setTranscript] = useState('');
+	const isManualStopRef = useRef(false); // ✅ FIX: Restored missing ref
 	// ✅ FIX: Track restart attempts to prevent infinite loops
 	const restartCountRef = useRef(0);
 	const lastRestartTimeRef = useRef(0);
