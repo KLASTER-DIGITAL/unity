@@ -2,7 +2,6 @@
 
 import { ArrowUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/universal';
 import { useAudioLevel } from '@/shared/hooks/useAudioLevel';
 import { useSpeechRecognition } from '@/shared/hooks/useSpeechRecognition';
@@ -50,92 +49,38 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isIOS, setIsIOS] = useState(false); // ✅ iOS Safari детект
-	const [needsTapToStart, setNeedsTapToStart] = useState(false); // ✅ Требуется тап для старта на iOS
 
 	const { isListening, transcript, startListening, abortListening, resetTranscript, isSupported } =
 		useSpeechRecognition();
 
-	// ✅ FIX: Упрощенная логика автостарта (как в ChatGPTInput)
-	// Используем простой флаг для отслеживания первого запуска
-	const [hasAutoStarted, setHasAutoStarted] = useState(false);
-	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ FIX: Используем ref для стабильности
-	const isShuttingDownRef = useRef(false); // ✅ Гард: блокирует перезапуски после закрытия
-	const lastSubmittedTextRef = useRef<string>(''); // ✅ FIX: Предотвращает дублирование текста
+	const onTranscriptReadyRef = useRef(onTranscriptReady); // ✅ Used in handleStopClick
+	const isShuttingDownRef = useRef(false); // ✅ Prevents restarts after close
+	const lastSubmittedTextRef = useRef<string>(''); // ✅ Prevents duplicate text
 
-	// ✅ FIX: Обновляем ref при изменении onTranscriptReady
+	// ✅ Update ref when onTranscriptReady changes
 	useEffect(() => {
 		onTranscriptReadyRef.current = onTranscriptReady;
 	}, [onTranscriptReady]);
 
-	// Сброс состояния при открытии/закрытии
+	// Reset state on open/close
 	useEffect(() => {
 		if (isOpen) {
 			console.log('[VoicePoweredOrb] Modal opened, resetting state');
-			setHasAutoStarted(false);
 			setError(null);
-			isShuttingDownRef.current = false; // ✅ Сбрасываем гард
-			lastSubmittedTextRef.current = ''; // ✅ FIX: Сбрасываем отправленный текст
-			resetTranscript(); // ✅ FIX: Очищаем старый текст
+			isShuttingDownRef.current = false;
+			lastSubmittedTextRef.current = '';
+			resetTranscript();
 		} else {
-			console.log('[VoicePoweredOrb] Modal closed, resetting state');
-			setHasAutoStarted(false);
+			console.log('[VoicePoweredOrb] Modal closed');
 			if (isListening) {
-				console.log('[VoicePoweredOrb] Aborting listening on close');
-				abortListening(); // ✅ Используем abort вместо stop - жёстче
+				console.log('[VoicePoweredOrb] Aborting listening');
+				abortListening();
 			}
 		}
 	}, [isOpen, isListening, abortListening, resetTranscript]);
 
-	// ✅ FIX: Автостарт записи при открытии (упрощенная логика)
-	useEffect(() => {
-		// ✅ FIX: Проверяем что модальное окно открыто, еще не запускали и не слушаем уже
-		if (isOpen && !hasAutoStarted && !isListening && !isShuttingDownRef.current) {
-			// Проверяем поддержку браузера
-			if (!isSupported) {
-				const errorMessage =
-					'Голосовой ввод не поддерживается в вашем браузере. Попробуйте Chrome, Edge или Firefox.';
-				setError(errorMessage);
-				console.warn('[VoicePoweredOrb] Speech recognition not supported');
-				setHasAutoStarted(true);
-				return;
-			}
-
-			// ✅ iOS Safari требует явного пользовательского жеста в том же callstack
-			// Показываем кнопку "Начать запись" вместо автостарта
-			if (isIOS) {
-				console.log('[VoicePoweredOrb] iOS Safari detected, requiring tap to start');
-				setHasAutoStarted(true);
-				setNeedsTapToStart(true);
-				return;
-			}
-
-			// ✅ FIX: Автоматически начинаем запись при открытии БЕЗ setTimeout
-			// На мобильных браузерах Web Speech API требует вызов в контексте пользовательского взаимодействия
-			// setTimeout разрывает эту цепочку, поэтому вызываем напрямую
-			console.log('[VoicePoweredOrb] Auto-starting recording on open (immediate for mobile)');
-			setHasAutoStarted(true); // ✅ FIX: Устанавливаем флаг ДО вызова чтобы избежать повторных запусков
-			// Вызываем напрямую без задержки для сохранения user gesture context
-			try {
-				startListening();
-				console.log('[VoicePoweredOrb] startListening called successfully');
-			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
-				setError(`Ошибка запуска записи: ${errorMessage}`);
-				console.error('[VoicePoweredOrb] Failed to start listening:', err);
-				// ✅ КРИТИЧНО: Показываем toast только для критичной ошибки записи
-				toast.error('Не удалось начать запись', {
-					description: errorMessage,
-					duration: 5000,
-				});
-				// ✅ FIX: Сбрасываем флаг если ошибка чтобы можно было попробовать снова
-				setHasAutoStarted(false);
-			}
-		} else if (isOpen && isListening && !hasAutoStarted) {
-			// ✅ FIX: Если уже слушаем но флаг не установлен - устанавливаем его
-			console.log('[VoicePoweredOrb] Already listening, setting hasAutoStarted flag');
-			setHasAutoStarted(true);
-		}
-	}, [isOpen, hasAutoStarted, isSupported, isListening, startListening, isIOS]);
+	// ✅ CHANGED: Remove auto-start, user taps to start (tap-to-record pattern)
+	// This fixes Android issues and makes UX clearer
 
 	// ✅ Детект iOS Safari при открытии модального окна
 	useEffect(() => {
@@ -146,7 +91,6 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			const isSafari = /Safari/i.test(ua) && !/Chrome|CriOS|Edg/i.test(ua);
 			const result = isiOSDevice && isSafari;
 			setIsIOS(result);
-			setNeedsTapToStart(result);
 			console.log('[VoicePoweredOrb] UA detection', { isiOSDevice, isSafari, result });
 		} catch (_e) {
 			// ignore
@@ -450,29 +394,54 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 
 					{/* ✅ КНОПКА "НАЧАТЬ ЗАПИСЬ" для iOS Safari (требуется пользовательский жест) */}
 					{/* ✅ FIX: Убран текст, оставлена ТОЛЬКО иконка микрофона (как кнопка Stop) */}
-					{!isListening && needsTapToStart && (
+					{/* ✅ КНОПКА "НАЧАТЬ ЗАПИСЬ" - когда НЕ слушаем */}
+					{!isListening && !error && (
 						<motion.div
+							initial={{ opacity: 0, scale: 0.9 }}
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-popover -translate-x-1/2 -translate-y-1/2"
-							exit={{ opacity: 0, scale: 0.95 }}
-							initial={{ opacity: 0, scale: 0.95 }}
+							exit={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
+							className="pointer-events-auto fixed bottom-5 left-1/2 z-popover -translate-x-1/2"
 						>
 							<Button
 								onClick={() => {
-									console.log('[VoicePoweredOrb] User tapped start, starting listening');
-									setNeedsTapToStart(false);
+									if (!isSupported) {
+										setError('Голосовой ввод не поддерживается в вашем браузере');
+										return;
+									}
+									console.log('[VoicePoweredOrb] Start button clicked');
 									try {
 										startListening();
 									} catch (err) {
-										console.error('[VoicePoweredOrb] Failed to start on tap', err);
+										const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+										setError(`Ошибка: ${errorMessage}`);
 									}
 								}}
 								size="lg"
 								variant="default"
-								className="bg-primary hover:bg-primary/90 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
+								className="bg-primary hover:bg-primary/90 shadow-2xl p-6 text-4xl rounded-full w-20 h-20 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
 							>
 								<span className="text-white">🎤</span>
+							</Button>
+						</motion.div>
+					)}
+
+					{/* ✅ КНОПКА "ОСТАНОВИТЬ И ОТПРАВИТЬ" - когда слушаем */}
+					{isListening && (
+						<motion.div
+							initial={{ opacity: 0, scale: 0.9 }}
+							animate={{ opacity: 1, scale: 1 }}
+							exit={{ opacity: 0, scale: 0.9 }}
+							transition={{ duration: 0.2 }}
+							className="pointer-events-auto fixed bottom-5 left-1/2 z-popover -translate-x-1/2"
+						>
+							<Button
+								onClick={handleStopClick}
+								size="lg"
+								variant="default"
+								className="bg-white hover:bg-white/90 shadow-2xl p-6 rounded-full w-20 h-20 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
+							>
+								<ArrowUp className="w-8 h-8 text-black" />
 							</Button>
 						</motion.div>
 					)}
@@ -504,33 +473,13 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						)}
 					</AnimatedPresence>
 
-					{/* ✅ КНОПКА "ОТПРАВИТЬ" - СНИЗУ (белый фон, стрелка вверх) */}
-					{!(needsTapToStart && !isListening) && (
-						<motion.div
-							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed bottom-5 left-1/2 z-popover -translate-x-1/2"
-							exit={{ opacity: 0, scale: 0.9 }}
-							initial={{ opacity: 0, scale: 0.9 }}
-							transition={{ duration: 0.2 }}
-						>
-							<Button
-								onClick={handleStopClick}
-								size="lg"
-								variant="default"
-								className="bg-white hover:bg-white/90 shadow-2xl p-6 rounded-full w-20 h-20 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
-							>
-								<ArrowUp className="w-8 h-8 text-black" />
-							</Button>
-						</motion.div>
-					)}
-
 					{/* Ошибки - показываем только если есть */}
 					{error && (
 						<motion.div
-							animate={{ opacity: 1, y: 0 }}
-							className="pointer-events-none fixed bottom-52 left-1/2 z-popover w-full max-w-md -translate-x-1/2 px-4 text-center"
-							exit={{ opacity: 0, y: 10 }}
 							initial={{ opacity: 0, y: 10 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: 10 }}
+							className="pointer-events-none fixed bottom-52 left-1/2 z-popover w-full max-w-md -translate-x-1/2 px-4 text-center"
 						>
 							<div className="rounded-lg bg-red-500/90 px-4 py-3 text-sm font-medium text-white shadow-lg">
 								{error}
