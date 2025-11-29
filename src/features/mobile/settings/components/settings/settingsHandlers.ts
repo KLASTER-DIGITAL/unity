@@ -21,6 +21,7 @@ export async function loadLanguages() {
 			const data = await response.json();
 			const loadedLanguages = Array.isArray(data) ? data : data.languages || [];
 			// Фильтруем только активные языки
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const activeLanguages = loadedLanguages.filter((lang: any) => lang.is_active || lang.enabled);
 			if (activeLanguages.length > 0) {
 				console.log('✅ Loaded languages from API:', activeLanguages.length);
@@ -53,7 +54,8 @@ export async function checkBiometricAvailability(): Promise<boolean> {
  */
 export async function saveNotificationSettings(
 	userId: string,
-	currentSettings: any,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	currentSettings: any, // TODO: Create NotificationSettings type
 	newSettings: NotificationSettings
 ) {
 	try {
@@ -105,11 +107,15 @@ export async function saveOfflineSettings(userId: string, offlineEnabled: boolea
 type LanguageChangeParams = {
 	languageCode: string;
 	userId?: string;
-	profile: any;
-	setProfile: (updater: (prev: any) => any) => void;
-	onProfileUpdate?: (profile: any) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	profile: any; // TODO: Create UserProfile type
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	setProfile: (updater: (prev: any) => any) => void; // TODO: Create UserProfile type
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onProfileUpdate?: (profile: any) => void; // TODO: Create UserProfile type
 	changeLanguage: (code: string) => Promise<void>;
-	t: any;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	t: any; // Translation function
 	setShowLanguage: (show: boolean) => void;
 };
 
@@ -133,6 +139,7 @@ export async function handleLanguageChange({
 			console.log(`✅ Language "${languageCode}" saved to DB`);
 
 			// Обновляем локальный профиль
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			setProfile((prev: any) => ({ ...prev, language: languageCode }));
 
 			// Вызываем onProfileUpdate если передан

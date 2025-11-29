@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/universal';
@@ -51,7 +52,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 	const [isIOS, setIsIOS] = useState(false); // ✅ iOS Safari детект
 	const [needsTapToStart, setNeedsTapToStart] = useState(false); // ✅ Требуется тап для старта на iOS
 
-	const { isListening, transcript, startListening, abortListening, isSupported } =
+	const { isListening, transcript, startListening, abortListening, resetTranscript, isSupported } =
 		useSpeechRecognition();
 
 	// ✅ FIX: Упрощенная логика автостарта (как в ChatGPTInput)
@@ -74,6 +75,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 			setError(null);
 			isShuttingDownRef.current = false; // ✅ Сбрасываем гард
 			lastSubmittedTextRef.current = ''; // ✅ FIX: Сбрасываем отправленный текст
+			resetTranscript(); // ✅ FIX: Очищаем старый текст
 		} else {
 			console.log('[VoicePoweredOrb] Modal closed, resetting state');
 			setHasAutoStarted(false);
@@ -82,7 +84,7 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 				abortListening(); // ✅ Используем abort вместо stop - жёстче
 			}
 		}
-	}, [isOpen, isListening, abortListening]);
+	}, [isOpen, isListening, abortListening, resetTranscript]);
 
 	// ✅ FIX: Автостарт записи при открытии (упрощенная логика)
 	useEffect(() => {
@@ -475,23 +477,49 @@ export function VoicePoweredOrb({ isOpen, onClose, onTranscriptReady }: VoicePow
 						</motion.div>
 					)}
 
-					{/* ✅ КНОПКА "СТОП/ГОТОВО" - по центру орба, показывается ВСЕГДА когда НЕ показывается кнопка "Начать" */}
+					{/* ✅ PREVIEW TEXT - Текст распознавания ВВЕРХУ экрана, показываем последние 3-4 строки */}
+					<AnimatedPresence>
+						{transcript && (
+							<motion.div
+								initial={{ opacity: 0, y: -20 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: -20 }}
+								className="pointer-events-none fixed top-20 left-0 right-0 z-popover px-6 text-center"
+								style={{ paddingTop: 'env(safe-area-inset-top)' }}
+								transition={{ duration: 0.2 }}
+							>
+								<div
+									className="mx-auto max-w-md bg-white/98 backdrop-blur-xl rounded-2xl px-6 py-4 max-h-32 overflow-hidden border border-white/40"
+									style={{
+										boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+										WebkitBackdropFilter: 'blur(16px)',
+										backdropFilter: 'blur(16px)',
+									}}
+								>
+									<p className="text-base font-semibold text-gray-900 leading-relaxed line-clamp-4 text-left drop-shadow-sm">
+										"{transcript}"
+									</p>
+								</div>
+							</motion.div>
+						)}
+					</AnimatedPresence>
+
+					{/* ✅ КНОПКА "ОТПРАВИТЬ" - СНИЗУ (белый фон, стрелка вверх) */}
 					{!(needsTapToStart && !isListening) && (
 						<motion.div
 							animate={{ opacity: 1, scale: 1 }}
-							className="pointer-events-auto fixed top-1/2 left-1/2 z-popover -translate-x-1/2 -translate-y-1/2"
+							className="pointer-events-auto fixed bottom-5 left-1/2 z-popover -translate-x-1/2"
 							exit={{ opacity: 0, scale: 0.9 }}
 							initial={{ opacity: 0, scale: 0.9 }}
 							transition={{ duration: 0.2 }}
 						>
-							{/* ✅ FIX: Упрощенная кнопка - ТОЛЬКО белая иконка стоп, БЕЗ желтого контура */}
 							<Button
 								onClick={handleStopClick}
 								size="lg"
-								variant="destructive"
-								className="bg-red-500 hover:bg-red-600 shadow-2xl p-6 text-4xl rounded-full w-16 h-16 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
+								variant="default"
+								className="bg-white hover:bg-white/90 shadow-2xl p-6 rounded-full w-20 h-20 flex items-center justify-center focus:outline-none focus:ring-0 active:outline-none"
 							>
-								<span className="text-white">⏹</span>
+								<ArrowUp className="w-8 h-8 text-black" />
 							</Button>
 						</motion.div>
 					)}

@@ -9,7 +9,7 @@ import { SettingsRow, SettingsSection } from '../../SettingsRow';
 type OfflineSettingsModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
-	t: any;
+	t: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 type ConflictStrategy = 'server-wins' | 'client-wins' | 'merge' | 'manual';
@@ -117,6 +117,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 								</h3>
 							</div>
 							<button
+								type="button"
 								className="rounded-full p-1 transition-colors hover:bg-accent/10"
 								onClick={onClose}
 							>
@@ -162,6 +163,7 @@ export function OfflineSettingsModal({ isOpen, onClose, t }: OfflineSettingsModa
 								{(['server-wins', 'client-wins', 'merge', 'manual'] as ConflictStrategy[]).map(
 									(strategy) => (
 										<button
+											type="button"
 											className={`w-full rounded-lg border p-3 text-left transition-colors ${
 												conflictStrategy === strategy
 													? 'border-(--ios-blue) bg-(--ios-blue)/5'

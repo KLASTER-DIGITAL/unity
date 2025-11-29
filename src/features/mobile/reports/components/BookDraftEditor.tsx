@@ -22,7 +22,6 @@ import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Label } from '@/shared/components/ui/label';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { API_URLS } from '@/shared/lib/api/config/urls';
 // ✅ Удален неиспользуемый импорт blobToBase64 (перешли на Vercel API)
 import { useTranslation } from '@/shared/lib/i18n';
 import { createClient } from '@/utils/supabase/client';

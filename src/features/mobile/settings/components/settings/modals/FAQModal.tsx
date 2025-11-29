@@ -14,7 +14,7 @@ import {
 type FAQModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
-	t: any;
+	t: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export function FAQModal({ isOpen, onClose, t }: FAQModalProps) {
@@ -41,6 +41,7 @@ export function FAQModal({ isOpen, onClose, t }: FAQModalProps) {
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">{t.faq || 'FAQ'}</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>

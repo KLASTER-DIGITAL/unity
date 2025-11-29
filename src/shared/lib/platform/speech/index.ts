@@ -360,18 +360,27 @@ class WebSpeechAdapter implements SpeechAdapter {
 			}
 
 			const results = event.results;
+			let fullTranscript = '';
+			// ✅ FIX: Собираем полный текст из всех результатов (для continuous mode)
+			for (let i = 0; i < results.length; i++) {
+				const result = results[i];
+				const alternative = result[0];
+				fullTranscript += alternative.transcript;
+			}
+
+			// Для последнего результата берем confidence
 			const lastResult = results[results.length - 1];
-			const alternative = lastResult[0];
+			const lastAlternative = lastResult[0];
 
 			console.log('[WebSpeechAdapter] Result:', {
-				transcript: alternative.transcript,
-				confidence: alternative.confidence,
+				transcript: fullTranscript, // ✅ Теперь отправляем полный текст
+				confidence: lastAlternative.confidence,
 				isFinal: lastResult.isFinal,
 			});
 
 			this.resultCallback({
-				transcript: alternative.transcript,
-				confidence: alternative.confidence,
+				transcript: fullTranscript,
+				confidence: lastAlternative.confidence,
 				isFinal: lastResult.isFinal,
 			});
 		};

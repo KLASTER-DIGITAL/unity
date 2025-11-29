@@ -73,27 +73,23 @@ function MobileViewContent({
 	setSyncComplete,
 }: MobileViewProps) {
 	const { setTheme } = useTheme();
-	const hasManuallyChangedTheme = useRef(false);
+	const hasSetInitialTheme = useRef(false);
 
-	// Проблема 4 FIX: Автоматическая смена темы с учетом ручного выбора пользователя
+	// ✅ FIX: Автоматическая установка темы после онбординга
+	// После завершения онбординга ВСЕГДА устанавливаем тёмную тему (один раз)
 	useEffect(() => {
-		// Проверяем флаг ручного изменения темы в localStorage
-		storage.getItem('unity-theme-manual-override').then((manualOverride) => {
-			if (manualOverride === 'true') {
-				hasManuallyChangedTheme.current = true;
-				return; // НЕ переопределяем тему если пользователь уже выбрал вручную
-			}
+		const isOnboarding = !onboardingComplete || currentStep <= 4;
 
-			const isOnboarding = !onboardingComplete || currentStep <= 4;
-
-			// Onboarding workflow → light theme
-			// Cabinet workflow → dark theme
-			if (isOnboarding) {
-				setTheme('light');
-			} else if (onboardingComplete && userData) {
-				setTheme('dark');
-			}
-		});
+		// Onboarding workflow → light theme
+		if (isOnboarding) {
+			setTheme('light');
+			hasSetInitialTheme.current = false; // Сбрасываем флаг при возврате в онбординг
+		} else if (onboardingComplete && userData && !hasSetInitialTheme.current) {
+			// Cabinet workflow → dark theme (один раз после завершения онбординга)
+			console.log('[MobileView] ✅ Onboarding complete, setting dark theme');
+			setTheme('dark');
+			hasSetInitialTheme.current = true; // Устанавливаем флаг чтобы не переключать повторно
+		}
 	}, [onboardingComplete, currentStep, userData, setTheme]);
 
 	return (

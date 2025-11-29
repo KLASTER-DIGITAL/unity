@@ -18,7 +18,7 @@ type LanguageModalProps = {
 	languages: Language[];
 	currentLanguage?: string;
 	onLanguageChange: (code: string) => void;
-	t: any;
+	t: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export function LanguageModal({
@@ -52,6 +52,7 @@ export function LanguageModal({
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">{t.language || 'Выбрать язык'}</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>
@@ -66,6 +67,7 @@ export function LanguageModal({
 				<div className="space-y-2">
 					{languages.map((language) => (
 						<button
+							type="button"
 							className={`flex w-full items-center justify-between rounded-xl p-4 transition-all ${
 								currentLanguage === language.code
 									? 'border-2 border-primary bg-primary/10'
@@ -84,6 +86,8 @@ export function LanguageModal({
 							{currentLanguage === language.code && (
 								<div className="rounded-full bg-primary p-1.5">
 									<svg
+										role="img"
+										aria-label="Selected"
 										className="h-5 w-5 text-white"
 										fill="none"
 										stroke="currentColor"

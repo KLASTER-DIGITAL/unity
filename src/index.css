@@ -2454,17 +2454,17 @@
 	}
 
 	.bg-gradient-to-b {
-		--tw-gradient-position: to bottom in oklab;
+		--tw-gradient-position: to bottom;
 		background-image: linear-gradient(var(--tw-gradient-stops));
 	}
 
 	.bg-gradient-to-br {
-		--tw-gradient-position: to bottom right in oklab;
+		--tw-gradient-position: to bottom right;
 		background-image: linear-gradient(var(--tw-gradient-stops));
 	}
 
 	.bg-gradient-to-r {
-		--tw-gradient-position: to right in oklab;
+		--tw-gradient-position: to right;
 		background-image: linear-gradient(var(--tw-gradient-stops));
 	}
 
@@ -4393,7 +4393,7 @@
 
 	@media (hover: hover) {
 		.hover\:bg-gradient-to-r:hover {
-			--tw-gradient-position: to right in oklab;
+			--tw-gradient-position: to right;
 			background-image: linear-gradient(var(--tw-gradient-stops));
 		}
 	}

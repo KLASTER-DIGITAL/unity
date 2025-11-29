@@ -14,7 +14,7 @@ type SupportModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	userEmail?: string;
-	t: any;
+	t: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export function SupportModal({ isOpen, onClose, userEmail, t }: SupportModalProps) {

@@ -7,6 +7,7 @@ type SpeechRecognitionHook = {
 	startListening: () => void;
 	stopListening: () => void;
 	abortListening: () => void;
+	resetTranscript: () => void;
 	isSupported: boolean;
 };
 
@@ -137,10 +138,10 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		// ✅ FIX: Сбрасываем флаг ручной остановки при старте
 		isManualStopRef.current = false;
 
-		// ✅ ВСЕГДА используем continuous=false чтобы избежать циклов на мобильных
+		// ✅ ВСЕГДА используем continuous=true для поддержки пауз (Gemini style)
 		speech.startListening({
 			language: 'ru-RU',
-			continuous: false, // ✅ ВСЕГДА false - предотвращает зацикливание
+			continuous: true, // ✅ FIX: true - позволяет делать паузы
 			interimResults: true,
 		});
 	}, [isSupported]);
@@ -157,12 +158,18 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 		speech.abort();
 	}, []);
 
+	const resetTranscript = useCallback(() => {
+		console.log('[useSpeechRecognition] resetTranscript called');
+		setTranscript('');
+	}, []);
+
 	return {
 		isListening,
 		transcript,
 		startListening,
 		stopListening,
 		abortListening,
+		resetTranscript,
 		isSupported,
 	};
 }

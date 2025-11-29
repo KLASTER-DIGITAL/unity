@@ -6,7 +6,7 @@ import { useTranslation } from '@/shared/lib/i18n';
 import { DEFAULT_AVATAR_URL } from './constants';
 
 type ProfileHeaderProps = {
-	profile: any;
+	profile: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 	onEditClick: () => void;
 	onUpgradeToPremium?: () => void;
 };
@@ -39,6 +39,7 @@ export function ProfileHeader({ profile, onEditClick, onUpgradeToPremium }: Prof
 						</AvatarFallback>
 					</Avatar>
 					<button
+						type="button"
 						aria-label={t('settings.profile.edit_button', 'Edit profile')}
 						className="absolute right-0 bottom-0 rounded-full border border-border bg-card p-2 shadow-lg transition-colors hover:bg-muted"
 						onClick={onEditClick}

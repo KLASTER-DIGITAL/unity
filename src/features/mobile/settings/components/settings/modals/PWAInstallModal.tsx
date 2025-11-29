@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 type PWAInstallModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
-	t: any;
+	t: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export function PWAInstallModal({ isOpen, onClose, t }: PWAInstallModalProps) {
@@ -37,6 +37,7 @@ export function PWAInstallModal({ isOpen, onClose, t }: PWAInstallModalProps) {
 						{t.installPWA || 'Установить приложение'}
 					</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>

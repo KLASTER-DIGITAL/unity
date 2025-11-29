@@ -42,6 +42,7 @@ export function RateAppModal({ isOpen, onClose }: RateAppModalProps) {
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-foreground text-title-3">Оценить приложение</h3>
 					<button
+						type="button"
 						className="rounded-full p-1 transition-colors hover:bg-accent/10"
 						onClick={onClose}
 					>
