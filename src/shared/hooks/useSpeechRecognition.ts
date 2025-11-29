@@ -14,7 +14,9 @@ type SpeechRecognitionHook = {
 export function useSpeechRecognition(): SpeechRecognitionHook {
 	const [isListening, setIsListening] = useState(false);
 	const [transcript, setTranscript] = useState('');
-	const isManualStopRef = useRef(false); // ✅ FIX: Гард для предотвращения зацикливания
+	// ✅ FIX: Track restart attempts to prevent infinite loops
+	const restartCountRef = useRef(0);
+	const lastRestartTimeRef = useRef(0);
 
 	const isSupported = speech.isSupported();
 
@@ -34,6 +36,14 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			lastTranscript = ''; // Сбрасываем при старте
 			hasFinalResult = false; // Сбрасываем флаг
 			setIsListening(true);
+
+			// Reset restart count on successful start (if it runs for a bit)
+			// But we do it carefully to not reset immediately if it crashes instantly
+			setTimeout(() => {
+				if (speech.isListening()) {
+					restartCountRef.current = 0;
+				}
+			}, 1000);
 		});
 
 		speech.onResult((result) => {
@@ -74,8 +84,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 			);
 			setIsListening(false);
 
-			// ✅ FIX: Если это ручная остановка - НЕ обрабатываем результаты
-			// Это предотвращает зацикливание на мобильных
+			// ✅ FIX: Если это ручная остановка - НЕ обрабатываем результаты и НЕ перезапускаем
 			if (isManualStopRef.current) {
 				console.log('[useSpeechRecognition] Manual stop detected, skipping result processing');
 				isManualStopRef.current = false; // Сбрасываем флаг
@@ -89,29 +98,54 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 					lastTranscript
 				);
 				setTranscript(lastTranscript);
-				console.log('[useSpeechRecognition] setTranscript called (interim from onEnd)');
-			} else if (hasFinalResult) {
-				console.log('[useSpeechRecognition] Final result already set, no action needed');
-			} else {
-				console.warn('[useSpeechRecognition] No result at all!');
 			}
 
-			// ✅ КРИТИЧНО для мобильных: ВСЕГДА останавливаем распознавание после onEnd
-			// Это предотвращает автоматический перезапуск на мобильных браузерах
-			// На десктопе это не нужно, но на мобильных Web Speech API может перезапуститься
-			console.log(
-				'[useSpeechRecognition] Calling speech.abort() to prevent auto-restart on mobile'
-			);
-			try {
-				speech.abort();
-			} catch (e) {
-				console.warn('[useSpeechRecognition] Failed to abort after onEnd:', e);
+			// ✅ AUTO-RESTART LOGIC (Mobile PWA Support)
+			// If not manually stopped, try to restart to simulate continuous listening
+			const now = Date.now();
+			const timeSinceLastRestart = now - lastRestartTimeRef.current;
+
+			// Safety guard: max 5 restarts in 2 seconds
+			if (timeSinceLastRestart < 2000 && restartCountRef.current > 5) {
+				console.warn('[useSpeechRecognition] Too many rapid restarts, stopping to prevent loop');
+				return;
 			}
+
+			if (timeSinceLastRestart > 2000) {
+				// Reset count if it's been a while
+				restartCountRef.current = 0;
+			}
+
+			console.log('[useSpeechRecognition] Auto-restarting speech recognition...');
+			restartCountRef.current++;
+			lastRestartTimeRef.current = now;
+
+			// Small delay to let the engine cleanup
+			setTimeout(() => {
+				try {
+					// Only restart if we are NOT manually stopped in the meantime
+					if (!isManualStopRef.current) {
+						speech.startListening({
+							language: 'ru-RU',
+							continuous: true,
+							interimResults: true,
+						});
+					}
+				} catch (e) {
+					console.error('[useSpeechRecognition] Failed to auto-restart:', e);
+				}
+			}, 100);
 		});
 
 		speech.onError((error) => {
 			console.error('[useSpeechRecognition] Speech recognition error:', error);
 			setIsListening(false);
+
+			// Some errors (like no-speech) should trigger onEnd and thus restart
+			// Others (not-allowed) should NOT restart
+			if (error.message === 'Microphone access denied' || error.message === 'Permission denied') {
+				isManualStopRef.current = true; // Prevent restart
+			}
 		});
 
 		return () => {
@@ -122,7 +156,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 	}, [isSupported]); // ✅ Убираем transcript из зависимостей (не нужен)
 
 	// ✅ FIX: Используем useCallback чтобы функция была стабильной
-	// Это предотвращает повторные вызовы useEffect в VoicePoweredOrb
 	const startListening = useCallback(() => {
 		if (!isSupported) {
 			console.warn('[useSpeechRecognition] startListening called but not supported');
@@ -131,12 +164,9 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
 
 		console.log('[useSpeechRecognition] startListening called');
 
-		// ⚠️ КРИТИЧНО: НЕ сбрасываем transcript здесь!
-		// Это вызывало проблемы с useEffect в VoicePoweredOrb
-		// setTranscript(''); // ❌ УБРАНО - сброс перенесен в VoicePoweredOrb при открытии
-
 		// ✅ FIX: Сбрасываем флаг ручной остановки при старте
 		isManualStopRef.current = false;
+		restartCountRef.current = 0; // Reset safety counters
 
 		// ✅ ВСЕГДА используем continuous=true для поддержки пауз (Gemini style)
 		speech.startListening({
