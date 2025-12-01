@@ -3,6 +3,7 @@
  * Only shown for FREE users
  */
 
+import * as Haptics from 'expo-haptics';
 import { BookOpen, Sparkles } from 'lucide-react';
 import type { BookConfig } from './types';
 
@@ -27,11 +28,20 @@ export function Step0PlanType({
 		return null;
 	}
 
+	const handleSelect = (type: 'free' | 'premium') => {
+		void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		if (type === 'premium' && !isPremium) {
+			onUpgrade();
+		} else {
+			onConfigChange({ planType: type });
+		}
+	};
+
 	return (
 		<div className="space-y-6">
 			<div className="text-center mb-6">
-				<h3 className="text-xl font-bold text-white mb-2">Выберите тип книги</h3>
-				<p className="text-white/60 text-sm">
+				<h3 className="text-xl font-bold text-foreground mb-2">Выберите тип книги</h3>
+				<p className="text-muted-foreground text-sm">
 					Создайте простую книгу-дневник или AI-книгу с глубоким анализом
 				</p>
 			</div>
@@ -40,10 +50,10 @@ export function Step0PlanType({
 			<button
 				className={`w-full relative group overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
 					config.planType === 'free'
-						? 'border-white/40 bg-white/10 shadow-lg shadow-white/5'
-						: 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+						? 'border-border bg-muted/50 shadow-lg'
+						: 'border-border bg-card hover:bg-muted/20 hover:border-primary/20'
 				}`}
-				onClick={() => onConfigChange({ planType: 'free' })}
+				onClick={() => handleSelect('free')}
 				type="button"
 			>
 				<div className="mb-4 flex items-start justify-between">
@@ -52,32 +62,34 @@ export function Step0PlanType({
 							<BookOpen className="h-6 w-6 text-white" strokeWidth={2} />
 						</div>
 						<div>
-							<h3 className="font-bold text-lg text-white">Простая книга</h3>
-							<p className="text-white/50 text-sm font-medium">Бесплатно</p>
+							<h3 className="font-bold text-lg text-foreground">Простая книга</h3>
+							<p className="text-muted-foreground text-sm font-medium">Бесплатно</p>
 						</div>
 					</div>
 					<div
 						className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
 							config.planType === 'free'
-								? 'border-white bg-white'
-								: 'border-white/30 bg-transparent'
+								? 'border-foreground bg-foreground'
+								: 'border-muted-foreground/30 bg-transparent'
 						}`}
 					>
-						{config.planType === 'free' && <div className="h-2.5 w-2.5 rounded-full bg-black" />}
+						{config.planType === 'free' && (
+							<div className="h-2.5 w-2.5 rounded-full bg-background" />
+						)}
 					</div>
 				</div>
 
 				<ul className="space-y-2 text-sm pl-1">
-					<li className="flex items-center gap-3 text-white/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-white/40" />
+					<li className="flex items-center gap-3 text-foreground/80">
+						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
 						<span>Список всех записей за период</span>
 					</li>
-					<li className="flex items-center gap-3 text-white/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-white/40" />
+					<li className="flex items-center gap-3 text-foreground/80">
+						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
 						<span>Базовая статистика</span>
 					</li>
-					<li className="flex items-center gap-3 text-white/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-white/40" />
+					<li className="flex items-center gap-3 text-foreground/80">
+						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
 						<span>Фото-коллаж (до 9 фото)</span>
 					</li>
 				</ul>
@@ -87,16 +99,10 @@ export function Step0PlanType({
 			<button
 				className={`w-full relative group overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
 					config.planType === 'premium'
-						? 'border-purple-400/50 bg-purple-500/20 shadow-lg shadow-purple-500/20'
-						: 'border-white/10 bg-gradient-to-br from-purple-500/10 to-blue-500/10 hover:from-purple-500/20 hover:to-blue-500/20 hover:border-purple-500/30'
+						? 'border-purple-400/50 bg-purple-500/10 shadow-lg shadow-purple-500/20'
+						: 'border-border bg-gradient-to-br from-purple-500/5 to-blue-500/5 hover:from-purple-500/10 hover:to-blue-500/10 hover:border-purple-500/30'
 				}`}
-				onClick={() => {
-					if (!isPremium) {
-						onUpgrade();
-					} else {
-						onConfigChange({ planType: 'premium' });
-					}
-				}}
+				onClick={() => handleSelect('premium')}
 				type="button"
 			>
 				{/* Shimmer effect */}
@@ -108,15 +114,17 @@ export function Step0PlanType({
 							<Sparkles className="h-6 w-6 text-white" strokeWidth={2} />
 						</div>
 						<div>
-							<h3 className="font-bold text-lg text-white">AI-книга</h3>
-							<p className="text-purple-300 text-sm font-bold tracking-wide">PREMIUM</p>
+							<h3 className="font-bold text-lg text-foreground">AI-книга</h3>
+							<p className="text-purple-500 dark:text-purple-300 text-sm font-bold tracking-wide">
+								PREMIUM
+							</p>
 						</div>
 					</div>
 					<div
 						className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
 							config.planType === 'premium'
-								? 'border-purple-400 bg-purple-500'
-								: 'border-white/30 bg-transparent'
+								? 'border-purple-500 bg-purple-500'
+								: 'border-muted-foreground/30 bg-transparent'
 						}`}
 					>
 						{config.planType === 'premium' && <div className="h-2.5 w-2.5 rounded-full bg-white" />}
@@ -124,26 +132,26 @@ export function Step0PlanType({
 				</div>
 
 				<ul className="space-y-2 text-sm pl-1 relative z-10">
-					<li className="flex items-center gap-3 text-white/90">
-						<Sparkles className="h-3 w-3 text-purple-400" />
+					<li className="flex items-center gap-3 text-foreground/90">
+						<Sparkles className="h-3 w-3 text-purple-500" />
 						<span>
 							<strong>AI-анализ</strong> записей и эмоций
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-white/90">
-						<Sparkles className="h-3 w-3 text-purple-400" />
+					<li className="flex items-center gap-3 text-foreground/90">
+						<Sparkles className="h-3 w-3 text-purple-500" />
 						<span>
 							<strong>Главы</strong> по людям и сферам жизни
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-white/90">
-						<Sparkles className="h-3 w-3 text-purple-400" />
+					<li className="flex items-center gap-3 text-foreground/90">
+						<Sparkles className="h-3 w-3 text-purple-500" />
 						<span>
 							<strong>Эмоциональный обзор</strong> периода
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-white/90">
-						<Sparkles className="h-3 w-3 text-purple-400" />
+					<li className="flex items-center gap-3 text-foreground/90">
+						<Sparkles className="h-3 w-3 text-purple-500" />
 						<span>
 							<strong>Выводы и инсайты</strong> от AI
 						</span>
@@ -151,16 +159,16 @@ export function Step0PlanType({
 				</ul>
 
 				{!isPremium && (
-					<div className="mt-4 rounded-lg bg-purple-500/20 border border-purple-500/30 px-3 py-2 text-center">
-						<p className="text-purple-200 text-xs font-semibold uppercase tracking-wider">
+					<div className="mt-4 rounded-lg bg-purple-500/10 border border-purple-500/20 px-3 py-2 text-center">
+						<p className="text-purple-600 dark:text-purple-200 text-xs font-semibold uppercase tracking-wider">
 							Требуется Premium подписка
 						</p>
 					</div>
 				)}
 			</button>
 
-			<div className="rounded-xl bg-white/5 border border-white/10 p-4">
-				<p className="text-white/60 text-xs leading-relaxed text-center">
+			<div className="rounded-xl bg-muted/50 border border-border p-4">
+				<p className="text-muted-foreground text-xs leading-relaxed text-center">
 					💡 <strong>Совет:</strong> Начните с простой книги, а затем перейдите на Premium для
 					полного опыта с AI-анализом.
 				</p>

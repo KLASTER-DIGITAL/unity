@@ -27,6 +27,8 @@ import { toast } from 'sonner';
 import { PDFViewer } from '@/shared/components/PDFViewer';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import type { Book } from '@/shared/lib/hooks/useBooksList';
 import { useBooksList } from '@/shared/lib/hooks/useBooksList';
 import { useTranslation } from '@/shared/lib/i18n';

@@ -861,6 +861,45 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 						</Card>
 					)}
 
+					{/* ✅ FIX: Переместили блок книг ВЫШЕ tabs для лучшей видимости */}
+					{/* Блок книг - теперь сразу после главной карточки отчета */}
+					<div className="p-4 pt-0">
+						<Card className="border-border bg-card shadow-sm">
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<BookOpen className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
+									{t('reports_books_title', 'PDF книги и полка')}
+								</CardTitle>
+								<p className="text-muted-foreground text-sm">
+									{t(
+										'reports_books_description',
+										'Создавай книги на основе дневника и возвращайся к ним в любой момент на своей полке.'
+									)}
+								</p>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3">
+									<Button
+										className="w-full"
+										variant="default"
+										onClick={() => setShowBooksLibrary(true)}
+									>
+										<Download className="mr-2 h-5 w-5" strokeWidth={2} />
+										{t('reports_books_shelf', 'Открыть полку книг')}
+									</Button>
+									<Button
+										className="w-full border-foreground/20 text-foreground hover:bg-accent hover:text-accent-foreground"
+										variant="outline"
+										onClick={() => setShowBookWizard(true)}
+									>
+										<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
+										{t('reports_books_create', 'Создать новую книгу')}
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+
 					{/* Tabs с деталями отчета (если есть) */}
 					{monthlyReport && (
 						<div className="mt-4">
@@ -1013,44 +1052,6 @@ export function ReportsScreen({ userData }: { userData?: ReportsUserData }) {
 							</Tabs>
 						</div>
 					)}
-				</div>
-
-				{/* Блок книг */}
-				<div className="p-4 pt-0">
-					<Card className="border-border bg-card shadow-sm">
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<BookOpen className="h-5 w-5 text-(--ios-purple)" strokeWidth={2} />
-								{t('reports_books_title', 'PDF книги и полка')}
-							</CardTitle>
-							<p className="text-muted-foreground text-sm">
-								{t(
-									'reports_books_description',
-									'Создавай книги на основе дневника и возвращайся к ним в любой момент на своей полке.'
-								)}
-							</p>
-						</CardHeader>
-						<CardContent>
-							<div className="space-y-3">
-								<Button
-									className="w-full"
-									variant="default"
-									onClick={() => setShowBooksLibrary(true)}
-								>
-									<Download className="mr-2 h-5 w-5" strokeWidth={2} />
-									{t('reports_books_shelf', 'Открыть полку книг')}
-								</Button>
-								<Button
-									className="w-full border-foreground/20 text-foreground hover:bg-accent hover:text-accent-foreground"
-									variant="outline"
-									onClick={() => setShowBookWizard(true)}
-								>
-									<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
-									{t('reports_books_create', 'Создать новую книгу')}
-								</Button>
-							</div>
-						</CardContent>
-					</Card>
 				</div>
 
 				{/* ✅ NEW: PDF Export Preview */}

@@ -9,8 +9,9 @@
  */
 
 import confetti from 'canvas-confetti';
+import * as Haptics from 'expo-haptics';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useBookCreation } from '../../hooks/useBookCreation';
 import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
@@ -20,8 +21,14 @@ import { Step1Period } from './Step1Period';
 import { Step2Contexts } from './Step2Contexts';
 import { Step3Style } from './Step3Style';
 import { Step4Layout } from './Step4Layout';
-import type { BookCreationWizardProps } from './types';
 import { WizardNavigation } from './WizardNavigation';
+
+type BookCreationWizardProps = {
+	onComplete?: (draftId: string) => void;
+	onCancel?: () => void;
+	onGoToLibrary?: () => void;
+	existingBookId?: string;
+};
 
 export function BookCreationWizard({
 	onComplete,
@@ -32,25 +39,35 @@ export function BookCreationWizard({
 	const {
 		currentStep,
 		config,
+		handleNext,
+		handleBack: _handleBack,
 		isGenerating,
 		showProgress,
-		showSuccessModal,
+		generatedDraftId: _generatedDraftId,
 		availableCategories,
-		isPremium,
-		showUpsellModal,
-		isLoadingUser,
+		userId: _userId,
+		diaryName: _diaryName,
+		diaryEmoji: _diaryEmoji,
 		generationError,
+		isPremium,
+		isLoadingUser,
 		setConfig,
+		setCurrentStep: _setCurrentStep,
+		setIsGenerating: _setIsGenerating,
 		setShowProgress,
-		setShowSuccessModal,
-		setShowUpsellModal,
-		handleNext,
-		handlePrevious,
-		handleGenerate,
-		handleRetry,
-		handleProgressComplete,
-		handleGoToEditor,
+		setGeneratedDraftId: _setGeneratedDraftId,
+		setGenerationError: _setGenerationError,
 	} = useBookCreation(onComplete, existingBookId);
+
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showUpsellModal, setShowUpsellModal] = useState(false);
+
+	// Haptic feedback on step change
+	useEffect(() => {
+		if (currentStep > 0) {
+			void Haptics.selectionAsync();
+		}
+	}, [currentStep]);
 
 	// 🎉 Trigger confetti on success
 	useEffect(() => {
@@ -111,8 +128,8 @@ export function BookCreationWizard({
 		<>
 			{/* Background Effects */}
 			<div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-				<div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 blur-[100px]" />
-				<div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[100px]" />
+				<div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 blur-[100px] dark:bg-purple-500/20" />
+				<div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[100px] dark:bg-blue-500/20" />
 			</div>
 
 			{/* Progress Modal */}
@@ -168,7 +185,7 @@ export function BookCreationWizard({
 								return (
 									<div className="space-y-4">
 										{/* Progress Bar */}
-										<div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+										<div className="h-1 w-full bg-muted rounded-full overflow-hidden">
 											<motion.div
 												className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
 												initial={{ width: 0 }}
@@ -183,7 +200,7 @@ export function BookCreationWizard({
 												key={currentStep}
 												initial={{ opacity: 0, y: 10 }}
 												animate={{ opacity: 1, y: 0 }}
-												className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80"
+												className="text-xl font-bold text-foreground"
 											>
 												{getStepTitle()}
 											</motion.h2>
@@ -195,7 +212,7 @@ export function BookCreationWizard({
 
 						{/* Main Content Area */}
 						<div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-hide">
-							<div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-2xl min-h-[400px] flex flex-col">
+							<div className="bg-card/80 backdrop-blur-xl border border-border rounded-3xl p-5 shadow-2xl min-h-[400px] flex flex-col">
 								<AnimatePresence mode="wait">
 									<motion.div
 										key={currentStep}
