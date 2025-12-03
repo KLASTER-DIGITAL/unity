@@ -51,8 +51,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
 		try {
 			// ✅ FIX: Сначала обновляем UI синхронно для мгновенной реакции
-			// setBaseTheme автоматически сохраняет в localStorage
-			await setBaseTheme(newBaseTheme);
+			// setBaseTheme автоматически сохраняет в localStorage (не async)
+			setBaseTheme(newBaseTheme);
 
 			// ✅ FIX: Сохранение в БД делаем неблокирующим (fire and forget)
 			// Это предотвращает задержки при переключении темы

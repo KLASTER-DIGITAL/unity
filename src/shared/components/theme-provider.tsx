@@ -190,7 +190,7 @@ export function ThemeProvider({
 	}, [baseTheme, colorScheme, storageKey, isInitialized]);
 
 	// ✅ FIX: Оптимизированный setBaseTheme - сначала обновляем состояние, потом сохраняем
-	const setBaseTheme = async (theme: BaseTheme) => {
+	const setBaseTheme = (theme: BaseTheme) => {
 		// Сначала обновляем состояние для мгновенной реакции UI
 		setBaseThemeState(theme);
 
