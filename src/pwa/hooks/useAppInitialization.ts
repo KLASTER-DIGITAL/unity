@@ -26,12 +26,34 @@ import { addBreadcrumb, setUser } from '@/shared/lib/monitoring/lazy';
 import { initBackgroundSync } from '@/shared/lib/offline';
 import { reportWebVitals } from '@/shared/lib/performance';
 import { markLogoAsShown } from '@/shared/utils/firstLaunch';
+import type { OnboardingData } from './useAppState';
+
+type SessionProfile = {
+	name?: string;
+	email?: string;
+	role?: string;
+	language?: string;
+	onboardingCompleted?: boolean;
+	has_completed_onboarding?: boolean;
+};
+
+type SessionUser = {
+	id?: string;
+	email?: string;
+} | null;
+
+type SessionData = {
+	id?: string;
+	user?: SessionUser;
+	profile?: SessionProfile;
+	[key: string]: unknown;
+} | null;
 
 type UseAppInitializationProps = {
-	userData: any;
+	userData: SessionData;
 	isCheckingSession: boolean;
 	onboardingComplete: boolean;
-	setUserData: (data: any) => void;
+	setUserData: (data: SessionData) => void;
 	setIsCheckingSession: (checking: boolean) => void;
 	setOnboardingComplete: (complete: boolean) => void;
 	setIsAdminRoute: (isAdmin: boolean) => void;
@@ -39,12 +61,12 @@ type UseAppInitializationProps = {
 	setIsPerformanceRoute: (isPerf: boolean) => void;
 	setShowAdminAuth: (show: boolean) => void;
 	setShowInstallPrompt: (show: boolean) => void;
-	setDeferredPrompt: (prompt: any) => void;
+	setDeferredPrompt: (prompt: Event | null) => void;
 	setShowSyncComplete: (show: boolean) => void;
 	setSyncedCount: (count: number) => void;
 	setCurrentStep: (step: number) => void;
 	setSelectedLanguage: (lang: string) => void;
-	setOnboardingData: (data: any) => void;
+	setOnboardingData: (data: OnboardingData) => void;
 };
 
 /**
@@ -196,6 +218,7 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 
 	// Initialize session
 	useEffect(() => {
+		// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Session bootstrap has multiple guarded branches; splitting now would add indirection without clarity.
 		const initSession = async () => {
 			try {
 				console.log('🔐 [App.tsx] Checking session with 15s timeout...');
@@ -236,9 +259,33 @@ export function useAppInitialization(props: UseAppInitializationProps) {
 						return;
 					}
 
-					// Check onboarding status
-					const hasCompletedOnboarding = await checkOnboardingStatus(session.user.id);
-					setOnboardingComplete(hasCompletedOnboarding);
+					// ✅ Do not block first paint on onboarding check: use profile flag first
+					const profileOnboarding =
+						(
+							session.profile as {
+								onboardingCompleted?: boolean;
+								has_completed_onboarding?: boolean;
+							}
+						)?.onboardingCompleted ??
+						(
+							session.profile as {
+								onboardingCompleted?: boolean;
+								has_completed_onboarding?: boolean;
+							}
+						)?.has_completed_onboarding ??
+						false;
+					setOnboardingComplete(profileOnboarding);
+
+					// Background verification (entries/stats) to correct stale flag
+					checkOnboardingStatus(session.user.id)
+						.then((hasCompletedOnboarding) => {
+							if (hasCompletedOnboarding !== profileOnboarding) {
+								setOnboardingComplete(hasCompletedOnboarding);
+							}
+						})
+						.catch((error) => {
+							console.error('❌ [App.tsx] Onboarding check (background) failed:', error);
+						});
 				} else {
 					console.log('❌ [App.tsx] No session found');
 					setUserData(null);

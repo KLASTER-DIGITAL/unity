@@ -1,8 +1,10 @@
 import type React from 'react';
-import { useEffect, useState } from 'react';
-import { LottiePreloader } from '@/shared/components/LottiePreloader';
+import { useEffect, useMemo, useState } from 'react';
 import { TranslationLoader } from './loader';
 import { useTranslationContext } from './TranslationProvider';
+
+// Глобальный флаг, чтобы не гонять инициализацию и прелоадер при каждом маунте
+const initializedLanguages = new Set<string>();
 
 type TranslationManagerProps = {
 	children: React.ReactNode;
@@ -24,10 +26,29 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 		error: _error,
 		isLoaded,
 	} = useTranslationContext();
-	const [isInitialized, setIsInitialized] = useState(false);
+
+	// Нормализуем список языков и даём ему стабильную ссылку между рендерами,
+	// чтобы не триггерить повторную инициализацию из-за нового массива
+	const normalizedLanguages = useMemo(
+		() => Array.from(new Set(preloadLanguages)),
+		[preloadLanguages]
+	);
+
+	const shouldSkipInit =
+		!validateCacheOnMount &&
+		normalizedLanguages.length > 0 &&
+		normalizedLanguages.every((lang) => initializedLanguages.has(lang));
+
+	const [isInitialized, setIsInitialized] = useState(shouldSkipInit);
 	const [initError, setInitError] = useState<string | null>(null);
 
 	useEffect(() => {
+		if (shouldSkipInit) {
+			// Уже загружали эти языки ранее — не блокируем UI
+			setInitError(null);
+			return;
+		}
+
 		const initialize = async () => {
 			try {
 				console.log('TranslationManager: Initializing...');
@@ -39,12 +60,17 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 				}
 
 				// Предзагрузка дополнительных языков
-				if (preloadLanguages.length > 0) {
-					console.log(`TranslationManager: Preloading languages: ${preloadLanguages.join(', ')}`);
-					await TranslationLoader.preloadLanguages(preloadLanguages);
+				if (normalizedLanguages.length > 0) {
+					console.log(
+						`TranslationManager: Preloading languages: ${normalizedLanguages.join(', ')}`
+					);
+					await TranslationLoader.preloadLanguages(normalizedLanguages);
 				}
 
 				console.log('TranslationManager: Initialization complete');
+				normalizedLanguages.forEach((lang) => {
+					initializedLanguages.add(lang);
+				});
 				setIsInitialized(true);
 				setInitError(null);
 			} catch (error) {
@@ -55,7 +81,7 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 		};
 
 		initialize();
-	}, [preloadLanguages, validateCacheOnMount]);
+	}, [normalizedLanguages, validateCacheOnMount, shouldSkipInit]);
 
 	useEffect(() => {
 		onLanguageChange?.(currentLanguage);
@@ -63,7 +89,14 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({
 
 	// Показываем загрузку только при первой инициализации
 	if (!isInitialized) {
-		return <LottiePreloader minDuration={5000} showMessage={false} size="lg" />;
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-background">
+				<div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
+					<div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary" />
+					<p className="text-sm">Загружаем интерфейс...</p>
+				</div>
+			</div>
+		);
 	}
 
 	// Показываем ошибку инициализации
