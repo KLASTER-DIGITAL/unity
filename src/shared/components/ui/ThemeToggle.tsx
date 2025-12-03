@@ -40,7 +40,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 	const isDark = activeBaseTheme === 'dark';
 
 	// ✅ FIX: Оптимизированный handleToggle с защитой от двойных кликов
-	const handleToggle = useCallback(async () => {
+	const handleToggle = useCallback(() => {
 		// Предотвращаем двойные клики
 		if (isTogglingRef.current) {
 			return;
@@ -49,37 +49,35 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 		isTogglingRef.current = true;
 		const newBaseTheme = isDark ? 'light' : 'dark';
 
-		try {
-			// ✅ FIX: Сначала обновляем UI синхронно для мгновенной реакции
-			// setBaseTheme автоматически сохраняет в localStorage (не async)
-			setBaseTheme(newBaseTheme);
+		// ✅ FIX: Сначала обновляем UI синхронно для мгновенной реакции
+		// setBaseTheme автоматически сохраняет в localStorage (не async)
+		setBaseTheme(newBaseTheme);
 
-			// ✅ FIX: Сохранение в БД делаем неблокирующим (fire and forget)
-			// Это предотвращает задержки при переключении темы
-			if (userId) {
-				// Не ждем завершения - делаем асинхронно в фоне
-				(async () => {
-					try {
-						const supabase = createClient();
-						const themeValue = colorScheme ? `${newBaseTheme}-${colorScheme}` : newBaseTheme;
-						await supabase.from('profiles').update({ theme: themeValue }).eq('id', userId);
-					} catch (error) {
-						console.error('Failed to save base theme to database:', error);
-						// Не прерываем работу, если не удалось сохранить в БД
-					}
-				})();
-			}
-
-			// ✅ FIX: Устанавливаем флаг ручного изменения темы неблокирующим способом
-			storage.setItem('unity-theme-manual-override', 'true').catch((error) => {
-				console.error('Failed to save manual override flag:', error);
-			});
-		} finally {
-			// ✅ FIX: Сбрасываем флаг после небольшой задержки для предотвращения быстрых переключений
-			setTimeout(() => {
-				isTogglingRef.current = false;
-			}, 300);
+		// ✅ FIX: Сохранение в БД делаем неблокирующим (fire and forget)
+		// Это предотвращает задержки при переключении темы
+		if (userId) {
+			// Не ждем завершения - делаем асинхронно в фоне
+			(async () => {
+				try {
+					const supabase = createClient();
+					const themeValue = colorScheme ? `${newBaseTheme}-${colorScheme}` : newBaseTheme;
+					await supabase.from('profiles').update({ theme: themeValue }).eq('id', userId);
+				} catch (error) {
+					console.error('Failed to save base theme to database:', error);
+					// Не прерываем работу, если не удалось сохранить в БД
+				}
+			})();
 		}
+
+		// ✅ FIX: Устанавливаем флаг ручного изменения темы неблокирующим способом
+		storage.setItem('unity-theme-manual-override', 'true').catch((error) => {
+			console.error('Failed to save manual override flag:', error);
+		});
+
+		// ✅ FIX: Сбрасываем флаг после небольшой задержки для предотвращения быстрых переключений
+		setTimeout(() => {
+			isTogglingRef.current = false;
+		}, 300);
 	}, [isDark, setBaseTheme, userId, colorScheme]);
 
 	return (
