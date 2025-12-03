@@ -69,11 +69,12 @@ export function MobileBottomNav({
 				WebkitBackdropFilter: 'blur(20px)',
 				backdropFilter: 'blur(20px)',
 				// ✅ FIX: Позиционирование с учетом safe-area-inset-bottom для iPhone home indicator
-				// Для floating режима: bottom-4 (16px) + safe-area-inset-bottom
-				// Для sticky режима: bottom-0 + safe-area-inset-bottom
+				// Для floating режима: bottom-4 (16px) + safe-area-inset-bottom с fallback
+				// Для sticky режима: bottom-0 + safe-area-inset-bottom с fallback
+				// Используем max() для обеспечения минимального отступа даже если safe-area-inset-bottom = 0
 				bottom: stickyBottom
-					? 'env(safe-area-inset-bottom, 0px)'
-					: 'calc(1rem + env(safe-area-inset-bottom, 0px))', // 1rem = 16px (bottom-4)
+					? 'max(env(safe-area-inset-bottom, 0px), 0px)'
+					: 'max(calc(1rem + env(safe-area-inset-bottom, 0px)), 1rem)', // 1rem = 16px (bottom-4) с fallback
 				// ✅ FIX: Объединяем все transform в один для предотвращения конфликтов
 				// translate(-50%, Y) - центрируем по горизонтали и управляем вертикальной позицией
 				transform: isKeyboardVisible
@@ -84,8 +85,9 @@ export function MobileBottomNav({
 				// ✅ FIX: Используем transform3d для hardware acceleration
 				transformStyle: 'preserve-3d',
 				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
+				// Используем max() для обеспечения минимального padding даже если safe-area-inset-bottom = 0
 				paddingBottom: stickyBottom
-					? 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
+					? 'max(calc(0.75rem + env(safe-area-inset-bottom, 0px)), 0.75rem)'
 					: '0.75rem',
 				// opacity для плавного скрытия/показа
 				opacity: isKeyboardVisible ? 0 : 1,
@@ -93,6 +95,9 @@ export function MobileBottomNav({
 				position: 'fixed',
 				// ✅ FIX: Создаем новый stacking context для предотвращения конфликтов
 				isolation: 'isolate',
+				// ✅ FIX: Предотвращаем "окунание" меню на мобильных браузерах
+				// Используем contain для оптимизации рендеринга
+				contain: 'layout style paint',
 			}}
 		>
 			<div className="flex items-center justify-around gap-1">

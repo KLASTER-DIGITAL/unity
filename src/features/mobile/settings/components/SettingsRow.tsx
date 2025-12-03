@@ -53,11 +53,13 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 		}
 	};
 
-	// ✅ FIX: Use <div> instead of <button> when rightElement is 'switch' to avoid nested buttons
+	// ✅ FIX: Use <div> instead of <button> when rightElement is 'switch' OR 'custom' with onSwitchChange
 	// Radix UI Switch renders a <button> internally, so we can't nest it inside another <button>
-	const Container = rightElement === 'switch' ? 'div' : 'button';
+	// Also, customRightElement might contain a <button>, so we need to use <div> to avoid nesting
+	const Container =
+		rightElement === 'switch' || (rightElement === 'custom' && onSwitchChange) ? 'div' : 'button';
 	const containerProps =
-		rightElement === 'switch'
+		rightElement === 'switch' || (rightElement === 'custom' && onSwitchChange)
 			? {
 					onClick: handleClick,
 					role: 'button',

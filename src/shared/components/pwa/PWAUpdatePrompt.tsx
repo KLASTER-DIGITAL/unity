@@ -118,7 +118,11 @@ export function PWAUpdatePrompt() {
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: 50, scale: 0.95 }}
 						transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-						className="fixed bottom-6 left-4 right-4 z-50 mx-auto max-w-sm md:left-1/2 md:right-auto md:-translate-x-1/2"
+						className="fixed bottom-6 left-1/2 z-modal -translate-x-1/2 mx-auto w-[calc(100%-2rem)] max-w-sm"
+						style={{
+							// ✅ FIX: Учитываем safe-area-inset-bottom для iPhone
+							bottom: 'max(calc(1.5rem + env(safe-area-inset-bottom, 0px)), 1.5rem)',
+						}}
 					>
 						<div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-black/80">
 							{/* Background Glow Effect */}
