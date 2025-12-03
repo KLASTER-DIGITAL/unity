@@ -5,7 +5,7 @@
  * React Native ready: 90%+ compatibility
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { storage } from '@/shared/lib/platform/storage';
 import { createClient } from '@/utils/supabase/client';
 import { useActiveBaseTheme, useTheme } from '../theme-provider';
@@ -20,6 +20,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 	const { setBaseTheme, colorScheme } = useTheme();
 	const activeBaseTheme = useActiveBaseTheme();
 	const [userId, setUserId] = useState<string | null>(null);
+	// ✅ FIX: Защита от двойных кликов и быстрых переключений
+	const isTogglingRef = useRef(false);
 
 	// Загрузка user ID для сохранения в БД
 	useEffect(() => {
@@ -37,30 +39,48 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 	// Определяем, темная ли тема активна
 	const isDark = activeBaseTheme === 'dark';
 
-	const handleToggle = async () => {
-		const newBaseTheme = isDark ? 'light' : 'dark';
-		// setBaseTheme автоматически сохраняет в localStorage
-		await setBaseTheme(newBaseTheme);
-
-		// Если текущая цветовая схема не соответствует новой базовой теме - сбрасываем
-		// (это обработается автоматически в ThemeProvider)
-
-		// Устанавливаем флаг ручного изменения темы
-		await storage.setItem('unity-theme-manual-override', 'true');
-
-		// Сохранение в базу данных для синхронизации между устройствами
-		if (userId) {
-			try {
-				const supabase = createClient();
-				// Сохраняем базовую тему (цветовая схема будет сохранена отдельно при выборе)
-				const themeValue = colorScheme ? `${newBaseTheme}-${colorScheme}` : newBaseTheme;
-				await supabase.from('profiles').update({ theme: themeValue }).eq('id', userId);
-			} catch (error) {
-				console.error('Failed to save base theme to database:', error);
-				// Не прерываем работу, если не удалось сохранить в БД
-			}
+	// ✅ FIX: Оптимизированный handleToggle с защитой от двойных кликов
+	const handleToggle = useCallback(async () => {
+		// Предотвращаем двойные клики
+		if (isTogglingRef.current) {
+			return;
 		}
-	};
+
+		isTogglingRef.current = true;
+		const newBaseTheme = isDark ? 'light' : 'dark';
+
+		try {
+			// ✅ FIX: Сначала обновляем UI синхронно для мгновенной реакции
+			// setBaseTheme автоматически сохраняет в localStorage
+			await setBaseTheme(newBaseTheme);
+
+			// ✅ FIX: Сохранение в БД делаем неблокирующим (fire and forget)
+			// Это предотвращает задержки при переключении темы
+			if (userId) {
+				// Не ждем завершения - делаем асинхронно в фоне
+				(async () => {
+					try {
+						const supabase = createClient();
+						const themeValue = colorScheme ? `${newBaseTheme}-${colorScheme}` : newBaseTheme;
+						await supabase.from('profiles').update({ theme: themeValue }).eq('id', userId);
+					} catch (error) {
+						console.error('Failed to save base theme to database:', error);
+						// Не прерываем работу, если не удалось сохранить в БД
+					}
+				})();
+			}
+
+			// ✅ FIX: Устанавливаем флаг ручного изменения темы неблокирующим способом
+			storage.setItem('unity-theme-manual-override', 'true').catch((error) => {
+				console.error('Failed to save manual override flag:', error);
+			});
+		} finally {
+			// ✅ FIX: Сбрасываем флаг после небольшой задержки для предотвращения быстрых переключений
+			setTimeout(() => {
+				isTogglingRef.current = false;
+			}, 300);
+		}
+	}, [isDark, setBaseTheme, userId, colorScheme]);
 
 	return (
 		<label className={cn('theme-switch inline-block', className)}>

@@ -91,57 +91,56 @@ async function migrateLegacyTheme(storageKey: string): Promise<{
 
 export function ThemeProvider({
 	children,
-	defaultTheme = 'system',
+	defaultTheme = 'dark', // ✅ FIX: Темный режим по умолчанию вместо 'system'
 	defaultColorScheme = null,
 	storageKey = 'unity-theme',
 	...props
 }: ThemeProviderProps) {
 	const [baseTheme, setBaseThemeState] = useState<BaseTheme>(defaultTheme);
 	const [colorScheme, setColorSchemeState] = useState<ColorScheme>(defaultColorScheme);
+	// ✅ FIX: Флаг для предотвращения лишних ре-рендеров при загрузке
+	const [isInitialized, setIsInitialized] = useState(false);
 
 	// Загрузка тем из storage с миграцией и из БД
 	useEffect(() => {
 		(async () => {
-			// Пытаемся загрузить новую структуру из localStorage
-			const savedBaseTheme = await storage.getItem(`${storageKey}-base`);
-			const savedColorScheme = await storage.getItem(`${storageKey}-scheme`);
+			try {
+				// Пытаемся загрузить новую структуру из localStorage
+				const savedBaseTheme = await storage.getItem(`${storageKey}-base`);
+				const savedColorScheme = await storage.getItem(`${storageKey}-scheme`);
 
-			if (savedBaseTheme && savedColorScheme !== undefined) {
-				// Загружаем из localStorage (приоритет)
-				setBaseThemeState(savedBaseTheme as BaseTheme);
-				setColorSchemeState(savedColorScheme as ColorScheme | null);
-			} else {
-				// Миграция старой темы или загрузка из БД
-				const migrated = await migrateLegacyTheme(storageKey);
-				setBaseThemeState(migrated.baseTheme);
-				setColorSchemeState(migrated.colorScheme);
+				if (savedBaseTheme && savedColorScheme !== undefined) {
+					// Загружаем из localStorage (приоритет)
+					setBaseThemeState(savedBaseTheme as BaseTheme);
+					setColorSchemeState(savedColorScheme as ColorScheme | null);
+				} else {
+					// Миграция старой темы или загрузка из БД
+					const migrated = await migrateLegacyTheme(storageKey);
+					setBaseThemeState(migrated.baseTheme);
+					setColorSchemeState(migrated.colorScheme);
 
-				// Сохраняем в новом формате
-				await storage.setItem(`${storageKey}-base`, migrated.baseTheme);
-				await storage.setItem(`${storageKey}-scheme`, migrated.colorScheme || '');
+					// Сохраняем в новом формате
+					await storage.setItem(`${storageKey}-base`, migrated.baseTheme);
+					await storage.setItem(`${storageKey}-scheme`, migrated.colorScheme || '');
+				}
+			} catch (error) {
+				console.error('[ThemeProvider] Error loading theme:', error);
+				// Используем defaultTheme при ошибке
+				setBaseThemeState(defaultTheme);
+			} finally {
+				setIsInitialized(true);
 			}
 		})();
-	}, [storageKey]);
+	}, [storageKey, defaultTheme]);
 
-	// Применение тем к DOM
+	// ✅ FIX: Оптимизированное применение тем к DOM с предотвращением лишних операций
 	useEffect(() => {
-		const root = document.documentElement;
+		// Не применяем темы до инициализации
+		if (!isInitialized) {
+			return;
+		}
 
-		// Удаляем все классы тем
-		root.classList.remove(
-			'light',
-			'dark',
-			'theme-sunset',
-			'theme-ocean',
-			'theme-forest',
-			'theme-sakura',
-			'theme-coffee',
-			'theme-lavender',
-			'theme-evening',
-			'theme-dusk',
-			'theme-midnight',
-			'theme-night'
-		);
+		const root = document.documentElement;
 
 		// Определяем активную базовую тему
 		let activeBaseTheme: 'light' | 'dark';
@@ -153,34 +152,64 @@ export function ThemeProvider({
 			activeBaseTheme = baseTheme;
 		}
 
-		// Применяем базовую тему
-		root.classList.add(activeBaseTheme);
+		// ✅ FIX: Используем requestAnimationFrame для плавного переключения
+		requestAnimationFrame(() => {
+			// Удаляем все классы тем
+			root.classList.remove(
+				'light',
+				'dark',
+				'theme-sunset',
+				'theme-ocean',
+				'theme-forest',
+				'theme-sakura',
+				'theme-coffee',
+				'theme-lavender',
+				'theme-evening',
+				'theme-dusk',
+				'theme-midnight',
+				'theme-night'
+			);
 
-		// Применяем цветовую схему, если она соответствует базовой теме
-		if (colorScheme) {
-			const schemeBaseTheme = getColorSchemeBaseTheme(colorScheme);
-			if (schemeBaseTheme === activeBaseTheme) {
-				root.classList.add(`theme-${colorScheme}`);
-			} else {
-				// Если схема не соответствует базовой теме - сбрасываем
-				setColorSchemeState(null);
-				storage.setItem(`${storageKey}-scheme`, '');
+			// Применяем базовую тему
+			root.classList.add(activeBaseTheme);
+
+			// Применяем цветовую схему, если она соответствует базовой теме
+			if (colorScheme) {
+				const schemeBaseTheme = getColorSchemeBaseTheme(colorScheme);
+				if (schemeBaseTheme === activeBaseTheme) {
+					root.classList.add(`theme-${colorScheme}`);
+				} else {
+					// Если схема не соответствует базовой теме - сбрасываем
+					setColorSchemeState(null);
+					storage.setItem(`${storageKey}-scheme`, '').catch((error) => {
+						console.error('[ThemeProvider] Error resetting color scheme:', error);
+					});
+				}
 			}
-		}
-	}, [baseTheme, colorScheme, storageKey]);
+		});
+	}, [baseTheme, colorScheme, storageKey, isInitialized]);
 
+	// ✅ FIX: Оптимизированный setBaseTheme - сначала обновляем состояние, потом сохраняем
 	const setBaseTheme = async (theme: BaseTheme) => {
+		// Сначала обновляем состояние для мгновенной реакции UI
 		setBaseThemeState(theme);
-		await storage.setItem(`${storageKey}-base`, theme);
 
 		// Если цветовая схема не соответствует новой базовой теме - сбрасываем
 		if (colorScheme) {
 			const schemeBaseTheme = getColorSchemeBaseTheme(colorScheme);
 			if (schemeBaseTheme !== theme && theme !== 'system') {
 				setColorSchemeState(null);
-				await storage.setItem(`${storageKey}-scheme`, '');
+				// Сохраняем схему неблокирующим способом
+				storage.setItem(`${storageKey}-scheme`, '').catch((error) => {
+					console.error('[ThemeProvider] Error saving color scheme:', error);
+				});
 			}
 		}
+
+		// Сохраняем базовую тему неблокирующим способом
+		storage.setItem(`${storageKey}-base`, theme).catch((error) => {
+			console.error('[ThemeProvider] Error saving base theme:', error);
+		});
 	};
 
 	const setColorScheme = async (scheme: ColorScheme) => {
