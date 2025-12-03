@@ -2,8 +2,8 @@
  * Utility functions for Book Creation Wizard
  */
 
-import { API_URLS } from '../../../../../shared/lib/api/config/urls';
-import { createClient } from '../../../../../utils/supabase/client';
+import { API_URLS } from '@/shared/lib/api/config/urls';
+import { createClient } from '@/utils/supabase/client';
 import { FREE_TIER_LIMIT, MIN_ENTRIES_REQUIRED } from './constants';
 import type { BookConfig } from './types';
 
@@ -153,7 +153,6 @@ export async function generateBookDraft(
 						layout: config.layout,
 						theme: 'light',
 						type: config.type || 'month',
-						planType: config.planType || 'premium', // ✅ Include planType
 						diaryName: diaryName || 'Мой дневник',
 						diaryEmoji: diaryEmoji || '📝',
 					};
@@ -167,28 +166,6 @@ export async function generateBookDraft(
 			body: JSON.stringify(requestBody),
 		});
 
-		// ✅ FIX: Check response status before parsing JSON
-		if (!response.ok) {
-			let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-			try {
-				const errorData = await response.json();
-				errorMessage = errorData.error || errorMessage;
-				console.error('[WIZARD] API error response:', errorData);
-			} catch {
-				// If JSON parsing fails, try to read as text
-				try {
-					const errorText = await response.text();
-					errorMessage = errorText || errorMessage;
-				} catch {
-					// Use default error message
-				}
-			}
-			return {
-				success: false,
-				error: errorMessage,
-			};
-		}
-
 		const result = await response.json();
 
 		console.log('[WIZARD] API response:', result);
@@ -197,15 +174,6 @@ export async function generateBookDraft(
 			return {
 				success: false,
 				error: result.error || 'Не удалось создать черновик',
-			};
-		}
-
-		// ✅ FIX: Validate that draftId exists
-		if (!result.draftId) {
-			console.error('[WIZARD] No draftId in response:', result);
-			return {
-				success: false,
-				error: 'Черновик создан, но ID не получен',
 			};
 		}
 
@@ -226,9 +194,7 @@ export async function generateBookDraft(
 
 /**
  * Fetch available categories from user's entries
- * ✅ Deduplicates categories by normalizing to lowercase
  */
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy fetch merges deduplication and fallbacks
 export async function fetchAvailableCategories(userId: string): Promise<string[]> {
 	try {
 		const supabase = createClient();
@@ -243,36 +209,8 @@ export async function fetchAvailableCategories(userId: string): Promise<string[]
 			return [];
 		}
 
-		// ✅ Normalize categories: lowercase for deduplication, but keep best case for display
-		const categoryMap = new Map<string, string>();
-
-		for (const entry of data) {
-			const category = entry.category?.trim();
-			if (!category) continue;
-
-			const normalized = category.toLowerCase();
-			const existing = categoryMap.get(normalized);
-
-			// Keep the best version: prefer capitalized over all lowercase
-			if (!existing) {
-				categoryMap.set(normalized, category);
-			} else {
-				const existingIsLower = existing === existing.toLowerCase();
-				const categoryIsLower = category === category.toLowerCase();
-
-				// Prefer non-lowercase over all lowercase
-				if (categoryIsLower && !existingIsLower) {
-					// Keep existing (it's better)
-					continue;
-				}
-				if (!categoryIsLower && existingIsLower) {
-					// Replace with better version
-					categoryMap.set(normalized, category);
-				}
-			}
-		}
-
-		return Array.from(categoryMap.values()).sort();
+		const uniqueCategories = Array.from(new Set(data.map((entry) => entry.category)));
+		return uniqueCategories.filter((cat) => cat && cat.trim() !== '');
 	} catch (error) {
 		console.error('[WIZARD] Error fetching categories:', error);
 		return [];
@@ -280,42 +218,79 @@ export async function fetchAvailableCategories(userId: string): Promise<string[]
 }
 
 /**
- * Delete book draft (DB + Storage)
+ * Delete a book from books_archive table
+ * Also deletes associated PDF from storage and local cache if exists
  */
 export async function deleteBook(bookId: string, userId: string): Promise<boolean> {
 	try {
 		const supabase = createClient();
 
-		// Get book to find PDF URL
-		const { data: book } = await supabase
+		// First, get the book to check if it has a PDF
+		const { data: book, error: fetchError } = await supabase
 			.from('books_archive')
 			.select('pdf_url')
 			.eq('id', bookId)
+			.eq('user_id', userId)
 			.single();
 
-		// Delete from database (CASCADE will delete book_photos)
-		const { error } = await supabase.from('books_archive').delete().eq('id', bookId);
-
-		if (error) {
-			console.error('[UTILS] Error deleting book:', error);
+		if (fetchError) {
+			console.error('[WIZARD] Error fetching book:', fetchError);
 			return false;
 		}
 
-		// Try to delete PDF from storage
+		// ✅ Step 1: Delete PDF from Supabase Storage if exists
 		if (book?.pdf_url) {
 			try {
-				const fileName = book.pdf_url.split('/').pop();
-				if (fileName && userId) {
-					await supabase.storage.from('books').remove([`${userId}/${fileName}`]);
+				// Extract file path from URL
+				// Format: https://...supabase.co/storage/v1/object/public/books/{userId}/{bookId}/{filename}
+				const urlParts = book.pdf_url.split('/');
+				const fileName = urlParts[urlParts.length - 1]?.split('?')[0]; // Remove query params
+				const filePath = `${userId}/${bookId}/${fileName}`;
+
+				if (fileName && filePath) {
+					const { error: storageError } = await supabase.storage.from('books').remove([filePath]);
+
+					if (storageError) {
+						console.warn('[WIZARD] Error deleting PDF from storage:', storageError);
+						// Continue with DB deletion even if storage deletion fails
+					} else {
+						console.log('[WIZARD] PDF deleted from Supabase Storage:', filePath);
+					}
 				}
-			} catch (storageError) {
-				console.warn('[UTILS] Could not delete PDF from storage:', storageError);
+			} catch (storageErr) {
+				console.warn('[WIZARD] Error deleting PDF from storage:', storageErr);
+				// Continue with DB deletion even if storage deletion fails
 			}
 		}
 
+		// ✅ Step 2: Delete from local offline cache (IndexedDB/FileSystem)
+		try {
+			// Dynamic import to avoid circular dependencies
+			const { offlineStorage } = await import('@/shared/lib/storage/offline-storage');
+			await offlineStorage.deletePDF(bookId);
+			console.log('[WIZARD] PDF deleted from local cache:', bookId);
+		} catch (cacheErr) {
+			console.warn('[WIZARD] Error deleting PDF from local cache:', cacheErr);
+			// Continue with DB deletion even if cache deletion fails
+		}
+
+		// ✅ Step 3: Delete book from database
+		// CASCADE will automatically delete related records from book_photos table
+		const { error: deleteError } = await supabase
+			.from('books_archive')
+			.delete()
+			.eq('id', bookId)
+			.eq('user_id', userId);
+
+		if (deleteError) {
+			console.error('[WIZARD] Error deleting book from database:', deleteError);
+			return false;
+		}
+
+		console.log('[WIZARD] Book deleted successfully from all locations:', bookId);
 		return true;
 	} catch (error) {
-		console.error('[UTILS] Error:', error);
+		console.error('[WIZARD] Error deleting book:', error);
 		return false;
 	}
 }

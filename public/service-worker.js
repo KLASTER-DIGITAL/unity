@@ -1,6 +1,6 @@
-const CACHE_NAME = 'achievement-diary-v322a841';
-const CACHE_NAME_API = 'achievement-diary-api-v322a841';
-const CACHE_NAME_STATIC = 'achievement-diary-static-v322a841';
+const CACHE_NAME = 'achievement-diary-v9bfa2bc';
+const CACHE_NAME_API = 'achievement-diary-api-v9bfa2bc';
+const CACHE_NAME_STATIC = 'achievement-diary-static-v9bfa2bc';
 
 // Cache TTL (Time To Live) в миллисекундах
 const CACHE_TTL = {

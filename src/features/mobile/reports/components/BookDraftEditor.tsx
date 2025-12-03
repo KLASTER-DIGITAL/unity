@@ -700,15 +700,69 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 			console.log('[DRAFT-EDITOR] Generating PDF client-side with @react-pdf/renderer...');
 
 			// Динамически импортируем компоненты для PDF
-			const { pdf } = await import('@react-pdf/renderer');
+			const { pdf, Font } = await import('@react-pdf/renderer');
 			const { BookPDFDocument } = await import('./BookPDFDocument');
+
+			// Register fonts
+			const fontBaseUrl = window.location.origin;
+			console.log('[DRAFT-EDITOR] Registering fonts with base URL:', fontBaseUrl);
+
+			// ✅ Register both Noto Sans and Noto Serif fonts
+			// NOTE: @react-pdf/renderer supports only .ttf and .otf formats, NOT .woff2
+			// Using Google Fonts API to fetch .ttf files dynamically
+			// If fonts fail to load, PDF will use default fonts (Helvetica, Times-Roman)
+			try {
+				// Register Noto Sans - using correct URLs from Google Fonts API (v42)
+				Font.register({
+					family: 'Noto Sans',
+					fonts: [
+						{
+							// Regular weight (400) - correct URL from Google Fonts API
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+							fontWeight: 400,
+						},
+						{
+							// Medium weight (500)
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',
+							fontWeight: 500,
+						},
+						{
+							// SemiBold weight (600)
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAjBN9d.ttf',
+							fontWeight: 600,
+						},
+					],
+				});
+
+				// Register Noto Serif (required for titles in BookPDFDocument) - using correct URLs (v33)
+				Font.register({
+					family: 'Noto Serif',
+					fonts: [
+						{
+							// Regular weight (400)
+							src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6iaw1J5X9T9RW6j9bNVls-hfgvz8JcMofYTa32J4wsL2JAlAhZqFCjwA.ttf',
+							fontWeight: 400,
+						},
+						{
+							// SemiBold weight (600)
+							src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6iaw1J5X9T9RW6j9bNVls-hfgvz8JcMofYTa32J4wsL2JAlAhZdlejwA.ttf',
+							fontWeight: 600,
+						},
+					],
+				});
+				console.log('[DRAFT-EDITOR] Fonts (Noto Sans + Noto Serif) registered successfully');
+			} catch (fontError) {
+				console.warn('[DRAFT-EDITOR] Font registration failed, using default fonts:', fontError);
+				// Continue anyway - PDF will use default fonts (Helvetica, Times-Roman)
+				// Note: Default fonts don't support Cyrillic, but PDF will still be generated
+			}
 
 			// Создаем PDF документ
 			const pdfDoc = (
 				<BookPDFDocument
 					story={story}
 					metadata={draft?.metadata as { diaryEmoji?: string }}
-					style={draft?.style || 'warm_family'}
+					bookStyle={draft?.style || 'warm_family'}
 					theme={draft?.theme || 'light'}
 				/>
 			);

@@ -202,8 +202,13 @@ export function useBookCreation(
 			setGeneratedDraftId(newDraftId);
 			setGenerationError(null);
 
-			// Note: We don't set showSuccessModal here, we wait for handleProgressComplete
-			// which is called by the progress component when animation finishes
+			// ✅ FIX: НЕ показываем модальное окно сразу - ждем завершения прогресса
+			// Прогресс будет завершен через BookGenerationProgress.onComplete -> handleProgressComplete
+			if (newDraftId) {
+				console.log('[useBookCreation] Generation success, draft ID:', newDraftId);
+				// НЕ закрываем прогресс и НЕ показываем модальное окно здесь
+				// Ждем handleProgressComplete из BookGenerationProgress
+			}
 		} catch (error) {
 			console.error('[useBookCreation] Error generating book:', error);
 			const errorMessage =
@@ -222,8 +227,7 @@ export function useBookCreation(
 		handleGenerate();
 	};
 
-	// ✅ FIX: Use a ref to track if we should show success modal
-	// This prevents race conditions where generatedDraftId might not be in closure
+	// ✅ FIX: Показываем модальное окно успеха ТОЛЬКО после завершения прогресса
 	const handleProgressComplete = useCallback(() => {
 		console.log('[useBookCreation] Progress complete, checking draft ID...');
 
@@ -233,14 +237,13 @@ export function useBookCreation(
 				console.log('[useBookCreation] Draft ID found, showing success modal:', currentDraftId);
 				setShowProgress(false);
 				isGeneratingRef.current = false;
+				// ✅ FIX: Показываем модальное окно ТОЛЬКО после завершения прогресса
 				setShowSuccessModal(true);
 			} else {
-				console.warn('[useBookCreation] No draft ID found yet, waiting...');
-				// If draft ID is not set yet (unlikely if generate finished),
-				// we might want to keep progress open or handle error.
-				// But usually generate finishes before progress animation (fake 3s).
+				console.warn('[useBookCreation] No draft ID found, closing progress without success modal');
 				setShowProgress(false);
 				isGeneratingRef.current = false;
+				// Не показываем модальное окно если нет draft ID
 			}
 			return currentDraftId;
 		});

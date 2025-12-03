@@ -5,4 +5,5 @@
  * - ReportsScreen: Main reports screen with analytics and charts
  */
 
-export { ReportsScreen } from './components/ReportsScreen';
+// ✅ FIX: Экспортируем default для совместимости с lazy loading
+export { ReportsScreen as default, ReportsScreen } from './components/ReportsScreen';

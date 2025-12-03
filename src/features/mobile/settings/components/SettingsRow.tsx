@@ -53,9 +53,30 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 		}
 	};
 
+	// ✅ FIX: Use <div> instead of <button> when rightElement is 'switch' to avoid nested buttons
+	// Radix UI Switch renders a <button> internally, so we can't nest it inside another <button>
+	const Container = rightElement === 'switch' ? 'div' : 'button';
+	const containerProps =
+		rightElement === 'switch'
+			? {
+					onClick: handleClick,
+					role: 'button',
+					tabIndex: disabled ? -1 : 0,
+					onKeyDown: (e: React.KeyboardEvent) => {
+						if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+							e.preventDefault();
+							handleClick(e as unknown as React.MouseEvent);
+						}
+					},
+				}
+			: {
+					type: 'button' as const,
+					onClick: handleClick,
+				};
+
 	return (
-		<button
-			type="button"
+		<Container
+			{...containerProps}
 			className={cn(
 				'flex w-full items-center justify-between p-row text-left transition-colors',
 				// iOS HIG: minimum 44px touch target
@@ -63,7 +84,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				// Make entire row clickable for switch
 				rightElement === 'switch' &&
 					!disabled &&
-					'cursor-pointer hover:bg-muted active:bg-accent/10',
+					'cursor-pointer hover:bg-muted active:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
 				// Regular onClick behavior
 				!disabled &&
 					onClick &&
@@ -72,7 +93,6 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				disabled && onClick && 'cursor-pointer hover:bg-muted active:bg-accent/10',
 				className
 			)}
-			onClick={handleClick}
 		>
 			<div className="flex min-w-0 flex-1 items-center gap-responsive-md">
 				{/* Icon */}
@@ -105,7 +125,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
 				)}
 				{rightElement === 'custom' && customRightElement}
 			</div>
-		</button>
+		</Container>
 	);
 };
 

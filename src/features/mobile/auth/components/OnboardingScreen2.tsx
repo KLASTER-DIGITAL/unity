@@ -105,7 +105,8 @@ function Sliedbar({
 			data-name="Sliedbar"
 			initial={{ opacity: 0, y: 20 }}
 			style={{
-				bottom: 'max(calc(env(safe-area-inset-bottom, 20px) + 85px), 85px)',
+				// ✅ FIX: Выровнять прогресс на уровне со стрелкой (bottom: min(40px, 8vh))
+				bottom: 'min(40px, 8vh)',
 				left: 'min(25px, 8vw)',
 			}}
 			transition={{ delay: 0.8, duration: 0.5 }}
@@ -155,7 +156,8 @@ function ArrowRight1({ onClick }: { onClick: () => void }) {
 			data-name="Arrow - Right"
 			onClick={onClick}
 			style={{
-				bottom: 'max(env(safe-area-inset-bottom, 20px), 20px)',
+				// ✅ FIX: Выровнять стрелку на уровне с прогрессом (Sliedbar bottom: min(40px, 8vh))
+				bottom: 'min(40px, 8vh)',
 				right: 'min(46px, 12vw)',
 			}}
 		>

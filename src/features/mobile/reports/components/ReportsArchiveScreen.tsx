@@ -49,7 +49,7 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 					return;
 				}
 
-				const mapped: ArchivedReport[] = (data || []).map((row) => {
+				const mapped: ArchivedReport[] = (data || []).map((row: any) => {
 					const stats = (row.stats || {}) as {
 						start_date?: string;
 						end_date?: string;
@@ -159,12 +159,12 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 	};
 
 	return (
-		<div className="scrollbar-hide fixed inset-0 z-50 overflow-y-auto bg-[var(--ios-bg-primary)]">
+		<div className="scrollbar-hide fixed inset-0 z-50 overflow-y-auto bg-(--ios-bg-primary)">
 			{/* Header */}
 			<div className="bg-[--ios-purple] p-4 text-white sm:p-6">
 				<div className="mb-4 flex items-center gap-3">
 					<Button
-						className="h-10 w-10 rounded-full bg-card/20 p-0 text-foreground hover:bg-card/30"
+						className="h-10 w-10 rounded-full bg-card/20 p-0 text-white hover:bg-card/30"
 						onClick={onBack}
 						variant="ghost"
 					>
@@ -248,7 +248,7 @@ export function ReportsArchiveScreen({ onBack }: ReportsArchiveScreenProps) {
 								<CardHeader>
 									<CardTitle className="flex items-center justify-between gap-2 text-sm sm:text-base">
 										<span className="flex items-center gap-2">
-											<BarChart3 className="h-4 w-4 text-[var(--ios-purple)]" strokeWidth={2} />
+											<BarChart3 className="h-4 w-4 text-(--ios-purple)" strokeWidth={2} />
 											{title}
 										</span>
 										<Badge variant="outline">

@@ -200,20 +200,23 @@ export function AchievementHomeScreen({
 
 			{/* Recent Entries Feed - Лента последних записей */}
 			{!isLoading && (
-				<RecentEntriesFeed
-					isLoading={isLoading}
-					language={userData?.language || 'ru'}
-					onEntryClick={(entry) => {
-						setSelectedEntry(entry);
-					}}
-					onViewAllClick={() => {
-						console.log('Navigate to History');
-						onNavigateToHistory?.();
-					}}
-					recentEntries={recentEntries}
-					// ✅ REMOVED: refreshTrigger больше не нужен - Supabase Realtime автоматически обновляет
-					userData={userData}
-				/>
+				<div className="mt-6">
+					{/* ✅ FIX: Добавлен margin-top чтобы не перекрывать чат */}
+					<RecentEntriesFeed
+						isLoading={isLoading}
+						language={userData?.language || 'ru'}
+						onEntryClick={(entry) => {
+							setSelectedEntry(entry);
+						}}
+						onViewAllClick={() => {
+							console.log('Navigate to History');
+							onNavigateToHistory?.();
+						}}
+						recentEntries={recentEntries}
+						// ✅ REMOVED: refreshTrigger больше не нужен - Supabase Realtime автоматически обновляет
+						userData={userData}
+					/>
+				</div>
 			)}
 
 			{/* Entry Detail Modal */}

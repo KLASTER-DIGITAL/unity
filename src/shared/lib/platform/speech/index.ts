@@ -212,10 +212,14 @@ class WebSpeechAdapter implements SpeechAdapter {
 		}
 
 		// iOS Safari in browser mode has limited support
+		// ✅ FIX: Используем console.debug вместо console.warn чтобы не засорять консоль
 		if (this.browserInfo.isIOS && this.browserInfo.isSafari) {
-			console.warn(
-				'[WebSpeechAdapter] iOS Safari has limited Web Speech API support. May not work reliably.'
-			);
+			if (!(window as any).__webSpeechIOSWarningShown) {
+				console.debug(
+					'[WebSpeechAdapter] iOS Safari has limited Web Speech API support. May not work reliably.'
+				);
+				(window as any).__webSpeechIOSWarningShown = true;
+			}
 		}
 
 		return true; // ✅ Всегда возвращаем true если API существует
@@ -402,16 +406,27 @@ class WebSpeechAdapter implements SpeechAdapter {
 		};
 
 		this.recognition.onerror = (event: any) => {
-			console.error('[WebSpeechAdapter] onerror event fired:', event.error);
+			console.log('[WebSpeechAdapter] onerror event fired:', event.error);
 			this.listening = false;
+
+			// ✅ FIX: Игнорируем ошибку "aborted" - это нормальное поведение при stopListening/abort
+			if (event.error === 'aborted') {
+				console.log('[WebSpeechAdapter] Recognition aborted (normal behavior)');
+				// Не вызываем errorCallback для aborted - это не ошибка
+				return;
+			}
+
+			// ✅ FIX: Игнорируем ошибку "no-speech" - это тоже нормальное поведение
+			if (event.error === 'no-speech') {
+				console.log('[WebSpeechAdapter] No speech detected (normal behavior)');
+				// Не вызываем errorCallback для no-speech - это не ошибка
+				return;
+			}
 
 			if (this.errorCallback) {
 				let errorMessage = 'Speech recognition error';
 
 				switch (event.error) {
-					case 'no-speech':
-						errorMessage = 'No speech detected';
-						break;
 					case 'audio-capture':
 						errorMessage = 'No microphone found';
 						break;
@@ -420,9 +435,6 @@ class WebSpeechAdapter implements SpeechAdapter {
 						break;
 					case 'network':
 						errorMessage = 'Network error';
-						break;
-					case 'aborted':
-						errorMessage = 'Recognition aborted';
 						break;
 					default:
 						errorMessage = `Speech recognition error: ${event.error}`;

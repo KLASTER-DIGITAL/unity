@@ -1,7 +1,9 @@
 /**
  * Step 2: Contexts Selection
+ * ✅ FIX: Исправлена видимость текста для темной темы
  */
 
+import { cn } from '@/shared/components/ui/utils';
 import type { BookConfig } from './types';
 
 type Step2ContextsProps = {
@@ -28,8 +30,8 @@ export function Step2Contexts({ config, availableCategories, onConfigChange }: S
 
 	if (availableCategories.length === 0) {
 		return (
-			<div className="rounded-xl bg-white/5 border border-white/10 p-6 text-center">
-				<p className="text-white/70 text-sm leading-relaxed">
+			<div className="rounded-xl bg-muted/50 border border-border p-6 text-center">
+				<p className="text-muted-foreground text-sm leading-relaxed">
 					📝 У вас пока нет записей с категориями. Создайте записи, чтобы выбрать контексты для
 					книги.
 				</p>
@@ -39,18 +41,18 @@ export function Step2Contexts({ config, availableCategories, onConfigChange }: S
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<p className="text-white/70 text-sm">Выберите категории для включения в книгу</p>
+			<div className="flex items-center justify-between flex-wrap gap-2">
+				<p className="text-foreground text-sm">Выберите категории для включения в книгу</p>
 				<div className="flex gap-3">
 					<button
-						className="text-white/90 text-xs font-medium hover:text-white transition-colors"
+						className="text-primary text-xs font-medium hover:text-primary/80 transition-colors"
 						onClick={handleSelectAll}
 						type="button"
 					>
 						Все
 					</button>
 					<button
-						className="text-white/50 text-xs font-medium hover:text-white/70 transition-colors"
+						className="text-muted-foreground text-xs font-medium hover:text-foreground transition-colors"
 						onClick={handleClearAll}
 						type="button"
 					>
@@ -64,11 +66,12 @@ export function Step2Contexts({ config, availableCategories, onConfigChange }: S
 					const isSelected = config.contexts.includes(category);
 					return (
 						<button
-							className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+							className={cn(
+								'px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
 								isSelected
-									? 'bg-white text-black shadow-lg shadow-white/20'
-									: 'bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 hover:text-white'
-							}`}
+									? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+									: 'bg-muted text-foreground border border-border hover:bg-accent hover:text-accent-foreground'
+							)}
 							key={category}
 							onClick={() => handleToggleContext(category)}
 							type="button"
@@ -79,10 +82,10 @@ export function Step2Contexts({ config, availableCategories, onConfigChange }: S
 				})}
 			</div>
 
-			<div className="rounded-xl bg-white/5 border border-white/10 p-4">
-				<p className="text-white/60 text-xs leading-relaxed text-center">
-					💡 <strong>Совет:</strong> Если не выбрать категории, в книгу войдут все записи за
-					выбранный период.
+			<div className="rounded-xl bg-muted/50 border border-border p-4">
+				<p className="text-muted-foreground text-xs leading-relaxed text-center">
+					💡 <strong className="text-foreground">Совет:</strong> Если не выбрать категории, в книгу
+					войдут все записи за выбранный период.
 				</p>
 			</div>
 		</div>

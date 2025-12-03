@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
 import { ThemeProvider, useTheme } from '@/shared/components/theme-provider';
-import { TranslationProvider } from '@/shared/lib/i18n';
 import { storage } from '@/shared/lib/platform/storage';
 
 const MobileApp = lazy(() =>
@@ -16,8 +15,6 @@ import { OfflineModeBadge } from '@/shared/components/offline/OfflineModeBadge';
 import { OfflineSyncIndicator } from '@/shared/components/offline/OfflineSyncIndicator';
 import { SyncCompletionModal } from '@/shared/components/offline/SyncCompletionModal';
 import { InstallPrompt } from '@/shared/components/pwa/InstallPrompt';
-// ✅ FIX: Import directly instead of lazy to prevent React hook context issues
-import { PWAUpdatePrompt } from '@/shared/components/pwa/PWAUpdatePrompt';
 
 interface MobileViewProps {
 	userData: UserData | null;
@@ -93,7 +90,7 @@ function MobileViewContent({
 	}, [onboardingComplete, currentStep, userData, setTheme]);
 
 	return (
-		<TranslationProvider defaultLanguage={selectedLanguage || 'ru'} fallbackLanguage="ru">
+		<>
 			<Suspense fallback={null}>
 				<PWAHead />
 				<PWASplash />
@@ -101,7 +98,8 @@ function MobileViewContent({
 			</Suspense>
 
 			{/* ✅ FIX: Direct imports outside Suspense to prevent React hook context issues */}
-			{userData && <PWAUpdatePrompt />}
+			{/* ✅ FIX: PWAUpdatePrompt должен быть внутри TranslationProvider, поэтому он в MobileApp */}
+			{/* {userData && <PWAUpdatePrompt />} */}
 
 			{showInstallPrompt && <InstallPrompt onClose={onInstallClose} onInstall={onInstall} />}
 
@@ -117,6 +115,7 @@ function MobileViewContent({
 				</>
 			)}
 
+			{/* ✅ FIX: MobileApp создает свой TranslationProvider, поэтому не нужно оборачивать здесь */}
 			<MobileApp
 				authMode={authMode}
 				currentStep={currentStep}
@@ -134,7 +133,7 @@ function MobileViewContent({
 				showAuth={showAuth}
 				userData={userData}
 			/>
-		</TranslationProvider>
+		</>
 	);
 }
 

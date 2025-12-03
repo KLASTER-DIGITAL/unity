@@ -44,7 +44,8 @@ export function PersonalizationForm({ onNext: _onNext, onUpdate }: Personalizati
 			initial={{ opacity: 0, y: 30 }}
 			style={{
 				left: '50%',
-				top: 'min(180px, calc(50vh - 150px))',
+				// ✅ FIX: Поднять до шапки с отступом 60px
+				top: '60px',
 			}}
 			transition={{ delay: 0.4, duration: 0.7 }}
 		>

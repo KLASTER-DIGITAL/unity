@@ -244,8 +244,9 @@ export function ChatInputSection({
 	};
 
 	return (
-		<div className="px-section pb-24">
+		<div className="relative z-10 px-section pb-24">
 			{/* ✅ FIX: px-section (НЕ p-section) чтобы не было двойного padding */}
+			{/* ✅ FIX: Добавлен z-10 чтобы чат был поверх других элементов */}
 			{/* Question Header */}
 			<div className="mb-4">
 				<h2

@@ -55,7 +55,8 @@ function HabitsAndEntryForm({
 			initial={{ opacity: 0, y: 30 }}
 			style={{
 				left: '50%',
-				top: 'min(120px, calc(50vh - 200px))',
+				// ✅ FIX: Поднять до шапки с отступом 60px (как PersonalizationForm)
+				top: '60px',
 			}}
 			transition={{ delay: 0.4, duration: 0.7 }}
 		>
@@ -117,7 +118,7 @@ function HabitsAndEntryForm({
 // NOTE: Sliedbar, NextButton components moved to ./onboarding4/
 
 function Frame2087324620({
-	_selectedLanguage,
+	_selectedLanguage: selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
@@ -193,7 +194,7 @@ function Frame2087324620({
 }
 
 export function OnboardingScreen4({
-	_selectedLanguage,
+	selectedLanguage: _selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
@@ -213,7 +214,7 @@ export function OnboardingScreen4({
 				currentStep={currentStep}
 				onNext={onNext}
 				onStepClick={onStepClick}
-				selectedLanguage={selectedLanguage}
+				_selectedLanguage={_selectedLanguage}
 				totalSteps={totalSteps}
 			/>
 		</motion.div>

@@ -41,14 +41,14 @@ export function WizardNavigation({
 	};
 
 	return (
-		<div className="flex items-center justify-between gap-4">
+		<div className="flex items-center justify-between gap-4 w-full">
 			{/* Cancel / Previous */}
 			{currentStep === 1 ? (
 				<Button
 					onClick={onCancel}
 					size="lg"
 					variant="ghost"
-					className="text-white/60 hover:text-white hover:bg-white/10"
+					className="text-muted-foreground hover:text-foreground hover:bg-accent shrink-0"
 				>
 					Отмена
 				</Button>
@@ -58,7 +58,7 @@ export function WizardNavigation({
 					onClick={onPrevious}
 					size="lg"
 					variant="ghost"
-					className="text-white/60 hover:text-white hover:bg-white/10"
+					className="text-muted-foreground hover:text-foreground hover:bg-accent shrink-0"
 				>
 					<ChevronLeft className="mr-2 h-5 w-5" strokeWidth={2} />
 					Назад
@@ -71,19 +71,25 @@ export function WizardNavigation({
 					disabled={!canProceed() || isGenerating}
 					onClick={onGenerate}
 					size="lg"
-					className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg shadow-purple-500/20"
+					className="flex-1 min-w-[140px] border-0 shadow-lg shadow-purple-500/20 font-semibold"
+					style={{
+						background: 'linear-gradient(to right, #a855f7, #3b82f6)',
+						color: '#ffffff',
+					}} // ✅ FIX: Явно задаем градиент и белый цвет текста для гарантированной видимости
 				>
-					<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} />
-					Создать книгу
+					<Sparkles className="mr-2 h-5 w-5" strokeWidth={2} style={{ color: '#ffffff' }} />
+					<span className="whitespace-nowrap font-semibold" style={{ color: '#ffffff' }}>
+						Создать книгу
+					</span>
 				</Button>
 			) : (
 				<Button
 					disabled={!canProceed() || isGenerating}
 					onClick={onNext}
 					size="lg"
-					className="bg-white text-black hover:bg-white/90 border-0"
+					className="bg-primary text-primary-foreground hover:bg-primary/90 border-0 flex-1 min-w-[100px]"
 				>
-					Далее
+					<span className="whitespace-nowrap">Далее</span>
 					<ChevronRight className="ml-2 h-5 w-5" strokeWidth={2} />
 				</Button>
 			)}

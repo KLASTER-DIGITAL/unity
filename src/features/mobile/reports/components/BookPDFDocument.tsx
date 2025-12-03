@@ -44,7 +44,7 @@ interface BookPDFDocumentProps {
 const styles = StyleSheet.create({
 	page: {
 		padding: 40,
-		fontFamily: 'Noto Sans',
+		fontFamily: 'Noto Sans', // Will fallback to Helvetica if Noto Sans not registered
 		fontSize: 11,
 		lineHeight: 1.6,
 	},
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	title: {
-		fontFamily: 'Noto Serif',
+		fontFamily: 'Noto Serif', // Will fallback to Times-Roman if Noto Serif not registered
 		fontSize: 28,
 		fontWeight: 600,
 		marginBottom: 10,
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	sectionTitle: {
-		fontFamily: 'Noto Serif',
+		fontFamily: 'Noto Serif', // Will fallback to Times-Roman if Noto Serif not registered
 		fontSize: 18,
 		fontWeight: 600,
 		marginTop: 20,

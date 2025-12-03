@@ -27,14 +27,18 @@ export function PDFViewer({ pdfUrl, fileName, isOpen, onClose }: PDFViewerProps)
 	const [hasError, setHasError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+	// ✅ FIX: Clean PDF URL - remove PDF.js viewer parameters that cause 400 errors
+	// Supabase Storage doesn't support URL fragments (#toolbar=1&navpanes=1...)
+	const cleanPdfUrl = pdfUrl ? pdfUrl.split('#')[0] : '';
+
 	// Reset state when modal opens/closes or URL changes
 	useEffect(() => {
-		if (isOpen && pdfUrl) {
+		if (isOpen && cleanPdfUrl) {
 			setIsLoading(true);
 			setHasError(false);
 			setErrorMessage(null);
 		}
-	}, [isOpen, pdfUrl]);
+	}, [isOpen, cleanPdfUrl]);
 
 	// Close on Escape key
 	useEffect(() => {
@@ -68,12 +72,12 @@ export function PDFViewer({ pdfUrl, fileName, isOpen, onClose }: PDFViewerProps)
 		setIsLoading(false);
 		setHasError(true);
 		setErrorMessage('Не удалось загрузить PDF файл. Возможно, файл не существует или недоступен.');
-		console.error('[PDFViewer] Failed to load PDF:', pdfUrl);
+		console.error('[PDFViewer] Failed to load PDF:', cleanPdfUrl);
 	};
 
 	// Timeout для загрузки (если PDF не загрузился за 10 секунд, показываем ошибку)
 	useEffect(() => {
-		if (!isOpen || !pdfUrl) return;
+		if (!isOpen || !cleanPdfUrl) return;
 
 		const timeout = setTimeout(() => {
 			if (isLoading) {
@@ -87,7 +91,7 @@ export function PDFViewer({ pdfUrl, fileName, isOpen, onClose }: PDFViewerProps)
 		}, 10000); // 10 секунд таймаут
 
 		return () => clearTimeout(timeout);
-	}, [isOpen, pdfUrl, isLoading]);
+	}, [isOpen, cleanPdfUrl, isLoading]);
 
 	return (
 		<AnimatePresence>
@@ -146,12 +150,12 @@ export function PDFViewer({ pdfUrl, fileName, isOpen, onClose }: PDFViewerProps)
 						)}
 
 						{/* PDF iframe with scroll - ✅ Fullscreen on mobile */}
-						{pdfUrl && (
+						{cleanPdfUrl && (
 							<iframe
 								className={`h-full w-full border-0 sm:rounded-lg ${isLoading || hasError ? 'opacity-0' : 'opacity-100'}`}
 								onError={handleIframeError}
 								onLoad={handleIframeLoad}
-								src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&zoom=page-fit`}
+								src={`${cleanPdfUrl}#toolbar=1&navpanes=1&scrollbar=1&zoom=page-fit`}
 								title={fileName || 'Просмотр PDF документа'}
 							/>
 						)}

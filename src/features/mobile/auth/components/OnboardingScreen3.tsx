@@ -13,7 +13,7 @@ export type { OnboardingScreen3Props };
 // ✅ REMOVED: ArrowRight, ArrowRight1, NextButton moved to ./onboarding3/NextButton.tsx
 
 function Frame2087324619({
-	_selectedLanguage,
+	_selectedLanguage: selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
@@ -55,7 +55,7 @@ function Frame2087324619({
 }
 
 export function OnboardingScreen3({
-	_selectedLanguage,
+	selectedLanguage: _selectedLanguage,
 	onNext,
 	currentStep,
 	totalSteps,
@@ -115,7 +115,7 @@ export function OnboardingScreen3({
 				currentStep={currentStep}
 				onNext={onNext}
 				onStepClick={onStepClick}
-				selectedLanguage={selectedLanguage}
+				_selectedLanguage={_selectedLanguage}
 				totalSteps={totalSteps}
 			/>
 		</motion.div>

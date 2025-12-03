@@ -44,7 +44,8 @@ export function NextButton({ onNext, disabled }: NextButtonProps) {
 			initial={{ opacity: 0, scale: 0.8, x: 50 }}
 			onClick={handleClick}
 			style={{
-				bottom: 'max(-2px, calc(0px - 2vh))',
+				// ✅ FIX: Прижать кнопку к нижнему краю справа как на 2 онбординге
+				bottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
 				right: 'max(-1px, calc(0px - 1vw))',
 				zIndex: 50,
 			}}
@@ -68,7 +69,9 @@ export function NextButton({ onNext, disabled }: NextButtonProps) {
 				<div
 					className={`absolute z-10 size-6 ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
 					style={{
-						bottom: 'min(69px, 15vh)',
+						// ✅ FIX: Выровнять стрелку на уровне с прогрессом (Sliedbar bottom: min(40px, 8vh))
+						// Используем тот же bottom что и у Sliedbar для выравнивания
+						bottom: 'min(40px, 8vh)',
 						right: 'min(46px, 12vw)',
 					}}
 				>

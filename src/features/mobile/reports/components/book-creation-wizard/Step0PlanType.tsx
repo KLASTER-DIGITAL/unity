@@ -4,7 +4,7 @@
  */
 
 import { BookOpen, Sparkles } from 'lucide-react';
-import { haptics } from '@/shared/lib/platform/haptics';
+import { Label } from '@/shared/components/ui/label';
 import type { BookConfig } from './types';
 
 type Step0PlanTypeProps = {
@@ -28,147 +28,170 @@ export function Step0PlanType({
 		return null;
 	}
 
-	const handleSelect = (type: 'free' | 'premium') => {
-		void haptics.trigger('light');
-		if (type === 'premium' && !isPremium) {
-			onUpgrade();
-		} else {
-			onConfigChange({ planType: type });
-		}
-	};
-
 	return (
-		<div className="space-y-6">
-			<div className="text-center mb-6">
-				<h3 className="text-xl font-bold text-foreground mb-2">Выберите тип книги</h3>
-				<p className="text-muted-foreground text-sm">
+		<div className="space-y-4">
+			<div className="mb-4">
+				<Label className="text-base">Выберите тип книги</Label>
+				<p className="text-muted-foreground mt-2 text-sm">
 					Создайте простую книгу-дневник или AI-книгу с глубоким анализом
 				</p>
 			</div>
 
 			{/* FREE Option */}
 			<button
-				className={`w-full relative group overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
+				className={`w-full rounded-lg border p-4 text-left transition-all duration-300 ${
 					config.planType === 'free'
-						? 'border-border bg-muted/50 shadow-lg'
-						: 'border-border bg-card hover:bg-muted/20 hover:border-primary/20'
+						? 'border-primary bg-primary/10 ring-2 ring-primary'
+						: 'border-border bg-background hover:border-primary/50'
 				}`}
-				onClick={() => handleSelect('free')}
+				onClick={() => onConfigChange({ planType: 'free' })}
 				type="button"
 			>
-				<div className="mb-4 flex items-start justify-between">
-					<div className="flex items-center gap-4">
-						<div className="rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 p-3 shadow-inner">
-							<BookOpen className="h-6 w-6 text-white" strokeWidth={2} />
+				<div className="mb-3 flex items-start justify-between">
+					<div className="flex items-center gap-3">
+						<div
+							className={`rounded-full p-2 transition-colors duration-300 ${
+								config.planType === 'free' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+							}`}
+						>
+							<BookOpen className="h-5 w-5" strokeWidth={2} />
 						</div>
 						<div>
-							<h3 className="font-bold text-lg text-foreground">Простая книга</h3>
-							<p className="text-muted-foreground text-sm font-medium">Бесплатно</p>
+							<h3 className="font-semibold">Простая книга</h3>
+							<p className="text-muted-foreground text-sm">Бесплатно</p>
 						</div>
 					</div>
 					<div
-						className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+						className={`h-5 w-5 rounded-full border-2 transition-all duration-300 ${
 							config.planType === 'free'
-								? 'border-foreground bg-foreground'
-								: 'border-muted-foreground/30 bg-transparent'
+								? 'border-primary bg-primary'
+								: 'border-muted-foreground/30'
 						}`}
 					>
 						{config.planType === 'free' && (
-							<div className="h-2.5 w-2.5 rounded-full bg-background" />
+							<div className="flex h-full items-center justify-center">
+								<div className="h-2 w-2 rounded-full bg-white" />
+							</div>
 						)}
 					</div>
 				</div>
 
-				<ul className="space-y-2 text-sm pl-1">
-					<li className="flex items-center gap-3 text-foreground/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+				<ul className="ml-11 space-y-1 text-sm">
+					<li className="flex items-start gap-2">
+						<span className="text-muted-foreground">✓</span>
 						<span>Список всех записей за период</span>
 					</li>
-					<li className="flex items-center gap-3 text-foreground/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+					<li className="flex items-start gap-2">
+						<span className="text-muted-foreground">✓</span>
 						<span>Базовая статистика</span>
 					</li>
-					<li className="flex items-center gap-3 text-foreground/80">
-						<div className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+					<li className="flex items-start gap-2">
+						<span className="text-muted-foreground">✓</span>
 						<span>Фото-коллаж (до 9 фото)</span>
+					</li>
+					<li className="flex items-start gap-2">
+						<span className="text-muted-foreground">✓</span>
+						<span>Быстрая генерация ({'<'}5 сек)</span>
 					</li>
 				</ul>
 			</button>
 
-			{/* PREMIUM Option */}
+			{/* PREMIUM Option (with Upsell) */}
 			<button
-				className={`w-full relative group overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
+				className={`w-full rounded-lg border p-4 text-left transition-all duration-300 ${
 					config.planType === 'premium'
-						? 'border-purple-400/50 bg-purple-500/10 shadow-lg shadow-purple-500/20'
-						: 'border-border bg-gradient-to-br from-purple-500/5 to-blue-500/5 hover:from-purple-500/10 hover:to-blue-500/10 hover:border-purple-500/30'
+						? 'border-primary bg-primary/10 ring-2 ring-primary'
+						: 'border-border bg-background hover:border-primary/50'
 				}`}
-				onClick={() => handleSelect('premium')}
+				onClick={() => {
+					if (!isPremium) {
+						// Show Premium Upsell Modal
+						onUpgrade();
+					} else {
+						onConfigChange({ planType: 'premium' });
+					}
+				}}
 				type="button"
 			>
-				{/* Shimmer effect */}
-				<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
-
-				<div className="mb-4 flex items-start justify-between relative z-10">
-					<div className="flex items-center gap-4">
-						<div className="rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-3 shadow-lg shadow-purple-500/30">
-							<Sparkles className="h-6 w-6 text-white" strokeWidth={2} />
+				<div className="mb-3 flex items-start justify-between">
+					<div className="flex items-center gap-3">
+						<div
+							className={`rounded-full p-2 transition-colors duration-300 ${
+								config.planType === 'premium'
+									? 'bg-gradient-to-br from-primary to-primary/70 text-primary-foreground'
+									: 'bg-gradient-to-br from-primary/20 to-primary/10'
+							}`}
+						>
+							<Sparkles className="h-5 w-5" strokeWidth={2} />
 						</div>
 						<div>
-							<h3 className="font-bold text-lg text-foreground">AI-книга</h3>
-							<p className="text-purple-500 dark:text-purple-300 text-sm font-bold tracking-wide">
-								PREMIUM
-							</p>
+							<h3 className="font-semibold">AI-книга</h3>
+							<p className="text-primary text-sm font-medium">Premium</p>
 						</div>
 					</div>
 					<div
-						className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+						className={`h-5 w-5 rounded-full border-2 transition-all duration-300 ${
 							config.planType === 'premium'
-								? 'border-purple-500 bg-purple-500'
-								: 'border-muted-foreground/30 bg-transparent'
+								? 'border-primary bg-primary'
+								: 'border-muted-foreground/30'
 						}`}
 					>
-						{config.planType === 'premium' && <div className="h-2.5 w-2.5 rounded-full bg-white" />}
+						{config.planType === 'premium' && (
+							<div className="flex h-full items-center justify-center">
+								<div className="h-2 w-2 rounded-full bg-white" />
+							</div>
+						)}
 					</div>
 				</div>
 
-				<ul className="space-y-2 text-sm pl-1 relative z-10">
-					<li className="flex items-center gap-3 text-foreground/90">
-						<Sparkles className="h-3 w-3 text-purple-500" />
+				<ul className="ml-11 space-y-1 text-sm">
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
 						<span>
 							<strong>AI-анализ</strong> записей и эмоций
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-foreground/90">
-						<Sparkles className="h-3 w-3 text-purple-500" />
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
 						<span>
 							<strong>Главы</strong> по людям и сферам жизни
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-foreground/90">
-						<Sparkles className="h-3 w-3 text-purple-500" />
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
 						<span>
 							<strong>Эмоциональный обзор</strong> периода
 						</span>
 					</li>
-					<li className="flex items-center gap-3 text-foreground/90">
-						<Sparkles className="h-3 w-3 text-purple-500" />
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
 						<span>
 							<strong>Выводы и инсайты</strong> от AI
+						</span>
+					</li>
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
+						<span>
+							<strong>Редактор</strong> с возможностью изменений
+						</span>
+					</li>
+					<li className="flex items-start gap-2">
+						<span className="text-primary">✨</span>
+						<span>
+							<strong>Автоматическая генерация</strong> каждый месяц
 						</span>
 					</li>
 				</ul>
 
 				{!isPremium && (
-					<div className="mt-4 rounded-lg bg-purple-500/10 border border-purple-500/20 px-3 py-2 text-center">
-						<p className="text-purple-600 dark:text-purple-200 text-xs font-semibold uppercase tracking-wider">
-							Требуется Premium подписка
-						</p>
+					<div className="ml-11 mt-3 rounded-md border border-primary/30 bg-primary/5 px-3 py-2">
+						<p className="text-primary text-sm font-medium">→ Требуется Premium подписка</p>
 					</div>
 				)}
 			</button>
 
-			<div className="rounded-xl bg-muted/50 border border-border p-4">
-				<p className="text-muted-foreground text-xs leading-relaxed text-center">
+			<div className="rounded-lg border border-border bg-muted/50 p-3 transition-colors duration-300">
+				<p className="text-muted-foreground text-sm">
 					💡 <strong>Совет:</strong> Начните с простой книги, а затем перейдите на Premium для
 					полного опыта с AI-анализом.
 				</p>

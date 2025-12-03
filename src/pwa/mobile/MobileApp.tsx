@@ -4,6 +4,7 @@ import { PushNotificationOnboardingModal } from '@/features/mobile/notifications
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { LoadingScreen } from '@/shared/components/LoadingScreen';
 import { WelcomeTrialModal } from '@/shared/components/modals/WelcomeTrialModal';
+import { PWAUpdatePrompt } from '@/shared/components/pwa/PWAUpdatePrompt';
 import { TranslationManager, TranslationProvider } from '@/shared/lib/i18n';
 import { prefetchOnIdle, routePrefetcher } from '@/shared/lib/performance';
 import { AnimatedPresence, AnimatedView, ScreenTransitions } from '@/shared/lib/platform/animation';
@@ -56,7 +57,8 @@ const importAchievementsScreen = () =>
 	}));
 const importReportsScreen = () =>
 	import('@/features/mobile/reports').then((module) => ({
-		default: module.ReportsScreen,
+		// ✅ FIX: ReportsScreen экспортируется как default из index.ts
+		default: module.default || module.ReportsScreen,
 	}));
 const importSettingsScreen = () =>
 	import('@/features/mobile/settings').then((module) => ({
@@ -504,6 +506,9 @@ export function MobileApp({
 							}}
 						/>
 					)}
+
+					{/* ✅ FIX: PWAUpdatePrompt должен быть внутри TranslationProvider для доступа к useTranslation */}
+					{userData && <PWAUpdatePrompt />}
 
 					<Toaster position="top-center" />
 				</div>

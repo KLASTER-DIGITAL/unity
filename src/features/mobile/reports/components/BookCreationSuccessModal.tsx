@@ -108,15 +108,6 @@ export function BookCreationSuccessModal({
 								initial={{ opacity: 0, y: 10 }}
 								transition={{ delay: 0.5 }}
 							>
-								<Button
-									className="w-full"
-									onClick={onGoToLibrary}
-									size="lg"
-									style={{ minHeight: '44px' }}
-								>
-									<BookOpen className="mr-2 h-4 w-4" />
-									{t('books.success.go_to_library', 'Перейти к редактору книги')}
-								</Button>
 								{onClose && (
 									<Button
 										className="w-full"
@@ -125,9 +116,18 @@ export function BookCreationSuccessModal({
 										style={{ minHeight: '44px' }}
 										variant="outline"
 									>
-										{t('books.success.close', 'Перейти на полку книг')}
+										{t('books.success.go_to_library', 'Перейти на полку книг')}
 									</Button>
 								)}
+								<Button
+									className="w-full"
+									onClick={onGoToLibrary}
+									size="lg"
+									style={{ minHeight: '44px' }}
+								>
+									<BookOpen className="mr-2 h-4 w-4" />
+									{t('books.success.go_to_editor', 'Открыть редактор книги')}
+								</Button>
 							</motion.div>
 						</div>
 					</motion.div>

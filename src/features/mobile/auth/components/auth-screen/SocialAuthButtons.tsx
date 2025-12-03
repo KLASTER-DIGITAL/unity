@@ -15,24 +15,18 @@ type SocialAuthButtonsProps = {
  * Social Auth Buttons Component
  * Apple, Google, Facebook, Telegram authentication buttons
  */
-export function SocialAuthButtons({
-	isLogin,
-	isLoading,
-	onSocialAuth,
-	onTelegramAuth,
-}: SocialAuthButtonsProps) {
-	const { t } = useTranslation();
-
-	return (
-		<motion.div
+export function SocialAuthButtons(_props: SocialAuthButtonsProps) {
+	// ✅ FIX: Скрыть авторизацию через социальные сети
+	return null;
 			animate={{ opacity: 1 }}
 			className="mb-6"
 			initial={{ opacity: 0 }}
-			transition={{ duration: 0.5, delay: 0.2 }}
+			transition={duration: 0.5, delay: 0.2 }
 		>
-			<p className="mb-6 text-center text-[#868d95] text-[14px]!">
+			{/* ✅ FIX: Скрыть текст "Войти через" */}
+			{/* <p className="mb-6 text-center text-[#868d95] text-[14px]!">
 				{isLogin ? t('auth.signInWith') : t('auth.signUpWith')}
-			</p>
+			</p> */}
 
 			<div className="flex justify-center gap-4">
 				{/* Apple */}

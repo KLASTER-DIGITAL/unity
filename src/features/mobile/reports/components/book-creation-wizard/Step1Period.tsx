@@ -1,9 +1,14 @@
 /**
  * Step 1: Period Selection
+ * ✅ FIX: Улучшенный UI с Popover + Calendar для выбора дат
  */
 
-import { Calendar } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
+import { Calendar } from '@/shared/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { cn } from '@/shared/components/ui/utils';
 import type { BookConfig } from './types';
 
 type Step1PeriodProps = {
@@ -36,22 +41,31 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 		onConfigChange(updates);
 	};
 
+	const [startDateOpen, setStartDateOpen] = useState(false);
+	const [endDateOpen, setEndDateOpen] = useState(false);
+
+	const startDate = config.periodStart ? new Date(config.periodStart) : undefined;
+	const endDate = config.periodEnd ? new Date(config.periodEnd) : undefined;
+	const maxDate = new Date();
+	const minEndDate = config.periodStart ? new Date(config.periodStart) : undefined;
+
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 max-w-full">
 			{/* Book Type Selection (Premium only) */}
 			{isPremium && (
-				<div>
-					<div className="block text-white text-sm font-semibold mb-3">Тип книги</div>
-					<div className="flex gap-2">
+				<div className="w-full">
+					<div className="block text-sm font-semibold mb-3 text-foreground">Тип книги</div>
+					<div className="flex flex-wrap gap-2">
 						<Button
 							onClick={() => handleTypeChange('month')}
 							size="sm"
 							variant={config.type === 'month' ? 'default' : 'outline'}
-							className={
+							className={cn(
+								'flex-1 min-w-[80px] max-w-[120px]',
 								config.type === 'month'
-									? 'bg-white text-black hover:bg-white/90'
-									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-							}
+									? 'bg-primary text-primary-foreground hover:bg-primary/90'
+									: 'bg-card text-foreground border-border hover:bg-accent'
+							)}
 						>
 							Месяц
 						</Button>
@@ -59,11 +73,12 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('quarter')}
 							size="sm"
 							variant={config.type === 'quarter' ? 'default' : 'outline'}
-							className={
+							className={cn(
+								'flex-1 min-w-[80px] max-w-[120px]',
 								config.type === 'quarter'
-									? 'bg-white text-black hover:bg-white/90'
-									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-							}
+									? 'bg-primary text-primary-foreground hover:bg-primary/90'
+									: 'bg-card text-foreground border-border hover:bg-accent'
+							)}
 						>
 							Квартал
 						</Button>
@@ -71,11 +86,12 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('year')}
 							size="sm"
 							variant={config.type === 'year' ? 'default' : 'outline'}
-							className={
+							className={cn(
+								'flex-1 min-w-[80px] max-w-[120px]',
 								config.type === 'year'
-									? 'bg-white text-black hover:bg-white/90'
-									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-							}
+									? 'bg-primary text-primary-foreground hover:bg-primary/90'
+									: 'bg-card text-foreground border-border hover:bg-accent'
+							)}
 						>
 							Год
 						</Button>
@@ -83,11 +99,12 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 							onClick={() => handleTypeChange('custom')}
 							size="sm"
 							variant={config.type === 'custom' ? 'default' : 'outline'}
-							className={
+							className={cn(
+								'flex-1 min-w-[80px] max-w-[120px]',
 								config.type === 'custom'
-									? 'bg-white text-black hover:bg-white/90'
-									: 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-							}
+									? 'bg-primary text-primary-foreground hover:bg-primary/90'
+									: 'bg-card text-foreground border-border hover:bg-accent'
+							)}
 						>
 							Произвольный
 						</Button>
@@ -95,51 +112,96 @@ export function Step1Period({ config, onConfigChange, isPremium = false }: Step1
 				</div>
 			)}
 
-			<div>
-				<label htmlFor="periodStart" className="block text-white text-sm font-semibold mb-3">
-					Начало периода
-				</label>
-				<div className="relative">
-					<Calendar
-						className="absolute top-3.5 left-4 h-5 w-5 text-white/40 pointer-events-none"
-						strokeWidth={2}
-					/>
-					<input
-						className="w-full rounded-xl border border-white/20 bg-white/10 py-3 pr-4 pl-12 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
-						id="periodStart"
-						max={config.periodEnd}
-						onChange={(e) => onConfigChange({ periodStart: e.target.value })}
-						type="date"
-						value={config.periodStart}
-					/>
-				</div>
+			{/* Start Date Picker */}
+			<div className="w-full">
+				<label className="block text-sm font-semibold mb-3 text-foreground">Начало периода</label>
+				<Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
+					<PopoverTrigger asChild>
+						<Button
+							variant="outline"
+							className={cn(
+								'w-full justify-start text-left font-normal',
+								!startDate && 'text-muted-foreground'
+							)}
+						>
+							<CalendarIcon className="mr-2 h-4 w-4" />
+							{startDate ? (
+								<span>
+									{startDate.toLocaleDateString('ru-RU', {
+										day: '2-digit',
+										month: '2-digit',
+										year: 'numeric',
+									})}
+								</span>
+							) : (
+								<span>Выберите дату</span>
+							)}
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent className="w-auto p-0" align="start">
+						<Calendar
+							mode="single"
+							selected={startDate}
+							onSelect={(date) => {
+								if (date) {
+									onConfigChange({ periodStart: date.toISOString().split('T')[0] });
+									setStartDateOpen(false);
+								}
+							}}
+							disabled={(date) => date > maxDate || (endDate ? date > endDate : false)}
+							initialFocus
+						/>
+					</PopoverContent>
+				</Popover>
 			</div>
 
-			<div>
-				<label htmlFor="periodEnd" className="block text-white text-sm font-semibold mb-3">
-					Конец периода
-				</label>
-				<div className="relative">
-					<Calendar
-						className="absolute top-3.5 left-4 h-5 w-5 text-white/40 pointer-events-none"
-						strokeWidth={2}
-					/>
-					<input
-						className="w-full rounded-xl border border-white/20 bg-white/10 py-3 pr-4 pl-12 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
-						id="periodEnd"
-						max={new Date().toISOString().split('T')[0]}
-						min={config.periodStart}
-						onChange={(e) => onConfigChange({ periodEnd: e.target.value })}
-						type="date"
-						value={config.periodEnd}
-					/>
-				</div>
+			{/* End Date Picker */}
+			<div className="w-full">
+				<label className="block text-sm font-semibold mb-3 text-foreground">Конец периода</label>
+				<Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
+					<PopoverTrigger asChild>
+						<Button
+							variant="outline"
+							className={cn(
+								'w-full justify-start text-left font-normal',
+								!endDate && 'text-muted-foreground'
+							)}
+						>
+							<CalendarIcon className="mr-2 h-4 w-4" />
+							{endDate ? (
+								<span>
+									{endDate.toLocaleDateString('ru-RU', {
+										day: '2-digit',
+										month: '2-digit',
+										year: 'numeric',
+									})}
+								</span>
+							) : (
+								<span>Выберите дату</span>
+							)}
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent className="w-auto p-0" align="start">
+						<Calendar
+							mode="single"
+							selected={endDate}
+							onSelect={(date) => {
+								if (date) {
+									onConfigChange({ periodEnd: date.toISOString().split('T')[0] });
+									setEndDateOpen(false);
+								}
+							}}
+							disabled={(date) => date > maxDate || (minEndDate ? date < minEndDate : false)}
+							initialFocus
+						/>
+					</PopoverContent>
+				</Popover>
 			</div>
 
-			<div className="rounded-xl bg-white/5 border border-white/10 p-4">
-				<p className="text-white/60 text-xs leading-relaxed text-center">
-					💡 <strong>Совет:</strong> Выберите период с достаточным количеством записей (минимум 5)
-					для создания интересной книги.
+			<div className="rounded-xl bg-muted/50 border border-border p-4">
+				<p className="text-muted-foreground text-xs leading-relaxed text-center">
+					💡 <strong className="text-foreground">Совет:</strong> Выберите период с достаточным
+					количеством записей (минимум 5) для создания интересной книги.
 				</p>
 			</div>
 		</div>

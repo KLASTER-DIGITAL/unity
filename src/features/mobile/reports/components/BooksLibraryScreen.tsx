@@ -268,22 +268,25 @@ export function BooksLibraryScreen({
 			const { BookPDFDocument } = await import('./BookPDFDocument');
 
 			// ✅ Register fonts before generation
-			const FONT_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/assets/fonts`;
-
+			// NOTE: @react-pdf/renderer supports only .ttf and .otf formats, NOT .woff2
+			// Using correct Google Fonts API URLs (v42 for Noto Sans, v33 for Noto Serif)
 			try {
 				Font.register({
 					family: 'Noto Sans',
 					fonts: [
 						{
-							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Regular.woff2`,
+							// Regular weight (400) - correct URL from Google Fonts API
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
 							fontWeight: 400,
 						},
 						{
-							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Medium.woff2`,
+							// Medium weight (500)
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',
 							fontWeight: 500,
 						},
 						{
-							src: `${FONT_BASE_URL}/noto-sans/NotoSans-SemiBold.woff2`,
+							// SemiBold weight (600)
+							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAjBN9d.ttf',
 							fontWeight: 600,
 						},
 					],
@@ -293,17 +296,21 @@ export function BooksLibraryScreen({
 					family: 'Noto Serif',
 					fonts: [
 						{
-							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-Regular.woff2`,
+							// Regular weight (400)
+							src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6iaw1J5X9T9RW6j9bNVls-hfgvz8JcMofYTa32J4wsL2JAlAhZqFCjwA.ttf',
 							fontWeight: 400,
 						},
 						{
-							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-SemiBold.woff2`,
+							// SemiBold weight (600)
+							src: 'https://fonts.gstatic.com/s/notoserif/v33/ga6iaw1J5X9T9RW6j9bNVls-hfgvz8JcMofYTa32J4wsL2JAlAhZdlejwA.ttf',
 							fontWeight: 600,
 						},
 					],
 				});
+				console.log('[BOOKS-LIBRARY] Fonts (Noto Sans + Noto Serif) registered successfully');
 			} catch (fontError) {
-				console.warn('[BOOKS-LIBRARY] Font registration failed:', fontError);
+				console.warn('[BOOKS-LIBRARY] Font registration failed, using default fonts:', fontError);
+				// Continue anyway - PDF will use default fonts (Helvetica, Times-Roman)
 			}
 
 			// Создаем PDF документ
@@ -1015,6 +1022,7 @@ export function BooksLibraryScreen({
 					(bookToDelete?.storyJson as unknown as StoryJson)?.title ||
 					t('books.untitled', 'Без названия')
 				}
+				isFinal={bookToDelete?.isFinal}
 				isOpen={showDeleteConfirm}
 				onClose={() => {
 					setShowDeleteConfirm(false);
