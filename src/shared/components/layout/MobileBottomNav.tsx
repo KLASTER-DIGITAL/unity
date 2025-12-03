@@ -52,11 +52,9 @@ export function MobileBottomNav({
 		<nav
 			className={cn(
 				// Position & Layout - FIXED позиционирование (НЕ двигается при скролле)
-				'fixed left-1/2 z-[9999] -translate-x-1/2',
+				'fixed left-1/2 z-navigation', // ✅ FIX: Используем z-navigation (40) вместо z-[9999] - меню ЗА модальными окнами
 				// Width - full width для sticky, max-w-md для floating
 				stickyBottom ? 'w-full' : 'w-[calc(100%-2rem)] max-w-md',
-				// ✅ FIX: Фиксированная позиция - меню всегда на одном месте, не меняется при скролле
-				stickyBottom ? 'bottom-0' : 'bottom-4',
 				// Background & Border
 				'border border-border bg-card/95 backdrop-blur-lg',
 				// Rounded corners - 16px для floating, none для sticky
@@ -70,18 +68,31 @@ export function MobileBottomNav({
 				// iOS-style blur effect
 				WebkitBackdropFilter: 'blur(20px)',
 				backdropFilter: 'blur(20px)',
-				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
-				paddingBottom: stickyBottom ? 'calc(0.75rem + env(safe-area-inset-bottom))' : '0.75rem',
-				// ✅ FIX: Оптимизация для предотвращения скачков на мобильных устройствах
-				// transform: translateZ(0) создает новый слой композиции, предотвращая рефлоу
-				// Это гарантирует что меню всегда рендерится на отдельном слое и не "скачет"
+				// ✅ FIX: Позиционирование с учетом safe-area-inset-bottom для iPhone home indicator
+				// Для floating режима: bottom-4 (16px) + safe-area-inset-bottom
+				// Для sticky режима: bottom-0 + safe-area-inset-bottom
+				bottom: stickyBottom
+					? 'env(safe-area-inset-bottom, 0px)'
+					: 'calc(1rem + env(safe-area-inset-bottom, 0px))', // 1rem = 16px (bottom-4)
+				// ✅ FIX: Объединяем все transform в один для предотвращения конфликтов
+				// translate(-50%, Y) - центрируем по горизонтали и управляем вертикальной позицией
 				transform: isKeyboardVisible
-					? 'translateY(100%) translateZ(0)'
-					: 'translateY(0) translateZ(0)',
-				// will-change оптимизирует анимации (только когда клавиатура видна)
-				willChange: isKeyboardVisible ? 'transform' : 'auto',
+					? 'translate(-50%, 100%) translateZ(0)' // Скрываем вниз при клавиатуре
+					: 'translate(-50%, 0) translateZ(0)', // Центрируем по горизонтали, показываем
+				// ✅ FIX: Используем will-change только когда нужно для оптимизации
+				willChange: isKeyboardVisible ? 'transform, opacity' : 'auto',
+				// ✅ FIX: Используем transform3d для hardware acceleration
+				transformStyle: 'preserve-3d',
+				// iOS Safe Area support - добавляем отступ снизу для учета home indicator
+				paddingBottom: stickyBottom
+					? 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
+					: '0.75rem',
 				// opacity для плавного скрытия/показа
 				opacity: isKeyboardVisible ? 0 : 1,
+				// ✅ FIX: Предотвращаем "скачки" на мобильных - фиксируем позицию
+				position: 'fixed',
+				// ✅ FIX: Создаем новый stacking context для предотвращения конфликтов
+				isolation: 'isolate',
 			}}
 		>
 			<div className="flex items-center justify-around gap-1">
