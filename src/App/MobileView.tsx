@@ -1,7 +1,6 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense } from 'react';
 import type { UserData } from '@/pwa/hooks/useAppState';
-import { ThemeProvider, useTheme } from '@/shared/components/theme-provider';
-import { storage } from '@/shared/lib/platform/storage';
+import { ThemeProvider } from '@/shared/components/theme-provider';
 
 const MobileApp = lazy(() =>
 	import('@/pwa/mobile').then((module) => ({ default: module.MobileApp }))
@@ -69,25 +68,9 @@ function MobileViewContent({
 	onWelcomeSkip,
 	setSyncComplete,
 }: MobileViewProps) {
-	const { setTheme } = useTheme();
-	const hasSetInitialTheme = useRef(false);
-
-	// ✅ FIX: Автоматическая установка темы после онбординга
-	// После завершения онбординга ВСЕГДА устанавливаем тёмную тему (один раз)
-	useEffect(() => {
-		const isOnboarding = !onboardingComplete || currentStep <= 4;
-
-		// Onboarding workflow → light theme
-		if (isOnboarding) {
-			setTheme('light');
-			hasSetInitialTheme.current = false; // Сбрасываем флаг при возврате в онбординг
-		} else if (onboardingComplete && userData && !hasSetInitialTheme.current) {
-			// Cabinet workflow → dark theme (один раз после завершения онбординга)
-			console.log('[MobileView] ✅ Onboarding complete, setting dark theme');
-			setTheme('dark');
-			hasSetInitialTheme.current = true; // Устанавливаем флаг чтобы не переключать повторно
-		}
-	}, [onboardingComplete, currentStep, userData, setTheme]);
+	// ✅ FIX: Убрана логика автоматического переопределения темы
+	// Теперь тема управляется только через ThemeProvider и пользовательский выбор
+	// Темный режим по умолчанию установлен в ThemeProvider
 
 	return (
 		<>
@@ -141,15 +124,11 @@ function MobileViewContent({
  * Main MobileView component with ThemeProvider wrapper
  */
 export function MobileView(props: MobileViewProps) {
-	// Проблема 4: Разные темы для Onboarding и Кабинета
-	// Onboarding (currentStep 1-4, !onboardingComplete) → light theme (default)
-	// Cabinet (onboardingComplete && userData) → dark theme (auto-switched by useEffect)
-	// Ручной выбор пользователя → сохраняется в localStorage, НЕ переопределяется
-	const isOnboarding = !props.onboardingComplete || props.currentStep <= 4;
-	const defaultTheme = isOnboarding ? 'light' : 'dark';
-
+	// ✅ FIX: Всегда используем темный режим по умолчанию
+	// Пользователь может переключить тему через ThemeToggle
+	// Сохраненная тема из localStorage имеет приоритет
 	return (
-		<ThemeProvider defaultTheme={defaultTheme} storageKey="unity-theme">
+		<ThemeProvider defaultTheme="dark" storageKey="unity-theme">
 			<MobileViewContent {...props} />
 		</ThemeProvider>
 	);

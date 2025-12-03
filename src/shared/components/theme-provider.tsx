@@ -54,7 +54,8 @@ async function migrateLegacyTheme(storageKey: string): Promise<{
 	const legacyTheme = await storage.getItem(storageKey);
 
 	if (!legacyTheme) {
-		return { baseTheme: 'system', colorScheme: null };
+		// ✅ FIX: Темный режим по умолчанию вместо 'system'
+		return { baseTheme: 'dark', colorScheme: null };
 	}
 
 	// Если это базовая тема
@@ -81,12 +82,13 @@ async function migrateLegacyTheme(storageKey: string): Promise<{
 	const themeInfo = PREMIUM_THEMES.find((t) => t.id === legacyTheme);
 	if (themeInfo) {
 		return {
-			baseTheme: themeInfo.baseTheme || 'light',
+			baseTheme: themeInfo.baseTheme || 'dark', // ✅ FIX: Темный режим по умолчанию
 			colorScheme: legacyTheme as ColorScheme,
 		};
 	}
 
-	return { baseTheme: 'system', colorScheme: null };
+	// ✅ FIX: Темный режим по умолчанию вместо 'system'
+	return { baseTheme: 'dark', colorScheme: null };
 }
 
 export function ThemeProvider({
