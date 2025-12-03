@@ -3,8 +3,8 @@
  * Only shown for FREE users
  */
 
-import * as Haptics from 'expo-haptics';
 import { BookOpen, Sparkles } from 'lucide-react';
+import { haptics } from '@/shared/lib/platform/haptics';
 import type { BookConfig } from './types';
 
 type Step0PlanTypeProps = {
@@ -29,7 +29,7 @@ export function Step0PlanType({
 	}
 
 	const handleSelect = (type: 'free' | 'premium') => {
-		void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		void haptics.trigger('light');
 		if (type === 'premium' && !isPremium) {
 			onUpgrade();
 		} else {

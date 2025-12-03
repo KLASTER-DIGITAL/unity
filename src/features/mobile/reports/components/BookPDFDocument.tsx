@@ -8,43 +8,10 @@
  * @date 2025-11-25
  */
 
-import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-// ✅ ИСПРАВЛЕНО: Используем переменную окружения вместо захардкоженного URL
-// ✅ ИСПРАВЛЕНО: Используем SemiBold (600) вместо Bold (700), так как Bold отсутствует в Storage
-const FONT_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/assets/fonts`;
-
-Font.register({
-	family: 'Noto Sans',
-	fonts: [
-		{
-			src: `${FONT_BASE_URL}/noto-sans/NotoSans-Regular.woff2`,
-			fontWeight: 400,
-		},
-		{
-			src: `${FONT_BASE_URL}/noto-sans/NotoSans-Medium.woff2`,
-			fontWeight: 500,
-		},
-		{
-			src: `${FONT_BASE_URL}/noto-sans/NotoSans-SemiBold.woff2`,
-			fontWeight: 600,
-		},
-	],
-});
-
-Font.register({
-	family: 'Noto Serif',
-	fonts: [
-		{
-			src: `${FONT_BASE_URL}/noto-serif/NotoSerif-Regular.woff2`,
-			fontWeight: 400,
-		},
-		{
-			src: `${FONT_BASE_URL}/noto-serif/NotoSerif-SemiBold.woff2`,
-			fontWeight: 600,
-		},
-	],
-});
+// ✅ Fonts are registered by the caller (worker or main thread) to avoid env var issues in worker
+// This component just defines the structure
 
 type BookChapter = {
 	title?: string;
@@ -70,7 +37,7 @@ type BookMetadata = {
 interface BookPDFDocumentProps {
 	story: BookStory;
 	metadata?: BookMetadata;
-	style?: string;
+	bookStyle?: string; // ✅ Renamed from style to bookStyle to avoid conflict
 	theme?: string;
 }
 
@@ -179,14 +146,21 @@ const styles = StyleSheet.create({
 	dividerContent: {
 		fontSize: 14,
 		color: '#666',
-		fontStyle: 'italic',
 		maxWidth: '80%',
 	},
 });
 
-export function BookPDFDocument({ story, metadata = {} }: BookPDFDocumentProps) {
+export function BookPDFDocument({
+	story,
+	metadata = {},
+	bookStyle: _bookStyle,
+	theme: _theme,
+}: BookPDFDocumentProps) {
 	const { title = 'Моя книга', subtitle, prologue, epilogue, dedication, chapters = [] } = story;
 	const { diaryEmoji = '📖' } = metadata;
+
+	// Suppress unused warnings until style implementation is complete
+	// console.log('Rendering PDF with style:', bookStyle, 'theme:', theme);
 
 	return (
 		<Document>

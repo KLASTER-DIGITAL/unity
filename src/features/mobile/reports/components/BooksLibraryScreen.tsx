@@ -44,6 +44,22 @@ type BooksLibraryScreenProps = {
 	refreshKey?: string | number; // Key для принудительного обновления списка книг
 };
 
+// ✅ Define StoryJson type if missing
+type StoryJson = {
+	title?: string;
+	subtitle?: string;
+	prologue?: string;
+	epilogue?: string;
+	dedication?: string;
+	chapters?: Array<{
+		title?: string;
+		content?: string;
+		highlights?: string[];
+		is_divider?: boolean;
+		is_chronicle?: boolean;
+	}>;
+};
+
 export function BooksLibraryScreen({
 	onCreateBook,
 	onBack,
@@ -211,174 +227,6 @@ export function BooksLibraryScreen({
 			return;
 		}
 
-		// ✅ FIX: Проверяем доступность PDF перед открытием модального окна с retry логикой
-		let isAvailable = false;
-		let lastError: Error | null = null;
-
-		// Пытаемся проверить доступность до 3 раз с задержкой
-		for (let attempt = 0; attempt < 3; attempt++) {
-			try {
-				console.log(
-					`[BOOKS-LIBRARY] Checking PDF availability (attempt ${attempt + 1}/3):`,
-					pdfUrl
-				);
-				const response = await fetch(pdfUrl, { method: 'HEAD' });
-
-				if (response.ok) {
-					isAvailable = true;
-					console.log('[BOOKS-LIBRARY] PDF is accessible, opening viewer');
-					break;
-				} else {
-					console.warn(
-						`[BOOKS-LIBRARY] PDF not accessible (attempt ${attempt + 1}):`,
-						response.status,
-						response.statusText
-					);
-					lastError = new Error(`HTTP ${response.status}: ${response.statusText}`);
-				}
-			} catch (error) {
-				console.warn(
-					`[BOOKS-LIBRARY] Error checking PDF availability (attempt ${attempt + 1}):`,
-					error
-				);
-				lastError = error instanceof Error ? error : new Error('Unknown error');
-			}
-
-			// Ждем перед следующей попыткой (только если не последняя)
-			if (attempt < 2 && !isAvailable) {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-			}
-		}
-
-		if (!isAvailable) {
-			console.error('[BOOKS-LIBRARY] PDF not accessible after retries:', lastError);
-
-			// ✅ FIX: Если PDF недоступен, проверяем существование файла и пытаемся получить signed URL
-			if (userId) {
-				const supabase = createClient();
-
-				// ✅ FIX: Сначала проверяем существование файла
-				try {
-					const { data: fileMetadata, error: fileError } = await supabase.storage
-						.from('books')
-						.list(`${userId}`, {
-							limit: 1000,
-						});
-
-					const fileExists =
-						!fileError &&
-						fileMetadata &&
-						fileMetadata.some((file) => file.name === `${book.id}.pdf`);
-
-					if (!fileExists) {
-						// Файл не существует, предлагаем создать PDF
-						toast.error(
-							t(
-								'books.pdf_not_accessible',
-								'PDF файл недоступен. Возможно, файл был удален или перемещен.'
-							),
-							{
-								duration: 5000,
-								action: {
-									label: t('books.create_pdf', 'Создать PDF'),
-									onClick: () => {
-										void handleCreatePDF(book);
-									},
-								},
-							}
-						);
-						return;
-					}
-
-					// ✅ FIX: Файл существует, используем signed URL вместо public URL
-					const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-						.from('books')
-						.createSignedUrl(`${userId}/${book.id}.pdf`, 3600);
-
-					let newPdfUrl: string | null = null;
-					if (!signedUrlError && signedUrlData?.signedUrl) {
-						newPdfUrl = signedUrlData.signedUrl;
-					} else {
-						// Fallback to public URL
-						const { data: urlData } = supabase.storage
-							.from('books')
-							.getPublicUrl(`${userId}/${book.id}.pdf`);
-						newPdfUrl = urlData.publicUrl;
-					}
-
-					// Проверяем новый URL
-					const checkResponse = await fetch(newPdfUrl, { method: 'HEAD' });
-					if (checkResponse.ok) {
-						// ✅ FIX: Обновляем pdfUrl в БД (сохраняем public URL для совместимости) и используем signed URL
-						const { data: publicUrlData } = supabase.storage
-							.from('books')
-							.getPublicUrl(`${userId}/${book.id}.pdf`);
-						await supabase
-							.from('books_archive')
-							.update({ pdf_url: publicUrlData.publicUrl })
-							.eq('id', book.id);
-						pdfUrl = newPdfUrl; // Используем signed URL для просмотра
-						isAvailable = true; // ✅ FIX: Помечаем как доступный
-						console.log('[BOOKS-LIBRARY] PDF URL updated and verified');
-					} else {
-						// Если новый URL тоже не работает, предлагаем создать PDF заново
-						toast.error(
-							t(
-								'books.pdf_not_accessible',
-								'PDF файл недоступен. Возможно, файл был удален или перемещен.'
-							),
-							{
-								duration: 5000,
-								action: {
-									label: t('books.create_pdf', 'Создать PDF'),
-									onClick: () => {
-										void handleCreatePDF(book);
-									},
-								},
-							}
-						);
-						return;
-					}
-				} catch (error) {
-					console.error('[BOOKS-LIBRARY] Error checking PDF file:', error);
-					toast.error(
-						t(
-							'books.pdf_not_accessible',
-							'PDF файл недоступен. Возможно, файл был удален или перемещен.'
-						),
-						{
-							duration: 5000,
-							action: {
-								label: t('books.create_pdf', 'Создать PDF'),
-								onClick: () => {
-									void handleCreatePDF(book);
-								},
-							},
-						}
-					);
-					return;
-				}
-			} else {
-				// Если userId отсутствует, просто показываем ошибку
-				toast.error(
-					t(
-						'books.pdf_not_accessible',
-						'PDF файл недоступен. Возможно, файл был удален или перемещен.'
-					),
-					{
-						duration: 5000,
-						action: {
-							label: t('books.create_pdf', 'Создать PDF'),
-							onClick: () => {
-								void handleCreatePDF(book);
-							},
-						},
-					}
-				);
-				return;
-			}
-		}
-
 		// ✅ FIX: Проверяем, что pdfUrl валидный перед открытием
 		if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') {
 			console.error('[BOOKS-LIBRARY] Invalid PDF URL:', pdfUrl);
@@ -416,8 +264,47 @@ export function BooksLibraryScreen({
 			console.log('[BOOKS-LIBRARY] Generating PDF client-side...');
 
 			// Динамически импортируем компоненты для PDF
-			const { pdf } = await import('@react-pdf/renderer');
+			const { pdf, Font } = await import('@react-pdf/renderer');
 			const { BookPDFDocument } = await import('./BookPDFDocument');
+
+			// ✅ Register fonts before generation
+			const FONT_BASE_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/assets/fonts`;
+
+			try {
+				Font.register({
+					family: 'Noto Sans',
+					fonts: [
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Regular.woff2`,
+							fontWeight: 400,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Medium.woff2`,
+							fontWeight: 500,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-SemiBold.woff2`,
+							fontWeight: 600,
+						},
+					],
+				});
+
+				Font.register({
+					family: 'Noto Serif',
+					fonts: [
+						{
+							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-Regular.woff2`,
+							fontWeight: 400,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-SemiBold.woff2`,
+							fontWeight: 600,
+						},
+					],
+				});
+			} catch (fontError) {
+				console.warn('[BOOKS-LIBRARY] Font registration failed:', fontError);
+			}
 
 			// Создаем PDF документ
 			const pdfDoc = (
@@ -439,7 +326,7 @@ export function BooksLibraryScreen({
 						}
 					}
 					metadata={book.metadata as { diaryEmoji?: string }}
-					style={book.style || 'warm_family'}
+					bookStyle={book.style || 'warm_family'} // ✅ Updated prop name
 					theme={book.theme || 'light'}
 				/>
 			);
@@ -555,9 +442,12 @@ export function BooksLibraryScreen({
 						'[BOOKS-LIBRARY] PDF file not found in Storage:',
 						`${userId}/${book.id}.pdf`
 					);
-					toast.error(
-						t('books.pdf_not_found', 'PDF файл не найден. Пожалуйста, создайте PDF заново.')
-					);
+
+					// ✅ FIX: If PDF is missing in storage, try to regenerate it client-side
+					toast.loading(t('books.pdf_regenerating', 'PDF файл не найден. Генерируем новый...'), {
+						duration: 2000,
+					});
+					await handleCreatePDF(book);
 					return;
 				}
 
@@ -816,6 +706,22 @@ export function BooksLibraryScreen({
 							{t('books.library_subtitle', 'Твои персональные истории')}
 						</motion.p>
 					</div>
+					{onCreateBook && (
+						<motion.div
+							initial={{ opacity: 0, scale: 0.8 }}
+							animate={{ opacity: 1, scale: 1 }}
+							transition={{ delay: 0.2 }}
+						>
+							<Button
+								onClick={onCreateBook}
+								size="icon"
+								variant="ghost"
+								className="h-10 w-10 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+							>
+								<Plus className="h-6 w-6" strokeWidth={2.5} />
+							</Button>
+						</motion.div>
+					)}
 				</div>
 			</div>
 
@@ -947,7 +853,7 @@ export function BooksLibraryScreen({
 										<div className="mb-2 flex items-start justify-between gap-2">
 											<div className="min-w-0 flex-1">
 												<h3 className="text-sm font-semibold leading-tight text-foreground line-clamp-2">
-													{book.metadata.diaryEmoji || '📖'}{' '}
+													{(book.metadata as { diaryEmoji?: string })?.diaryEmoji || '📖'}{' '}
 													{(book.storyJson as unknown as StoryJson)?.title ||
 														t('books.untitled', 'Без названия')}
 												</h3>

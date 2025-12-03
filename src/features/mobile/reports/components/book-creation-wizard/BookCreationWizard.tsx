@@ -9,9 +9,9 @@
  */
 
 import confetti from 'canvas-confetti';
-import * as Haptics from 'expo-haptics';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { haptics } from '@/shared/lib/platform/haptics';
 import { useBookCreation } from '../../hooks/useBookCreation';
 import { BookCreationSuccessModal } from '../BookCreationSuccessModal';
 import { BookGenerationProgress } from '../BookGenerationProgress';
@@ -40,23 +40,20 @@ export function BookCreationWizard({
 		currentStep,
 		config,
 		handleNext,
-		handleBack: _handleBack,
+		handlePrevious,
+		handleGenerate,
+		handleRetry,
+		handleProgressComplete,
+		handleGoToEditor,
 		isGenerating,
 		showProgress,
 		generatedDraftId: _generatedDraftId,
 		availableCategories,
-		userId: _userId,
-		diaryName: _diaryName,
-		diaryEmoji: _diaryEmoji,
 		generationError,
 		isPremium,
 		isLoadingUser,
 		setConfig,
-		setCurrentStep: _setCurrentStep,
-		setIsGenerating: _setIsGenerating,
 		setShowProgress,
-		setGeneratedDraftId: _setGeneratedDraftId,
-		setGenerationError: _setGenerationError,
 	} = useBookCreation(onComplete, existingBookId);
 
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -65,7 +62,7 @@ export function BookCreationWizard({
 	// Haptic feedback on step change
 	useEffect(() => {
 		if (currentStep > 0) {
-			void Haptics.selectionAsync();
+			void haptics.trigger('light');
 		}
 	}, [currentStep]);
 

@@ -65,15 +65,11 @@ describe('useBookCreation', () => {
 		});
 		expect(result.current.currentStep).toBe(2);
 
-		// Step 2 -> Generate (Free users skip 3 & 4)
-		// This would trigger generation, but we just want to check it doesn't go to step 3
-		// In the hook, handleNext calls handleGenerate if planType is free and step is 2
-		// We can't easily check "handleGenerate called" without spying on the internal function,
-		// but we can check currentStep didn't increment to 3
+		// Step 2 -> 3 (Free users can now view all steps)
 		act(() => {
 			result.current.handleNext();
 		});
-		expect(result.current.currentStep).toBe(2); // Should stay at 2 (or whatever logic handles generation)
+		expect(result.current.currentStep).toBe(3);
 	});
 
 	it('should initialize in Edit mode if existingBookId is provided', async () => {

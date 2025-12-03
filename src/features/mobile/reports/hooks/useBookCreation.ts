@@ -197,16 +197,20 @@ export function useBookCreation(
 				await deleteBook(existingBookId, userId);
 			}
 
-			setGeneratedDraftId(result.draftId || null);
+			// ✅ FIX: Set draft ID immediately
+			const newDraftId = result.draftId || null;
+			setGeneratedDraftId(newDraftId);
 			setGenerationError(null);
-			// Toast will be shown in Success Modal after progress completes
+
+			// Note: We don't set showSuccessModal here, we wait for handleProgressComplete
+			// which is called by the progress component when animation finishes
 		} catch (error) {
 			console.error('[useBookCreation] Error generating book:', error);
 			const errorMessage =
 				error instanceof Error ? error.message : 'Произошла ошибка при создании книги';
 			setGenerationError(errorMessage);
 			toast.error('Ошибка генерации', { description: errorMessage });
-			setShowProgress(false);
+			setShowProgress(false); // Hide progress immediately on error
 			isGeneratingRef.current = false;
 		} finally {
 			setIsGenerating(false);
@@ -218,13 +222,29 @@ export function useBookCreation(
 		handleGenerate();
 	};
 
+	// ✅ FIX: Use a ref to track if we should show success modal
+	// This prevents race conditions where generatedDraftId might not be in closure
 	const handleProgressComplete = useCallback(() => {
-		setShowProgress(false);
-		isGeneratingRef.current = false;
-		if (generatedDraftId) {
-			setShowSuccessModal(true);
-		}
-	}, [generatedDraftId]);
+		console.log('[useBookCreation] Progress complete, checking draft ID...');
+
+		// We use the state updater to access the latest draftId value reliably
+		setGeneratedDraftId((currentDraftId) => {
+			if (currentDraftId) {
+				console.log('[useBookCreation] Draft ID found, showing success modal:', currentDraftId);
+				setShowProgress(false);
+				isGeneratingRef.current = false;
+				setShowSuccessModal(true);
+			} else {
+				console.warn('[useBookCreation] No draft ID found yet, waiting...');
+				// If draft ID is not set yet (unlikely if generate finished),
+				// we might want to keep progress open or handle error.
+				// But usually generate finishes before progress animation (fake 3s).
+				setShowProgress(false);
+				isGeneratingRef.current = false;
+			}
+			return currentDraftId;
+		});
+	}, []);
 
 	const handleGoToEditor = () => {
 		setShowSuccessModal(false);

@@ -52,13 +52,14 @@ describe('useSpeechRecognition', () => {
 
 		expect(speech.startListening).toHaveBeenCalledWith(
 			expect.objectContaining({
-				continuous: true,
+				continuous: false,
+				interimResults: true,
 				language: 'ru-RU',
 			})
 		);
 	});
 
-	it('should auto-restart when onEnd is called without manual stop', async () => {
+	it('should NOT auto-restart when onEnd is called (tap-to-record pattern)', async () => {
 		vi.useFakeTimers();
 		const { result } = renderHook(() => useSpeechRecognition());
 
@@ -81,13 +82,13 @@ describe('useSpeechRecognition', () => {
 
 		expect(result.current.isListening).toBe(false);
 
-		// 3. Fast-forward time to trigger auto-restart (100ms delay)
+		// 3. Fast-forward time
 		await act(async () => {
 			vi.advanceTimersByTime(150);
 		});
 
-		// 4. Verify startListening was called AGAIN
-		expect(speech.startListening).toHaveBeenCalledTimes(2);
+		// 4. Verify startListening was NOT called again
+		expect(speech.startListening).toHaveBeenCalledTimes(1);
 	});
 
 	it('should NOT auto-restart when manually stopped', async () => {

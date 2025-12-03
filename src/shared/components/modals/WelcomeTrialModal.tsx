@@ -29,6 +29,7 @@ interface WelcomeTrialModalProps {
 export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 	const { t } = useTranslation();
 
+	// ✅ OPTIMIZED: Reduced from 6 to 4 features for iPhone SE (375x667)
 	const trialFeatures = [
 		{
 			title: t('welcomeTrial.feature.aiAnalysis.title', 'AI анализ записей'),
@@ -47,28 +48,12 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 			icon: '∞',
 		},
 		{
-			title: t('welcomeTrial.feature.offline.title', 'Offline режим'),
-			description: t(
-				'welcomeTrial.feature.offline.description',
-				'Работайте без интернета с автосинхронизацией'
-			),
-			icon: '📴',
-		},
-		{
 			title: t('welcomeTrial.feature.pdfBooks.title', 'PDF-книги'),
 			description: t(
 				'welcomeTrial.feature.pdfBooks.description',
 				'Генерация красивых PDF с вашими записями'
 			),
 			icon: '📄',
-		},
-		{
-			title: t('welcomeTrial.feature.premiumThemes.title', 'Премиум-темы'),
-			description: t(
-				'welcomeTrial.feature.premiumThemes.description',
-				'Эксклюзивные цветовые схемы'
-			),
-			icon: '🎨',
 		},
 		{
 			title: t('welcomeTrial.feature.analytics.title', 'Расширенная аналитика'),
@@ -97,7 +82,7 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 					{/* Modal - ✅ MOBILE OPTIMIZED: max-h-[80vh] для iPhone SE */}
 					<motion.div
 						animate={{ opacity: 1, scale: 1 }}
-						className="fixed inset-0 z-50 flex items-center justify-center p-3"
+						className="fixed inset-0 z-50 flex items-center justify-center p-2"
 						exit={{ opacity: 0, scale: 0.95 }}
 						initial={{ opacity: 0, scale: 0.95 }}
 						transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -128,7 +113,7 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 									<p className="text-muted-foreground text-xs">
 										{t('welcomeTrial.youReceived', 'Вы получили')}{' '}
 										<span className="font-semibold text-yellow-500">
-											{t('welcomeTrial.premiumDays', '14 дней Premium')}
+											{t('welcomeTrial.premiumDays', '7 дней Premium')}
 										</span>{' '}
 										{t('welcomeTrial.free', 'бесплатно')}
 									</p>
@@ -142,9 +127,9 @@ export function WelcomeTrialModal({ open, onClose }: WelcomeTrialModalProps) {
 											animate={{ opacity: 1, x: 0 }}
 											className="flex items-start gap-2 rounded-lg border-border border bg-muted/30 p-2 transition-colors duration-300"
 											initial={{ opacity: 0, x: -20 }}
-											transition={{ delay: 0.5 + index * 0.1 }}
+											transition={{ duration: 0.2 }}
 										>
-											<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-base">
+											<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm">
 												{feature.icon}
 											</div>
 											<div className="flex-1 min-w-0">

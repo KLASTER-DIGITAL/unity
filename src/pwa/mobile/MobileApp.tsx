@@ -169,8 +169,17 @@ export function MobileApp({
 						return;
 					}
 
-					if (data?.metadata?.is_trial && !data?.metadata?.welcome_modal_shown) {
+					// ✅ FIX: Check localStorage FIRST to prevent showing modal multiple times
+					const hasSeenWelcomeTrial = localStorage.getItem(`welcome_trial_seen_${userId}`);
+
+					if (
+						!hasSeenWelcomeTrial &&
+						data?.metadata?.is_trial &&
+						!data?.metadata?.welcome_modal_shown
+					) {
 						console.log('[WelcomeTrialModal] Showing Welcome Trial Modal');
+						// Mark as seen immediately in localStorage
+						localStorage.setItem(`welcome_trial_seen_${userId}`, 'true');
 						// Delay showing modal by 2 seconds for better UX (after push onboarding)
 						setTimeout(() => {
 							setShowWelcomeTrialModal(true);
@@ -467,8 +476,11 @@ export function MobileApp({
 							onClose={async () => {
 								setShowWelcomeTrialModal(false);
 
-								// Update metadata to mark welcome modal as shown
+								// ✅ FIX: Set localStorage immediately to prevent re-showing
 								const userId = userData.user?.id || userData.id;
+								localStorage.setItem(`welcome_trial_seen_${userId}`, 'true');
+
+								// Update metadata to mark welcome modal as shown
 								const { data: subscription } = await supabase
 									.from('subscriptions')
 									.select('id, metadata')

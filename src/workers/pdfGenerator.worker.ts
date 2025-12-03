@@ -8,7 +8,7 @@
  * @date 2025-12-01
  */
 
-import { pdf } from '@react-pdf/renderer';
+import { Font, pdf } from '@react-pdf/renderer';
 import React from 'react';
 import { BookPDFDocument } from '../features/mobile/reports/components/BookPDFDocument';
 
@@ -34,6 +34,7 @@ export type PDFWorkerMessage = {
 		};
 		style?: string;
 		theme?: string;
+		fontBaseUrl: string; // ✅ NEW: Pass font URL from main thread
 	};
 };
 
@@ -73,12 +74,52 @@ self.onmessage = async (event: MessageEvent<PDFWorkerMessage>) => {
 				},
 			} satisfies PDFWorkerResponse);
 
+			// ✅ Register fonts dynamically using passed URL
+			const FONT_BASE_URL = payload.fontBaseUrl;
+
+			try {
+				Font.register({
+					family: 'Noto Sans',
+					fonts: [
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Regular.woff2`,
+							fontWeight: 400,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-Medium.woff2`,
+							fontWeight: 500,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-sans/NotoSans-SemiBold.woff2`,
+							fontWeight: 600,
+						},
+					],
+				});
+
+				Font.register({
+					family: 'Noto Serif',
+					fonts: [
+						{
+							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-Regular.woff2`,
+							fontWeight: 400,
+						},
+						{
+							src: `${FONT_BASE_URL}/noto-serif/NotoSerif-SemiBold.woff2`,
+							fontWeight: 600,
+						},
+					],
+				});
+			} catch (fontError) {
+				console.warn('Font registration failed (might be already registered):', fontError);
+			}
+
 			// Create PDF document component
 			const pdfDoc = React.createElement(BookPDFDocument, {
 				story: payload.story,
 				metadata: payload.metadata,
-				style: payload.style,
+				bookStyle: payload.style, // ✅ Updated prop name
 				theme: payload.theme,
+				// We don't need to pass fontBaseUrl to component if we registered fonts globally here
 			});
 
 			// Send progress: rendering
@@ -91,7 +132,8 @@ self.onmessage = async (event: MessageEvent<PDFWorkerMessage>) => {
 			} satisfies PDFWorkerResponse);
 
 			// Generate PDF blob (this is the CPU-intensive part)
-			const blob = await pdf(pdfDoc).toBlob();
+			// biome-ignore lint/suspicious/noExplicitAny: ReactPDF types are strict
+			const blob = await pdf(pdfDoc as any).toBlob();
 
 			// Send progress: finalizing
 			self.postMessage({
