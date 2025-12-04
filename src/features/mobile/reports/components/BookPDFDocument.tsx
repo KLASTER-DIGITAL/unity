@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
 		fontSize: 32, // ✅ Увеличено с 28 до 32pt для лучшей читабельности
 		fontWeight: 700, // ✅ Увеличено с 600 до 700 для более выразительного заголовка
 		lineHeight: 1.3, // ✅ FIX: Добавлен межстрочный интервал для многострочных заголовков
-		marginBottom: 12,
+		marginBottom: 8, // ✅ FIX: Уменьшен отступ между строками title
+		marginTop: 0, // ✅ FIX: Убираем верхний отступ для первой строки
 		textAlign: 'center',
 		color: '#1a1a1a', // ✅ Более контрастный цвет для лучшей читабельности
 	},
@@ -211,14 +212,25 @@ export function BookPDFDocument({
 	} = story;
 	const { diaryEmoji = '📖' } = metadata;
 
+	// ✅ DEBUG: Логируем наличие PREMIUM разделов
+	console.log(
+		'[BOOK-PDF] Table of Contents:',
+		tableOfContents ? 'present' : 'missing',
+		tableOfContents
+	);
+	console.log('[BOOK-PDF] Month Summary:', monthSummary ? 'present' : 'missing', monthSummary);
+	console.log('[BOOK-PDF] Chapters count:', chapters.length);
+
 	// ✅ FIX: Очистка title от недопустимых символов и иероглифов
 	// Удаляем символы которые могут вызывать проблемы с кодировкой
 	const cleanTitle =
 		typeof rawTitle === 'string'
 			? rawTitle
-					.replace(/[^\p{L}\p{N}\p{P}\p{Z}\p{S}]/gu, '') // Удаляем недопустимые Unicode символы
-					.replace(/<[^>]*>/g, '') // Удаляем HTML теги если есть
-					.replace(/&[#\w]+;/g, '') // Удаляем HTML entities
+					.replace(/<[^>]*>/g, '') // ✅ Сначала удаляем HTML теги (включая <)
+					.replace(/&[#\w]+;/g, '') // ✅ Удаляем HTML entities
+					.replace(/[^\p{L}\p{N}\p{P}\p{Z}\p{S}]/gu, '') // ✅ Удаляем недопустимые Unicode символы (включая Æ и другие)
+					.replace(/[<>]/g, '') // ✅ Дополнительно удаляем < и > если остались
+					.replace(/[^\u0020-\u007E\u00A0-\u024F\u0400-\u04FF\u0500-\u052F\u1E00-\u1EFF]/g, '') // ✅ Разрешаем только латиницу, кириллицу и базовые символы
 					.trim()
 			: 'Моя книга';
 
@@ -241,8 +253,14 @@ export function BookPDFDocument({
 				<View style={styles.titlePage}>
 					<Text style={styles.emoji}>{diaryEmoji}</Text>
 					{/* ✅ FIX: Отображаем title построчно для правильного межстрочного интервала */}
-					{titleLines.map((line) => (
-						<Text key={`title-line-${line.substring(0, 20)}-${line.length}`} style={styles.title}>
+					{titleLines.map((line, lineIndex) => (
+						<Text
+							key={`title-line-${line.substring(0, 20)}-${line.length}-${lineIndex}`}
+							style={[
+								styles.title,
+								lineIndex > 0 && { marginTop: -4 }, // ✅ FIX: Уменьшаем отступ между строками title
+							]}
+						>
 							{line}
 						</Text>
 					))}
@@ -352,14 +370,21 @@ export function BookPDFDocument({
 							{chapter.highlights && chapter.highlights.length > 0 && (
 								<View style={styles.highlights}>
 									<Text style={styles.highlightTitle}>Ключевые моменты:</Text>
-									{chapter.highlights.map((h, i) => (
-										<Text
-											key={`highlight-${index}-${i}-${h.substring(0, 20)}`}
-											style={styles.highlightItem}
-										>
-											✨ {h}
-										</Text>
-									))}
+									{chapter.highlights.map((h, i) => {
+										// ✅ FIX: Очищаем highlights от скобок и лишних символов
+										const cleanHighlight = h
+											.replace(/^[([]+/, '') // Удаляем открывающие скобки в начале
+											.replace(/[)\]]+$/, '') // Удаляем закрывающие скобки в конце
+											.trim();
+										return (
+											<Text
+												key={`highlight-${index}-${i}-${cleanHighlight.substring(0, 20)}`}
+												style={styles.highlightItem}
+											>
+												✨ {cleanHighlight}
+											</Text>
+										);
+									})}
 								</View>
 							)}
 						</View>

@@ -496,6 +496,13 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				if (storyData && !storyData.chapters) {
 					storyData.chapters = [];
 				}
+				// ✅ DEBUG: Логируем наличие PREMIUM разделов при загрузке
+				console.log('[DRAFT-EDITOR] Loaded story data:', {
+					hasTableOfContents: !!storyData?.tableOfContents,
+					hasMonthSummary: !!storyData?.monthSummary,
+					chaptersCount: storyData?.chapters?.length || 0,
+					planType: (data as { plan_type?: 'free' | 'premium' }).plan_type,
+				});
 				setStory(storyData);
 
 				// Load photos
