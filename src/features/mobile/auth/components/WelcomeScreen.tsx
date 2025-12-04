@@ -1,6 +1,6 @@
 import { Check, ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // Import hero image directly for Vite to process
 import heroImageSrc from '@/assets/bd383d77e5f7766d755b15559de65d5ccfa62e27.webp';
 import {
@@ -163,10 +163,26 @@ export function WelcomeScreen({
 
 	const selectedLang = languages.find((lang) => lang.code === selectedLanguage) || languages[0];
 
-	// Синхронизируем выбранный язык с i18n системой
+	// ✅ FIX: Синхронизируем выбранный язык с i18n системой
+	// Используем useRef для предотвращения циркуляции
+	const prevLanguageRef = useRef<string | null>(null);
+
 	useEffect(() => {
-		if (selectedLanguage !== i18nLanguage) {
-			changeLanguage(selectedLanguage);
+		// Предотвращаем циркуляцию - вызываем changeLanguage только если язык действительно изменился
+		// и это не первый рендер (prevLanguageRef.current !== null)
+		if (
+			selectedLanguage !== i18nLanguage &&
+			prevLanguageRef.current !== selectedLanguage &&
+			prevLanguageRef.current !== null
+		) {
+			console.log('[WelcomeScreen] Language changed, updating i18n:', selectedLanguage);
+			prevLanguageRef.current = selectedLanguage;
+			changeLanguage(selectedLanguage).catch((error) => {
+				console.error('[WelcomeScreen] Error changing language:', error);
+			});
+		} else if (prevLanguageRef.current === null) {
+			// Первый рендер - просто сохраняем текущий язык
+			prevLanguageRef.current = selectedLanguage;
 		}
 	}, [selectedLanguage, i18nLanguage, changeLanguage]);
 

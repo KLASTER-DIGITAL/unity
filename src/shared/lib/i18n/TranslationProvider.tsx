@@ -162,25 +162,30 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({
 		[fallbackLanguage]
 	);
 
-	// Смена языка
-	const changeLanguage = async (language: string): Promise<void> => {
-		if (state.currentLanguage === language) {
-			console.log(`Language ${language} is already active`);
-			return;
-		}
+	// ✅ CRITICAL FIX: Обертываем changeLanguage в useCallback для предотвращения бесконечных циклов
+	// Без useCallback функция пересоздается при каждом рендере, вызывая циркуляцию в компонентах
+	// которые используют changeLanguage в зависимостях useEffect
+	const changeLanguage = useCallback(
+		async (language: string): Promise<void> => {
+			if (state.currentLanguage === language) {
+				console.log(`Language ${language} is already active`);
+				return;
+			}
 
-		console.log(`Changing language from ${state.currentLanguage} to ${language}`);
+			console.log(`Changing language from ${state.currentLanguage} to ${language}`);
 
-		// Save user's language preference
-		await savePreferredLanguage(language);
+			// Save user's language preference
+			await savePreferredLanguage(language);
 
-		// ✅ FIX: Обертываем обновления состояния в startTransition
-		startTransition(() => {
-			dispatch({ type: 'SET_LANGUAGE', payload: language });
-			dispatch({ type: 'SET_LOADED', payload: false });
-		});
-		await loadTranslations(language);
-	};
+			// ✅ FIX: Обертываем обновления состояния в startTransition
+			startTransition(() => {
+				dispatch({ type: 'SET_LANGUAGE', payload: language });
+				dispatch({ type: 'SET_LOADED', payload: false });
+			});
+			await loadTranslations(language);
+		},
+		[state.currentLanguage, loadTranslations]
+	);
 
 	// Обновление переводов
 	const refreshTranslations = async (): Promise<void> => {
