@@ -475,11 +475,12 @@ export function useBooksLibraryActions({
 
 				// ✅ Check Web Share API support for mobile devices
 				// ✅ FIX: Check File constructor availability before using
-				if (typeof File !== 'undefined' && navigator.share) {
+				if (typeof File !== 'undefined' && typeof File === 'function' && navigator.share) {
 					try {
-						// Create File object for download
-						// biome-ignore lint/suspicious/noExplicitAny: File constructor is available but may not be typed in RN environment
-						const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
+						// ✅ FIX: Используем правильный синтаксис File constructor
+						// Проверяем что File действительно конструктор, а не undefined
+						const FileConstructor = File as typeof File;
+						const pdfFile = new FileConstructor([blob], fileName, { type: 'application/pdf' });
 						if (navigator.canShare?.({ files: [pdfFile] })) {
 							// Use Web Share API for mobile devices
 							await navigator.share({

@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
 		fontFamily: 'Noto Serif', // Will fallback to Times-Roman if Noto Serif not registered
 		fontSize: 32, // ✅ Увеличено с 28 до 32pt для лучшей читабельности
 		fontWeight: 700, // ✅ Увеличено с 600 до 700 для более выразительного заголовка
+		lineHeight: 1.3, // ✅ FIX: Добавлен межстрочный интервал для многострочных заголовков
 		marginBottom: 12,
 		textAlign: 'center',
 		color: '#1a1a1a', // ✅ Более контрастный цвет для лучшей читабельности
@@ -199,7 +200,7 @@ export function BookPDFDocument({
 	theme: _theme,
 }: BookPDFDocumentProps) {
 	const {
-		title = 'Моя книга',
+		title: rawTitle = 'Моя книга',
 		subtitle,
 		prologue,
 		epilogue,
@@ -210,6 +211,27 @@ export function BookPDFDocument({
 	} = story;
 	const { diaryEmoji = '📖' } = metadata;
 
+	// ✅ FIX: Очистка title от недопустимых символов и иероглифов
+	// Удаляем символы которые могут вызывать проблемы с кодировкой
+	const cleanTitle =
+		typeof rawTitle === 'string'
+			? rawTitle
+					.replace(/[^\p{L}\p{N}\p{P}\p{Z}\p{S}]/gu, '') // Удаляем недопустимые Unicode символы
+					.replace(/<[^>]*>/g, '') // Удаляем HTML теги если есть
+					.replace(/&[#\w]+;/g, '') // Удаляем HTML entities
+					.trim()
+			: 'Моя книга';
+
+	// ✅ FIX: Разбиваем длинный title на несколько строк если нужно
+	// Если title длиннее 40 символов, разбиваем по словам
+	const titleLines =
+		cleanTitle.length > 40
+			? cleanTitle
+					.match(/.{1,40}(?:\s|$)/g)
+					?.map((line) => line.trim())
+					.filter(Boolean) || [cleanTitle]
+			: [cleanTitle];
+
 	// Suppress unused warnings until style implementation is complete
 	// console.log('Rendering PDF with style:', bookStyle, 'theme:', theme);
 
@@ -218,7 +240,12 @@ export function BookPDFDocument({
 			<Page size="A4" style={styles.page}>
 				<View style={styles.titlePage}>
 					<Text style={styles.emoji}>{diaryEmoji}</Text>
-					<Text style={styles.title}>{title}</Text>
+					{/* ✅ FIX: Отображаем title построчно для правильного межстрочного интервала */}
+					{titleLines.map((line) => (
+						<Text key={`title-line-${line.substring(0, 20)}-${line.length}`} style={styles.title}>
+							{line}
+						</Text>
+					))}
 					{subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
 
 					{/* ✅ НОВОЕ: Период на обложке */}

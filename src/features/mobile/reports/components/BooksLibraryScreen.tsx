@@ -590,10 +590,13 @@ export function BooksLibraryScreen({
 
 			// ✅ Проверяем поддержку Web Share API для мобильных устройств
 			// ✅ FIX: Проверяем доступность File constructor перед использованием
-			if (typeof File !== 'undefined' && navigator.share) {
+			if (typeof File !== 'undefined' && typeof File === 'function' && navigator.share) {
 				try {
-					// biome-ignore lint/suspicious/noExplicitAny: File constructor might not be typed in RN environment
-					const pdfFile = new (File as any)([blob], fileName, { type: 'application/pdf' });
+					// ✅ FIX: Используем правильный синтаксис File constructor
+					// Проверяем что File действительно конструктор, а не undefined
+					const FileConstructor = File as typeof File;
+					const pdfFile = new FileConstructor([blob], fileName, { type: 'application/pdf' });
+
 					if (navigator.canShare?.({ files: [pdfFile] })) {
 						// Используем Web Share API для мобильных устройств
 						await navigator.share({
