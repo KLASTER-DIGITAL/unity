@@ -300,19 +300,28 @@ ReportsScreen
 **Компонент**: `BookPDFDocument.tsx` (React-PDF)
 
 ```typescript
-1. Регистрация шрифтов (Noto Sans, Noto Serif)
-2. Рендеринг PDF:
-   - Обложка (с периодом и инсайтом)
+1. Очистка title от недопустимых символов:
+   - Удаление недопустимых Unicode символов
+   - Удаление HTML тегов и entities
+   - Разбивка длинного title на несколько строк (> 40 символов)
+2. Регистрация шрифтов (Noto Sans, Noto Serif)
+   - ⚠️ Italic шрифт временно отключен (URL не найден)
+3. Рендеринг PDF:
+   - Обложка (с периодом и инсайтом, title построчно)
    - Оглавление (если есть)
    - Вступление
    - Главы (с разделителями)
    - Хроника
    - Заключение
    - Итоги месяца (PREMIUM)
-3. Генерация Blob
-4. Загрузка в Supabase Storage (books-render-pdf)
-5. Обновление books_archive.pdf_url
-6. Обновление статуса: is_final = true, is_draft = false
+4. Генерация Blob
+5. Загрузка в Supabase Storage:
+   - Путь: {userId}/{bookId}.pdf
+   - Public URL сохраняется в БД
+6. Обновление books_archive:
+   - pdf_url = public URL
+   - is_final = true
+   - is_draft = false
 ```
 
 ---
@@ -484,16 +493,18 @@ ReportsScreen
 
 **Шрифты**:
 - Noto Sans (основной текст)
-  - Regular (400) normal
-  - Regular (400) italic ⚠️ **ОБЯЗАТЕЛЬНО** для subtitle
-  - Medium (500) normal
-  - SemiBold (600) normal
+  - Regular (400) normal ✅
+  - Regular (400) italic ⚠️ **ВРЕМЕННО ОТКЛЮЧЕНО** (URL возвращает 404)
+  - Medium (500) normal ✅
+  - SemiBold (600) normal ✅
 - Noto Serif (заголовки)
-  - Regular (400) normal
-  - SemiBold (600) normal
+  - Regular (400) normal ✅
+  - SemiBold (600) normal ✅
 - Загружаются из Google Fonts CDN (.ttf формат)
 
-**⚠️ ВАЖНО**: При регистрации шрифтов обязательно добавлять italic вариант для Noto Sans, так как subtitle использует `fontStyle: 'italic'`. Без этого PDF не сгенерируется.
+**⚠️ ВАЖНО**: 
+- Italic шрифт для Noto Sans временно отключен (URL не найден). Subtitle и insight отображаются без курсива, но читаемо.
+- TODO: Найти правильный URL для Noto Sans Italic v42 или использовать альтернативный подход.
 
 **Стили** (актуальные после улучшений 2025-01-30):
 
@@ -506,11 +517,13 @@ page: {
 title: {
   fontSize: 32,         // ✅ Увеличено с 28
   fontWeight: 700,      // ✅ Увеличено с 600
+  lineHeight: 1.3,      // ✅ FIX: Добавлен межстрочный интервал для многострочных заголовков
 }
 
 subtitle: {
   fontSize: 18,         // ✅ Увеличено с 14
-  fontStyle: 'italic',  // ✅ Добавлен курсив
+  // fontStyle: 'italic',  // ⚠️ Временно отключено (italic шрифт не зарегистрирован)
+  fontFamily: 'Noto Sans',
 }
 
 chapterTitle: {
@@ -555,9 +568,15 @@ paragraph: {
 ### Supabase Storage
 
 **Bucket `books`**:
-- Структура: `{userId}/{bookId}/{filename}.pdf`
-- Приватный доступ (только для владельца)
-- RLS политики проверяют `user_id`
+- Структура: `{userId}/{bookId}.pdf`
+- Доступ: Public URL для готовых книг
+- Загрузка: Через `supabase.storage.from('books').upload()`
+
+**⚠️ ВАЖНО при загрузке PDF**:
+- URL очищается от PDF.js параметров (`#toolbar=1&navpanes=1...`) перед fetch
+- Используется `cleanPdfUrl = pdfUrl.split('#')[0]` для предотвращения ошибки 400
+- Retry логика: до 3 попыток при ошибке загрузки
+- Web Share API: проверка `typeof File === 'function'` перед использованием
 
 ### Версионирование
 
@@ -577,14 +596,30 @@ paragraph: {
 
 1. **Ошибка регистрации italic шрифта** ✅
    - Проблема: `Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic`
-   - Решение: Добавлена регистрация italic варианта Noto Sans
-   - Файлы: `BookDraftEditor.tsx`, `useBooksLibraryActions.tsx`
+   - Решение: Временно убран `fontStyle: 'italic'` из стилей, так как URL для italic шрифта возвращает 404
+   - Файлы: `BookDraftEditor.tsx`, `BooksLibraryScreen.tsx`, `useBooksLibraryActions.tsx`, `BookPDFDocument.tsx`
+   - Статус: ⚠️ Временное решение. TODO: Найти правильный URL для Noto Sans Italic v42
    - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
 
 2. **Ошибка 400 при загрузке PDF** ✅
-   - Проблема: `GET .../books/.../...pdf 400 (Bad Request)`
-   - Решение: Исправлено формирование пути, добавлено использование signed URL
-   - Файлы: `BooksLibraryScreen.tsx`
+   - Проблема: `GET .../books/.../...pdf 400 (Bad Request)` из-за PDF.js параметров в URL
+   - Решение: Очистка URL от PDF.js параметров (`#toolbar=1&navpanes=1...`) перед fetch
+   - Файлы: `BooksLibraryScreen.tsx`, `useBooksLibraryActions.tsx`
+   - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
+
+3. **Ошибка File constructor в Web Share API** ✅
+   - Проблема: `File is not a constructor` при использовании Web Share API
+   - Решение: Добавлена проверка `typeof File === 'function'` и правильный синтаксис `new FileConstructor(...)`
+   - Файлы: `BooksLibraryScreen.tsx`, `useBooksLibraryActions.tsx`
+   - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
+
+4. **Иероглифы в заголовке и отсутствие межстрочного интервала** ✅
+   - Проблема: В заголовке появлялись недопустимые Unicode символы (например, `<Æ`), не было межстрочного интервала
+   - Решение: 
+     - Очистка title от недопустимых Unicode символов, HTML тегов и entities
+     - Разбивка длинного title на несколько строк (> 40 символов)
+     - Добавлен `lineHeight: 1.3` в стиль title для межстрочного интервала
+   - Файлы: `BookPDFDocument.tsx`
    - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
 
 ---
