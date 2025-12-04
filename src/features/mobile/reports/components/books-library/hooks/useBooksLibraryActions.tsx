@@ -191,16 +191,25 @@ export function useBooksLibraryActions({
 								// Regular weight (400) - correct URL from Google Fonts API
 								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
 								fontWeight: 400,
+								fontStyle: 'normal',
+							},
+							{
+								// Regular weight (400) italic - для subtitle с fontStyle: 'italic'
+								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+								fontWeight: 400,
+								fontStyle: 'italic',
 							},
 							{
 								// Medium weight (500)
 								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',
 								fontWeight: 500,
+								fontStyle: 'normal',
 							},
 							{
 								// SemiBold weight (600)
 								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAjBN9d.ttf',
 								fontWeight: 600,
+								fontStyle: 'normal',
 							},
 						],
 					});

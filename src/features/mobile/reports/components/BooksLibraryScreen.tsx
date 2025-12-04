@@ -440,15 +440,22 @@ export function BooksLibraryScreen({
 
 			// ✅ FIX: Сначала проверяем существование файла
 			try {
-				const { data: fileData } = await supabase.storage.from('books').list(`${userId}`, {
-					search: `${book.id}.pdf`,
-				});
+				// ✅ FIX: Правильный путь к файлу: {userId}/{bookId}.pdf (без дублирования bookId)
+				const storagePath = `${userId}/${book.id}.pdf`;
+				console.log('[BOOKS-LIBRARY] Checking PDF file in Storage:', storagePath);
+
+				const { data: fileData, error: listError } = await supabase.storage
+					.from('books')
+					.list(`${userId}`, {
+						search: `${book.id}.pdf`,
+					});
+
+				if (listError) {
+					console.error('[BOOKS-LIBRARY] Error listing files:', listError);
+				}
 
 				if (!fileData || fileData.length === 0) {
-					console.warn(
-						'[BOOKS-LIBRARY] PDF file not found in Storage:',
-						`${userId}/${book.id}.pdf`
-					);
+					console.warn('[BOOKS-LIBRARY] PDF file not found in Storage:', storagePath);
 
 					// ✅ FIX: If PDF is missing in storage, try to regenerate it client-side
 					toast.loading(t('books.pdf_regenerating', 'PDF файл не найден. Генерируем новый...'), {
@@ -459,9 +466,10 @@ export function BooksLibraryScreen({
 				}
 
 				// ✅ FIX: Используем signed URL вместо public URL (более надежно)
+				// ✅ FIX: Убеждаемся, что путь правильный (без дублирования)
 				const { data: signedUrlData, error: signedUrlError } = await supabase.storage
 					.from('books')
-					.createSignedUrl(`${userId}/${book.id}.pdf`, 3600); // 1 час
+					.createSignedUrl(storagePath, 3600); // 1 час
 
 				if (signedUrlError || !signedUrlData?.signedUrl) {
 					console.warn(
@@ -469,9 +477,7 @@ export function BooksLibraryScreen({
 						signedUrlError
 					);
 					// Fallback to public URL
-					const { data: urlData } = supabase.storage
-						.from('books')
-						.getPublicUrl(`${userId}/${book.id}.pdf`);
+					const { data: urlData } = supabase.storage.from('books').getPublicUrl(storagePath);
 					pdfUrl = urlData.publicUrl;
 				} else {
 					pdfUrl = signedUrlData.signedUrl;

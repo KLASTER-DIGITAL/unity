@@ -484,8 +484,16 @@ ReportsScreen
 
 **Шрифты**:
 - Noto Sans (основной текст)
+  - Regular (400) normal
+  - Regular (400) italic ⚠️ **ОБЯЗАТЕЛЬНО** для subtitle
+  - Medium (500) normal
+  - SemiBold (600) normal
 - Noto Serif (заголовки)
+  - Regular (400) normal
+  - SemiBold (600) normal
 - Загружаются из Google Fonts CDN (.ttf формат)
+
+**⚠️ ВАЖНО**: При регистрации шрифтов обязательно добавлять italic вариант для Noto Sans, так как subtitle использует `fontStyle: 'italic'`. Без этого PDF не сгенерируется.
 
 **Стили** (актуальные после улучшений 2025-01-30):
 
@@ -560,6 +568,24 @@ paragraph: {
 4. PDF загружается с новым именем файла
 
 **TODO**: История версий в UI (пока не реализовано)
+
+---
+
+## 🐛 Известные проблемы и исправления
+
+### Исправлено (2025-01-30)
+
+1. **Ошибка регистрации italic шрифта** ✅
+   - Проблема: `Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic`
+   - Решение: Добавлена регистрация italic варианта Noto Sans
+   - Файлы: `BookDraftEditor.tsx`, `useBooksLibraryActions.tsx`
+   - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
+
+2. **Ошибка 400 при загрузке PDF** ✅
+   - Проблема: `GET .../books/.../...pdf 400 (Bad Request)`
+   - Решение: Исправлено формирование пути, добавлено использование signed URL
+   - Файлы: `BooksLibraryScreen.tsx`
+   - Подробнее: `FIXES_2025-01-30_FONTS_AND_PDF.md`
 
 ---
 
