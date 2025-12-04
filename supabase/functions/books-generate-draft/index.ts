@@ -527,6 +527,7 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		// ... (Validation logic)
 
 		// Parse story JSON
+		// biome-ignore lint/suspicious/noExplicitAny: AI response structure is dynamic and cannot be strictly typed
 		let storyJson: any;
 		try {
 			const content = aiResult.choices[0].message.content;

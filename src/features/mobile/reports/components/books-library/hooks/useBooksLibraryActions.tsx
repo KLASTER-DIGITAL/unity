@@ -465,8 +465,8 @@ export function useBooksLibraryActions({
 				// ✅ FIX: Check File constructor availability before using
 				if (typeof File !== 'undefined' && navigator.share) {
 					try {
-						// biome-ignore lint/suspicious/noExplicitAny: File constructor might not be typed in RN environment
 						// Create File object for download
+						// biome-ignore lint/suspicious/noExplicitAny: File constructor is available but may not be typed in RN environment
 						const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
 						if (navigator.canShare?.({ files: [pdfFile] })) {
 							// Use Web Share API for mobile devices
