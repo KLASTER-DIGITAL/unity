@@ -84,7 +84,10 @@ const styles = StyleSheet.create({
 		color: '#4a5568', // ✅ Более читаемый цвет вместо #666
 		marginBottom: 24,
 		textAlign: 'center',
-		fontStyle: 'italic', // ✅ Добавлен курсив для элегантности
+		// ✅ FIX: Убираем fontStyle: 'italic' если шрифт не зарегистрирован
+		// Используем fontStyle только если italic шрифт доступен
+		// fontStyle: 'italic', // Временно отключено до исправления URL шрифта
+		fontFamily: 'Noto Sans',
 	},
 	dedication: {
 		fontSize: 12,
@@ -178,6 +181,7 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		color: '#4a5568',
 		fontStyle: 'italic',
+		fontFamily: 'Noto Sans', // ✅ FIX: Явно указываем семейство шрифта для italic
 		marginTop: 24,
 		marginBottom: 16,
 		textAlign: 'center',

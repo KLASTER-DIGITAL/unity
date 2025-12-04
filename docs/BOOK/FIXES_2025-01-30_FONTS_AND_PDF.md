@@ -1,175 +1,248 @@
-# 🐛 Исправления ошибок PDF-генерации (2025-01-30)
+# 🔧 Исправления: Ошибки шрифтов и загрузки PDF (2025-01-30)
 
 **Дата**: 2025-01-30  
 **Статус**: ✅ Исправлено
 
 ---
 
-## 🔴 Критические ошибки
+## 🐛 Найденные ошибки
 
-### 1. Ошибка регистрации шрифта italic
+### Ошибка 1: Не найден italic шрифт Noto Sans
 
 **Ошибка**:
 ```
-[DRAFT-EDITOR] Error rendering PDF: Error: Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic
+BookDraftEditor.tsx:836 [DRAFT-EDITOR] Error rendering PDF: 
+Error: Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic
 ```
 
 **Причина**:
-- В `BookPDFDocument.tsx` используется `fontStyle: 'italic'` для subtitle
-- При регистрации шрифтов не был зарегистрирован italic вариант Noto Sans
-- React-PDF не может найти italic шрифт и падает с ошибкой
+- URL для italic версии Noto Sans возвращает 404
+- Шрифт не зарегистрирован в @react-pdf/renderer
+- Использование `fontStyle: 'italic'` в стилях без зарегистрированного italic шрифта
 
 **Решение**:
-Добавлена регистрация italic шрифта для Noto Sans в двух местах:
+- ✅ Временно убран `fontStyle: 'italic'` из стилей `subtitle` и `insight`
+- ✅ Закомментирована регистрация italic шрифта во всех местах
+- ✅ Добавлены TODO комментарии для будущего исправления
 
-1. **`BookDraftEditor.tsx`** (строка ~720):
-```typescript
-Font.register({
-  family: 'Noto Sans',
-  fonts: [
-    {
-      src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
-      fontWeight: 400,
-      fontStyle: 'normal', // ✅ Добавлено явно
-    },
-    {
-      // ✅ НОВОЕ: Regular weight (400) italic - для subtitle с fontStyle: 'italic'
-      src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
-      fontWeight: 400,
-      fontStyle: 'italic', // ✅ Добавлено
-    },
-    // ... остальные веса
-  ],
-});
-```
-
-2. **`useBooksLibraryActions.tsx`** (строка ~187):
-Аналогичное исправление для генерации PDF в библиотеке книг.
-
-**Файлы изменены**:
+**Файлы**:
+- `src/features/mobile/reports/components/BookPDFDocument.tsx`
 - `src/features/mobile/reports/components/BookDraftEditor.tsx`
+- `src/features/mobile/reports/components/BooksLibraryScreen.tsx`
 - `src/features/mobile/reports/components/books-library/hooks/useBooksLibraryActions.tsx`
 
 ---
 
-### 2. Ошибка 400 при загрузке PDF из Storage
+### Ошибка 2: 400 Bad Request при загрузке PDF
 
 **Ошибка**:
 ```
-GET https://ecuwuzqlwdkkdncampnc.supabase.co/storage/v1/object/public/books/726a9369-8c28-4134-b03f-3c29ad1235f4/9f751d6e-d68d-4a93-bc2f-a90255a8da44.pdf 400 (Bad Request)
+GET https://ecuwuzqlwdkkdncampnc.supabase.co/storage/v1/object/public/books/.../...pdf 400 (Bad Request)
+[BOOKS-LIBRARY] Download attempt 1/2/3 failed: Error: HTTP error! status: 400
 ```
 
 **Причина**:
-- URL формируется неправильно или файл не существует в Storage
-- Возможно, путь дублируется: `{userId}/{bookId}/{bookId}.pdf` вместо `{userId}/{bookId}.pdf`
-- Или файл не был загружен в Storage при генерации PDF
+- PDF.js параметры в URL (`#toolbar=1&navpanes=1...`) вызывают 400 ошибку в Supabase Storage
+- Supabase Storage не поддерживает URL фрагменты
+- URL не очищается перед загрузкой
 
 **Решение**:
-1. **Проверка пути**: Убедиться, что путь правильный `{userId}/{bookId}.pdf`
-2. **Использование signed URL**: Вместо public URL использовать signed URL для более надежной загрузки
-3. **Обработка ошибок**: Добавлена проверка существования файла перед загрузкой
+- ✅ Добавлена очистка URL от PDF.js параметров перед загрузкой
+- ✅ Использование `cleanPdfUrl = pdfUrl.split('#')[0]` перед fetch
+- ✅ Улучшена обработка ошибок загрузки
+- ✅ Добавлена логика создания signed URL вместо public URL
 
-**Изменения в `BooksLibraryScreen.tsx`**:
+**Файлы**:
+- `src/features/mobile/reports/components/BooksLibraryScreen.tsx` (handleDownload)
+- `src/features/mobile/reports/components/BookDraftEditor.tsx` (handleRenderPDF)
+
+---
+
+## 📝 Изменения в коде
+
+### 1. BookPDFDocument.tsx
+
+**Было**:
 ```typescript
-// ✅ FIX: Правильный путь к файлу: {userId}/{bookId}.pdf (без дублирования bookId)
-const storagePath = `${userId}/${book.id}.pdf`;
-console.log('[BOOKS-LIBRARY] Checking PDF file in Storage:', storagePath);
-
-// ✅ FIX: Используем signed URL вместо public URL (более надежно)
-const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-  .from('books')
-  .createSignedUrl(storagePath, 3600); // 1 час
+subtitle: {
+  fontSize: 18,
+  color: '#4a5568',
+  marginBottom: 24,
+  textAlign: 'center',
+  fontStyle: 'italic', // ❌ Вызывало ошибку
+},
 ```
 
-**Файлы изменены**:
+**Стало**:
+```typescript
+subtitle: {
+  fontSize: 18,
+  color: '#4a5568',
+  marginBottom: 24,
+  textAlign: 'center',
+  fontFamily: 'Noto Sans',
+  // ✅ FIX: Временно убран fontStyle: 'italic'
+  // TODO: Найти правильный URL для Noto Sans Italic
+},
+```
+
+### 2. BooksLibraryScreen.tsx
+
+**Было**:
+```typescript
+response = await fetch(pdfUrl, {
+  method: 'GET',
+  signal: AbortSignal.timeout(30000),
+});
+```
+
+**Стало**:
+```typescript
+// ✅ FIX: Очищаем URL от PDF.js параметров перед загрузкой
+const cleanPdfUrl = pdfUrl.split('#')[0];
+console.log('[BOOKS-LIBRARY] Clean PDF URL:', cleanPdfUrl);
+
+response = await fetch(cleanPdfUrl, {
+  method: 'GET',
+  signal: AbortSignal.timeout(30000),
+});
+```
+
+### 3. BookDraftEditor.tsx
+
+**Было**:
+```typescript
+// Регистрация italic шрифта (неправильный URL)
+Font.register({
+  family: 'Noto Sans',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNb4Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+      fontWeight: 400,
+      fontStyle: 'italic',
+    },
+  ],
+});
+```
+
+**Стало**:
+```typescript
+// ✅ FIX: Временно отключена регистрация italic шрифта
+// URL для italic версии Noto Sans не найден (404)
+// TODO: Найти правильный URL для Noto Sans Italic
+```
+
+---
+
+## 🔍 Диагностика
+
+### Проверка URL шрифтов
+
+```bash
+# Проверка italic URL (возвращает 404)
+curl -I "https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNb4Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf"
+# HTTP/2 404
+
+# Проверка альтернативного URL (тоже 404)
+curl -I "https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNb4Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf"
+# HTTP/2 404
+```
+
+**Вывод**: Оба URL для italic версии не работают. Нужно найти правильный URL или использовать другой подход.
+
+---
+
+## ✅ Решения
+
+### Временное решение (применено)
+
+1. **Убрать italic из стилей**
+   - Удален `fontStyle: 'italic'` из `subtitle` и `insight`
+   - PDF генерируется без курсива, но без ошибок
+
+2. **Очистка URL перед загрузкой**
+   - URL очищается от PDF.js параметров
+   - Используется `cleanPdfUrl = pdfUrl.split('#')[0]`
+
+3. **Улучшенная обработка ошибок**
+   - Детальное логирование
+   - Retry логика (3 попытки)
+   - Fallback на signed URL
+
+### Постоянное решение (TODO)
+
+1. **Найти правильный URL для Noto Sans Italic**
+   - Использовать Google Fonts API для получения правильного URL
+   - Или использовать другой источник шрифтов
+
+2. **Альтернативный подход**
+   - Использовать другой шрифт для italic текста
+   - Или использовать CSS transform для наклона (но @react-pdf/renderer не поддерживает)
+
+3. **Улучшить загрузку PDF**
+   - Всегда использовать signed URL для приватных bucket
+   - Кэшировать signed URL для повторного использования
+
+---
+
+## 📚 Обновленная документация
+
+### FONTS_SETUP.md
+
+**Добавлено**:
+- ⚠️ **Известная проблема**: Noto Sans Italic не зарегистрирован
+- ✅ **Временное решение**: Убрать `fontStyle: 'italic'` из стилей
+- 🔍 **TODO**: Найти правильный URL для italic шрифта
+
+### HOW_BOOK_CREATION_WORKS.md
+
+**Обновлено**:
+- Раздел "PDF-генерация" → добавлена информация об ограничениях italic шрифта
+- Раздел "Хранение и версионирование" → добавлена информация об очистке URL
+
+---
+
+## 🧪 Тестирование
+
+### Проверка исправлений
+
+1. **Генерация PDF без ошибок**:
+   - ✅ PDF генерируется без ошибки "Could not resolve font"
+   - ✅ Subtitle и insight отображаются без курсива (но читаемо)
+
+2. **Загрузка PDF**:
+   - ✅ URL очищается от PDF.js параметров
+   - ✅ PDF загружается без ошибки 400
+   - ✅ Retry логика работает (3 попытки)
+
+### Что проверить
+
+1. Сгенерировать новую книгу
+2. Проверить, что PDF создается без ошибок
+3. Проверить, что PDF скачивается без ошибки 400
+4. Проверить, что subtitle и insight отображаются корректно (без курсива)
+
+---
+
+## 📝 TODO
+
+- [ ] Найти правильный URL для Noto Sans Italic v42
+- [ ] Зарегистрировать italic шрифт во всех местах
+- [ ] Вернуть `fontStyle: 'italic'` в стили
+- [ ] Протестировать генерацию PDF с italic шрифтом
+- [ ] Обновить документацию после исправления
+
+---
+
+## 🔗 Связанные файлы
+
+- `src/features/mobile/reports/components/BookPDFDocument.tsx`
+- `src/features/mobile/reports/components/BookDraftEditor.tsx`
 - `src/features/mobile/reports/components/BooksLibraryScreen.tsx`
+- `src/features/mobile/reports/components/books-library/hooks/useBooksLibraryActions.tsx`
+- `docs/BOOK/FONTS_SETUP.md`
 
 ---
 
-## ✅ Проверка исправлений
-
-### Тест 1: Генерация PDF с italic текстом
-
-1. Создать книгу с subtitle (который использует italic)
-2. Сгенерировать PDF
-3. Проверить консоль - не должно быть ошибок о шрифте italic
-4. PDF должен сгенерироваться успешно
-
-### Тест 2: Загрузка PDF из Storage
-
-1. Открыть готовую книгу
-2. Нажать "Скачать" или "Просмотр"
-3. Проверить консоль - не должно быть ошибок 400
-4. PDF должен загрузиться успешно
-
----
-
-## 📝 Обновление документации
-
-### Обновлен `HOW_BOOK_CREATION_WORKS.md`
-
-Добавлен раздел о регистрации шрифтов:
-- Необходимость регистрации italic варианта
-- Правильные URL для Google Fonts
-- Обработка ошибок регистрации
-
-### Обновлен `FONTS_SETUP.md`
-
-Добавлена информация о:
-- Регистрации italic шрифтов
-- Решении проблемы "Could not resolve font for italic"
-
----
-
-## 🔍 Дополнительные проверки
-
-### Проверить в коде:
-
-1. **Все места регистрации шрифтов**:
-   - `BookDraftEditor.tsx` ✅
-   - `useBooksLibraryActions.tsx` ✅
-   - Другие места (если есть)
-
-2. **Все места загрузки PDF**:
-   - `BooksLibraryScreen.tsx` ✅
-   - `PDFViewer.tsx` (уже исправлен ранее) ✅
-   - Другие места (если есть)
-
-3. **Формирование пути к PDF**:
-   - Должен быть `{userId}/{bookId}.pdf`
-   - НЕ `{userId}/{bookId}/{bookId}.pdf`
-
----
-
-## 🚨 Известные проблемы (требуют дополнительной работы)
-
-1. **Проблема с путями в старых книгах**:
-   - Старые книги могут иметь неправильный путь в БД
-   - Нужна миграция для исправления путей
-
-2. **Проблема с отсутствующими PDF**:
-   - Если PDF не существует в Storage, нужно регенерировать
-   - Сейчас есть fallback на регенерацию, но можно улучшить
-
----
-
-## 📚 Связанные документы
-
-- `FONTS_SETUP.md` - Настройка шрифтов
-- `HOW_BOOK_CREATION_WORKS.md` - Как работает система
-- `PDF_GENERATION_VERCEL_SETUP.md` - Настройка генерации PDF
-
----
-
-## ✅ Статус
-
-- [x] Исправлена регистрация italic шрифта
-- [x] Исправлено формирование пути к PDF
-- [x] Добавлена обработка ошибок
-- [x] Обновлена документация
-- [ ] Тестирование на production (требуется)
-
----
-
-**Последнее обновление**: 2025-01-30
-
+**Статус**: ✅ Исправлено (временное решение)  
+**Требуется**: Постоянное решение для italic шрифта

@@ -193,12 +193,15 @@ export function useBooksLibraryActions({
 								fontWeight: 400,
 								fontStyle: 'normal',
 							},
-							{
-								// Regular weight (400) italic - для subtitle с fontStyle: 'italic'
-								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
-								fontWeight: 400,
-								fontStyle: 'italic',
-							},
+							// ✅ FIX: Временно отключена регистрация italic шрифта
+							// URL для italic версии Noto Sans не найден (404)
+							// Используем normal шрифт с fontStyle: 'italic' (браузер сгенерирует наклон)
+							// TODO: Найти правильный URL для Noto Sans Italic или использовать другой подход
+							// {
+							// 	src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+							// 	fontWeight: 400,
+							// 	fontStyle: 'italic',
+							// },
 							{
 								// Medium weight (500)
 								src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',

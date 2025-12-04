@@ -278,16 +278,28 @@ export function BooksLibraryScreen({
 							// Regular weight (400) - correct URL from Google Fonts API
 							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
 							fontWeight: 400,
+							fontStyle: 'normal',
 						},
+						// ✅ FIX: Временно отключена регистрация italic шрифта
+						// URL для italic версии Noto Sans не найден (404)
+						// Используем normal шрифт с fontStyle: 'italic' (браузер сгенерирует наклон)
+						// TODO: Найти правильный URL для Noto Sans Italic или использовать другой подход
+						// {
+						// 	src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNb4Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+						// 	fontWeight: 400,
+						// 	fontStyle: 'italic',
+						// },
 						{
 							// Medium weight (500)
 							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',
 							fontWeight: 500,
+							fontStyle: 'normal',
 						},
 						{
 							// SemiBold weight (600)
 							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAjBN9d.ttf',
 							fontWeight: 600,
+							fontStyle: 'normal',
 						},
 					],
 				});
@@ -510,6 +522,11 @@ export function BooksLibraryScreen({
 		const loadingToast = toast.loading(t('books.downloading', 'Скачивание PDF...'));
 
 		try {
+			// ✅ FIX: Очищаем URL от PDF.js параметров перед загрузкой
+			// Supabase Storage не поддерживает URL фрагменты (#toolbar=1&navpanes=1...)
+			const cleanPdfUrl = pdfUrl.split('#')[0];
+			console.log('[BOOKS-LIBRARY] Clean PDF URL:', cleanPdfUrl);
+
 			// ✅ FIX: Скачиваем PDF через fetch с retry логикой (до 3 попыток)
 			let response: Response | null = null;
 			let blob: Blob | null = null;
@@ -517,8 +534,8 @@ export function BooksLibraryScreen({
 
 			for (let attempt = 0; attempt < 3; attempt++) {
 				try {
-					console.log(`[BOOKS-LIBRARY] Download attempt ${attempt + 1}/3`);
-					response = await fetch(pdfUrl, {
+					console.log(`[BOOKS-LIBRARY] Download attempt ${attempt + 1}/3 from:`, cleanPdfUrl);
+					response = await fetch(cleanPdfUrl, {
 						method: 'GET',
 						// ✅ FIX: Добавляем timeout для предотвращения зависания
 						signal: AbortSignal.timeout(30000), // 30 секунд timeout

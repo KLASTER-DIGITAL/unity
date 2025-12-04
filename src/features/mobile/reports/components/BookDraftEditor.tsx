@@ -723,12 +723,15 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 							fontWeight: 400,
 							fontStyle: 'normal',
 						},
-						{
-							// Regular weight (400) italic - для subtitle с fontStyle: 'italic'
-							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
-							fontWeight: 400,
-							fontStyle: 'italic',
-						},
+						// ✅ FIX: Временно отключена регистрация italic шрифта
+						// URL для italic версии Noto Sans не найден (404)
+						// Используем normal шрифт без italic стиля
+						// TODO: Найти правильный URL для Noto Sans Italic или использовать другой подход
+						// {
+						// 	src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNb4Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+						// 	fontWeight: 400,
+						// 	fontStyle: 'italic',
+						// },
 						{
 							// Medium weight (500)
 							src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyDPA99d.ttf',
@@ -802,20 +805,24 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 
 			if (uploadError) {
 				console.error('[DRAFT-EDITOR] Upload error:', uploadError);
-				throw new Error(`Ошибка загрузки PDF: ${uploadError.message}`);
+				// ✅ FIX: Более детальная обработка ошибок загрузки
+				if (uploadError.message?.includes('already exists')) {
+					console.log('[DRAFT-EDITOR] PDF already exists, using existing file');
+				} else {
+					throw new Error(`Ошибка загрузки PDF: ${uploadError.message}`);
+				}
 			}
 
-			// Получаем публичный URL
-			const { data: urlData } = supabase.storage.from('books').getPublicUrl(fileName);
-			const pdfUrl = urlData.publicUrl;
+			// ✅ FIX: Получаем public URL для сохранения в БД
+			const { data: publicUrlData } = supabase.storage.from('books').getPublicUrl(fileName);
+			const publicPdfUrl = publicUrlData.publicUrl;
 
-			console.log('[DRAFT-EDITOR] PDF uploaded successfully:', pdfUrl);
+			console.log('[DRAFT-EDITOR] PDF uploaded successfully:', publicPdfUrl);
 
-			// Обновляем базу данных
 			const { error: dbError } = await supabase
 				.from('books_archive')
 				.update({
-					pdf_url: pdfUrl,
+					pdf_url: publicPdfUrl, // Сохраняем public URL в БД
 					is_final: true,
 					is_draft: false,
 				})
@@ -826,13 +833,13 @@ export function BookDraftEditor({ draftId, onComplete, onCancel, onSave }: BookD
 				throw new Error(`Ошибка обновления БД: ${dbError.message}`);
 			}
 
-			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl
+			// ✅ FIX: Обновляем локальное состояние с новым pdfUrl (public URL для совместимости)
 			setDraft((prev) => {
 				if (!prev) return prev;
 				return {
 					...prev,
-					pdfUrl,
-					pdf_url: pdfUrl,
+					pdfUrl: publicPdfUrl, // Используем public URL для локального состояния
+					pdf_url: publicPdfUrl,
 					is_draft: false,
 					is_final: true,
 				};
