@@ -180,8 +180,10 @@ const styles = StyleSheet.create({
 	insight: {
 		fontSize: 13,
 		color: '#4a5568',
-		fontStyle: 'italic',
-		fontFamily: 'Noto Sans', // ✅ FIX: Явно указываем семейство шрифта для italic
+		fontFamily: 'Noto Sans',
+		// ✅ FIX: Временно убран fontStyle: 'italic' так как italic шрифт не зарегистрирован
+		// @react-pdf/renderer не поддерживает автоматический наклон (oblique)
+		// TODO: Найти правильный URL для Noto Sans Italic или использовать другой шрифт для italic
 		marginTop: 24,
 		marginBottom: 16,
 		textAlign: 'center',

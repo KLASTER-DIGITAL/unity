@@ -847,6 +847,7 @@ export function BooksLibraryScreen({
 				) : (
 					<motion.div layout className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						<AnimatePresence mode="popLayout">
+							{/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Book card rendering requires multiple conditional renders and event handlers */}
 							{books.map((book, index) => (
 								<motion.div
 									layout
