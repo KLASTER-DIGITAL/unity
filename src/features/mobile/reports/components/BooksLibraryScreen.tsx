@@ -147,6 +147,7 @@ export function BooksLibraryScreen({
 	};
 
 	// ✅ Handle view - открывает PDF в модальном окне для просмотра
+	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: PDF view requires multiple checks (auth, URL generation, Storage access)
 	const handleView = async (book: BookDraft, event?: React.MouseEvent) => {
 		console.log('[BOOKS-LIBRARY] handleView START:', {
 			bookId: book.id,
