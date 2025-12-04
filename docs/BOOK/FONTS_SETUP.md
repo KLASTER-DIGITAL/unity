@@ -255,3 +255,50 @@ const fontBaseUrl = 'https://fonts.gstatic.com/s/notosans/v36';
 - **Права доступа**: Bucket `assets` должен быть **Public** для чтения шрифтов
 - **Обновление**: При обновлении шрифтов нужно перезагрузить файлы в Storage и перезадеплоить Edge Function
 
+---
+
+## ⚠️ Известные проблемы и решения
+
+### Проблема: "Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic"
+
+**Ошибка**:
+```
+Error: Could not resolve font for Noto Sans, fontWeight 400, fontStyle italic
+```
+
+**Причина**:
+- В `BookPDFDocument.tsx` используется `fontStyle: 'italic'` для subtitle
+- При регистрации шрифтов не был зарегистрирован italic вариант
+
+**Решение** (исправлено 2025-01-30):
+Добавить регистрацию italic шрифта:
+
+```typescript
+Font.register({
+  family: 'Noto Sans',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+      fontWeight: 400,
+      fontStyle: 'normal', // ✅ Явно указать
+    },
+    {
+      // ✅ НОВОЕ: Regular weight (400) italic
+      src: 'https://fonts.gstatic.com/s/notosans/v42/o-0oIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf',
+      fontWeight: 400,
+      fontStyle: 'italic', // ✅ Добавить italic вариант
+    },
+    // ... остальные веса
+  ],
+});
+```
+
+**Файлы для исправления**:
+- `src/features/mobile/reports/components/BookDraftEditor.tsx`
+- `src/features/mobile/reports/components/books-library/hooks/useBooksLibraryActions.tsx`
+
+**Подробнее**: См. `FIXES_2025-01-30_FONTS_AND_PDF.md`
+
+---
+
+**Последнее обновление**: 2025-01-30
