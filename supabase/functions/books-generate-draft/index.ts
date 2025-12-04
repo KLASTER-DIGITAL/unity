@@ -421,13 +421,33 @@ Create a JSON book structure with fields:
   - source_entry_ids: Array of entry IDs used for this chapter (IMPORTANT for photo mapping)
 - epilogue: Conclusion (2-3 paragraphs, encouraging and hopeful)
 - dedication: Dedication (optional)
+- insight: Optional short quote/insight for the cover (1-2 sentences, inspiring and personal)
 
 TONE GUIDE:
 - Warm, supportive, non-judgmental
 - Celebrate growth and effort, not just results
-- Use inclusive "we" occasionally (UNITY accompanies the user)
+- Use "ты" (you) form consistently throughout the book (NOT "вы" or "we")
 - Avoid clinical/dry language
 - Focus on human experience, emotions, connections
+
+STYLE REQUIREMENTS:
+- ❌ STRICTLY FORBIDDEN phrases (NEVER use these):
+  * "Это стало важным моментом вашего пути"
+  * "Это решение стало знаком вашего стремления к развитию"
+  * "Это было важным шагом"
+  * "Это стало важным моментом на пути к развитию"
+  * Any repetitive template phrases that sound generic
+- ✅ REQUIRED structure for each paragraph in chapters:
+  * Paragraph 1: Describe the event (what happened, concrete and specific)
+  * Paragraph 2: Describe the inner state (what you felt, emotions, thoughts)
+  * Paragraph 3: Mini-conclusion (what this teaches you, growth insight)
+- ✅ Use specific, concrete language instead of abstract phrases
+- ✅ Each chapter should have 3-5 paragraphs, each 2-4 sentences
+- ✅ Avoid repetition - each chapter should have unique voice and perspective
+
+EXAMPLE OF GOOD WRITING:
+❌ BAD: "3 ноября 2025 года ты записал(а), что начал(а) новый этап в своей работе. Это стало важным моментом на пути к развитию."
+✅ GOOD: "3 ноября 2025 года ты почувствовал(а), что внутри созрело решение: больше не тянуть и начать новый этап в работе. Ты не просто «отметил(а) событие», а сделал(а) шаг — выбрал(а) движение вперёд, даже если не всё до конца понятно. Это был тот самый день, когда ты сказал(а) себе: «Я готов(а) расти дальше»."
 
 Use the diary entries data to create a cohesive narrative.
 IMPORTANT: Write the entire book in the user's language: ${userLanguage}`;
@@ -581,6 +601,70 @@ ${JSON.stringify(entriesSummary, null, 2)}
 		console.log('[BOOKS-DRAFT] Chronicle appended. Total chapters:', storyJson.chapters.length);
 		// =================================================================================
 
+		// ✅ НОВОЕ: Генерация оглавления (Table of Contents)
+		// Примерная нумерация страниц (начинаем с 3, так как обложка = 1, оглавление = 2)
+		let currentPage = 3; // Обложка = 1, оглавление = 2, вступление = 3
+		const tocItems: Array<{ title: string; page: number }> = [];
+
+		if (storyJson.prologue) {
+			tocItems.push({ title: 'Вступление', page: currentPage });
+			currentPage++;
+		}
+
+		// Подсчитываем страницы для глав (примерно 1 страница на главу)
+		// biome-ignore lint/suspicious/noExplicitAny: Chapter structure from AI is dynamic
+		storyJson.chapters.forEach((chapter: any) => {
+			if (!chapter.is_divider && !chapter.is_chronicle) {
+				tocItems.push({
+					title: `Глава ${tocItems.filter((item) => item.title.startsWith('Глава')).length + 1}: ${chapter.title || 'Без названия'}`,
+					page: currentPage,
+				});
+				currentPage++;
+			}
+		});
+
+		if (storyJson.epilogue) {
+			tocItems.push({ title: 'Заключение', page: currentPage });
+		}
+
+		storyJson.tableOfContents = {
+			title: 'Оглавление',
+			items: tocItems,
+		};
+
+		console.log('[BOOKS-DRAFT] Table of Contents generated:', tocItems.length, 'items');
+
+		// ✅ НОВОЕ: Генерация итогов месяца для PREMIUM
+		if (finalPlanType === 'premium' && storyJson.chapters && storyJson.chapters.length > 0) {
+			// Извлекаем топ-5 побед из highlights глав
+			const allHighlights: string[] = [];
+			// biome-ignore lint/suspicious/noExplicitAny: Chapter structure from AI is dynamic
+			storyJson.chapters.forEach((chapter: any) => {
+				if (chapter.highlights && Array.isArray(chapter.highlights)) {
+					allHighlights.push(...chapter.highlights);
+				}
+			});
+
+			// Берем первые 5 highlights как топ-5 побед
+			const topWins = allHighlights.slice(0, 5);
+
+			// Генерируем фокус на следующий месяц на основе epilogue или последней главы
+			const focusNextMonth = storyJson.epilogue
+				? storyJson.epilogue.split('\n').slice(0, 2).join(' ')
+				: `Фокус на следующий месяц: продолжай свой путь роста и осознанности.`;
+
+			storyJson.monthSummary = {
+				title: 'Итоги месяца',
+				topWins:
+					topWins.length > 0 ? topWins : ['Твой месяц был наполнен важными моментами и ростом.'],
+				focusNextMonth,
+			};
+
+			console.log('[BOOKS-DRAFT] Month Summary generated for PREMIUM');
+		}
+
+		// =================================================================================
+
 		// Log OpenAI usage (GPT-4o-mini pricing: $0.15/1M input, $0.60/1M output)
 		const { prompt_tokens, completion_tokens, total_tokens } = aiResult.usage;
 		const estimatedCost = prompt_tokens * 0.00015 + completion_tokens * 0.0006;
@@ -657,6 +741,10 @@ ${JSON.stringify(entriesSummary, null, 2)}
 					diaryName: diaryName || 'Мой дневник',
 					diaryEmoji: diaryEmoji || '📝',
 					contentHash,
+					// ✅ НОВОЕ: Период для отображения на обложке
+					period: `${new Date(periodStart).toLocaleDateString(locale)} - ${new Date(periodEnd).toLocaleDateString(locale)}`,
+					// ✅ НОВОЕ: Инсайт/цитата для обложки (из AI генерации)
+					insight: storyJson.insight || undefined,
 				},
 				is_draft: true,
 				is_final: false,

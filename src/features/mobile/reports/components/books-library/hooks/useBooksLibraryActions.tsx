@@ -245,7 +245,7 @@ export function useBooksLibraryActions({
 								}>;
 							}
 						}
-						metadata={book.metadata as { diaryEmoji?: string }}
+						metadata={book.metadata as { diaryEmoji?: string; period?: string; insight?: string }}
 						bookStyle={book.style || 'warm_family'}
 						theme={book.theme || 'light'}
 					/>
